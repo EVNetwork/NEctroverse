@@ -299,9 +299,10 @@ FILE *dbFileUserOpen( int id, int num ) {
 	FILE *file;
 
   if((num&0xFFFF) == DB_FILE_USER_USER) {
-	sprintf( COREDIR, "%s/data", COREDIRECTORY );  
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );  
 	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
   } else {
+	sprintf( COREDIR, "%s/data", COREDIRECTORY );  
   	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
   }
   

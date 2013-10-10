@@ -2230,12 +2230,12 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 unsigned char cmdAdminName[CMD_ADMIN_NUM][32] =
 {
-ADMINDEFAULTNAME
+ADMIN_DEFAULT_NAME
 };
 
 unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] =
 {
-ADMINDEFAULTPASS
+ADMIN_DEFAULT_PASS
 };
 
 

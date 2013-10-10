@@ -1760,7 +1760,8 @@ void iohttpFunc_admin( svConnectionPtr cnt )
       cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
     svRoundEnd = 0;
-		if( ( fFile = fopen( SV_TICK_FILE, "r+" ) ) )
+
+		if( ( fFile = fopen( COREDIRECTORY "/ticks", "r+" ) ) )
 	  {
 	   fscanf( fFile, "%d", &a );
 	   /* do
@@ -1908,7 +1909,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
       cmdExecUserDeactivate( user->id, 0 );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
     svRoundEnd = 0;
-		if( ( fFile = fopen( SV_TICK_FILE, "r+" ) ) )
+		if( ( fFile = fopen( COREDIRECTORY "/ticks", "r+" ) ) )
 	  {
 	   fscanf( fFile, "%d", &a );
 	   /* do

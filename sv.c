@@ -574,7 +574,7 @@ void svSignal( int signal ) {
 	int a, size;
 	FILE *fFile;  
     
-sprintf( TICKFILE, "%s/data/ticks", COREDIRECTORY );  
+sprintf( TICKFILE, "%s/ticks", COREDIRECTORY );  
     
 if(signal == SIGUSR1) {
 	svRoundEnd = 1;
@@ -732,7 +732,7 @@ static void daemonloop(int pipefileid) {
 			io->TickEnd();
 		}
 
-		sprintf( TICKFILE, "%s/data/ticks", COREDIRECTORY );  
+		sprintf( TICKFILE, "%s/ticks", COREDIRECTORY );  
 		file = fopen( TICKFILE, "r+" );
 		if(!file)
 			file = fopen( TICKFILE, "w" );
@@ -791,7 +791,7 @@ close(STDOUT_FILENO);
 close(STDERR_FILENO);
 
 svTickTime = time(0) + SV_TICK_TIME;
-sprintf( COREDIR, "%s/data/ticks", COREDIRECTORY );	
+sprintf( COREDIR, "%s/ticks", COREDIRECTORY );	
 if( ( file = fopen( COREDIR, "r" ) ) ) {
 	fscanf( file, "%d", &a );
 	//  fscanf( file, "%d", &svRoundEnd );
@@ -841,7 +841,7 @@ if( chdir( COREDIR ) == -1 ) {
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
-sprintf( COREDIR, "%s/data/ticks", COREDIRECTORY );  
+sprintf( COREDIR, "%s/ticks", COREDIRECTORY );  
 if( ( file = fopen( COREDIR, "r" ) ) ) {
 	fscanf( file, "%d", &svTickNum );
 	fclose( file );

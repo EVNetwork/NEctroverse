@@ -1,16 +1,13 @@
 
-#define SERVER_SOFTWARE "Ectroverse"
+#define SERVER_SOFTWARE "NEctroverse"
 
-// Ok, so this needs cleaning....
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 
-#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data" //we want to change this latter...
-
-#define SV_TICK_FILE "/home/stephen/git/NEctroverse/core/data/ticks"
+#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data" //we want to change this latter... no real "Public" forums.
 
 //NEctroverse Additions
-#define ADMINDEFAULTNAME "admin"
-#define ADMINDEFAULTPASS "password"
+#define ADMIN_DEFAULT_NAME "admin"
+#define ADMIN_DEFAULT_PASS "password"
 
 #define PIPEFILE "/tmp/evserver.pipe" //No need to change... you'll never need this anywhere else.
 //End Additions
