@@ -870,60 +870,49 @@ int file_exist (char *filename) {
   return (stat (filename, &buffer) == 0);
 }
 
-char** str_split( char* str, char delim, int* numSplits )
-{
-    char** ret;
-    int retLen;
-    char* c;
+char** str_split( char* str, char delim, int* numSplits ) {
+	char** ret;
+	int retLen;
+	char* c;
 
-    if ( ( str == NULL ) ||
-        ( delim == '\0' ) )
-    {
-        /* Either of those will cause problems */
-        ret = NULL;
+if ( ( str == NULL ) || ( delim == '\0' ) ) {
+	ret = NULL;
         retLen = -1;
-    }
-    else
-    {
+} else {
         retLen = 0;
         c = str;
 
-        /* Pre-calculate number of elements */
-        do
-        {
-            if ( *c == delim )
-            {
+        do {
+		if ( *c == delim ) {
                 retLen++;
-            }
+		}
+	c++;
+	} while ( *c != '\0' );
 
-            c++;
-        } while ( *c != '\0' );
+ret = malloc( ( retLen + 1 ) * sizeof( *ret ) );
+ret[retLen] = NULL;
 
-        ret = malloc( ( retLen + 1 ) * sizeof( *ret ) );
-        ret[retLen] = NULL;
+c = str;
+retLen = 1;
+ret[0] = str;
 
-        c = str;
-        retLen = 1;
-        ret[0] = str;
-
-        do
-        {
-            if ( *c == delim )
-            {
-                ret[retLen++] = &c[1];
+do {
+	if ( *c == delim ) {
+		ret[retLen++] = &c[1];
                 *c = '\0';
-            }
+	}
 
-            c++;
-        } while ( *c != '\0' );
-    }
+	c++;
+} while ( *c != '\0' );
 
-    if ( numSplits != NULL )
-    {
-        *numSplits = retLen;
-    }
+}
 
-    return ret;
+if ( numSplits != NULL ) {
+	*numSplits = retLen;
+}
+
+
+return ret;
 }
 
 //And just to do some basic stuff... verify directory structure by attempted creation.

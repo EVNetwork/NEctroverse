@@ -25,6 +25,7 @@
 // Ok, so this needs cleaning....
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
+#define MAPDIRECTORY "/home/stephen/git/NEctroverse/core/data/"
 
 #define DB_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
 #define USER_DIRECTORY "/home/stephen/git/NEctroverse/core/users"
