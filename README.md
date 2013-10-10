@@ -9,7 +9,7 @@ I repeat... this code is UNSTABLE!!!
 To install the game:
 Edit config.h and change the directory line at the top...
 Folder location does not matter, as long as you have write permissions.
-The Server program is set to auto-create needed directories.
+The program is set to auto-create needed directories.
 
 While your there in config.h
 Change the default Admin username and password! =)
