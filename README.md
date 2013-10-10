@@ -3,15 +3,18 @@ NEctroverse Relaunch!
 This code is currently under hardcore redevelopment and is not stable.
 
 
+I repeat... this code is UNSTABLE!!!
+
+!!DO NOT USE!!
+
 To install the game:
 Edit config.h and change the directory lines at the bottom to your Ectroverse folders.
 While your there, change the default Admin username and password! =)
 
 
 Run:
-* make map
+* make map | make
 * ./map
-* make
 * ./evserver
 
 -- NEctroverse is a forked damon server, and does not requre a shell once iniated.
