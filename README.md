@@ -7,14 +7,14 @@ Run:
 * make map
 * ./map
 * make
-* ./sv
+* ./evserver
 
 Congrats, the server is running on port 9122 of your localhost.
 Login with:
 admin
 password
 
-To change this, look for lines 2233 and 2238 in cmd.c file.
+To change this, edit config.h
 
 KNOWN BUGS - Very annoying and need to go:
 * Merge Fleet does not work. Splitting does.
