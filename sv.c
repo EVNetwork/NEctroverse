@@ -962,6 +962,8 @@ return;
 }
 
 int main() {
+	char buf[256];
+	int num, fd;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
 openlog("EVServer", LOG_PID | LOG_NDELAY, LOG_LOCAL6);
 
@@ -970,9 +972,6 @@ dirstructurecheck(DB_DIRECTORY);
 dirstructurecheck(LOGS_DIRECTORY);
 dirstructurecheck(USER_DIRECTORY);
 dirstructurecheck(PUBLIC_FORUM_DIRECTORY);
-
-
-// new mode experiment
 
 if ( file_exist(PIPEFILE) ) {
 printf("%s\n","Pipe file detected, auto switching to client mode");
@@ -989,68 +988,25 @@ printf("%s\n","Pipe file detected, auto switching to client mode");
 	} 
 }
 
-int a; 
-char buf[256];
-    int num, fd;
-
 printf("%s\n", "Please input command to send to server...");
-//printf("\t%s\n", "Shutdown: 0");
-//printf("\t%s\n", "StopTime: 1");
-//printf("\t%s\n", "StartTime: 2");
-//printf("%s", "Mode# ");
-//scanf("%d", &a);
 
         if ((fd = open(PIPEFILE, O_WRONLY)) < 0)
-            perror("child - open");
+            perror("Open Pipe for Write");
 
-        printf("Got a reader -- type some stuff... \"die\" kills server.\n");
+        printf("Daemon listening on Pipe... Typing \"die\" kills server.\n");
         while( file_exist(PIPEFILE) && fgets(buf, sizeof(buf), stdin), !feof(stdin) ) {
 
             if ((num = write(fd, buf, strlen(buf))) < 0)
-                perror("child - write");
+                perror("Write To Pipe");
             else
-                printf("child - wrote %d bytes\n", num);
+                printf("Wrote %d bytes to pipe\n", num);
 	sleep(1);        
 	}
 
         close(fd);
 
-/*
-while ( ( a < 0 ) || ( a > 2 ) ) {
-	printf("%s%d%s\n", "Nope, \"", a,"\" is not valid... try again?"); 
-	printf("\t%s\n", "Shutdown: 0");
-	printf("\t%s\n", "StopTime: 1");
-	printf("\t%s\n", "StartTime: 2");
-	printf("%s", "Mode# "); 
-	scanf("%d", &a);
-}
-
-switch (a) { 
-	case 0:
-		printf("%s\n", "Server process iniating...");
-		printf("%s\n", "You'll have to check logs to see if anything went wrong for now...");
-		printf("%s\n", "Returning to shell, daemon takes over now.");
-//Begin deamonization and initate server loop.
-		if( !( daemon_init() ) ) {
-			printf( "Can not load\n" );
-			syslog(LOG_CRIT, "Critical error, check config...\n");
-			return 0;
-		} 
-	case 2:  
-		printf("%s\n", "Really? Why did you run me then?");
-		exit(0); 
-	
-	default:  
-		break; 
-	case -1: 
-		printf("Whao, this should never happen...\n"); 
-} 
-*/
-
-
-
-//We should never get here... parent proccess is set to self destruct!
-printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
+//We should never get here... parent proccess is set to self destruct! -- Yer, we do now... haha.
+//printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
 //cleanUp();
 return 1;
 }

@@ -24,19 +24,19 @@
 
 // Ok, so this needs cleaning....
 
-#define COREDIRECTORY "/home/stephen/git/evsource/core"
+#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 
-#define DB_DIRECTORY "/home/stephen/git/evsource/core/data"
-#define USER_DIRECTORY "/home/stephen/git/evsource/core/users"
-#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/evsource/core/data" //we want to change this latter...
-#define LOGS_DIRECTORY "/home/stephen/git/evsource/core/logs"
+#define DB_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
+#define USER_DIRECTORY "/home/stephen/git/NEctroverse/core/users"
+#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data" //we want to change this latter...
+#define LOGS_DIRECTORY "/home/stephen/git/NEctroverse/core/logs"
 
-#define SV_TICK_FILE "/home/stephen/git/evsource/core/ticks"
+#define SV_TICK_FILE "/home/stephen/git/NEctroverse/core/ticks"
 
 
 //These MUST exist... since they have files we need.
-#define IOHTTP_FILES_DIRECTORY "/home/stephen/git/evsource/html/images"
-#define IOHTTP_READ_DIRECTORY "/home/stephen/git/evsource/html/docs"
+#define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
+#define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
 
 
 // You don't want to change anything down here... it's all up there! =)
