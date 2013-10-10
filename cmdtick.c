@@ -12,15 +12,17 @@ void cmdTickGenRanks()
   dbUserPtr user;
   int *stats;
   int artefacts[ARTEFACT_NUMUSED], artsnum;
+  unsigned char COREDIR[256];
 
 
   artmax = 0;
 
-
+  sprintf( COREDIR, "%s/data/famranks.txt", COREDIRECTORY );
   memset( artefacts, 0, ARTEFACT_NUMUSED*sizeof(int) );
-  if( !( file = fopen( DB_DIRECTORY "/famranks.txt", "wb" ) ) )
+  if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
-  if( !( filep =fopen( DB_DIRECTORY "/famranksplain.txt", "wb" ) ) )
+  sprintf( COREDIR, "%s/data/famranksplain.txt", COREDIRECTORY);
+  if( !( filep =fopen( COREDIR, "wb" ) ) )
   {
     fclose( file );
     return;
@@ -190,9 +192,11 @@ void cmdTickGenRanks()
 
 
 // player rankings
-  if( !( file = fopen( DB_DIRECTORY "/ranks.txt", "wb" ) ) )
+  sprintf( COREDIR, "%s/data/ranks.txt", COREDIRECTORY );
+  if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
-  if( !( filep = fopen( DB_DIRECTORY "/ranksplain.txt", "wb" ) ) )
+  sprintf( COREDIR, "%s/data/ranksplain.txt", COREDIRECTORY );
+  if( !( filep = fopen( COREDIR, "wb" ) ) )
   {
     fclose( file );
     return;

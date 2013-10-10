@@ -1,6 +1,13 @@
 
 #define SERVER_SOFTWARE "Ectroverse"
 
+// Ok, so this needs cleaning....
+#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
+
+#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data" //we want to change this latter...
+
+#define SV_TICK_FILE "/home/stephen/git/NEctroverse/core/data/ticks"
+
 //NEctroverse Additions
 #define ADMINDEFAULTNAME "admin"
 #define ADMINDEFAULTPASS "password"
@@ -21,24 +28,9 @@
 #define SERVER_REPORT_CLOSE 0
 #define SERVER_REPORT_IGNOREDHEADER 0
 
-
-// Ok, so this needs cleaning....
-
-#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
-#define MAPDIRECTORY "/home/stephen/git/NEctroverse/core/data/"
-
-#define DB_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
-#define USER_DIRECTORY "/home/stephen/git/NEctroverse/core/users"
-#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data" //we want to change this latter...
-#define LOGS_DIRECTORY "/home/stephen/git/NEctroverse/core/logs"
-
-#define SV_TICK_FILE "/home/stephen/git/NEctroverse/core/ticks"
-
-
 //These MUST exist... since they have files we need.
 #define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
 #define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
-
 
 // You don't want to change anything down here... it's all up there! =)
 #define SERVER_RECV_BUFSIZE (32768)

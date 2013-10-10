@@ -98,6 +98,7 @@ iohttpFilePtr iohttpFileFind( unsigned char *path )
 
 void InitHTTP()
 {
+	unsigned char COREDIR[256];
   int a;
   DIR *dirdata;
   struct dirent *direntry;
@@ -141,8 +142,8 @@ void InitHTTP()
     fclose( fd );
   }
   closedir( dirdata );
-
-  if( chdir( DB_DIRECTORY ) != -1 )
+sprintf( COREDIR, "%s/data", COREDIRECTORY );
+  if( chdir( COREDIR ) != -1 )
   {
     for( file = iohttpFileList ; file ; file = file->next )
     {

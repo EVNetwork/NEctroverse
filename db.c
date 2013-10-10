@@ -255,9 +255,12 @@ And Mal forgot the mail file
 FILE *dbFileGenOpen( int num )
 {
 	char szSource[500];
+	unsigned char COREDIR[256];
 	
-	if(num == DB_FILE_USERS)
-		sprintf(szSource, dbFileList[num], USER_DIRECTORY);
+	if(num == DB_FILE_USERS) {
+		sprintf( COREDIR, "%s/users", COREDIRECTORY );
+		sprintf(szSource, dbFileList[num], COREDIR);
+}
 	else
 		sprintf(szSource, dbFileList[num]);
 	if( dbFilePtr[num] )
@@ -290,15 +293,17 @@ void dbFlush()
 }
 
 
-FILE *dbFileUserOpen( int id, int num )
-{
-  unsigned char fname[532];
-  FILE *file;
-  
-  if((num&0xFFFF) == DB_FILE_USER_USER)
-  	sprintf( fname, dbFileUserList[num&0xFFFF], USER_DIRECTORY, id );
-  else
-  	sprintf( fname, dbFileUserList[num&0xFFFF], DB_DIRECTORY, id );
+FILE *dbFileUserOpen( int id, int num ) {
+	unsigned char fname[532];
+	unsigned char COREDIR[256];
+	FILE *file;
+
+  if((num&0xFFFF) == DB_FILE_USER_USER) {
+	sprintf( COREDIR, "%s/data", COREDIRECTORY );  
+	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
+  } else {
+  	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
+  }
   
   if( !( file = fopen( fname, "rb+" ) ) )
   {
@@ -446,21 +451,21 @@ int dbInitUsersReset()
 
 
 
-int dbInit()
-{
-  int a, b, c;
-  int array[4];
-  dbUserPtr user;
-  dbUserMainDef maind;
-  dbMainPlanetDef planetd;
-  FILE *file;
-  char szUsersFile[500];
-  
-  if( chdir( DB_DIRECTORY ) == -1 )
-  {
-	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, DB_DIRECTORY );
-    return 0;
-  }
+int dbInit() {
+	int a, b, c;
+	int array[4];
+	dbUserPtr user;
+	dbUserMainDef maind;
+	dbMainPlanetDef planetd;
+	FILE *file;
+	char szUsersFile[500];
+	unsigned char COREDIR[256];
+	
+sprintf( COREDIR, "%s/data", COREDIRECTORY );  
+if( chdir( COREDIR ) == -1 ) {
+	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
+	return 0;
+}
 
   if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
     return 0;
@@ -512,7 +517,8 @@ int dbInit()
   {
     syslog(LOG_INFO, "User database not found, creating...\n" );
     // Create a path to the users file in the same way as dbFileGenOpen
-		sprintf( szUsersFile, dbFileList[DB_FILE_USERS], USER_DIRECTORY );
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );
+	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
     if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) )
     {
       syslog(LOG_ERR, "Error, could not create user database!\n" );
@@ -684,6 +690,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   int a, id, freenum;
   dbUserPtr user;
   unsigned char dname[532], fname[532], uname[532];
+	unsigned char COREDIR[256];
   dbUserDescDef descd;
   FILE *file;
 
@@ -707,8 +714,8 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   user = dbUserAllocate( id );
   
   //create both folder for player
-  sprintf( dname, "%s/user%d", DB_DIRECTORY, id );
-  sprintf( uname, "%s/user%d", USER_DIRECTORY, id );
+  sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
+  sprintf( uname, "%s/users/user%d", COREDIRECTORY, id );
   
   mkdir( dname, S_IRWXU );
   mkdir( uname, S_IRWXU );
@@ -718,7 +725,8 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
  	//Create a db Database in the db other server
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
-  	sprintf( fname, dbFileUserList[a], DB_DIRECTORY, id );
+	sprintf( COREDIR, "%s/data", COREDIRECTORY );
+  	sprintf( fname, dbFileUserList[a], COREDIR, id );
     
     if( !( file = fopen( fname, "wb+" ) ))
     {
@@ -749,7 +757,8 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   //Create a user Database in the db 10Min server
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
-  	sprintf( fname, dbFileUserList[a], USER_DIRECTORY, id );
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );
+  	sprintf( fname, dbFileUserList[a], COREDIR, id );
     if( !( file = fopen( fname, "wb+" ) ))
     {
       dbUserFree( user );
@@ -860,21 +869,23 @@ int dbUserRemove( int id )
   fseek( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2, SEEK_SET );
   fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
-  for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ )
-  {
-    sprintf( fname, dbFileUserList[a], USER_DIRECTORY, id );
+  for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ ) {
+    sprintf( dname, "%s/users", COREDIRECTORY );
+    sprintf( fname, dbFileUserList[a], dname, id );
     unlink( fname );
   }
   for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ )
   {
-    sprintf( fname, dbFileUserList[a], DB_DIRECTORY, id );
+    sprintf( dname, "%s/data", COREDIRECTORY );
+    sprintf( fname, dbFileUserList[a], dname, id );
     unlink( fname );
   }
-  sprintf( dname, "%s/user%d", USER_DIRECTORY, id );
+  sprintf( dname, "%s/users/user%d", COREDIRECTORY, id );
   rmdir( dname );
-  sprintf( dname, "%s/user%d", DB_DIRECTORY, id );
+  sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
   rmdir( dname );
-	printf("system kill -n 12 $(pidof sv)\n");
+
+  printf("system kill -n 12 $(pidof sv)\n");
   system("kill -n 12 $(pidof sv)");
 
   return 1;
@@ -3127,7 +3138,7 @@ int dbForumRemoveForum( int forum )
   dbForumForumDef forumd;
 
 	if(forum > 100)
-  	a = sprintf( fname, DB_DIRECTORY "/forum%d", forum );
+  	a = sprintf( fname, "%s/data/forum%d", COREDIRECTORY, forum );
   else
   	a = sprintf( fname,  "%s/forum%d", PUBLIC_FORUM_DIRECTORY, forum );
   if( !( dirdata = opendir( fname ) ) )

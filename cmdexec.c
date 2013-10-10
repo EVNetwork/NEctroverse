@@ -52,7 +52,7 @@ printf( "Create user %d\n", a );
   //copy this file into the 10 min db
   //actualy copy an empty file
   
- 	sprintf(szCommmand, "cp %s/user%d/main %s/user%d/main -f", DB_DIRECTORY, a, USER_DIRECTORY, a);
+ 	sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", COREDIRECTORY, a, COREDIRECTORY, a);
   system(szCommmand);
 
   return a;
@@ -1194,7 +1194,7 @@ int cmdExecSetFamPass( int fam, unsigned char *pass )
   FILE *file;
 
   cmdErrorString = 0;
-  sprintf( fname, DB_DIRECTORY "/fampass%d", fam );
+  sprintf( fname, "%s/data/fampass%d", COREDIRECTORY, fam );
   if( !( file = fopen( fname, "wb" ) ) )
     return -3;
   for( a = 0 ; a < 31 ; a++ )
@@ -1217,7 +1217,7 @@ int cmdExecGetFamPass( int fam, unsigned char *pass )
   FILE *file;
 
   cmdErrorString = 0;
-  sprintf( fname, DB_DIRECTORY "/fampass%d", fam );
+  sprintf( fname, "%s/data/fampass%d", COREDIRECTORY, fam );
   pass[0] = 0;
   if( !( file = fopen( fname, "rb" ) ) )
     return 1;

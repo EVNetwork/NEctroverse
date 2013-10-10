@@ -304,6 +304,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  FILE *file;
  iohttpDataPtr iohttp;
  unsigned char timebuf[256];
+ unsigned char COREDIR[256];
  long long int newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- EVA";
@@ -358,7 +359,8 @@ void iohttpFunc_register2( svConnectionPtr cnt )
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
 
-  if( ( file = fopen( LOGS_DIRECTORY "/register", "ab" ) ) )
+  sprintf( COREDIR, "%s/logs/register", COREDIRECTORY );
+  if( ( file = fopen( COREDIR, "ab" ) ) )
   {
    //fprintf( file, "Register ID %d ( %x )\n", id, id );
    a = time( 0 )-(3600*SERVER_TIME_ZONE);
@@ -486,6 +488,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  FILE *file;
  iohttpDataPtr iohttp;
  unsigned char timebuf[256];
+ unsigned char COREDIR[256];
  long long int *newsp, *newsd;
  dbUserMainDef maind;
 
@@ -494,7 +497,8 @@ void iohttpFunc_main( svConnectionPtr cnt )
  pass = iohttpVarsFind( "pass" );
  iohttpVarsCut();
 
- if( ( file = fopen( LOGS_DIRECTORY "/login", "ab" ) ) )
+ sprintf( COREDIR, "%s/logs/login", COREDIRECTORY );
+ if( ( file = fopen( COREDIR, "ab" ) ) )
  {
   a = time( 0 )-(3600*SERVER_TIME_ZONE);
   strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&a ) );
@@ -3112,6 +3116,7 @@ void iohttpFunc_famnews( svConnectionPtr cnt )
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  unsigned char *empirestring;
+ unsigned char COREDIR[256];
  long long int *newsp, *newsd;
 	FILE *fFile;
 
@@ -3134,7 +3139,8 @@ void iohttpFunc_famnews( svConnectionPtr cnt )
    curfam = maind.empire;
   if(cnt->dbuser->level >= LEVEL_MODERATOR)
  	{
- 		fFile = fopen( LOGS_DIRECTORY "/modlog.txt", "a+t" );
+		sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
+ 		fFile = fopen( COREDIR, "a+t" );
  		if( fFile )
  		{
  			fprintf( fFile, "%s >view news of empire %d\n",maind.faction, curfam);
@@ -7571,125 +7577,122 @@ void iohttpFunc_mail( svConnectionPtr cnt )
 
 
 
-void iohttpFunc_rankings( svConnectionPtr cnt )
-{
- int id;
- FILE *file;
- struct stat stdata;
- unsigned char *data;
- dbUserMainDef maind;
+void iohttpFunc_rankings( svConnectionPtr cnt ) {
+	int id;
+	FILE *file;
+	struct stat stdata;
+	unsigned char *data;
+	unsigned char COREDIR[256];
+	dbUserMainDef maind;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 )
- {
-  if( !( iohttpHeader( cnt, id, &maind ) ) )
-   return;
- }
- iohttpBodyInit( cnt, "Faction rankings" );
+iohttpBase( cnt, 1 );
 
+if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	if( !( iohttpHeader( cnt, id, &maind ) ) )
+	return;
+}
+
+iohttpBodyInit( cnt, "Faction rankings" );
+sprintf( COREDIR, "%s/data/ranks.txt", COREDIRECTORY );
 // svSendString( cnt, "<table cellspacing=\"4\"><tr><td>Rank</td><td>Faction</td><td>Empire</td><td>Planets</td><td>Networth</td></tr>" );
- if( stat( DB_DIRECTORY "/ranks.txt", &stdata ) != -1 )
- {
-  if( ( data = malloc( stdata.st_size + 1 ) ) )
-  {
-   data[stdata.st_size] = 0;
-   if( ( file = fopen( DB_DIRECTORY "/ranks.txt", "rb" ) ) )
-   {
-    fread( data, 1, stdata.st_size, file );
-    svSendString( cnt, data );
-    fclose( file );
-   }
-   free( data );
-  }
- }
+if( stat( COREDIR, &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( COREDIR, "rb" ) ) ) {
+		fread( data, 1, stdata.st_size, file );
+		svSendString( cnt, data );
+		fclose( file );
+		}
+		free( data );
+	}
+}
 // svSendString( cnt, "</table>" );
 
  iohttpBodyEnd( cnt );
  return;
 }
 
-void iohttpFunc_famranks( svConnectionPtr cnt )
-{
- int id;
- FILE *file;
- struct stat stdata;
- unsigned char *data;
- dbUserMainDef maind;
+void iohttpFunc_famranks( svConnectionPtr cnt ) {
+	int id;
+	FILE *file;
+	struct stat stdata;
+	unsigned char *data;
+	unsigned char COREDIR[256];
+	dbUserMainDef maind;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 )
- {
-  if( !( iohttpHeader( cnt, id, &maind ) ) )
-   return;
- }
+iohttpBase( cnt, 1 );
 
- iohttpBodyInit( cnt, "Empire rankings" );
+if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	if( !( iohttpHeader( cnt, id, &maind ) ) )
+		return;
+}
 
+iohttpBodyInit( cnt, "Empire rankings" );
+sprintf( COREDIR, "%s/data/famranks.txt", COREDIRECTORY );
 // svSendString( cnt, "<table cellspacing=\"4\"><tr><td align=\"right\">Rank</td><td>Name</td><td>Planets</td><td>Players</td><td>Networth</td></tr>" );
- if( stat( DB_DIRECTORY "/famranks.txt", &stdata ) != -1 )
- {
-  if( ( data = malloc( stdata.st_size + 1 ) ) )
-  {
-   data[stdata.st_size] = 0;
-   if( ( file = fopen( DB_DIRECTORY "/famranks.txt", "rb" ) ) )
-   {
-    fread( data, 1, stdata.st_size, file );
-    svSendString( cnt, data );
-    fclose( file );
-   }
-   free( data );
-  }
- }
+if( stat( COREDIR, &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( COREDIR, "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+		free( data );
+	}
+}
 // svSendString( cnt, "</table>" );
 
- iohttpBodyEnd( cnt );
- return;
+iohttpBodyEnd( cnt );
+
+return;
 }
 
-void iohttpFunc_ptrankings( svConnectionPtr cnt )
-{
- FILE *file;
- struct stat stdata;
- unsigned char *data;
- svSendString( cnt, "Content-type: text/plain\n\n" );
- if( stat( DB_DIRECTORY "/ranksplain.txt", &stdata ) != -1 )
- {
-  if( ( data = malloc( stdata.st_size + 1 ) ) )
-  {
-   data[stdata.st_size] = 0;
-   if( ( file = fopen( DB_DIRECTORY "/ranksplain.txt", "rb" ) ) )
-   {
-    fread( data, 1, stdata.st_size, file );
-    svSendString( cnt, data );
-    fclose( file );
-   }
-   free( data );
-  }
- }
- return;
+void iohttpFunc_ptrankings( svConnectionPtr cnt ) {
+	FILE *file;
+	struct stat stdata;
+	unsigned char *data;
+	unsigned char COREDIR[256];
+
+svSendString( cnt, "Content-type: text/plain\n\n" );
+sprintf( COREDIR, "%s/data/ranksplain.txt", COREDIRECTORY );
+if( stat( COREDIR, &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( COREDIR, "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+		free( data );
+	}
 }
 
-void iohttpFunc_ptfamranks( svConnectionPtr cnt )
-{
- FILE *file;
- struct stat stdata;
- unsigned char *data;
- svSendString( cnt, "Content-type: text/plain\n\n" );
- if( stat( DB_DIRECTORY "/famranksplain.txt", &stdata ) != -1 )
- {
-  if( ( data = malloc( stdata.st_size + 1 ) ) )
-  {
-   data[stdata.st_size] = 0;
-   if( ( file = fopen( DB_DIRECTORY "/famranksplain.txt", "rb" ) ) )
-   {
-    fread( data, 1, stdata.st_size, file );
-    svSendString( cnt, data );
-    fclose( file );
-   }
-   free( data );
-  }
- }
- return;
+return;
+}
+
+void iohttpFunc_ptfamranks( svConnectionPtr cnt ) {
+	FILE *file;
+	struct stat stdata;
+	unsigned char *data;
+	unsigned char COREDIR[256];
+ 
+svSendString( cnt, "Content-type: text/plain\n\n" );
+sprintf( COREDIR, "%s/data/famranksplain.txt", COREDIRECTORY );
+if( stat( COREDIR, &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( COREDIR, "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+		free( data );
+	}
+}
+
+
+return;
 }
  
 
@@ -8350,6 +8353,7 @@ void iohttpForum( svConnectionPtr cnt )
  dbForumThreadDef threadd;
  dbForumPostDef postd;
  unsigned char timebuf[256];
+ unsigned char COREDIR[256];
  char timetemp[200];
  unsigned char *text;
 	FILE *fFile;
@@ -8460,7 +8464,8 @@ void iohttpForum( svConnectionPtr cnt )
 	  {
 	  	if(forum>100)
 	  	{
-	  		fFile = fopen( LOGS_DIRECTORY "/modlog.txt", "a+t" );
+			sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
+	  		fFile = fopen( COREDIR, "a+t" );
 		  	if( fFile )
 		 		{
 		 			fprintf( fFile, "%s > view forum of empire %d\n", maind.faction, forum-100);

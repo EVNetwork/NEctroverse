@@ -673,6 +673,7 @@ void iohttpFunc_moderator( svConnectionPtr cnt )
   //dbForumForumDef forumd;
   //dbForumThreadPtr pThread;
   unsigned char *actionstring, *str0, *str1;
+  unsigned char COREDIR[256];
   dbUserPtr user;
   long long int *newsp, *newsd;
   int *buffer;
@@ -690,7 +691,9 @@ void iohttpFunc_moderator( svConnectionPtr cnt )
     svSendString( cnt, "</center></body></html>" );
     return;
   }
-    if( !( file = fopen( LOGS_DIRECTORY "/modlog.txt", "a+t" ) ) )
+
+sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
+    if( !( file = fopen( COREDIR, "a+t" ) ) )
         return;
 
 

@@ -264,7 +264,8 @@ int main() {
   unsigned char fname[256];
   FILE *file2;
 
-dirstructurecheck(DB_DIRECTORY);
+sprintf( fname, "%s/data", COREDIRECTORY );
+dirstructurecheck(fname);
 
   srand( time( 0 ) );
 
@@ -336,7 +337,7 @@ dirstructurecheck(DB_DIRECTORY);
 
 
   // headers
-  file = fopen( DB_DIRECTORY "/map", "wb" );
+  file = fopen( COREDIRECTORY "/data/map", "wb" );
   a = MAP_SIZEX;
   fwrite( &a, 1, sizeof(int), file );
   a = MAP_SIZEY;
@@ -482,7 +483,7 @@ dirstructurecheck(DB_DIRECTORY);
       fputc( -1, file );
     fwrite( nullb, 1, 96, file );
 
-    sprintf( fname, DB_DIRECTORY "/fam%dnews", a );
+    sprintf( fname, COREDIRECTORY "/data/fam%dnews", a );
 
     file2 = fopen( fname, "wb" );
     j = 0;

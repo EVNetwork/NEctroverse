@@ -113,6 +113,17 @@ if ( c == 0 ) {
 return 1;
 }
 
+void cleanUp(int pipefileid) {
+close(pipefileid);
+unlink(PIPEFILE);
+
+syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
+syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
+
+closelog();
+
+return;
+}
 
 void svEnd() {
 	int a;
@@ -138,7 +149,7 @@ for( a = 0 ; a < SV_INTERFACES ; a++ ) {
 
    	}
 
-cleanUp();
+cleanUp(NULL);
 return;
 }
 
@@ -555,30 +566,19 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size ) {
 return;
 }
 
-void cleanUp(int pipefileid) {
-close(pipefileid);
-unlink(PIPEFILE);
-
-syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
-syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
-
-closelog();
-
-return;
-}
-
-
 int svDebugTickPass;
 int svDebugTickId;
 
 void svSignal( int signal ) {
+	unsigned char TICKFILE[256];
 	int a, size;
 	FILE *fFile;  
     
+sprintf( TICKFILE, "%s/data/ticks", COREDIRECTORY );  
     
 if(signal == SIGUSR1) {
 	svRoundEnd = 1;
-		if( ( fFile = fopen( SV_TICK_FILE, "r+" ) ) ) {
+		if( ( fFile = fopen( TICKFILE, "r+" ) ) ) {
 		fscanf( fFile, "%d", &a );
 	   //	fprintf(fFile, " %d", svRoundEnd);
 	   	fclose( fFile );
@@ -689,6 +689,7 @@ return;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 static void daemonloop(int pipefileid) {
+	unsigned char TICKFILE[256];
 	int a, curtime;
 	FILE *file;
 	ioInterfacePtr io;
@@ -731,9 +732,10 @@ static void daemonloop(int pipefileid) {
 			io->TickEnd();
 		}
 
-		file = fopen( SV_TICK_FILE, "r+" );
+		sprintf( TICKFILE, "%s/data/ticks", COREDIRECTORY );  
+		file = fopen( TICKFILE, "r+" );
 		if(!file)
-			file = fopen( SV_TICK_FILE, "w" );
+			file = fopen( TICKFILE, "w" );
 		if(file) {
 			fprintf( file, "%d", svTickNum );
 			fclose( file );
@@ -750,6 +752,7 @@ return;
 int daemon_init(void) {
 	int a;
 	int pipingin;
+	unsigned char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
 	pid_t pid, sid;
@@ -788,8 +791,8 @@ close(STDOUT_FILENO);
 close(STDERR_FILENO);
 
 svTickTime = time(0) + SV_TICK_TIME;
-	
-if( ( file = fopen( SV_TICK_FILE, "r" ) ) ) {
+sprintf( COREDIR, "%s/data/ticks", COREDIRECTORY );	
+if( ( file = fopen( COREDIR, "r" ) ) ) {
 	fscanf( file, "%d", &a );
 	//  fscanf( file, "%d", &svRoundEnd );
 	fclose( file );
@@ -833,11 +836,13 @@ if( !( cmdInit() ) )  {
 	syslog(LOG_ERR, "Basic Iniation failed, exiting\n");
 	return 0;
 }
-if( chdir( DB_DIRECTORY ) == -1 ) {
+sprintf( COREDIR, "%s/data", COREDIRECTORY );  
+if( chdir( COREDIR ) == -1 ) {
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
-if( ( file = fopen( SV_TICK_FILE, "r" ) ) ) {
+sprintf( COREDIR, "%s/data/ticks", COREDIRECTORY );  
+if( ( file = fopen( COREDIR, "r" ) ) ) {
 	fscanf( file, "%d", &svTickNum );
 	fclose( file );
 }
@@ -951,16 +956,22 @@ return;
 }
 
 int main() {
+	unsigned char COREDIR[256];
 	char buf[256];
 	int num, fd;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
 openlog("EVServer", LOG_PID | LOG_NDELAY, LOG_LOCAL6);
 
 //check basic dir structure and create as needed.	
-dirstructurecheck(DB_DIRECTORY);
-dirstructurecheck(LOGS_DIRECTORY);
-dirstructurecheck(USER_DIRECTORY);
-dirstructurecheck(PUBLIC_FORUM_DIRECTORY);
+sprintf( COREDIR, "%s/data", COREDIRECTORY );
+dirstructurecheck(COREDIR);
+sprintf( COREDIR, "%s/users", COREDIRECTORY );
+dirstructurecheck(COREDIR);
+sprintf( COREDIR, "%s/logs", COREDIRECTORY );
+dirstructurecheck(COREDIR);
+//well its not really public yet now is it...
+//sprintf( fname, "%s/forum", COREDIRECTORY );
+//dirstructurecheck(fname);
 
 if ( file_exist(PIPEFILE) ) {
 printf("%s\n","Pipe file detected, auto switching to client mode");
@@ -996,7 +1007,7 @@ printf("%s\n", "Please input command to send to server...");
 
 //We should never get here... parent proccess is set to self destruct! -- Yer, we do now... haha.
 //printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
-//cleanUp();
+
 return 1;
 }
 
