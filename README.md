@@ -5,11 +5,13 @@ This code is currently under hardcore redevelopment and is not stable.
 
 I repeat... this code is UNSTABLE!!!
 
-!!DO NOT USE!!
 
 To install the game:
-Edit config.h and change the directory lines at the bottom to your Ectroverse folders.
-While your there, change the default Admin username and password! =)
+Edit config.h and change the directory line at the top...
+Folder location does not matter, as long as you have write permissions.
+
+While your there in config.h
+Change the default Admin username and password! =)
 
 
 Run:
@@ -26,4 +28,6 @@ KNOWN BUGS - Very annoying and need to go:
 * ... ?
 
 
-You can play the current Ectroverse at www.ectroverse.org.
+You can play the current Ectroverse at http://www.ectroverse.org
+
+NEctroverse is currently unavalible.
