@@ -1,0 +1,9 @@
+# Cache files
+*~
+#stray Object files
+*.o
+*.raw
+
+#Program files
+evserver
+map
