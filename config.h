@@ -12,11 +12,9 @@
 
 #define CMD_ADMIN_NUM 1
 
-static const char cmdAdminName[CMD_ADMIN_NUM] = {"admin"};
-static const char cmdAdminPass[CMD_ADMIN_NUM] = {"password"};
+static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
 
-#define ADMIN_DEFAULT_NAME "admin"
-#define ADMIN_DEFAULT_PASS "password"
+static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.

@@ -2223,6 +2223,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 
 
+
+
+
 int cmdInit()
 {
   int a, id;
@@ -2236,13 +2239,13 @@ int cmdInit()
 	
 	for( a = 0 ; a < CMD_ADMIN_NUM ; a++ )
   {
-  	if( ( id = dbUserSearch( (unsigned char *)cmdAdminName[a] ) ) >= 0 )
+  	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
       continue;
     
-    memcpy( maind.faction, (unsigned char *)cmdAdminName[a], 32 );
-    sprintf( (char * __restrict__)maind.forumtag, "Administrator" );
+    memcpy( maind.faction, cmdAdminName[a], 32 );
+    sprintf( maind.forumtag, "Administrator" );
 
-    if( ( id = dbUserAdd( (unsigned char *)cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
+    if( ( id = dbUserAdd( cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
       continue;
     user = dbUserLinkID( id );
     user->flags = 0;
@@ -2250,7 +2253,7 @@ int cmdInit()
     dbUserSave( id, user );
 
     dbUserMainSet( id, &maind );
-    dbUserSetPassword( id, (unsigned char *)cmdAdminPass[a] );
+    dbUserSetPassword( id, cmdAdminPass[a] );
     dbUserFleetAdd( id, &fleetd );
     cmdTotalsCalculate( id, &maind );
   }
