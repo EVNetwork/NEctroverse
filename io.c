@@ -51,7 +51,7 @@ void inSendCompleteEvm( svConnectionPtr cnt );
 void inClosedEvm( svConnectionPtr cnt );
 void inErrorEvm( svConnectionPtr cnt, int type );
 
-#include "ioevm.c"
+//#include "ioevm.c"
 
 
 
@@ -74,7 +74,7 @@ ioInterfaceDef ioInterface[IO_INTERFACE_NUM] =
     30000,
     40000
   },
-
+/*
   // Evm protocol interface definition
   {
     InitEvm,
@@ -90,7 +90,7 @@ ioInterfaceDef ioInterface[IO_INTERFACE_NUM] =
     65536,
     300000,
     360000
-  }
+  }*/
 };
 
 

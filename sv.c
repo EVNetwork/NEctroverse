@@ -38,8 +38,8 @@ fd_set svSelectError;
 
 #define SV_INTERFACES 2
 
-int svListenPort[SV_INTERFACES] = { 9122 , 9135};
-int svListenIO[SV_INTERFACES] = { 0, 1 };
+int svListenPort[SV_INTERFACES] = { 9122 /*, 9135*/};
+int svListenIO[SV_INTERFACES] = { 0/*, 1*/ };
 int svListenSocket[SV_INTERFACES];
 
 svConnectionPtr svDebugConnection;
