@@ -1,4 +1,7 @@
 
+#define HTTP_PORT 9122
+#define EVMP_PORT 9135
+
 #define SERVER_SOFTWARE "NEctroverse"
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
