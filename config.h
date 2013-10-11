@@ -1,4 +1,5 @@
 #define SERVER_SOFTWARE "NEctroverse"
+#define FORKING 0
 
 #define HTTP_PORT 9122
 
@@ -16,7 +17,7 @@
 static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
 static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
-#define COREDIRECTORY "/tmp/evserver" ///home/stephen/git/NEctroverse/core"
+#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
 #define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
 #define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
@@ -44,7 +45,7 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 #define LOGFAC LOG_LOCAL6 //<-- Possible to also just use LOG_SYSLOG for conveniance.
 
 // 0 = Off | 1 = On -- Since the source for the map program is lost, we'll just drop support.
-#define EVMAPENABLE 1
+#define EVMAPENABLE 0
 
 #if EVMAPENABLE == 1
 #define EVMP_PORT 9135

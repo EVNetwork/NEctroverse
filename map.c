@@ -24,6 +24,12 @@
 #include <arpa/inet.h>
 
 #include "config.h"
+#include "artefact.h"
+#include "db.h"
+#include "sv.h"
+#include "io.h"
+#include "cmd.h"
+
 
 /*
 #define MAP_SIZEX (100)
@@ -178,96 +184,20 @@ void mapCalcFactors()
   return;
 }
 
-char** str_split( char* str, char delim, int* numSplits ) {
-	char** ret;
-	int retLen;
-	char* c;
 
-if ( ( str == NULL ) || ( delim == '\0' ) ) {
-	ret = NULL;
-        retLen = -1;
-} else {
-        retLen = 0;
-        c = str;
-
-        do {
-		if ( *c == delim ) {
-                retLen++;
-		}
-	c++;
-	} while ( *c != '\0' );
-
-ret = malloc( ( retLen + 1 ) * sizeof( *ret ) );
-ret[retLen] = NULL;
-
-c = str;
-retLen = 1;
-ret[0] = str;
-
-do {
-	if ( *c == delim ) {
-		ret[retLen++] = &c[1];
-                *c = '\0';
-	}
-
-	c++;
-} while ( *c != '\0' );
-
-}
-
-if ( numSplits != NULL ) {
-	*numSplits = retLen;
-}
-
-
-return ret;
-}
-
-
-void dirstructurecheck(char *directory) {
-	int i, num, check;
-	char mkthisdir[256];
- 	char* strCpy;
-	char** split;
-
-strCpy = malloc( strlen( directory ) * sizeof( *strCpy ) );
-strcpy( strCpy, directory );
-strcpy( mkthisdir, "" );
-split = str_split( strCpy, '/', &num );
-
-if ( split == NULL ) {
-	puts( "str_split returned NULL" );
-} else {
-	for ( i = 0; i < num; i++ ) {
-		if( !( i == NULL ) ) {
-			strcat(mkthisdir, "/");
-			strcat(mkthisdir, split[i]);
-			check = mkdir(mkthisdir,0755);
-			if (!check)
-				syslog(LOG_INFO, "Directory \"%s\" created.\n", mkthisdir);
-			else if ( errno != 17 )
-			syslog(LOG_ERR, "Error creating directory: \"%s\"\n", mkthisdir);
-		}
-	}
-}
-free( split );
-free( strCpy );
-
-
-return;
-}
 
 unsigned char nullb[256];
 
-int main() {
-  int a, b, c, d, e, i, p, x, y, x2, y2;
-  long long int j;
-  float dist, distmax;
-  FILE *file;
-  unsigned char fname[256];
-  FILE *file2;
-//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
+int mapgen() {
+	int a, b, c, d, e, i, p, x, y, x2, y2;
+	long long int j;
+	float dist, distmax;
+	FILE *file;
+	unsigned char fname[256];
+	FILE *file2;
+
 openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
+
 
 sprintf( fname, "%s/data", COREDIRECTORY );
 dirstructurecheck(fname);
@@ -330,15 +260,17 @@ dirstructurecheck(fname);
   }
 
 
-  for( a = 0 ; a < MAP_ARTEFACTS ; a++ )
-  {
-    mainL2:
-    b = rand() % MAP_SYSTEMS;
-    if( system_home[b] )
-      goto mainL2;
-    artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
-    printf( "%d->%d ( %d,%d )\n", a, artefact_planet[a], system_pos[b] & 0xFFFF, system_pos[b] >> 16 );
-  }
+	for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
+		mainL2:
+		b = rand() % MAP_SYSTEMS;
+		if( system_home[b] )
+			goto mainL2;
+		artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
+		#if FORKING == 0
+		printf("( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
+		#endif
+		syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
+	}
 
 
   // headers

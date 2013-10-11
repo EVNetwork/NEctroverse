@@ -10,10 +10,8 @@ COLORGCC := $(shell test -s /usr/bin/colorgcc)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
-all: map server
-
-server: colorgcc sqlcheck sv.o io.o db.o cmd.o
-	$(CC) sv.o io.o db.o cmd.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: colorgcc sqlcheck sv.o io.o db.o cmd.o map.o
+	$(CC) sv.o io.o db.o cmd.o map.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 colorgcc:
 ifeq (,$(findstring $(COLORGCC),$(wildcard $(COLORGCC) )))
@@ -37,17 +35,14 @@ db.o: db.c sv.h io.h db.h cmd.h config.h
 	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)
 cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact.h config.h
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
+map.o: map.c config.h
+	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
 clean:
 	rm *.o -rf
-strip:
-	rm *.o -rf
+	rm *~ -rf
+strip: clean
 	rm core -rf
 
 map: map.o
 	$(CC) map.o $(DEFS) -o map $(FLAGS) $(LIBS)
-
-map.o: map.c config.h
-	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
-
-
