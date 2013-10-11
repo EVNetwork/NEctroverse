@@ -714,10 +714,10 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   
   //create both folder for player
   sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
-  sprintf( (char * __restrict__)uname, "%s/users/user%d", COREDIRECTORY, id );
+  sprintf( uname, "%s/users/user%d", COREDIRECTORY, id );
   
-  mkdir( (const char *)dname, S_IRWXU );
-  mkdir( (const char *)uname, S_IRWXU );
+  mkdir( dname, S_IRWXU );
+  mkdir( uname, S_IRWXU );
   
  	//Create a db Database in the db other server
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
@@ -729,7 +729,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
     {
       dbUserFree( user );
       rmdir( dname );
-      rmdir( (char * __restrict__)uname );
+      rmdir( uname );
 	syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
       return -3;
     }
@@ -759,8 +759,8 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
     if( !( file = fopen( fname, "wb+" ) ))
     {
       dbUserFree( user );
-      rmdir( (char *)dname );
-      rmdir( (char *)uname );
+      rmdir( dname );
+      rmdir( uname );
       syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
       return -3;
     }
@@ -877,9 +877,9 @@ int dbUserRemove( int id )
     unlink( fname );
   }
   sprintf( dname, "%s/users/user%d", COREDIRECTORY, id );
-  rmdir( (char *)dname );
+  rmdir( dname );
   sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
-  rmdir( (char *)dname );
+  rmdir( dname );
 
  syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
   system("kill -n 12 $(pidof sv)");
