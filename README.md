@@ -22,7 +22,7 @@ Run:
 Yup, that's it... nothing else to run here. =P
 Map creation is now embeded into the core.
 
--- NEctroverse is a forked damon server, and does not requre a shell once iniated.
+-- NEctroverse can run in forked daemon mode, which does not require a shell.
 
 Congrats, the server is running on port 9122 of your localhost.
 Or if you want... you can change the port in config.h also.
