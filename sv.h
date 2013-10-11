@@ -53,15 +53,10 @@ void svEnd();
 void svSelect();
 void svRecv();
 
-void cleanUp( int pipefileid );
-char *trimwhitespace(char *str);
-void readfrompipe(int pipefileid);
-void daemonloop(int pipefileid);
-int daemon_init(void);
 int file_exist (char *filename);
+char *trimwhitespace(char *str);
 char** str_split( char* str, char delim, int* numSplits );
 void dirstructurecheck(char *directory);
-
 
 void svShutdown( svConnectionPtr cnt );
 void svClose( svConnectionPtr cnt );
