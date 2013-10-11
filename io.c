@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdarg.h>
+#include <syslog.h>
 #include <errno.h>
 #include <unistd.h>
 #include <dirent.h>

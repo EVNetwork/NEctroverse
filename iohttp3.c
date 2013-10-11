@@ -1500,7 +1500,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
   {
     if( getcwd( curdir, 1024 ) )
     {
-      printf( "Admin : Reloading files\n" );
+	syslog(LOG_INFO, "Admin is Reloading files\n" );
       EndHTTP();
       InitHTTP();
       chdir( curdir );

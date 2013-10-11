@@ -344,9 +344,8 @@ void iohttpFunc_register2( svConnectionPtr cnt )
   (maild.mail).tick = svTickNum;
   (maild.mail).flags = 0;
   if( dbMailAdd( id, 0, &maild ) < 0 )
-  {
-   printf("Error sending registration email\n");
-  }
+	syslog(LOG_ERR, "Error sending registration email\n" );
+
   
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
   {
@@ -2356,7 +2355,7 @@ void iohttpFunc_planets( svConnectionPtr cnt )
 
  if( !( sortstring ) || ( sscanf( sortstring, "%d", &sort ) <= 0 ) )
   sort = 0;
- // printf("hier gaan we naar de sort\n");
+
  if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 )
   {
    svSendString( cnt, "Error while retriving planets list" );
@@ -2497,14 +2496,14 @@ else
   totals[3] += planetd.population;
   totals[4] += planetd.maxpopulation;
  }
-// printf("nog steeds in iohttp\n");
+
  svSendPrintf( cnt, "<tr><td>%d Planets</td><td>%d</td><td>%d", b, totals[0], totals[1] );
  if( totals[2] )
   svSendPrintf( cnt, " ( %d )", totals[2] );
  totalob /= (float)b;
  if( totalob > 1.001 )
   svSendPrintf( cnt, " <font color=\"#FF2020\">+%.2f%%</font>", 100.0 * (totalob-1.0) );
-// printf("nog wa verder in iohttp\n");
+
 //Total
 	sprintf(szColor, "FFFFFF");
  if((totals[3]*10/totals[4])>=8)
@@ -2520,10 +2519,10 @@ else
   svSendPrintf( cnt, " <i>Units (%d)</i>", totals[6] );
  svSendString( cnt, "</td><td></td></tr>" );
  svSendString( cnt, "</table><br><div align=\"right\"><input type=\"submit\" value=\"Build on selected planets\"></div></form>" );
-// printf("nu nog het einde van iohttp\n");
+
  free( buffer );
  iohttpBodyEnd( cnt );
-// printf("hier komt het einde van iohttp\n");
+
  return;
 }
 

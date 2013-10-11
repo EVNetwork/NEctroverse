@@ -266,10 +266,9 @@ FILE *dbFileGenOpen( int num )
 	if( dbFilePtr[num] )
     return dbFilePtr[num];
     
-  if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) )
-  {
-    printf( "Error %02d, could not open %s\n", errno, szSource );
-    return 0;
+  if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
+	syslog(LOG_ERR, "Error %02d, could not open %s\n", errno, szSource );
+	return 0;
   }
   return dbFilePtr[num];
 }
@@ -317,7 +316,7 @@ FILE *dbFileUserOpen( int id, int num ) {
     }
 
     if( num < 0x10000 )
-      printf( "Error %02d, fopen %s\n", errno, fname );
+	syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
     return 0;
   }
   return file;
@@ -348,7 +347,7 @@ FILE *dbFileFamOpen( int id, int num )
       return file;
     }
     if( num < 0x10000 )
-      printf( "Error %02d, fopen %s\n", errno, fname );
+	syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
     return 0;
   }
   return file;
@@ -366,9 +365,8 @@ dbUserPtr dbUserAllocate( int id )
 {
   unsigned char pass[32];
   dbUserPtr user;
-  if( !( user = malloc( sizeof(dbUserDef) ) ) )
-  {
-    printf( "Error, malloc dbuser failed\n" );
+  if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
+	syslog(LOG_ERR,  "Error, malloc dbuser failed\n" );
     return 0;
   }
   memset( user, 0, sizeof(dbUserDef) );
@@ -551,7 +549,7 @@ dbInitUsersReset();
     fread( &c, 1, sizeof(int), file );
 
 /*
-    printf( "%d, %d\n", a, c );
+	syslog(LOG_INFO, "%d, %d\n", a, c );
 */
 
 //    if( !( user = dbUserAllocate( c ) ) )
@@ -721,8 +719,6 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   mkdir( dname, S_IRWXU );
   mkdir( uname, S_IRWXU );
   
-  printf("both dir created\n");
-  
  	//Create a db Database in the db other server
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
@@ -734,7 +730,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
       dbUserFree( user );
       rmdir( dname );
       rmdir( uname );
-      printf( "Error %02d, fopen dbuseradd\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbuseradd\n", errno );
       return -3;
     }
     if( a == 0 )
@@ -765,7 +761,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
       dbUserFree( user );
       rmdir( dname );
       rmdir( uname );
-      printf( "Error %02d, fopen dbuseradd\n", errno );
+      syslog(LOG_ERR, "Error %02d, fopen dbuseradd\n", errno );
       return -3;
     }
     if( a == 0 )
@@ -844,8 +840,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
 	}
 	free(user_hashes);
 
-
-  printf("system kill -n 12 $(pidof sv)\n");
+  syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
   system("kill -n 12 $(pidof sv)");
   return id;
 }
@@ -886,7 +881,7 @@ int dbUserRemove( int id )
   sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
   rmdir( dname );
 
-  printf("system kill -n 12 $(pidof sv)\n");
+ syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
   system("kill -n 12 $(pidof sv)");
 
   return 1;
@@ -897,9 +892,8 @@ int dbUserSave( int id, dbUserPtr user )
 {
   FILE *file;
   
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) )
-  {
-    printf( "Error %02d, fopen dbsetname\n", errno );
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
     return -3;
   }
   fwrite( &user->id, 1, sizeof(int), file );
@@ -909,9 +903,8 @@ int dbUserSave( int id, dbUserPtr user )
   fwrite( &user->reserved, 1, sizeof(int), file );
   fwrite( user->name, 1, 32, file );
   fclose( file );
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER_FLAGS ) ) )
-  {
-    printf( "Error %02d, fopen dbsetname\n", errno );
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER_FLAGS ) ) ) {
+	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
     return -3;
   }
   fseek(file, 2*sizeof(int), SEEK_CUR);
@@ -925,10 +918,9 @@ int dbUserSetPassword( int id, unsigned char *pass )
   unsigned char fname[532];
   FILE *file;
   
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) )
-  {
-    printf( "Error %02d, fopen dbsetpassword\n", errno );
-    return -3;
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+	syslog(LOG_ERR, "Error %02d, fopen dbsetpassword\n", errno );
+	return -3;
   }
   fseek( file, 16+32, SEEK_SET );
   memset( fname, 0, 32 );
@@ -941,9 +933,8 @@ int dbUserSetPassword( int id, unsigned char *pass )
 int dbUserRetrievePassword( int id, unsigned char *pass )
 {
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) )
-  {
-    printf( "Error %02d, fopen dbretrievepassword\n", errno );
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+	syslog(LOG_ERR, "Error %02d, fopen dbretrievepassword\n", errno );
     return -3;
   }
   fseek( file, 16+32, SEEK_SET );
@@ -1143,7 +1134,7 @@ void sortlist ( int num, int *list1, int *list2 )
   for( b = 0 ; b < num ; b++ )
     list1[b] = list3[b];
 
- // printf("Dit is void sortlist\n");
+//syslog(LOG_ERR, "Dit is void sortlist\n" );
   free (list3);
   return;
 
@@ -1175,7 +1166,7 @@ void sortlist2 ( int num, int *list1, int *list2, int *list3 )
   for( b = 0 ; b < num ; b++ )
     list1[b] = list4[b];
   
- // printf("dees is void sortlist2 \n");
+//syslog(LOG_DEBUG, "dees is void sortlist2 \n" );
   free (list4);
   return;
 }
@@ -1459,7 +1450,6 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
   int *listp, *list2p, *list3p;
   dbMainPlanetDef planetd;
   FILE *file;
-// printf("we beginnen te sortere\n");
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   fread( &num, 1, sizeof(int), file );
@@ -1475,27 +1465,23 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
       fclose( file );
       return -1;
     }
- // printf("database geopend\n");
   for( a = 0 ; a < num ; a++ )
     {
       fseek( file, 4+(a*20), SEEK_SET );
       fread( &listp[a], 1, sizeof(int), file );
     }
   fclose( file );
-// printf("eerste malloc begint\n");  
   if( !( list2p = malloc( (num)*sizeof(int) ) ) )
     {
       free (listp);
       return -1;
     }
-// printf("tweede malloc begint\n");  
   if( !( list3p = malloc( (num)*sizeof(int) ) ) )
     {
       free (listp);
       free (list2p);
       return -1;
     }
-// printf("sorteren begonnen sort=%d\n", sort);
   if (sort == 1)
     {
       for( b = 0; b < num; b++)
@@ -1649,7 +1635,6 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
       sortlist2( num, listp, list2p, list3p );
     }
   
-  // printf("sorteren is gedaan nu nog free \n");
 
   *list = listp;
   free (list2p);
@@ -1882,7 +1867,7 @@ int dbUserNewsAdd( int id, long long int *data, long long int flags )
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
   {
-    printf( "Error %02d, fopen dbusernewsadd\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
     return -3;
   }
   
@@ -1942,7 +1927,7 @@ long long int dbUserNewsGetFlags( int id )
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
   {
-    printf( "Error %02d, fopen dbusernewsadd\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernewsflags\n", errno );
     return -3;
   }
   fseek( file, 24, SEEK_SET );
@@ -1959,7 +1944,7 @@ int dbUserNewsList( int id, long long int **data )
   *data = 0;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
   {
-    printf( "Error %02d, fopen dbusernewslist\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
     return -3;
   }
   fread( &num, 1, sizeof(long long int), file );
@@ -1992,7 +1977,7 @@ long long int dbUserNewsListUpdate( int id, long long int **data, long long int 
   *data = 0;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
   {
-    printf( "Error %02d, fopen dbusernewslist\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernews\n", errno );
     return -3;
   }
   fread( &num, 1, sizeof(long long int), file );
@@ -2064,7 +2049,7 @@ int dbUserNewsEmpty( int id )
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
   {
-    printf( "Error %02d, fopen dbusernewsempty\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernewsempty\n", errno );
     return -3;
   }
   fwrite( dbFileUserListData[DB_FILE_USER_NEWS], 1, dbFileUserListBase[DB_FILE_USER_NEWS], file );
@@ -2086,7 +2071,7 @@ int dbFamNewsAdd( int id, long long int *data )
   sprintf( fname, "fam%dnews", id );
   if( !( file = fopen( fname, "rb+" ) ) )
   {
-		printf( "Error %02d, fopen dbusernewsadd\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
   	return -3;
   }
   
@@ -2145,7 +2130,7 @@ int dbFamNewsList( int id, long long int **data, int time )
   sprintf( fname, "fam%dnews", id );
   if( !( file = fopen( fname, "rb+" ) ) )
   {
-    printf( "Error %02d, fopen dbusernewslist\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
     return -3;
   }
   fread( &num, 1, sizeof(long long int), file );
@@ -3105,7 +3090,7 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
   	sprintf( fname, "%s/forum%d", PUBLIC_FORUM_DIRECTORY, num );
   if( mkdir( fname, S_IRWXU ) == -1 )
   {
-    printf( "Error %02d, mkdir\n", errno );
+	syslog(LOG_ERR, "Error %02d, mkdir(%s)\n", errno, fname );
     return -3;
   }
 	
@@ -3142,10 +3127,9 @@ int dbForumRemoveForum( int forum )
   	a = sprintf( fname, "%s/data/forum%d", COREDIRECTORY, forum );
   else
   	a = sprintf( fname,  "%s/forum%d", PUBLIC_FORUM_DIRECTORY, forum );
-  if( !( dirdata = opendir( fname ) ) )
-  {
-    printf( "Error %03d, opendir\n", errno );
-    return -3;
+  if( !( dirdata = opendir( fname ) ) ) {
+	syslog(LOG_ERR, "Error %02d, opendir(%s)\n", errno, fname );
+	return -3;
   }
   fname[a] = '/';
   while( ( direntry = readdir( dirdata ) ) )

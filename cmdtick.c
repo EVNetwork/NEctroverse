@@ -218,9 +218,8 @@ void cmdTickGenRanks()
 	  //printf("user %d not activated\n", user->id );
       continue;
 	}
-    if( dbUserMainRetrieve( user->id, &mainp[b] ) < 0 )
-	{
-	  printf("error retreiving maind id: %d\n", user->id );
+    if( dbUserMainRetrieve( user->id, &mainp[b] ) < 0 ) {
+	syslog(LOG_ERR, "Error retreiving maind id: %d\n", user->id );	 
       continue;
 	}
     stats[c+0] = user->id;
@@ -389,9 +388,8 @@ svDebugTickPass = 2 + 10000;
       
     }
     
-  	if( planetd.construction < 0 )
-    {
-      printf( "Warning : negative construction count : %d\n", planetd.construction );
+  	if( planetd.construction < 0 ) {
+	syslog(LOG_ERR, "Warning : negative construction count : %d\n", planetd.construction );
       planetd.construction = 0;
     }
 
@@ -542,7 +540,7 @@ svDebugTickPass = 1;
 
 	
   if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
-    printf( "Tick error #1\n" );   
+	syslog(LOG_ERR, "Tick error: Retriving Map Info\n" );
     
   for( user = dbUserList ; user ; user = user->next )
   {
@@ -553,9 +551,8 @@ svDebugTickPass = 1;
 
 svDebugTickId = user->id;
 
-    if( dbUserMainRetrieve( user->id, &maind ) < 0 )
-    {
-      printf( "Tick error #2 : %d\n", user->id );
+    if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
+	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id  );
       continue;
     }
     
@@ -563,9 +560,8 @@ svDebugTickId = user->id;
 svDebugTickPass = 2;
 
 
-    if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 )
-    {
-      printf( "Tick error #3 : %d\n", user->id );
+    if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
+	syslog(LOG_ERR, "Tick error: SpecOps User %d\n", user->id  );
       continue;
     }
     opvirus = 0;
