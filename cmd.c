@@ -2223,23 +2223,6 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 
 
-
-
-
-#define CMD_ADMIN_NUM 1
-
-unsigned char cmdAdminName[CMD_ADMIN_NUM][32] =
-{
-ADMIN_DEFAULT_NAME
-};
-
-unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] =
-{
-ADMIN_DEFAULT_PASS
-};
-
-
-
 int cmdInit()
 {
   int a, id;
@@ -2253,13 +2236,13 @@ int cmdInit()
 	
 	for( a = 0 ; a < CMD_ADMIN_NUM ; a++ )
   {
-  	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
+  	if( ( id = dbUserSearch( (unsigned char *)cmdAdminName[a] ) ) >= 0 )
       continue;
     
-    memcpy( maind.faction, cmdAdminName[a], 32 );
-    sprintf( maind.forumtag, "Administrator" );
+    memcpy( maind.faction, (unsigned char *)cmdAdminName[a], 32 );
+    sprintf( (char * __restrict__)maind.forumtag, "Administrator" );
 
-    if( ( id = dbUserAdd( cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
+    if( ( id = dbUserAdd( (unsigned char *)cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
       continue;
     user = dbUserLinkID( id );
     user->flags = 0;
@@ -2267,7 +2250,7 @@ int cmdInit()
     dbUserSave( id, user );
 
     dbUserMainSet( id, &maind );
-    dbUserSetPassword( id, cmdAdminPass[a] );
+    dbUserSetPassword( id, (unsigned char *)cmdAdminPass[a] );
     dbUserFleetAdd( id, &fleetd );
     cmdTotalsCalculate( id, &maind );
   }

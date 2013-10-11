@@ -9,6 +9,12 @@
 #define EVMP_PORT 9135
 #endif
 
+
+#define CMD_ADMIN_NUM 1
+
+static const char cmdAdminName[CMD_ADMIN_NUM] = {"admin"};
+static const char cmdAdminPass[CMD_ADMIN_NUM] = {"password"};
+
 #define ADMIN_DEFAULT_NAME "admin"
 #define ADMIN_DEFAULT_PASS "password"
 
