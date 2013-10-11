@@ -1,10 +1,21 @@
 CC = gcc
 DEFS = 
+FLAGS = -s -mtune=core2 -O2 --fast-math -Wall -fno-strict-aliasing
+LIBS = -lm
+
+VARIABLE := $(shell cat config.h)
+
+sv: check sv.o io.o db.o cmd.o
+	$(CC) sv.o io.o db.o cmd.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+
+check:
+ifneq (,$(findstring MYSQLENABLE == 1,$(VARIABLE)))
 FLAGS = -s -mtune=core2 -O2 --fast-math -Wall  -I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing  -g -DNDEBUG
 LIBS = -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -ldl
-
-sv: sv.o io.o db.o cmd.o
-	$(CC) sv.o io.o db.o cmd.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+else
+FLAGS = -s -mtune=core2 -O2 --fast-math -Wall -fno-strict-aliasing
+LIBS = -lm
+endif
 
 sv.o: sv.c svban.c config.h sv.h io.h db.h cmd.h artefact.h config.h
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
