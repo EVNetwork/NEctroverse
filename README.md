@@ -16,9 +16,11 @@ Change the default Admin username and password! =)
 
 
 Run:
-* make map | make
-* ./map
+* make 
 * ./evserver
+
+Yup, that's it... nothing else to run here. =P
+Map creation is now embeded into the core.
 
 -- NEctroverse is a forked damon server, and does not requre a shell once iniated.
 
