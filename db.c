@@ -301,10 +301,10 @@ FILE *dbFileUserOpen( int id, int num ) {
 	FILE *file;
 
 if((num&0xFFFF) == DB_FILE_USER_USER) {
-	sprintf( (char * __restrict__)COREDIR, "%s/users", COREDIRECTORY );  
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );  
 	sprintf( fname, (const char * __restrict__)dbFileUserList[num&0xFFFF], COREDIR, id );
 } else {
-	sprintf( (char * __restrict__)COREDIR, "%s/data", COREDIRECTORY );  
+	sprintf( COREDIR, "%s/data", COREDIRECTORY );  
   	sprintf( fname, (const char * __restrict__)dbFileUserList[num&0xFFFF], COREDIR, id );
 }
   
@@ -465,8 +465,8 @@ int dbInit() {
 	char szUsersFile[500];
 	char COREDIR[1024];
 	
-sprintf( (char * __restrict__)COREDIR, "%s/data", COREDIRECTORY );  
-if( chdir( (char * __restrict__)COREDIR ) == -1 ) {
+sprintf( COREDIR, "%s/data", COREDIRECTORY );  
+if( chdir( COREDIR ) == -1 ) {
 	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
 	return 0;
 }
@@ -521,7 +521,7 @@ if( chdir( (char * __restrict__)COREDIR ) == -1 ) {
   {
     syslog(LOG_INFO, "User database not found, creating...\n" );
     // Create a path to the users file in the same way as dbFileGenOpen
-	sprintf( (char * __restrict__)COREDIR, "%s/users", COREDIRECTORY );
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );
 	sprintf( szUsersFile, (const char * __restrict__)dbFileList[DB_FILE_USERS], COREDIR );
     if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) )
     {
@@ -722,7 +722,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
  	//Create a db Database in the db other server
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
-	sprintf( (char * __restrict__)COREDIR, "%s/data", COREDIRECTORY );
+	sprintf( COREDIR, "%s/data", COREDIRECTORY );
   	sprintf( fname, (const char * __restrict__)dbFileUserList[a], COREDIR, id );
     
     if( !( file = fopen( fname, "wb+" ) ))
@@ -754,7 +754,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   //Create a user Database in the db 10Min server
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
-	sprintf( (char * __restrict__)COREDIR, "%s/users", COREDIRECTORY );
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );
   	sprintf( fname, (const char * __restrict__)dbFileUserList[a], COREDIR, id );
     if( !( file = fopen( fname, "wb+" ) ))
     {
