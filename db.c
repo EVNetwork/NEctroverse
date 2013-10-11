@@ -31,7 +31,7 @@
 #include "cmd.h"
 
 
-unsigned char dbFileUsersName[] = "%s/users";
+unsigned char dbFileUsersName[] = "%s/userdb";
 unsigned char dbFileMapName[] = "map";
 unsigned char dbFileMarketName[] = "market";
 
@@ -45,7 +45,7 @@ FILE *dbFilePtr[DB_FILE_NUMBER];
 
 
 
-unsigned char dbFileUserUserName[] = "%s/user%d/user";
+unsigned char dbFileUserUserName[] = "%s/user%d/info";
 unsigned char dbFileUserMainName[] = "%s/user%d/main";
 unsigned char dbFileUserBuildName[] = "%s/user%d/build";
 unsigned char dbFileUserPlanetsName[] = "%s/user%d/planets";
@@ -56,7 +56,7 @@ unsigned char dbFileUserMailInName[] = "%s/user%d/mailin";
 unsigned char dbFileUserMailOutName[] = "%s/user%d/mailout";
 unsigned char dbFileUserSpecOpsName[] = "%s/user%d/specops";
 unsigned char dbFileUserRecordName[] = "%s/user%d/record";
-unsigned char dbFileUserFlags[] = "%s/user%d/user";
+unsigned char dbFileUserFlags[] = "%s/user%d/flags";
 
 
 #define DB_FILE_USER_NUMBER 12
@@ -255,25 +255,25 @@ And Mal forgot the mail file
 */
 
 
-FILE *dbFileGenOpen( int num )
-{
-	char szSource[500];
-	unsigned char COREDIR[256];
+FILE *dbFileGenOpen( int num ) {
+	char szSource[1024];
+	char COREDIR[1024];
 	
 	if(num == DB_FILE_USERS) {
 		sprintf( COREDIR, "%s/users", COREDIRECTORY );
 		sprintf(szSource, dbFileList[num], COREDIR);
-}
-	else
+	} else {
 		sprintf(szSource, dbFileList[num]);
+	}
 	if( dbFilePtr[num] )
-    return dbFilePtr[num];
+		return dbFilePtr[num];
     
-  if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
-	syslog(LOG_ERR, "Error %02d, could not open %s\n", errno, szSource );
-	return 0;
-  }
-  return dbFilePtr[num];
+	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
+		syslog(LOG_ERR, "DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
+		return 0;
+	}
+
+return dbFilePtr[num];
 }
 
 void dbFileGenClose( int num )
@@ -296,33 +296,35 @@ void dbFlush()
 
 
 FILE *dbFileUserOpen( int id, int num ) {
-	unsigned char fname[532];
-	unsigned char COREDIR[256];
+	unsigned char fname[1024];
+	unsigned char COREDIR[1024];
 	FILE *file;
 
-  if((num&0xFFFF) == DB_FILE_USER_USER) {
+if((num&0xFFFF) == DB_FILE_USER_USER) {
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );  
 	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
-  } else {
+} else {
 	sprintf( COREDIR, "%s/data", COREDIRECTORY );  
   	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
-  }
+}
   
-  if( !( file = fopen( fname, "rb+" ) ) )
-  {
+if( !( file = fopen( fname, "rb+" ) ) ) {
 		// mooooooo
-    if( ( file = fopen( fname, "wb" ) ) )
-    {
-      fwrite( dbFileUserListData[num&0xFFFF], 1, dbFileUserListBase[num&0xFFFF], file );
-      fclose( file );
-      return fopen( fname, "rb+" );
-    }
+	if( ( file = fopen( fname, "wb" ) ) ) {
+		fwrite( dbFileUserListData[num&0xFFFF], 1, dbFileUserListBase[num&0xFFFF], file );
+		fclose( file );
+		return fopen( fname, "rb+" );
+	}
 
-    if( num < 0x10000 )
-	syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
-    return 0;
-  }
-  return file;
+	if( num < 0x10000 )
+	syslog(LOG_ERR, "Error: %02d, fopen \"%s\"\n", errno, fname );
+
+	return 0;
+}
+
+
+
+return file;
 }
 
 FILE *dbFileFamOpen( int id, int num )
@@ -461,7 +463,7 @@ int dbInit() {
 	dbMainPlanetDef planetd;
 	FILE *file;
 	char szUsersFile[500];
-	unsigned char COREDIR[256];
+	unsigned char COREDIR[1024];
 	
 sprintf( COREDIR, "%s/data", COREDIRECTORY );  
 if( chdir( COREDIR ) == -1 ) {
@@ -532,13 +534,8 @@ if( chdir( COREDIR ) == -1 ) {
     fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
     dbFileGenClose( DB_FILE_USERS );
     return 1;
-  }
-  else
-  {
-
-dbInitUsersReset();
-
-
+  } else {
+	dbInitUsersReset();
   }
 
 
@@ -692,7 +689,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   int a, id, freenum;
   dbUserPtr user;
   unsigned char dname[532], fname[532], uname[532];
-	unsigned char COREDIR[256];
+  unsigned char COREDIR[1024];
   dbUserDescDef descd;
   FILE *file;
 
@@ -733,7 +730,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
       dbUserFree( user );
       rmdir( dname );
       rmdir( uname );
-	syslog(LOG_ERR, "Error %02d, fopen dbuseradd\n", errno );
+	syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
       return -3;
     }
     if( a == 0 )
@@ -764,7 +761,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
       dbUserFree( user );
       rmdir( dname );
       rmdir( uname );
-      syslog(LOG_ERR, "Error %02d, fopen dbuseradd\n", errno );
+      syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
       return -3;
     }
     if( a == 0 )

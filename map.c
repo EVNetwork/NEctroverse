@@ -9,6 +9,9 @@
 #include <pwd.h>
 #include <fcntl.h>
 #include <math.h>
+#if MYSQLENABLE == 1
+#include <mysql.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -263,6 +266,8 @@ int main() {
   FILE *file;
   unsigned char fname[256];
   FILE *file2;
+//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
+openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
 
 sprintf( fname, "%s/data", COREDIRECTORY );
 dirstructurecheck(fname);

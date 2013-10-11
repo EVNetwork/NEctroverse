@@ -2225,41 +2225,38 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 }
 
 
-int cmdInit()
-{
-  int a, id;
-  dbUserMainDef maind;
-  dbUserFleetDef fleetd;
-  dbUserPtr user;
+int cmdInit() {
+	int a, id;
+	dbUserMainDef maind;
+	dbUserFleetDef fleetd;
+	dbUserPtr user;
 
-  memset( &maind, 0, sizeof(dbUserMainDef) );
-  memset( &fleetd, 0, sizeof(dbUserFleetDef) );
-  maind.empire = -1;
+memset( &maind, 0, sizeof(dbUserMainDef) );
+memset( &fleetd, 0, sizeof(dbUserFleetDef) );
+maind.empire = -1;
 	
-	for( a = 0 ; a < CMD_ADMIN_NUM ; a++ )
-  {
-  	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
-      continue;
-    
-    memcpy( maind.faction, cmdAdminName[a], 32 );
-    sprintf( maind.forumtag, "Administrator" );
+for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
+	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
+		continue;
+	syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", cmdAdminName[a] );
+	memcpy( maind.faction, cmdAdminName[a], 32 );
+	sprintf( maind.forumtag, "Administrator" );
+	if( ( id = dbUserAdd( cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
+		continue;
+	user = dbUserLinkID( id );
+	user->flags = 0;
+	user->level = 3;
+	dbUserSave( id, user );
 
-    if( ( id = dbUserAdd( cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
-      continue;
-    user = dbUserLinkID( id );
-    user->flags = 0;
-    user->level = 3;
-    dbUserSave( id, user );
-
-    dbUserMainSet( id, &maind );
-    dbUserSetPassword( id, cmdAdminPass[a] );
-    dbUserFleetAdd( id, &fleetd );
-    cmdTotalsCalculate( id, &maind );
-  }
+	dbUserMainSet( id, &maind );
+	dbUserSetPassword( id, cmdAdminPass[a] );
+	dbUserFleetAdd( id, &fleetd );
+	cmdTotalsCalculate( id, &maind );
+}
 	
-	dbFlush();
+dbFlush();
 
-  return 1;
+return 1;
 }
 
 

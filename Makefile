@@ -7,7 +7,12 @@ COLORGCC = /usr/bin/colorgcc
 VARIABLE := $(shell cat config.h)
 COLORGCC := $(shell test -s /usr/bin/colorgcc)
 
-sv: colorgcc sqlcheck sv.o io.o db.o cmd.o
+SQLLIBS := $(shell mysql_config --libs)
+SQLFLAG := $(shell mysql_config --cflags)
+
+all: map server
+
+server: colorgcc sqlcheck sv.o io.o db.o cmd.o
 	$(CC) sv.o io.o db.o cmd.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 colorgcc:
@@ -16,9 +21,9 @@ CC = colorgcc
 endif
 
 sqlcheck:
-ifneq (,$(findstring MYSQLENABLE == 1,$(VARIABLE)))
-FLAGS = -s -mtune=core2 -O2 --fast-math -Wall  -I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing  -g -DNDEBUG
-LIBS = -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -ldl
+ifneq (,$(findstring MYSQLENABLE 1,$(VARIABLE)))
+FLAGS = -s -mtune=core2 -O2 --fast-math -Wall $(SQLFLAG)
+LIBS = $(SQLLIBS)
 else
 FLAGS = -s -mtune=core2 -O2 --fast-math -Wall -fno-strict-aliasing
 LIBS = -lm
@@ -35,8 +40,14 @@ cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact
 
 clean:
 	rm *.o -rf
+strip:
+	rm *.o -rf
+	rm core -rf
 
-map: map.c
-	$(CC) map.c $(DEFS) -o map $(FLAGS) $(LIBS)
+map: map.o
+	$(CC) map.o $(DEFS) -o map $(FLAGS) $(LIBS)
+
+map.o: map.c config.h
+	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
 
