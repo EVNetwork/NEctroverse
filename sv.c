@@ -30,6 +30,7 @@
 #include "sv.h"
 #include "io.h"
 #include "cmd.h"
+#include "map.h"
 
 
 svConnectionPtr svConnectionList = 0;
