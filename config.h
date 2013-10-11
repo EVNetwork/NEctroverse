@@ -4,7 +4,7 @@
 
 #define MYSQLENABLE 1
 
-#if MYSQLENABLE == 0
+#if MYSQLENABLE == 1
 #define SQL_SRVR "localhost"
 #define SQL_USER "defaultu"
 #define SQL_PASS "password"

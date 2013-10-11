@@ -2,13 +2,20 @@ CC = gcc
 DEFS = 
 FLAGS = -s -mtune=core2 -O2 --fast-math -Wall -fno-strict-aliasing
 LIBS = -lm
+COLORGCC = /usr/bin/colorgcc
 
 VARIABLE := $(shell cat config.h)
+COLORGCC := $(shell test -s /usr/bin/colorgcc)
 
-sv: check sv.o io.o db.o cmd.o
+sv: colorgcc sqlcheck sv.o io.o db.o cmd.o
 	$(CC) sv.o io.o db.o cmd.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
-check:
+colorgcc:
+ifeq (,$(findstring $(COLORGCC),$(wildcard $(COLORGCC) )))
+CC = colorgcc
+endif
+
+sqlcheck:
 ifneq (,$(findstring MYSQLENABLE == 1,$(VARIABLE)))
 FLAGS = -s -mtune=core2 -O2 --fast-math -Wall  -I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing  -g -DNDEBUG
 LIBS = -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -ldl
@@ -31,3 +38,5 @@ clean:
 
 map: map.c
 	$(CC) map.c $(DEFS) -o map $(FLAGS) $(LIBS)
+
+
