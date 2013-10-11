@@ -35,17 +35,29 @@ fd_set svSelectWrite;
 fd_set svSelectError;
 
 
-
+#if EVMAPENABLE == 1
 #define SV_INTERFACES 2
+#else
+#define SV_INTERFACES 1
+#endif
 
-int svListenPort[SV_INTERFACES] = { HTTP_PORT /*, EVMP_PORT*/};
-int svListenIO[SV_INTERFACES] = { 0/*, 1*/ };
+
+int svListenPort[SV_INTERFACES] = { HTTP_PORT
+#if EVMAPENABLE == 1
+, EVMP_PORT
+#endif
+};
+int svListenIO[SV_INTERFACES] = { 0
+#if EVMAPENABLE == 1
+, 1
+#endif
+};
 int svListenSocket[SV_INTERFACES];
 
 svConnectionPtr svDebugConnection;
 
 
-#include "svban.c"
+#include "svban.c" //Lets try and change this in the future too... Flat file baning is just flat out bad.
 
 
 int svTime() {
@@ -718,13 +730,11 @@ static void daemonloop(int pipefileid) {
 		io->TickStart();
 		}
 		
-//printf("Tick init\n"); -- Should we log these?? Meh, decide that latter
 		cmdTickInit();
 		if( svTickStatus ) {
 			cmdTick();
 			svTickNum++;
 		}
-//printf("Tick end\n"); -- Should we log these?? Meh, decide that latter
 		cmdTickEnd();
 
 		for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
@@ -768,7 +778,6 @@ if(pid > 0) {
  }
 
 syslog(LOG_INFO, "%s\n", "Begining initiation of NEctroverse daemon...");
-//syslog(LOG_INFO, "%s\n", "Childlike proccess now iniated... begining power to daemon!");
 
 // First, start a new session
 if((sid = setsid()) < 0) {
@@ -960,7 +969,7 @@ int main() {
 	char buf[256];
 	int num, fd;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
-openlog("EVServer", LOG_PID | LOG_NDELAY, LOG_LOCAL6);
+openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
 
 //check basic dir structure and create as needed.	
 sprintf( COREDIR, "%s/data", COREDIRECTORY );
