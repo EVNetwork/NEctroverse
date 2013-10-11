@@ -2238,6 +2238,9 @@ maind.empire = -1;
 for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
 	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
 		continue;
+	#if FORKING == 0
+	printf("Creating Administrator account named: \"%s\"\n", cmdAdminName[a] );
+	#endif
 	syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", cmdAdminName[a] );
 	memcpy( maind.faction, cmdAdminName[a], 32 );
 	sprintf( maind.forumtag, "Administrator" );

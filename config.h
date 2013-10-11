@@ -14,10 +14,12 @@
 
 #define CMD_ADMIN_NUM 1
 
-static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
-static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
+static const char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
+static const char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
+#define TMPDIR "/tmp/evcore"
+
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
 #define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
 #define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
@@ -96,7 +98,8 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 ^^^ You don't want to change anything down here... it's all up there! ^^^ =) 
 */
 
-#define PIPEFILE "/tmp/evserver.pipe"
+static const char PIPEFILE[32] = "%s/evserver.pipe";
+//#define PIPEFILE "/tmp/evcore/evserver.pipe"
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)
 #define SERVER_SELECT_MSEC (1000)

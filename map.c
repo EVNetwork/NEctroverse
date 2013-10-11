@@ -193,7 +193,7 @@ int mapgen() {
 	long long int j;
 	float dist, distmax;
 	FILE *file;
-	unsigned char fname[256];
+	char fname[256];
 	FILE *file2;
 
 openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);

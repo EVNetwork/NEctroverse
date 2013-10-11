@@ -151,15 +151,16 @@ return 1;
 }
 
 void cleanUp(int pipefileid) {
+	char COREDIR[256];
+sprintf( COREDIR, PIPEFILE, TMPDIR );
 close(pipefileid);
-unlink(PIPEFILE);
-#if FORKING == 0
-printf("Server has been Completly shutdown!\n");
-#endif
+unlink(COREDIR);
 syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
 syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
 closelog();
-
+#if FORKING == 0
+printf("Server has been Completly shutdown!\n");
+#endif
 return;
 }
 
@@ -197,7 +198,7 @@ for( a = 0 ; a < SV_INTERFACES ; a++ ) {
 
    	}
 
-cleanUp(NULL);
+cleanUp(-1);
 return;
 }
 
@@ -211,7 +212,7 @@ for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 	if( svListenSocket[b] == -1 )
 		continue;
 	a = sizeof( struct sockaddr_in );
-	socket = accept( svListenSocket[b], (struct sockaddr *)(&sockaddr), &a );
+	socket = accept( svListenSocket[b], (struct sockaddr *)(&sockaddr), (socklen_t * __restrict__)&a );
 	if( socket == -1 ) {
 		if( errno == EWOULDBLOCK )
 			continue;
@@ -676,7 +677,7 @@ int svDebugTickPass;
 int svDebugTickId;
 
 void svSignal( int signal ) {
-	unsigned char TICKFILE[256];
+	char TICKFILE[256];
 	int a, size;
 	FILE *fFile;  
     
@@ -779,7 +780,7 @@ if( svDebugConnection ) {
 }
 
 
-cleanUp(NULL);
+cleanUp(-1);
 exit(1);
 }
 
@@ -841,14 +842,16 @@ return;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 void daemonloop(int pipefileid) {
-	unsigned char TICKFILE[256];
+	char TICKFILE[256];
 	int a, curtime;
 	FILE *file;
 	ioInterfacePtr io;
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
+		#if FORKING == 1
 		readfrompipe(pipefileid);
+		#endif
 		svSelect();
 		svListen();
 		svRecv();
@@ -857,10 +860,10 @@ void daemonloop(int pipefileid) {
 		if( curtime < svTickTime )
 			continue;
 
-		if(strstr(ctime(&curtime), START_TIME))
+		if(strstr(ctime((const time_t *)&curtime), START_TIME))
 			svTickStatus = 1;
 		
-		if(strstr(ctime(&curtime), STOP_TIME))
+		if(strstr(ctime((const time_t *)&curtime), STOP_TIME))
 			svTickStatus = 0;
 			
 		svTickTime += SV_TICK_TIME;
@@ -902,7 +905,7 @@ return;
 int daemon_init(void) {
 	int a;
 	int pipingin;
-	unsigned char COREDIR[256];
+	char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
 	pid_t pid, sid;
@@ -1013,8 +1016,13 @@ if( ( svTickAutoStart == 1 ) && ( !svTickStatus ) && (svTickNum))
 	svTickStatus = 1;
 
 //add local pipe, for basic commands from shell
-mkfifo(PIPEFILE, 0666);
-pipingin = open(PIPEFILE, O_RDONLY | O_NONBLOCK);
+#if FORKING == 1
+sprintf( COREDIR, PIPEFILE, TMPDIR );
+mkfifo(COREDIR, 0666);
+pipingin = open(COREDIR, O_RDONLY | O_NONBLOCK);
+#else
+pipingin = NULL;
+#endif
 syslog(LOG_INFO, "%s\n", "Completed initiation of NEctroverse daemon.");
 //Now create the loop, this used to take place in here... but I decided to move it =P
 daemonloop(pipingin);
@@ -1124,12 +1132,12 @@ return;
 }
 
 int main() {
-	unsigned char COREDIR[256];
+	char COREDIR[256];
 	char buf[256];
 	int num, fd;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
 openlog(LOGTAG, LOG_CONS | LOG_PID | LOG_NDELAY, LOGFAC);
-
+dirstructurecheck(TMPDIR);
 //check basic dir structure and create as needed.	
 sprintf( COREDIR, "%s/data", COREDIRECTORY );
 dirstructurecheck(COREDIR);
@@ -1148,7 +1156,8 @@ if( !( file_exist(COREDIR) ) ) {
 	syslog(LOG_INFO, "No map detected... now generating...\n");
 	mapgen();
 }
-if ( file_exist(PIPEFILE) ) {
+sprintf( COREDIR, PIPEFILE, TMPDIR );
+if ( file_exist(COREDIR) ) {
 printf("%s\n","Pipe file detected, auto switching to client mode");
 //exit(1);
 } else {
@@ -1167,11 +1176,11 @@ printf("%s\n","Pipe file detected, auto switching to client mode");
 
 printf("%s\n", "Please input command to send to server...");
 
-        if ((fd = open(PIPEFILE, O_WRONLY)) < 0)
+        if ((fd = open(COREDIR, O_WRONLY)) < 0)
             perror("Open Pipe for Write");
 
         printf("Daemon listening on Pipe... Typing \"die\" kills server.\n");
-        while( file_exist(PIPEFILE) && fgets(buf, sizeof(buf), stdin), !feof(stdin) ) {
+        while( file_exist(COREDIR) && fgets(buf, sizeof(buf), stdin), !feof(stdin) ) {
 
             if ((num = write(fd, buf, strlen(buf))) < 0)
                 perror("Write To Pipe");

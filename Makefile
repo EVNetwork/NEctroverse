@@ -38,11 +38,16 @@ cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact
 map.o: map.c config.h
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
+map: map.o
+	$(CC) map.o $(DEFS) -o map $(FLAGS) $(LIBS)
+
 clean:
 	rm *.o -rf
 	rm *~ -rf
-strip: clean
-	rm core -rf
 
-map: map.o
-	$(CC) map.o $(DEFS) -o map $(FLAGS) $(LIBS)
+stripclean: clean
+	rm core -rf
+	rm /tmp/evcore -rf
+
+fresh: stripclean server
+
