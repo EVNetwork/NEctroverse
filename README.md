@@ -23,6 +23,8 @@ Run:
 -- NEctroverse is a forked damon server, and does not requre a shell once iniated.
 
 Congrats, the server is running on port 9122 of your localhost.
+Or if you want... you can change the port in config.h also.
+Most variable config is done in there now.
 
 KNOWN BUGS - Very annoying and need to go:
 * Merge Fleet does not work. Splitting does.
