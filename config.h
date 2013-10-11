@@ -2,9 +2,12 @@
 
 #define HTTP_PORT 9122
 
-#define EVMP_PORT 9135
 // 0 = Off | 1 = On -- Since the source for the map program is lost, we'll just drop support.
 #define EVMAPENABLE 0
+
+#if EVMAPENABLE == 1
+#define EVMP_PORT 9135
+#endif
 
 #define ADMIN_DEFAULT_NAME "admin"
 #define ADMIN_DEFAULT_PASS "password"

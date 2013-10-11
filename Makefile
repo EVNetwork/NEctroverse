@@ -1,7 +1,7 @@
 CC = gcc
 DEFS = 
-FLAGS = -s -mtune=core2 -O2 --fast-math -Wall  -fno-strict-aliasing
-LIBS = -lm
+FLAGS = -s -mtune=core2 -O2 --fast-math -Wall  -I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing  -g -DNDEBUG
+LIBS = -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -ldl
 
 sv: sv.o io.o db.o cmd.o
 	$(CC) sv.o io.o db.o cmd.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
