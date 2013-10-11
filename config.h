@@ -2,18 +2,18 @@
 
 #define HTTP_PORT 9122
 
-// 0 = Off | 1 = On -- Since the source for the map program is lost, we'll just drop support.
-#define EVMAPENABLE 0
+#define MYSQLENABLE 1
 
-#if EVMAPENABLE == 1
-#define EVMP_PORT 9135
+#if MYSQLENABLE == 1
+#define SQL_SRVR "localhost"
+#define SQL_USER "defaultu"
+#define SQL_PASS "password"
+#define SQL_BASE "evcoredb"
 #endif
-
 
 #define CMD_ADMIN_NUM 1
 
 static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
-
 static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
@@ -41,7 +41,17 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 #define SERVER_REPORT_IGNOREDHEADER 0
 
 #define LOGTAG "EVServer"
-#define LOGFAC LOG_LOCAL6
+#define LOGFAC LOG_LOCAL6 //<-- Possible to also just use LOG_SYSLOG for conveniance.
+
+// 0 = Off | 1 = On -- Since the source for the map program is lost, we'll just drop support.
+#define EVMAPENABLE 0
+
+#if EVMAPENABLE == 1
+#define EVMP_PORT 9135
+#endif
+
+/*
+<<<<<<<<<<<<<END USER VARIABLES >>>>>>>>>>>>>>>>>>>
 
 
 
@@ -69,7 +79,22 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 
 
-// You don't want to change anything down here... it's all up there! =)
+
+
+
+
+
+
+
+
+
+
+
+
+
+^^^ You don't want to change anything down here... it's all up there! ^^^ =) 
+*/
+
 #define PIPEFILE "/tmp/evserver.pipe"
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)

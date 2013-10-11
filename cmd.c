@@ -9,6 +9,9 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <fcntl.h>
+#if MYSQLENABLE == 1
+#include <mysql.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -2222,10 +2225,6 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 }
 
 
-
-
-
-
 int cmdInit()
 {
   int a, id;
@@ -2262,6 +2261,7 @@ int cmdInit()
 
   return 1;
 }
+
 
 void cmdEnd()
 {
