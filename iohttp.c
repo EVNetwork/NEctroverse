@@ -693,7 +693,7 @@ fflush( stdout );
   else
     svSendString( cnt, "HTTP/1.0 500 Internal Error\n" );
 
-  svSendString( cnt, "Server: " SERVER_SOFTWARE "\nConnection: close\n" );
+  svSendString( cnt, "Server: " SERVERNAME "\nConnection: close\n" );
   curtime = time( (time_t*) 0 );
   strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &curtime ) );
   svSendPrintf( cnt, "Date: %s\n", scurtime );
@@ -702,7 +702,7 @@ fflush( stdout );
   {
     svSendString( cnt, "Content-Type: text/html\n\n" );
     svSendString( cnt, "<html><head><style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head><body bgcolor=\"#000000\" text=\"#C0D0D8\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\">" );
-    svSendPrintf( cnt, "Your IP has been banned from Ectroverse, it is likely that you know why if it went that far.<br><br>Have a nice day!" );
+    svSendPrintf( cnt, "Your IP has been banned from %s, it is likely that you know why if it went that far.<br><br>Have a nice day!", SERVERNAME );
     svSendString( cnt, "</body></html>" );
   }
   else if( iohttp->flags & 4 )

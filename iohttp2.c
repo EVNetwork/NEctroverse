@@ -211,7 +211,7 @@ void iohttpBodyEnd( svConnectionPtr cnt )
 void iohttpFunc_races( svConnectionPtr cnt )
 {
  iohttpBase( cnt, 0 );
- svSendString( cnt, "<br><b>Ectroverse races</b><br><br>" );
+ svSendPrintf( cnt, "<br><b>%s races</b><br><br>", SERVERNAME );
 
  svSendString( cnt, "<h3>Harks</h3><table width=\"620\" border=\"0\"><tr>" );
  svSendString( cnt, "<td valign=\"top\" width=\"340\"><i>Main bonuses</i><br>-10% Energy production<br>+20% Research production <br>-20% Population upkeep reduction<br>+40% Attack strength<br>-10% Defence strength<br>+40% Travel speed<br><br>" );
@@ -620,7 +620,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  }
 
  svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendString( cnt, "<html><head><title>Ectroverse</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
+ svSendPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", SERVERNAME );
  svSendString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
  svSendString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
  svSendString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
@@ -689,7 +689,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
 		}
 	}
  svSendString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
- svSendString( cnt, "<a href=\"http://www.ectroverse.org:9122/chat\" target=\"blank\">Chat</a><br>" );
+ svSendString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
 
  if( cnt->dbuser )
  {
@@ -8383,7 +8383,7 @@ void iohttpForum( svConnectionPtr cnt )
   }
   a = time( 0 )-(3600*SERVER_TIME_ZONE);
   strftime( timebuf, 256, "%T, %b %d", localtime( (time_t *)&a ) );
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">Ectroverse</a> - Ectroverse public forums</td><td align=\"right\">%s", timebuf );
+  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", SERVERNAME, SERVERNAME, timebuf );
   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
    svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
   svSendString( cnt, "</td></tr></table>" );
@@ -8431,7 +8431,7 @@ void iohttpForum( svConnectionPtr cnt )
 		 	}
 	  	}
 	 }
-		svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">Ectroverse</a> - <a href=\"forum\">Ectroverse public forums</a> - %s</td><td align=\"right\">", forumd.title );
+		svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", SERVERNAME, SERVERNAME, forumd.title );
   if( forum < 100 )
   {
    a = time( 0 )-(3600*SERVER_TIME_ZONE);
@@ -8538,7 +8538,7 @@ void iohttpForum( svConnectionPtr cnt )
    return;
   }
 
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">Ectroverse</a> - <a href=\"forum\">Ectroverse public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", forum, forumd.title, threadd.topic );
+  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", SERVERNAME, SERVERNAME, forum, forumd.title, threadd.topic );
   if( forum < 100 )
   {
    a = time( 0 )-(3600*SERVER_TIME_ZONE);

@@ -122,7 +122,7 @@ void iohttpFunc_status( svConnectionPtr cnt )
   svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
 
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
-  svSendString( cnt, "<b>Ectroverse status</b><br>" );
+  svSendPrintf( cnt, "<b>%s status</b><br>", SERVERNAME );
   svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
   svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
   if( svTickStatus )
@@ -495,7 +495,7 @@ void iohttpFunc_admin2( svConnectionPtr cnt )
   if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto denied;
   svSendString( cnt, "Content-Type: text/html\n\n" );
-  svSendString( cnt, "<html><head><title>Ectroverse</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
+  svSendPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", SERVERNAME );
   svSendString( cnt, "<frame src=\"adminmenu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
   svSendString( cnt, "<frame src=\"adminserver\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
   svSendString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
@@ -515,7 +515,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
   if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto denied;
   svSendString( cnt, "Content-Type: text/html\n\n" );
-  svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000080\" text=\"#00bb00\" link=\"#00bb00\" alink=\"#00bb00\" vlink=\"#00bb00\" leftmargin=\"0\" background=\"http://users.pandora.be/amedee/ectroverse/mbg.gif\">" );
+  svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000080\" text=\"#00bb00\" link=\"#00bb00\" alink=\"#00bb00\" vlink=\"#00bb00\" leftmargin=\"0\" background=\"mbg.gif\">" );
   svSendString( cnt, "<b><font face=\"Tahoma\" size=\"2\">" );
 
   svSendString( cnt, "<a href=\"adminforum\" target=\"main\">Forums</a><br>" );
