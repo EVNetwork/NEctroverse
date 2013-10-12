@@ -5400,7 +5400,7 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
  if(nfltid[0] == nfltid[1])
  	nNbrFleet = 1;
  if((nNbrFleet == 1)&&(nError == 0))
- 	svSendPrintf(cnt, "<i>Error while merging</i><br>Only one fleet is selected<br>");
+ 	svSendString(cnt, "<i>Error while merging</i><br>Only one fleet is selected<br>");
  if(nNbrFleet == 2)
  {
  	cmdFleetGetPosition( &pFleet[nfltid[0]], &nX0, &nY0 );

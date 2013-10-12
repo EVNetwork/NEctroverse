@@ -1,9 +1,9 @@
 #define SERVER_SOFTWARE "NEctroverse"
-#define FORKING 1
+#define FORKING 0
 
 #define HTTP_PORT 9122
 
-#define MYSQLENABLE 1
+#define MYSQLENABLE 0
 
 #if MYSQLENABLE == 1
 #define SQL_SRVR "localhost"
