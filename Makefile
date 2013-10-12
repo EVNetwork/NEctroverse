@@ -45,7 +45,7 @@ SQLFLAG := $(shell mysql_config --cflags)
 FLAGS += $(SQLFLAG)
 LIBS += $(SQLLIBS)
 endif
-ifneq ($(wildcard hidden.and.nogit),) 
+ifneq ($(wildcard .hidden.and.nogit),) 
 FLAGS += -DHAHA_NECRO_GOT_YOU
 endif
 

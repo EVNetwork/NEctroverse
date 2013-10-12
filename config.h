@@ -14,15 +14,12 @@
 
 // OK, so can you see what I've done here? Sneaky eh? Hehe =P
 #ifdef HAHA_NECRO_GOT_YOU
-#include "hidden.and.nogit"
+#include ".hidden.and.nogit"
 #else
 #define CMD_ADMIN_NUM 1
-#define HIDDENADMINENAME = "admin"
-#define HIDDENADMINPASSW = "password"
+static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
+static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 #endif
-static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { HIDDENADMINENAME };
-static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { HIDDENADMINPASSW };
-
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 #define TMPDIR "/tmp/evcore"
