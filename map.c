@@ -193,12 +193,10 @@ int mapgen() {
 	long long int j;
 	float dist, distmax;
 	FILE *file;
-	char fname[256];
+	unsigned char fname[256];
 	FILE *file2;
 
 openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
-
-
 sprintf( fname, "%s/data", COREDIRECTORY );
 dirstructurecheck(fname);
 

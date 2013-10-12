@@ -56,7 +56,7 @@ unsigned char dbFileUserMailInName[] = "%s/user%d/mailin";
 unsigned char dbFileUserMailOutName[] = "%s/user%d/mailout";
 unsigned char dbFileUserSpecOpsName[] = "%s/user%d/specops";
 unsigned char dbFileUserRecordName[] = "%s/user%d/record";
-unsigned char dbFileUserFlags[] = "%s/user%d/flags";
+unsigned char dbFileUserFlags[] = "%s/user%d/info";
 
 
 #define DB_FILE_USER_NUMBER 12
@@ -256,14 +256,14 @@ And Mal forgot the mail file
 
 
 FILE *dbFileGenOpen( int num ) {
-	char szSource[500];
-	char COREDIR[256];
+	unsigned char szSource[500];
+	unsigned char COREDIR[256];
 	
 	if(num == DB_FILE_USERS) {
 		sprintf( COREDIR, "%s/users", COREDIRECTORY );
-		sprintf(szSource, (const char * __restrict__)dbFileList[num], COREDIR);
+		sprintf(szSource, dbFileList[num], COREDIR);
 	} else {
-		sprintf(szSource, (const char * __restrict__)dbFileList[num]);
+		sprintf(szSource, dbFileList[num]);
 	}
 	if( dbFilePtr[num] )
 		return dbFilePtr[num];
@@ -296,16 +296,16 @@ void dbFlush()
 
 
 FILE *dbFileUserOpen( int id, int num ) {
-	char fname[1024];
-	char COREDIR[1024];
+	unsigned char fname[1024];
+	unsigned char COREDIR[256];
 	FILE *file;
 
 if((num&0xFFFF) == DB_FILE_USER_USER) {
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );  
-	sprintf( fname, (const char * __restrict__)dbFileUserList[num&0xFFFF], COREDIR, id );
+	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
 } else {
 	sprintf( COREDIR, "%s/data", COREDIRECTORY );  
-  	sprintf( fname, (const char * __restrict__)dbFileUserList[num&0xFFFF], COREDIR, id );
+  	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
 }
   
 if( !( file = fopen( fname, "rb+" ) ) ) {
@@ -330,7 +330,7 @@ return file;
 FILE *dbFileFamOpen( int id, int num )
 {
   int a, b;
-  char fname[32];
+  unsigned char fname[32];
   FILE *file;
   sprintf( fname, "fam%02dn%02d", id, num );
   if( !( file = fopen( fname, "rb+" ) ) )
@@ -462,8 +462,8 @@ int dbInit() {
 	dbUserMainDef maind;
 	dbMainPlanetDef planetd;
 	FILE *file;
-	char szUsersFile[500];
-	char COREDIR[1024];
+	unsigned char szUsersFile[500];
+	unsigned char COREDIR[256];
 	
 sprintf( COREDIR, "%s/data", COREDIRECTORY );  
 if( chdir( COREDIR ) == -1 ) {
@@ -482,7 +482,7 @@ if( chdir( COREDIR ) == -1 ) {
   if( !( dbFileGenOpen( DB_FILE_MARKET ) ) )
   {
     	syslog(LOG_INFO, "Market database not found, creating...\n" );
-    if( !( dbFilePtr[DB_FILE_MARKET] = fopen( (const char * __restrict__)dbFileList[DB_FILE_MARKET], "wb+" ) ) )
+    if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) )
     {
 	syslog(LOG_ERR, "Error, could not create market database!\n" );
       return 0;
@@ -522,7 +522,7 @@ if( chdir( COREDIR ) == -1 ) {
     syslog(LOG_INFO, "User database not found, creating...\n" );
     // Create a path to the users file in the same way as dbFileGenOpen
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );
-	sprintf( szUsersFile, (const char * __restrict__)dbFileList[DB_FILE_USERS], COREDIR );
+	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
     if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) )
     {
       syslog(LOG_ERR, "Error, could not create user database!\n" );
@@ -572,8 +572,8 @@ if( chdir( COREDIR ) == -1 ) {
     fread( &user->flags, 1, sizeof(int), file );
     fclose(file);
     dbUserMainRetrieve( a, &maind );
-    sprintf( (char * __restrict__)user->faction, (const char * __restrict__)maind.faction );
-    sprintf( (char * __restrict__)user->forumtag, (const char * __restrict__)maind.forumtag );
+    sprintf( user->faction, maind.faction );
+    sprintf( user->forumtag, maind.forumtag );
     user->lasttime = maind.lasttime;
   }
 
@@ -688,8 +688,8 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
 {
   int a, id, freenum;
   dbUserPtr user;
-  char dname[532], fname[532], uname[532];
-  char COREDIR[1024];
+  unsigned char dname[532], fname[532], uname[532];
+  unsigned char COREDIR[256];
   dbUserDescDef descd;
   FILE *file;
 
@@ -723,7 +723,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
 	sprintf( COREDIR, "%s/data", COREDIRECTORY );
-  	sprintf( fname, (const char * __restrict__)dbFileUserList[a], COREDIR, id );
+  	sprintf( fname, dbFileUserList[a], COREDIR, id );
     
     if( !( file = fopen( fname, "wb+" ) ))
     {
@@ -746,7 +746,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   fwrite( &a, 1, sizeof(int), file );
   fwrite( &a, 1, sizeof(int), file );
   memset( fname, 0, 32 );
-  sprintf( fname, (const char * __restrict__)name );
+  sprintf( fname, name );
   fwrite( fname, 1, 32, file );
   fclose( file );
  
@@ -755,7 +755,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
   {
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );
-  	sprintf( fname, (const char * __restrict__)dbFileUserList[a], COREDIR, id );
+  	sprintf( fname, dbFileUserList[a], COREDIR, id );
     if( !( file = fopen( fname, "wb+" ) ))
     {
       dbUserFree( user );
@@ -780,7 +780,7 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
   fwrite( &a, 1, sizeof(int), file );
   fwrite( &a, 1, sizeof(int), file );
   memset( fname, 0, 32 );
-  sprintf( fname, (const char * __restrict__)name );
+  sprintf( fname, name );
   fwrite( fname, 1, 32, file );
   fclose( file );
 	
@@ -840,8 +840,8 @@ int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forum
 	}
 	free(user_hashes);
 
-  syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
-  system("kill -n 12 $(pidof sv)");
+//  syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
+//  system("kill -n 12 $(pidof sv)");
   return id;
 }
 
@@ -849,7 +849,8 @@ int dbUserRemove( int id )
 {
   int a;
   dbUserPtr user;
-  char dname[532], fname[532];
+  unsigned char dname[532], fname[532];
+  unsigned char COREDIR[256];
 
   if( !( user = dbUserLinkID( id ) ) )
     return 0;
@@ -866,14 +867,14 @@ int dbUserRemove( int id )
   fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
   for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ ) {
-    sprintf( dname, "%s/users", COREDIRECTORY );
-    sprintf( fname, (const char * __restrict__)dbFileUserList[a], dname, id );
+    sprintf( COREDIR, "%s/users", COREDIRECTORY );
+    sprintf( fname, dbFileUserList[a], COREDIR, id );
     unlink( fname );
   }
   for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ )
   {
-    sprintf( dname, "%s/data", COREDIRECTORY );
-    sprintf( fname, (const char * __restrict__)dbFileUserList[a], dname, id );
+    sprintf( COREDIR, "%s/data", COREDIRECTORY );
+    sprintf( fname, dbFileUserList[a], COREDIR, id );
     unlink( fname );
   }
   sprintf( dname, "%s/users/user%d", COREDIRECTORY, id );
@@ -881,8 +882,8 @@ int dbUserRemove( int id )
   sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
   rmdir( dname );
 
- syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
-  system("kill -n 12 $(pidof sv)");
+// syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
+//  system("kill -n 12 $(pidof sv)");
 
   return 1;
 }
@@ -915,7 +916,7 @@ int dbUserSave( int id, dbUserPtr user )
 
 int dbUserSetPassword( int id, unsigned char *pass )
 {
-  char fname[532];
+  unsigned char fname[532];
   FILE *file;
   
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
@@ -924,7 +925,7 @@ int dbUserSetPassword( int id, unsigned char *pass )
   }
   fseek( file, 16+32, SEEK_SET );
   memset( fname, 0, 32 );
-  sprintf( fname, (const char * __restrict__)pass );
+  sprintf( fname, pass );
   fwrite( fname, 1, 32, file );
   fclose( file );
   return 1;
@@ -1003,8 +1004,8 @@ int dbUserMainSet( int id, dbUserMainPtr maind )
   fclose( file );
   if( !( user = dbUserLinkID( id ) ) )
     return -3;
-  sprintf( (char * __restrict__)user->faction, (const char * __restrict__)maind->faction );
-  sprintf( (char * __restrict__)user->forumtag, (const char * __restrict__)maind->forumtag );
+  sprintf( user->faction, maind->faction );
+  sprintf( user->forumtag, maind->forumtag );
   return 1;
 }
 
@@ -2067,7 +2068,7 @@ int dbFamNewsAdd( int id, long long int *data )
 {
   long long int a, num, lused, lfree, numnext, lcur, lnext;
   FILE *file;
-  char fname[32];
+  unsigned char fname[32];
   sprintf( fname, "fam%dnews", id );
   if( !( file = fopen( fname, "rb+" ) ) )
   {
@@ -2125,7 +2126,7 @@ int dbFamNewsList( int id, long long int **data, int time )
   long long int a, b, c, d, num, lused, lfree, lprev, lnext;
   FILE *file;
   long long int *datap;
-  char fname[32];
+  unsigned char fname[32];
   *data = 0;
   sprintf( fname, "fam%dnews", id );
   if( !( file = fopen( fname, "rb+" ) ) )
@@ -2523,7 +2524,7 @@ int dbMarketReset()
 {
   int a, array[3];
   FILE *file;
-  if( !( file = fopen( (const char * __restrict__)dbFileList[DB_FILE_MARKET], "wb+" ) ) )
+  if( !( file = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) )
     return 0;
   fseek( file, 0, SEEK_SET );
   array[0] = 0;
@@ -2902,7 +2903,7 @@ int dbForumListForums( int perms, dbForumForumPtr *forums )
   int num;
   FILE *file;
   dbForumForumPtr forumsp;
-  char szSource[500];
+  unsigned char szSource[500];
   
   sprintf(szSource, "%s/forums", PUBLIC_FORUM_DIRECTORY);
   if( !( file = fopen( szSource, "rb+" ) ))
@@ -2921,7 +2922,7 @@ int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, db
 {
   int a, b, c, d, num, lused, lfree, numnext;
   FILE *file;
-  char fname[556];
+  unsigned char fname[556];
   dbForumThreadPtr threadsp;
 
   *threads = 0;
@@ -2981,7 +2982,7 @@ int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, db
 int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts )
 {
   int a, b, offset, num;
-  char fname[556];
+  unsigned char fname[556];
   FILE *file;
   dbForumPostPtr postsp;
 
@@ -3047,7 +3048,7 @@ int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr
 int dbForumRetrieveForum( int forum, dbForumForumPtr forumd )
 {
   FILE *file;
-  char fname[556];
+  unsigned char fname[556];
   
   if(forum > 100)
   	sprintf( fname, "forum%d/threads", forum );
@@ -3067,7 +3068,7 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
 {
   int a, num;
   FILE *file;
-  char fname[532];
+  unsigned char fname[532];
   num = nid;
   if( !( type ) )
   {
@@ -3119,7 +3120,7 @@ int dbForumRemoveForum( int forum )
   FILE *file;
   DIR *dirdata;
   struct dirent *direntry;
-  char fname[256];
+  unsigned char fname[256];
   unsigned char *frcopy;
   dbForumForumDef forumd;
 
@@ -3188,7 +3189,7 @@ int dbForumAddThread( int forum, dbForumThreadPtr threadd )
 {
   int a, num, lused, lfree, numnext, lcur, lnext;
   FILE *file;
-  char fname[256];
+  unsigned char fname[256];
   dbForumForumDef forumd;
 
 	if(forum > 100)
@@ -3278,7 +3279,7 @@ int dbForumRemoveThread( int forum, int thread )
 {
   int a, num, lused, lfree, numnext, lprev, lnext;
   FILE *file;
-  char fname[256];
+  unsigned char fname[256];
   dbForumForumDef forumd;
   dbForumThreadDef threadd;
 
@@ -3369,7 +3370,7 @@ int dbForumAddPost( int forum, int thread, dbForumPostPtr postd )
 {
   int a, num, offset, lused, lprev, lnext;
   FILE *file;
-  char fname[556];
+  unsigned char fname[556];
   dbForumThreadDef threadd;
   dbForumForumDef forumd;
 	
@@ -3469,7 +3470,7 @@ int dbForumRemovePost( int forum, int thread, int post )
 {
   int a, num, offset, offset2;
   FILE *file;
-  char fname[556];
+  unsigned char fname[556];
   dbForumThreadDef threadd;
   dbForumPostDef postd;
 
@@ -3549,7 +3550,7 @@ int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd )
 {
   int a, b, num, offset;
   FILE *file;
-  char fname[556];
+  unsigned char fname[556];
   dbForumThreadDef threadd;
   dbForumPostPtr posts;
 /*

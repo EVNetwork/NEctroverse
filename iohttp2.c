@@ -2758,7 +2758,7 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
  iohttpBodyInit( cnt, "Send Aid" );
 	
 	//Find ally (Both way alliance)
-// nAlly = -1;
+nAlly = -1;
 // if( ( j = dbEmpireRelsList( maind.empire, &rel ) ) >= 0 )
 // {
  	//printf("%d\n",j);

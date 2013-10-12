@@ -55,7 +55,7 @@ void svRecv();
 
 int file_exist (char *filename);
 char *trimwhitespace(char *str);
-char** str_split( char* str, char delim, int* numSplits );
+char** str_split(char* str, char delim, int* numSplits );
 void dirstructurecheck(char *directory);
 
 void svShutdown( svConnectionPtr cnt );

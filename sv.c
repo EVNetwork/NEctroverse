@@ -151,7 +151,7 @@ return 1;
 }
 
 void cleanUp(int pipefileid) {
-	char COREDIR[256];
+	unsigned char COREDIR[256];
 sprintf( COREDIR, PIPEFILE, TMPDIR );
 close(pipefileid);
 unlink(COREDIR);
@@ -761,7 +761,9 @@ if( svDebugConnection ) {
 		else
 			size = svDebugConnection->sendpos - svDebugConnection->sendflushpos;
 		a = size;
+		#if FORKING == 0
 		fwrite( &(svDebugConnection->sendflushbuf)->data[svDebugConnection->sendflushpos], 1, size, stdout ); // hmmz ...
+		#endif
 		if( a == -1 ) {
 			if( errno == EWOULDBLOCK )
 				return;
@@ -860,10 +862,10 @@ void daemonloop(int pipefileid) {
 		if( curtime < svTickTime )
 			continue;
 
-		if(strstr(ctime((const time_t *)&curtime), START_TIME))
+		if(strstr(ctime(&curtime), START_TIME))
 			svTickStatus = 1;
 		
-		if(strstr(ctime((const time_t *)&curtime), STOP_TIME))
+		if(strstr(ctime(&curtime), STOP_TIME))
 			svTickStatus = 0;
 			
 		svTickTime += SV_TICK_TIME;
@@ -905,7 +907,7 @@ return;
 int daemon_init(void) {
 	int a;
 	int pipingin;
-	char COREDIR[256];
+	unsigned char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
 	pid_t pid, sid;
@@ -1132,7 +1134,7 @@ return;
 }
 
 int main() {
-	char COREDIR[256];
+	unsigned char COREDIR[256];
 	char buf[256];
 	int num, fd;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
@@ -1191,9 +1193,10 @@ printf("%s\n", "Please input command to send to server...");
 
         close(fd);
 
+#if FORKING == 0
 //We should never get here... parent proccess is set to self destruct! -- Yer, we do now... haha.
-//printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
-
+printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
+#endif
 return 1;
 }
 

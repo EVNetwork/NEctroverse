@@ -1,6 +1,6 @@
 CC = gcc
-DEFS = 
-FLAGS = -s -mtune=core2 -O2 --fast-math -Wall -fno-strict-aliasing
+DEFS = -ggdb
+FLAGS = -Wall -fno-strict-aliasing
 LIBS = -lm
 COLORGCC = /usr/bin/colorgcc
 
@@ -20,26 +20,26 @@ endif
 
 sqlcheck:
 ifneq (,$(findstring MYSQLENABLE 1,$(VARIABLE)))
-FLAGS = -s -mtune=core2 -O2 --fast-math -Wall $(SQLFLAG)
-LIBS = $(SQLLIBS)
+REALFLAGS = $(FLAGS) $(SQLFLAG)
+REALLIBS = $(LIBS) $(SQLLIBS)
 else
-FLAGS = -s -mtune=core2 -O2 --fast-math -Wall -fno-strict-aliasing
-LIBS = -lm
+REALFLAGS = $(FLAGS)
+REALLIBS = $(LIBS)
 endif
 
 sv.o: sv.c svban.c config.h sv.h io.h db.h cmd.h artefact.h config.h
-	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
+	$(CC) sv.c $(DEFS) -o sv.o -c $(REALFLAGS)
 io.o: io.c config.h sv.h io.h db.h cmd.h artefact.h config.h iohttpvars.c iohttp.c iohttp2.c iohttp3.c iohttpmime.c ioevm.c
-	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
+	$(CC) io.c $(DEFS) -o io.o -c $(REALFLAGS)
 db.o: db.c sv.h io.h db.h cmd.h config.h
-	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)
+	$(CC) db.c $(DEFS) -o db.o -c $(REALFLAGS)
 cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact.h config.h
-	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
+	$(CC) cmd.c $(DEFS) -o cmd.o -c $(REALFLAGS)
 map.o: map.c config.h
-	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
+	$(CC) map.c $(DEFS) -o map.o -c $(REALFLAGS)
 
 map: map.o
-	$(CC) map.o $(DEFS) -o map $(FLAGS) $(LIBS)
+	$(CC) map.o $(DEFS) -o map $(REALFLAGS) $(REALLIBS)
 
 clean:
 	rm *.o -rf

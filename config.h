@@ -14,8 +14,8 @@
 
 #define CMD_ADMIN_NUM 1
 
-static const char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
-static const char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
+static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
+static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 #define TMPDIR "/tmp/evcore"
@@ -33,7 +33,8 @@ static const char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 #define ROUND_ID (8)
 #define DELAY_TIME (00)
 // 1 * 60 seconds... so every 1 min. But we should change this from fixed.
-#define SV_TICK_TIME (1*60)
+//#define SV_TICK_TIME (1*60)
+#define SV_TICK_TIME (1*10)
 
 #define START_TIME " Apr 16 20:00"		//Yer, this ain't good...
 #define STOP_TIME "May 14 16:00"		//Ahh crap, there's two of em...
@@ -98,7 +99,7 @@ static const char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 ^^^ You don't want to change anything down here... it's all up there! ^^^ =) 
 */
 
-static const char PIPEFILE[32] = "%s/evserver.pipe";
+static unsigned char PIPEFILE[32] = "%s/evserver.pipe";
 //#define PIPEFILE "/tmp/evcore/evserver.pipe"
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)
