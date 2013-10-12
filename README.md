@@ -23,8 +23,8 @@ Run:
 * make 
 * ./evserver
 
-Yup, that's it... nothing else to run here. =P<br>
-Map creation is now embeded into the core.
+Yup, that's it...<br>
+Map creation is embeded into the core.
 
 NEctroverse can run in forked daemon mode, which does not require a shell.<br>
 This does not require any extra librarys, and will save logs via syslog feature.
