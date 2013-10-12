@@ -15,9 +15,9 @@ To install the game:<br>
 Edit config.h and change as required.<br>
 
 Additional Librarys needed for optinal components:
-* build-essentials is needed, but you should already have that.
-* libmysqlclinet-dev is needed for mySql addition.
-* libssl-dev is needed for extra password security.
+* build-essentials -- needed, but you should already have that.
+* libmysqlclinet-dev -- needed for mySql addition.
+* libssl-dev -- needed for extra password security.
 
 Run:
 * make 
