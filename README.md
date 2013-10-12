@@ -12,13 +12,12 @@ You can find the original source code at https://github.com/ectroverse
 
 
 To install the game:<br>
-Edit config.h and change the directory locations...<br>
-Folder location does not matter, as long as you have write permissions.<br>
-The program is set to auto-create needed directories.
+Edit config.h and change as required.<br>
 
-While your there in config.h<br>
-Change the default Admin username and password! =)
-
+Additional Librarys needed for optinal components:
+* build-essentials is needed, but you should already have that.
+* libmysqlclinet-dev is needed for mySql addition.
+* libssl-dev is needed for extra password security.
 
 Run:
 * make 
@@ -27,7 +26,8 @@ Run:
 Yup, that's it... nothing else to run here. =P<br>
 Map creation is now embeded into the core.
 
-<i>NEctroverse can run in forked daemon mode, which does not require a shell.</i>
+NEctroverse can run in forked daemon mode, which does not require a shell.<br>
+This does not require any extra librarys, and will save logs via syslog feature.
 
 The server by default is on port 9122. This can be changed in config.h
 
