@@ -10,9 +10,11 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <fcntl.h>
-#include <a.out.h>
 #if MYSQLENABLE == 1
 #include <mysql.h>
+#endif
+#if HASHPASSWORD == 1
+#include <openssl/md5.h>
 #endif
 
 #include <sys/types.h>

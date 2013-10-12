@@ -1,4 +1,5 @@
 #define SERVERNAME "NEctroverse"
+#define HASHPASSWORD 1
 #define FORKING 0
 
 #define HTTP_PORT 9122

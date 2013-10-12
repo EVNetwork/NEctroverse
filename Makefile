@@ -18,6 +18,12 @@ cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact
 map.o: map.c map.h config.h global.h
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
+mysql.o: mysql.c mysql.h global.h
+	$(CC) mysql.c $(DEFS) -o mysql.o -c $(FLAGS) $(LIBS)
+
+mysqltest: mysql.c mysql.h global.h
+	$(CC) mysql.c $(DEFS) -o mysqltest $(FLAGS) $(LIBS)
+
 clean:
 	rm *.o -rf
 	rm *~ -rf
@@ -43,6 +49,9 @@ FLAGS += $(SQLFLAG)
 LIBS += $(SQLLIBS)
 else
 LIBS += -lm
+endif
+ifneq ($(findstring HASHPASSWORD 1,$(CONFIGS)),)
+LIBS += -lcrypto -lssl
 endif
 ifneq ($(wildcard .hidden.and.nogit),) 
 FLAGS += -DHAHA_NECRO_GOT_YOU
