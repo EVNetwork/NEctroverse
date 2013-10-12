@@ -307,7 +307,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  unsigned char COREDIR[256];
  long long int newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
- char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- EVA";
+ char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
  iohttpVarsInit( cnt );
  name = iohttpVarsFind( "name" );
@@ -2361,46 +2361,6 @@ void iohttpFunc_planets( svConnectionPtr cnt )
    svSendString( cnt, "Error while retriving planets list" );
    return;
   }
-/*
- CODE VOOR DE SORTS ETC ETC WERKEND FOR SURE
-
-   svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
-   svSendString( cnt, "<form action=\"massbuild\" method=\"POST\">");
- 
- if (sort == 0)
-  svSendString( cnt, "<table width=\"100%\"><tr><td><a href=\"/planets?sort=10\">Planet</a></td>");
- else
-  svSendString( cnt, "<table width=\"100%\"><tr><td><a href=\"/planets?sort=0\">Planet</a></td>");
- if (sort == 1)
-  svSendString( cnt, "<td><a href=\"/planets?sort=11\">Size</a> ");
- else
-  svSendString( cnt, "<td><a href=\"/planets?sort=1\">Size</a> ");
- if (sort == 6)
-  svSendString( cnt, "<a href=\"/planets?sort=16\">Bonus</a></td>");
- else
-  svSendString( cnt, "<a href=\"/planets?sort=6\">Bonus</a></td>");
- if (sort == 2)
-  svSendString( cnt, "<td><a href=\"/planets?sort=12\">Buildings</a>");
- else
-  svSendString( cnt, "<td><a href=\"/planets?sort=2\">Buildings</a>");
- if (sort == 3)
-  svSendString( cnt, " - <a href=\"/planets?sort=13\">Overbuilding</a></td>");
- else
-  svSendString( cnt, " - <a href=\"/planets?sort=3\">Overbuilding</a></td>");
-
- if (sort == 4)
-  svSendString( cnt, "<td><a href=\"/planets?sort=14\">Population</a></td>");
- else
-  svSendString( cnt, "<td><a href=\"/planets?sort=4\">Population</a></td>");
-    
- if (sort == 5)
-  svSendString( cnt, "<td><a href=\"/planets?sort=15\">Protection</a></td>");	
- else
-  svSendString( cnt, "<td><a href=\"/planets?sort=5\">Protection</a></td>");
- 
- svSendString( cnt, "<td>Build</td>");
- svSendString( cnt, "<td width=\"2%\"><a href=\"javascript:togglemb()\"><font size=\"1\">All</font></a></td></tr>" );
-*/
  svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
  svSendString( cnt, "<form action=\"massbuild\" method=\"POST\">");
 
@@ -5396,7 +5356,7 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
 	int nfltid[2];
 	dbUserFleetPtr pFleet;
 	
-	nError = 0;
+	nError = nX0 = 0;
 	iohttpBase(cnt, 1);
 
 	if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5440,7 +5400,7 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
  if(nfltid[0] == nfltid[1])
  	nNbrFleet = 1;
  if((nNbrFleet == 1)&&(nError == 0))
- 	svSendString(cnt, "<i>Error while merging</i><br>Only one fleet is selected<br>");
+ 	svSendPrintf(cnt, "<i>Error while merging</i><br>Only one fleet is selected<br>");
  if(nNbrFleet == 2)
  {
  	cmdFleetGetPosition( &pFleet[nfltid[0]], &nX0, &nY0 );
@@ -5471,16 +5431,13 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
  	svSendString(cnt, "<i>Merge sucessful</i><br>");
  	if(nX1 > nX0)
  		nX0 = nX1;
- 	svSendPrintf(cnt, "They will merge in %d weeks", nX0);
+ 	svSendPrintf(cnt, "They will merge in %d weeks<br>", nX0);
+ } else if(nError == 2) {
+ 	svSendString(cnt, "<i>Error while merging</i><br>Your fleet must exist before getting merge!!!<br>");
+ } else if(nError == 1) {
+ 	svSendString(cnt, "<i>Error while merging</i><br>Your fleet must have at least one transport, carrier, cruiser or phantoms to be merge<br>");
  }
- else if(nError == 2)
- 	svSendString(cnt, "<i>Error while merging</i><br>Your fleet must exist before getting merge!!!");
- else if(nError == 1)
- {
- 	svSendString(cnt, "<i>Error while merging</i><br>Your fleet must have at least one transport, carrier, cruiser or phantoms to be merge");
- }
- if(fltid > 0)
- {
+ if( (fltid >= 1) && (nX0 == 0) && (nMax > 2) ){
  	svSendPrintf(cnt, "<br><table><tr>Fleet %d</tr>", fltid);
  	for(i=0;i<CMD_UNIT_NUMUSED;i++)
  	{
@@ -5509,14 +5466,15 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
  	}
  	svSendPrintf(cnt, "</tr><tr>");
  	svSendString(cnt, "</table>");
- 	svSendPrintf(cnt, "<input type=\"submit\" value=\"Merge\"");
+ 	svSendPrintf(cnt, "<input type=\"submit\" value=\"Merge\">");
  	svSendString(cnt, "</form>");
- }
- else
- 	svSendString(cnt, "<i>Error while merging</i><br>You haven't selected any fleet!");
+ } else if (fltid < 1) {
+ 	svSendString(cnt, "<i>Error while merging</i><br><br>You haven't selected any fleet!<br>");
+} else if (nMax < 3) {
+	svSendString(cnt, "<i>Not enough fleets to merge!</i><br><br>You only have the one fleet, you can't exactly merge!<br>Perhaps you want to recall it instead?<br>");
+}
  
- svSendString(cnt, "<br><a href=\"fleets\">Return to fleets</a>");
- svSendString(cnt, "currently offline hit the back button now!");
+ svSendString(cnt, "<br><a href=\"fleets\">Return to fleets</a><br>");
  free(pFleet);
  iohttpBodyEnd( cnt );
 }
