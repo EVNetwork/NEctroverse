@@ -87,8 +87,6 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size );
 #define SV_FLAGS_TIMEOUT (0x20)
 
 
-
-
 extern int svTickNum;
 extern int svTickTime;
 extern int svTickStatus;

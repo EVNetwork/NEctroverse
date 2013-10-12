@@ -1,10 +1,10 @@
 CONFIGS := $(shell cat config.h)
 FLAGS = --fast-math -Wall -fno-strict-aliasing
 DEFS = -ggdb
-LIBS = -lm
+LIBS =
 
 
-server: colorgcc configcheck sv.o io.o db.o cmd.o map.o
+server: colorgcc configcheck sv.o io.o db.o cmd.o map.o 
 	$(CC) sv.o io.o db.o cmd.o map.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 sv.o: sv.c svban.c config.h sv.h io.h db.h cmd.h artefact.h global.h
@@ -15,11 +15,8 @@ db.o: db.c sv.h io.h db.h cmd.h config.h global.h
 	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)
 cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact.h config.h global.h
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
-map.o: map.c config.h global.h
+map.o: map.c map.h config.h global.h
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
-
-#mysql.o: mysql.c mysql.h
-#	$(CC) mysql.c $(DEFS) -o mysql.o $(FLAGS) $(LIBS)
 
 clean:
 	rm *.o -rf
@@ -44,6 +41,8 @@ SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 FLAGS += $(SQLFLAG)
 LIBS += $(SQLLIBS)
+else
+LIBS += -lm
 endif
 ifneq ($(wildcard .hidden.and.nogit),) 
 FLAGS += -DHAHA_NECRO_GOT_YOU

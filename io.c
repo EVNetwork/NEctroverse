@@ -1,6 +1,6 @@
+#include "config.h"
 #include "global.h"
 
-#include "config.h"
 #include "artefact.h"
 #include "db.h"
 #include "sv.h"

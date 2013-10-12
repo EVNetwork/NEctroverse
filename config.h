@@ -3,7 +3,7 @@
 
 #define HTTP_PORT 9122
 
-#define MYSQLENABLE 0
+#define MYSQLENABLE 1
 
 #if MYSQLENABLE == 1
 #define SQL_SRVR "localhost"
