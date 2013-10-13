@@ -25,6 +25,8 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 #endif
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
+static char WORKDIRECTORY[16] = "%s/git/NEctroverse/core";
+static char HTMLDIRECTORY[16] = "%s/git/NEctroverse/html";
 #define TMPDIR "/tmp/evcore"
 
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
