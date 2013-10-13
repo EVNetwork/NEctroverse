@@ -8,7 +8,7 @@ NEctroverse Relaunch!
 NEctroverse is a recode of the game Ectroverse. It contains a lot of changes from the original code.
 
 You can play the current Ectroverse at http://www.ectroverse.org<br>
-You can find the original source code at https://github.com/ectroverse
+You can find the original source code at https://github.com/ectroverse/evsource
 
 
 To install the game:<br>
