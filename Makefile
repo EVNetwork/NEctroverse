@@ -18,7 +18,6 @@ cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact
 map.o: map.c map.h config.h global.h
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-
 clean:
 	rm *.o -rf
 	rm *~ -rf
@@ -51,6 +50,6 @@ ifneq ($(findstring HASHPASSWORD 1,$(CONFIGS)),)
 LIBS += -lcrypto -lssl
 endif
 ifneq ($(wildcard .hidden.and.nogit),) 
-FLAGS += -DHAHA_NECRO_GOT_YOU
+FLAGS += -DHAHA_MY_INFO_IS_HIDDEN
 endif
 

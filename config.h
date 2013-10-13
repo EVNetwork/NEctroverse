@@ -1,3 +1,5 @@
+#define CONFIGINCLUDED
+//Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 #define SERVERNAME "NEctroverse"
 #define HASHPASSWORD 1
 #define FORKING 0
@@ -14,7 +16,7 @@
 #endif
 
 // OK, so can you see what I've done here? Sneaky eh? Hehe =P
-#ifdef HAHA_NECRO_GOT_YOU
+#ifdef HAHA_MY_INFO_IS_HIDDEN
 #include ".hidden.and.nogit"
 #else
 #define CMD_ADMIN_NUM 1
@@ -106,7 +108,6 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 static unsigned char PIPEFILE[32] = "%s/evserver.pipe";
 //#define PIPEFILE "/tmp/evcore/evserver.pipe"
-#define CONFIGINCLUDED
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)
 #define SERVER_SELECT_MSEC (1000)
