@@ -1,5 +1,9 @@
+#ifndef CONFIGINCLUDED
 #include "config.h"
+#endif
+#ifndef GLOBALINCLUDED
 #include "global.h"
+#endif
 
 #include "artefact.h"
 #include "db.h"
@@ -799,7 +803,7 @@ buf[num] = '\0';
 
 if ( num > 0 ) {
 	strcpy(trimwhitespace(buf),buf);
-	if( strcmp(buf,"die") == 0 ) {
+	if( !(strcmp(buf,"die") ) ) {
 		#if FORKING == 0
 		printf("%s\n", "Shutdown command recived from Pipe.");
 		#endif

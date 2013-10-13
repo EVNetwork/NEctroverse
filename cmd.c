@@ -1,5 +1,10 @@
+#ifndef CONFIGINCLUDED
 #include "config.h"
+#endif
+#ifndef GLOBALINCLUDED
 #include "global.h"
+#endif
+
 
 #include "artefact.h"
 #include "db.h"

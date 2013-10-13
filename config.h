@@ -33,7 +33,7 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 #define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
 
 // Umm, IRC... old skool...
-#define IRC_SERVER "irc.staticbox.net"
+#define IRC_SERVER "irc.freenode.net"
 
 #define ROUND_ID (8)
 #define DELAY_TIME (00)
@@ -106,6 +106,7 @@ static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
 
 static unsigned char PIPEFILE[32] = "%s/evserver.pipe";
 //#define PIPEFILE "/tmp/evcore/evserver.pipe"
+#define CONFIGINCLUDED
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)
 #define SERVER_SELECT_MSEC (1000)
