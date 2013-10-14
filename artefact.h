@@ -34,6 +34,6 @@ ARTEFACT_NUMUSED
 
 
 
-extern unsigned char *artefactName[ARTEFACT_NUMUSED];
-extern unsigned char *artefactDescription[ARTEFACT_NUMUSED];
-extern unsigned char *artefactImage[ARTEFACT_NUMUSED];
+extern char *artefactName[ARTEFACT_NUMUSED];
+extern char *artefactDescription[ARTEFACT_NUMUSED];
+extern char *artefactImage[ARTEFACT_NUMUSED];

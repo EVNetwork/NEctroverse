@@ -2163,11 +2163,11 @@ void iohttpFunc_market( svConnectionPtr cnt )
  rmbidstring = iohttpVarsFind( "rmbid" );
  iohttpVarsCut();
 	
-	/****
+	/*
 	svSendString(cnt, "Market is close<br>But you can have ally");
 	iohttpBodyEnd( cnt );
 	return;
-	//****/
+	*/
 	
  marketstring = 0;
  if( resstring )

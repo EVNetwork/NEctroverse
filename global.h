@@ -13,9 +13,11 @@
 #include <sys/un.h>
 #include <sys/wait.h>
 
+#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <math.h>
 #if MYSQLENABLE == 1
 #include <mysql.h>
 #endif
@@ -27,4 +29,4 @@
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
-#include <math.h>
+

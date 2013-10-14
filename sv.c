@@ -686,13 +686,13 @@ if(signal == SIGUSR2) {
 
 iohttpDataPtr iohttp;
 syslog(LOG_ERR, "ERROR, signal %d\n", signal);
-syslog(LOG_ERR, "cnt : %d\n", (int)svDebugConnection);
+syslog(LOG_ERR, "cnt : %d\n", (int)(intptr_t)svDebugConnection);
 syslog(LOG_ERR, "tick pass : %d\n", svDebugTickPass);
 syslog(LOG_ERR, "tick id : %d\n", svDebugTickId);
 #if FORKING == 0
 printf( "ERROR, signal %d\n", signal );
 fflush( stdout );
-printf( "cnt : %d\n", (int)svDebugConnection);
+printf( "cnt : %d\n", (int)(intptr_t)svDebugConnection);
 fflush( stdout );
 printf( "tick pass : %d\n", svDebugTickPass );
 fflush( stdout );
@@ -708,7 +708,7 @@ if( svDebugConnection ) {
 	#if FORKING == 0
 	printf( "OK\n" );
 	fflush( stdout );
-	printf( "iohttp : %d\n", (int)iohttp );
+	printf( "iohttp : %d\n", (int)(intptr_t)iohttp );
 	fflush( stdout );
 	printf( "iohttp->path : %s\n", iohttp->path );
 	fflush( stdout );
@@ -726,7 +726,7 @@ if( svDebugConnection ) {
 	fwrite( iohttp->content, 1, iohttp->content_length, stdout );
 	fflush( stdout );
 	#endif
-	syslog(LOG_ERR, "iohttp : %d\n", (int)iohttp );
+	syslog(LOG_ERR, "iohttp : %d\n", (int)(intptr_t)iohttp );
 	syslog(LOG_ERR, "iohttp->path : %s\n", iohttp->path );
 	syslog(LOG_ERR, "iottp content lenth: %d\n", iohttp->content_length );
 	syslog(LOG_ERR, "iohttp->query_string : %s\n", iohttp->query_string );
@@ -890,7 +890,6 @@ int daemon_init(void) {
 	char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
-	pid_t pid, sid;
 
 #if FORKING == 1
 pid = fork();
@@ -1003,7 +1002,7 @@ sprintf( COREDIR, PIPEFILE, TMPDIR );
 mkfifo(COREDIR, 0666);
 pipingin = open(COREDIR, O_RDONLY | O_NONBLOCK);
 #else
-pipingin = NULL;
+pipingin = 0;
 #endif
 syslog(LOG_INFO, "%s\n", "Completed initiation of NEctroverse daemon.");
 //Now create the loop, this used to take place in here... but I decided to move it =P
@@ -1088,7 +1087,7 @@ if ( split == NULL ) {
 	puts( "str_split returned NULL" );
 } else {
 	for ( i = 0; i < num; i++ ) {
-		if( !( i == NULL ) ) {
+		if( !( i == (int)(intptr_t)NULL ) ) {
 			strcat(mkthisdir, "/");
 			strcat(mkthisdir, split[i]);
 			check = mkdir(mkthisdir,0755);
@@ -1116,7 +1115,7 @@ return;
 int main() {
 	char COREDIR[256];
 	char buf[256];
-	int num, fd;
+	int num, fd, size;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
 openlog(LOGTAG, LOG_CONS | LOG_PID | LOG_NDELAY, LOGFAC);
 dirstructurecheck(TMPDIR);
@@ -1160,9 +1159,9 @@ printf("%s\n", "Please input command to send to server...");
 
         if ((fd = open(COREDIR, O_WRONLY)) < 0)
             perror("Open Pipe for Write");
-
+	size = sizeof(buf);
         printf("Daemon listening on Pipe... Typing \"die\" kills server.\n");
-        while( file_exist(COREDIR) && fgets(buf, sizeof(buf), stdin), !feof(stdin) ) {
+        while( file_exist(COREDIR) && fgets(buf, size, stdin) && !feof(stdin) ) {
 
             if ((num = write(fd, buf, strlen(buf))) < 0)
                 perror("Write To Pipe");

@@ -10,7 +10,7 @@ int artefactPrecense( dbMainPlanetPtr planetd )
 Ectroverse Artefacts round #1 - ...
 */
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Observation Station", //ARTEFACT_1_BIT 1
 "Altar of Storms", //ARTEFACT_2_BIT 2
@@ -25,7 +25,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens", //ARTEFACT_ETHER_BIT 256
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Observation Station</b> grants everyone the Observe Planet operation!",
 "The <b>Altar of Storms</b> increases by 25% the attack strength of all your military units when defending!!",
@@ -40,7 +40,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "artimg4.gif",
 "artimg12.gif",
@@ -59,7 +59,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 31-32-33
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Nuker",
 "Ticking Time Bomb", 
@@ -75,7 +75,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 };
 
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Nuker</b> gives everyone Nuke planet operation!",
 "The <b>Ticking Time Bomb</b> add 10% to each producton, but will explode each year!",
@@ -90,7 +90,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!", 
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg10.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg11.gif",
@@ -108,7 +108,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 31-32-33
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Uranium Mine",
 "Lunar Tesseract", 
@@ -137,7 +137,7 @@ un=
 "The <b>Ether Gardens</b> increase your energy production by 10%!", 
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg10.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg11.gif",
@@ -157,7 +157,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 14
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "High-Level Radioisotopes", 
 "Nether Link", 
@@ -172,7 +172,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>High-Level Radioisotopes</b> causes your nuke planet operation to reduce building spaces to 3/4(75%)!",
 "The <b>Graveyard Ghosts</b> boost ghost ship strength by 75%!",
@@ -187,7 +187,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg1.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg2.gif",
@@ -208,7 +208,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 10
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Polyethers Cottage", 
 "Furan House", 
@@ -223,7 +223,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Polyethers Cottage</b> increase mineral production by 6%!",
 "The <b>Furan House</b> ectrolium production go up by 5%!",
@@ -238,7 +238,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg1.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg2.gif",
@@ -259,7 +259,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 9 and Event
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Citizen coke", 
 "Ra bless", 
@@ -274,7 +274,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Citizen coke</b> give you 5% bonus in ressources production!",
 "The <b>Ra bless</b> grant you a good recolt, +20% populations growth!",
@@ -295,7 +295,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 Round 8
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Warp Node", 
 "Democrats Battleplan", 
@@ -310,7 +310,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Warp Node</b> halves portal upkeep and increases maximum Portal Research to 500%!",
 "The <b>Democrats Battleplan</b> increases ectrolium production by 20% when not at war!",
@@ -325,7 +325,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg2.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg9.gif",
@@ -344,7 +344,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 7
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "United Empires", 
 "Foohon Ancestry", 
@@ -359,7 +359,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>United Empires</b> shows when players in any empire are online!",
 "The <b>Foohon Ancestry</b> gives all races 1 RP per 10000 population per tick extra!",
@@ -374,7 +374,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg2.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg9.gif",
@@ -394,7 +394,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 6
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Death Star", 
 "Delayed Artefact", 
@@ -409,7 +409,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Death Star</b> doubles portal upkeep and unit strength when defending, but limits portal coverage to 50%!",
 "The <b>Delayed Artefact</b> if you keep this artefact for 144 ticks it will double all your other artefacts powers!",
@@ -424,7 +424,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg2.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg9.gif",
@@ -445,7 +445,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 13
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Wilbo Battle Manual", 
 "Universal Knowledge Dome", 
@@ -460,7 +460,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Wilbo Battle Manual</b> increases the fleet readiness maximum to 125%!",
 "The <b>Universal Knowledge Dome</b> increases the maximum of all research fields by 40%!",
@@ -475,7 +475,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg2.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg9.gif",
@@ -495,7 +495,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 12
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Cancellation Master", 
 "Cybernetic Society", 
@@ -510,7 +510,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Ether Gardens",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Cancellation Master</b> give you the power to ask full refund when cancelling!",
 "The <b>Cybernetic Society</b> doubles research production, but increases the vulnerability to enemy agents operation by 50%!",
@@ -525,7 +525,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg10.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg9.gif",
@@ -545,7 +545,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 11 
 
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Granary", 
 "Fawcett's guide", 
@@ -561,7 +561,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Terrorists handbook",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Granary</b> halves energy and crystal decay!",
 "The <b>Fawcett's guide</b> decreases Fleet readiness costs by 20%!",
@@ -577,7 +577,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Terrorists handbook</b> halved psychic cost, with +50% maximum operations research!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg0.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg1.gif",
@@ -599,7 +599,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 Round 10 (the server after ameede)
 */
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens", 
 "Nintendo Tetris Manual", 
@@ -614,7 +614,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "The Data Processing Sphere",
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> increase your energy production by 10%!",
 "The <b>Nintendo Tetris Manual</b> lowers all buildings upkeep by 10%!",
@@ -629,7 +629,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Data Processing Sphere</b> increases the technology research production rate by 400%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://www.bluedolfie.com/ectroguide/images/artimg0.gif",
 "http://www.bluedolfie.com/ectroguide/images/artimg4.gif",
@@ -651,7 +651,7 @@ Round 9
 */
 
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Wilbo Battle Manual",
@@ -666,7 +666,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Foresight Theorem"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
 "The <b>Wilbo Battle Manual</b> increases the fleet readiness maximum to 125%!",
@@ -681,7 +681,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Foresight Theorem</b> increases agents strength by 30% and the defence strength of all military units by 15%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg3.gif",
@@ -706,7 +706,7 @@ Round 8
 */
 
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Cybernetic Society",
@@ -721,7 +721,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Invisibility Algorithm"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
   "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
   "The <b>Cybernetic Society</b> doubles research production, but increases the vulnerability to enemy agents operation by 50%!",
@@ -736,7 +736,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
   "The <b>Invisibility algorithm</b> increases the attack strength of all military units by 20%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg3.gif",
@@ -759,7 +759,7 @@ Round 7
 */
 
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Warp Fields Paradigm",
@@ -774,7 +774,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Invisibility Algorithm"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
  "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
  "The <b>Warp Fields Paradigm</b> increases the Portal research maximum by 120%!",
@@ -789,7 +789,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
  "The <b>Invisibility algorithm</b> increases the attack strength of all military units by 30%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg3.gif",
@@ -814,7 +814,7 @@ Round 6
 */
 
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Light of Judgement",
@@ -829,7 +829,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Transcendence Pathway"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
 "The <b>Light of Judgement</b> increases the attack strength of all military units by 30%!",
@@ -844,7 +844,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Transcendence Pathway</b> increase all military units defence by 20%, psychics strength by 30%, and the maximum of all research fields by 40%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg3.gif",
@@ -873,7 +873,7 @@ Round 5
 */
 
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Alan Schezar Battle Bible",
@@ -888,7 +888,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Universal Translator"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
 "The <b>Alan Schezar Battle Bible</b> increases by 50% both the attack and defense strength of goliath units!",
@@ -903,7 +903,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Universal Translator</b> increases the Culture research maximum by 100%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg3.gif",
@@ -932,7 +932,7 @@ Round 4
 */
 
 /*
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Arrakis Spice Melange",
@@ -945,7 +945,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Tree of Life"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
 "The <b>Arrakis Spice Melange</b> reduces by half the Portals upkeep costs, and increase Soldiers strength by 30%!",
@@ -958,7 +958,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Tree of Life</b> doubles population growth, and raises Culture research maximum by 40%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg6.gif",
@@ -991,7 +991,7 @@ Horn of Czarina  +10% military units defense
 Aura Pyramid  -20% fleet readiness losses
 Altar of Storms  +20% military units attack, -10% military units defense
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Mana Tree",
@@ -1001,7 +1001,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Altar of Storms"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "<b>Ether Gardens</b> provide a 5% increased energy production!",
 "The <b>Mana Tree</b> increases the effectiveness of your psychics by 30%!",
@@ -1011,7 +1011,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Altar of Storms</b> increases military units strength by 20% while reducing their defense by 10%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg1.gif",
@@ -1037,7 +1037,7 @@ Sphere of Fury   Increase military units attack by +25%, reduce agents and psych
 Minbari Legacy   Increase military units defense by 15%, fleets travel speed increased by 30%
 Empath Nexus   Reduces by half the difficulty of the operations : Spy Target, Observe Planet, Infiltration and High Infiltration
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Espers Gate",
@@ -1050,7 +1050,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Empath Nexus"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
 "The <b>Espers Gate</b> increases Psychics strength by 20% and the effectiveness of the Phantoms spell by 50%!",
@@ -1063,7 +1063,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Empath Nexus</b> reduces by half the difficulty of the operations : Spy Target, Observe Planet, Infiltration and High Infiltration!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg7.gif",
@@ -1094,7 +1094,7 @@ Creation Temple  all planets owned by the empire increase their size by 1 per 12
 Energy Paradigm  increase energy production by 20% and double the decay rate
 Sentient Planet  increase mineral, crystal and ectrolium production by 5%
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Travel Hypercube",
@@ -1107,7 +1107,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Sentient Planet"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> increase energy production by 10%!",
 "The <b>Travel Hypercube</b> increases speed by 30% and maximum portal research by 60%!",
@@ -1120,7 +1120,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Sentient Planet</b> increases mineral, crystal and ectrolium production by 5!%"
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg7.gif",
@@ -1140,7 +1140,7 @@ unsigned char *artefactImage[ARTEFACT_NUMUSED] =
 /*
 Round 3
 
-unsigned char *artefactName[ARTEFACT_NUMUSED] =
+char *artefactName[ARTEFACT_NUMUSED] =
 {
 "Ether Gardens",
 "Universal Knowledge Archives",
@@ -1153,7 +1153,7 @@ unsigned char *artefactName[ARTEFACT_NUMUSED] =
 "Vorlon Weaponry Relics"
 };
 
-unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
+char *artefactDescription[ARTEFACT_NUMUSED] =
 {
 "The <b>Ether Gardens</b> provide a 10% increased Energy production!",
 "The <b>Universal Knowledge Archives</b> doubles technology research production and raises all research maximums by 40%!",
@@ -1166,7 +1166,7 @@ unsigned char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Vorlon Weaponry Relics</b> increase all military units attack by 20%!",
 };
 
-unsigned char *artefactImage[ARTEFACT_NUMUSED] =
+char *artefactImage[ARTEFACT_NUMUSED] =
 {
 "http://users.pandora.be/amedee/ectroverse/artimg0.gif",
 "http://users.pandora.be/amedee/ectroverse/artimg6.gif",

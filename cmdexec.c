@@ -34,9 +34,9 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
 	
   a = dbUserAdd( name, faction, "Player" );
 #if FORKING == 0
-printf("Created User: #%d Name: \"%s\"\n", a, name, faction );
+printf("Created User: #%d Name: \"%s\"\n", a, name );
 #endif
-syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name, faction );
+syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 
   sprintf( cmdUserMainDefault.faction, faction );
   sprintf( cmdUserMainDefault.forumtag, "Player" );

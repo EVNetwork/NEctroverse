@@ -5,6 +5,10 @@
 #include "global.h"
 #endif
 
+#if HASHENCRYPTION == 1
+#include "optional/md5.h"
+#endif
+
 #include "artefact.h"
 #include "db.h"
 #include "sv.h"

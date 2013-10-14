@@ -61,7 +61,7 @@ char dbFileUserFlags[] = "%s/user%d/info";
 char *dbFileUserList[DB_FILE_USER_NUMBER] = { dbFileUserUserName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserFlags };
 
 long long int dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
-int dbFileUserListDat1[] = { 0, 8 };
+long long int dbFileUserListDat1[] = { 0, 8 };
 
 int dbFileUserListBase[DB_FILE_USER_NUMBER] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
 long long int *dbFileUserListData[DB_FILE_USER_NUMBER] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, 0 };
