@@ -85,27 +85,27 @@ for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 	sinInterface.sin_port = htons( svListenPort[b] );
 	if( bind( svListenSocket[b], (struct sockaddr *)&sinInterface, sizeof(struct sockaddr_in) ) == -1 ) {
 		#if FORKING == 0
-		printf("Error %03d, binding listening socket to port %d\n", errno, svListenPort[b] );
+		printf("Error %03d, binding listening socket to port: %d\n", errno, svListenPort[b] );
 		#endif
-		syslog(LOG_ERR, "Error %03d, binding listening socket to port %d\n", errno, svListenPort[b] );
+		syslog(LOG_ERR, "Error %03d, binding listening socket to port: %d\n", errno, svListenPort[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	}
 	if( listen( svListenSocket[b], SOMAXCONN ) == -1 ) {
 		#if FORKING == 0
-		printf("Error %03d, listen\n", errno, svListenPort[b] );
+		printf("Error %03d, listen on port: %d\n", errno, svListenPort[b] );
 		#endif
-		syslog(LOG_ERR, "Error %03d, listen\n", errno, svListenPort[b] );
+		syslog(LOG_ERR, "Error %03d, listen on port: %d\n", errno, svListenPort[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} 
 	if( fcntl( svListenSocket[b], F_SETFL, O_NONBLOCK ) == -1 ) {
 		#if FORKING == 0
-		printf("Error %03d, setting the listening socket to non-blocking\n", errno, svListenPort[b] );
+		printf("Error %03d, setting non-blocking on port: %d\n", errno, svListenPort[b] );
 		#endif
-		syslog(LOG_ERR, "Error %03d, setting the listening socket to non-blocking\n", errno, svListenPort[b] );
+		syslog(LOG_ERR, "Error %03d, setting non-blocking on port: %d\n", errno, svListenPort[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;

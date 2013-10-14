@@ -21,7 +21,9 @@ void inSendCompleteHTTP( svConnectionPtr cnt );
 void inClosedHTTP( svConnectionPtr cnt );
 void inErrorHTTP( svConnectionPtr cnt, int type );
 
+//#include "admin.c"
 #include "iohttp.c"
+
 
 
 

@@ -58,7 +58,7 @@ unsigned char dbFileUserFlags[] = "%s/user%d/info";
 unsigned char *dbFileUserList[DB_FILE_USER_NUMBER] = { dbFileUserUserName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserFlags };
 
 long long int dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
-int dbFileUserListDat1[] = { 0, 8 };
+long long int dbFileUserListDat1[] = { 0, 8 };
 
 int dbFileUserListBase[DB_FILE_USER_NUMBER] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
 long long int *dbFileUserListData[DB_FILE_USER_NUMBER] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, 0 };
@@ -238,13 +238,14 @@ And Mal forgot the mail file
 
 FILE *dbFileGenOpen( int num ) {
 	unsigned char szSource[500];
-	unsigned char COREDIR[256];
+	char COREDIR[256];
 	
 	if(num == DB_FILE_USERS) {
 		sprintf( COREDIR, "%s/users", COREDIRECTORY );
 		sprintf(szSource, dbFileList[num], COREDIR);
 	} else {
-		sprintf(szSource, dbFileList[num]);
+		sprintf( COREDIR, "%s/data", COREDIRECTORY );
+		sprintf(szSource, dbFileList[num], COREDIR);
 	}
 	if( dbFilePtr[num] )
 		return dbFilePtr[num];
