@@ -1,43 +1,43 @@
 
 typedef struct
 {
-  unsigned char def[128];
-  unsigned char **exts;
+  char def[128];
+  char **exts;
   int num;
 } iohttpMimeDef, *iohttpMimePtr;
 
 
 
 #define IOHTTP_MIME_HEADERS0 7
-unsigned char *iohttpMimeHeaderExts0[IOHTTP_MIME_HEADERS0] =
+char *iohttpMimeHeaderExts0[IOHTTP_MIME_HEADERS0] =
 { "zip", "bin", "gz", "z", "tar", "rar", "ace" };
 
 #define IOHTTP_MIME_HEADERS1 6
-unsigned char *iohttpMimeHeaderExts1[IOHTTP_MIME_HEADERS1] =
+char *iohttpMimeHeaderExts1[IOHTTP_MIME_HEADERS1] =
 { "txt", "c", "h", "cpp", "hpp", "cc" };
 
 #define IOHTTP_MIME_HEADERS2 3
-unsigned char *iohttpMimeHeaderExts2[IOHTTP_MIME_HEADERS2] =
+char *iohttpMimeHeaderExts2[IOHTTP_MIME_HEADERS2] =
 { "html", "htm", "shtml" };
 
 #define IOHTTP_MIME_HEADERS3 1
-unsigned char *iohttpMimeHeaderExts3[IOHTTP_MIME_HEADERS3] =
+char *iohttpMimeHeaderExts3[IOHTTP_MIME_HEADERS3] =
 { "gif" };
 
 #define IOHTTP_MIME_HEADERS4 1
-unsigned char *iohttpMimeHeaderExts4[IOHTTP_MIME_HEADERS4] =
+char *iohttpMimeHeaderExts4[IOHTTP_MIME_HEADERS4] =
 { "jpg" };
 
 #define IOHTTP_MIME_HEADERS5 1
-unsigned char *iohttpMimeHeaderExts5[IOHTTP_MIME_HEADERS5] =
+char *iohttpMimeHeaderExts5[IOHTTP_MIME_HEADERS5] =
 { "png" };
 
 #define IOHTTP_MIME_HEADERS6 1
-unsigned char *iohttpMimeHeaderExts6[IOHTTP_MIME_HEADERS6] =
+char *iohttpMimeHeaderExts6[IOHTTP_MIME_HEADERS6] =
 { "css" };
 
 #define IOHTTP_MIME_HEADERS7 1
-unsigned char *iohttpMimeHeaderExts7[IOHTTP_MIME_HEADERS7] =
+char *iohttpMimeHeaderExts7[IOHTTP_MIME_HEADERS7] =
 { "cgi" };
 
 

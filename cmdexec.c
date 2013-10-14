@@ -1,5 +1,5 @@
 
-int cmdExecNewUser( unsigned char *name, unsigned char *pass, unsigned char *faction )
+int cmdExecNewUser( char *name, char *pass, char *faction )
 {
   int a, b;
   char szCommmand[1000];
@@ -34,9 +34,9 @@ int cmdExecNewUser( unsigned char *name, unsigned char *pass, unsigned char *fac
 	
   a = dbUserAdd( name, faction, "Player" );
 #if FORKING == 0
-printf("Created User: #%d Name:%s\n", a, name, faction );
+printf("Created User: #%d Name: \"%s\"\n", a, name, faction );
 #endif
-syslog(LOG_ERR, "Created User: %d Name:%s\n", a, name, faction );
+syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name, faction );
 
   sprintf( cmdUserMainDefault.faction, faction );
   sprintf( cmdUserMainDefault.forumtag, "Player" );
@@ -60,13 +60,13 @@ syslog(LOG_ERR, "Created User: %d Name:%s\n", a, name, faction );
   return a;
 }
 
-int cmdExecNewUserEmpire( int id, int famnum, unsigned char *fampass, int raceid, int level )
+int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int level )
 {
   int a, b, c, x, y, p, i, total=0;
   int binfo[8], fam[1024];
   //Max 200 emp
   int nPlayer[200];
-  unsigned char fname[32];
+  char fname[32];
   dbUserMainDef maind;
   dbMainEmpireDef empired;
   dbMainSystemDef systemd;
@@ -78,7 +78,7 @@ int cmdExecNewUserEmpire( int id, int famnum, unsigned char *fampass, int raceid
   if( (unsigned int)raceid >= CMD_RACE_NUMUSED )
     return -1;
     
-  //Verify that if they choose Ultimums they are at least mod  
+  //Verify that if they choose Ultimums they are at least mod  -- cheating basterds.
   if((level < LEVEL_MODERATOR)&&(raceid == CMD_RACE_ULTI))
   {
   	cmdErrorString = "You don't have the wisdom to be this race!!";
@@ -496,7 +496,7 @@ int cmdUserDelete( int id )
 
 
 
-int cmdExecChangeName( int id, unsigned char *faction )
+int cmdExecChangeName( int id, char *faction )
 {
   dbUserMainDef maind;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
@@ -518,7 +518,7 @@ int cmdExecChangeName( int id, unsigned char *faction )
 }
 
 
-int cmdExecChangePassword( int id, unsigned char *pass )
+int cmdExecChangePassword( int id, char *pass )
 {
   cmdErrorString = 0;
   if( !( cmdCheckName( pass ) ) )
@@ -1139,7 +1139,7 @@ int cmdExecChangeVote( int id, int vote )
 
 
 
-int cmdExecChangFamName( int fam, unsigned char *name )
+int cmdExecChangFamName( int fam, char *name )
 {
   int a;
   dbMainEmpireDef empired;
@@ -1188,18 +1188,18 @@ int cmdExecFamMemberFlags( int id, int fam, int flags )
 
 
 
-int cmdExecSetFamPass( int fam, unsigned char *pass )
+int cmdExecSetFamPass( int fam, char *pass )
 {
   int a;
-  unsigned char fname[256];
-  unsigned char fpass[32];
+  char fname[256];
+  char fpass[33];
   FILE *file;
 
   cmdErrorString = 0;
   sprintf( fname, "%s/data/fampass%d", COREDIRECTORY, fam );
   if( !( file = fopen( fname, "wb" ) ) )
     return -3;
-  for( a = 0 ; a < 31 ; a++ )
+  for( a = 0 ; a < 32 ; a++ )
   {
     if( ( fpass[a] == 10 ) || ( fpass[a] == 13 ) )
       break;
@@ -1207,15 +1207,22 @@ int cmdExecSetFamPass( int fam, unsigned char *pass )
   }
   fpass[a] = 0;
 
-  fwrite( fpass, 1, 32, file );
+#if HASHENCRYPTION == 1
+if( strlen(fpass) )
+  fwrite( str2md5(fpass), 1, 33, file );
+else
+  fwrite( fpass, 1, 33, file );
+#else
+  fwrite( fpass, 1, 33, file );
+#endif
 
   fclose( file );
   return 1;
 }
 
-int cmdExecGetFamPass( int fam, unsigned char *pass )
+int cmdExecGetFamPass( int fam, char *pass )
 {
-  unsigned char fname[256];
+  char fname[256];
   FILE *file;
 
   cmdErrorString = 0;
@@ -1224,7 +1231,7 @@ int cmdExecGetFamPass( int fam, unsigned char *pass )
   if( !( file = fopen( fname, "rb" ) ) )
     return 1;
 
-  fread( pass, 1, 32, file );
+  fread( pass, 1, 33, file );
 
   fclose( file );
   return 1;

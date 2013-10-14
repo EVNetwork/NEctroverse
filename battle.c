@@ -41,7 +41,7 @@ specopVortexListCalc expects another format
 int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
 {
   float fa, fb, fdiv, max, fFactor1, fFactor2;
-  unsigned char *err;
+  char *err;
   int nActive = 0;
   int nActive2 = 0;
   int i, curtime;

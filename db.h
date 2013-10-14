@@ -31,11 +31,11 @@ typedef struct
   int level;
   int flags;
   int reserved;
-  unsigned char name[32];
+  char name[32];
 
   // fast access informations
-  unsigned char faction[32];
-  unsigned char forumtag[32];
+  char faction[32];
+  char forumtag[32];
   int session[4];
   int lasttime;
 
@@ -54,16 +54,16 @@ int dbMapFindSystem( int x, int y );
 int dbMapFindValid( int x, int y );
 
 
-int dbUserSearch( unsigned char *name );
-int dbUserSearchFaction( unsigned char *name );
-int dbUserAdd( unsigned char *name, unsigned char *faction, unsigned char *forumtag );
+int dbUserSearch( char *name );
+int dbUserSearchFaction( char *name );
+int dbUserAdd( char *name, char *faction, char *forumtag );
 int dbUserRemove( int id );
 dbUserPtr dbUserLinkID( int id );
 
 int dbUserSave( int id, dbUserPtr user );
 
-int dbUserSetPassword( int id, unsigned char *pass );
-int dbUserRetrievePassword( int id, unsigned char *pass );
+int dbUserSetPassword( int id, char *pass );
+int dbUserRetrievePassword( int id, char *pass );
 int dbUserLinkDatabase( void *, int id );
 
 int dbSessionSet( dbUserPtr user, char *hash, int *session );
@@ -72,8 +72,8 @@ int dbSessionRetrieve( dbUserPtr user, int *session );
 
 typedef struct
 {
-  unsigned char faction[32];
-  unsigned char forumtag[32];
+  char faction[32];
+  char forumtag[32];
   long long int ressource[8];
   int empire;
   long long int infos[16];
@@ -176,8 +176,8 @@ int dbFamNewsList( int id, long long int **data, int time );
 
 
 
-int dbEmpireMessageSet( int id, int num, unsigned char *text );
-int dbEmpireMessageRetrieve( int id, int num, unsigned char *text );
+int dbEmpireMessageSet( int id, int num, char *text );
+int dbEmpireMessageRetrieve( int id, int num, char *text );
 
 
 
@@ -228,7 +228,7 @@ typedef struct
   int player[32];
   int homeid;
   int homepos; // ( y << 16 ) + x
-  unsigned char name[64];
+  char name[64];
   int leader;
   char vote[32];
   int picmime;
@@ -302,7 +302,7 @@ int dbUserMarketRemove( int id, int bidid );
 
 typedef struct
 {
-  unsigned char title[DB_FORUM_NAME_SIZE];
+  char title[DB_FORUM_NAME_SIZE];
   int threads;
   int rperms;
   int wperms;
@@ -314,10 +314,10 @@ typedef struct
 
 typedef struct
 {
-  unsigned char topic[DB_FORUM_NAME_SIZE];
+  char topic[DB_FORUM_NAME_SIZE];
   int posts;
   int authorid;
-  unsigned char authorname[32];
+  char authorname[32];
   int time;
   int tick;
   int flags;
@@ -329,7 +329,7 @@ typedef struct
   int reserved;
 */
   struct in_addr sin_addr;
-  unsigned char reserved[ 4 - sizeof(struct in_addr) ];
+  char reserved[ 4 - sizeof(struct in_addr) ];
 
 
 } dbForumThreadDef, *dbForumThreadPtr;
@@ -338,8 +338,8 @@ typedef struct
 {
   int length;
   int authorid;
-  unsigned char authorname[32];
-  unsigned char authortag[32];
+  char authorname[32];
+  char authortag[32];
   int time;
   int tick;
   int flags;
@@ -349,14 +349,14 @@ typedef struct
   int reserved[2];
 */
   struct in_addr sin_addr;
-  unsigned char reserved[ 8 - sizeof(struct in_addr) ];
+  char reserved[ 8 - sizeof(struct in_addr) ];
 
 
 } dbForumPostInDef, *dbForumPostInPtr;
 
 typedef struct
 {
-  unsigned char *text;
+  char *text;
   dbForumPostInDef post;
 } dbForumPostDef, *dbForumPostPtr;
 
@@ -398,7 +398,7 @@ typedef struct
 {
   int length;
   int authorid;
-  unsigned char authorname[32];
+  char authorname[32];
   int authorempire;
   int time;
   int tick;
@@ -408,7 +408,7 @@ typedef struct
 
 typedef struct
 {
-  unsigned char *text;
+  char *text;
   dbMailInDef mail;
 } dbMailDef, *dbMailPtr;
 
@@ -459,7 +459,7 @@ int dbUserSpecOpEmpty( int id );
 typedef struct
 {
   int flags;
-  unsigned char desc[4096];
+  char desc[4096];
   int reserved[32];
 } dbUserDescDef, *dbUserDescPtr;
 
@@ -469,14 +469,14 @@ typedef struct
 
   int planets;
   int networth;
-  unsigned char faction[32];
-  unsigned char forumtag[32];
+  char faction[32];
+  char forumtag[32];
   int rank;
 
   int empire;
   int famplanets;
   int famnetworth;
-  unsigned char famname[64];
+  char famname[64];
   int famrank;
   int artefacts;
   int famflags;

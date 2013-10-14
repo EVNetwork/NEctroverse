@@ -69,13 +69,13 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
 }
 
 
-void iohttpAdminForm( svConnectionPtr cnt, unsigned char *target )
+void iohttpAdminForm( svConnectionPtr cnt, char *target )
 {
   svSendPrintf( cnt, "<form action=\"%s\" method=\"POST\">", target );
   return;
 }
 
-void iohttpAdminSubmit( svConnectionPtr cnt, unsigned char *name )
+void iohttpAdminSubmit( svConnectionPtr cnt, char *name )
 {
   svSendPrintf( cnt, "<input type=\"submit\" value=\"%s\"></form><br><br>", name );
   return;
@@ -86,7 +86,7 @@ void iohttpAdminSubmit( svConnectionPtr cnt, unsigned char *name )
 void iohttpFunc_adminforum( svConnectionPtr cnt )
 {
   int a, id;
-  unsigned char *actionstring, *str0;
+  char *actionstring, *str0;
   dbForumForumDef forumd;
 
   iohttpBase( cnt, 1 );
@@ -196,8 +196,8 @@ void iohttpFunc_moderator( svConnectionPtr cnt )
   dbUserBuildPtr buildd;
   //dbForumForumDef forumd;
   //dbForumThreadPtr pThread;
-  unsigned char *actionstring, *str0, *str1;
-  unsigned char COREDIR[256];
+  char *actionstring, *str0, *str1;
+  char COREDIR[256];
   dbUserPtr user;
   long long int *newsp, *newsd;
   int *buffer;
@@ -956,9 +956,9 @@ void iohttpFunc_admin( svConnectionPtr cnt )
 {
   int a, b, c, cmd[2], id;
   int *buffer;
-  unsigned char *action[33];
-  unsigned char fname[200];
-  unsigned char curdir[1024];
+  char *action[33];
+  char fname[200];
+  char curdir[1024];
   dbForumForumDef forumd;
   dbUserFleetDef fleetd;
   dbUserMainDef maind;

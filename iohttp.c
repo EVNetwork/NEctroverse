@@ -1,14 +1,14 @@
 
-unsigned char iohttpEnd[2][5] = { "\r\n\r\n", "\n\n" };
+char iohttpEnd[2][5] = { "\r\n\r\n", "\n\n" };
 int iohttpEndSize[2] = { 4, 2 };
 
-int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, unsigned char *cmd );
+int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, char *cmd );
 
 
-int iohttpMimeFind( unsigned char *name );
+int iohttpMimeFind( char *name );
 iohttpFilePtr iohttpFileAdd( int size );
-int iohttpFileDel( unsigned char *path );
-iohttpFilePtr iohttpFileFind( unsigned char *path );
+int iohttpFileDel( char *path );
+iohttpFilePtr iohttpFileFind( char *path );
 
 
 #include "iohttpvars.c"
@@ -18,10 +18,10 @@ iohttpFilePtr iohttpFileFind( unsigned char *path );
 
 
 
-int iohttpMimeFind( unsigned char *name )
+int iohttpMimeFind( char *name )
 {
   int a, b;
-  unsigned char *ext;
+  char *ext;
   for( a = 0 ; name[a] ; a++ );
   for( b = 0 ; ; b++, a-- )
   {
@@ -46,7 +46,7 @@ int iohttpMimeFind( unsigned char *name )
 iohttpFilePtr iohttpFileAdd( int size )
 {
   iohttpFilePtr file;
-  unsigned char *mem;
+  char *mem;
   if( !( mem = malloc( sizeof(iohttpFileDef) + size ) ) )
   {
     printf( "Error %03d, malloc\n", errno );
@@ -64,7 +64,7 @@ iohttpFilePtr iohttpFileAdd( int size )
   return file;
 }
 
-int iohttpFileDel( unsigned char *path )
+int iohttpFileDel( char *path )
 {
   iohttpFilePtr file, next;
   for( file = iohttpFileList ; file ; file = file->next )
@@ -81,7 +81,7 @@ int iohttpFileDel( unsigned char *path )
   return 0;
 }
 
-iohttpFilePtr iohttpFileFind( unsigned char *path )
+iohttpFilePtr iohttpFileFind( char *path )
 {
   iohttpFilePtr file;
   for( file = iohttpFileList ; file ; file = file->next )
@@ -98,7 +98,7 @@ iohttpFilePtr iohttpFileFind( unsigned char *path )
 
 void InitHTTP()
 {
-	unsigned char COREDIR[256];
+	char COREDIR[256];
   int a;
   DIR *dirdata;
   struct dirent *direntry;
@@ -644,7 +644,7 @@ static int debugmem()
 {
   int pid;
   FILE *file;
-  unsigned char fname[256];
+  char fname[256];
   int stutime, ststime, stpriority, ststarttime, stvsize, strss;
   pid = getpid();
   sprintf( fname, "/proc/%d/stat", pid );
@@ -662,13 +662,13 @@ static int debugmem()
 void outSendReplyHTTP( svConnectionPtr cnt )
 {
   time_t curtime;
-  unsigned char scurtime[256];
+  char scurtime[256];
   iohttpDataPtr iohttp = cnt->iodata;
   iohttpFilePtr file;
   FILE *fd;
   struct stat stdata;
-  unsigned char *data;
-  unsigned char path[4096];
+  char *data;
+  char path[4096];
 
 /*
 printf( "Q %s ( %s )\n", iohttp->path, iohttp->cookie );
@@ -802,7 +802,7 @@ void inClosedHTTP( svConnectionPtr cnt )
 void inErrorHTTP( svConnectionPtr cnt, int type )
 {
   int a, content_pos;
-  unsigned char *content;
+  char *content;
   iohttpDataPtr iohttp = cnt->iodata;
   if( type == 0 )
     cnt->flags |= SV_FLAGS_TO_CLOSE;
@@ -833,10 +833,10 @@ void inErrorHTTP( svConnectionPtr cnt, int type )
 
 
 
-unsigned char iohttpInputHex( unsigned char *src )
+char iohttpInputHex( char *src )
 {
   int a;
-  unsigned char b = 0;
+  char b = 0;
   for( a = 0 ; ; a++ )
   {
     if( ( src[a] >= '0' ) && ( src[a] <= '9' ) )
@@ -856,10 +856,10 @@ unsigned char iohttpInputHex( unsigned char *src )
 }
 
 
-int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, unsigned char *cmd )
+int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, char *cmd )
 {
   int a;
-  unsigned char *cmd2;
+  char *cmd2;
   iohttpFilePtr file;
 
   if( !( iohttp->code ) )

@@ -3,7 +3,7 @@
 
 int svBanNum = SVBAN_NUM;
 
-unsigned char *svBanList[SVBAN_NUM] = 
+char *svBanList[SVBAN_NUM] = 
 {
 	//"83.134.82.38",
 	//"24.82.46.11",

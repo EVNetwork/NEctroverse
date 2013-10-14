@@ -71,7 +71,7 @@ int iohttpVarsInit( svConnectionPtr cnt )
 int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords )
 {
   iohttpDataPtr iohttp = cnt->iodata;
-  unsigned char *string;
+  char *string;
   if( iohttp->method == 3 )
     string = iohttp->content;
   else
@@ -103,11 +103,11 @@ int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords )
 */
 
 
-unsigned char *iohttpVarsUpload( svConnectionPtr cnt, unsigned char **filename, int *filesize )
+char *iohttpVarsUpload( svConnectionPtr cnt, char **filename, int *filesize )
 {
   int size;
   iohttpDataPtr iohttp = cnt->iodata;
-  unsigned char *boundary, *content, *end, *fname;
+  char *boundary, *content, *end, *fname;
   if( !( iohttp->content_type ) || !( iohttp->content ) )
     return 0;
   boundary = ioCompareFindWords( iohttp->content_type, "boundary=" );

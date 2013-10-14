@@ -1,7 +1,7 @@
 #define CONFIGINCLUDED
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 #define SERVERNAME "NEctroverse"
-#define HASHPASSWORD 1
+#define HASHENCRYPTION 1
 #define FORKING 0
 
 #define HTTP_PORT 9122
@@ -20,8 +20,15 @@
 #include ".hidden.and.nogit"
 #else
 #define CMD_ADMIN_NUM 1
-static unsigned char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
-static unsigned char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
+static char cmdAdminName[CMD_ADMIN_NUM][32] = { "admin" };
+static char cmdAdminPass[CMD_ADMIN_NUM][32] = { "password" };
+static char cmdAdminFaction[CMD_ADMIN_NUM][32] = { "Administrator" };
+static char cmdAdminForumTag[CMD_ADMIN_NUM][32] = { "Administrator" };
+static int cmdAdminLevel[CMD_ADMIN_NUM] = { 3 };
+static int cmdAdminRace[CMD_ADMIN_NUM] = { 0 };
+
+static char cmdAdminEmpirePass[32] = { "password" };
+static int cmdAdminEmpire = 0;
 #endif
 
 #define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
@@ -108,7 +115,7 @@ static char HTMLDIRECTORY[32] = "%s/git/NEctroverse/html";
 ^^^ You don't want to change anything down here... it's all up there! ^^^ =) 
 */
 
-static unsigned char PIPEFILE[32] = "%s/evserver.pipe";
+static char PIPEFILE[32] = "%s/evserver.pipe";
 //#define PIPEFILE "/tmp/evcore/evserver.pipe"
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)

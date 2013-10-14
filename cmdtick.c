@@ -12,7 +12,7 @@ void cmdTickGenRanks()
   dbUserPtr user;
   int *stats;
   int artefacts[ARTEFACT_NUMUSED], artsnum;
-  unsigned char COREDIR[256];
+  char COREDIR[256];
 
 
   artmax = 0;

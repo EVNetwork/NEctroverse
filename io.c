@@ -84,7 +84,7 @@ ioInterfaceDef ioInterface[IO_INTERFACE_NUM] =
 
 
 
-unsigned char *ioCompareWords( unsigned char *string, unsigned char *word )
+char *ioCompareWords( char *string, char *word )
 {
   int i;
   for( i = 0 ; ; i++ )
@@ -99,7 +99,7 @@ unsigned char *ioCompareWords( unsigned char *string, unsigned char *word )
 
 
 /*TODO add the * wildcard support*/
-unsigned char *ioCompareFindWords( unsigned char *string, unsigned char *word )
+char *ioCompareFindWords( char *string, char *word )
 {
   int i;
   for( ; ; string++ )
@@ -117,7 +117,7 @@ unsigned char *ioCompareFindWords( unsigned char *string, unsigned char *word )
   return &string[i];
 }
 
-unsigned char *ioCompareFindBinwords( unsigned char *string, unsigned char *word, int size )
+char *ioCompareFindBinwords( char *string, char *word, int size )
 {
   int i;
   for( ; ; string++, size-- )
@@ -137,7 +137,7 @@ unsigned char *ioCompareFindBinwords( unsigned char *string, unsigned char *word
   return &string[i];
 }
 
-int ioCompareExact( unsigned char *s1, unsigned char *s2 )
+int ioCompareExact( char *s1, char *s2 )
 {
   int i;
   for( i = 0 ; ; i++ )
@@ -150,7 +150,7 @@ int ioCompareExact( unsigned char *s1, unsigned char *s2 )
   return 1;
 }
 
-int iohttpCompareExt( unsigned char *string, unsigned char *ext )
+int iohttpCompareExt( char *string, char *ext )
 {
   int i;
   for( i = 0 ; ; i++ )
@@ -170,7 +170,7 @@ int iohttpCompareExt( unsigned char *string, unsigned char *ext )
 
 
 
-int iohttpCaseLow( unsigned char *dest, unsigned char *string )
+int iohttpCaseLow( char *dest, char *string )
 {
   int i;
   for( i = 0 ; string[i] ; i++ )

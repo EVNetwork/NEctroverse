@@ -167,14 +167,14 @@ void mapCalcFactors()
 
 
 
-unsigned char nullb[256];
+char nullb[256];
 
 int mapgen() {
 	int a, b, c, d, e, i, p, x, y, x2, y2;
 	long long int j;
 	float dist, distmax;
 	FILE *file;
-	unsigned char fname[256];
+	char fname[256];
 	FILE *file2;
 
 openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
@@ -426,6 +426,15 @@ dirstructurecheck(fname);
   }
   fclose( file );
 
+if( cmdAdminEmpirePass != NULL ) {
+	cmdExecChangFamName( cmdAdminEmpire, "Administration" );
+	cmdExecSetFamPass( cmdAdminEmpire, cmdAdminEmpirePass );
+	
+	#if FORKING == 0
+	printf("Empire %d Claimed for Administration with pass: \"%s\"\n", cmdAdminEmpire, cmdAdminEmpirePass);
+	#endif
+	syslog(LOG_INFO, "Empire %d Claimed for Administration with pass: \"%s\"\n", cmdAdminEmpire, cmdAdminEmpirePass);
+}
 
   return 1;
 }

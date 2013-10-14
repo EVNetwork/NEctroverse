@@ -5,6 +5,9 @@
 #include "global.h"
 #endif
 
+#if HASHENCRYPTION == 1
+#include "optional/md5.h"
+#endif
 
 #include "artefact.h"
 #include "db.h"
@@ -13,7 +16,7 @@
 #include "cmd.h"
 
 
-unsigned char *cmdRessourceName[8] =
+char *cmdRessourceName[8] =
 {
 "Energy",
 "Mineral",
@@ -24,7 +27,7 @@ unsigned char *cmdRessourceName[8] =
 "Population"
 };
 
-unsigned char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
+char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
 {
 "Solar collectors",
 "Fission reactors",
@@ -38,7 +41,7 @@ unsigned char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
 "Portal",
 };
 
-unsigned char *cmdUnitName[CMD_UNIT_NUMUSED] =
+char *cmdUnitName[CMD_UNIT_NUMUSED] =
 {
 "Bombers",
 "Fighters",
@@ -56,7 +59,7 @@ unsigned char *cmdUnitName[CMD_UNIT_NUMUSED] =
 "Exploration ships"
 };
 
-unsigned char *cmdResearchName[CMD_RESEARCH_NUMUSED] =
+char *cmdResearchName[CMD_RESEARCH_NUMUSED] =
 {
 "Military",
 "Construction",
@@ -67,7 +70,7 @@ unsigned char *cmdResearchName[CMD_RESEARCH_NUMUSED] =
 "Operations"
 };
 
-unsigned char *cmdResearchDesc[CMD_RESEARCH_NUMUSED] =
+char *cmdResearchDesc[CMD_RESEARCH_NUMUSED] =
 {
 "Increases your units attack and defense strength",
 "Reduces construction costs and building time",
@@ -162,7 +165,7 @@ int cmdUnitStats[CMD_UNIT_NUMUSED][CMD_UNIT_STATS_NUMUSED] =
 
 
 
-unsigned char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED] =
+char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED] =
 {
 "Explore the planet",
 "Station on planet",
@@ -196,7 +199,7 @@ unsigned char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED] =
 
 
 
-unsigned char *cmdAgentopName[CMD_AGENTOP_NUMUSED] =
+char *cmdAgentopName[CMD_AGENTOP_NUMUSED] =
 {
 "Spy Target",
 "Observe Planet",
@@ -210,7 +213,7 @@ unsigned char *cmdAgentopName[CMD_AGENTOP_NUMUSED] =
 "Planetary Beacon"
 };
 
-unsigned char *cmdPsychicopName[CMD_PSYCHICOP_NUMUSED] =
+char *cmdPsychicopName[CMD_PSYCHICOP_NUMUSED] =
 {
 "Irradiate Ectrolium",
 "Dark Web",
@@ -221,7 +224,7 @@ unsigned char *cmdPsychicopName[CMD_PSYCHICOP_NUMUSED] =
 "Phantoms"
 };
 
-unsigned char *cmdGhostopName[CMD_GHOSTOP_NUMUSED] =
+char *cmdGhostopName[CMD_GHOSTOP_NUMUSED] =
 {
 "Sense Artefact",
 "Survey System",
@@ -393,7 +396,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
  },
 };
 
-unsigned char *cmdRaceName[CMD_RACE_NUMUSED] =
+char *cmdRaceName[CMD_RACE_NUMUSED] =
 {
 "Harks",
 "Manticarias",
@@ -409,8 +412,8 @@ unsigned char *cmdRaceName[CMD_RACE_NUMUSED] =
 
 
 
-unsigned char *cmdErrorString;
-unsigned char cmdErrorBuffer[1024];
+char *cmdErrorString;
+char cmdErrorBuffer[1024];
 
 
 dbUserMainDef cmdUserMainDefault =
@@ -504,7 +507,7 @@ int cmdUserNewsAdd( int id, long long int *data, long long int flags )
 
 
 
-int cmdCheckName( unsigned char *name )
+int cmdCheckName( char *name )
 {
   int a, b, c;
   c = 1;
@@ -771,7 +774,7 @@ int cmdGetOpPenalty( int research, int requirement )
 
 #define IOHTTP_TAGNUM (23)
 
-unsigned char *cmdTagNames[IOHTTP_TAGNUM] =
+char *cmdTagNames[IOHTTP_TAGNUM] =
 {
 "Player",
 "Veteran",
@@ -825,7 +828,7 @@ int cmdTagPoints[IOHTTP_TAGNUM] =
 };
 
 
-unsigned char *cmdTagFind( int points )
+char *cmdTagFind( int points )
 {
   int a;
   for( a = 0 ; a < IOHTTP_TAGNUM-1 ; a++ )
@@ -1105,7 +1108,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
   int a, b, c, d; 
   long long int cost[4];
   float fa, fb, fc;
-  unsigned char *cbuffer;
+  char *cbuffer;
   int *ibuffer;
   long long int newd[DB_USER_NEWS_BASE];
   long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
@@ -2213,8 +2216,7 @@ int cmdInit() {
 	dbUserPtr user;
 
 memset( &maind, 0, sizeof(dbUserMainDef) );
-memset( &fleetd, 0, sizeof(dbUserFleetDef) );
-maind.empire = -1;
+
 	
 for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
 	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
@@ -2223,19 +2225,33 @@ for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
 	printf("Creating Administrator account named: \"%s\"\n", cmdAdminName[a] );
 	#endif
 	syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", cmdAdminName[a] );
-	memcpy( maind.faction, cmdAdminName[a], 32 );
-	sprintf( maind.forumtag, "Administrator" );
-	if( ( id = dbUserAdd( cmdAdminName[a], maind.faction, maind.forumtag ) ) < 0 )
-		continue;
+
+	if( ( id = cmdExecNewUser( cmdAdminName[a], cmdAdminPass[a], cmdAdminFaction[a] ) ) < 0 ) {
+	#if FORKING == 0
+	printf("Failure Creating Administrator account: \"%s\"\n", cmdAdminName[a] );
+	#endif
+	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", cmdAdminName[a] );
+	}
+
+	dbUserMainRetrieve(id, &maind);
+	sprintf( maind.forumtag, "%s", cmdAdminForumTag[a] );
+	dbUserMainSet(id, &maind);
 	user = dbUserLinkID( id );
 	user->flags = 0;
-	user->level = 3;
+	user->level = cmdAdminLevel[a];
 	dbUserSave( id, user );
 
-	dbUserMainSet( id, &maind );
-	dbUserSetPassword( id, cmdAdminPass[a] );
-	dbUserFleetAdd( id, &fleetd );
-	cmdTotalsCalculate( id, &maind );
+	#if HASHENCRYPTION == 1
+	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, str2md5(cmdAdminEmpirePass), cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
+	#else
+	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, cmdAdminEmpirePass, cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
+	#endif
+	
+ 	#if FORKING == 0
+	printf("Failure Placing Administrator account: \"%s\"\n", cmdAdminName[a] );
+	#endif
+	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", cmdAdminName[a] );
+	}
 }
 	
 dbFlush();

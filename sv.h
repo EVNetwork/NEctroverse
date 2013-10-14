@@ -1,7 +1,7 @@
 
 typedef struct
 {
-  unsigned char *data;
+  char *data;
   void *next;
   void **prev;
 } svBufferDef, *svBufferPtr;
@@ -15,8 +15,8 @@ typedef struct
   void *next;
   void **previous;
 
-  unsigned char *recv;
-  unsigned char recv_buf[SERVER_RECV_BUFSIZE+1];
+  char *recv;
+  char recv_buf[SERVER_RECV_BUFSIZE+1];
   int recv_pos;
   int recv_max;
   int time;
@@ -31,7 +31,7 @@ typedef struct
   int sendflushpos;
 
 
-  unsigned char *sendstatic;
+  char *sendstatic;
   int sendstaticsize;
 
 // ioInterfacePtr
@@ -104,5 +104,5 @@ __attribute__ ((format (printf, 1, 2)))
 
 
 extern int svBanNum;
-extern unsigned char *svBanList[];
+extern char *svBanList[];
 

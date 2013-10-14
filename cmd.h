@@ -15,12 +15,12 @@ void cmdTickEnd();
 
 
 
-int cmdExecNewUser( unsigned char *name, unsigned char *pass, unsigned char *faction );
-int cmdExecNewUserEmpire( int id, int famnum, unsigned char *fampass, int raceid, int level );
+int cmdExecNewUser( char *name, char *pass, char *faction );
+int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int level );
 int cmdExecUserDeactivate( int id, int flags );
 int cmdUserDelete( int id );
-int cmdExecChangeName( int id, unsigned char *faction );
-int cmdExecChangePassword( int id, unsigned char *pass );
+int cmdExecChangeName( int id, char *faction );
+int cmdExecChangePassword( int id, char *pass );
 
 int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild );
 int cmdExecAddBid( int id, int action, int resource, int price, int quantity );
@@ -30,10 +30,10 @@ int cmdExecSendAid( int id, int destid, int fam, int *res , int nAlly);
 int cmdExecGetAid( int id, int destid, int fam, int *res );
 int cmdExecAidAccess( int id, int access );
 int cmdExecChangeVote( int id, int vote );
-int cmdExecChangFamName( int fam, unsigned char *name );
+int cmdExecChangFamName( int fam, char *name );
 int cmdExecFamMemberFlags( int id, int fam, int flags );
-int cmdExecSetFamPass( int fam, unsigned char *pass );
-int cmdExecGetFamPass( int fam, unsigned char *pass );
+int cmdExecSetFamPass( int fam, char *pass );
+int cmdExecGetFamPass( int fam, char *pass );
 
 int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags );
 int cmdExecAddRelation( int fam, int type, int famtarget );
@@ -63,7 +63,7 @@ void cmdGetBuildOverbuild( int size, int total, long long int *buffer );
 
 int cmdGetOpPenalty( int research, int requirement );
 
-unsigned char *cmdTagFind( int points );
+char *cmdTagFind( int points );
 
 
 int specopAgentsAllowed( int specop, int raceid );
@@ -167,7 +167,7 @@ CMD_SET_FAMMEMBER,
 };
 
 
-extern unsigned char *cmdErrorString;
+extern char *cmdErrorString;
 
 
 enum
@@ -183,7 +183,7 @@ CMD_RESSOURCE_ECTROLIUM
 #define CMD_RESSOURCE_TIME 4
 #define CMD_RESSOURCE_POPULATION 5
 
-extern unsigned char *cmdRessourceName[];
+extern char *cmdRessourceName[];
 
 
 
@@ -204,7 +204,7 @@ CMD_BUILDING_SHIELD,
 
 #define CMD_BLDG_NUMUSED 9
 
-extern unsigned char *cmdBuildingName[];
+extern char *cmdBuildingName[];
 
 #define CMD_POPULATION_SIZE_FACTOR 20
 #define CMD_POPULATION_BASE_FACTOR 2
@@ -233,7 +233,7 @@ CMD_UNIT_EXPLORATION,
 
 #define CMD_UNIT_FLEET 9
 #define CMD_UNIT_NUMUSED 13
-extern unsigned char *cmdUnitName[CMD_UNIT_NUMUSED];
+extern char *cmdUnitName[CMD_UNIT_NUMUSED];
 
 
 
@@ -250,8 +250,8 @@ CMD_RESEARCH_OPERATIONS
 
 #define CMD_RESEARCH_NUMUSED 7
 
-extern unsigned char *cmdResearchName[CMD_RESEARCH_NUMUSED];
-extern unsigned char *cmdResearchDesc[CMD_RESEARCH_NUMUSED];
+extern char *cmdResearchName[CMD_RESEARCH_NUMUSED];
+extern char *cmdResearchDesc[CMD_RESEARCH_NUMUSED];
 
 
 
@@ -323,7 +323,7 @@ CMD_FLEET_ORDER_ENERGYSURGE,
 #define CMD_FLEET_ORDER_NUMUSED (7+10+7)
 
 
-extern unsigned char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED];
+extern char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED];
 
 
 
@@ -567,9 +567,9 @@ CMD_INCANT_ENERGYSURGE,
 #define CMD_PSYCHICOP_NUMUSED 7
 #define CMD_GHOSTOP_NUMUSED 7
 
-extern unsigned char *cmdAgentopName[CMD_AGENTOP_NUMUSED];
-extern unsigned char *cmdPsychicopName[CMD_PSYCHICOP_NUMUSED];
-extern unsigned char *cmdGhostopName[CMD_GHOSTOP_NUMUSED];
+extern char *cmdAgentopName[CMD_AGENTOP_NUMUSED];
+extern char *cmdPsychicopName[CMD_PSYCHICOP_NUMUSED];
+extern char *cmdGhostopName[CMD_GHOSTOP_NUMUSED];
 
 extern int cmdAgentopTech[CMD_AGENTOP_NUMUSED];
 extern int cmdPsychicopTech[CMD_PSYCHICOP_NUMUSED];
@@ -634,7 +634,7 @@ typedef struct
 
 cmdRaceDef cmdRace[CMD_RACE_NUMUSED];
 
-extern unsigned char *cmdRaceName[CMD_RACE_NUMUSED];
+extern char *cmdRaceName[CMD_RACE_NUMUSED];
 
 
 

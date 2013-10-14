@@ -1,4 +1,4 @@
-int iohttpIdentifyHex( unsigned char *num )
+int iohttpIdentifyHex( char *num )
 {
  int a, b, c;
  for( a = b = 0 ; ; b <<= 4 )
@@ -20,10 +20,10 @@ void iohttpBase( svConnectionPtr cnt, int flags );
 int iohttpIdentify( svConnectionPtr cnt, int action )
 {
  int a, b, id, session[4];
- unsigned char *src;
+ char *src;
  FILE *file;
  struct stat stdata;
- unsigned char *data;
+ char *data;
  iohttpDataPtr iohttp = cnt->iodata;
 
  if( !( src = iohttp->cookie ) )
@@ -187,7 +187,7 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
 }
 
 
-void iohttpBodyInit( svConnectionPtr cnt, unsigned char *title, ... )
+void iohttpBodyInit( svConnectionPtr cnt, char *title, ... )
 {
  char text[4096];
  va_list ap;
@@ -300,11 +300,11 @@ void iohttpFunc_register2( svConnectionPtr cnt )
 {
  int a, i, id;
  int session[4];
- unsigned char *name, *pass, *faction;
+ char *name, *pass, *faction;
  FILE *file;
  iohttpDataPtr iohttp;
- unsigned char timebuf[256];
- unsigned char COREDIR[256];
+ char timebuf[256];
+ char COREDIR[256];
  long long int newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
@@ -411,9 +411,9 @@ void iohttpFunc_register2( svConnectionPtr cnt )
 void iohttpFunc_register3( svConnectionPtr cnt )
 {
  int a, id, raceid;
- unsigned char *empire;
- unsigned char *fampass;
- unsigned char *race;
+ char *empire;
+ char *fampass;
+ char *race;
 
  iohttpBase( cnt, 0 );
  if( ( id = iohttpIdentify( cnt, 1|4 ) ) < 0 )
@@ -421,7 +421,11 @@ void iohttpFunc_register3( svConnectionPtr cnt )
 
  iohttpVarsInit( cnt );
  empire = iohttpVarsFind( "empire" );
+#if HASHENCRYPTION == 1
+ fampass = str2md5( iohttpVarsFind( "fampass" ) );
+#else
  fampass = iohttpVarsFind( "fampass" );
+#endif
  race = iohttpVarsFind( "race" );
  iohttpVarsCut();
  if( ( empire ) && ( race ) )
@@ -481,13 +485,13 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd );
 void iohttpFunc_main( svConnectionPtr cnt )
 {
  int a, i, id, num;
- unsigned char *name, *pass;
- unsigned char rtpass[32];
+ char *name, *pass;
+ char rtpass[32];
  int session[4];
  FILE *file;
  iohttpDataPtr iohttp;
- unsigned char timebuf[256];
- unsigned char COREDIR[256];
+ char timebuf[256];
+ char COREDIR[256];
  long long int *newsp, *newsd;
  dbUserMainDef maind;
 
@@ -536,6 +540,9 @@ void iohttpFunc_main( svConnectionPtr cnt )
    goto iohttpFunc_mainL0;
   if( dbUserRetrievePassword( id, rtpass ) < 0 )
    goto iohttpFunc_mainL0;
+#if HASHENCRYPTION == 1
+pass = str2md5(pass);
+#endif
   if( !( ioCompareExact( pass, rtpass ) ) )
    goto iohttpFunc_mainL0;
   if( dbUserLinkDatabase( cnt, id ) < 0 )
@@ -637,7 +644,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  }
 
  iohttpBase( cnt, 0 );
- svSendString( cnt, "Name or password incorrect" );
+ svSendPrintf( cnt, "Name or password incorrect" );
  svSendString( cnt, "</center></body></html>" );
  return;
 }
@@ -1799,9 +1806,9 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  long long int *newsp, *newsd;
  FILE *file;
  struct stat stdata;
- unsigned char *data;
- unsigned char message[4096];
- unsigned char sMd5[33];
+ char *data;
+ char message[4096];
+ char sMd5[33];
  //FILE *fFile;
 
 	iohttpBase( cnt, 1 );
@@ -2052,9 +2059,9 @@ void iohttpFunc_units( svConnectionPtr cnt )
  int a, b, c, id;
  long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
  dbUserMainDef maind;
- unsigned char *buildunit[CMD_UNIT_NUMUSED];
- unsigned char buildname[16];
- unsigned char buildstring[CMD_UNIT_NUMUSED][128];
+ char *buildunit[CMD_UNIT_NUMUSED];
+ char buildname[16];
+ char buildstring[CMD_UNIT_NUMUSED][128];
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -2139,8 +2146,8 @@ void iohttpFunc_market( svConnectionPtr cnt )
  int action, resource, price, quantity;
  int *buffer;
  dbUserMainDef maind;
- unsigned char *pricestring, *quantitystring, *resstring, *actionstring, *viewstring, *fullstring, *rmbidstring;
- unsigned char *marketstring;
+ char *pricestring, *quantitystring, *resstring, *actionstring, *viewstring, *fullstring, *rmbidstring;
+ char *marketstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -2338,7 +2345,7 @@ void iohttpFunc_planets( svConnectionPtr cnt )
  dbMainPlanetDef planetd;
  int totals[7];
  float totalob;
- unsigned char *sortstring;
+ char *sortstring;
 
 
  iohttpBase( cnt, 1 );
@@ -2493,8 +2500,8 @@ void iohttpFunc_empire( svConnectionPtr cnt )
  int a, b, c, d, nAlly, first, id, curtime, curfam;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- unsigned char *empirestring;
- unsigned char fname[64];
+ char *empirestring;
+ char fname[64];
  dbUserPtr user;
  dbUserMainDef mainp[32];
  int stats[64];
@@ -2690,6 +2697,8 @@ void iohttpFunc_empire( svConnectionPtr cnt )
  return;
 }
 
+
+
 void iohttpFunc_famaid( svConnectionPtr cnt )
 {
  int a, b, id, res[4], j, i, k, nAlly;
@@ -2697,8 +2706,8 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  dbMainEmpireDef empire2d;
- unsigned char *playerstring, *resstring[4];
- unsigned char *reportstring;
+ char *playerstring, *resstring[4];
+ char *reportstring;
  dbUserPtr user;
 
   iohttpBase( cnt, 1 );
@@ -2796,13 +2805,14 @@ nAlly = -1;
    continue;
   svSendPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
  }
- 
+if( nAlly > -1 ) {
  for( a = 0 ; a < empire2d.numplayers ; a++ )
  {
   if( !( user = dbUserLinkID( empire2d.player[a] ) ) )
    continue;
   svSendPrintf( cnt, "<option value=\"%d\">%s", empire2d.player[a], user->faction );
  }
+}
  svSendString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   svSendPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", maind.ressource[a], cmdRessourceName[a], a );
@@ -2814,13 +2824,14 @@ nAlly = -1;
 }
 
 
+
 void iohttpFunc_famgetaid( svConnectionPtr cnt )
 {
  int a, b, id, res[4];
  dbUserMainDef maind, main2d;
  dbMainEmpireDef empired;
- unsigned char *accessstring, *playerstring, *resstring[4];
- unsigned char *reportstring;
+ char *accessstring, *playerstring, *resstring[4];
+ char *reportstring;
  dbUserPtr user;
 
  iohttpBase( cnt, 1 );
@@ -2981,7 +2992,7 @@ void iohttpFunc_famvote( svConnectionPtr cnt )
  int a, b, id, fampos, vote;
  dbUserMainDef maind, main2d;
  dbMainEmpireDef empired;
- unsigned char *votestring;
+ char *votestring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -3074,8 +3085,8 @@ void iohttpFunc_famnews( svConnectionPtr cnt )
  int a, id, num, curfam;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- unsigned char *empirestring;
- unsigned char COREDIR[256];
+ char *empirestring;
+ char COREDIR[256];
  long long int *newsp, *newsd;
 	FILE *fFile;
 
@@ -3131,9 +3142,9 @@ void iohttpFunc_famrels( svConnectionPtr cnt )
  int a, b, c, id, curfam, nEmp;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- unsigned char *empirestring;
+ char *empirestring;
  int *rel;
- unsigned char message[4096];
+ char message[4096];
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -3211,22 +3222,22 @@ void iohttpFunc_famrels( svConnectionPtr cnt )
  return;
 }
 
-int iohttpForumFilter( unsigned char *dest, unsigned char *string, int size, int html );
-int iohttpForumFilter2( unsigned char *dest, unsigned char *string, int size );
-int iohttpForumFilter3( unsigned char *dest, unsigned char *string, int size );
+int iohttpForumFilter( char *dest, char *string, int size, int html );
+int iohttpForumFilter2( char *dest, char *string, int size );
+int iohttpForumFilter3( char *dest, char *string, int size );
 
 void iohttpFunc_famleader( svConnectionPtr cnt )
 {
  int a, b, c, id, filesize, curfam, sid, status, relfam, reltype;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- unsigned char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *fampic, *filename;
- unsigned char fname[256];
+ char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *fampic, *filename;
+ char fname[256];
  FILE *file;
  iohttpFilePtr cfile;
  dbUserPtr user;
  int *rel;
- unsigned char message[4096], message2[4096];
+ char message[4096], message2[4096];
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -3559,13 +3570,13 @@ void iohttpFunc_map( svConnectionPtr cnt )
  dbMainEmpireDef empired;
  int *mapp;
  int zoompos[2];
- unsigned char advname[16];
- unsigned char *varstring;
+ char advname[16];
+ char *varstring;
  int advopt[IOHTTP_MAPADV_ENTRIES];
  int advcol[IOHTTP_MAPADV_ENTRIES];
- unsigned char *advdet[IOHTTP_MAPADV_ENTRIES];
- unsigned char advdetnum[IOHTTP_MAPADV_ENTRIES][16];
- unsigned char *configstring;
+ char *advdet[IOHTTP_MAPADV_ENTRIES];
+ char advdetnum[IOHTTP_MAPADV_ENTRIES][16];
+ char *configstring;
  int basex, basey, endx, endy, zoomsize;
  int config[8];
 
@@ -3846,7 +3857,7 @@ void iohttpFunc_mappick( svConnectionPtr cnt )
 {
  int a, b, id;
  dbUserMainDef maind;
- unsigned char *sizestring;
+ char *sizestring;
  static int sizes[6] = { 15, 20, 25, 30, 45, 60 };
 
  iohttpBase( cnt, 1 );
@@ -3907,9 +3918,9 @@ void iohttpFunc_mapadv( svConnectionPtr cnt )
 {
  int a, b, id;
  dbUserMainDef maind;
- static unsigned char *advopt[7] = { ">Unused", ">Your planets", ">Your portals", ">Your empire", ">Planets of faction :", ">Planets of empire :", ">Unexplored planets" };
+ static char *advopt[7] = { ">Unused", ">Your planets", ">Your portals", ">Your empire", ">Planets of faction :", ">Planets of empire :", ">Unexplored planets" };
  int advoptbase[IOHTTP_MAPADV_ENTRIES] = { 1, 2, 0, 0, 0, 0, 0, 0 };
- static unsigned char *advcol[6] = { ">Green", ">Blue", ">Red", ">Green merged", ">Blue merged", ">Red merged" };
+ static char *advcol[6] = { ">Green", ">Blue", ">Red", ">Green merged", ">Blue merged", ">Red merged" };
  int advcolbase[IOHTTP_MAPADV_ENTRIES] = { 1, 0, 0, 0, 0, 0, 0, 0 };
  int advnumbase[IOHTTP_MAPADV_ENTRIES] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 
@@ -3980,7 +3991,7 @@ void iohttpFunc_system( svConnectionPtr cnt )
  dbUserMainDef maind, main2d;
  dbMainSystemDef systemd;
  dbMainPlanetDef planetd;
- unsigned char *systemstring;
+ char *systemstring;
 
  int b, c, d, ln, lns[4], pics[64];
  float fa;
@@ -4067,7 +4078,7 @@ void iohttpFunc_player( svConnectionPtr cnt )
 {
  int a, b, id, playerid;
  dbUserMainDef maind, main2d;
- unsigned char *playerstring;
+ char *playerstring;
  dbUserDescDef descd;
  dbUserRecordPtr recordd;
 
@@ -4129,7 +4140,7 @@ void iohttpFunc_playerlist( svConnectionPtr cnt )
  int a, num, id, playerid;
  int *buffer;
  dbUserMainDef maind, main2d;
- unsigned char *playerstring;
+ char *playerstring;
 
  iohttpBase( cnt, 1 );
  
@@ -4189,10 +4200,10 @@ void iohttpFunc_planet( svConnectionPtr cnt )
  dbMainEmpireDef empired;
  dbMainPlanetDef planetd;
  dbUserPtr user2;
- unsigned char *planetstring;
- unsigned char *unstationstring;
- unsigned char *plgivestring;
- static unsigned char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
+ char *planetstring;
+ char *unstationstring;
+ char *plgivestring;
+ static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -4339,7 +4350,7 @@ void iohttpFunc_pltake( svConnectionPtr cnt )
  int id, plnid;
  dbMainPlanetDef planetd;
  dbUserMainDef maind;
- unsigned char *planetstring;
+ char *planetstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -4386,11 +4397,11 @@ void iohttpFunc_build( svConnectionPtr cnt )
  float fa;
  dbUserMainDef maind;
  dbMainPlanetDef planetd;
- unsigned char *buildbldg[CMD_BLDG_NUMUSED];
- unsigned char *buildplnid;
- unsigned char buildname[16];
- unsigned char buildstring[CMD_BLDG_NUMUSED+1][128];
- unsigned char *portalstring;
+ char *buildbldg[CMD_BLDG_NUMUSED];
+ char *buildplnid;
+ char buildname[16];
+ char buildstring[CMD_BLDG_NUMUSED+1][128];
+ char *portalstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -4573,7 +4584,7 @@ void iohttpFunc_cancelbuild(svConnectionPtr cnt)
 	dbUserBuildPtr buildp;
 	dbMainPlanetDef planetd;
 	char buildid[10];
-	unsigned char *cBuild;
+	char *cBuild;
 	
 	iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -4673,12 +4684,12 @@ void iohttpFunc_massbuild( svConnectionPtr cnt )
  int *buffer;
  dbUserMainDef maind;
  dbMainPlanetDef planetd;
- unsigned char *buildbldg[CMD_BLDG_NUMUSED];
- unsigned char buildname[16];
- unsigned char buildstring[IOHTTP_MASSBUILD_STRING];
- unsigned char *portalstring;
- unsigned char *oblimitstring;
- unsigned char *oblimitstringlow;
+ char *buildbldg[CMD_BLDG_NUMUSED];
+ char buildname[16];
+ char buildstring[IOHTTP_MASSBUILD_STRING];
+ char *portalstring;
+ char *oblimitstring;
+ char *oblimitstringlow;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -4917,10 +4928,10 @@ void iohttpFunc_raze( svConnectionPtr cnt )
  float fa;
  dbUserMainDef maind;
  dbMainPlanetDef planetd;
- unsigned char *razebldg[CMD_BLDG_NUMUSED];
- unsigned char *razeplnid;
- unsigned char razename[16];
- unsigned char *portalstring;
+ char *razebldg[CMD_BLDG_NUMUSED];
+ char *razeplnid;
+ char razename[16];
+ char *portalstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5052,8 +5063,8 @@ void iohttpFunc_fleets( svConnectionPtr cnt )
  dbUserFleetPtr fleetd;
  dbMainPlanetDef planetd;
  dbUserMainDef maind, main2d;
- unsigned char varname[8];
- unsigned char *varstring;
+ char varname[8];
+ char *varstring;
  int szTotal[CMD_UNIT_NUMUSED];
 
 	memset(szTotal, 0, CMD_UNIT_NUMUSED*sizeof(int));
@@ -5223,7 +5234,7 @@ void iohttpFunc_fleetssplit( svConnectionPtr cnt )
 	dbUserMainDef maind;
 	dbUserFleetDef fleetd, fleet2d;
 	long long int disunit[CMD_UNIT_NUMUSED];
-	unsigned char disname[10];
+	char disname[10];
 	char *varstring;
 	
 	iohttpBase( cnt, 1 );
@@ -5350,8 +5361,8 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
 {
 	int i, j, nError, id ,nId, nMax, nX0, nY0, nX1, nY1, fltid;
 	int nNbrFleet = 0;
-	unsigned char mergename[8];
-	unsigned char *var;
+	char mergename[8];
+	char *var;
 	dbUserMainDef maind;
 	int nfltid[2];
 	dbUserFleetPtr pFleet;
@@ -5485,8 +5496,8 @@ void iohttpFunc_fleetdisband( svConnectionPtr cnt )
  dbUserFleetDef fleetd;
  dbUserMainDef maind;
  long long int disunit[CMD_UNIT_NUMUSED];
- unsigned char disname[8];
- unsigned char *sptr, *fleetstring;
+ char disname[8];
+ char *sptr, *fleetstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5568,8 +5579,8 @@ void iohttpFunc_fleetsend( svConnectionPtr cnt )
  int a, id, order, x, y, z;
  dbUserMainDef maind;
  int sendunit[CMD_UNIT_NUMUSED];
- unsigned char sendname[8];
- unsigned char *orderstring, *xstring, *ystring, *zstring, *sptr;
+ char sendname[8];
+ char *orderstring, *xstring, *ystring, *zstring, *sptr;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5635,7 +5646,7 @@ void iohttpFunc_fleetchange( svConnectionPtr cnt )
  dbUserFleetDef fleetd;
  dbUserFleetPtr fleetp;
  dbUserMainDef maind;
- unsigned char *fleetstring, *orderstring, *xstring, *ystring, *zstring;
+ char *fleetstring, *orderstring, *xstring, *ystring, *zstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5792,7 +5803,7 @@ void iohttpFunc_fleetattack( svConnectionPtr cnt )
  int id, cmd[3], fltid;
  int results[4+8*CMD_UNIT_FLEET+2];
  dbUserMainDef maind, main2d;
- unsigned char *fleetstring;
+ char *fleetstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5886,8 +5897,8 @@ void iohttpFunc_explore( svConnectionPtr cnt )
  int id, plnid, explore;
  dbMainPlanetDef planetd;
  dbUserMainDef maind;
- unsigned char *planetstring;
- unsigned char *explorestring;
+ char *planetstring;
+ char *explorestring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -5956,7 +5967,7 @@ void iohttpFunc_attack( svConnectionPtr cnt )
  dbMainPlanetDef planetd;
  dbUserMainDef maind;
  dbUserFleetDef fleetd;
- unsigned char *planetstring;
+ char *planetstring;
  dbUserPtr user;
 
  iohttpBase( cnt, 1 );
@@ -6049,7 +6060,7 @@ void iohttpFunc_station( svConnectionPtr cnt )
  dbMainPlanetDef planetd;
  dbUserMainDef maind;
  dbUserFleetDef fleetd;
- unsigned char *planetstring;
+ char *planetstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -6105,7 +6116,7 @@ void iohttpFunc_spec( svConnectionPtr cnt )
  dbMainPlanetDef planetd;
  dbUserMainDef maind;
  dbUserFleetDef fleetd;
- unsigned char *planetstring;
+ char *planetstring;
  dbUserPtr user;
  dbUserSpecOpPtr specopd;
 
@@ -6357,7 +6368,7 @@ void iohttpFunc_specinfos( svConnectionPtr cnt )
  char szChaine[20];
  int *buffer;
  float fa, totalob;
- unsigned char *specopstring;
+ char *specopstring;
  dbUserPtr user;
  dbUserMainDef maind;
  dbUserSpecOpDef specopd;
@@ -6625,7 +6636,7 @@ void iohttpFunc_operation( svConnectionPtr cnt )
 { 
  int a, id, plnid, x, y, z, sysid;
  int agents, specop, arl;
- unsigned char *agentstring, *orderstring, *xstring, *ystring, *zstring;
+ char *agentstring, *orderstring, *xstring, *ystring, *zstring;
  dbMainPlanetDef planetd;
  dbUserMainDef maind, main2d;
  dbMainSystemDef systemd;
@@ -6775,7 +6786,7 @@ void iohttpFunc_spell( svConnectionPtr cnt )
 {
  int a, id, targetid;
  int psychics, specop, wrl;
- unsigned char *psychicstring, *orderstring, *targetstring;
+ char *psychicstring, *orderstring, *targetstring;
  dbUserMainDef maind, main2d;
 
  iohttpBase( cnt, 1 );
@@ -6880,7 +6891,7 @@ void iohttpFunc_incant( svConnectionPtr cnt )
 { 
  int a, id, plnid, x, y, z, sysid;
  int ghosts, specop, grl;
- unsigned char *ghoststring, *orderstring, *xstring, *ystring, *zstring;
+ char *ghoststring, *orderstring, *xstring, *ystring, *zstring;
  dbMainPlanetDef planetd;
  dbUserMainDef maind, main2d;
  dbMainSystemDef systemd;
@@ -7032,7 +7043,7 @@ void iohttpFunc_operationsend( svConnectionPtr cnt )
 {
  int a, id, order, x, y, z, agents;
  dbUserMainDef maind;
- unsigned char *orderstring, *xstring, *ystring, *zstring, *agentstring;
+ char *orderstring, *xstring, *ystring, *zstring, *agentstring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -7094,7 +7105,7 @@ void iohttpFunc_spellsend( svConnectionPtr cnt )
 {
  int id, order, psychics, targetid;
  dbUserMainDef maind;
- unsigned char *orderstring, *psychicstring, *targetstring;
+ char *orderstring, *psychicstring, *targetstring;
  long long int newd[DB_USER_NEWS_BASE];
 
  iohttpBase( cnt, 1 );
@@ -7139,7 +7150,7 @@ void iohttpFunc_incantsend( svConnectionPtr cnt )
 {
  int a, id, order, x, y, z, ghosts;
  dbUserMainDef maind;
- unsigned char *orderstring, *xstring, *ystring, *zstring, *ghoststring;
+ char *orderstring, *xstring, *ystring, *zstring, *ghoststring;
 
  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -7205,11 +7216,11 @@ void iohttpFunc_incantsend( svConnectionPtr cnt )
 void iohttpFunc_research( svConnectionPtr cnt )
 {
  int a, b, id, cmd[3];
- unsigned char fundstring[1024];
- unsigned char *fund;
- unsigned char *rschptr[CMD_RESEARCH_NUMUSED];
+ char fundstring[1024];
+ char *fund;
+ char *rschptr[CMD_RESEARCH_NUMUSED];
  int rschvalue[CMD_RESEARCH_NUMUSED];
- unsigned char rschname[16];
+ char rschname[16];
  dbUserMainDef maind;
 
  iohttpBase( cnt, 1 );
@@ -7291,9 +7302,9 @@ void iohttpFunc_mail( svConnectionPtr cnt )
  dbUserMainDef maind, main2d;
  dbMailPtr mails;
  dbMailDef maild;
- unsigned char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
- unsigned char timebuf[256];
- unsigned char *text;
+ char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
+ char timebuf[256];
+ char *text;
  long long int newd[DB_USER_NEWS_BASE];
 
  iohttpBase( cnt, 1 );
@@ -7538,8 +7549,8 @@ void iohttpFunc_rankings( svConnectionPtr cnt ) {
 	int id;
 	FILE *file;
 	struct stat stdata;
-	unsigned char *data;
-	unsigned char COREDIR[256];
+	char *data;
+	char COREDIR[256];
 	dbUserMainDef maind;
 
 iohttpBase( cnt, 1 );
@@ -7573,8 +7584,8 @@ void iohttpFunc_famranks( svConnectionPtr cnt ) {
 	int id;
 	FILE *file;
 	struct stat stdata;
-	unsigned char *data;
-	unsigned char COREDIR[256];
+	char *data;
+	char COREDIR[256];
 	dbUserMainDef maind;
 
 iohttpBase( cnt, 1 );
@@ -7608,8 +7619,8 @@ return;
 void iohttpFunc_ptrankings( svConnectionPtr cnt ) {
 	FILE *file;
 	struct stat stdata;
-	unsigned char *data;
-	unsigned char COREDIR[256];
+	char *data;
+	char COREDIR[256];
 
 svSendString( cnt, "Content-type: text/plain\n\n" );
 sprintf( COREDIR, "%s/data/ranksplain.txt", COREDIRECTORY );
@@ -7631,8 +7642,8 @@ return;
 void iohttpFunc_ptfamranks( svConnectionPtr cnt ) {
 	FILE *file;
 	struct stat stdata;
-	unsigned char *data;
-	unsigned char COREDIR[256];
+	char *data;
+	char COREDIR[256];
  
 svSendString( cnt, "Content-type: text/plain\n\n" );
 sprintf( COREDIR, "%s/data/famranksplain.txt", COREDIRECTORY );
@@ -7662,10 +7673,10 @@ void iohttpFunc_search( svConnectionPtr cnt )
 {
  int id, a, x, y, z, status, sysid;
  dbUserMainDef maind;
- unsigned char *search, *str0, *str1, *str2, *error;
+ char *search, *str0, *str1, *str2, *error;
  iohttpDataPtr iohttp = cnt->iodata;
  dbMainSystemDef systemd;
- unsigned char content[256], buf0[256], buf1[256];
+ char content[256], buf0[256], buf1[256];
  dbUserPtr user;
 
  iohttpVarsInit( cnt );
@@ -7871,7 +7882,7 @@ void iohttpFunc_search( svConnectionPtr cnt )
 
 #define IOHTTP_FORUM_POSTSNUM (40)
 
-unsigned char iohttpInputHex( unsigned char *src );
+char iohttpInputHex( char *src );
 
 #define IOHTTP_FORUM_SMILETOTAL (62)
 #define IOHTTP_FORUM_SMILEBASE (8)
@@ -7879,7 +7890,7 @@ unsigned char iohttpInputHex( unsigned char *src );
 typedef struct
 {
  int id;
- unsigned char string[16];
+ char string[16];
 } iohttpForumSmileysDef;
 
 iohttpForumSmileysDef iohttpForumSmileys[IOHTTP_FORUM_SMILETOTAL] =
@@ -7949,10 +7960,10 @@ iohttpForumSmileysDef iohttpForumSmileys[IOHTTP_FORUM_SMILETOTAL] =
 };
 
 
-int iohttpForumFilter( unsigned char *dest, unsigned char *string, int size, int html )
+int iohttpForumFilter( char *dest, char *string, int size, int html )
 {
  int a, b;
- unsigned char c;
+ char c;
  for( a = b = 0 ; string[a] ; a++ )
  {
   if( b >= size-1 )
@@ -7980,10 +7991,10 @@ int iohttpForumFilter( unsigned char *dest, unsigned char *string, int size, int
  return b;
 }
 
-int iohttpForumFilter2( unsigned char *dest, unsigned char *string, int size )
+int iohttpForumFilter2( char *dest, char *string, int size )
 {
  int a, b, c;
- unsigned char *string2;
+ char *string2;
  for( b = c = 0 ; *string ; )
  {
   if( b >= size-20 )
@@ -8030,10 +8041,10 @@ int iohttpForumFilter2( unsigned char *dest, unsigned char *string, int size )
  return b;
 }
 
-int iohttpForumFilter3( unsigned char *dest, unsigned char *string, int size )
+int iohttpForumFilter3( char *dest, char *string, int size )
 {
  int b, c;
- unsigned char *string2;
+ char *string2;
  for( b = c = 0 ; *string ; )
  {
   dest[b] = 0;
@@ -8137,10 +8148,10 @@ int iohttpForumPerms( int id, int forum, svConnectionPtr cnt, dbUserMainPtr main
 
 
 
-int iohttpForumCleanAuthor( unsigned char *string )
+int iohttpForumCleanAuthor( char *string )
 {
  int a, b, fnum, tnum, count = 0;
- unsigned char word[512];
+ char word[512];
  dbForumForumPtr forums;
  dbForumForumDef forumd;
  dbForumThreadPtr threads;
@@ -8170,7 +8181,7 @@ int iohttpForumCleanAuthor( unsigned char *string )
 }
 
 
-int iohttpForumCleanIP( unsigned char *ipstring )
+int iohttpForumCleanIP( char *ipstring )
 {
  int a, b, fnum, tnum, count = 0;
  dbForumForumPtr forums;
@@ -8203,8 +8214,8 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 	int nAllow = 0; // == 1 if this user have the right of allowing image
 	int id, nAction;  //Action == 1 approve 2 == Disapprove (file deleted, msg send to id)
 	int a;						//Because Mal always use a and not i
-	unsigned char *szAction;
-	unsigned char *szID;
+	char *szAction;
+	char *szID;
 	char szName[50];
 	char szPass[50];
 	char szFileName[50];
@@ -8302,17 +8313,17 @@ void iohttpForum( svConnectionPtr cnt )
 {
  int a, b, c, d, id, forum, thread, post, action, skip;
  dbUserMainDef maind;
- unsigned char *forumstring, *threadstring, *topicstring, *poststring, *delthreadstring, *delpoststring, *editpoststring, *namestring, *skipstring;
+ char *forumstring, *threadstring, *topicstring, *poststring, *delthreadstring, *delpoststring, *editpoststring, *namestring, *skipstring;
  dbForumForumPtr forums;
  dbForumThreadPtr threads;
  dbForumPostPtr posts;
  dbForumForumDef forumd;
  dbForumThreadDef threadd;
  dbForumPostDef postd;
- unsigned char timebuf[256];
- unsigned char COREDIR[256];
+ char timebuf[256];
+ char COREDIR[256];
  char timetemp[200];
- unsigned char *text;
+ char *text;
 	FILE *fFile;
 	
  id = iohttpIdentify( cnt, 0 );

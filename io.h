@@ -31,19 +31,19 @@ IO_INTERFACE_NUM,
 
 
 
-unsigned char *ioCompareWords( unsigned char *string, unsigned char *word );
-unsigned char *ioCompareFindWords( unsigned char *string, unsigned char *word );
-unsigned char *ioCompareFindBinwords( unsigned char *string, unsigned char *word, int size );
-int ioCompareExact( unsigned char *s1, unsigned char *s2 );
-int iohttpCompareExt( unsigned char *string, unsigned char *ext );
-int iohttpCaseLow( unsigned char *dest, unsigned char *string );
+char *ioCompareWords( char *string, char *word );
+char *ioCompareFindWords( char *string, char *word );
+char *ioCompareFindBinwords( char *string, char *word, int size );
+int ioCompareExact( char *s1, char *s2 );
+int iohttpCompareExt( char *string, char *ext );
+int iohttpCaseLow( char *dest, char *string );
 
 
 
 typedef struct
 {
-  unsigned char path[SERVER_PATH_BUFSIZE];
-  unsigned char fileread[SERVER_PATH_BUFSIZE];
+  char path[SERVER_PATH_BUFSIZE];
+  char fileread[SERVER_PATH_BUFSIZE];
   int type; // 0:file, 1:function call
 
   void *data;
@@ -64,18 +64,18 @@ typedef struct
   int flags;
 
   // http variables
-  unsigned char path[SERVER_PATH_BUFSIZE];
+  char path[SERVER_PATH_BUFSIZE];
   int method;
   int content_length;
-  unsigned char *content;
-  unsigned char *query_string;
-  unsigned char *content_type;
-  unsigned char *cookie;
-  unsigned char *accept;
-  unsigned char *accept_language;
-  unsigned char *host;
-  unsigned char *referer;
-  unsigned char *user_agent;
+  char *content;
+  char *query_string;
+  char *content_type;
+  char *cookie;
+  char *accept;
+  char *accept_language;
+  char *host;
+  char *referer;
+  char *user_agent;
 
   // reply
   int code;

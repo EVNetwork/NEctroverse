@@ -3,7 +3,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#if HASHPASSWORD == 1
+#if HASHENCRYPTION == 1
 #include <openssl/md5.h>
 #endif
 #include <sys/socket.h>
@@ -27,3 +27,4 @@
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h>

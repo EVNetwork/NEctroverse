@@ -131,7 +131,7 @@ return 1;
 }
 
 void cleanUp(int pipefileid) {
-	unsigned char COREDIR[256];
+	char COREDIR[256];
 sprintf( COREDIR, PIPEFILE, TMPDIR );
 close(pipefileid);
 unlink(COREDIR);
@@ -505,7 +505,7 @@ return 1;
 
 int svSendAddBuffer( svBufferPtr *bufferp, int size ) {
 	svBufferPtr buffer;
-	unsigned char *mem;
+	char *mem;
 
 if( !( mem = malloc( sizeof(svBufferDef) + size ) ) ) {
 	#if FORKING == 0
@@ -842,10 +842,10 @@ void daemonloop(int pipefileid) {
 		if( curtime < svTickTime )
 			continue;
 
-		if(strstr(ctime(&curtime), START_TIME))
+		if(strstr(ctime((const time_t *)&curtime), START_TIME))
 			svTickStatus = 1;
 		
-		if(strstr(ctime(&curtime), STOP_TIME))
+		if(strstr(ctime((const time_t *)&curtime), STOP_TIME))
 			svTickStatus = 0;
 			
 		svTickTime += SV_TICK_TIME;
@@ -887,7 +887,7 @@ return;
 int daemon_init(void) {
 	int a;
 	int pipingin;
-	unsigned char COREDIR[256];
+	char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
 	pid_t pid, sid;
@@ -1114,7 +1114,7 @@ return;
 }
 
 int main() {
-	unsigned char COREDIR[256];
+	char COREDIR[256];
 	char buf[256];
 	int num, fd;
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.

@@ -11,7 +11,6 @@ FLAGS = --fast-math -Wall -fno-strict-aliasing
 #The -s flag was removed from the flags above, since it strips excess headers... such as debugging.
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb
-
 #OK, now to scan the config.h file and see what we need to compile.
 ifneq ($(findstring MYSQLENABLE 1,$(CONFIGS)),)
 SQLLIBS := $(shell mysql_config --libs)
@@ -23,9 +22,9 @@ else
 LIBS += -lm
 endif
 #Incoming MD5 password encryption, disabled for now since it's not really deployed.
-ifneq ($(findstring HASHPASSWORD 1,$(CONFIGS)),)
+ifneq ($(findstring HASHENCRYPTION 1,$(CONFIGS)),)
 LIBS += -lcrypto -lssl
-#MODS += md5.o
+MODS += md5.o
 endif
 
 #This is what enables the compile to read my real login info, I don't like even using a default.

@@ -1,7 +1,7 @@
 
 #include <sys/utsname.h>
 
-void iohttpFuncConvertTime( unsigned char *buffer, int eltime )
+void iohttpFuncConvertTime( char *buffer, int eltime )
 {
   int up_days, up_hrs, up_mins, up_secs;
   up_days = eltime/86400;
@@ -16,7 +16,7 @@ void iohttpFuncConvertTime( unsigned char *buffer, int eltime )
 }
 
 
-int linux_get_proc_uptime( unsigned char *buffer, float *uptime )
+int linux_get_proc_uptime( char *buffer, float *uptime )
 {
   FILE *file;
   float uptime_seconds;
@@ -33,7 +33,7 @@ int linux_get_proc_uptime( unsigned char *buffer, float *uptime )
   return 0;
 }
 
-int linux_get_proc_loadavg( unsigned char *buffer )
+int linux_get_proc_loadavg( char *buffer )
 {
   FILE *file;
   float load_1;
@@ -50,11 +50,11 @@ int linux_get_proc_loadavg( unsigned char *buffer )
   return 0;
 }
 
-int linux_cpuinfo( unsigned char *buffer )
+int linux_cpuinfo( char *buffer )
 {
   int a;
   FILE *file;
-  unsigned char temp[4096];
+  char temp[4096];
   file = fopen( "/proc/cpuinfo", "r" );
   if( file )
   {
@@ -91,11 +91,11 @@ void iohttpFunc_status( svConnectionPtr cnt )
 {
   int pid;
   FILE *file;
-  unsigned char fname[256];
+  char fname[256];
   int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-  unsigned char buffer[4096];
+  char buffer[4096];
   float boottime, runtime, userload, kernelload;
-  unsigned char stringuptime[1024];
+  char stringuptime[1024];
   struct utsname stustname;
   struct stat stdata;
 
@@ -171,8 +171,8 @@ void iohttpFunc_account( svConnectionPtr cnt )
   int a, id;
   dbUserMainDef maind;
   dbUserDescDef descd;
-  unsigned char *faction, *race, *desc;
-  unsigned char description[4096];
+  char *faction, *race, *desc;
+  char description[4096];
 
   iohttpVarsInit( cnt );
   faction = iohttpVarsFind( "newname" );
@@ -273,8 +273,8 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
 {
   int a, b, id;
   dbUserMainDef maind;
-  unsigned char oldpass[32];
-  unsigned char *newpass[3];
+  char oldpass[32];
+  char *newpass[3];
 
   iohttpVarsInit( cnt );
   newpass[0] = iohttpVarsFind( "password" );
@@ -333,7 +333,7 @@ void iohttpFunc_delete( svConnectionPtr cnt )
 {
   int a, b, c, id;
   dbUserMainDef maind;
-  unsigned char *deletestring, *deathstring;
+  char *deletestring, *deathstring;
 
   iohttpVarsInit( cnt );
   deletestring = iohttpVarsFind( "delete" );
@@ -365,7 +365,7 @@ void iohttpFunc_delete( svConnectionPtr cnt )
      
      int counterRelations, maxRelations, curfam;
      dbMainEmpireDef empired;
-     unsigned char *empirestring;
+     char *empirestring;
      int *rel;
      int warCounter = 0;
      
@@ -457,7 +457,7 @@ void iohttpFunc_logout( svConnectionPtr cnt )
 {
   FILE *file;
   struct stat stdata;
-  unsigned char *data;
+  char *data;
 
   svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", 0, 0, 0, 0, 0 );
   svSendString( cnt, "Content-Type: text/html\n\n" );
