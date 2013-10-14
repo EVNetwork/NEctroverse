@@ -2,7 +2,7 @@
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 #define SERVERNAME "NEctroverse"
 //Do not change this "on the fly", you will not beable to login. (Unless you use the md5-sum of your password)
-#define HASHENCRYPTION 1
+#define HASHENCRYPTION 0
 #define FORKING 0
 
 #define HTTP_PORT 9122
