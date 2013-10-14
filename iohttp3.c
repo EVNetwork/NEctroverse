@@ -1,5 +1,4 @@
 
-#include <sys/utsname.h>
 
 void iohttpFuncConvertTime( char *buffer, int eltime )
 {
@@ -79,12 +78,6 @@ int linux_cpuinfo( char *buffer )
 
 
 
-
-
-#include <asm/param.h>
-#ifndef CT_TO_SECS
-#define CT_TO_SECS(x) ((x)/HZ)
-#endif
 
 
 void iohttpFunc_status( svConnectionPtr cnt )
@@ -273,7 +266,7 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
 {
   int a, b, id;
   dbUserMainDef maind;
-  char oldpass[32];
+  char oldpass[33], checkmd5[33];
   char *newpass[3];
 
   iohttpVarsInit( cnt );
@@ -281,6 +274,15 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
   newpass[1] = iohttpVarsFind( "newpass1" );
   newpass[2] = iohttpVarsFind( "newpass2" );
   iohttpVarsCut();
+
+if( newpass[0] )
+ sprintf(checkmd5, "%s", newpass[0]);
+#if HASHENCRYPTION == 1
+if( ( newpass[0] ) && strlen(newpass[0]) ) {
+sprintf(checkmd5, "%s", str2md5(newpass[0]) );
+}
+#endif
+
 
   iohttpBase( cnt, 1 );
   if( ( id = iohttpIdentify( cnt, 1 ) ) < 0 )
@@ -304,7 +306,7 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
     }
     if( dbUserRetrievePassword( id, oldpass ) < 0 )
       svSendString( cnt, "<i>Error encountered when retrieving password.</i><br><br>" );
-    else if( !( ioCompareExact( newpass[0], oldpass ) ) )
+    else if( !( ioCompareExact( checkmd5, oldpass ) ) )
       svSendString( cnt, "<i>Wrong old password</i><br><br>" );
     else if( !( ioCompareExact( newpass[1], newpass[2] ) ) )
       svSendString( cnt, "<i>Different new passwords? Check your typing.</i><br><br>" );
@@ -319,9 +321,9 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
       svSendString( cnt, "<i>Password has been changed.</i><br><br>" );
   }
 
-  svSendString( cnt, "<form action=\"changepass\" method=\"POST\">Current Password:<br><input type=\"text\" name=\"password\" size=\"16\"><br><br>" );
-  svSendString( cnt, "New Password:<br><input type=\"text\" name=\"newpass1\" size=\"16\"><br><br>" );
-  svSendString( cnt, "Repeat New Password:<br><input type=\"text\" name=\"newpass2\" size=\"16\"><br><br>" );
+  svSendString( cnt, "<form action=\"changepass\" method=\"POST\">Current Password:<br><input type=\"password\" name=\"password\" size=\"16\"><br><br>" );
+  svSendString( cnt, "New Password:<br><input type=\"password\" name=\"newpass1\" size=\"16\"><br><br>" );
+  svSendString( cnt, "Repeat New Password:<br><input type=\"password\" name=\"newpass2\" size=\"16\"><br><br>" );
   svSendString( cnt, "<input type=\"submit\" name=\"Change\"></center>" );
 
   iohttpBodyEnd( cnt );
@@ -480,4 +482,4 @@ void iohttpFunc_logout( svConnectionPtr cnt )
   return;
 }
 
-#include "admin.c"
+

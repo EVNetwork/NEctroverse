@@ -5,16 +5,6 @@
 #include "global.h"
 #endif
 
-#if HASHENCRYPTION == 1
-#include "optional/md5.h"
-#endif
-
-#include "artefact.h"
-#include "db.h"
-#include "sv.h"
-#include "io.h"
-#include "cmd.h"
-
 
 char *cmdRessourceName[8] =
 {
@@ -349,7 +339,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   1 | 2 | 4 | 0 | 16 | 32 |  0 | 128 | 512,
   1 | 0 | 4 | 8 |  0 |  0 |  0,
   0 | 2 | 4 | 0 |  0 |  0 |  0,
- },
+ },/*
  {//dreamweaver
   1.0+(1.1*0.02), 1.0, 0.7, 1.0*2.0,
   {   0.7,   1.4,   2.8,   1.4,   1.4,   1.4,   1.4 },
@@ -393,7 +383,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
- },
+ },*/
 };
 
 char *cmdRaceName[CMD_RACE_NUMUSED] =
@@ -402,10 +392,10 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 "Manticarias",
 "Foohons",
 "Spacebornes",
-"Dreamweavers",
+"Dreamweavers",/*
 "Furtifons",
 "Samsonites",
-"Ultimums"
+"Ultimums"*/
 };
 
 
@@ -2211,13 +2201,10 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 int cmdInit() {
 	int a, id;
-	dbUserMainDef maind;
-	dbUserFleetDef fleetd;
 	dbUserPtr user;
+	dbUserMainDef maind;
+	dbMainEmpireDef empired;
 
-memset( &maind, 0, sizeof(dbUserMainDef) );
-
-	
 for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
 	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
 		continue;
@@ -2232,26 +2219,28 @@ for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
 	#endif
 	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", cmdAdminName[a] );
 	}
-
-	dbUserMainRetrieve(id, &maind);
-	sprintf( maind.forumtag, "%s", cmdAdminForumTag[a] );
-	dbUserMainSet(id, &maind);
 	user = dbUserLinkID( id );
 	user->flags = 0;
 	user->level = cmdAdminLevel[a];
 	dbUserSave( id, user );
+	dbUserMainRetrieve(id, &maind);
+	sprintf( maind.forumtag, "%s", cmdAdminForumTag[a] );
+	dbUserMainSet(id, &maind);
 
 	#if HASHENCRYPTION == 1
-	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, str2md5(cmdAdminEmpirePass), cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
-	#else
-	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, cmdAdminEmpirePass, cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
+	sprintf(cmdAdminEmpirePass, "%s", str2md5(cmdAdminEmpirePass) );
 	#endif
-	
+
+	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, cmdAdminEmpirePass, cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
  	#if FORKING == 0
 	printf("Failure Placing Administrator account: \"%s\"\n", cmdAdminName[a] );
 	#endif
 	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", cmdAdminName[a] );
 	}
+	dbMapRetrieveEmpire( cmdAdminEmpire, &empired );
+	if( !strlen(empired.name) )
+	sprintf(empired.name,"%s","Administration");
+	dbMapSetEmpire( cmdAdminEmpire, &empired );
 }
 	
 dbFlush();

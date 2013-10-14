@@ -5,15 +5,6 @@
 #include "global.h"
 #endif
 
-#if HASHENCRYPTION == 1
-#include "optional/md5.h"
-#endif
-#include "artefact.h"
-#include "db.h"
-#include "sv.h"
-#include "io.h"
-#include "cmd.h"
-
 
 char dbFileUsersName[] = "%s/userdb";
 char dbFileMapName[] = "map";
@@ -910,10 +901,9 @@ int dbUserSetPassword( int id, char *pass )
 
   fseek( file, 16+33, SEEK_SET );
   memset( fname, 0, 33 );
-#if HASHENCRYPTION == 1
-  sprintf( fname, str2md5(pass) );
-#else
   sprintf( fname, pass );
+#if HASHENCRYPTION == 1
+  sprintf( fname, "%s", str2md5(fname) );
 #endif
   fwrite( fname, 1, 33, file );
   fclose( file );

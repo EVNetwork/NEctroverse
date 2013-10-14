@@ -421,13 +421,14 @@ void iohttpFunc_register3( svConnectionPtr cnt )
 
  iohttpVarsInit( cnt );
  empire = iohttpVarsFind( "empire" );
-#if HASHENCRYPTION == 1
- fampass = str2md5( iohttpVarsFind( "fampass" ) );
-#else
  fampass = iohttpVarsFind( "fampass" );
-#endif
  race = iohttpVarsFind( "race" );
  iohttpVarsCut();
+
+#if HASHENCRYPTION == 1
+ sprintf(fampass, "%s", str2md5(fampass) );
+#endif
+
  if( ( empire ) && ( race ) )
  {
   for( a = 0 ; a < 31 ; a++ )

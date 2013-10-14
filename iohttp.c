@@ -98,7 +98,7 @@ iohttpFilePtr iohttpFileFind( char *path )
 
 void InitHTTP()
 {
-	char COREDIR[256];
+	char COREDIR[1024];
   int a;
   DIR *dirdata;
   struct dirent *direntry;

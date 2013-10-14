@@ -1,4 +1,4 @@
-#define ADMINHEADERS
+#define ADMININCLUDES
 
 void iohttpFunc_admin( svConnectionPtr cnt );
 void iohttpFunc_admin2( svConnectionPtr cnt );

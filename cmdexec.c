@@ -1209,12 +1209,10 @@ int cmdExecSetFamPass( int fam, char *pass )
 
 #if HASHENCRYPTION == 1
 if( strlen(fpass) )
-  fwrite( str2md5(fpass), 1, 33, file );
-else
-  fwrite( fpass, 1, 33, file );
-#else
-  fwrite( fpass, 1, 33, file );
+  sprintf(fpass, "%s", str2md5(fpass) );
 #endif
+
+  fwrite( fpass, 1, 33, file );
 
   fclose( file );
   return 1;

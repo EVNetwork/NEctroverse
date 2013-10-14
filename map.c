@@ -5,11 +5,6 @@
 #include "global.h"
 #endif
 
-#include "artefact.h"
-#include "db.h"
-#include "sv.h"
-#include "io.h"
-#include "cmd.h"
 
 
 /*
@@ -427,9 +422,7 @@ dirstructurecheck(fname);
   fclose( file );
 
 if( cmdAdminEmpirePass != NULL ) {
-	cmdExecChangFamName( cmdAdminEmpire, "Administration" );
 	cmdExecSetFamPass( cmdAdminEmpire, cmdAdminEmpirePass );
-	
 	#if FORKING == 0
 	printf("Empire %d Claimed for Administration with pass: \"%s\"\n", cmdAdminEmpire, cmdAdminEmpirePass);
 	#endif

@@ -1,3 +1,5 @@
+#define DATABASEINCLUDES
+//Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 /*
 Losing an illusion makes you wiser than finding a truth.
 - Ludwig Borne

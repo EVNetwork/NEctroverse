@@ -1,11 +1,8 @@
 NEctroverse Relaunch!
 ========
-<i>This code is currently under hardcore redevelopment and is not stable.</i>
 
-<b><i>I repeat... this code is UNSTABLE!!!</i></b>
-
-
-NEctroverse is a recode of the game Ectroverse. It contains a lot of changes from the original code.
+NEctroverse is a recode of the game Ectroverse created by Maloeran.<br>
+It natrually contains a lot of changes from the original code.
 
 You can play the current Ectroverse at http://www.ectroverse.org<br>
 You can find the original source code at https://github.com/ectroverse/evsource

@@ -1,3 +1,4 @@
+#define MAPINCLUDES
 
 int mapgen();
 

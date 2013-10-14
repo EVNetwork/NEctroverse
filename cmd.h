@@ -1,3 +1,5 @@
+#define COMMANDINCLUDES
+//Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 int cmdUserNewsAdd( int id, long long int *data, long long int flags );
 

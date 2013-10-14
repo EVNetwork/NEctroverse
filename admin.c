@@ -5,10 +5,6 @@
 #include "global.h"
 #endif
 
-#ifndef ADMINHEDERS
-#include "admin.h"
-#endif
-
 
 
 void iohttpFunc_admin2( svConnectionPtr cnt )
