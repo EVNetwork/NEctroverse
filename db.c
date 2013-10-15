@@ -343,7 +343,7 @@ dbUserPtr dbUserTable[16384];
 
 dbUserPtr dbUserAllocate( int id )
 {
-  char pass[32];
+  char pass[128];
   dbUserPtr user;
   if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
 	syslog(LOG_ERR,  "Error, malloc dbuser failed\n" );
@@ -537,7 +537,7 @@ if( chdir( COREDIR ) == -1 ) {
     fread( &user->level, 1, sizeof(int), file );
     fread( &user->flags, 1, sizeof(int), file );
     fread( &user->reserved, 1, sizeof(int), file );
-    fread( &user->name, 1, 32, file );
+    fread( &user->name, 1, 64, file );
     fclose( file );
     
     if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_USER_FLAGS ) ) )
@@ -720,9 +720,9 @@ int dbUserAdd( char *name, char *faction, char *forumtag )
   fwrite( &a, 1, sizeof(int), file );
   fwrite( &a, 1, sizeof(int), file );
   fwrite( &a, 1, sizeof(int), file );
-  memset( fname, 0, 32 );
+  memset( fname, 0, 64 );
   sprintf( fname, name );
-  fwrite( fname, 1, 32, file );
+  fwrite( fname, 1, 64, file );
   fclose( file );
  
   
@@ -754,9 +754,9 @@ int dbUserAdd( char *name, char *faction, char *forumtag )
   fwrite( &a, 1, sizeof(int), file );
   fwrite( &a, 1, sizeof(int), file );
   fwrite( &a, 1, sizeof(int), file );
-  memset( fname, 0, 32 );
+  memset( fname, 0, 64 );
   sprintf( fname, name );
-  fwrite( fname, 1, 32, file );
+  fwrite( fname, 1, 64, file );
   fclose( file );
 	
 	if( !( freenum ) )
@@ -877,7 +877,7 @@ int dbUserSave( int id, dbUserPtr user )
   fseek(file, sizeof(int), SEEK_CUR);
   
   fwrite( &user->reserved, 1, sizeof(int), file );
-  fwrite( user->name, 1, 33, file );
+  fwrite( user->name, 1, 64, file );
   fclose( file );
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER_FLAGS ) ) ) {
 	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
@@ -891,7 +891,7 @@ int dbUserSave( int id, dbUserPtr user )
 
 int dbUserSetPassword( int id, char *pass )
 {
-  char fname[532];
+  char fname[128];
   FILE *file;
   
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
@@ -899,13 +899,13 @@ int dbUserSetPassword( int id, char *pass )
 	return -3;
   }
 
-  fseek( file, 16+33, SEEK_SET );
-  memset( fname, 0, 33 );
+  fseek( file, 16+65, SEEK_SET );
+  memset( fname, 0, 128 );
   sprintf( fname, pass );
 #if HASHENCRYPTION == 1
-  sprintf( fname, "%s", str2md5(fname) );
+  sprintf( fname, "%s", hashencrypt(fname) );
 #endif
-  fwrite( fname, 1, 33, file );
+  fwrite( fname, 1, 128, file );
   fclose( file );
   return 1;
 }
@@ -917,8 +917,8 @@ int dbUserRetrievePassword( int id, char *pass )
 	syslog(LOG_ERR, "Error %02d, fopen dbretrievepassword\n", errno );
     return -3;
   }
-  fseek( file, 16+33, SEEK_SET );
-  fread( pass, 1, 33, file );
+  fseek( file, 16+65, SEEK_SET );
+  fread( pass, 1, 128, file );
   fclose( file );
   return 1;
 }

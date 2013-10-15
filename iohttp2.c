@@ -425,10 +425,6 @@ void iohttpFunc_register3( svConnectionPtr cnt )
  race = iohttpVarsFind( "race" );
  iohttpVarsCut();
 
-#if HASHENCRYPTION == 1
- sprintf(fampass, "%s", str2md5(fampass) );
-#endif
-
  if( ( empire ) && ( race ) )
  {
   for( a = 0 ; a < 31 ; a++ )
@@ -542,9 +538,10 @@ void iohttpFunc_main( svConnectionPtr cnt )
   if( dbUserRetrievePassword( id, rtpass ) < 0 )
    goto iohttpFunc_mainL0;
 #if HASHENCRYPTION == 1
-pass = str2md5(pass);
-#endif
+  if( !( checkencrypt( pass, rtpass ) ) )
+#else
   if( !( ioCompareExact( pass, rtpass ) ) )
+#endif
    goto iohttpFunc_mainL0;
   if( dbUserLinkDatabase( cnt, id ) < 0 )
    goto iohttpFunc_mainL0;

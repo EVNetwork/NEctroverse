@@ -165,7 +165,11 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
       return -1;
     }
     cmdExecGetFamPass( famnum, fname );
+#if HASHENCRYPTION == 1
+    if( ( fname[0] ) && !( checkencrypt( fampass, fname ) ) )
+#else
     if( ( fname[0] ) && !( ioCompareExact( fname, fampass ) ) )
+#endif
     {
       cmdErrorString = "The empire password is incorrect!";
       return -1;
@@ -1192,14 +1196,14 @@ int cmdExecSetFamPass( int fam, char *pass )
 {
   int a;
   char fname[256];
-  char fpass[33];
+  char fpass[128];
   FILE *file;
 
   cmdErrorString = 0;
   sprintf( fname, "%s/data/fampass%d", COREDIRECTORY, fam );
   if( !( file = fopen( fname, "wb" ) ) )
     return -3;
-  for( a = 0 ; a < 32 ; a++ )
+  for( a = 0 ; a < 127 ; a++ )
   {
     if( ( fpass[a] == 10 ) || ( fpass[a] == 13 ) )
       break;
@@ -1209,10 +1213,10 @@ int cmdExecSetFamPass( int fam, char *pass )
 
 #if HASHENCRYPTION == 1
 if( strlen(fpass) )
-  sprintf(fpass, "%s", str2md5(fpass) );
+  sprintf(fpass, "%s", hashencrypt(fpass) );
 #endif
 
-  fwrite( fpass, 1, 33, file );
+  fwrite( fpass, 1, 128, file );
 
   fclose( file );
   return 1;
@@ -1229,7 +1233,7 @@ int cmdExecGetFamPass( int fam, char *pass )
   if( !( file = fopen( fname, "rb" ) ) )
     return 1;
 
-  fread( pass, 1, 33, file );
+  fread( pass, 1, 128, file );
 
   fclose( file );
   return 1;

@@ -1,4 +1,33 @@
 
+typedef struct {
+int cpumum;
+char vendor_id[32];
+int cpu_family;
+int model;
+char model_name[64];
+int stepping;
+char microcode[8];
+char cpu_mhz[16];
+int cache_size;
+int physical_id;
+int siblings;
+int core_id;
+int cpu_cores;
+int apicid;
+int initial_apicid;
+char fpu[4];
+char fpu_exception[4];
+int level;
+char wp[4];
+char flags[256];
+int bogomips;
+int clflushsize;
+int cache_alignment;
+char addresssizes[64];
+char pm[32];
+}; CPURawDef, *CPUDefPtr;
+
+
 
 void iohttpFuncConvertTime( char *buffer, int eltime )
 {
@@ -13,7 +42,6 @@ void iohttpFuncConvertTime( char *buffer, int eltime )
     sprintf( buffer, "%d %s %02d %s %02d %s", up_hrs, ( up_hrs==1?"hour":"hours" ), up_mins, ( up_mins==1?"minute":"minutes" ), up_secs, ( up_secs==1?"second":"seconds" ) );
   return;
 }
-
 
 int linux_get_proc_uptime( char *buffer, float *uptime )
 {
@@ -53,11 +81,11 @@ int linux_cpuinfo( char *buffer )
 {
   int a;
   FILE *file;
-  char temp[4096];
+  char temp[8192];
   file = fopen( "/proc/cpuinfo", "r" );
   if( file )
   {
-    a = fread( temp, 1, 1024, file );
+    a = fread( temp, 1, 8192, file );
     temp[a] = 0;
     fclose( file );
     for( a = 0 ; temp[a] ; a++ )
@@ -78,19 +106,18 @@ int linux_cpuinfo( char *buffer )
 
 
 
-
-
 void iohttpFunc_status( svConnectionPtr cnt )
 {
   int pid;
   FILE *file;
-  char fname[256];
+  char fname[256], addstring[32];
   int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-  char buffer[4096];
+  char buffer[8192];
   float boottime, runtime, userload, kernelload;
-  char stringuptime[1024];
-  struct utsname stustname;
-  struct stat stdata;
+  char stringuptime[128];
+	struct sysinfo  si;
+	struct utsname stustname;
+
 
   pid = getpid();
   sprintf( fname, "/proc/%d/stat", pid );
@@ -100,17 +127,22 @@ void iohttpFunc_status( svConnectionPtr cnt )
     fclose( file );
   }
 
+if( sysinfo(&si) != 0 ) {
+ 	#if FORKING == 0
+	printf("Failure getting system infomation... Critical failure.");
+	#endif
+	syslog(LOG_INFO, "Failure getting system infomation... Critical failure." );
+	cleanUp();
+	exit(EXIT_FAILURE);
+}
 
-  stringuptime[0] = 0;
-  linux_get_proc_uptime( stringuptime, &boottime );
-  runtime = boottime - CT_TO_SECS( ( (float)ststarttime ) );
+  iohttpFuncConvertTime((char *)&stringuptime,si.uptime);
+  runtime = si.uptime - CT_TO_SECS( ( (float)ststarttime ) );
 
   userload = 100.0 * ( CT_TO_SECS( ( (float)stutime ) ) / runtime );
   kernelload = 100.0 * ( CT_TO_SECS( ( (float)ststime ) ) / runtime );
 
-
   iohttpBase( cnt, 0 );
-
 
   svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
 
@@ -126,11 +158,7 @@ void iohttpFunc_status( svConnectionPtr cnt )
   svSendString( cnt, "<b>Server Processor(s)</b><br>" );
   linux_cpuinfo( buffer );
   svSendString( cnt, buffer );
-  if( stat( "/proc/kcore", &stdata ) != -1 )
-  {
-    svSendString( cnt, "<b>Random Access Memory</b><br>" );
-    svSendPrintf( cnt, "User-space memory : %d bytes ( %d mb )<br>", (int)stdata.st_size, (int)(stdata.st_size >> 20) );
-  }
+
   svSendString( cnt, "</td></tr></table>" );
 
   svSendString( cnt, "</td><td width=\"50%\" align=\"left\" valign=\"top\">" );
@@ -141,13 +169,19 @@ void iohttpFunc_status( svConnectionPtr cnt )
   svSendPrintf( cnt, "Sysname : %s %s<br>", stustname.sysname, stustname.release );
   svSendPrintf( cnt, "Release : %s<br>", stustname.version );
   svSendPrintf( cnt, "Uptime : %s<br><br>", stringuptime );
+
+
   svSendString( cnt, "<b>Server program CPU usage ( average )</b><br>" );
   svSendPrintf( cnt, "Total usage : %.3f %%<br>", userload + kernelload );
   svSendPrintf( cnt, "In user mode : %.3f %%<br>", userload );
   svSendPrintf( cnt, "In kernel mode : %.3f %%<br><br>", kernelload );
-  svSendString( cnt, "<b>Server program RAM usage ( current )</b><br>" );
-  svSendPrintf( cnt, "Memory used : %d bytes ( %d mb )<br>", stvsize, stvsize >> 20 );
-  svSendPrintf( cnt, "Resident set size : %d pages<br><br>", strss );
+
+  svSendString( cnt, "<b>System RAM infomation</b><br>" );
+  svSendPrintf( cnt, "Total system memory : %ld bytes ( %ld mb )<br>", si.totalram, (si.totalram >> 20) );
+  svSendPrintf( cnt, "Avalible memory now : %ld bytes ( %ld mb )<br>", si.freeram, (si.freeram >> 20) );
+  svSendPrintf( cnt, "Server has used : %d bytes ( %d mb )<br>", stvsize, stvsize >> 20 );
+  svSendPrintf( cnt, "Resident Size : %d pages<br><br>", strss );
+
   svSendString( cnt, "</td></tr></table>" );
 
   svSendString( cnt, "</td></tr></table>" );
@@ -269,20 +303,12 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
   char oldpass[33], checkmd5[33];
   char *newpass[3];
 
+
   iohttpVarsInit( cnt );
   newpass[0] = iohttpVarsFind( "password" );
   newpass[1] = iohttpVarsFind( "newpass1" );
   newpass[2] = iohttpVarsFind( "newpass2" );
   iohttpVarsCut();
-
-if( newpass[0] )
- sprintf(checkmd5, "%s", newpass[0]);
-#if HASHENCRYPTION == 1
-if( ( newpass[0] ) && strlen(newpass[0]) ) {
-sprintf(checkmd5, "%s", str2md5(newpass[0]) );
-}
-#endif
-
 
   iohttpBase( cnt, 1 );
   if( ( id = iohttpIdentify( cnt, 1 ) ) < 0 )
@@ -306,7 +332,11 @@ sprintf(checkmd5, "%s", str2md5(newpass[0]) );
     }
     if( dbUserRetrievePassword( id, oldpass ) < 0 )
       svSendString( cnt, "<i>Error encountered when retrieving password.</i><br><br>" );
-    else if( !( ioCompareExact( checkmd5, oldpass ) ) )
+#if HASHENCRYPTION == 1
+    else if( !( checkencrypt( newpass[0], oldpass ) ) )
+#else
+    else if( !( ioCompareExact( newpass[0], oldpass ) ) )
+#endif
       svSendString( cnt, "<i>Wrong old password</i><br><br>" );
     else if( !( ioCompareExact( newpass[1], newpass[2] ) ) )
       svSendString( cnt, "<i>Different new passwords? Check your typing.</i><br><br>" );

@@ -23,7 +23,7 @@ LIBS += -lm
 endif
 #Incoming MD5 password encryption, disabled for now since it's not really deployed.
 ifneq ($(findstring HASHENCRYPTION 1,$(CONFIGS)),)
-LIBS += -lcrypto -lssl
+LIBS += -lcrypt -lcrypto -lssl
 MODS += md5.o
 endif
 

@@ -111,9 +111,9 @@ for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 
 if ( c == 0 ) {
 	#if FORKING == 0
-	printf("Server Binding failed, ports are not avalible/allowed!!" );
+	printf("Server Binding failed, ports are not avalible/allowed!!\n" );
 	#endif
-	syslog(LOG_CRIT, "Server Binding failed, ports are not avalible/allowed!!" );
+	syslog(LOG_CRIT, "Server Binding failed, ports are not avalible/allowed!!\n" );
 //Empty Return to indicate no ports avaliable, and server can not iniate.
 	return 0;
 }
@@ -883,8 +883,10 @@ int daemon_init(void) {
 	char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
-
 #if FORKING == 1
+	pid_t pid, sid;
+
+
 pid = fork();
 if(pid < 0) {
 	syslog(LOG_ERR, "Forking Error: %s\n", perror);

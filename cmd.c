@@ -2227,10 +2227,6 @@ for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
 	sprintf( maind.forumtag, "%s", cmdAdminForumTag[a] );
 	dbUserMainSet(id, &maind);
 
-	#if HASHENCRYPTION == 1
-	sprintf(cmdAdminEmpirePass, "%s", str2md5(cmdAdminEmpirePass) );
-	#endif
-
 	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, cmdAdminEmpirePass, cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
  	#if FORKING == 0
 	printf("Failure Placing Administrator account: \"%s\"\n", cmdAdminName[a] );

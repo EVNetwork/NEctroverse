@@ -33,7 +33,7 @@ typedef struct
   int level;
   int flags;
   int reserved;
-  char name[32];
+  char name[64];
 
   // fast access informations
   char faction[32];

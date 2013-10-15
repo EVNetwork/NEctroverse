@@ -2,7 +2,7 @@
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 #define SERVERNAME "NEctroverse"
 //Do not change this "on the fly", you will not beable to login. (Unless you use the md5-sum of your password)
-#define HASHENCRYPTION 0
+#define HASHENCRYPTION 1
 #define FORKING 0
 
 #define HTTP_PORT 9122
@@ -71,6 +71,11 @@ static char HTMLDIRECTORY[32] = "%s/git/NEctroverse/html";
 #define EVMP_PORT 9135
 #endif
 
+
+static const long minute = 60;
+static const long hour = (60 * 60);
+static const long day = ((60*60) * 24);
+static const double megabyte = (1024 * 1024);
 /*
 <<<<<<<<<<<<<END USER VARIABLES >>>>>>>>>>>>>>>>>>>
 

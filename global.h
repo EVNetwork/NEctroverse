@@ -11,10 +11,14 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/sysinfo.h>
 #include <sys/un.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
+#if HASHENCRYPTION == 1
+#include <crypt.h>
+#endif
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
