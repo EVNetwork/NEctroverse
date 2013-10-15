@@ -7,35 +7,6 @@
 
 #include "md5.h"
 
-char *str2md5(const char *str) {
-	int n, length;
-	char *out = (char*)malloc(33);
-	unsigned char digest[16];
-	MD5_CTX c;
-
-length = strlen(str);
-MD5_Init(&c);
-
-while (length > 0) {
-	if (length > 512) {
-		MD5_Update(&c, str, 512);
-	} else {
-		MD5_Update(&c, str, length);
-	}
-	length -= 512;
-	str += 512;
-}
-
-MD5_Final(digest, &c);
-
-for (n = 0; n < 16; ++n) {
-	snprintf(&(out[n*2]), 16*2, "%02x", (unsigned int)digest[n]);
-}
-
-
-return out;
-}
-
 
 char *hashencrypt( char *passhash ) {
 	int i;
@@ -49,15 +20,14 @@ char *hashencrypt( char *passhash ) {
 
 srand((unsigned int) time(0));  
    
-
-for (i = 0; i < 8; ++i) {
+for(i = 0; i < 8; ++i) {
 	urandom[i] = rand() % (126 - 33 + 1) + 33;
 }
 urandom[i] = '\0';
 
 strcat(salted,urandom);
 
-if ( (fh = fopen("/dev/urandom", "rb")) ) {
+if( (fh = fopen("/dev/urandom", "rb")) ) {
 	fread( &random, 1, 32, fh );
 	fclose(fh);
 }
@@ -80,7 +50,70 @@ int checkencrypt( char *passentered, char *passcheck ) {
 result = crypt(passentered, passcheck);
 ok = ( strcmp(result, passcheck) == 0 );
 
-return ok ? 1 : 0;
+return ( ok ? 1 : 0 );
 }
+
+
+
+char *str2md5(const char *str) {
+	int i, length;
+	char *out = (char*)malloc(33);
+	unsigned char digest[16];
+	MD5_CTX c;
+
+length = strlen(str);
+MD5_Init(&c);
+
+while(length > 0) {
+	if (length > 512) {
+		MD5_Update(&c, str, 512);
+	} else {
+		MD5_Update(&c, str, length);
+	}
+	length -= 512;
+	str += 512;
+}
+
+MD5_Final(digest, &c);
+
+for(i = 0; i < 16; ++i) {
+	snprintf(&(out[i*2]), 16*2, "%02x", (unsigned int)digest[i]);
+}
+
+
+return out;
+}
+
+
+
+char *md5file( char *filename ) {
+	int bytes;
+	int i;
+	char *out = (char*)malloc(33);
+	unsigned char data[1024];
+	unsigned char digest[MD5_DIGEST_LENGTH];
+	FILE *inFile = fopen (filename, "rb");
+	MD5_CTX mdContext;
+
+if (inFile == NULL) {
+	syslog(LOG_ERR, "Error opening file for md5 hash: \"%s\"\n", filename );
+        printf ("%s can't be opened.\n", filename);
+        return 0;
+}
+
+MD5_Init(&mdContext);
+
+while( (bytes = fread (data, 1, 1024, inFile)) != 0 )
+	MD5_Update(&mdContext, data, bytes);
+fclose(inFile);
+MD5_Final(digest,&mdContext);
+
+for(i = 0; i < 16; ++i) {
+	snprintf(&(out[i*2]), 16*2, "%02x", (unsigned int)digest[i]);
+}
+
+return out;
+}
+
 
 
