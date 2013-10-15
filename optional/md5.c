@@ -20,13 +20,13 @@ char *hashencrypt( char *passhash ) {
 
 srand((unsigned int) time(0));  
    
-for(i = 0; i < 8; ++i) {
+for(i = 0; i < 6; ++i) {
 	urandom[i] = rand() % (126 - 33 + 1) + 33;
 }
 urandom[i] = '\0';
 
-strcat(salted,urandom);
-
+strcat(salted, str2md5(urandom) );
+//printf("%s\n",salted);
 if( (fh = fopen("/dev/urandom", "rb")) ) {
 	fread( &random, 1, 32, fh );
 	fclose(fh);
@@ -35,7 +35,7 @@ if( (fh = fopen("/dev/urandom", "rb")) ) {
 seed[0] = random;
 seed[1] = getpid() ^ (seed[0] >> 14 & 0x30000);
     
-for (i = 0; i < 8; i++)
+for (i = 0; i < 6; i++)
 	salted[3+i] = seedchars[(seed[i/5] >> (i%5)*6) & 0x3f];
 
 password = crypt(passhash, salted);
