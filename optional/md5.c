@@ -7,7 +7,7 @@
 
 #include "md5.h"
 
-
+//Time to add some hash protection to our passwords.
 char *hashencrypt( char *passhash ) {
 	int i;
 	char *password;
@@ -26,7 +26,7 @@ for(i = 0; i < 6; ++i) {
 urandom[i] = '\0';
 
 strcat(salted, str2md5(urandom) );
-//printf("%s\n",salted);
+
 if( (fh = fopen("/dev/urandom", "rb")) ) {
 	fread( &random, 1, 32, fh );
 	fclose(fh);
@@ -37,24 +37,25 @@ seed[1] = getpid() ^ (seed[0] >> 14 & 0x30000);
     
 for (i = 0; i < 6; i++)
 	salted[3+i] = seedchars[(seed[i/5] >> (i%5)*6) & 0x3f];
-
-password = crypt(passhash, salted);
+//Well, we have "spare" MD5... lets use it.
+password = crypt( str2md5(passhash), salted);
 
 return password;
 }
 
+//Good stuff, now to check those encypted passwords.
 int checkencrypt( char *passentered, char *passcheck ) {
 	char *result;
 	int ok;
-
-result = crypt(passentered, passcheck);
+//Well, we have "spare" MD5... lets use it.
+result = crypt( str2md5(passentered), passcheck);
 ok = ( strcmp(result, passcheck) == 0 );
 
 return ( ok ? 1 : 0 );
 }
 
 
-
+//Do we need to create a MD5 string sum?
 char *str2md5(const char *str) {
 	int i, length;
 	char *out = (char*)malloc(33);
@@ -85,7 +86,7 @@ return out;
 }
 
 
-
+//Well, we can MD5 a string... so why not a file.
 char *md5file( char *filename ) {
 	int bytes;
 	int i;
