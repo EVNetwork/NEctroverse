@@ -32,17 +32,17 @@ static char cmdAdminEmpirePass[32] = { "password" };
 static int cmdAdminEmpire = 0;
 #endif
 
-#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
+#define COREDIRECTORY "/media/stephen/mini/git/NEctroverse/core"
 static char WORKDIRECTORY[32] = "%s/git/NEctroverse/core";
 static char HTMLDIRECTORY[32] = "%s/git/NEctroverse/html";
 #define TMPDIR "/tmp/evcore"
 
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
-#define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
-#define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
+#define IOHTTP_FILES_DIRECTORY "/media/stephen/mini/git/NEctroverse/html/images"
+#define IOHTTP_READ_DIRECTORY "/media/stephen/mini/git/NEctroverse/html/docs"
 
 //we want to change this latter... no real "Public" forums.
-#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
+#define PUBLIC_FORUM_DIRECTORY "/media/stephen/mini/git/NEctroverse/core/data"
 
 // Umm, IRC... old skool...
 #define IRC_SERVER "irc.freenode.net"

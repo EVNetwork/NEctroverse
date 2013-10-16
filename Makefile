@@ -61,8 +61,9 @@ md5.o: optional/md5.c optional/md5.h $(REQUIRED)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
 clean:
-	rm *.o -rf
 	rm *~ -rf
+	rm *.o -rf
+	rm *.raw -rf
 	rm optional/*.o -rf
 	rm optional/*~ -rf
 
