@@ -880,6 +880,7 @@ return;
 int daemon_init(void) {
 	int a;
 	int pipingin;
+	int binfo[7];
 	char COREDIR[256];
 	FILE *file;
 	ioInterfacePtr io;
@@ -987,9 +988,12 @@ if( ( file = fopen( COREDIR, "r" ) ) ) {
 	fscanf( file, "%d", &svTickNum );
 	fclose( file );
 }
-	
-if( ( svTickAutoStart == 1 ) && ( !svTickStatus ) && (svTickNum))
-	svTickStatus = 1;
+
+dbMapRetrieveMain( binfo );
+if( ( binfo[MAP_TIMEMPIRE] >= 0 ) && !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0 ) ) {
+	if( ( svTickAutoStart == 1 ) && ( !svTickStatus ) && (svTickNum) )
+		svTickStatus = 1;
+}
 
 //add local pipe, for basic commands from shell
 #if FORKING == 1

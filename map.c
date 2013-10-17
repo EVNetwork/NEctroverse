@@ -248,6 +248,8 @@ mapd.planets = p;
 mapd.families = MAP_FAMILIES;
 mapd.fmembers = MAP_FAMMEMBERS;
 mapd.capacity = MAP_FAMILIES * MAP_FAMMEMBERS;
+mapd.artitimer = -1;
+mapd.timempire = -1;
 fwrite( &mapd, 1, sizeof(dbMainMapDef), file ); 
 
 // New system generation, based on defaults.

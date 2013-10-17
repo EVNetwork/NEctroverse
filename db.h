@@ -190,6 +190,7 @@ MAP_FAMILIES,
 MAP_FMEMBERS,
 MAP_CAPACITY,
 MAP_ARTITIMER,
+MAP_TIMEMPIRE,
 MAP_TOTAL_INFO,
 };
 
@@ -203,7 +204,8 @@ typedef struct
   int families;
   int fmembers;
   int capacity;
-  int artetimer;
+  int artitimer;
+  int timempire;
 } dbMainMapDef, *dbMainMapPtr;
 
 int dbMapRetrieveMain( int *binfo );

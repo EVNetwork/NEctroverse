@@ -7,7 +7,9 @@ void cmdTickGenRanks()
   int a, b, c, d, first, num, artmax;
   FILE *file, *filep;
   dbUserMainDef maind;
+  dbMainMapDef mapd;
   dbMainEmpirePtr empirep;
+  dbMainEmpireDef empired;
   dbUserMainPtr mainp;
   dbUserPtr user;
   int *stats;
@@ -130,8 +132,29 @@ void cmdTickGenRanks()
         artefacts[c] = 1;
       }
     }
-    if( artsnum > artmax )
-      artmax = artsnum;
+
+if( artsnum >= artmax ) {
+	artmax = artsnum;
+
+	if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
+		dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + AUTOVICTORYIN;
+		dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
+		dbMapSetMain( dbMapBInfoStatic );
+	}
+}
+
+if( !( artmax == artsnum ) && ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) ) {
+dbMapBInfoStatic[MAP_ARTITIMER] = -1;
+dbMapBInfoStatic[MAP_TIMEMPIRE] = -1;
+dbMapSetMain( dbMapBInfoStatic );
+} else if ( ( artmax == artsnum ) && ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
+svTickStatus = 0;
+svTickAutoStart = 0;
+svRoundEnd = svTickNum;
+}
+
+
+
     if( ( 3*artsnum >= ARTEFACT_NUMUSED ) || ( (3*dbArtefactMax)/2 >= ARTEFACT_NUMUSED ) )
     {
       for( c = 0, d = 1 ; c < ARTEFACT_NUMUSED ; c++, d <<= 1 )
@@ -169,20 +192,37 @@ void cmdTickGenRanks()
 
   fprintf( file, "<br>" );
   artsnum = 0;
-  for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ )
+for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ )
     artsnum |= artefacts[c];
-  if( artsnum )
-  {
-    fprintf( file, "<br><br><b>Artefacts found</b><br>" );
-    fprintf( file, "<table><tr><td>" );
-    for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ )
-    {
-      if( artefacts[c] )
-        fprintf( file, "<img src=\"%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
-    }
-    fprintf( file, "</td></tr></table><br>" );
-  }
-  dbArtefactMax = artmax;
+
+
+
+if( artsnum ) {
+	if( !(dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) ) {
+		if( dbMapRetrieveEmpire( dbMapBInfoStatic[MAP_TIMEMPIRE], &empired ) < 0 )
+		      return;
+		if( empired.name[0] ) {
+			if( (dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum) <= 0 )
+				fprintf( file, "<br><br><b>All Artefacts held by: %s</b><br>", empired.name );
+			else
+				fprintf( file, "<br><br><b>All Artefacts held by: %s<br>Round will end in %d weeks!</b><br>", empired.name, dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
+		} else {
+			if( (dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum) <= 0 )
+				fprintf( file, "<br><br><b>All Artefacts held by: %s</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE] );
+			else
+				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d<br>Round will end in %d weeks!</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE], dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
+		}
+	} else {
+		fprintf( file, "<br><br><b>Artefacts found</b><br>" );
+	}
+	fprintf( file, "<table><tr><td>" );
+	for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ ) {
+		if( artefacts[c] )
+			fprintf( file, "<img src=\"%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
+	}
+	fprintf( file, "</td></tr></table><br>" );
+}
+dbArtefactMax = artmax;
 
   free( stats );
   fclose( file );
