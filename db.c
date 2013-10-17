@@ -994,11 +994,7 @@ int dbUserMainRetrieve( int id, dbUserMainPtr maind )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
     return -3;
 
-
-// CHANGING ST SIZE
   memset( maind, 0, sizeof(dbUserMainDef) );
-
-
   fread( maind, 1, sizeof(dbUserMainDef), file );
   fclose( file );
   return 1;
@@ -1008,83 +1004,92 @@ int dbUserMainRetrieve( int id, dbUserMainPtr maind )
 
 
 
-// user build functions
+// user build functions -- Need to change the calling of this function.
 
-int dbUserBuildAdd( int id, int type, long long int *cost, int quantity, int time, int plnid, int plnloc )
-{
-  int pos, i;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
-    return -3;  
-  fread( &pos, 1, sizeof(int), file );
-  fseek( file, 4+(pos*52), SEEK_SET );
-  fwrite( &type, 1, sizeof(int), file );
-  fwrite( &quantity, 1, sizeof(int), file );
-  fwrite( &time, 1, sizeof(int), file );
-  fwrite( &plnid, 1, sizeof(int), file );
-  fwrite( &plnloc, 1, sizeof(int), file );
-  for(i=0;i<4;i++)
-  	fwrite(&cost[i], 1, sizeof(long long int), file);
-  fseek( file, 0, SEEK_SET );
-  pos++;
-  fwrite( &pos, 1, sizeof(int), file );
-  fclose( file );
-  return pos;
+int dbUserBuildAdd( int id, int type, long long int *cost, int quantity, int time, int plnid, int plnloc ) {
+	int pos, i;
+	FILE *file;
+	dbUserBuildDef buildp;
+
+if( !( memset( &buildp, 0, sizeof(dbUserBuildDef) ) ) ) {
+	return -3;
+}
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+	return -3;  
+
+buildp.type = type;
+buildp.quantity = quantity;
+buildp.time = time;
+buildp.plnid = plnid;
+buildp.plnpos = plnloc;
+
+
+for(i=0;buildp.cost[i];i++)
+	buildp.cost[i] = cost[i];
+
+fread( &pos, 1, sizeof(int), file );
+fseek( file, 4+(pos*sizeof(dbUserBuildDef)), SEEK_SET );
+fwrite( &buildp, 1, sizeof(dbUserBuildDef), file );
+fseek( file, 0, SEEK_SET );
+pos++;
+fwrite( &pos, 1, sizeof(int), file );
+fclose( file );
+
+return pos;
 }
 
-int dbUserBuildRemove( int id, int bldid )
-{
-  int a, num, data[13];
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
-    return -3;
-  fread( &num, 1, sizeof(int), file );
-  if( (unsigned int)bldid >= num )
-  {
-    fclose( file );
-    return -2;
-  }
-  if( bldid+1 < num )
-  {
-    fseek( file, 4+(num*52)-52, SEEK_SET );
-    fread( data, 1, 52, file );
-    fseek( file, 4+(bldid*52), SEEK_SET );
-    fwrite( data, 1, 52, file );
-  }
 
-  fseek( file, 0, SEEK_SET );
-  a = num-1;
-  fwrite( &a, 1, sizeof(int), file );
-  fclose( file );
-  return 1;
+int dbUserBuildRemove( int id, int bldid ) {
+	int a, num, data[13];
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+	return -3;
+fread( &num, 1, sizeof(int), file );
+
+if( (unsigned int)bldid >= num ) {
+	fclose( file );
+	return -2;
 }
 
-int dbUserBuildList( int id, dbUserBuildPtr *build )
-{
-  int a, num, i;
-  dbUserBuildPtr buildp;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
-    return -3;
-  fread( &num, 1, sizeof(int), file );
-  if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) )
-  {
-    fclose( file );
-    return -1;
-  }
-  for( a = 0 ; a < num ; a++ )
-  {
-    fread( &buildp[a].type, 1, sizeof(int), file );
-    fread( &buildp[a].quantity, 1, sizeof(int), file );
-    fread( &buildp[a].time, 1, sizeof(int), file );
-    fread( &buildp[a].plnid, 1, sizeof(int), file );
-    fread( &buildp[a].plnpos, 1, sizeof(int), file );
-  	for(i=0;i<4;i++)
-  		fread(&buildp[a].cost[i], 1, sizeof(long long int), file);
-  }
-  fclose( file );
-  *build = buildp;
-  return num;
+if( bldid+1 < num ) {
+	fseek( file, 4+(num*sizeof(dbUserBuildDef))-sizeof(dbUserBuildDef), SEEK_SET );
+	fread( data, 1, sizeof(dbUserBuildDef), file );
+	fseek( file, 4+(bldid*sizeof(dbUserBuildDef)), SEEK_SET );
+	fwrite( data, 1, sizeof(dbUserBuildDef), file );
+}
+
+fseek( file, 0, SEEK_SET );
+a = num-1;
+fwrite( &a, 1, sizeof(int), file );
+fclose( file );
+
+return 1;
+}
+
+
+int dbUserBuildList( int id, dbUserBuildPtr *build ) {
+	int a, num;
+	dbUserBuildPtr buildp;
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+	return -3;
+fread( &num, 1, sizeof(int), file );
+
+if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
+	fclose( file );
+	return -1;
+}
+
+for( a = 0 ; a < num ; a++ ) {
+	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
+	fread( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+}
+fclose( file );
+*build = buildp;
+
+return num;
 }
 
 
@@ -1151,47 +1156,46 @@ void sortlist2 ( int num, int *list1, int *list2, int *list3 )
   return;
 }
 
-int dbUserBuildListReduceTime( int id, dbUserBuildPtr *build )
-{
-  int a, num, i;
-  dbUserBuildPtr buildp;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
-    return -3;
-  fread( &num, 1, sizeof(int), file );
-  if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) )
-  {
-    fclose( file );
-    return -1;
-  }
-  for( a = 0 ; a < num ; a++ )
-  {
-    fread( &buildp[a].type, 1, sizeof(int), file );
-    fread( &buildp[a].quantity, 1, sizeof(int), file );
-    fread( &buildp[a].time, 1, sizeof(int), file );
-    buildp[a].time--;
-    fseek( file, -4, SEEK_CUR );
-    fwrite( &buildp[a].time, 1, sizeof(int), file );
-    fread( &buildp[a].plnid, 1, sizeof(int), file );
-    fread( &buildp[a].plnpos, 1, sizeof(int), file );
-    for(i=0;i<4;i++)
-    	fread(&buildp[a].cost[i], 1, sizeof(long long int), file);
-  }
-  fclose( file );
-  *build = buildp;
-  return num;
+int dbUserBuildListReduceTime( int id, dbUserBuildPtr *build ) {
+	int a, num;
+	FILE *file;
+	dbUserBuildPtr buildp;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+	return -3;
+
+fread( &num, 1, sizeof(int), file );
+
+if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
+	fclose( file );
+	return -1;
 }
 
-int dbUserBuildEmpty( int id )
-{
-  int a;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
-    return -3;
-  a = 0;
-  fwrite( &a, 1, sizeof(int), file );
-  fclose( file );
-  return 1;
+for( a = 0 ; a < num ; a++ ) {
+	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
+	fread( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+	buildp[a].time--;
+	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
+	fwrite( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+}
+fclose( file );
+*build = buildp;
+
+return num;
+}
+
+int dbUserBuildEmpty( int id ) {
+	int a;
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+	return -3;
+
+a = 0;
+fwrite( &a, 1, sizeof(int), file );
+fclose( file );
+
+return 1;
 }
 
 
@@ -1709,16 +1713,8 @@ int dbUserFleetAdd( int id, dbUserFleetPtr fleetd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
     return -3;
   fread( &pos, 1, sizeof(int), file );
-  fseek( file, 4+(pos*96), SEEK_SET );
-  fwrite( fleetd->unit, 1, 16*sizeof(int), file );
-  fwrite( &fleetd->order, 1, sizeof(int), file );
-  fwrite( &fleetd->destination, 1, sizeof(int), file );
-  fwrite( &fleetd->destid, 1, sizeof(int), file );
-  fwrite( &fleetd->sysid, 1, sizeof(int), file );
-  fwrite( &fleetd->source, 1, sizeof(int), file );
-  fwrite( &fleetd->flags, 1, sizeof(int), file );
-  fwrite( &fleetd->time, 1, sizeof(int), file );
-  fwrite( &fleetd->basetime, 1, sizeof(int), file );
+  fseek( file, 4+(pos*sizeof(dbUserFleetDef)), SEEK_SET );
+  fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
   fseek( file, 0, SEEK_SET );
   pos++;
   fwrite( &pos, 1, sizeof(int), file );
@@ -1740,10 +1736,10 @@ int dbUserFleetRemove( int id, int fltid )
   }
   if( fltid+1 < num )
   {
-    fseek( file, 4+(num*96)-96, SEEK_SET );
-    fread( data, 1, 96, file );
-    fseek( file, 4+(fltid*96), SEEK_SET );
-    fwrite( data, 1, 96, file );
+    fseek( file, 4+(num*sizeof(dbUserFleetDef))-sizeof(dbUserFleetDef), SEEK_SET );
+    fread( data, 1, sizeof(dbUserFleetDef), file );
+    fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
+    fwrite( data, 1, sizeof(dbUserFleetDef), file );
   }
   fseek( file, 0, SEEK_SET );
   a = num-1;
@@ -1767,16 +1763,8 @@ int dbUserFleetList( int id, dbUserFleetPtr *fleetd )
   }
   for( a = 0 ; a < num ; a++ )
   {
-    fseek( file, 4+(a*96), SEEK_SET );
-    fread( fleetp[a].unit, 1, 16*sizeof(int), file );
-    fread( &fleetp[a].order, 1, sizeof(int), file );
-    fread( &fleetp[a].destination, 1, sizeof(int), file );
-    fread( &fleetp[a].destid, 1, sizeof(int), file );
-    fread( &fleetp[a].sysid, 1, sizeof(int), file );
-    fread( &fleetp[a].source, 1, sizeof(int), file );
-    fread( &fleetp[a].flags, 1, sizeof(int), file );
-    fread( &fleetp[a].time, 1, sizeof(int), file );
-    fread( &fleetp[a].basetime, 1, sizeof(int), file );
+    fseek( file, 4+(a*sizeof(dbUserFleetDef)), SEEK_SET );
+    fread( &fleetp[a], 1, sizeof(dbUserFleetDef), file );
   }
   fclose( file );
   *fleetd = fleetp;
@@ -1795,16 +1783,8 @@ int dbUserFleetSet( int id, int fltid, dbUserFleetPtr fleetd )
     fclose( file );
     return -2;
   }
-  fseek( file, 4+(fltid*96), SEEK_SET );
-  fwrite( fleetd->unit, 1, 16*sizeof(int), file );
-  fwrite( &fleetd->order, 1, sizeof(int), file );
-  fwrite( &fleetd->destination, 1, sizeof(int), file );
-  fwrite( &fleetd->destid, 1, sizeof(int), file );
-  fwrite( &fleetd->sysid, 1, sizeof(int), file );
-  fwrite( &fleetd->source, 1, sizeof(int), file );
-  fwrite( &fleetd->flags, 1, sizeof(int), file );
-  fwrite( &fleetd->time, 1, sizeof(int), file );
-  fwrite( &fleetd->basetime, 1, sizeof(int), file );
+  fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
+  fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
   fclose( file );
   return num;
 }
@@ -1821,16 +1801,8 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd )
     fclose( file );
     return -2;
   }
-  fseek( file, 4+(fltid*96), SEEK_SET );
-  fread( fleetd->unit, 1, 16*sizeof(int), file );
-  fread( &fleetd->order, 1, sizeof(int), file );
-  fread( &fleetd->destination, 1, sizeof(int), file );
-  fread( &fleetd->destid, 1, sizeof(int), file );
-  fread( &fleetd->sysid, 1, sizeof(int), file );
-  fread( &fleetd->source, 1, sizeof(int), file );
-  fread( &fleetd->flags, 1, sizeof(int), file );
-  fread( &fleetd->time, 1, sizeof(int), file );
-  fread( &fleetd->basetime, 1, sizeof(int), file );
+  fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
+  fread( fleetd, 1, sizeof(dbUserFleetDef), file );
   fclose( file );
   return num;
 }
@@ -2193,13 +2165,10 @@ int dbMapSetSystem( int sysid, dbMainSystemPtr systemd )
     return -3;
   if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
     return -3;
-  fseek( file, 28+32+(sysid*20), SEEK_SET );
-  fwrite( &systemd->position, 1, sizeof(int), file );
-  fwrite( &systemd->indexplanet, 1, sizeof(int), file );
-  fwrite( &systemd->numplanets, 1, sizeof(int), file );
-  fwrite( &systemd->empire, 1, sizeof(int), file );
-  fwrite( &systemd->unexplored, 1, sizeof(int), file );
+  fseek( file, 28+32+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+  fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
   memcpy( &dbMapSystems[sysid], systemd, sizeof(dbMainSystemDef) );
+
   return 1;
 }
 
@@ -2213,12 +2182,9 @@ int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd )
       return -3;
     if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
       return -3;
-    fseek( file, 28+32+(sysid*20), SEEK_SET );
-    fread( &systemd->position, 1, sizeof(int), file );
-    fread( &systemd->indexplanet, 1, sizeof(int), file );
-    fread( &systemd->numplanets, 1, sizeof(int), file );
-    fread( &systemd->empire, 1, sizeof(int), file );
-    fread( &systemd->unexplored, 1, sizeof(int), file );
+    fseek( file, 28+32+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+    fread( systemd, 1, sizeof(dbMainSystemDef), file );
+
     return 1;
   }
   if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
@@ -2234,20 +2200,9 @@ int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd )
     return -3;
   if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
     return -3;
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*20)+(plnid*184), SEEK_SET );
-  fwrite( &planetd->system, 1, 1*sizeof(int), file );
-  fwrite( &planetd->position, 1, 1*sizeof(int), file );
-  fwrite( &planetd->owner, 1, 1*sizeof(int), file );
-  fwrite( &planetd->size, 1, 1*sizeof(int), file );
-  fwrite( &planetd->flags, 1, 1*sizeof(int), file );
-  fwrite( &planetd->population, 1, 1*sizeof(int), file );
-  fwrite( &planetd->maxpopulation, 1, 1*sizeof(int), file );
-  fwrite( &planetd->special, 1, 3*sizeof(int), file );
-  fwrite( &planetd->building, 1, 16*sizeof(int), file );
-  fwrite( &planetd->unit, 1, 16*sizeof(int), file );
-  fwrite( &planetd->construction, 1, 1*sizeof(int), file );
-  fwrite( &planetd->protection, 1, 1*sizeof(int), file );
-  fwrite( &planetd->surrender, 1, 1*sizeof(int), file );
+  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+  fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
+
   return 1;
 }
 
@@ -2260,20 +2215,9 @@ int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd )
     return -3;
   if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
     return -3;
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*20)+(plnid*184), SEEK_SET );
-  fread( &planetd->system, 1, 1*sizeof(int), file );
-  fread( &planetd->position, 1, 1*sizeof(int), file );
-  fread( &planetd->owner, 1, 1*sizeof(int), file );
-  fread( &planetd->size, 1, 1*sizeof(int), file );
-  fread( &planetd->flags, 1, 1*sizeof(int), file );
-  fread( &planetd->population, 1, 1*sizeof(int), file );
-  fread( &planetd->maxpopulation, 1, 1*sizeof(int), file );
-  fread( &planetd->special, 1, 3*sizeof(int), file );
-  fread( &planetd->building, 1, 16*sizeof(int), file );
-  fread( &planetd->unit, 1, 16*sizeof(int), file );
-  fread( &planetd->construction, 1, 1*sizeof(int), file );
-  fread( &planetd->protection, 1, 1*sizeof(int), file );
-  fread( &planetd->surrender, 1, 1*sizeof(int), file );
+  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+  fread( planetd, 1, sizeof(dbMainPlanetDef), file );
+
   return 1;
 }
 
@@ -2299,20 +2243,9 @@ int dbMapSetEmpire( int famid, dbMainEmpirePtr empired )
          }
       }
 //-----------------------
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*20)+(dbMapBInfoStatic[3]*184)+(famid*336), SEEK_SET );
-  fwrite( &empired->numplayers, 1, 1*sizeof(int), file );
-  fwrite( empired->player, 1, 32*sizeof(int), file );
-  fwrite( &empired->homeid, 1, 1*sizeof(int), file );
-  fwrite( &empired->homepos, 1, 1*sizeof(int), file );
-  fwrite( empired->name, 1, 64, file );
-  fwrite( &empired->leader, 1, 1*sizeof(int), file );
-  fwrite( empired->vote, 1, 32, file );
-  fwrite( &empired->picmime, 1, sizeof(int), file );
-  fwrite( &empired->pictime, 1, sizeof(int), file );
-  fwrite( &empired->planets, 1, sizeof(int), file );
-  fwrite( &empired->networth, 1, sizeof(int), file );
-  fwrite( &empired->artefacts, 1, sizeof(int), file );
-  fwrite( &empired->rank, 1, sizeof(int), file );
+  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+  fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
+
   return 1;
 }
 
@@ -2323,20 +2256,9 @@ int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired )
     return -3;
   if( (unsigned int)famid >= dbMapBInfoStatic[4] )
     return -3;	//dbMapBInfoStatic is the 7 first int of map file
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*20)+(dbMapBInfoStatic[3]*184)+(famid*336), SEEK_SET );
-  fread( &empired->numplayers, 1, 1*sizeof(int), file );
-  fread( empired->player, 1, 32*sizeof(int), file );
-  fread( &empired->homeid, 1, 1*sizeof(int), file );
-  fread( &empired->homepos, 1, 1*sizeof(int), file );
-  fread( empired->name, 1, 64, file );
-  fread( &empired->leader, 1, 1*sizeof(int), file );
-  fread( empired->vote, 1, 32, file );
-  fread( &empired->picmime, 1, sizeof(int), file );
-  fread( &empired->pictime, 1, sizeof(int), file );
-  fread( &empired->planets, 1, sizeof(int), file );
-  fread( &empired->networth, 1, sizeof(int), file );
-  fread( &empired->artefacts, 1, sizeof(int), file );
-  fread( &empired->rank, 1, sizeof(int), file );
+  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+  fread( empired, 1, sizeof(dbMainEmpireDef), file );
+
   return 1;
 }
 

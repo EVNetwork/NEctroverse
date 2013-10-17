@@ -48,28 +48,70 @@
 
 // solar, mineral, crystal, ectrolium
 int map_resources_gen[4] = { 24, 23, 17, 10 };
+
+dbMainSystemDef dbSystemDefault =
+{
+  -1,
+  0,
+  -1,
+  -1,
+  -1,
+};
+
+dbMainPlanetDef dbPlanetDefault =
+{
+  -1,
+  -1,
+  -1,
+  450,
+  0,
+  50000,
+  90000,
+  { 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  0,
+  0,
+  -1,
+  -1,
+};
+
+dbMainEmpireDef dbEmpireDefault =
+{
+  "",
+  "",
+  "",
+  0,
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+  0,
+  0,
+  -1,
+  { -1, -1, -1, -1 },
+  0,
+  0,
+  0,
+  0,
+  0,
+  -1,
+  -1,
+  0,
+  { 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0 },	
+};
+
+
 int map_resources_posx[MAP_RESOURCES];
 int map_resources_posy[MAP_RESOURCES];
 int map_resources_type[MAP_RESOURCES];
-
-
-
-
 int mapdata[MAP_SIZEX*MAP_SIZEY];
 int system_pos[MAP_SYSTEMS];
 int system_planets[MAP_SYSTEMS];
 int system_pbase[MAP_SYSTEMS];
 int system_home[MAP_SYSTEMS];
-
-
 int empire_system[MAP_FAMILIES];
-
 int artefact_planet[MAP_ARTEFACTS];
 
-
-
 #define CMD_PLANET_FLAGS_HOME 4
-
 
 int mapfactor[MAP_SIZEX*MAP_SIZEY];
 
@@ -160,8 +202,6 @@ void mapCalcFactors()
   return;
 }
 
-
-
 char nullb[256];
 
 int mapgen() {
@@ -171,245 +211,200 @@ int mapgen() {
 	FILE *file;
 	char fname[256];
 	FILE *file2;
+	dbMainSystemDef systemd;
+	dbMainPlanetDef planetd;
+	dbMainEmpireDef empired;
+
+
+
+memset( &systemd, 0, sizeof(dbMainSystemDef) );
+memset( &planetd, 0, sizeof(dbMainPlanetDef) );
+memset( &empired, 0, sizeof(dbMainEmpireDef) );
 
 openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
 sprintf( fname, "%s/data", COREDIRECTORY );
 dirstructurecheck(fname);
 
-  srand( time( 0 ) );
+srand( time( 0 ) );
 
-  mapCalcFactors();
+mapCalcFactors();
 
-  for( a = 0 ; a < MAP_FAMILIES ; a++ )
-  {
-    mainL1:
-    empire_system[a] = rand() % MAP_SYSTEMS;
-    if( system_home[ empire_system[a] ] )
-      goto mainL1;
-    system_home[ empire_system[a] ] = a+1;
-    system_planets[ empire_system[a] ] = MAP_FAMMEMBERS;
-  }
+for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
+	mainL1:
+	empire_system[a] = rand() % MAP_SYSTEMS;
+	if( system_home[ empire_system[a] ] )
+		goto mainL1;
+	system_home[ empire_system[a] ] = a+1;
+	system_planets[ empire_system[a] ] = MAP_FAMMEMBERS;
+}
 
-  for( a = b = c = 0 ; a < MAP_RESOURCES ; a++, b++ )
-  {
-    map_resources_posx[a] = rand() % MAP_SIZEX;
-    map_resources_posy[a] = rand() % MAP_SIZEY;
-    if( b >= map_resources_gen[c] )
-    {
-      b -= map_resources_gen[c];
-      c++;
-    }
-    map_resources_type[a] = c;
-  }
-
-  p = 0;
-  for( a = 0 ; a < MAP_SYSTEMS ; a++ )
-  {
-    mainL0:
-    for( ; ; )
-    {
-      x = rand() % MAP_SIZEX;
-      y = rand() % MAP_SIZEY;
-      i = ( y * MAP_SIZEX ) + x;
-      if( ( rand() & 0xFF ) >= mapfactor[i] )
-        continue;
-      break;
-    }
-    if( mapdata[i] )
-      goto mainL0;
-    system_pos[a] = ( y << 16 ) + x;
-    if( !( system_planets[a] ) )
-    {
-
-      system_planets[a] = 4 + rand() % 4;
-      if( !( rand() & 7 ) )
-        system_planets[a] += rand() % 12;
-      if( !( rand() & 7 ) )
-        system_planets[a] += rand() % 8;
-
-    }
-    system_pbase[a] = p;
-    p += system_planets[a];
-    mapdata[i] = 1;
-  }
-
-
-	for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
-		mainL2:
-		b = rand() % MAP_SYSTEMS;
-		if( system_home[b] )
-			goto mainL2;
-		artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
-		#if FORKING == 0
-		printf("( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
-		#endif
-		syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
+for( a = b = c = 0 ; a < MAP_RESOURCES ; a++, b++ ) {
+	map_resources_posx[a] = rand() % MAP_SIZEX;
+	map_resources_posy[a] = rand() % MAP_SIZEY;
+	if( b >= map_resources_gen[c] ) {
+		b -= map_resources_gen[c];
+		c++;
 	}
+	map_resources_type[a] = c;
+}
+
+p = 0;
+for( a = 0 ; a < MAP_SYSTEMS ; a++ ) {
+	mainL0:
+	for( ; ; ) {
+		x = rand() % MAP_SIZEX;
+		y = rand() % MAP_SIZEY;
+		i = ( y * MAP_SIZEX ) + x;
+		if( ( rand() & 0xFF ) >= mapfactor[i] )
+			continue;
+		break;
+	}
+	if( mapdata[i] )
+		goto mainL0;
+	system_pos[a] = ( y << 16 ) + x;
+	if( !( system_planets[a] ) ) {
+		system_planets[a] = 4 + rand() % 4;
+		if( !( rand() & 7 ) )
+			system_planets[a] += rand() % 12;
+		if( !( rand() & 7 ) )
+			system_planets[a] += rand() % 8;
+
+	}
+	system_pbase[a] = p;
+	p += system_planets[a];
+	mapdata[i] = 1;
+}
 
 
-  // headers
-  file = fopen( COREDIRECTORY "/data/map", "wb" );
-  a = MAP_SIZEX;
-  fwrite( &a, 1, sizeof(int), file );
-  a = MAP_SIZEY;
-  fwrite( &a, 1, sizeof(int), file );
-  a = MAP_SYSTEMS;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &p, 1, sizeof(int), file );
-  a = MAP_FAMILIES;
-  fwrite( &a, 1, sizeof(int), file );
-  a = MAP_FAMMEMBERS;
-  fwrite( &a, 1, sizeof(int), file );
-  a = MAP_FAMILIES * MAP_FAMMEMBERS;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( nullb, 1, 32, file );
-
-  // systems
-  p = 0;
-  for( a = 0 ; a < MAP_SYSTEMS ; a++ )
-  {
-    fwrite( &(system_pos[a]), 1, sizeof(int), file );
-    fwrite( &p, 1, sizeof(int), file );
-    p += system_planets[a];
-    fwrite( &system_planets[a], 1, sizeof(int), file );
-    if( system_home[a] )
-      i = system_home[a] - 1;
-    else
-      i = -1;
-    fwrite( &i, 1, sizeof(int), file );
-    if( !( system_home[a] ) )
-      fwrite( &system_planets[a], 1, sizeof(int), file );
-    else
-      fwrite( nullb, 1, sizeof(int), file );
-  }
-
-  // planets
-  for( a = b = c = 0 ; a < p ; a++, b++ )
-  {
-    if( b >= system_planets[c] )
-    {
-      b -= system_planets[c];
-      c++;
-    }
-    fwrite( &c, 1, sizeof(int), file );
-    x = system_pos[c] & 0xFFFF;
-    y = system_pos[c] >> 16;
-    i = ( y << 20 ) + ( x << 8 ) + b;
-    fwrite( &i, 1, sizeof(int), file );
-    i = -1;
-    fwrite( &i, 1, sizeof(int), file );
-    i = 450;
-    if( !( system_home[c] ) )
-    {
-      i = 128 + ( rand() % 192 );
-      if( !( rand() & 7 ) )
-        i += rand() & 255;
-      if( !( rand() & 31 ) )
-        i += rand() & 511;
-    }
-    fwrite( &i, 1, sizeof(int), file );
-    i = 0;
-    if( system_home[c] )
-      i = CMD_PLANET_FLAGS_HOME;
-    fwrite( &i, 1, sizeof(int), file );
-    i = 5000;
-    fwrite( &i, 1, sizeof(int), file );
-    i = 90000;
-    fwrite( &i, 1, sizeof(int), file );
+for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
+	mainL2:
+	b = rand() % MAP_SYSTEMS;
+	if( system_home[b] )
+		goto mainL2;
+	artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
+	#if FORKING == 0
+	printf("( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
+	#endif
+	syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
+}
 
 
-    // resource bonus
-/*
-    i = 0;
-    fwrite( &i, 1, sizeof(int), file );
-    fwrite( &i, 1, sizeof(int), file );
-*/
+// headers -- No need to touch this yet, but latter I will anyways =P
+file = fopen( COREDIRECTORY "/data/map", "wb" );
+	a = MAP_SIZEX;
+	fwrite( &a, 1, sizeof(int), file );
+	a = MAP_SIZEY;
+	fwrite( &a, 1, sizeof(int), file );
+	a = MAP_SYSTEMS;
+	fwrite( &a, 1, sizeof(int), file );
+	fwrite( &p, 1, sizeof(int), file );
+	a = MAP_FAMILIES;
+	fwrite( &a, 1, sizeof(int), file );
+	a = MAP_FAMMEMBERS;
+	fwrite( &a, 1, sizeof(int), file );
+	a = MAP_FAMILIES * MAP_FAMMEMBERS;
+	fwrite( &a, 1, sizeof(int), file );
+	fwrite( nullb, 1, 32, file );
 
-    e = i = 0;
-    if( !( system_home[c] ) )
-    {
-      distmax = (float)0xFFFF;
-      for( d = 0 ; d < MAP_RESOURCES ; d++ )
-      {
-        x2 = x - map_resources_posx[d];
-        y2 = y - map_resources_posy[d];
-        dist = sqrt( x2*x2 + y2*y2 );
-        if( dist < distmax )
-        {
-          distmax = dist;
-          e = map_resources_type[d];
-        }
-      }
-      d = 160.0 * dist;
-      if( !( d ) || ( ( rand() % d ) < 1024 ) )
-      {
-        i = 25 + rand() % 25;
-        if( !( rand() & 7 ) )
-          i += rand() % 100;
-        if( !( rand() & 15 ) )
-          i += rand() % 100;
-      }
-    }
-    fwrite( &e, 1, sizeof(int), file );
-    fwrite( &i, 1, sizeof(int), file );
+// New system generation, based on defaults above.
+p = 0;
+for( a = 0 ; a < MAP_SYSTEMS ; a++ ) {
+	systemd = dbSystemDefault;
+	systemd.position = system_pos[a];
+	systemd.indexplanet = p;
+	p += system_planets[a];
+	systemd.numplanets = system_planets[a];
+
+	if( system_home[a] ) {
+		systemd.empire = system_home[a] - 1;
+	} else {
+		systemd.unexplored = system_planets[a];
+	}
+	fwrite( &systemd, 1, sizeof(dbMainSystemDef), file );
+}
+//End system generation
+
+// planets
+for( a = b = c = 0 ; a < p ; a++, b++ ) {
+	planetd = dbPlanetDefault;
+	if( b >= system_planets[c] ) {
+		b -= system_planets[c];
+		c++;
+	}
+	planetd.system = c;
+	x = system_pos[c] & 0xFFFF;
+	y = system_pos[c] >> 16;
+	i = ( y << 20 ) + ( x << 8 ) + b;
+	planetd.position = i;
+	if( !( system_home[c] ) ) {
+		planetd.size = 128 + ( rand() % 192 );
+		if( !( rand() & 7 ) )
+			planetd.size += rand() & 255;
+		if( !( rand() & 31 ) )
+			planetd.size += rand() & 511;
+	}
+	if( system_home[c] )
+		planetd.flags = CMD_PLANET_FLAGS_HOME;
+
+	e = i = 0;
+	if( !( system_home[c] ) ) {
+		distmax = (float)0xFFFF;
+		for( d = 0 ; d < MAP_RESOURCES ; d++ ) {
+			x2 = x - map_resources_posx[d];
+			y2 = y - map_resources_posy[d];
+			dist = sqrt( x2*x2 + y2*y2 );
+			if( dist < distmax ) {
+				distmax = dist;
+				e = map_resources_type[d];
+			}
+		}
+		d = 160.0 * dist;
+		if( !( d ) || ( ( rand() % d ) < 1024 ) ) {
+			i = 25 + rand() % 25;
+			if( !( rand() & 7 ) )
+				i += rand() % 100;
+			if( !( rand() & 15 ) )
+				i += rand() % 100;
+		}
+	}
+	planetd.special[0] = e;
+	planetd.special[1] = i;
+	// artefacts
+	i = 0;
+	for( d = 0 ; d < MAP_ARTEFACTS ; d++ ) {
+		if( a != artefact_planet[d] )
+			continue;
+			i = d + 1;
+			break;
+		}
+	planetd.special[2] = i;
+	fwrite( &planetd, 1, sizeof(dbMainPlanetDef), file );
+
+}
+//End planet generation
 
 
+// New families generation, based on defaults above.
+for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
+	empired = dbEmpireDefault;
+	empired.homeid = empire_system[a];
+	empired.homepos = system_pos[ empire_system[a] ];
+	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
 
-    // artefacts
-    i = 0;
-    for( d = 0 ; d < MAP_ARTEFACTS ; d++ )
-    {
-      if( a != artefact_planet[d] )
-        continue;
-      i = d + 1;
-      break;
-    }
-    fwrite( &i, 1, sizeof(int), file );
-
-
-
-    fwrite( nullb, 1, 64+64+4+4, file );
-
-
-
-    i = -1; // surrender
-    fwrite( &i, 1, 4, file );
-
-    i = 0;
-    fwrite( &i, 1, 4, file );
-  }
-
-  // families
-  for( a = 0 ; a < MAP_FAMILIES ; a++ )
-  {
-    i = 0;
-    fwrite( &i, 1, sizeof(int), file );
-    fwrite( nullb, 1, 32*sizeof(int), file );
-    fwrite( &empire_system[a], 1, sizeof(int), file );
-    fwrite( &system_pos[ empire_system[a] ], 1, sizeof(int), file );
-    fwrite( nullb, 1, 64, file );
-    i = -1;
-    fwrite( &i, 1, sizeof(int), file );
-    for( b = 0 ; b < 32 ; b++ )
-      fputc( -1, file );
-    fwrite( nullb, 1, 96, file );
-
-    sprintf( fname, COREDIRECTORY "/data/fam%dnews", a );
-
-    file2 = fopen( fname, "wb" );
-    j = 0;
-    fwrite( &j, 1, sizeof(long long int), file2 );
-    j = -1;
-    fwrite( &j, 1, sizeof(long long int), file2 );
-    fwrite( &j, 1, sizeof(long long int), file2 );
-    j = 0;
-    fwrite( &j, 1, sizeof(long long int), file2 );
-    fwrite( &j, 1, sizeof(long long int), file2 );
-    fclose( file2 );
-  }
-
-  fclose( file );
-
+	sprintf( fname, COREDIRECTORY "/data/fam%dnews", a );
+	file2 = fopen( fname, "wb" );
+	j = 0;
+	fwrite( &j, 1, sizeof(long long int), file2 );
+	j = -1;
+	fwrite( &j, 1, sizeof(long long int), file2 );
+	fwrite( &j, 1, sizeof(long long int), file2 );
+	j = 0;
+	fwrite( &j, 1, sizeof(long long int), file2 );
+	fwrite( &j, 1, sizeof(long long int), file2 );
+	fclose( file2 );
+}
+fclose( file );
+//End family generation
 
   file = fopen( "zzz2.raw", "wb" );
   for( a = 0 ; a < MAP_SIZEX*MAP_SIZEY ; a++ )
@@ -465,19 +460,21 @@ struct ( 184 )
   4:protection
   4:surrender
   4:reserved
-struct ( 336 )
+struct ( 468 )
+ 64:empire name
+128:empire password
+ 32:vote index in players IDs
   4:number of players
 128:players ID, 32 fixed maximum
   4:home system ID
   4:home system position ( y << 16 ) + x
- 64:empire name
   4:leader ID
- 32:vote index in players IDs
   4:picture mime
   4:picture time
   4:planets
   4:networth
   4:artefacts
+  4:artetimer
  76:reserved
 
 

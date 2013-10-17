@@ -154,7 +154,7 @@ typedef struct
   int flags;
   int time;
   int basetime;
-  int reserved;
+
 } dbUserFleetDef, *dbUserFleetPtr;
 
 int dbUserFleetAdd( int id, dbUserFleetPtr fleetd );
@@ -200,7 +200,6 @@ int dbMapSetSystem( int sysid, dbMainSystemPtr systemd );
 int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd );
 
 
-
 typedef struct
 {
   int system;
@@ -223,23 +222,30 @@ int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd );
 int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd );
 
 
-
 typedef struct
 {
+  char name[64];
+  char password[128];
+  char vote[32];
   int numplayers;
   int player[32];
   int homeid;
   int homepos; // ( y << 16 ) + x
-  char name[64];
   int leader;
-  char vote[32];
+  int polotics[4];
   int picmime;
   int pictime;
   int planets;
   int networth;
   int artefacts;
+  int artetimer;
   int rank;
+  int construction;
+  int building[8];
+  long long int fund[8];
 } dbMainEmpireDef, *dbMainEmpirePtr;
+
+
 
 int dbMapSetEmpire( int famid, dbMainEmpirePtr empired );
 int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired );
