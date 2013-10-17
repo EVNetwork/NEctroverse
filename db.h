@@ -189,6 +189,17 @@ int dbMapRetrieveMain( int *binfo );
 
 typedef struct
 {
+  int sizex; // ( y << 16 ) + x
+  int sizey;
+  int systems;
+  int planets;
+  int families;
+  int fmembers;
+  int capacity;
+} dbMainMapDef, *dbMainMapPtr;
+
+typedef struct
+{
   int position; // ( y << 16 ) + x
   int indexplanet;
   int numplanets;
@@ -267,7 +278,9 @@ extern dbMainSystemPtr dbMapSystems;
 extern int dbMapSystemsNum;
 
 
-
+extern dbMainSystemDef dbSystemDefault;
+extern dbMainPlanetDef dbPlanetDefault;
+extern dbMainEmpireDef dbEmpireDefault;
 
 ////////
 

@@ -49,57 +49,6 @@
 // solar, mineral, crystal, ectrolium
 int map_resources_gen[4] = { 24, 23, 17, 10 };
 
-dbMainSystemDef dbSystemDefault =
-{
-  -1,
-  0,
-  -1,
-  -1,
-  -1,
-};
-
-dbMainPlanetDef dbPlanetDefault =
-{
-  -1,
-  -1,
-  -1,
-  450,
-  0,
-  50000,
-  90000,
-  { 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  0,
-  0,
-  -1,
-  -1,
-};
-
-dbMainEmpireDef dbEmpireDefault =
-{
-  "",
-  "",
-  "",
-  0,
-  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-  0,
-  0,
-  -1,
-  { -1, -1, -1, -1 },
-  0,
-  0,
-  0,
-  0,
-  0,
-  -1,
-  -1,
-  0,
-  { 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0 },	
-};
-
-
 int map_resources_posx[MAP_RESOURCES];
 int map_resources_posy[MAP_RESOURCES];
 int map_resources_type[MAP_RESOURCES];
@@ -211,12 +160,14 @@ int mapgen() {
 	FILE *file;
 	char fname[256];
 	FILE *file2;
+	dbMainMapDef mapd;
 	dbMainSystemDef systemd;
 	dbMainPlanetDef planetd;
 	dbMainEmpireDef empired;
 
 
 
+memset( &mapd, 0, sizeof(dbMainMapDef) );
 memset( &systemd, 0, sizeof(dbMainSystemDef) );
 memset( &planetd, 0, sizeof(dbMainPlanetDef) );
 memset( &empired, 0, sizeof(dbMainEmpireDef) );
@@ -289,24 +240,18 @@ for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
 }
 
 
-// headers -- No need to touch this yet, but latter I will anyways =P
+// OK, a new headers write.
 file = fopen( COREDIRECTORY "/data/map", "wb" );
-	a = MAP_SIZEX;
-	fwrite( &a, 1, sizeof(int), file );
-	a = MAP_SIZEY;
-	fwrite( &a, 1, sizeof(int), file );
-	a = MAP_SYSTEMS;
-	fwrite( &a, 1, sizeof(int), file );
-	fwrite( &p, 1, sizeof(int), file );
-	a = MAP_FAMILIES;
-	fwrite( &a, 1, sizeof(int), file );
-	a = MAP_FAMMEMBERS;
-	fwrite( &a, 1, sizeof(int), file );
-	a = MAP_FAMILIES * MAP_FAMMEMBERS;
-	fwrite( &a, 1, sizeof(int), file );
-	fwrite( nullb, 1, 32, file );
+mapd.sizex = MAP_SIZEX;
+mapd.sizey = MAP_SIZEY;
+mapd.systems = MAP_SYSTEMS;
+mapd.planets = p;
+mapd.families = MAP_FAMILIES;
+mapd.fmembers = MAP_FAMMEMBERS;
+mapd.capacity = MAP_FAMILIES * MAP_FAMMEMBERS;
+fwrite( &mapd, 1, sizeof(dbMainMapDef), file ); 
 
-// New system generation, based on defaults above.
+// New system generation, based on defaults.
 p = 0;
 for( a = 0 ; a < MAP_SYSTEMS ; a++ ) {
 	systemd = dbSystemDefault;
@@ -324,7 +269,7 @@ for( a = 0 ; a < MAP_SYSTEMS ; a++ ) {
 }
 //End system generation
 
-// planets
+// New planet generation, based on defaults.
 for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	planetd = dbPlanetDefault;
 	if( b >= system_planets[c] ) {
@@ -384,7 +329,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 //End planet generation
 
 
-// New families generation, based on defaults above.
+// New families generation, based on defaults.
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired = dbEmpireDefault;
 	empired.homeid = empire_system[a];

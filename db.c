@@ -2154,7 +2154,7 @@ int dbMapRetrieveMain( int *binfo )
   if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
     return -3;
   fseek( file, 0, SEEK_SET );
-  fread( binfo, 1, 7*sizeof(int), file );
+  fread( binfo, 1, sizeof(dbMainMapDef), file );
   return 1;
 }
 
@@ -2165,7 +2165,7 @@ int dbMapSetSystem( int sysid, dbMainSystemPtr systemd )
     return -3;
   if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
     return -3;
-  fseek( file, 28+32+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+  fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
   fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
   memcpy( &dbMapSystems[sysid], systemd, sizeof(dbMainSystemDef) );
 
@@ -2182,7 +2182,7 @@ int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd )
       return -3;
     if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
       return -3;
-    fseek( file, 28+32+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+    fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
     fread( systemd, 1, sizeof(dbMainSystemDef), file );
 
     return 1;
@@ -2200,7 +2200,7 @@ int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd )
     return -3;
   if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
     return -3;
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
   fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
 
   return 1;
@@ -2215,7 +2215,7 @@ int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd )
     return -3;
   if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
     return -3;
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
   fread( planetd, 1, sizeof(dbMainPlanetDef), file );
 
   return 1;
@@ -2238,12 +2238,12 @@ int dbMapSetEmpire( int famid, dbMainEmpirePtr empired )
        if(( user = dbUserLinkID( empired->leader ) ))
          {
            user->flags &= 0xFFFF;
-           user->flags |= CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_ACTIVATED;
+           user->flags |= cmdUserFlags[CMD_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED;
            dbUserSave( empired->leader, user);
          }
       }
 //-----------------------
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
   fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
 
   return 1;
@@ -2256,7 +2256,7 @@ int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired )
     return -3;
   if( (unsigned int)famid >= dbMapBInfoStatic[4] )
     return -3;	//dbMapBInfoStatic is the 7 first int of map file
-  fseek( file, 28+32+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
   fread( empired, 1, sizeof(dbMainEmpireDef), file );
 
   return 1;

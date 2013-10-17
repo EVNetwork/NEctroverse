@@ -398,8 +398,15 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 "Ultimums"*/
 };
 
-
-
+int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
+{
+0x10000,
+0x20000,
+0x40000,
+0x80000,
+0x100000,
+0x120000,
+};
 
 
 char *cmdErrorString;
@@ -442,6 +449,55 @@ dbUserFleetDef cmdUserFleetDefault =
 };
 
 
+dbMainSystemDef dbSystemDefault =
+{
+  -1,
+  0,
+  -1,
+  -1,
+  -1,
+};
+
+dbMainPlanetDef dbPlanetDefault =
+{
+  -1,
+  -1,
+  -1,
+  450,
+  0,
+  50000,
+  90000,
+  { 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  0,
+  0,
+  -1,
+  -1,
+};
+
+dbMainEmpireDef dbEmpireDefault =
+{
+  "",
+  "",
+  "",
+  0,
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+  0,
+  0,
+  -1,
+  { -1, -1, -1, -1 },
+  0,
+  0,
+  0,
+  0,
+  0,
+  -1,
+  -1,
+  0,
+  { 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0 },	
+};
 
 
 
@@ -548,7 +604,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
   }
 
 /*
-  if( ( user = dbUserLinkID( empired->player[b] ) ) && ( user->flags & CMD_USER_FLAGS_LEADER ) )
+  if( ( user = dbUserLinkID( empired->player[b] ) ) && ( user->flags & cmdUserFlags[CMD_FLAGS_LEADER] ) )
   {
     user->flags &= 0xFFFF;
     dbUserSave( empired->player[b], user );
@@ -567,7 +623,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
     if( ( user = dbUserLinkID( empired->leader ) ) )
     {
       user->flags &= 0xFFFF;
-      user->flags |= CMD_USER_FLAGS_LEADER;
+      user->flags |= cmdUserFlags[CMD_FLAGS_LEADER];
       dbUserSave( empired->leader, user );
     }
   }
@@ -582,7 +638,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
   {
     if( a == b )
       continue;
-    if( ( user = dbUserLinkID( empired->player[a] ) ) && ( user->flags & CMD_USER_FLAGS_LEADER ) )
+    if( ( user = dbUserLinkID( empired->player[a] ) ) && ( user->flags & cmdUserFlags[CMD_FLAGS_LEADER] ) )
     {
       user->flags &= 0xFFFF;
       dbUserSave( empired->player[a], user );

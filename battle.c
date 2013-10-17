@@ -233,7 +233,7 @@ int battle( int id, int fltid, int *results )
   {
     if( !( user = dbUserLinkID( defid ) ) )
       return -3;
-    if( !( user->flags & CMD_USER_FLAGS_INDEPENDENT ) || ( main2d.planets > 1 ) || ( main2d.createtime+3600*24 > time( 0 ) ) )
+    if( !( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) || ( main2d.planets > 1 ) || ( main2d.createtime+3600*24 > time( 0 ) ) )
     {
       cmdErrorString = "You can attack a home planet only if the faction is declared independent, does not own any other planet and the account has been created since more than 24 hours.";
       return -3;

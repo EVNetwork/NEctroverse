@@ -2605,11 +2605,11 @@ void iohttpFunc_empire( svConnectionPtr cnt )
   user->flags |= CMD_USER_FLAGS_ACTIVATED;
   dbUserSave( c, user);
   svSendString( cnt, "<tr>" );
-  if( !( user ) || !( user->flags & ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_INDEPENDENT ) ) )
+  if( !( user ) || !( user->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) ) )
    svSendString( cnt, "<td>&nbsp;</td>" );
-  else if( user->flags & CMD_USER_FLAGS_LEADER )
+  else if( user->flags & cmdUserFlags[CMD_FLAGS_LEADER] )
    svSendString( cnt, "<td><i>Leader</i></td>" );
-  else if( user->flags & CMD_USER_FLAGS_VICELEADER )
+  else if( user->flags & cmdUserFlags[CMD_FLAGS_VICELEADER] )
    svSendString( cnt, "<td><i>Vice-leader</i></td>" );
   else
    svSendString( cnt, "<td><i>Independent</i></td>" );
@@ -2627,7 +2627,7 @@ void iohttpFunc_empire( svConnectionPtr cnt )
    b = curtime - user->lasttime;
    if( b < 5*60 )
     svSendString( cnt, "[online]" );
-   else if( ( cnt->dbuser->flags & ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) )
    {
     svSendString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
@@ -5998,7 +5998,7 @@ void iohttpFunc_attack( svConnectionPtr cnt )
   iohttpBodyEnd( cnt );
   return;
  }
- else if( ( planetd.flags & CMD_PLANET_FLAGS_HOME ) && !( user->flags & CMD_USER_FLAGS_INDEPENDENT ) )
+ else if( ( planetd.flags & CMD_PLANET_FLAGS_HOME ) && !( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) )
  {
   svSendString( cnt, "You can't attack a home planet!</body></html>" );
   iohttpBodyEnd( cnt );
@@ -8116,7 +8116,7 @@ int iohttpForumPerms( int id, int forum, svConnectionPtr cnt, dbUserMainPtr main
   	return 1;
   }
   
-  if( (cnt->dbuser)->flags & CMD_USER_FLAGS_INDEPENDENT )
+  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] )
    return 0;
   if( maind->empire+100 == forum )
    return 1;
@@ -8133,7 +8133,7 @@ int iohttpForumPerms( int id, int forum, svConnectionPtr cnt, dbUserMainPtr main
  {
  	if( id == -1 )
    return 0;
-  if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( (cnt->dbuser)->flags & ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER ) ) )
+  if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] ) ) )
    return 1;
   if( (cnt->dbuser)->level < LEVEL_MODERATOR )
    return 0;

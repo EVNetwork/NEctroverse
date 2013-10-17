@@ -1065,9 +1065,9 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   /* Check access rights - maind is giver */
   if( maind.aidaccess == 3 )
     goto access;
-  if( ( maind.aidaccess == 2 ) && ( user2->flags & ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER ) ) )
+  if( ( maind.aidaccess == 2 ) && ( user2->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) )
     goto access;
-  if( ( maind.aidaccess == 1 ) && ( user2->flags & CMD_USER_FLAGS_LEADER ) )
+  if( ( maind.aidaccess == 1 ) && ( user2->flags & cmdUserFlags[CMD_FLAGS_LEADER] ) )
     goto access;
   cmdErrorString = "You are not authorized to request aid from this faction.";
   return -3;
