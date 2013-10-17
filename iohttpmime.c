@@ -1,13 +1,4 @@
 
-typedef struct
-{
-  char def[128];
-  char **exts;
-  int num;
-} iohttpMimeDef, *iohttpMimePtr;
-
-
-
 #define IOHTTP_MIME_HEADERS0 7
 char *iohttpMimeHeaderExts0[IOHTTP_MIME_HEADERS0] =
 { "zip", "bin", "gz", "z", "tar", "rar", "ace" };

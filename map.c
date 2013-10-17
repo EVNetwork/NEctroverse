@@ -151,14 +151,13 @@ void mapCalcFactors()
   return;
 }
 
-char nullb[256];
 
 int mapgen() {
 	int a, b, c, d, e, i, p, x, y, x2, y2;
 	long long int j;
 	float dist, distmax;
-	FILE *file;
 	char fname[256];
+	FILE *file;
 	FILE *file2;
 	dbMainMapDef mapd;
 	dbMainSystemDef systemd;

@@ -1,21 +1,15 @@
+#ifndef CONFIGINCLUDED
+#include "config.h"
+#endif
+#ifndef GLOBALINCLUDED
+#include "global.h"
+#endif
 
 char iohttpEnd[2][5] = { "\r\n\r\n", "\n\n" };
 int iohttpEndSize[2] = { 4, 2 };
 
-int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, char *cmd );
-
-
-int iohttpMimeFind( char *name );
-iohttpFilePtr iohttpFileAdd( int size );
-int iohttpFileDel( char *path );
-iohttpFilePtr iohttpFileFind( char *path );
-
-
 #include "iohttpvars.c"
 #include "iohttpmime.c"
-#include "iohttp2.c"
-#include "iohttp3.c"
-
 
 
 int iohttpMimeFind( char *name )

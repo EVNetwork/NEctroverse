@@ -6,10 +6,6 @@
 #endif
 
 
-#include "admin.h"
-
-
-
 void inNewHTTP( svConnectionPtr cnt );
 void inNewDataHTTP( svConnectionPtr cnt );
 void outSendReplyHTTP( svConnectionPtr cnt );
@@ -17,7 +13,6 @@ void inSendCompleteHTTP( svConnectionPtr cnt );
 void inClosedHTTP( svConnectionPtr cnt );
 void inErrorHTTP( svConnectionPtr cnt, int type );
 
-//#include "admin.c"
 #include "iohttp.c"
 
 

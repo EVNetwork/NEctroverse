@@ -1181,7 +1181,7 @@ int cmdExecFamMemberFlags( int id, int fam, int flags )
   }
   if( !( user = dbUserLinkID( id ) ) )
     return -3;
-  if( (unsigned int)flags > 2 )
+  if( (unsigned int)flags > CMD_USER_FLAGS_NUMUSED )
     return -3;
   user->flags &= 0xFFFF;
   if( flags )

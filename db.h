@@ -181,26 +181,40 @@ int dbFamNewsList( int id, long long int **data, int time );
 int dbEmpireMessageSet( int id, int num, char *text );
 int dbEmpireMessageRetrieve( int id, int num, char *text );
 
+enum 
+{
+MAP_SIZEX,
+MAP_SIZEY,
+MAP_SYSTEMS,
+MAP_FAMILIES,
+MAP_FMEMBERS,
+MAP_CAPACITY,
+MAP_ARTITIMER,
+MAP_TOTAL_INFO,
+};
 
-
-extern int dbMapBInfoStatic[];
-
-int dbMapRetrieveMain( int *binfo );
 
 typedef struct
 {
-  int sizex; // ( y << 16 ) + x
+  int sizex;
   int sizey;
   int systems;
   int planets;
   int families;
   int fmembers;
   int capacity;
+  int artetimer;
 } dbMainMapDef, *dbMainMapPtr;
+
+int dbMapRetrieveMain( int *binfo );
+int dbMapSetMain( int *binfo );
+
+extern int dbMapBInfoStatic[MAP_TOTAL_INFO];
+
 
 typedef struct
 {
-  int position; // ( y << 16 ) + x
+  int position;
   int indexplanet;
   int numplanets;
   int empire;
@@ -214,7 +228,7 @@ int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd );
 typedef struct
 {
   int system;
-  int position; // ( y << 20 ) + ( x << 8 ) + planet
+  int position;
   int owner;
   int size;
   int flags;
@@ -249,14 +263,16 @@ typedef struct
   int planets;
   int networth;
   int artefacts;
-  int artetimer;
   int rank;
   int construction;
   int building[8];
   long long int fund[8];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
-
+typedef struct
+{
+  char desc[4096];
+} dbEmpireDescDef, *dbEmpireDescPtr;
 
 int dbMapSetEmpire( int famid, dbMainEmpirePtr empired );
 int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired );

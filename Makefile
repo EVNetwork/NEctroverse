@@ -35,13 +35,13 @@ FLAGS += -DHAHA_MY_INFO_IS_HIDDEN
 endif
 
 # Right then, now we know all of that... lets build something!
-server: sv.o io.o db.o cmd.o admin.o map.o $(MODS)
-	$(CC) sv.o io.o db.o cmd.o admin.o map.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: sv.o io.o db.o cmd.o html.o map.o $(MODS)
+	$(CC) sv.o io.o db.o cmd.o html.o map.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 sv.o: sv.c svban.c sv.h io.h db.h cmd.h artefact.h $(REQUIRED)
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
-io.o: io.c sv.h io.h db.h cmd.h artefact.h iohttpvars.c iohttp.c iohttp2.c iohttp3.c iohttpmime.c ioevm.c $(REQUIRED)
+io.o: io.c sv.h io.h db.h cmd.h artefact.h iohttpvars.c iohttp.c iohttpmime.c ioevm.c $(REQUIRED)
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
 db.o: db.c sv.h io.h db.h cmd.h $(REQUIRED)
@@ -53,8 +53,8 @@ cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact
 map.o: map.c map.h $(REQUIRED)
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-admin.o: admin.c admin.h $(REQUIRED)
-	$(CC) admin.c $(DEFS) -o admin.o -c $(FLAGS)
+html.o: html.c $(REQUIRED)
+	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
 md5.o: optional/md5.c optional/md5.h $(REQUIRED)
 	$(CC) optional/md5.c $(DEFS) -o md5.o -c $(FLAGS)

@@ -6,14 +6,13 @@
 #endif
 
 
-char *cmdRessourceName[8] =
+char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2] =
 {
 "Energy",
 "Mineral",
 "Crystal",
 "Ectrolium",
 "Time",
-"Upkeep",
 "Population"
 };
 
@@ -405,7 +404,7 @@ int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
 0x40000,
 0x80000,
 0x100000,
-0x120000,
+0x200000,
 };
 
 
@@ -493,10 +492,9 @@ dbMainEmpireDef dbEmpireDefault =
   0,
   0,
   -1,
-  -1,
   0,
   { 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0 },	
+  { 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
 

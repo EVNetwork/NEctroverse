@@ -59,7 +59,7 @@ long long int *dbFileUserListData[DB_FILE_USER_NUMBER] = { 0, 0, dbFileUserListD
 
 
 dbMainSystemPtr dbMapSystems;
-int dbMapBInfoStatic[7];
+int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
 
 
@@ -2148,118 +2148,147 @@ int dbFamNewsList( int id, long long int **data, int time )
 
 // map functions
 
-int dbMapRetrieveMain( int *binfo )
-{
-  FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-    return -3;
-  fseek( file, 0, SEEK_SET );
-  fread( binfo, 1, sizeof(dbMainMapDef), file );
-  return 1;
+int dbMapRetrieveMain( int *binfo ) {
+	FILE *file;
+
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
+
+fseek( file, 0, SEEK_SET );
+fread( binfo, 1, sizeof(dbMainMapDef), file );
+
+return 1;
 }
 
-int dbMapSetSystem( int sysid, dbMainSystemPtr systemd )
-{
-  FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-    return -3;
-  if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
-    return -3;
-  fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
-  fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
-  memcpy( &dbMapSystems[sysid], systemd, sizeof(dbMainSystemDef) );
+int dbMapSetMain( int *binfo ) {
+	FILE *file;
 
-  return 1;
-}
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
 
-int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd )
-{
-  FILE *file;
-  if( ( sysid & 0x10000000 ) )
-  {
-    sysid &= 0xFFFFFF;
-    if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-      return -3;
-    if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
-      return -3;
-    fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
-    fread( systemd, 1, sizeof(dbMainSystemDef), file );
+fseek( file, 0, SEEK_SET );
+fwrite( binfo, 1, sizeof(dbMainMapDef), file );
 
-    return 1;
-  }
-  if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
-    return -3;
-  memcpy( systemd, &dbMapSystems[sysid], sizeof(dbMainSystemDef) );
-  return 1;
-}
-
-int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd )
-{
-  FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-    return -3;
-  if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
-    return -3;
-  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
-  fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
-
-  return 1;
-}
-
-int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd )
-{
-  FILE *file;
-  if( plnid == -1)
-  	return -3;
-  if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-    return -3;
-  if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
-    return -3;
-  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
-  fread( planetd, 1, sizeof(dbMainPlanetDef), file );
-
-  return 1;
+return 1;
 }
 
 
-int dbMapSetEmpire( int famid, dbMainEmpirePtr empired )
-{
- FILE *file;
- dbUserPtr user;
+int dbMapSetSystem( int sysid, dbMainSystemPtr systemd ) {
+	FILE *file;
 
- if(!( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-   return -3;
- if((unsigned int)famid >= dbMapBInfoStatic[4])
-   return -3;
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
+
+if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
+	return -3;
+
+fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
+memcpy( &dbMapSystems[sysid], systemd, sizeof(dbMainSystemDef) );
+
+return 1;
+}
+
+int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd ) {
+	FILE *file;
+
+if( ( sysid & 0x10000000 ) ) {
+	sysid &= 0xFFFFFF;
+	if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+		return -3;
+
+	if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
+		return -3;
+
+	fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+	fread( systemd, 1, sizeof(dbMainSystemDef), file );
+
+	return 1;
+}
+
+if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
+	return -3;
+
+memcpy( systemd, &dbMapSystems[sysid], sizeof(dbMainSystemDef) );
+
+return 1;
+}
+
+int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd ) {
+	FILE *file;
+
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
+
+if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
+	return -3;
+
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
+
+return 1;
+}
+
+int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd ) {
+	FILE *file;
+
+if( plnid == -1)
+	return -3;
+
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
+
+if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
+	return -3;
+
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+fread( planetd, 1, sizeof(dbMainPlanetDef), file );
+
+return 1;
+}
+
+
+int dbMapSetEmpire( int famid, dbMainEmpirePtr empired ) {
+	FILE *file;
+	dbUserPtr user;
+
+
+if(!( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
+
+if((unsigned int)famid >= dbMapBInfoStatic[4])
+	return -3;
+
 //---------------------
-  if ( empired->numplayers == 1)
-     {
-       empired->leader = empired->player[0];
-       if(( user = dbUserLinkID( empired->leader ) ))
-         {
-           user->flags &= 0xFFFF;
-           user->flags |= cmdUserFlags[CMD_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED;
-           dbUserSave( empired->leader, user);
-         }
-      }
+if ( empired->numplayers == 1) {
+	empired->leader = empired->player[0];
+	if(( user = dbUserLinkID( empired->leader ) )) {
+		user->flags &= 0xFFFF;
+		user->flags |= cmdUserFlags[CMD_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED;
+		dbUserSave( empired->leader, user);
+	}
+}
 //-----------------------
-  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
-  fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
 
-  return 1;
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
+
+return 1;
 }
 
-int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired )
-{
-  FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-    return -3;
-  if( (unsigned int)famid >= dbMapBInfoStatic[4] )
-    return -3;	//dbMapBInfoStatic is the 7 first int of map file
-  fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
-  fread( empired, 1, sizeof(dbMainEmpireDef), file );
+int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired ) {
+	FILE *file;
 
-  return 1;
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
+
+if( (unsigned int)famid >= dbMapBInfoStatic[4] )
+	return -3;
+
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+fread( empired, 1, sizeof(dbMainEmpireDef), file );
+
+return 1;
 }
 
 
@@ -2369,7 +2398,7 @@ int dbEmpireMessageSet( int id, int num, char *text )
     return -3;
   if( !( file = dbFileFamOpen( id, 1 ) ) )
     return -3;
-  fseek( file, num*4096, SEEK_SET );
+  fseek( file, num*sizeof(dbEmpireDescDef), SEEK_SET );
   fwrite( text, 1, strlen( (const char *)text ) + 1, file );
   fclose( file );
   return 1;
@@ -2382,8 +2411,8 @@ int dbEmpireMessageRetrieve( int id, int num, char *text )
     return -3;
   if( !( file = dbFileFamOpen( id, 1 ) ) )
     return -3;
-  fseek( file, num*4096, SEEK_SET );
-  fread( text, 1, 4096, file );
+  fseek( file, num*sizeof(dbEmpireDescDef), SEEK_SET );
+  fread( text, 1, sizeof(dbEmpireDescDef), file );
   fclose( file );
   return 1;
 }

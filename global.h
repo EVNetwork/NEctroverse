@@ -42,7 +42,7 @@
 #include "optional/md5.h"
 #endif
 #endif
-//The order of these is somewhat importatant, as each can call from another... such as cmd.h needs io.h which needs admin.h
+//The order of these is somewhat importatant, as each can call from another...
 #ifndef ARTEFACTINCLUDES
 #include "artefact.h"
 #endif
@@ -55,12 +55,48 @@
 #include "sv.h"
 #endif
 
-#ifndef ADMININCLUDES
-#include "admin.h"
-#endif
-
 #ifndef IOINCLUDES
 #include "io.h"
+#endif
+
+#ifndef IOVARSINCLUDES
+#include "iohttpvars.h"
+#endif
+
+#ifndef IOMIMEINCLUDES
+#include "iohttpmime.h"
+#endif
+
+#ifndef IOHTTPINCLUDES
+#include "iohttp.h"
+#endif
+
+#ifndef HTMLINCLUDES
+#include "html.h"
+#endif
+
+#ifndef HTMLMAININCLUDES
+#include "html_main.h"
+#endif
+
+#ifndef GAMEPLAYINCLUDES
+#include "html_gameplay.h"
+#endif
+
+#ifndef ADMININCLUDES
+#include "html_admin.h"
+#endif
+
+#ifndef USERINCLUDES
+#include "html_user.h"
+#endif
+
+#ifndef IOSINCLUDES
+#include "html_status.h"
+#endif
+
+#ifndef FORUMINCLUDES
+#include "html_forum.h"
 #endif
 
 #ifndef COMMANDINCLUDES
