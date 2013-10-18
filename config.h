@@ -49,6 +49,7 @@ static char HTMLDIRECTORY[32] = "%s/git/NEctroverse/html";
 
 #define ROUND_ID (8)
 #define AUTOVICTORYIN (16)
+#define AUTOENDWARS (52)
 #define DELAY_TIME (00)
 // 1 * 60 seconds... so every 1 min. But we should change this from fixed.
 //#define SV_TICK_TIME (1*60)

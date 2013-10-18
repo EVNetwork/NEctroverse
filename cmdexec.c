@@ -1358,9 +1358,9 @@ int cmdExecDelRelation( int fam, int relid )
   cmdErrorString = 0;
   if( dbEmpireRelsGet( fam, relid, rel ) < 0 )
     return -3;
-  if( rel[0]+52 > svTickNum )
+  if( rel[0]+14 > svTickNum )
   {
-    cmdErrorString = "A relation can't be canceled for 52 weeks after being declared.";
+    cmdErrorString = "A relation can't be canceled for 14 weeks after being declared.";
     return -3;
   }
   if( rel[3] & 1 )

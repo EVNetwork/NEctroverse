@@ -4,7 +4,7 @@ int cmdTickProduction[CMD_BLDG_NUMUSED];
 
 void cmdTickGenRanks()
 {
-  int a, b, c, d, first, num, artmax;
+  int a, b, c, d, first, num, artmax, wa, wnum;
   FILE *file, *filep;
   dbUserMainDef maind;
   dbMainEmpirePtr empirep;
@@ -12,8 +12,10 @@ void cmdTickGenRanks()
   dbUserMainPtr mainp;
   dbUserPtr user;
   int *stats;
+  int *rels;
   int artefacts[ARTEFACT_NUMUSED], artsnum;
   char COREDIR[256];
+
 
 
   artmax = 0;
@@ -41,6 +43,18 @@ void cmdTickGenRanks()
       continue;
     if( !( empirep[b].numplayers ) )
       continue;
+
+if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 )
+	return -3;
+wnum <<= 2;
+for( wa = 0 ; wa < wnum ; wa += 4 ) {
+	if( rels[wa+1] == CMD_RELATION_WAR ) {
+		if( (rels[wa] + AUTOENDWARS) <= svTickNum ) {
+			cmdExecDelRelation( b, wa );
+		} 
+	}
+}
+free( rels );
 
     stats[c+0] = b;
 // calc NW, planets and empire artefacts
