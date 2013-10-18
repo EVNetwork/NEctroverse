@@ -364,7 +364,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, 3 );
 }
 	
  iohttpVarsInit( cnt );

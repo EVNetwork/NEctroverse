@@ -552,7 +552,7 @@ int cmdTick()
 {
   int a, c, d, e, num, specopnum, opvirus /*,cmd[3]*/, i;
   float fb, phdecay;
-  double fa;
+  double fa, fc;
   long long int newd[DB_USER_NEWS_BASE], nIllusion, b;
   int nChicks = 0, penalty;
   int marketbid[DB_MARKETBID_NUMUSED];
@@ -822,9 +822,11 @@ svDebugTickPass = 7;
     
   fa = CMD_ENERGY_DECAY;
 
-  maind.infos[5] = ( fa * ( (double)maind.ressource[CMD_RESSOURCE_ENERGY] - ( maind.infos[4] * STOCKPERMITTED ) ) );
-  if( ( ( maind.infos[4] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_ENERGY] ) || ( maind.infos[5] < 0 ) )
-	maind.infos[5] = 0;
+fc = STOCKPERMITTED * maind.infos[4];
+maind.infos[5] = fa * ( (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
+
+
+//  maind.infos[5] = ( fa * ( (double)maind.ressource[CMD_RESSOURCE_ENERGY] - ( maind.infos[4] * STOCKPERMITTED ) ) );
 
 
   // meh! building upkeep
@@ -874,9 +876,9 @@ svDebugTickPass = 8;
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
     	
-    maind.infos[10] = ( fa * ( (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - ( maind.infos[9] * STOCKPERMITTED ) ) );
-    if( ( ( maind.infos[9] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_CRYSTAL] ) || ( maind.infos[10] < 0 ) )
-	maind.infos[10] = 0;
+fc = STOCKPERMITTED * maind.infos[9];
+maind.infos[10] = fa * ( (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
+
 
     maind.infos[11] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
     

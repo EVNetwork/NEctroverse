@@ -222,20 +222,33 @@ svSendString( cnt, "<tr><td align=\"center\"><img src=\"ectro_09.jpg\" width=\"6
 svSendString( cnt, "<tr><td background=\"ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
 
-if( !( flags == 1 ) )
-svSendString( cnt, "<a href=\"/\">Main</a> | " );
-if( !( flags == 2 ) )
-svSendString( cnt, "<a href=\"register\">Register</a> | " );
-if( !( flags == 3 ) )
-svSendString( cnt, "<a href=\"forum\">Forums</a> | " );
-if( !( flags == 4 ) )
-svSendString( cnt, "<a href=\"faq\">FAQ</a> | " );
-if( !( flags == 5 ) )
-svSendString( cnt, "<a href=\"gettingstarted\">Getting Started</a> | " );
-if( !( flags == 6 ) )
+if( !( flags == 1 ) ) {
+svSendString( cnt, "<a href=\"/\">Main</a>" );
+}
+if( !( flags == 2 ) ) {
+svSendString( cnt, " | " );
+svSendString( cnt, "<a href=\"register\">Register</a>" );
+}
+if( !( flags == 3 ) ) {
+svSendString( cnt, " | " );
+svSendString( cnt, "<a href=\"forum\">Forums</a>" );
+}
+if( !( flags == 4 ) ) {
+svSendString( cnt, " | " );
+svSendString( cnt, "<a href=\"faq\">FAQ</a>" );
+}
+if( !( flags == 5 ) ) {
+svSendString( cnt, " | " );
+svSendString( cnt, "<a href=\"gettingstarted\">Getting Started</a>" );
+}
+if( !( flags == 6 ) ) {
+svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"halloffame\">Hall of fame</a> " );
-if( !( flags == 7 ) )
-svSendString( cnt, " | <a href=\"status\">Server Status</a>" );
+}
+if( !( flags == 7 ) ) {
+svSendString( cnt, " | " );
+svSendString( cnt, "<a href=\"status\">Server Status</a>" );
+}
 
 svSendString( cnt, "</b></td></tr>" );
 
