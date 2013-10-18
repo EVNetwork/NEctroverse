@@ -29,7 +29,7 @@ This does not require any extra librarys, and will save logs via syslog feature.
 The server by default is on port 9122. This can be changed in config.h
 
 KNOWN BUGS - Very annoying and need to go:
-* Many, code was unstable when obtained.
+* ... ?
 
 
 NEctroverse is currently unavalible to play due to development stage.
