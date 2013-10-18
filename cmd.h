@@ -518,7 +518,7 @@ LEVEL_GOD
 
 
 #define CMD_ENERGY_DECAY (0.005)
-#define CMD_CRYSTAL_DECAY (0.02)
+#define CMD_CRYSTAL_DECAY (0.0165)
 
 
 

@@ -219,7 +219,7 @@ if( artsnum ) {
 				fprintf( file, "<br><br><b>All Artefacts held by: %s<br>Round will end in %d weeks!</b><br>", empired.name, dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
 		} else {
 			if( (dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum) <= 0 )
-				fprintf( file, "<br><br><b>All Artefacts held by: %s</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE] );
+				fprintf( file, "<br><br><b>All Artefacts held by: %d</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE] );
 			else
 				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d<br>Round will end in %d weeks!</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE], dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
 		}
@@ -821,9 +821,12 @@ svDebugTickPass = 7;
   */
     
   fa = CMD_ENERGY_DECAY;
-  	
-		
+
   maind.infos[5] = fa * (double)maind.ressource[CMD_RESSOURCE_ENERGY];
+
+if( ( maind.infos[4] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_ENERGY] )
+	maind.infos[5] = 0;
+
 
   // meh! building upkeep
   maind.infos[6] = 0;
@@ -874,6 +877,9 @@ svDebugTickPass = 8;
     	
     maind.infos[10] = fa * (double)maind.ressource[CMD_RESSOURCE_CRYSTAL];
     
+if( ( maind.infos[10] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_CRYSTAL] )
+	maind.infos[10] = 0;
+
     maind.infos[11] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
     
     //ARTI CODE Mana Gate
