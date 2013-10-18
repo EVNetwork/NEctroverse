@@ -93,6 +93,9 @@ return -1;
 }
 
 void iohttpBase( svConnectionPtr cnt, int flags ) {
+	FILE *file;
+	struct stat stdata;
+	char *data;
 	
 svSendString( cnt, "Content-Type: text/html\n\n" );
 svSendString( cnt, "<html><head>");
@@ -101,22 +104,35 @@ svSendPrintf( cnt, "<link rel=\"icon\" href=\"favicon.ico\">" );
 if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
  
-svSendString( cnt, "<style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head>" );
-svSendString( cnt, "<body bgcolor=\"#000000\" text=\"#C0D0D8\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\"" );
+svSendString( cnt, "<style type=\"text/css\">" );
 
-if( flags & 1 ) {
-	svSendString( cnt, " background=\"mbg.gif\"" );
-
-	if( !( flags & 2 ) )
-		svSendString( cnt, " bgproperties=\"fixed\"" );
-
+if( stat( IOHTTP_READ_DIRECTORY "/style.css", &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/style.css", "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+	free( data );
+	}
 }
 
+if( flags & 1 ) {
+	svSendString( cnt, "body{background-image:url(mbg.gif);" );
+	if( !( flags & 2 ) )
+		svSendString( cnt, "background-attachment:fixed;" );
+	svSendString( cnt, "}" );
+}
+
+svSendString( cnt, "</style></head>" );
+svSendString( cnt, "<body" );
+
 if( flags & 8 )
-	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }\"" );
+	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }\" " );
 
 
-svSendString( cnt, " marginheight=\"0\" topmargin=\"0\"><center>" );
+svSendString( cnt, "><center>" );
 
 return;
 }
@@ -542,6 +558,10 @@ return;
 }
 
 void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
+	struct stat stdata;
+	char *data;	
+	FILE *file;
+
 
 iohttpFunc_starthtml( cnt, 1 );
 
@@ -550,19 +570,19 @@ if( strlen(text) )
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
 
-//notice
-svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>10 January 2013</b></font></td></tr>" );
-svSendString( cnt, "<tr><td><font size=\"2\">" );
-svSendString( cnt, "Ectroverse is back." );
-svSendString( cnt, "<br>" );
-svSendString( cnt, "<br>" );
-svSendString( cnt, "To play the game, create an account." );
-svSendString( cnt, "<br>" );
-svSendString( cnt, "No E-mail verification required!" );
-svSendString( cnt, "</td></tr>" );
-svSendString( cnt, "</table><br><br>" );
-//end note
+//notices
+if( stat( IOHTTP_READ_DIRECTORY "/updates.html", &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/updates.html", "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+		free( data );
+	}
+}
+//end notes
 
 svSendString( cnt, "</td><td width=\"6%\">" );
 svSendString( cnt, "&nbsp;" );
@@ -575,13 +595,24 @@ svSendString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 svSendString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
 svSendString( cnt, "</td></tr></table>" );
 
-svSendString( cnt, "<br>" );
-svSendString( cnt, "<br>" );
-svSendString( cnt, "<i>First items on the to-do list :</i>" );
-svSendString( cnt, "<br>" );
-svSendString( cnt, "- Work some improvments." );
-svSendString( cnt, "<br>" );
-svSendString( cnt, "<br>" );
+if( stat( IOHTTP_READ_DIRECTORY "/todo.txt", &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/todo.txt", "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			if( strlen(data) ) {
+			svSendString( cnt, "<i>Items on the admins to-do list :</i>" );
+			svSendString( cnt, "<br>" );
+			svSendString( cnt, data );
+			svSendString( cnt, "<br>" );
+			svSendString( cnt, "<br>" );
+			}
+			fclose( file );
+		}
+		free( data );
+	}
+}
+
 /*
 svSendString( cnt, "<iframe src=\"//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FEctroverse%2F133044593518078&amp;send=false&amp;layout=box_count&amp;width=450&amp;show_faces=false&amp;font=segoe+ui&amp;colorscheme=dark&amp;action=like&amp;height=90\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:90px;\" allowTransparency=\"true\"></iframe>\n" );
 
@@ -613,12 +644,27 @@ return;
 
 
 void iohttpFunc_faq( svConnectionPtr cnt ) {
+	struct stat stdata;
+	char *data;	
+	FILE *file;
 
 iohttpFunc_starthtml( cnt, 4 );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
-svSendString( cnt, "<tr><td><font size=\"2\">This FAQ is obviously far from being complete. It was written by the original creator, Maloeran. He has left the game years ago. Some updates have been made for this server.<br><br><b>About the Ectroverse project</b><br><br><a href=\"#a0\">0. So, what is Ectroverse?</a><br><a href=\"#a1\">1. Who is in the team?</a><br><a href=\"#a3\">2. What language was Ectroverse written in?</a><br><a href=\"#a4\">3. Why did you not use perl/php/jsp/etc.?</a><br><a href=\"#a5\">4. Fine, where's the source code?</a><br><a href=\"#a6\">5. Can I run my own galaxy?</a><br><a href=\"#a7\">6. What are the requirements for running a galaxy or a modified version of EV?</a><br><br><b>Questions about gameplay</b><br><br><a href=\"#b0\">0. Where is the guide for the game?</a><br><a href=\"#b1\">1. What are the rules?</a><br><br><b>Questions about features</b><br><br><a href=\"#c0\">0. How come the feature xyz is not yet implemented? When will it be?</a><br><a href=\"#c1\">1. Why can't we have customizable races?</a><br><a href=\"#c2\">2. Why are empires not ranked by Networth instead of planets count?</a><br><br><b>Problems encountered</b><br><br><a href=\"#d0\">0. Resources are not up-up-date, time does not change, fleets don't get sent, etc.... help!</a><br><br><b>Other</b><br><br><a href=\"#e0\">0. Why are you counting everything from zero? Even the FAQ questions!</a><br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>About the Ectroverse project</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"a0\"><b><i>0. So, what is Ectroverse?</i></b></a><br>Ectroverse is a game created by Maloeran. Here you will find his words for describing the game: \"Briefly, Ectroverse is a massive multiplayer game, where players compete for dominance over the galaxy resources. I'm aware several similar online games exist, and I played some myself for a long time. Thinking I could do much better, I started writing EV, and I hope I succeded ;). I'm working on it in my spare time since several months, along with a few other projects in the open source community.\"<br>Maloeran hasn't done any work on Ectroverse for many years. It was picked up again by various number of people. This version is heavily modified (rewritten).<br><br><a name=\"a1\"><b><i>1. Who is in the current team?</i></b></a><br><a href=\"mailto:eva@ectroverse.org\">EVA</a>, administrator<br> <br><a name=\"a3\"><b><i>2. What language was Ectroverse written in?</i></b></a><br>Ectroverse is a server program itself, listening to the port, handling http requests, with its own database. It was written in C for Linux, but could easily compile on other UNIX platforms with a few minor modifications ( for those who are still not sure, no, it doesn't compile or run on windows ).<br><br><a name=\"a4\"><b><i>3. Why did you not use perl/php/jsp/etc.?</i></b></a><br>The main reason would be that a single threaded game server program listening to the port is a thousand times more efficient. Another reason is that I am a programmer and not a scripter ;), it seemed an interesting challenge anyway.<br><br><a name=\"a5\"><b><i>4. Fine, where's the source code?</i></b></a><br><a href=\"https://github.com/ectroverse/evsource\">Here</a> is the current code.<br>I want to warn any potential source reader : there is no comments or documentation, and some parts of the code are especially messy. Good luck :)<br><br><a name=\"a6\"><b><i>5. Can I run my own galaxy?</i></b></a><br>Sure, all you need comes with the source. On the other hand... all this is not documented in any way. So good luck.<br><br><a name=\"a7\"><b><i>6. What are the requirements for running a galaxy or a modified version of EV?</i></b></a><br>The hardware requirements? Low, very low. As an example, a 80486 and 50mb of hard disk should be enough for a 300 players galaxy. A decent speed internet connection, a static IP and any Unix based operating system would also be required.<br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Questions about gameplay</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"b0\"><b><i>0. Where is the guide for the game?</i></b></a><br>No \"official\" guide has been written. You'll probably find something online, almost lost through the ages.</a><br><br><a name=\"b1\"><b><i>1. What are the rules?</i></b></a><br>At the moment, there is only a very small set of rules, just to make sure the game is enjoyable for everybody.<br>- Owning more than one account or logging in other empires than yours is not allowed. On the other hand, a player leaving the game can give his account to someone else not actually playing.<br>- Harassing players is not tolerated, in forums or through in-game messages, this includes cuss words in any language.<br>- Language used in the game and family pictures must not be of a discriminatory, racist, sexist or sexual nature.<br>- Any bugs encountered must be reported, and not abused.<br>Players breaking the rules will get a warning, an account deletion or a permanent ban. Rules are subject to change.<br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Questions about features</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"c0\"><b><i>0. How come the feature xyz is not yet implemented? When will it be?</i></b></a><br>There are several new features planned for Ectroverse which have not been implemented, yet.<br>A time of delivery cannot be given.<br><br><a name=\"c1\"><b><i>1. Why can't we have customizable races?</i></b></a><br>In my opinion, races should exist to encourage teamwork between family members, as working with other players surely make the game more interesting. Though, I really don't want over-specialized races, as all custom ones would be ; these would force players to adopt a very specific way of playing without being able to change their role during the round, any non-specialized race would then also be non-optimal ( and therefore, never used ). New players who didn't make a such \"perfect\" race would also be penalized the whole round.<br><br><a name=\"c2\"><b><i>2. Why are empires not ranked by Networth instead of planets count?</i></b></a><br>Networth rankings would encourage players to stockpile and attempt to reach the higher networth as possible for the end of the round, which is somewhat uninteresting. On the other hand, rankings based on planet counts tend to generate some large wars before the end of the round as families try to gather as many planets as possible.<br><br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Problems encountered</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"d0\"><b><i>0. Resources are not up-up-date, time does not change, fleets don't get sent, etc.... help!</i></b></a><br>This is not really a problem related to Ectroverse, but to the browser you are using. It occurs only with Internet Explorer ( or the AOL thing ), the program decides to stop requesting up-to-date pages from the server and display previously cached ones instead. A known solution, I heard, is to delete the cache files. Another solution would be to upgrade your browser to <a href=\"http://www.mozilla.org/\" target=\"_blank\">Mozilla</a> or <a href=\"http://www.opera.com/\" target=\"_blank\">Opera</a>. It could also be caused by a bad proxy, ignoring http headers and caching files.<br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Other</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"e0\"><b><i>0. Why are you counting everything from zero? Even the FAQ questions!</i></b></a><br>Computers count from zero, so does Maloeran. You better get used to it. <br> <br>" );
+svSendString( cnt, "<tr><td>" );
+
+if( stat( IOHTTP_READ_DIRECTORY "/faq.html", &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/faq.html", "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+		free( data );
+	}
+}
 
 svSendString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
 

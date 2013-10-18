@@ -122,8 +122,7 @@ static const double megabyte = (1024 * 1024);
 ^^^ You don't want to change anything down here... it's all up there! ^^^ =) 
 */
 
-static char PIPEFILE[32] = "%s/evserver.pipe";
-//#define PIPEFILE "/tmp/evcore/evserver.pipe"
+#define PIPEFILE "/tmp/evcore/evserver.pipe"
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)
 #define SERVER_SELECT_MSEC (1000)

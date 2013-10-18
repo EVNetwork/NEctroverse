@@ -729,6 +729,7 @@ fflush( stdout );
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
     svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
     svSendString( cnt, "Pragma: no-cache\n" );
+    fflush( stdout );
     file->function( cnt );
 /*
     cmdExecuteFlush();

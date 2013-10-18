@@ -82,7 +82,6 @@ int linux_cpuinfo( char *buffer )
 }
 
 
-
 void iohttpFunc_status( svConnectionPtr cnt )
 {
   int pid;
@@ -133,6 +132,7 @@ if( sysinfo(&si) != 0 ) {
   else
     svSendPrintf( cnt, "Tick time : time frozen<br>" );
   svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
+
 //  svSendString( cnt, "<b>Server Processor(s)</b><br>" );
 //  linux_cpuinfo( buffer );
 //  svSendString( cnt, buffer );

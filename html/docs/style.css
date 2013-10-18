@@ -1,0 +1,18 @@
+a:link,a:active,a:visited {
+text-decoration: none;
+color : #FFFFFF;
+}
+body,td{
+font-size:smaller;
+font-family:verdana,geneva,arial,helvetica,sans-serif;
+}
+a:hover{
+color:#00aaaa
+}
+body{
+background-color: #000000;
+font-size : 12px;
+font-family:verdana,geneva,arial,helvetica,sans-serif;
+margin:auto;
+color:#C0D0D8;
+}

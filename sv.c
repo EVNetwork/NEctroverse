@@ -124,10 +124,9 @@ return 1;
 }
 
 void cleanUp(int pipefileid) {
-	char COREDIR[256];
-sprintf( COREDIR, PIPEFILE, TMPDIR );
+
 close(pipefileid);
-unlink(COREDIR);
+unlink(PIPEFILE);
 syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
 syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
 closelog();
@@ -997,9 +996,8 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0
 
 //add local pipe, for basic commands from shell
 #if FORKING == 1
-sprintf( COREDIR, PIPEFILE, TMPDIR );
-mkfifo(COREDIR, 0666);
-pipingin = open(COREDIR, O_RDONLY | O_NONBLOCK);
+mkfifo(PIPEFILE, 0666);
+pipingin = open(PIPEFILE, O_RDONLY | O_NONBLOCK);
 #else
 pipingin = 0;
 #endif
@@ -1136,8 +1134,8 @@ if( !( file_exist(COREDIR) ) ) {
 	syslog(LOG_INFO, "No map detected... now generating...\n");
 	mapgen();
 }
-sprintf( COREDIR, PIPEFILE, TMPDIR );
-if ( file_exist(COREDIR) ) {
+
+if ( file_exist(PIPEFILE) ) {
 printf("%s\n","Pipe file detected, auto switching to client mode");
 //exit(1);
 } else {
@@ -1156,11 +1154,11 @@ printf("%s\n","Pipe file detected, auto switching to client mode");
 
 printf("%s\n", "Please input command to send to server...");
 
-        if ((fd = open(COREDIR, O_WRONLY)) < 0)
+        if ((fd = open(PIPEFILE, O_WRONLY)) < 0)
             perror("Open Pipe for Write");
 	size = sizeof(buf);
         printf("Daemon listening on Pipe... Typing \"die\" kills server.\n");
-        while( file_exist(COREDIR) && fgets(buf, size, stdin) && !feof(stdin) ) {
+        while( file_exist(PIPEFILE) && fgets(buf, size, stdin) && !feof(stdin) ) {
 
             if ((num = write(fd, buf, strlen(buf))) < 0)
                 perror("Write To Pipe");
