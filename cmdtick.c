@@ -7,7 +7,6 @@ void cmdTickGenRanks()
   int a, b, c, d, first, num, artmax;
   FILE *file, *filep;
   dbUserMainDef maind;
-  dbMainMapDef mapd;
   dbMainEmpirePtr empirep;
   dbMainEmpireDef empired;
   dbUserMainPtr mainp;

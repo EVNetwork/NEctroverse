@@ -2311,8 +2311,8 @@ int dbEmpireRelsAdd( int id, int *rel )
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
   fread( &pos, 1, sizeof(int), file );
-  fseek( file, 4+(pos*16), SEEK_SET );
-  fwrite( rel, 1, 4*sizeof(int), file );
+  fseek( file, 4+(pos*sizeof(dbEmpireRelationsDef)), SEEK_SET );
+  fwrite( rel, 1, sizeof(dbEmpireRelationsDef), file );
   fseek( file, 0, SEEK_SET );
   pos++;
   fwrite( &pos, 1, sizeof(int), file );
@@ -2336,10 +2336,10 @@ int dbEmpireRelsRemove( int id, int relid )
   }
   if( relid+1 < num )
   {
-    fseek( file, 4+(num*16)-16, SEEK_SET );
-    fread( data, 1, 16, file );
-    fseek( file, 4+(relid*16), SEEK_SET );
-    fwrite( data, 1, 16, file );
+    fseek( file, 4+(num*sizeof(dbEmpireRelationsDef))-sizeof(dbEmpireRelationsDef), SEEK_SET );
+    fread( data, 1, sizeof(dbEmpireRelationsDef), file );
+    fseek( file, 4+(relid*sizeof(dbEmpireRelationsDef)), SEEK_SET );
+    fwrite( data, 1, sizeof(dbEmpireRelationsDef), file );
   }
   fseek( file, 0, SEEK_SET );
   a = num-1;
@@ -2358,12 +2358,12 @@ int dbEmpireRelsList( int id, int **rel )
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
   fread( &num, 1, sizeof(int), file );
-  if( !( relp = malloc( num*4*sizeof(int) ) ) )
+  if( !( relp = malloc( num*sizeof(dbEmpireRelationsDef) ) ) )
   {
     fclose( file );
     return -1;
   }
-  fread( relp, 1, num*4*sizeof(int), file );
+  fread( relp, 1, num*sizeof(dbEmpireRelationsDef), file );
   fclose( file );
   *rel = relp;
   return num;
@@ -2383,8 +2383,8 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
     fclose( file );
     return -1;
   }
-  fseek( file, 4+relid*16, SEEK_SET );
-  fread( rel, 1, 4*sizeof(int), file );
+  fseek( file, 4+relid*sizeof(dbEmpireRelationsDef), SEEK_SET );
+  fread( rel, 1, sizeof(dbEmpireRelationsDef), file );
   fclose( file );
   return num;
 }

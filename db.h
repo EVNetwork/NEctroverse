@@ -276,6 +276,14 @@ typedef struct
   char desc[4096];
 } dbEmpireDescDef, *dbEmpireDescPtr;
 
+typedef struct
+{
+  int tick;
+  int type;
+  int empire;
+  int flags;
+} dbEmpireRelationsDef, *dbEmpireRelationsPtr;
+
 int dbMapSetEmpire( int famid, dbMainEmpirePtr empired );
 int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired );
 
