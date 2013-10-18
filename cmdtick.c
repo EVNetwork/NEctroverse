@@ -822,9 +822,8 @@ svDebugTickPass = 7;
     
   fa = CMD_ENERGY_DECAY;
 
-  maind.infos[5] = fa * (double)maind.ressource[CMD_RESSOURCE_ENERGY];
-
-if( ( maind.infos[4] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_ENERGY] )
+  maind.infos[5] = ( fa * ( (double)maind.ressource[CMD_RESSOURCE_ENERGY] - ( maind.infos[4] * STOCKPERMITTED ) ) );
+  if( ( ( maind.infos[4] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_ENERGY] ) || ( maind.infos[5] < 0 ) )
 	maind.infos[5] = 0;
 
 
@@ -875,9 +874,8 @@ svDebugTickPass = 8;
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
     	
-    maind.infos[10] = fa * (double)maind.ressource[CMD_RESSOURCE_CRYSTAL];
-    
-if( ( maind.infos[10] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_CRYSTAL] )
+    maind.infos[10] = ( fa * ( (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - ( maind.infos[9] * STOCKPERMITTED ) ) );
+    if( ( ( maind.infos[9] * STOCKPERMITTED ) > maind.ressource[CMD_RESSOURCE_CRYSTAL] ) || ( maind.infos[10] < 0 ) )
 	maind.infos[10] = 0;
 
     maind.infos[11] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
