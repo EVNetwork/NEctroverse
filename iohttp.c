@@ -157,9 +157,9 @@ sprintf( COREDIR, "%s/data", COREDIRECTORY );
   // ahhaha... yes, we'll make a table
 
   file = iohttpFileAdd( 0 );
-  file->type = 2;
+  file->type = 1;
+  file->function = iohttpFunc_front;
   sprintf( file->path, "/" );
-  sprintf( file->fileread, "front.html" );
 
   file = iohttpFileAdd( 0 );
   file->type = 2;
@@ -167,14 +167,14 @@ sprintf( COREDIR, "%s/data", COREDIRECTORY );
   sprintf( file->fileread, "possibilities.html" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 2;
+  file->type = 1;
+  file->function = iohttpFunc_faq;
   sprintf( file->path, "/faq" );
-  sprintf( file->fileread, "faq.html" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 2;
+  file->type = 1;
+  file->function = iohttpFunc_gettingstarted;
   sprintf( file->path, "/gettingstarted" );
-  sprintf( file->fileread, "gettingstarted.html" );
 
   file = iohttpFileAdd( 0 );
   file->type = 2;

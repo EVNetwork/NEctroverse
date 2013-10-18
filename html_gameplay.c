@@ -151,7 +151,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  }
 */
  svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", SERVERNAME );
+ svSendPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", SERVERNAME );
  svSendString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
  svSendString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
  svSendString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
@@ -167,9 +167,9 @@ void iohttpFunc_main( svConnectionPtr cnt )
   file = 0;
  }
 */
- iohttpBase( cnt, 0 );
- svSendPrintf( cnt, "Name or password incorrect" );
- svSendString( cnt, "</center></body></html>" );
+ iohttpFunc_starthtml( cnt, 0 );
+ svSendPrintf( cnt, "<br>Name or password incorrect!" );
+ iohttpFunc_endhtml( cnt );
  return;
 }
 
@@ -1335,9 +1335,9 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  char sMd5[33];
  //FILE *fFile;
 
-	iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
  num = dbUserNewsListUpdate( id, &newsp, svTickNum );
  if( !( iohttpHeader( cnt, id, &maind ) ) )
  {
@@ -1424,9 +1424,10 @@ void iohttpFunc_news( svConnectionPtr cnt )
  dbUserMainDef maind;
  long long int *newsp, *newsd;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Older reports" );
@@ -1464,9 +1465,10 @@ void iohttpFunc_council( svConnectionPtr cnt )
  dbUserMainDef maind;
  int sums[16];
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Council" );
@@ -1587,9 +1589,10 @@ void iohttpFunc_units( svConnectionPtr cnt )
  char buildname[16];
  char buildstring[CMD_UNIT_NUMUSED][128];
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
@@ -1674,9 +1677,10 @@ void iohttpFunc_market( svConnectionPtr cnt )
  char *pricestring, *quantitystring, *resstring, *actionstring, *viewstring, *fullstring, *rmbidstring;
  char *marketstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  pricestring = iohttpVarsFind( "price" );
@@ -1873,9 +1877,10 @@ void iohttpFunc_planets( svConnectionPtr cnt )
  char *sortstring;
 
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Planets" );
@@ -2244,9 +2249,10 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
  char *reportstring;
  dbUserPtr user;
 
-  iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  playerstring = iohttpVarsFind( "id" );
@@ -2368,9 +2374,10 @@ void iohttpFunc_famgetaid( svConnectionPtr cnt )
  char *reportstring;
  dbUserPtr user;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  accessstring = iohttpVarsFind( "access" );
@@ -2528,9 +2535,10 @@ void iohttpFunc_famvote( svConnectionPtr cnt )
  dbMainEmpireDef empired;
  char *votestring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Empire votes" );
@@ -2624,9 +2632,10 @@ void iohttpFunc_famnews( svConnectionPtr cnt )
  long long int *newsp, *newsd;
 	FILE *fFile;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -2680,9 +2689,10 @@ void iohttpFunc_famrels( svConnectionPtr cnt )
  int *rel;
  char message[4096];
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -2773,9 +2783,10 @@ void iohttpFunc_famleader( svConnectionPtr cnt )
  int *rel;
  char message[4096], message2[4096];
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -3394,9 +3405,10 @@ void iohttpFunc_mappick( svConnectionPtr cnt )
  char *sizestring;
  static int sizes[6] = { 15, 20, 25, 30, 45, 60 };
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Galaxy map" );
@@ -3458,9 +3470,10 @@ void iohttpFunc_mapadv( svConnectionPtr cnt )
  int advcolbase[IOHTTP_MAPADV_ENTRIES] = { 1, 0, 0, 0, 0, 0, 0, 0 };
  int advnumbase[IOHTTP_MAPADV_ENTRIES] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Map generation" );
@@ -3739,9 +3752,10 @@ void iohttpFunc_planet( svConnectionPtr cnt )
  char *plgivestring;
  static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -3886,9 +3900,10 @@ void iohttpFunc_pltake( svConnectionPtr cnt )
  dbUserMainDef maind;
  char *planetstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -3937,9 +3952,10 @@ void iohttpFunc_build( svConnectionPtr cnt )
  char buildstring[CMD_BLDG_NUMUSED+1][128];
  char *portalstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
@@ -4225,9 +4241,10 @@ void iohttpFunc_massbuild( svConnectionPtr cnt )
  char *oblimitstring;
  char *oblimitstringlow;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  cmd[0] = CMD_RETRIEVE_USERPLISTINDICES;
  cmd[1] = id;
@@ -4467,9 +4484,10 @@ void iohttpFunc_raze( svConnectionPtr cnt )
  char razename[16];
  char *portalstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -5033,9 +5051,10 @@ void iohttpFunc_fleetdisband( svConnectionPtr cnt )
  char disname[8];
  char *sptr, *fleetstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Disband units" );
@@ -5116,9 +5135,10 @@ void iohttpFunc_fleetsend( svConnectionPtr cnt )
  char sendname[8];
  char *orderstring, *xstring, *ystring, *zstring, *sptr;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Sending fleet" );
@@ -5182,9 +5202,10 @@ void iohttpFunc_fleetchange( svConnectionPtr cnt )
  dbUserMainDef maind;
  char *fleetstring, *orderstring, *xstring, *ystring, *zstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Viewing fleet" );
@@ -5339,9 +5360,10 @@ void iohttpFunc_fleetattack( svConnectionPtr cnt )
  dbUserMainDef maind, main2d;
  char *fleetstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Battle report" );
@@ -5434,9 +5456,10 @@ void iohttpFunc_explore( svConnectionPtr cnt )
  char *planetstring;
  char *explorestring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Exploration" );
@@ -5504,9 +5527,10 @@ void iohttpFunc_attack( svConnectionPtr cnt )
  char *planetstring;
  dbUserPtr user;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -5596,9 +5620,10 @@ void iohttpFunc_station( svConnectionPtr cnt )
  dbUserFleetDef fleetd;
  char *planetstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -5654,9 +5679,10 @@ void iohttpFunc_spec( svConnectionPtr cnt )
  dbUserPtr user;
  dbUserSpecOpPtr specopd;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -5911,9 +5937,10 @@ void iohttpFunc_specinfos( svConnectionPtr cnt )
  dbUserFleetPtr fleetd;
  dbMainSystemDef systemd;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -6175,9 +6202,10 @@ void iohttpFunc_operation( svConnectionPtr cnt )
  dbUserMainDef maind, main2d;
  dbMainSystemDef systemd;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -6323,9 +6351,10 @@ void iohttpFunc_spell( svConnectionPtr cnt )
  char *psychicstring, *orderstring, *targetstring;
  dbUserMainDef maind, main2d;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -6430,9 +6459,10 @@ void iohttpFunc_incant( svConnectionPtr cnt )
  dbUserMainDef maind, main2d;
  dbMainSystemDef systemd;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
@@ -6579,9 +6609,10 @@ void iohttpFunc_operationsend( svConnectionPtr cnt )
  dbUserMainDef maind;
  char *orderstring, *xstring, *ystring, *zstring, *agentstring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Sending agents" );
@@ -6642,9 +6673,10 @@ void iohttpFunc_spellsend( svConnectionPtr cnt )
  char *orderstring, *psychicstring, *targetstring;
  long long int newd[DB_USER_NEWS_BASE];
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Casting spell" );
@@ -6686,9 +6718,10 @@ void iohttpFunc_incantsend( svConnectionPtr cnt )
  dbUserMainDef maind;
  char *orderstring, *xstring, *ystring, *zstring, *ghoststring;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Sending ghost ships" );
@@ -6757,9 +6790,10 @@ void iohttpFunc_research( svConnectionPtr cnt )
  char rschname[16];
  dbUserMainDef maind;
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
@@ -6841,9 +6875,10 @@ void iohttpFunc_mail( svConnectionPtr cnt )
  char *text;
  long long int newd[DB_USER_NEWS_BASE];
 
- iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+ iohttpBase( cnt, 1 );
+
 
  iohttpVarsInit( cnt );
  tostring = iohttpVarsFind( "to" );

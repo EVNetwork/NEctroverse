@@ -58,11 +58,11 @@ int linux_cpuinfo( char *buffer )
 {
   int a;
   FILE *file;
-  char temp[8192];
+  char temp[4096];
   file = fopen( "/proc/cpuinfo", "r" );
   if( file )
   {
-    a = fread( temp, 1, 8192, file );
+    a = fread( temp, 1, 4096, file );
     temp[a] = 0;
     fclose( file );
     for( a = 0 ; temp[a] ; a++ )
@@ -89,12 +89,15 @@ void iohttpFunc_status( svConnectionPtr cnt )
   FILE *file;
   char fname[256], addstring[32];
   int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-  char buffer[8192];
+  char buffer[4096];
   float boottime, runtime, userload, kernelload;
   char stringuptime[128];
 	struct sysinfo  si;
 	struct utsname stustname;
 
+iohttpFunc_starthtml( cnt, 7 );
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
 
   pid = getpid();
   sprintf( fname, "/proc/%d/stat", pid );
@@ -119,8 +122,6 @@ if( sysinfo(&si) != 0 ) {
   userload = 100.0 * ( CT_TO_SECS( ( (float)stutime ) ) / runtime );
   kernelload = 100.0 * ( CT_TO_SECS( ( (float)ststime ) ) / runtime );
 
-  iohttpBase( cnt, 0 );
-
   svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
 
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
@@ -132,9 +133,9 @@ if( sysinfo(&si) != 0 ) {
   else
     svSendPrintf( cnt, "Tick time : time frozen<br>" );
   svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
-  svSendString( cnt, "<b>Server Processor(s)</b><br>" );
-  linux_cpuinfo( buffer );
-  svSendString( cnt, buffer );
+//  svSendString( cnt, "<b>Server Processor(s)</b><br>" );
+//  linux_cpuinfo( buffer );
+//  svSendString( cnt, buffer );
 
   svSendString( cnt, "</td></tr></table>" );
 
@@ -164,7 +165,9 @@ if( sysinfo(&si) != 0 ) {
   svSendString( cnt, "</td></tr></table>" );
 
 
-  svSendString( cnt, "</center></body></html>" );
+  svSendString( cnt, "</center>" );
+
+iohttpFunc_endhtml( cnt );
 
   return;
 }

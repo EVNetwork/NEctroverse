@@ -24,16 +24,20 @@ char *iohttpMimeHeaderExts5[IOHTTP_MIME_HEADERS5] =
 { "png" };
 
 #define IOHTTP_MIME_HEADERS6 1
-char *iohttpMimeHeaderExts6[IOHTTP_MIME_HEADERS6] =
-{ "css" };
+char *iohttpMimeHeaderExts6[IOHTTP_MIME_HEADERS5] =
+{ "ico" };
 
 #define IOHTTP_MIME_HEADERS7 1
-char *iohttpMimeHeaderExts7[IOHTTP_MIME_HEADERS7] =
+char *iohttpMimeHeaderExts7[IOHTTP_MIME_HEADERS6] =
+{ "css" };
+
+#define IOHTTP_MIME_HEADERS8 1
+char *iohttpMimeHeaderExts8[IOHTTP_MIME_HEADERS8] =
 { "cgi" };
 
 
 
-#define IOHTTP_MIME_TYPES 8
+#define IOHTTP_MIME_TYPES 9
 
 iohttpMimeDef iohttpMime[IOHTTP_MIME_TYPES] =
 {
@@ -43,7 +47,8 @@ iohttpMimeDef iohttpMime[IOHTTP_MIME_TYPES] =
 { "Content-Type: image/gif\n\n", iohttpMimeHeaderExts3, IOHTTP_MIME_HEADERS3 },
 { "Content-Type: image/jpg\n\n", iohttpMimeHeaderExts4, IOHTTP_MIME_HEADERS4 },
 { "Content-Type: image/x-png\n\n", iohttpMimeHeaderExts5, IOHTTP_MIME_HEADERS5 },
-{ "Content-Type: text/css\n\n", iohttpMimeHeaderExts6, IOHTTP_MIME_HEADERS6 },
-{ "Content-Type: application/octet-stream\n\n", iohttpMimeHeaderExts7, IOHTTP_MIME_HEADERS7 },
+{ "Content-Type: image/vnd.microsoft.icon\n\n", iohttpMimeHeaderExts6, IOHTTP_MIME_HEADERS6 },
+{ "Content-Type: text/css\n\n", iohttpMimeHeaderExts7, IOHTTP_MIME_HEADERS7 },
+{ "Content-Type: application/octet-stream\n\n", iohttpMimeHeaderExts8, IOHTTP_MIME_HEADERS8 },
 };
 

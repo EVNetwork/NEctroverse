@@ -23,104 +23,102 @@ int iohttpIdentifyHex( char *num )
  return b;
 }
 
-int iohttpIdentify( svConnectionPtr cnt, int action )
-{
- int a, b, id, session[4];
- char *src;
- FILE *file;
- struct stat stdata;
- char *data;
- iohttpDataPtr iohttp = cnt->iodata;
+int iohttpIdentify( svConnectionPtr cnt, int action ) {
+	int a, b, id, session[4];
+	char *src;
+	char *data;
+	FILE *file;
+	struct stat stdata;
 
- if( !( src = iohttp->cookie ) )
-  goto iohttpIdentifyL0;
- if( !( src = ioCompareFindWords( src, "USRID=" ) ) )
-  goto iohttpIdentifyL0;
 
- id = iohttpIdentifyHex( &src[0] );
- if( dbUserLinkDatabase( cnt, id ) < 0 )
-  goto iohttpIdentifyL0;
- if( dbSessionRetrieve( cnt->dbuser, session ) < 0 )
-  goto iohttpIdentifyL0;
- for( a = 0 ; a < 4 ; a++ )
- {
-  b = iohttpIdentifyHex( &src[4+(a<<2)] );
-  if( session[a] != b )
-   goto iohttpIdentifyL0;
- }
+iohttpDataPtr iohttp = cnt->iodata;
 
- if(( action & 2 )&&(cnt->dbuser))
- {
-  if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) && ( (cnt->dbuser)->level < LEVEL_MODERATOR ) )
-  {
-   if( action & 1 )
-   {
-    if( action & 8 )
-     iohttpBase( cnt, 1|2 );
-    svSendString( cnt, "This account has not been activated yet.</body></html>" );
-   }
-   return -1;
-  }
- }
- if( action & 4 )
- {
-  if( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED )
-  {
-   if( action & 1 )
-   {
-    if( action & 8 )
-     iohttpBase( cnt, 1|2 );
-    svSendString( cnt, "This account has been activated.</body></html>" );
-   }
-   return -1;
-  }
- }
 
- return id;
+if( !( src = iohttp->cookie ) )
+	goto iohttpIdentifyL0;
 
- iohttpIdentifyL0:
- if( action & 1 )
- {
-  if( action & 8 )
-   iohttpBase( cnt, 1|2 );
-  if( stat( IOHTTP_READ_DIRECTORY "/login.html", &stdata ) != -1 )
-  {
-   if( ( data = malloc( stdata.st_size + 1 ) ) )
-   {
-    data[stdata.st_size] = 0;
-    if( ( file = fopen( IOHTTP_READ_DIRECTORY "/login.html", "rb" ) ) )
-    {
-     fread( data, 1, stdata.st_size, file );
-     svSendString( cnt, data );
-     fclose( file );
-    }
-    free( data );
-   }
-  }
-  else
-   svSendString( cnt, "<br><br>You are not logged in!<br><a href=\"login\" target=\"_top\">Log in</a><br><br><br>If you were playing just a few seconds ago, the server program was probably updated and restarted.<br><br>Information about any important update can be found on the <a href=\"/\" target=\"_top\">front page</a> or the <a href=\"/forum?forum=0\">Announcements forum</a></body></html>" );
- }
+if( !( src = ioCompareFindWords( src, "USRID=" ) ) )
+	goto iohttpIdentifyL0;
 
- return -1;
+id = iohttpIdentifyHex( &src[0] );
+
+if( dbUserLinkDatabase( cnt, id ) < 0 )
+	goto iohttpIdentifyL0;
+
+if( dbSessionRetrieve( cnt->dbuser, session ) < 0 )
+	goto iohttpIdentifyL0;
+
+for( a = 0 ; a < 4 ; a++ ) {
+	b = iohttpIdentifyHex( &src[4+(a<<2)] );
+
+	if( session[a] != b )
+		goto iohttpIdentifyL0;
 }
 
-void iohttpBase( svConnectionPtr cnt, int flags )
-{
+if(( action & 2 )&&(cnt->dbuser)) {
+	if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) && ( (cnt->dbuser)->level < LEVEL_MODERATOR ) ) {
+		if( action & 1 ) {
+			if( action & 8 )
+			iohttpBase( cnt, 1|2 );
+			svSendString( cnt, "This account has not been activated yet.</body></html>" );
+		}
+		return -1;
+	}
+}
+
+if( action & 4 ) {
+	if( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) {
+		if( action & 1 ) {
+			if( action & 8 )
+				iohttpBase( cnt, 1|2 );
+			svSendString( cnt, "This account has been activated.</body></html>" );
+		}
+		return -1;
+	}
+}
+
+
+return id;
+
+iohttpIdentifyL0:
+
+if( action & 1 ) {
+
+	iohttpFunc_login( cnt, "If you were playing just a few seconds ago, the server program was probably updated and restarted.<br>Administration appologises for the incoveniance. =)" );
+
+}
+
+
+return -1;
+}
+
+void iohttpBase( svConnectionPtr cnt, int flags ) {
 	
-	svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendString( cnt, "<html><head>");
- if( flags & 4 )
-  svSendString( cnt, "<base target=\"_blank\">" );
+svSendString( cnt, "Content-Type: text/html\n\n" );
+svSendString( cnt, "<html><head>");
+svSendPrintf( cnt, "<title>%s</title>", SERVERNAME );
+svSendPrintf( cnt, "<link rel=\"icon\" href=\"favicon.ico\">" );
+if( flags & 4 )
+	svSendString( cnt, "<base target=\"_blank\">" );
  
- svSendString( cnt, "<style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head><body bgcolor=\"#000000\" text=\"#C0D0D8\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\"" );
- if( flags & 1 )
- {
-  svSendString( cnt, " background=\"mbg.gif\"" );
-  if( !( flags & 2 ) )
-   svSendString( cnt, " bgproperties=\"fixed\"" );
- }
- svSendString( cnt, " marginheight=\"0\" topmargin=\"0\"><center>" );
- return;
+svSendString( cnt, "<style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head>" );
+svSendString( cnt, "<body bgcolor=\"#000000\" text=\"#C0D0D8\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\"" );
+
+if( flags & 1 ) {
+	svSendString( cnt, " background=\"mbg.gif\"" );
+
+	if( !( flags & 2 ) )
+		svSendString( cnt, " bgproperties=\"fixed\"" );
+
+}
+
+if( flags & 8 )
+	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }\"" );
+
+
+svSendString( cnt, " marginheight=\"0\" topmargin=\"0\"><center>" );
+
+return;
 }
 
 int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
@@ -192,6 +190,47 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
  return 1;
 }
 
+void iohttpFunc_starthtml( svConnectionPtr cnt, int flags ) {
+
+iohttpBase( cnt, 1|8 );
+
+svSendString( cnt, "<center>" );
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td align=\"center\"><img src=\"ectro_03.jpg\" width=350 height=80  alt=\"ect Top\"></td></tr>" );
+
+svSendString( cnt, "<tr><td><table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
+svSendString( cnt, "<td background=\"ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
+svSendString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
+svSendString( cnt, "<td background=\"ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
+svSendString( cnt, "</tr></table></tr></td>" );
+
+svSendString( cnt, "<tr><td align=\"center\"><img src=\"ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
+svSendString( cnt, "<tr><td background=\"ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
+
+if( !( flags == 1 ) )
+svSendString( cnt, "<a href=\"/\">Main</a> | " );
+if( !( flags == 2 ) )
+svSendString( cnt, "<a href=\"register\">Register</a> | " );
+if( !( flags == 3 ) )
+svSendString( cnt, "<a href=\"forum\">Forums</a> | " );
+if( !( flags == 4 ) )
+svSendString( cnt, "<a href=\"faq\">FAQ</a> | " );
+if( !( flags == 5 ) )
+svSendString( cnt, "<a href=\"gettingstarted\">Getting Started</a> | " );
+if( !( flags == 6 ) )
+svSendString( cnt, "<a href=\"halloffame\">Hall of fame</a> " );
+if( !( flags == 7 ) )
+svSendString( cnt, " | <a href=\"status\">Server Status</a>" );
+
+svSendString( cnt, "</b></td></tr>" );
+
+svSendString( cnt, "</table>" );
+svSendString( cnt, "</td></tr></table>" );
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+
+return;
+}
 
 void iohttpBodyInit( svConnectionPtr cnt, char *title, ... )
 {
@@ -292,14 +331,16 @@ Energy Surge - Spreads a destructive wave in an faction network, feeding on the 
  return;
 }
 
-void iohttpFunc_register( svConnectionPtr cnt )
-{
- iohttpBase ( cnt, 0 );
-  svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
-  svSendString( cnt, "Check <a href=\"gettingstarted\">this</a> page to get you started.<br><br>" );
-  svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
-  svSendString( cnt, "</center></body></html>" );
-  return;
+void iohttpFunc_register( svConnectionPtr cnt ) {
+
+iohttpFunc_starthtml( cnt, 2 );
+svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
+svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+
+iohttpFunc_endhtml( cnt );
+
+
+return;
 }
 
 void iohttpFunc_register2( svConnectionPtr cnt )
@@ -320,17 +361,18 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  pass = iohttpVarsFind( "pass" );
  faction = iohttpVarsFind( "faction" );
  iohttpVarsCut();
- if( ( name ) && ( pass ) && ( faction ) )
- {
-  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 )
-  {
-   iohttpBase( cnt, 0 );
-   if( cmdErrorString )
-    svSendString( cnt, cmdErrorString );
-   else
-    svSendString( cnt, "Error encountered while registering user" );
-   goto iohttpFunc_register2L0;
-  }
+ if( ( name ) && ( pass ) && ( faction ) ) {
+	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
+		iohttpFunc_starthtml( cnt, 2 );
+
+		if( cmdErrorString )
+			svSendString( cnt, cmdErrorString );
+		else
+			svSendString( cnt, "Error encountered while registering user" );
+
+		svSendString( cnt, "<br><br><a href=\"register\">Try again?</a>" );
+		goto iohttpFunc_register2L0;
+	}
   	newd[0] = svTickNum;
 	 	newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[2] = CMD_NEWS_MAIL;
@@ -355,12 +397,12 @@ void iohttpFunc_register2( svConnectionPtr cnt )
   
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
   {
-   iohttpBase( cnt, 0 );
+   iohttpFunc_starthtml( cnt, 2 );
    svSendString( cnt, "Error encountered while registering session" );
    goto iohttpFunc_register2L0;
   }
   svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", id, session[0], session[1], session[2], session[3] );
-  iohttpBase( cnt, 0 );
+  iohttpFunc_starthtml( cnt, 2 );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
 /*
@@ -387,14 +429,14 @@ void iohttpFunc_register2( svConnectionPtr cnt )
    fprintf(file, "ID : %d ( %X );\n", id, id);
    fclose( file );
   }*/
- }
- else
- {
-  iohttpBase( cnt, 0 );
-  if( ( id = iohttpIdentify( cnt, 4|1 ) ) < 0 )
-   return;
-  svSendString( cnt, "This account was not activated yet." );
- }
+} else {
+iohttpFunc_starthtml( cnt, 2 );
+
+if( ( id = iohttpIdentify( cnt, 4|1 ) ) < 0 )
+	return;
+
+svSendString( cnt, "This account was not activated yet." );
+}
 
  svSendString( cnt, "<form action=\"register3\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>" );
  svSendString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
@@ -409,7 +451,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  svSendString( cnt, "<br><a href=\"rankings\" target=\"_blank\">See faction rankings</a>" );
 
  iohttpFunc_register2L0:
- svSendString( cnt, "</center></body></html>" );
+ iohttpFunc_endhtml( cnt );
 
  return;
 }
@@ -421,7 +463,7 @@ void iohttpFunc_register3( svConnectionPtr cnt )
  char *fampass;
  char *race;
 
- iohttpBase( cnt, 0 );
+ iohttpFunc_starthtml( cnt, 2 );
  if( ( id = iohttpIdentify( cnt, 1|4 ) ) < 0 )
   return;
 
@@ -457,8 +499,8 @@ void iohttpFunc_register3( svConnectionPtr cnt )
    goto iohttpFunc_register3L0;
   }
   svSendPrintf( cnt, "<b>Account activated!</b><br>" );
-  svSendString( cnt, "<br><br><a href=\"/\">Main page</a><br><br><a href=\"/main\">Log in</a>" );
-  svSendString( cnt, "</center></body></html>" );
+  svSendString( cnt, "<br><br><br><a href=\"/main\">Log in</a>" );
+iohttpFunc_endhtml( cnt );
   return;
  }
  else
@@ -466,20 +508,250 @@ void iohttpFunc_register3( svConnectionPtr cnt )
 
  iohttpFunc_register3L0:
  svSendString( cnt, "<br><br><a href=\"/\">Main page</a><br><br><a href=\"/login\">Log in</a>" );
- svSendString( cnt, "</center></body></html>" );
+iohttpFunc_endhtml( cnt );
  return;
 }
 
 
-void iohttpFunc_login( svConnectionPtr cnt )
-{
- iohttpBase( cnt, 0 );
+void iohttpFunc_login( svConnectionPtr cnt, char *text, ... ) {
 
- svSendString( cnt, "<br><br><h3>Login</h3><br>" );
- svSendString( cnt, "<form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+iohttpFunc_starthtml( cnt, 0 );
 
- svSendString( cnt, "</center></body></html>" );
 
- return;
+if( strlen(text) )
+	svSendPrintf( cnt, "<br>%s", text );
+
+svSendString( cnt, "<br><br><h3>Login</h3><br>" );
+svSendString( cnt, "<form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+
+svSendString( cnt, "</center></body></html>" );
+
+iohttpFunc_endhtml( cnt );
+
+return;
+}
+
+void iohttpFunc_endhtml( svConnectionPtr cnt ) {
+
+
+svSendString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>\n" );
+svSendString( cnt, "</center>\n" );
+svSendString( cnt, "</body></html>\n" );
+
+return;
+}
+
+void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
+
+iohttpFunc_starthtml( cnt, 1 );
+
+if( strlen(text) )
+	svSendPrintf( cnt, "<b>%s</b><br><br>", text );
+
+svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
+
+//notice
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>10 January 2013</b></font></td></tr>" );
+svSendString( cnt, "<tr><td><font size=\"2\">" );
+svSendString( cnt, "Ectroverse is back." );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "To play the game, create an account." );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "No E-mail verification required!" );
+svSendString( cnt, "</td></tr>" );
+svSendString( cnt, "</table><br><br>" );
+//end note
+
+svSendString( cnt, "</td><td width=\"6%\">" );
+svSendString( cnt, "&nbsp;" );
+svSendString( cnt, "</td><td width=\"40%\" valign=\"top\">" );
+
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Log in</b></font></td></tr>" );
+svSendString( cnt, "<tr><td>" );
+svSendString( cnt, "<table cellspacing=\"8\"><tr><td>" );
+svSendString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
+svSendString( cnt, "</td></tr></table>" );
+
+svSendString( cnt, "<br>" );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "<i>First items on the to-do list :</i>" );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "- Work some improvments." );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "<br>" );
+/*
+svSendString( cnt, "<iframe src=\"//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FEctroverse%2F133044593518078&amp;send=false&amp;layout=box_count&amp;width=450&amp;show_faces=false&amp;font=segoe+ui&amp;colorscheme=dark&amp;action=like&amp;height=90\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:90px;\" allowTransparency=\"true\"></iframe>\n" );
+
+svSendString( cnt, "<br>\n" );
+svSendString( cnt, "<br>\n" );
+svSendString( cnt, "<script type=\"text/javascript\">\n" );
+svSendString( cnt, "\n" );
+svSendString( cnt, "  var _gaq = _gaq || [];\n" );
+svSendString( cnt, "    _gaq.push(['_setAccount', 'UA-38148306-1']);\n" );
+svSendString( cnt, "      _gaq.push(['_trackPageview']);\n" );
+svSendString( cnt, "\n" );      
+svSendString( cnt, "        (function() {\n" );
+svSendString( cnt, "            var ga = document.createElement('script'); ga.type =\n" );
+svSendString( cnt, "            'text/javascript'; ga.async = true;\n" );
+svSendString( cnt, "                ga.src = ('https:' == document.location.protocol ?\n" );
+svSendString( cnt, "                'https://ssl' : 'http://www') +\n" );
+svSendString( cnt, "                '.google-analytics.com/ga.js';\n" );
+svSendString( cnt, "                    var s = document.getElementsByTagName('script')[0];\n" );
+svSendString( cnt, "                    s.parentNode.insertBefore(ga, s);\n" );
+svSendString( cnt, "                      })();\n" );
+svSendString( cnt, "                      \n" );
+svSendString( cnt, "                      </script>\n" );
+svSendString( cnt, "\n" );
+svSendString( cnt, "<br>\n" );
+*/
+iohttpFunc_endhtml( cnt );
+return;
+}
+
+
+void iohttpFunc_faq( svConnectionPtr cnt ) {
+
+iohttpFunc_starthtml( cnt, 4 );
+
+svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
+svSendString( cnt, "<tr><td><font size=\"2\">This FAQ is obviously far from being complete. It was written by the original creator, Maloeran. He has left the game years ago. Some updates have been made for this server.<br><br><b>About the Ectroverse project</b><br><br><a href=\"#a0\">0. So, what is Ectroverse?</a><br><a href=\"#a1\">1. Who is in the team?</a><br><a href=\"#a3\">2. What language was Ectroverse written in?</a><br><a href=\"#a4\">3. Why did you not use perl/php/jsp/etc.?</a><br><a href=\"#a5\">4. Fine, where's the source code?</a><br><a href=\"#a6\">5. Can I run my own galaxy?</a><br><a href=\"#a7\">6. What are the requirements for running a galaxy or a modified version of EV?</a><br><br><b>Questions about gameplay</b><br><br><a href=\"#b0\">0. Where is the guide for the game?</a><br><a href=\"#b1\">1. What are the rules?</a><br><br><b>Questions about features</b><br><br><a href=\"#c0\">0. How come the feature xyz is not yet implemented? When will it be?</a><br><a href=\"#c1\">1. Why can't we have customizable races?</a><br><a href=\"#c2\">2. Why are empires not ranked by Networth instead of planets count?</a><br><br><b>Problems encountered</b><br><br><a href=\"#d0\">0. Resources are not up-up-date, time does not change, fleets don't get sent, etc.... help!</a><br><br><b>Other</b><br><br><a href=\"#e0\">0. Why are you counting everything from zero? Even the FAQ questions!</a><br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>About the Ectroverse project</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"a0\"><b><i>0. So, what is Ectroverse?</i></b></a><br>Ectroverse is a game created by Maloeran. Here you will find his words for describing the game: \"Briefly, Ectroverse is a massive multiplayer game, where players compete for dominance over the galaxy resources. I'm aware several similar online games exist, and I played some myself for a long time. Thinking I could do much better, I started writing EV, and I hope I succeded ;). I'm working on it in my spare time since several months, along with a few other projects in the open source community.\"<br>Maloeran hasn't done any work on Ectroverse for many years. It was picked up again by various number of people. This version is heavily modified (rewritten).<br><br><a name=\"a1\"><b><i>1. Who is in the current team?</i></b></a><br><a href=\"mailto:eva@ectroverse.org\">EVA</a>, administrator<br> <br><a name=\"a3\"><b><i>2. What language was Ectroverse written in?</i></b></a><br>Ectroverse is a server program itself, listening to the port, handling http requests, with its own database. It was written in C for Linux, but could easily compile on other UNIX platforms with a few minor modifications ( for those who are still not sure, no, it doesn't compile or run on windows ).<br><br><a name=\"a4\"><b><i>3. Why did you not use perl/php/jsp/etc.?</i></b></a><br>The main reason would be that a single threaded game server program listening to the port is a thousand times more efficient. Another reason is that I am a programmer and not a scripter ;), it seemed an interesting challenge anyway.<br><br><a name=\"a5\"><b><i>4. Fine, where's the source code?</i></b></a><br><a href=\"https://github.com/ectroverse/evsource\">Here</a> is the current code.<br>I want to warn any potential source reader : there is no comments or documentation, and some parts of the code are especially messy. Good luck :)<br><br><a name=\"a6\"><b><i>5. Can I run my own galaxy?</i></b></a><br>Sure, all you need comes with the source. On the other hand... all this is not documented in any way. So good luck.<br><br><a name=\"a7\"><b><i>6. What are the requirements for running a galaxy or a modified version of EV?</i></b></a><br>The hardware requirements? Low, very low. As an example, a 80486 and 50mb of hard disk should be enough for a 300 players galaxy. A decent speed internet connection, a static IP and any Unix based operating system would also be required.<br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Questions about gameplay</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"b0\"><b><i>0. Where is the guide for the game?</i></b></a><br>No \"official\" guide has been written. You'll probably find something online, almost lost through the ages.</a><br><br><a name=\"b1\"><b><i>1. What are the rules?</i></b></a><br>At the moment, there is only a very small set of rules, just to make sure the game is enjoyable for everybody.<br>- Owning more than one account or logging in other empires than yours is not allowed. On the other hand, a player leaving the game can give his account to someone else not actually playing.<br>- Harassing players is not tolerated, in forums or through in-game messages, this includes cuss words in any language.<br>- Language used in the game and family pictures must not be of a discriminatory, racist, sexist or sexual nature.<br>- Any bugs encountered must be reported, and not abused.<br>Players breaking the rules will get a warning, an account deletion or a permanent ban. Rules are subject to change.<br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Questions about features</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"c0\"><b><i>0. How come the feature xyz is not yet implemented? When will it be?</i></b></a><br>There are several new features planned for Ectroverse which have not been implemented, yet.<br>A time of delivery cannot be given.<br><br><a name=\"c1\"><b><i>1. Why can't we have customizable races?</i></b></a><br>In my opinion, races should exist to encourage teamwork between family members, as working with other players surely make the game more interesting. Though, I really don't want over-specialized races, as all custom ones would be ; these would force players to adopt a very specific way of playing without being able to change their role during the round, any non-specialized race would then also be non-optimal ( and therefore, never used ). New players who didn't make a such \"perfect\" race would also be penalized the whole round.<br><br><a name=\"c2\"><b><i>2. Why are empires not ranked by Networth instead of planets count?</i></b></a><br>Networth rankings would encourage players to stockpile and attempt to reach the higher networth as possible for the end of the round, which is somewhat uninteresting. On the other hand, rankings based on planet counts tend to generate some large wars before the end of the round as families try to gather as many planets as possible.<br><br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Problems encountered</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"d0\"><b><i>0. Resources are not up-up-date, time does not change, fleets don't get sent, etc.... help!</i></b></a><br>This is not really a problem related to Ectroverse, but to the browser you are using. It occurs only with Internet Explorer ( or the AOL thing ), the program decides to stop requesting up-to-date pages from the server and display previously cached ones instead. A known solution, I heard, is to delete the cache files. Another solution would be to upgrade your browser to <a href=\"http://www.mozilla.org/\" target=\"_blank\">Mozilla</a> or <a href=\"http://www.opera.com/\" target=\"_blank\">Opera</a>. It could also be caused by a bad proxy, ignoring http headers and caching files.<br></td></tr></table><br><br><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Other</b></font></td></tr><tr><td><font size=\"2\"><br><a name=\"e0\"><b><i>0. Why are you counting everything from zero? Even the FAQ questions!</i></b></a><br>Computers count from zero, so does Maloeran. You better get used to it. <br> <br>" );
+
+svSendString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
+
+iohttpFunc_endhtml( cnt );
+return;
+}
+
+
+void iohttpFunc_gettingstarted( svConnectionPtr cnt ) {
+
+iohttpFunc_starthtml( cnt, 5 );
+
+svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
+
+
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
+svSendString( cnt, "<tr><td><font size=\"2\">" );
+svSendString( cnt, "This page is a guide to new players on how to get started. It is important to read this to get the best possible experience when first playing!<br>" );
+
+svSendString( cnt, "<br><b>Creating an account:</b><br><br>" );
+svSendString( cnt, "<a href=\"#a0\">0. Registering the account.</a><br>" );
+svSendString( cnt, "<a href=\"#a1\">1. The user name and faction name.</a><br>" );
+svSendString( cnt, "<a href=\"#a2\">2. Joining an empire.</a><br>" );
+svSendString( cnt, "<a href=\"#a3\">3. Choosing your race.</a><br>" );
+svSendString( cnt, "<a href=\"#a4\">4. Completion and logging in.</a><br>" );
+svSendString( cnt, "</a><br>" );
+
+svSendString( cnt, "<br><b>Playing the game:</b><br><br>" );
+svSendString( cnt, "<a href=\"#b0\">0. Resources & Buildings.</a><br>" );
+svSendString( cnt, "<a href=\"#b1\">1. Planets.</a><br>" );
+svSendString( cnt, "<a href=\"#b2\">2. Research.</a><br>" );
+svSendString( cnt, "<a href=\"#b3\">3. Military.</a><br>" );
+svSendString( cnt, "</a><br>" );
+
+svSendString( cnt, "<br><b>Tips:</b><br><br>" );
+svSendString( cnt, "<a href=\"#c0\">0. Map generation.</a><br>" );
+svSendString( cnt, "<a href=\"#c1\">1. Fleet page.</a><br>" );
+svSendString( cnt, "<a href=\"#c2\">2. Account page.</a><br>" );
+svSendString( cnt, "</a><br>" );
+
+svSendString( cnt, "</td></tr></table><br><br>" );
+
+
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
+svSendString( cnt, "<tr><td><font size=\"2\"><br>" );
+
+svSendString( cnt, "<a name=\"a0\"><b><i>0. Registering the account.</i></b></a><br>" );
+svSendString( cnt, "The great thing about Ectroverse is that the signup is simple. You won't need to input your e-mail address and no other activation is required." );
+svSendString( cnt, "<br><br>" );
+
+svSendString( cnt, "<a name=\"a1\"><b><i>1. The user name and faction name.</i></b></a><br>" );
+svSendString( cnt, "Your user name is something personal. Other players won't see this.<br>" );
+svSendString( cnt, "Your Faction name however, is your handle in the game. Choose carefully.<br>" );
+svSendString( cnt, "<br>" );
+
+svSendString( cnt, "<a name=\"a2\"><b><i>2. Joining an Empire.</i></b></a><br>" );
+svSendString( cnt, "Being part of an Empire is one of the most important aspects of the game.<br>" );
+svSendString( cnt, "You start out small and will need other players to grow.<br>" );
+svSendString( cnt, "Know anyone in the game? Ask them for their empire number and password.<br>" );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "If you want to start an Empire of your own, look at the <a href=\"famranks\">Empire</a> rankings and pick a number not yet in the list!" );
+svSendString( cnt, "<br>Want to team up with random players? Leave blank. But remember, be a teamplayer and you'll earn a rank in the Empire.<br>" );
+svSendString( cnt, "<br>" );
+
+svSendString( cnt, "<a name=\"a3\"><b><i>3. Choosing your race.</i></b></a><br>" );
+svSendString( cnt, "You are well on your way to making a name for yourself.<br>" );
+svSendString( cnt, "But how will people remember you? As an aggressive attacker? A proud and rich Energy provider? A self made and self sufficient powerhouse?<br>" );
+svSendString( cnt, "<br>" );
+svSendString( cnt, "Your race will decide which path you will walk.<br>" );
+svSendString( cnt, "View the stats for each race <a href=\"races\">here</a>.<br><br>" );
+
+svSendString( cnt, "<a name=\"a4\"><b><i>4. Completion and logging in.</i></b></a><br>" );
+svSendString( cnt, "Congratulations. You have created an account, chosen an Empire to fight for and selected your race.<br>" );
+svSendString( cnt, "You are now ready to explore, build and fight your way to the top.<br>" );
+svSendString( cnt, "<br>" );
+
+svSendString( cnt, "</td></tr></table><br><br>" );
+
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
+svSendString( cnt, "<tr><td><font size=\"2\"><br>" );
+
+svSendString( cnt, "<a name=\"b0\"><b><i>0. Resources & Buildings.</i></b></a><br>" );
+svSendString( cnt, "Your main concern is growth. You need to spend your resources by making resources.<br>" );
+svSendString( cnt, "How do you do that? Simple. Build buildings on your planets.<br>" );
+svSendString( cnt, "There are 4 resources in the galaxy. Energy, Minerals, Crystal and Ectrolium. <br>" );
+svSendString( cnt, "Most buildings need 3 of the 4 resources to be built, so you need to plan your building a bit at the start.<br><br>" );
+
+svSendString( cnt, "<a name=\"b1\"><b><i>1. Planets.</i></b></a><br>" );
+svSendString( cnt, "Exploring and conquering planets is your way of getting to the top.<br>" );
+svSendString( cnt, "You start out with 4 exploration ships. Send these out into the galaxy to colonise planets.<br>" );
+svSendString( cnt, "Don't worry, you'll be building a lot of them soon enough. Afterall, who is pleased with <i>just</i> 4 planets....<br><br>" );
+
+svSendString( cnt, "<a name=\"b2\"><b><i>2. Research.</i></b></a><br>" );
+svSendString( cnt, "Get smarter and do it smart.<br>" );
+svSendString( cnt, "Research is a very important aspect of the game.<br>" );
+svSendString( cnt, "Head over to your Research tab and distribute points wisely!<br><br>" );
+
+svSendString( cnt, "<a name=\"b3\"><b><i>3. Military.</i></b></a><br>" );
+svSendString( cnt, "A big fleet makes you strong, but they also increase your Networth.<br>" );
+svSendString( cnt, "A higher networth makes it harder to grow.<br>" );
+svSendString( cnt, "Build up your fleet steadily, don't go overboard.<br>" );
+svSendString( cnt, "And remember, you need to pay upkeep for your little Cruisers too!<br><br>" );
+
+svSendString( cnt, "</td></tr></table><br><br>" );
+
+
+
+svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
+svSendString( cnt, "<tr><td><font size=\"2\"><br>" );
+
+svSendString( cnt, "<a name=\"c0\"><b><i>0. Map generation</i></b></a><br>" );
+svSendString( cnt, "The galaxy map is the place where you'll find planets to explore and conquer... But it is easy to lose your way and location." );
+svSendString( cnt, "<br>Luckily you can generate a map using the Generation page." );
+svSendString( cnt, "<br>You can filter away planets that are already owned, that are of your Empire or are that of enemies!" );
+svSendString( cnt, "<br>A usefull tool to say the least.<br><br>" );
+
+svSendString( cnt, "<a name=\"c1\"><b><i>1. Fleet page.</i></b></a><br>" );
+svSendString( cnt, "Check your fleet page. In the top right you see <b>\"Fleet Orders\"</b>, select the dropdown and chose <b>\"Wait in System\"</b> instead of the default one." );
+svSendString( cnt, "<br>It is easy to forget this option, and spend 10 minutes wondering where your mighty fleet has gone!.<br><br>" );
+
+svSendString( cnt, "<a name=\"c2\"><b><i>2. Account page.</i></b></a><br>" );
+svSendString( cnt, "This will here page allows you to alter your Faction name when the game hasn't started yet." );
+svSendString( cnt, "<br>Once the time starts flowing, you won't be able to change your name until the next round has started.<br><br>" );
+
+
+svSendString( cnt, "</td></tr></table><br><br>" );
+
+iohttpFunc_endhtml( cnt );
+
+return;
 }
 
