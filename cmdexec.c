@@ -248,7 +248,6 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 int cmdExecUserDeactivate( int id, int flags )
 {
   int a, b, c, num;
-  char szChaine[100];
   int *buffer;
   dbUserMainDef maind, main2d;
   dbMainPlanetDef planetd;
@@ -375,14 +374,15 @@ int cmdExecUserDeactivate( int id, int flags )
 
       empired.numplayers--;
       cmdEmpireLeader( &empired );
+ 
+     //Remove pass if last player
+      if( ( empired.numplayers < 1 ) && ( maind.empire > 0 ) ) {
+      	strcpy( empired.name, "");
+      	strcpy( empired.password, "");
+	}
+
       dbMapSetEmpire( maind.empire, &empired );
       
-      //Remove pass if last player
-      if((empired.numplayers < 1)&&(maind.empire>0))
-      {
-      	sprintf(szChaine, "rm fampass%d\n", maind.empire);
-      	system(szChaine);
-    	}
       break;
     }
   }
@@ -1192,51 +1192,46 @@ int cmdExecFamMemberFlags( int id, int fam, int flags )
 
 
 
-int cmdExecSetFamPass( int fam, char *pass )
-{
-  int a;
-  char fname[256];
-  char fpass[128];
-  FILE *file;
+int cmdExecSetFamPass( int fam, char *pass ) {
+	int a;
+	dbMainEmpireDef empired;
 
-  cmdErrorString = 0;
-  sprintf( fname, "%s/data/fampass%d", COREDIRECTORY, fam );
-  if( !( file = fopen( fname, "wb" ) ) )
-    return -3;
-  for( a = 0 ; a < 127 ; a++ )
-  {
-    if( ( fpass[a] == 10 ) || ( fpass[a] == 13 ) )
-      break;
-    fpass[a] = pass[a];
-  }
-  fpass[a] = 0;
+cmdErrorString = 0;
+if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+	return -3;
+
+for( a = 0 ; a < 127 ; a++ ) {
+	if( ( empired.password[a] == 10 ) || ( empired.password[a] == 13 ) )
+		break;
+	empired.password[a] = pass[a];
+}
+empired.password[a] = 0;
 
 #if HASHENCRYPTION == 1
-if( strlen(fpass) )
-  sprintf(fpass, "%s", hashencrypt(fpass) );
+if( strlen(empired.password) )
+  sprintf(empired.password, "%s", hashencrypt(empired.password) );
 #endif
 
-  fwrite( fpass, 1, 128, file );
 
-  fclose( file );
-  return 1;
+if( dbMapSetEmpire( fam, &empired ) < 0 )
+	return -3;
+
+
+return 1;
 }
 
-int cmdExecGetFamPass( int fam, char *pass )
-{
-  char fname[256];
-  FILE *file;
+int cmdExecGetFamPass( int fam, char *pass ) {
+	int a;
+	dbMainEmpireDef empired;
 
-  cmdErrorString = 0;
-  sprintf( fname, "%s/data/fampass%d", COREDIRECTORY, fam );
-  pass[0] = 0;
-  if( !( file = fopen( fname, "rb" ) ) )
-    return 1;
+cmdErrorString = 0;
 
-  fread( pass, 1, 128, file );
+if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+	return -3;
 
-  fclose( file );
-  return 1;
+strcpy(pass, empired.password);
+
+return 1;
 }
 
 
@@ -1358,9 +1353,9 @@ int cmdExecDelRelation( int fam, int relid )
   cmdErrorString = 0;
   if( dbEmpireRelsGet( fam, relid, rel ) < 0 )
     return -3;
-  if( rel[0]+14 > svTickNum )
+  if( ( rel[0]+26 > svTickNum ) /*&& ( rel[1] != CMD_RELATION_WAR )*/ )
   {
-    cmdErrorString = "A relation can't be canceled for 14 weeks after being declared.";
+    cmdErrorString = "A relation can't be canceled for 26 weeks after being declared.";
     return -3;
   }
   if( rel[3] & 1 )

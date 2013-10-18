@@ -226,6 +226,7 @@ if( !( flags == 1 ) ) {
 svSendString( cnt, "<a href=\"/\">Main</a>" );
 }
 if( !( flags == 2 ) ) {
+if( !( flags == 1 ) )
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"register\">Register</a>" );
 }

@@ -333,6 +333,20 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 // New families generation, based on defaults.
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired = dbEmpireDefault;
+	
+	if( ( cmdAdminEmpire == a ) && ( strlen(cmdAdminEmpirePass) ) ) {
+		strcpy( empired.name, "Administration");
+		#if HASHENCRYPTION == 1
+		if( strlen(cmdAdminEmpirePass) )
+			sprintf(cmdAdminEmpirePass, "%s", hashencrypt(cmdAdminEmpirePass) );
+		#endif
+		strcpy( empired.password, cmdAdminEmpirePass );
+		#if FORKING == 0
+		printf("Empire %d Claimed for Administration.\n", cmdAdminEmpire);
+		#endif
+		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", cmdAdminEmpire);
+	}
+
 	empired.homeid = empire_system[a];
 	empired.homepos = system_pos[ empire_system[a] ];
 	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
@@ -361,14 +375,6 @@ fclose( file );
       fputc( 0x00, file );
   }
   fclose( file );
-
-if( cmdAdminEmpirePass != NULL ) {
-	cmdExecSetFamPass( cmdAdminEmpire, cmdAdminEmpirePass );
-	#if FORKING == 0
-	printf("Empire %d Claimed for Administration with pass: \"%s\"\n", cmdAdminEmpire, cmdAdminEmpirePass);
-	#endif
-	syslog(LOG_INFO, "Empire %d Claimed for Administration with pass: \"%s\"\n", cmdAdminEmpire, cmdAdminEmpirePass);
-}
 
   return 1;
 }

@@ -50,7 +50,7 @@ wnum <<= 2;
 for( wa = 0 ; wa < wnum ; wa += 4 ) {
 	if( rels[wa+1] == CMD_RELATION_WAR ) {
 		if( (rels[wa] + AUTOENDWARS) <= svTickNum ) {
-			cmdExecDelRelation( b, wa );
+			cmdExecDelRelation( b, wa / 4 );
 		} 
 	}
 }
@@ -823,10 +823,7 @@ svDebugTickPass = 7;
   fa = CMD_ENERGY_DECAY;
 
 fc = STOCKPERMITTED * maind.infos[4];
-maind.infos[5] = fa * ( (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
-
-
-//  maind.infos[5] = ( fa * ( (double)maind.ressource[CMD_RESSOURCE_ENERGY] - ( maind.infos[4] * STOCKPERMITTED ) ) );
+maind.infos[5] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
 
 
   // meh! building upkeep
@@ -877,7 +874,7 @@ svDebugTickPass = 8;
 	//	fa /= 4;
     	
 fc = STOCKPERMITTED * maind.infos[9];
-maind.infos[10] = fa * ( (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
+maind.infos[10] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
 
 
     maind.infos[11] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
