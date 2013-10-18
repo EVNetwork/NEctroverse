@@ -132,26 +132,24 @@ void cmdTickGenRanks()
       }
     }
 
-if( artsnum >= artmax ) {
+if( artsnum > artmax ) 
 	artmax = artsnum;
 
+if( artsnum == ARTEFACT_NUMUSED ) {
 	if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
 		dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + AUTOVICTORYIN;
 		dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
 		dbMapSetMain( dbMapBInfoStatic );
+	} else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
+		svTickStatus = 0;
+		svTickAutoStart = 0;
+		svRoundEnd = svTickNum;
 	}
-}
-
-if( !( artmax == artsnum ) && ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) ) {
-dbMapBInfoStatic[MAP_ARTITIMER] = -1;
-dbMapBInfoStatic[MAP_TIMEMPIRE] = -1;
-dbMapSetMain( dbMapBInfoStatic );
-} else if ( ( artmax == artsnum ) && ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
-svTickStatus = 0;
-svTickAutoStart = 0;
-svRoundEnd = svTickNum;
-}
-
+} else if( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) {
+	dbMapBInfoStatic[MAP_ARTITIMER] = -1;
+	dbMapBInfoStatic[MAP_TIMEMPIRE] = -1;
+	dbMapSetMain( dbMapBInfoStatic );
+} 
 
 
     if( ( 3*artsnum >= ARTEFACT_NUMUSED ) || ( (3*dbArtefactMax)/2 >= ARTEFACT_NUMUSED ) )

@@ -22,7 +22,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  name = iohttpVarsFind( "name" );
  pass = iohttpVarsFind( "pass" );
  iohttpVarsCut();
-
+/*
  sprintf( COREDIR, "%s/logs/login", COREDIRECTORY );
  if( ( file = fopen( COREDIR, "ab" ) ) )
  {
@@ -42,7 +42,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
   fprintf( file, "%s;", timebuf );
   fprintf( file, "%s;", iohttp->cookie );
  }
-
+*/
  if( ( name ) && ( pass ) )
  {
   for( a = 0 ; name[a] ; a++ )
@@ -82,14 +82,14 @@ void iohttpFunc_main( svConnectionPtr cnt )
   dbUserMainRetrieve( id, &maind );
   maind.lasttime = time( 0 );
   dbUserMainSet( id, &maind );
-
+/*
   if( ( file ) && ( (cnt->dbuser)->flags & ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) )
   {
    fprintf( file, "ID : %d ( %x ) deactivated\n", id, id );
    fclose( file );
    file = 0;
   }
-
+*/
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_KILLED )
   {
    iohttpBase( cnt, 0 );
@@ -142,14 +142,14 @@ void iohttpFunc_main( svConnectionPtr cnt )
   if( ( id = iohttpIdentify( cnt, 0 ) ) < 0 )
    goto iohttpFunc_mainL0;
  }
-
+/*
  if( file )
  {
   fprintf( file, "ID : %d ( %x )\n", id, id );
   fclose( file );
   file = 0;
  }
-
+*/
  svSendString( cnt, "Content-Type: text/html\n\n" );
  svSendPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", SERVERNAME );
  svSendString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
@@ -159,14 +159,14 @@ void iohttpFunc_main( svConnectionPtr cnt )
  return;
 
  iohttpFunc_mainL0:
-
+/*
  if( file )
  {
   fprintf( file, "Failed\n" );
   fclose( file );
   file = 0;
  }
-
+*/
  iohttpBase( cnt, 0 );
  svSendPrintf( cnt, "Name or password incorrect" );
  svSendString( cnt, "</center></body></html>" );
@@ -1635,8 +1635,9 @@ void iohttpFunc_units( svConnectionPtr cnt )
    continue;
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br>", cmdUnitName[a] );
 
-  // units pictures, we have them all hosted by blueD
-  
+   if( a < 5 )
+      svSendPrintf( cnt, "<img src=\"u%d.jpg\">", a );
+
   svSendString( cnt, "</td><td valign=\"top\" nowrap>" );
 
   if( resbuild[0] < 0 )
@@ -4738,7 +4739,7 @@ void iohttpFunc_fleets( svConnectionPtr cnt )
   
   svSendString( cnt, "</table>" );
  }
- 
+  if( num > 1 )
  svSendString( cnt, "<br><b>Total traveling fleets</b><br><br>" );
   for(b=0;b < CMD_UNIT_NUMUSED ; b++ )
   {

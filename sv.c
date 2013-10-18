@@ -990,7 +990,7 @@ if( ( file = fopen( COREDIR, "r" ) ) ) {
 }
 
 dbMapRetrieveMain( binfo );
-if( ( binfo[MAP_TIMEMPIRE] >= 0 ) && !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0 ) ) {
+if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0 ) ) {
 	if( ( svTickAutoStart == 1 ) && ( !svTickStatus ) && (svTickNum) )
 		svTickStatus = 1;
 }

@@ -363,12 +363,12 @@ void iohttpFunc_register2( svConnectionPtr cnt )
   iohttpBase( cnt, 0 );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
-
+/*
   sprintf( COREDIR, "%s/logs/register", COREDIRECTORY );
   if( ( file = fopen( COREDIR, "ab" ) ) )
   {
    //fprintf( file, "Register ID %d ( %x )\n", id, id );
-   a = time( 0 )-(3600*SERVER_TIME_ZONE);
+   a = time(0);
    strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
    fprintf( file, "Time %s", timebuf );
    fprintf( file, "Name %s;", name );
@@ -386,7 +386,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
    fprintf( file, "Cookie %s;;", iohttp->cookie );
    fprintf(file, "ID : %d ( %X );\n", id, id);
    fclose( file );
-  }
+  }*/
  }
  else
  {

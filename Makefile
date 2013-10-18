@@ -53,7 +53,7 @@ cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact
 map.o: map.c map.h $(REQUIRED)
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: html.c $(REQUIRED)
+html.o: html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c $(REQUIRED)
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
 md5.o: optional/md5.c optional/md5.h $(REQUIRED)
