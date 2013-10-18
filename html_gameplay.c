@@ -167,9 +167,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
   file = 0;
  }
 */
- iohttpFunc_starthtml( cnt, 0 );
- svSendPrintf( cnt, "<br>Name or password incorrect!" );
- iohttpFunc_endhtml( cnt );
+iohttpFunc_login( cnt, 0, "Name or password incorrect!" );
  return;
 }
 
@@ -7129,6 +7127,8 @@ iohttpBase( cnt, 1 );
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 	return;
+} else {
+iohttpFunc_frontmenu( cnt, 6 );
 }
 
 iohttpBodyInit( cnt, "Faction rankings" );
@@ -7164,6 +7164,8 @@ iohttpBase( cnt, 1 );
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
+} else {
+iohttpFunc_frontmenu( cnt, 6 );
 }
 
 iohttpBodyInit( cnt, "Empire rankings" );

@@ -177,9 +177,9 @@ sprintf( COREDIR, "%s/data", COREDIRECTORY );
   sprintf( file->path, "/gettingstarted" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 2;
+  file->type = 1;
+  file->function = iohttpFunc_halloffame;
   sprintf( file->path, "/halloffame" );
-  sprintf( file->fileread, "halloffame.html" );
 
   file = iohttpFileAdd( 0 );
   file->type = 1;

@@ -88,13 +88,14 @@ void iohttpFunc_status( svConnectionPtr cnt )
   FILE *file;
   char fname[256], addstring[32];
   int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-  char buffer[4096];
+  char buffer[256];
   float boottime, runtime, userload, kernelload;
   char stringuptime[128];
 	struct sysinfo  si;
 	struct utsname stustname;
 
-iohttpFunc_starthtml( cnt, 7 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 7 );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
 
@@ -122,27 +123,27 @@ if( sysinfo(&si) != 0 ) {
   kernelload = 100.0 * ( CT_TO_SECS( ( (float)ststime ) ) / runtime );
 
   svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
-
+  sprintf(buffer, "%s status", SERVERNAME);
+  iohttpBodyInit( cnt, buffer);
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
-  svSendPrintf( cnt, "<b>%s status</b><br>", SERVERNAME );
   svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
   svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
-  if( svTickStatus )
-    svSendPrintf( cnt, "Tick time : %d seconds left<br>", (int)( svTickTime - time(0) ) );
+    svSendPrintf( cnt, "Tick time : %d seconds<br>", SV_TICK_TIME );
+ if( svTickStatus )
+    svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( svTickTime - time(0) ) );
   else
-    svSendPrintf( cnt, "Tick time : time frozen<br>" );
-  svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
-
+    svSendPrintf( cnt, "Next tick : Time Frozen!<br>" );
+//  svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
 //  svSendString( cnt, "<b>Server Processor(s)</b><br>" );
 //  linux_cpuinfo( buffer );
 //  svSendString( cnt, buffer );
 
   svSendString( cnt, "</td></tr></table>" );
-
+iohttpBodyEnd( cnt );
   svSendString( cnt, "</td><td width=\"50%\" align=\"left\" valign=\"top\">" );
-
+  iohttpBodyInit( cnt, "Server status" );
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
-  svSendString( cnt, "<b>Server status</b><br>" );
+  svSendString( cnt, "<b>System info</b><br>" );
   uname( &stustname );
   svSendPrintf( cnt, "Sysname : %s %s<br>", stustname.sysname, stustname.release );
   svSendPrintf( cnt, "Release : %s<br>", stustname.version );
@@ -159,9 +160,8 @@ if( sysinfo(&si) != 0 ) {
   svSendPrintf( cnt, "Avalible memory now : %ld bytes ( %ld mb )<br>", si.freeram, (si.freeram >> 20) );
   svSendPrintf( cnt, "Server has used : %d bytes ( %d mb )<br>", stvsize, stvsize >> 20 );
   svSendPrintf( cnt, "Resident Size : %d pages<br><br>", strss );
-
   svSendString( cnt, "</td></tr></table>" );
-
+  iohttpBodyEnd( cnt );
   svSendString( cnt, "</td></tr></table>" );
 
 

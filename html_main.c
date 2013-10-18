@@ -84,7 +84,7 @@ iohttpIdentifyL0:
 
 if( action & 1 ) {
 
-	iohttpFunc_login( cnt, "If you were playing just a few seconds ago, the server program was probably updated and restarted.<br>Administration appologises for the incoveniance. =)" );
+	iohttpFunc_login( cnt, 1, "If you were playing just a few seconds ago, the server program was probably updated and restarted." );
 
 }
 
@@ -206,9 +206,7 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
  return 1;
 }
 
-void iohttpFunc_starthtml( svConnectionPtr cnt, int flags ) {
-
-iohttpBase( cnt, 1|8 );
+void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags ) {
 
 svSendString( cnt, "<center>" );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
@@ -349,7 +347,9 @@ Energy Surge - Spreads a destructive wave in an faction network, feeding on the 
 
 void iohttpFunc_register( svConnectionPtr cnt ) {
 
-iohttpFunc_starthtml( cnt, 2 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 2 );
+
 svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
 svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
@@ -379,7 +379,8 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  iohttpVarsCut();
  if( ( name ) && ( pass ) && ( faction ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
-		iohttpFunc_starthtml( cnt, 2 );
+		iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 2 );
 
 		if( cmdErrorString )
 			svSendString( cnt, cmdErrorString );
@@ -413,12 +414,14 @@ void iohttpFunc_register2( svConnectionPtr cnt )
   
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
   {
-   iohttpFunc_starthtml( cnt, 2 );
+   iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 2 );
    svSendString( cnt, "Error encountered while registering session" );
    goto iohttpFunc_register2L0;
   }
   svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", id, session[0], session[1], session[2], session[3] );
-  iohttpFunc_starthtml( cnt, 2 );
+  iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 2 );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
 /*
@@ -446,7 +449,8 @@ void iohttpFunc_register2( svConnectionPtr cnt )
    fclose( file );
   }*/
 } else {
-iohttpFunc_starthtml( cnt, 2 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 2 );
 
 if( ( id = iohttpIdentify( cnt, 4|1 ) ) < 0 )
 	return;
@@ -479,7 +483,8 @@ void iohttpFunc_register3( svConnectionPtr cnt )
  char *fampass;
  char *race;
 
- iohttpFunc_starthtml( cnt, 2 );
+ iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 2 );
  if( ( id = iohttpIdentify( cnt, 1|4 ) ) < 0 )
   return;
 
@@ -529,15 +534,37 @@ iohttpFunc_endhtml( cnt );
 }
 
 
-void iohttpFunc_login( svConnectionPtr cnt, char *text, ... ) {
+void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
+	struct stat stdata;
+	char *data;	
+	FILE *file;
 
-iohttpFunc_starthtml( cnt, 0 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 0 );
 
 
-if( strlen(text) )
+if( strlen(text) ) {
 	svSendPrintf( cnt, "<br>%s", text );
-
-svSendString( cnt, "<br><br><h3>Login</h3><br>" );
+	if( flag ) {
+		if( stat( IOHTTP_READ_DIRECTORY "/login.txt", &stdata ) != -1 ) {
+			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+				data[stdata.st_size] = 0;
+				if( ( file = fopen( IOHTTP_READ_DIRECTORY "/login.txt", "rb" ) ) ) {
+					fread( data, 1, stdata.st_size, file );
+					if( strlen(data) ) {
+					svSendString( cnt, "<br><br>" );
+					svSendString( cnt, data );
+					}
+					fclose( file );
+				}
+				free( data );
+			}
+		}
+	}
+	svSendString( cnt, "<br><br>" );
+} else {
+svSendString( cnt, "<br><h3>Login</h3><br>" );
+}
 svSendString( cnt, "<form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 svSendString( cnt, "</center></body></html>" );
@@ -563,7 +590,8 @@ void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
 	FILE *file;
 
 
-iohttpFunc_starthtml( cnt, 1 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 1 );
 
 if( strlen(text) )
 	svSendPrintf( cnt, "<b>%s</b><br><br>", text );
@@ -648,7 +676,8 @@ void iohttpFunc_faq( svConnectionPtr cnt ) {
 	char *data;	
 	FILE *file;
 
-iohttpFunc_starthtml( cnt, 4 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 4 );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
@@ -666,7 +695,7 @@ if( stat( IOHTTP_READ_DIRECTORY "/faq.html", &stdata ) != -1 ) {
 	}
 }
 
-svSendString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
+svSendString( cnt, "</td></tr></table></td><td width=\"7%\">&nbsp;</td></tr>" );
 
 iohttpFunc_endhtml( cnt );
 return;
@@ -675,7 +704,8 @@ return;
 
 void iohttpFunc_gettingstarted( svConnectionPtr cnt ) {
 
-iohttpFunc_starthtml( cnt, 5 );
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 5 );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 
@@ -800,4 +830,35 @@ iohttpFunc_endhtml( cnt );
 
 return;
 }
+
+void iohttpFunc_halloffame( svConnectionPtr cnt ) {
+	struct stat stdata;
+	char *data;	
+	FILE *file;
+
+iohttpBase( cnt, 1|8 );
+iohttpFunc_frontmenu( cnt, 6 );
+
+svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
+svSendString( cnt, "<tr><td>" );
+
+if( stat( IOHTTP_READ_DIRECTORY "/halloffame.html", &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/halloffame.html", "rb" ) ) ) {
+			fread( data, 1, stdata.st_size, file );
+			svSendString( cnt, data );
+			fclose( file );
+		}
+		free( data );
+	}
+}
+
+svSendString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
+
+iohttpFunc_endhtml( cnt );
+return;
+}
+
 

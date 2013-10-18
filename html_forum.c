@@ -357,13 +357,15 @@ void iohttpForum( svConnectionPtr cnt )
  char timetemp[200];
  char *text;
 	FILE *fFile;
+
+iohttpBase( cnt, 1 );
 	
- id = iohttpIdentify( cnt, 0 );
-	if( !( id == -1 ) )
-	{
-		if( dbUserMainRetrieve( id, &maind ) == 0 )
-			return;
-	}
+if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	if( !( iohttpHeader( cnt, id, &maind ) ) )
+		return;
+} else {
+iohttpFunc_frontmenu( cnt, 2 );
+}
 	
  iohttpVarsInit( cnt );
  forumstring = iohttpVarsFind( "forum" );
@@ -410,11 +412,6 @@ void iohttpForum( svConnectionPtr cnt )
  skip = 0;
  if( skipstring )
   sscanf( skipstring, "%d", &skip );
-
- svSendString( cnt, "Content-Type: text/html\n\n" );
-//svSendString( cnt, "<html><head><style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head><body bgcolor=\"#000000\" text=\"#C0D0D8\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#B8B8B8\" background=\"http://users.pandora.be/amedee/ectroverse/mbg.gif\" bgproperties=\"fixed\"><center>" );
-//svSendString( cnt, "<html><head><style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head><body bgcolor=\"#000000\" text=\"#D0E0E0\" link=\"#D0F0FF\" alink=\"#FFFFFF\" vlink=\"#C0D0E0\" background=\"http://users.pandora.be/amedee/ectroverse/mbg.gif\" bgproperties=\"fixed\"><center>" );
- svSendString( cnt, "<html><head><style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head><body bgcolor=\"#000000\" text=\"#F0F0F0\" link=\"#C8E8FF\" alink=\"#FFFFFF\" vlink=\"#D0D0D0\" background=\"mbg.gif\" bgproperties=\"fixed\"><center>" );
 
  if( action == 0 )
  {
@@ -889,6 +886,11 @@ void iohttpForum( svConnectionPtr cnt )
   goto iohttpForumL1;
  }
 
- svSendString( cnt, "</center></body></html>" );
- return;
+if( id != -1 ) {
+	svSendString( cnt, "</center></body></html>" );
+} else {
+	iohttpFunc_endhtml( cnt );
+}
+
+return;
 }
