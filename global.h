@@ -27,6 +27,7 @@
 #if MYSQLENABLE == 1
 #include <mysql.h>
 #endif
+#include <png.h>
 #include <pwd.h>
 #include <stdarg.h>
 #include <stdio.h>

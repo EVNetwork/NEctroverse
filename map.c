@@ -5,10 +5,10 @@
 #include "global.h"
 #endif
 
-
+#include "imgpng.c"
 
 /*
-#define MAP_SIZEX (100)
+#define MAP_SIZEX (480)
 #define MAP_SIZEY (100)
 #define MAP_SYSTEMS (1100)
 #define MAP_FAMILIES (100)
@@ -87,13 +87,14 @@ void mapGetRandnorm( float *fvars )
 #define ANG_SIN(x) sin((x*2*DEF_PI)/360.0)
 #define ANG_COS(x) cos((x*2*DEF_PI)/360.0)
 
-void mapCalcFactors()
+uint8_t *mapCalcFactors()
 {
   int a, b, c, x, y, index;
   float fx, fy, dist, mindist;
   float fpos[2];
   float angle, anglevar;
   float fdir[2];
+	char fname[256];
   float pts[65536][2];
   int ptsnum;
   FILE *file;
@@ -121,34 +122,35 @@ void mapCalcFactors()
     ptsnum += c;
   }
 
-  for( y = index = 0 ; y < MAP_SIZEY ; y++ )
-  {
-    for( x = 0 ; x < MAP_SIZEY ; x++, index++ )
-    {
-      mindist = 0;
-      for( a = 0 ; a < ptsnum ; a++ )
-      {
-        fx = (float)x - pts[a][0];
-        fy = (float)y - pts[a][1];
-        dist = sqrt( fx*fx + fy*fy );
-        if( dist >= MAP_GEN_LNKRADIUS )
-          continue;
-        mindist += MAP_GEN_LNKRADIUS - dist;
-      }
-      mapfactor[index] += (int)floor( mindist );
-    }
-  }
+for( y = index = 0 ; y < MAP_SIZEY ; y++ ) {
+	for( x = 0 ; x < MAP_SIZEY ; x++, index++ ) {
+		mindist = 0;
+		for( a = 0 ; a < ptsnum ; a++ ) {
+			fx = (float)x - pts[a][0];
+			fy = (float)y - pts[a][1];
+			dist = sqrt( fx*fx + fy*fy );
+			if( dist >= MAP_GEN_LNKRADIUS )
+			continue;
+			mindist += MAP_GEN_LNKRADIUS - dist;
+		}
+		mapfactor[index] += (int)floor( mindist );
+	}
+}
 
-  file = fopen( "zzz.raw", "wb" );
-  for( a = 0 ; a < MAP_SIZEX*MAP_SIZEY ; a++ )
-  {
-    if( mapfactor[a] > 0xFF )
-      mapfactor[a] = 0xFF;
-    fputc( mapfactor[a], file );
-  }
-  fclose( file );
 
-  return;
+uint8_t *pixies;   
+pixies = malloc( MAP_SIZEX * MAP_SIZEY );
+for( y = 0 ; y < MAP_SIZEY ; y++ ) { 
+	for( x = 0 ; x < MAP_SIZEX ; x++ )  {
+		pixies[(y*MAP_SIZEX)+x] = 0;
+	    if( mapfactor[(y*MAP_SIZEX)+x] > 0xFF ) {
+		pixies[(y*MAP_SIZEX)+x] = 126;
+		}
+
+	}  
+}
+
+  return pixies;
 }
 
 
@@ -157,8 +159,11 @@ int mapgen() {
 	long long int j;
 	float dist, distmax;
 	char fname[256];
+	char imgsizer[2048];
+	uint8_t *pixels, *bigpixies; 
 	FILE *file;
 	FILE *file2;
+	imgImage mapgen;
 	dbMainMapDef mapd;
 	dbMainSystemDef systemd;
 	dbMainPlanetDef planetd;
@@ -177,7 +182,13 @@ dirstructurecheck(fname);
 
 srand( time( 0 ) );
 
-mapCalcFactors();
+mapgen.width = MAP_SIZEX;
+mapgen.height = MAP_SIZEY;
+mapgen.format = IMG_IMAGE_FORMAT_GRAYSCALE;
+mapgen.bytesperpixel = 1;
+mapgen.bytesperline = mapgen.width;
+
+pixels = mapCalcFactors();
 
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	mainL1:
@@ -350,7 +361,7 @@ for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired.homeid = empire_system[a];
 	empired.homepos = system_pos[ empire_system[a] ];
 	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
-
+// <<WORKNEEDED>>
 	sprintf( fname, COREDIRECTORY "/data/fam%dnews", a );
 	file2 = fopen( fname, "wb" );
 	j = 0;
@@ -366,72 +377,53 @@ for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 fclose( file );
 //End family generation
 
-  file = fopen( "zzz2.raw", "wb" );
-  for( a = 0 ; a < MAP_SIZEX*MAP_SIZEY ; a++ )
-  {
-    if( mapdata[a] )
-      fputc( 0xFF, file );
-    else
-      fputc( 0x00, file );
-  }
-  fclose( file );
-
-  return 1;
+for( y = 0 ; y < MAP_SIZEX ; y++ ) { 
+	for( x = 0 ; x < MAP_SIZEY ; x++ )  {
+		if ( mapdata[(y*MAP_SIZEY)+x] )
+			pixels[(y*MAP_SIZEY)+x] = 255;
+	}  
 }
 
-
-
 /*
-map
-  4:size X
-  4:size Y
-  4:number of systems
-  4:number of planets
-  4:number of MAP_FAMILIES
-  4:number of players per empire
-  4:reserved
- 32:reserved
-struct ( 20 )
-  4:position ( y << 16 ) + x
-  4:index first planet
-  4:number of planets
-  4:empire home system, -1:none
-  4:unexplored count
-struct ( 184 )
-  4:system indice
-  4:position, ( y << 20 ) + ( x << 8 ) + planet
-  4:planet owner ID, none if < 0
-  4:size
-  4:flags
-  4:population
-  4:maxpopulation
-3*4:special
- 64:number of buildings
- 64:number of units
-  4:construction
-  4:protection
-  4:surrender
-  4:reserved
-struct ( 468 )
- 64:empire name
-128:empire password
- 32:vote index in players IDs
-  4:number of players
-128:players ID, 32 fixed maximum
-  4:home system ID
-  4:home system position ( y << 16 ) + x
-  4:leader ID
-  4:picture mime
-  4:picture time
-  4:planets
-  4:networth
-  4:artefacts
-  4:artetimer
- 76:reserved
+mapgen.width = MAP_SIZEX *3;
+mapgen.height = MAP_SIZEY *3;
+bigpixies = malloc( mapgen.height * mapgen.width );
 
+for( y = 0 ; y < mapgen.height ; y++ ) { 
+	for( x = 0 ; x < mapgen.width ; x++ )  {
+		if ( pixels[((y*mapgen.width)+x)] )
+			bigpixies[(y*mapgen.width)+x] = pixels[((y*mapgen.width)+x)];
+
+		if ( pixels[(((y/3)*(mapgen.width/3))+(x/3))] )
+			bigpixies[(y*mapgen.width)+x] = pixels[(((y/3)*(mapgen.width/3))+(x/3))];
+		if ( pixels[(((y/3)*(mapgen.width))+(x/3))] )
+			bigpixies[(y*mapgen.width)+x] = pixels[(((y/3)*(mapgen.width))+(x/3))];
+
+	}  
+}
 
 */
 
 
+if(mapgen.width > MAP_SIZEX) {
+	mapgen.data = bigpixies;
+} else {
+	mapgen.data = pixels;
+}
+
+sprintf( fname, IOHTTP_FILES_DIRECTORY "/galaxyr%d.png", ROUND_ID );
+imgWritePngFile( fname, &mapgen );
+free(pixels);
+free(bigpixies);
+
+
+//<<WORKNEEDED>> Such a dirty fix, but well... it works. =/
+if(mapgen.width == MAP_SIZEX) {
+	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
+	system(imgsizer);
+}
+
+return 1;
+}
 
 

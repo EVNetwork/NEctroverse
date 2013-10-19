@@ -2036,13 +2036,15 @@ void iohttpFunc_empire( svConnectionPtr cnt )
  dbUserMainDef mainp[32];
  int stats[64];
 
- iohttpBase( cnt, 1 );
- maind.empire = -1;
- if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 )
- {
-  if( !( iohttpHeader( cnt, id, &maind ) ) )
-   return;
- }
+maind.empire = -1;
+iohttpBase( cnt, 1 );
+
+if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	if( !( iohttpHeader( cnt, id, &maind ) ) )
+		return;
+} else {
+iohttpFunc_frontmenu( cnt, 0 );
+}
 
  iohttpVarsInit( cnt );
  empirestring = iohttpVarsFind( "id" );
@@ -3398,12 +3400,13 @@ void iohttpFunc_map( svConnectionPtr cnt )
  return;
 }
 
+#define MAPPICKSIZES (4) // Disable 45 and 60, due to bad rendering
 void iohttpFunc_mappick( svConnectionPtr cnt )
 {
  int a, b, id;
  dbUserMainDef maind;
  char *sizestring;
- static int sizes[6] = { 15, 20, 25, 30, 45, 60 };
+ static int sizes[MAPPICKSIZES] = { 15, 20, 25, 30, 45, 60 };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -3438,7 +3441,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[0] >> 1, a, dbMapBInfoStatic[0] );
 
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"galaxyr%d.gif\" ismap></a></td>", ROUND_ID );
+ svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"galaxyr%d.png\" ismap></a></td>", ROUND_ID );
  svSendPrintf( cnt, "<td height=\"%d\" align=\"left\" valign=\"top\"><b>0</b></td></tr>", a );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[0] >> 1, a, dbMapBInfoStatic[0] >> 1 );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[0], a, dbMapBInfoStatic[0] );
@@ -3447,7 +3450,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendString( cnt, "</table>" );
 
  svSendString( cnt, "<br><form action=\"mappick\" method=\"GET\"><select name=\"size\">" );
- for( a = 0 ; a < 6 ; a++ )
+ for( a = 0 ; a < MAPPICKSIZES ; a++ )
  {
   svSendPrintf( cnt, "<option value=\"%d\"", sizes[a] );
   if( ( maind.config_mapsize & 0xFFFF ) == sizes[a] )
@@ -3630,11 +3633,13 @@ void iohttpFunc_player( svConnectionPtr cnt )
  dbUserRecordPtr recordd;
 
  iohttpBase( cnt, 1 );
- if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 )
- {
-  if( !( iohttpHeader( cnt, id, &maind ) ) )
-   return;
- }
+
+if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	if( !( iohttpHeader( cnt, id, &maind ) ) )
+		return;
+} else {
+iohttpFunc_frontmenu( cnt, 0 );
+}
 
  iohttpVarsInit( cnt );
  playerstring = iohttpVarsFind( "id" );
@@ -7128,7 +7133,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 	return;
 } else {
-iohttpFunc_frontmenu( cnt, 6 );
+iohttpFunc_frontmenu( cnt, 0 );
 }
 
 iohttpBodyInit( cnt, "Faction rankings" );
@@ -7165,7 +7170,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 6 );
+iohttpFunc_frontmenu( cnt, 0 );
 }
 
 iohttpBodyInit( cnt, "Empire rankings" );

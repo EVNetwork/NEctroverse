@@ -436,13 +436,18 @@ int dbInit() {
 	dbUserPtr user;
 	dbUserMainDef maind;
 	dbMainPlanetDef planetd;
+	dbForumForumDef forumd;
 	FILE *file;
 	char szUsersFile[500];
 	char COREDIR[256];
 	
 sprintf( COREDIR, "%s/data", COREDIRECTORY );  
 if( chdir( COREDIR ) == -1 ) {
+	#if FORKING == 0
+	printf("Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
+	#endif
 	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
+
 	return 0;
 }
 
@@ -454,55 +459,85 @@ if( chdir( COREDIR ) == -1 ) {
   for( a = 0 ; a < dbMapBInfoStatic[2] ; a++ )
     dbMapRetrieveSystem( 0x10000000 | a, &dbMapSystems[a] );
 
-  if( !( dbFileGenOpen( DB_FILE_MARKET ) ) )
-  {
-    	syslog(LOG_INFO, "Market database not found, creating...\n" );
-    if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) )
-    {
-	syslog(LOG_ERR, "Error, could not create market database!\n" );
-      return 0;
-    }
+if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
+	#if FORKING == 0
+	printf("Market database not found, creating...\n" );
+	#endif
+	syslog(LOG_INFO, "Market database not found, creating...\n" );
 
-    fseek( dbFilePtr[DB_FILE_MARKET], 0, SEEK_SET );
-    array[0] = 0;
-    array[1] = -1;
-    fwrite( array, 1, 2*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
+		#if FORKING == 0
+		printf("Error, could not create market database!\n" );
+		#endif
+		syslog(LOG_ERR, "Error, could not create market database!\n" );
+		return 0;
+	}
 
-    array[0] = 0;
-    array[1] = -1;
-    array[2] = -1;
-    for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
-      fwrite( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+	fseek( dbFilePtr[DB_FILE_MARKET], 0, SEEK_SET );
+	array[0] = 0;
+	array[1] = -1;
+	fwrite( array, 1, 2*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
 
-    dbFileGenClose( DB_FILE_MARKET );
-  }
+	array[0] = 0;
+	array[1] = -1;
+	array[2] = -1;
+	for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
+		fwrite( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+
+	dbFileGenClose( DB_FILE_MARKET );
+}
 
 
-  if( !( file = fopen( "forums", "rb+" ) ) )
-  {
+if( !( file = fopen( "forums", "rb+" ) ) ) {
+	#if FORKING == 0
+	printf("Forum database not found, creating...\n" );
+	#endif
 	syslog(LOG_INFO, "Forum database not found, creating...\n" );
-    if( !( file = fopen( "forums", "wb+" ) ) )
-    {
-      syslog(LOG_ERR, "Error, could not create forum database!\n" );
-      return 0;
-    }
-    a = 0;
-    fwrite( &a, 1, sizeof(int), file );
-  }
-  fclose( file );
+	if( !( file = fopen( "forums", "wb+" ) ) ) {
+		#if FORKING == 0
+		printf("Error, could not create forum database!\n" );
+		#endif
+		syslog(LOG_ERR, "Error, could not create forum database!\n" );
+		return 0;
+	}
+	a = 0;
+	fwrite( &a, 1, sizeof(int), file );
+	forumd.threads = 0;
+	forumd.time = 0;
+	forumd.tick = 0;
+	forumd.flags = 0;
+	for( a = 0 ; a < dbMapBInfoStatic[4] ; a++ ) {
+		sprintf( forumd.title, "Empire %d forum", a );
+		forumd.rperms = 2;
+		forumd.wperms = 2;
+		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
+		dbForumAddForum( &forumd, 1, 100+a );
+	}
+	#if FORKING == 0
+	printf("Created Forums for %d Empires.\n", a-1 );
+	#endif
+	syslog(LOG_INFO, "Created Forums for %d Empires.\n", a-1 );
+
+}
+fclose( file );
 
 
-  if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
-  {
-    syslog(LOG_INFO, "User database not found, creating...\n" );
+if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
+	#if FORKING == 0
+	printf("User database not found, creating...\n" );
+	#endif
+	syslog(LOG_INFO, "User database not found, creating...\n" );
+
     // Create a path to the users file in the same way as dbFileGenOpen
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );
 	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
-    if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) )
-    {
-      syslog(LOG_ERR, "Error, could not create user database!\n" );
-      return 0;
-    }
+	if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) ) {
+		#if FORKING == 0
+		printf("Error, could not create user database!\n" );
+		#endif
+		syslog(LOG_ERR, "Error, could not create user database!\n" );
+		return 0;
+	}
     fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
     a = 0;
     fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
@@ -522,12 +557,6 @@ if( chdir( COREDIR ) == -1 ) {
     if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_USER ) ) )
       continue;
     fread( &c, 1, sizeof(int), file );
-
-/*
-	syslog(LOG_INFO, "%d, %d\n", a, c );
-*/
-
-//    if( !( user = dbUserAllocate( c ) ) )
     if( !( user = dbUserAllocate( a ) ) )
     {
       fclose( file );
@@ -695,25 +724,26 @@ int dbUserAdd( char *name, char *faction, char *forumtag )
   mkdir( uname, S_IRWXU );
   
  	//Create a db Database in the db other server
-  for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
-  {
+for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- ) {
 	sprintf( COREDIR, "%s/data", COREDIRECTORY );
   	sprintf( fname, dbFileUserList[a], COREDIR, id );
     
-    if( !( file = fopen( fname, "wb+" ) ))
-    {
-      dbUserFree( user );
-      rmdir( dname );
-      rmdir( uname );
-	syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
-      return -3;
-    }
-    if( a == 0 )
-      break;
-    if( dbFileUserListBase[a] )
-      fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
-    fclose( file );
-  }
+	if( !( file = fopen( fname, "wb+" ) )) {
+		dbUserFree( user );
+		rmdir( dname );
+		rmdir( uname );
+		#if FORKING == 0
+		printf("Data: %02d, fopen dbuseradd\n", errno );
+		#endif
+		syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
+		return -3;
+	}
+	if( a == 0 )
+		break;
+	if( dbFileUserListBase[a] )
+		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
+	fclose( file );
+}
 
   fwrite( &id, 1, sizeof(int), file );
   a = 0;
@@ -727,27 +757,28 @@ int dbUserAdd( char *name, char *faction, char *forumtag )
  
   
   //Create a user Database in the db 10Min server
-  for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- )
-  {
+for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- ) {
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );
   	sprintf( fname, dbFileUserList[a], COREDIR, id );
-    if( !( file = fopen( fname, "wb+" ) ))
-    {
-      dbUserFree( user );
-      rmdir( dname );
-      rmdir( uname );
-      syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
-      return -3;
-    }
-    if( a == 0 )
-      break;
-    if( dbFileUserListBase[a] )
-    {
-      //printf("write base of %s", fname);
-      fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
-    }
-    fclose( file );
-  }
+
+	if( !( file = fopen( fname, "wb+" ) )) {
+		dbUserFree( user );
+		rmdir( dname );
+		rmdir( uname );
+		#if FORKING == 0
+		printf("User: %02d, fopen dbuseradd\n", errno );
+		#endif
+		syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
+		return -3;
+	}
+	if( a == 0 )
+		break;
+	if( dbFileUserListBase[a] ) {
+		//printf("write base of %s", fname);
+		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
+	}
+	fclose( file );
+}
 	
   fwrite( &id, 1, sizeof(int), file );
   a = 0;
@@ -804,7 +835,10 @@ int dbUserAdd( char *name, char *faction, char *forumtag )
 	user_ptr=user_hashes;
 	for(h_user=dbUserList;h_user;h_user=h_user->next) {
 		if(user_ptr[0]!=h_user->id) {
-			printf("WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0]);
+			#if FORKING == 0
+			printf("WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
+			#endif
+			syslog(LOG_INFO, "WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
 			continue;
 		}
 		h_user->session[0]=user_ptr[1];
@@ -815,9 +849,8 @@ int dbUserAdd( char *name, char *faction, char *forumtag )
 	}
 	free(user_hashes);
 
-//  syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
-//  system("kill -n 12 $(pidof sv)");
-  return id;
+
+return id;
 }
 
 int dbUserRemove( int id )
@@ -857,86 +890,102 @@ int dbUserRemove( int id )
   sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
   rmdir( dname );
 
-// syslog(LOG_INFO, "system kill -n 12 $(pidof sv)\n" );
-//  system("kill -n 12 $(pidof sv)");
 
-  return 1;
+return 1;
 }
 
 
-int dbUserSave( int id, dbUserPtr user )
-{
-  FILE *file;
+int dbUserSave( int id, dbUserPtr user ) {
+	FILE *file;
   
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbsetname\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
-    return -3;
-  }
-  fwrite( &user->id, 1, sizeof(int), file );
-  fwrite( &user->level, 1, sizeof(int), file );
-  fseek(file, sizeof(int), SEEK_CUR);
-  
-  fwrite( &user->reserved, 1, sizeof(int), file );
-  fwrite( user->name, 1, 64, file );
-  fclose( file );
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER_FLAGS ) ) ) {
-	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
-    return -3;
-  }
-  fseek(file, 2*sizeof(int), SEEK_CUR);
-  fwrite( &user->flags, 1, sizeof(int), file );
-  fclose(file);
-  return 1;
+	return -3;
 }
 
-int dbUserSetPassword( int id, char *pass )
-{
-  char fname[128];
-  FILE *file;
+fwrite( &user->id, 1, sizeof(int), file );
+fwrite( &user->level, 1, sizeof(int), file );
+fseek(file, sizeof(int), SEEK_CUR);
+fwrite( &user->reserved, 1, sizeof(int), file );
+fwrite( user->name, 1, 64, file );
+fclose( file );
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER_FLAGS ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbsetname\n", errno );
+	#endif
+	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
+	return -3;
+}
+
+fseek(file, 2*sizeof(int), SEEK_CUR);
+fwrite( &user->flags, 1, sizeof(int), file );
+fclose(file);
+
+return 1;
+}
+
+int dbUserSetPassword( int id, char *pass ) {
+	char fname[128];
+	FILE *file;
   
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbsetpassword\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbsetpassword\n", errno );
 	return -3;
-  }
+}
 
-  fseek( file, 16+65, SEEK_SET );
-  memset( fname, 0, 128 );
-  sprintf( fname, pass );
+fseek( file, 16+65, SEEK_SET );
+memset( fname, 0, 128 );
+sprintf( fname, pass );
 #if HASHENCRYPTION == 1
-  sprintf( fname, "%s", hashencrypt(fname) );
+sprintf( fname, "%s", hashencrypt(fname) );
 #endif
-  fwrite( fname, 1, 128, file );
-  fclose( file );
-  return 1;
+fwrite( fname, 1, 128, file );
+fclose( file );
+
+return 1;
 }
 
-int dbUserRetrievePassword( int id, char *pass )
-{
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+int dbUserRetrievePassword( int id, char *pass ) {
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbretrievepassword\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbretrievepassword\n", errno );
-    return -3;
-  }
-  fseek( file, 16+65, SEEK_SET );
-  fread( pass, 1, 128, file );
-  fclose( file );
-  return 1;
+	return -3;
 }
 
-int dbUserLinkDatabase( void *cnt, int id )
-{
-  dbUserPtr user;
-  svConnectionPtr cnt2 = cnt;
-  if( id < 0 )
-  {
-    cnt2->dbuser = 0;
-    return 1;
-  }
-  if( !( user = dbUserLinkID( id ) ) )
-    return -2;
-  cnt2->dbuser = user;
-  user->lasttime = time( 0 );
-  return 1;
+fseek( file, 16+65, SEEK_SET );
+fread( pass, 1, 128, file );
+fclose( file );
+
+return 1;
+}
+
+int dbUserLinkDatabase( void *cnt, int id ) {
+	dbUserPtr user;
+	svConnectionPtr cnt2 = cnt;
+
+if( id < 0 ) {
+	cnt2->dbuser = 0;
+	return 1;
+}
+
+if( !( user = dbUserLinkID( id ) ) )
+	return -2;
+
+cnt2->dbuser = user;
+user->lasttime = time( 0 );
+
+return 1;
 }
 
 
@@ -960,12 +1009,14 @@ int dbSessionSet( dbUserPtr user, char *hash, int *session )
   return 1;
 }
 
-int dbSessionRetrieve( dbUserPtr user, int *session )
-{
-  if( !( user ) )
-    return -3;
-  memcpy( session, user->session, 4*sizeof(int) );
-  return 1;
+int dbSessionRetrieve( dbUserPtr user, int *session ) {
+
+if( !( user ) )
+	return -3;
+
+memcpy( session, user->session, 4*sizeof(int) );
+
+return 1;
 }
 
 
@@ -1817,11 +1868,14 @@ int dbUserNewsAdd( int id, long long int *data, long long int flags )
 {
   long long int a, num, lused, lfree, numnext, lcur, lnext, cflags;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
-  {
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernewsadd\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
-    return -3;
-  }
+	return -3;
+}
   
   fread( &num, 1, sizeof(long long int), file );
   fread( &lused, 1, sizeof(long long int), file );
@@ -1873,19 +1927,23 @@ int dbUserNewsAdd( int id, long long int *data, long long int flags )
   return 1;
 }
 
-long long int dbUserNewsGetFlags( int id )
-{
-  long long int flags;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
-  {
+long long int dbUserNewsGetFlags( int id ) {
+	long long int flags;
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernewsflags\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsflags\n", errno );
-    return -3;
-  }
-  fseek( file, 24, SEEK_SET );
-  fread( &flags, 1, sizeof(long long int), file );
-  fclose( file );
-  return flags;
+	return -3;
+}
+
+fseek( file, 24, SEEK_SET );
+fread( &flags, 1, sizeof(long long int), file );
+fclose( file );
+
+return flags;
 }
 
 int dbUserNewsList( int id, long long int **data )
@@ -1894,11 +1952,14 @@ int dbUserNewsList( int id, long long int **data )
   FILE *file;
   long long int *datap;
   *data = 0;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
-  {
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernewslist\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
-    return -3;
-  }
+	return -3;
+}
   fread( &num, 1, sizeof(long long int), file );
   fread( &lused, 1, sizeof(long long int), file );
   fread( &lfree, 1, sizeof(long long int), file );
@@ -1927,11 +1988,13 @@ long long int dbUserNewsListUpdate( int id, long long int **data, long long int 
   FILE *file;
   long long int *datap;
   *data = 0;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
-  {
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernews\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernews\n", errno );
-    return -3;
-  }
+	return -3;
+}
   fread( &num, 1, sizeof(long long int), file );
   fread( &lused, 1, sizeof(long long int), file );
   fread( &lfree, 1, sizeof(long long int), file );
@@ -1996,17 +2059,21 @@ long long int dbUserNewsListUpdate( int id, long long int **data, long long int 
   return numnew;
 }
 
-int dbUserNewsEmpty( int id )
-{
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) )
-  {
+int dbUserNewsEmpty( int id ) {
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernewsempty\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsempty\n", errno );
-    return -3;
-  }
-  fwrite( dbFileUserListData[DB_FILE_USER_NEWS], 1, dbFileUserListBase[DB_FILE_USER_NEWS], file );
-  fclose( file );
-  return 1;
+	return -3;
+}
+
+fwrite( dbFileUserListData[DB_FILE_USER_NEWS], 1, dbFileUserListBase[DB_FILE_USER_NEWS], file );
+fclose( file );
+
+return 1;
 }
 
 
@@ -2021,11 +2088,13 @@ int dbFamNewsAdd( int id, long long int *data )
   FILE *file;
   char fname[32];
   sprintf( fname, "fam%dnews", id );
-  if( !( file = fopen( fname, "rb+" ) ) )
-  {
+if( !( file = fopen( fname, "rb+" ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernewsadd\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
   	return -3;
-  }
+}
   
   fread( &num, 1, sizeof(long long int), file );
   fread( &lused, 1, sizeof(long long int), file );
@@ -2080,12 +2149,16 @@ int dbFamNewsList( int id, long long int **data, int time )
   char fname[32];
   *data = 0;
   sprintf( fname, "fam%dnews", id );
-  if( !( file = fopen( fname, "rb+" ) ) )
-  {
+
+if( !( file = fopen( fname, "rb+" ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, fopen dbusernewslist\n", errno );
+	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
-    return -3;
-  }
-  fread( &num, 1, sizeof(long long int), file );
+	return -3;
+}
+
+fread( &num, 1, sizeof(long long int), file );
   fread( &lused, 1, sizeof(long long int), file );
   fread( &lfree, 1, sizeof(long long int), file );
   a = 0;
@@ -3059,6 +3132,9 @@ int dbForumRemoveForum( int forum )
   else
   	a = sprintf( fname,  "%s/forum%d", PUBLIC_FORUM_DIRECTORY, forum );
   if( !( dirdata = opendir( fname ) ) ) {
+	#if FORKING == 0
+	printf("Error %02d, opendir(%s)\n", errno, fname );
+	#endif
 	syslog(LOG_ERR, "Error %02d, opendir(%s)\n", errno, fname );
 	return -3;
   }

@@ -78,18 +78,6 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   if( (unsigned int)raceid >= CMD_RACE_NUMUSED )
     return -1;
     
-  //Verify that if they choose Ultimums they are at least mod  -- cheating basterds.
-  if((level < LEVEL_MODERATOR)&&(raceid == CMD_RACE_ULTI))
-  {
-  	cmdErrorString = "You don't have the wisdom to be this race!!";
-  	return -1;
-  }
-  /*
-  //ONLY ROUND #23(two emp) and #24(10 emp)
-  //Pseudo random if not mod
-  if(level < LEVEL_MODERATOR)
-  	famnum = -1;
-  	*/
   maind.raceid = raceid;
 
   cmdErrorString = 0;
@@ -123,38 +111,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
       if( c < 0 )
         break;
     }
-    
-    
-    /*
-    //ONLY ROUND #23(two emp) and #24(10 emp)
-    //This code is executed for normal people
-    //Count how many in each
-    for(i=1;i<binfo[4];i++)
-    {
-    	dbMapRetrieveEmpire( i, &empired );
-    	nPlayer[i] = empired.numplayers;
-    	total += nPlayer[i];
-    }
-     
-    //max in all available emp except admin team 
-    if(total == (binfo[5]*(binfo[4]-1)))
-    {
-    	//We hope this is not going to happen
-    	cmdErrorString = "The galaxy is full!";
-      return -1;
-    }
-    
-    b = 1;
-    c = 2000;
-    for(i=1; i<binfo[4];i++)
-    {
-    	if (nPlayer[i] < c)
-    	{
-    		c = nPlayer[i];	//This number of player
-    		b = i;					//in this empire
-    	}
-    }*/
-    maind.empire = a;		//Go in the smallest emp
+    maind.empire = a;
   }
   else
   {

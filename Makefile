@@ -7,7 +7,7 @@ endif
 #The standard config needed to compile basic server, withought these it won't work.
 REQUIRED = config.h global.h
 CONFIGS := $(shell cat config.h)
-FLAGS = --fast-math -Wall -fno-strict-aliasing
+FLAGS = --fast-math -Wall -fno-strict-aliasing -lpng
 #The -s flag was removed from the flags above, since it strips excess headers... such as debugging.
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb

@@ -1,8 +1,11 @@
 #define CONFIGINCLUDED
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
+
 #define SERVERNAME "NEctroverse"
+
 //Do not change this "on the fly", you will not beable to login. (Unless you use the md5-sum of your password)
 #define HASHENCRYPTION 1
+
 #define FORKING 0
 
 #define HTTP_PORT (9122)
@@ -32,10 +35,8 @@ static char cmdAdminEmpirePass[32] = { "password" };
 static int cmdAdminEmpire = 0;
 #endif
 
-#define COREDIRECTORY "/media/stephen/mini/git/NEctroverse/core"
-static char WORKDIRECTORY[32] = "%s/git/NEctroverse/core";
-static char HTMLDIRECTORY[32] = "%s/git/NEctroverse/html";
 #define TMPDIR "/tmp/evcore"
+#define COREDIRECTORY "/media/stephen/mini/git/NEctroverse/core"
 
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
 #define IOHTTP_FILES_DIRECTORY "/media/stephen/mini/git/NEctroverse/html/images"
@@ -47,7 +48,7 @@ static char HTMLDIRECTORY[32] = "%s/git/NEctroverse/html";
 // Umm, IRC... old skool...
 #define IRC_SERVER "irc.freenode.net"
 
-#define ROUND_ID (8)
+#define ROUND_ID (0)
 #define AUTOVICTORYIN (16)
 #define AUTOENDWARS (52)
 #define STOCKPERMITTED (26)
