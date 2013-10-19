@@ -6,7 +6,7 @@
 //Do not change this "on the fly", you will not beable to login. (Unless you use the md5-sum of your password)
 #define HASHENCRYPTION 1
 
-#define FORKING 0
+#define FORKING 1
 
 #define HTTP_PORT (9122)
 
@@ -125,7 +125,6 @@ static const double megabyte = (1024 * 1024);
 ^^^ You don't want to change anything down here... it's all up there! ^^^ =) 
 */
 
-#define PIPEFILE "/tmp/evcore/evserver.pipe"
 #define SERVER_RECV_BUFSIZE (32768)
 #define SERVER_PATH_BUFSIZE (512)
 #define SERVER_SELECT_MSEC (1000)

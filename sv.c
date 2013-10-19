@@ -123,16 +123,26 @@ if ( c == 0 ) {
 return 1;
 }
 
-void cleanUp(int pipefileid) {
+void cleanUp(int pipefileid, int type) {
+	char DIRCHECKER[256];
 
 close(pipefileid);
-unlink(PIPEFILE);
+
+
+if( type ) {
+sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
+unlink(DIRCHECKER);
 syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
 syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
 closelog();
 #if FORKING == 0
 printf("Server has been Completly shutdown!\n");
 #endif
+} else {
+sprintf( DIRCHECKER, "%s/evserver.temp.pipe", TMPDIR );
+unlink(DIRCHECKER);
+}
+
 return;
 }
 
@@ -170,7 +180,7 @@ for( a = 0 ; a < SV_INTERFACES ; a++ ) {
 
    	}
 
-cleanUp(-1);
+cleanUp(-1,1);
 return;
 }
 
@@ -754,7 +764,7 @@ if( svDebugConnection ) {
 }
 
 
-cleanUp(-1);
+cleanUp(-1,1);
 exit(1);
 }
 
@@ -786,32 +796,81 @@ return str;
 }
 
 //Read from pipe file... command execution latter to come...
-void readfrompipe(int pipefileid){
-	int num;
-	char buf[256];
+void svPipeScan(int pipefileid){
+	int num, pipeclient, stop;
+	char DIRCHECKER[256];
+	char buffer[128] = {0};
 
-num = read(pipefileid, buf, sizeof(buf));
-buf[num] = '\0';
-
-if ( num > 0 ) {
-	strcpy(trimwhitespace(buf),buf);
-	if( !(strcmp(buf,"die") ) ) {
-		#if FORKING == 0
-		printf("%s\n", "Shutdown command recived from Pipe.");
-		#endif
-		syslog(LOG_INFO, "%s\n", "Shutdown command recived from Pipe.");
-		cleanUp(pipefileid);
-		exit(1);
+num = read(pipefileid, buffer, sizeof(buffer));
+buffer[num] = '\0';
+stop = 0;
+if ( ( num > 0 ) && strlen(buffer) ) {
+	if( !(strcmp(buffer,"stop") ) ) {
+		stop = 1;
 	} else {
 		#if FORKING == 0
-		printf("Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buf);
+		printf("Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
 		#endif
-		syslog(LOG_ERR, "Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buf);
+		syslog(LOG_ERR, "Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
 	}
+	sprintf(DIRCHECKER, "Recived command \"%s\", I will now process.", buffer );
+	svPipeSend(0,DIRCHECKER);
+}
+
+if( stop ) {
+	svPipeSend(0,"Server is shutting down as requested..");
+	#if FORKING == 0
+	printf("%s\n", "Shutdown command recived from Pipe.");
+	#endif
+	syslog(LOG_INFO, "%s\n", "Shutdown command recived from Pipe.");
+}
+
+if ( num > 0 ) {
+	svPipeSend(0,"<<<END>>>");
+}
+
+//<<<WORKNEEDED>>> Lets move this latter.
+if( stop ) {
+	cleanUp(pipefileid,1);
+	exit(1);
 }
 
 
 return;
+}
+
+//Respond to client, let them know we have the command.
+int svPipeSend(int pipedirection, char *message){
+	int num, pipefile;
+	char DIRCHECKER[256];
+
+sprintf( DIRCHECKER, "%s/evserver.%s", TMPDIR, ( pipedirection ? "pipe" : "client.pipe" ) );
+if( file_exist(DIRCHECKER) && strlen(message) ) {
+	if( ( pipefile = open(DIRCHECKER, O_WRONLY | O_NONBLOCK) ) < 0) {
+		#if FORKING == 0
+		printf( "Piping Responce Error: unable to open client." );
+		#endif
+		syslog(LOG_ERR, "Piping Responce Error: unable to open client." );
+		return 0;
+	}
+	if( ( num = write(pipefile, message, strlen(message)) ) < 0) {
+		#if FORKING == 0
+		printf( "Piping Responce Error: unable to write to client." );
+		#endif
+		syslog(LOG_ERR, "Piping Responce Error: unable to write to client." );
+		return 0;
+	}
+	close(pipefile);
+} else {
+	#if FORKING == 0
+	printf( "Piping Error: message to send but no pipe avaliable" );
+	#endif
+	syslog(LOG_ERR, "Piping Error: message to send but no pipe avaliable" );
+	return 0;
+}
+
+fflush( stdout );
+return 1;
 }
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
@@ -824,7 +883,7 @@ void daemonloop(int pipefileid) {
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
 		#if FORKING == 1
-		readfrompipe(pipefileid);
+		svPipeScan(pipefileid);
 		#endif
 		svSelect();
 		svListen();
@@ -876,38 +935,44 @@ return;
 }
 
 //begin upgrade to daemon, I don't like shell dependancy!
-int daemon_init(void) {
+int daemon_init( char *argument ) {
 	int a;
 	int pipingin;
 	int binfo[7];
-	char COREDIR[256];
+	char DIRCHECKER[256];
 	FILE *file;
 	ioInterfacePtr io;
 #if FORKING == 1
 	pid_t pid, sid;
 
+if( ( strcmp(argument,"daemonize") ) && ( strcmp(argument,"start") ) ) {
+printf("\'%s\' is not a valid command, use \'daemonize\' or \'start\'.\n", argument);
+return 0;
+}
 
+printf("%s\n", "Server process iniating...");
+
+if( strcmp(argument,"daemonize") ) {
 pid = fork();
 if(pid < 0) {
-	syslog(LOG_ERR, "Forking Error: %s\n", perror);
-	exit(EXIT_FAILURE);
+	syslog(LOG_ERR, "Forking Error: %d\n", errno);
+	return 0;
+} else if(pid > 0) {
+	return 1; // So we forked it, time to return and wait for results on a client pipe.
 }
-if(pid > 0) {
-	exit(EXIT_SUCCESS); // So we forked it, suicide time! =D
- }
-
-syslog(LOG_INFO, "%s\n", "Begining initiation of NEctroverse daemon...");
+printf("%d\n",pid);
+syslog(LOG_INFO, "Begining initiation of %s daemon...", SERVERNAME);
 
 // First, start a new session
 if((sid = setsid()) < 0) {
 	syslog(LOG_ERR, "%s\n", "setsid has failed, unable to fork into daemon");
-	exit(EXIT_FAILURE);
+	return 0;
 }
 
 // Next, make / the current directory -- daemons like this kinda stuff.
 if((chdir("/")) < 0) {
 	syslog(LOG_ERR, "%s\n", "chdir has failed, unable to fork into daemon");
-	exit(EXIT_FAILURE);
+	return 0;
 }
 
 // Reset the file mode
@@ -917,11 +982,12 @@ umask(0);
 close(STDIN_FILENO);
 close(STDOUT_FILENO);
 close(STDERR_FILENO);
+}
 #endif
 
 svTickTime = time(0) + SV_TICK_TIME;
-sprintf( COREDIR, "%s/ticks", COREDIRECTORY );	
-if( ( file = fopen( COREDIR, "r" ) ) ) {
+sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );	
+if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
 	fscanf( file, "%d", &a );
 	//  fscanf( file, "%d", &svRoundEnd );
 	fclose( file );
@@ -974,16 +1040,16 @@ if( !( cmdInit() ) )  {
 	syslog(LOG_ERR, "Basic Iniation failed, exiting\n");
 	return 0;
 }
-sprintf( COREDIR, "%s/data", COREDIRECTORY );  
-if( chdir( COREDIR ) == -1 ) {
+sprintf( DIRCHECKER, "%s/data", COREDIRECTORY );  
+if( chdir( DIRCHECKER ) == -1 ) {
 	#if FORKING == 0
 	printf("Change into Database Dir Failed, exiting\n");
 	#endif
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
-sprintf( COREDIR, "%s/ticks", COREDIRECTORY );  
-if( ( file = fopen( COREDIR, "r" ) ) ) {
+sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );  
+if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
 	fscanf( file, "%d", &svTickNum );
 	fclose( file );
 }
@@ -996,12 +1062,16 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0
 
 //add local pipe, for basic commands from shell
 #if FORKING == 1
-mkfifo(PIPEFILE, 0666);
-pipingin = open(PIPEFILE, O_RDONLY | O_NONBLOCK);
+sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
+mkfifo(DIRCHECKER, 0666);
+pipingin = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
+syslog(LOG_INFO, "Completed initiation of %s daemon.\n", SERVERNAME );
 #else
 pipingin = 0;
+printf("All checks passed, begining server loop...\n");
 #endif
-syslog(LOG_INFO, "%s\n", "Completed initiation of NEctroverse daemon.");
+
+
 //Now create the loop, this used to take place in here... but I decided to move it =P
 daemonloop(pipingin);
 
@@ -1018,8 +1088,9 @@ return 1;
 }
 
 int file_exist (char *filename) {
-  struct stat   buffer;   
-  return (stat (filename, &buffer) == 0);
+	struct stat buffer;
+
+return (stat (filename, &buffer) == 0);
 }
 
 char** str_split( char* str, char delim, int* numSplits ) {
@@ -1041,22 +1112,20 @@ if ( ( str == NULL ) || ( delim == '\0' ) ) {
 	c++;
 	} while ( *c != '\0' );
 
-ret = malloc( ( retLen + 1 ) * sizeof( *ret ) );
-ret[retLen] = NULL;
+	ret = malloc( ( retLen + 1 ) * sizeof( *ret ) );
+	ret[retLen] = NULL;
+	c = str;
+	retLen = 1;
+	ret[0] = str;
 
-c = str;
-retLen = 1;
-ret[0] = str;
+	do {
+		if ( *c == delim ) {
+			ret[retLen++] = &c[1];
+        	        *c = '\0';
+		}
 
-do {
-	if ( *c == delim ) {
-		ret[retLen++] = &c[1];
-                *c = '\0';
-	}
-
-	c++;
-} while ( *c != '\0' );
-
+		c++;
+	} while ( *c != '\0' );
 }
 
 if ( numSplits != NULL ) {
@@ -1109,25 +1178,36 @@ free( strCpy );
 return;
 }
 
-int main() {
-	char COREDIR[256];
-	char buf[256];
-	int num, fd, size;
-//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc.
+int main( int argc, char *argv[] ) {
+	char DIRCHECKER[256];
+	int num, pipeserver, pipeclient;
+
+#if FORKING == 1
+if ( argc != 2 ) {
+	printf( "Usage: \"%s COMMAND\"\n", argv[0] );
+	return 0;
+}
+#else
+argv[1] = "daemonize";
+#endif
+
+//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc. (in config.h)
 openlog(LOGTAG, LOG_CONS | LOG_PID | LOG_NDELAY, LOGFAC);
 dirstructurecheck(TMPDIR);
 //check basic dir structure and create as needed.	
-sprintf( COREDIR, "%s/data", COREDIRECTORY );
-dirstructurecheck(COREDIR);
-sprintf( COREDIR, "%s/users", COREDIRECTORY );
-dirstructurecheck(COREDIR);
-sprintf( COREDIR, "%s/logs", COREDIRECTORY );
-dirstructurecheck(COREDIR);
-//well its not really public yet now is it...
-//sprintf( fname, "%s/forum", COREDIRECTORY );
-//dirstructurecheck(fname);
-sprintf( COREDIR, "%s/data/map", COREDIRECTORY );
-if( !( file_exist(COREDIR) ) ) {
+sprintf( DIRCHECKER, "%s/data", COREDIRECTORY );
+dirstructurecheck(DIRCHECKER);
+sprintf( DIRCHECKER, "%s/users", COREDIRECTORY );
+dirstructurecheck(DIRCHECKER);
+sprintf( DIRCHECKER, "%s/logs", COREDIRECTORY );
+dirstructurecheck(DIRCHECKER);
+//well its not really public yet now is it... <<<WORKNEEDED>>>
+sprintf( DIRCHECKER, "%s/forum", COREDIRECTORY );
+dirstructurecheck(DIRCHECKER);
+sprintf( DIRCHECKER, "%s/data/map", COREDIRECTORY );
+printf("\n");
+sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
+if( !( file_exist(DIRCHECKER) ) ) {
 	#if FORKING == 0
 	printf("No map detected... now generating...\n");
 	#endif
@@ -1135,44 +1215,57 @@ if( !( file_exist(COREDIR) ) ) {
 	mapgen();
 }
 
-if ( file_exist(PIPEFILE) ) {
-printf("%s\n","Pipe file detected, auto switching to client mode");
-//exit(1);
+if ( file_exist(DIRCHECKER) ) {
+	printf("%s\n","Pipe file detected, auto switching to client mode");
 } else {
-	printf("%s\n", "Server process iniating...");
-#if FORKING == 1
-	printf("%s\n", "You'll have to check logs to see if anything went wrong for now...");
-	printf("%s\n", "Returning to shell, daemon takes over now.");
-#endif
 //Begin deamonization and initate server loop.
-	if( !( daemon_init() ) ) {
+	if( !( daemon_init(argv[1]) ) ) {
 	printf( "Can not load, oh this is bad...\n" );
 	syslog(LOG_CRIT, "<<< !!!! CRITICAL ERROR !!!! >>>\n");
 	return 0;
-	} 
+	}
+#if FORKING == 1
+	printf("%s\n", "Returning to shell, daemon has loaded in the background.");
+	printf("%s\n", "Use \'daemonize'\ if you want to run in the old shell mode" );
+#endif
+printf("\n");
+
+return 1;
 }
 
-printf("%s\n", "Please input command to send to server...");
+#if FORKING == 1
+//OK, so we made it down here... that means we are a client and the pipe is active.
 
-        if ((fd = open(PIPEFILE, O_WRONLY)) < 0)
-            perror("Open Pipe for Write");
-	size = sizeof(buf);
-        printf("Daemon listening on Pipe... Typing \"die\" kills server.\n");
-        while( file_exist(PIPEFILE) && fgets(buf, size, stdin) && !feof(stdin) ) {
+if ((pipeserver = open(DIRCHECKER, O_WRONLY | O_NONBLOCK)) < 0)
+	perror("Open Pipe for Write");
 
-            if ((num = write(fd, buf, strlen(buf))) < 0)
-                perror("Write To Pipe");
-            else
-                printf("Wrote %d bytes to pipe\n", num);
-	sleep(1);        
+sprintf(DIRCHECKER, "%s/evserver.client.pipe", TMPDIR );
+mkfifo(DIRCHECKER, 0666);
+
+svPipeSend(1, argv[1]);
+
+pipeclient = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
+printf("\n");
+while( file_exist(DIRCHECKER) ) {
+	char buffer[1024] = {0};
+	num = read(pipeclient, buffer, sizeof(buffer) );
+	if( !(strcmp(buffer,"<<<END>>>") ) )
+		break;
+	if ( num > 0 ) {
+                puts( buffer );
+		fflush( stdout );
 	}
+}
 
-        close(fd);
 
-#if FORKING == 0
+cleanUp(pipeclient,0);
+printf("\n");
+
+#else
 //We should never get here... parent proccess is set to self destruct! -- Yer, we do now... haha.
 printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
 #endif
+
 return 1;
 }
 

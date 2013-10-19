@@ -407,6 +407,7 @@ for( y = 0 ; y < mapgen.height ; y++ ) {
 
 if(mapgen.width > MAP_SIZEX) {
 	mapgen.data = bigpixies;
+	free(bigpixies);
 } else {
 	mapgen.data = pixels;
 }
@@ -414,7 +415,7 @@ if(mapgen.width > MAP_SIZEX) {
 sprintf( fname, IOHTTP_FILES_DIRECTORY "/galaxyr%d.png", ROUND_ID );
 imgWritePngFile( fname, &mapgen );
 free(pixels);
-free(bigpixies);
+
 
 
 //<<WORKNEEDED>> Such a dirty fix, but well... it works. =/

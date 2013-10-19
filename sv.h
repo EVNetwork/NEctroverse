@@ -64,6 +64,9 @@ void svShutdown( svConnectionPtr cnt );
 void svClose( svConnectionPtr cnt );
 int svFree( svConnectionPtr cnt );
 
+void svPipeScan(int pipefileid);
+int svPipeSend(int pipedirection, char *message);
+
 void svSendEnd( svConnectionPtr cnt );
 void svSendInit( svConnectionPtr cnt, int size );
 int svSendFlush( svConnectionPtr cnt );

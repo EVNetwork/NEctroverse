@@ -238,12 +238,16 @@ FILE *dbFileGenOpen( int num ) {
 		sprintf( COREDIR, "%s/users", COREDIRECTORY );
 		sprintf(szSource, dbFileList[num], COREDIR);
 	} else {
-		sprintf(szSource, dbFileList[num]);
+		sprintf( COREDIR, "%s/data", COREDIRECTORY );
+		sprintf(szSource, dbFileList[num], COREDIR);
 	}
 	if( dbFilePtr[num] )
 		return dbFilePtr[num];
     
 	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
+		#if FORKING == 0
+		printf("DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
+		#endif
 		syslog(LOG_ERR, "DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
 		return 0;
 	}
@@ -291,8 +295,12 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 		return fopen( fname, "rb+" );
 	}
 
-	if( num < 0x10000 )
-	syslog(LOG_ERR, "Error: %02d, fopen \"%s\"\n", errno, fname );
+	if( num < 0x10000 ) {
+		#if FORKING == 0
+		printf("Error %02d, fopen %s\n", errno, fname );
+		#endif
+		syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
+	}
 
 	return 0;
 }
@@ -326,8 +334,12 @@ FILE *dbFileFamOpen( int id, int num )
       fseek( file, 0, SEEK_SET );
       return file;
     }
-    if( num < 0x10000 )
-	syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
+	if( num < 0x10000 ) {
+		#if FORKING == 0
+		printf("Error %02d, fopen %s\n", errno, fname );
+		#endif
+		syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
+	}
     return 0;
   }
   return file;
@@ -346,7 +358,10 @@ dbUserPtr dbUserAllocate( int id )
   char pass[128];
   dbUserPtr user;
   if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
-	syslog(LOG_ERR,  "Error, malloc dbuser failed\n" );
+	#if FORKING == 0
+	printf("Error, malloc dbuser failed\n" );
+	#endif
+	syslog(LOG_ERR, "Error, malloc dbuser failed\n" );
     return 0;
   }
   memset( user, 0, sizeof(dbUserDef) );
