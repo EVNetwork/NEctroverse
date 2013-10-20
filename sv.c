@@ -826,6 +826,7 @@ if( stop ) {
 }
 
 if ( num > 0 ) {
+	svPipeSend(0,"Yep, thats all flokes...");
 	svPipeSend(0,"<<<END>>>");
 }
 
@@ -841,26 +842,28 @@ return;
 
 //Respond to client, let them know we have the command.
 int svPipeSend(int pipedirection, char *message){
-	int num, pipefile;
+	int num;
+	FILE *pipefile;
 	char DIRCHECKER[256];
 
 sprintf( DIRCHECKER, "%s/evserver.%s", TMPDIR, ( pipedirection ? "pipe" : "client.pipe" ) );
 if( file_exist(DIRCHECKER) && strlen(message) ) {
-	if( ( pipefile = open(DIRCHECKER, O_WRONLY | O_NONBLOCK) ) < 0) {
+	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
 		#if FORKING == 0
 		printf( "Piping Responce Error: unable to open client." );
 		#endif
 		syslog(LOG_ERR, "Piping Responce Error: unable to open client." );
 		return 0;
 	}
-	if( ( num = write(pipefile, message, strlen(message)) ) < 0) {
+	if( ( num = fprintf(pipefile, message) ) < 0) {
 		#if FORKING == 0
 		printf( "Piping Responce Error: unable to write to client." );
 		#endif
 		syslog(LOG_ERR, "Piping Responce Error: unable to write to client." );
 		return 0;
 	}
-	close(pipefile);
+	fflush(pipefile);
+	fclose(pipefile);
 } else {
 	#if FORKING == 0
 	printf( "Piping Error: message to send but no pipe avaliable" );
@@ -869,7 +872,7 @@ if( file_exist(DIRCHECKER) && strlen(message) ) {
 	return 0;
 }
 
-fflush( stdout );
+
 return 1;
 }
 
@@ -1206,7 +1209,7 @@ sprintf( DIRCHECKER, "%s/forum", COREDIRECTORY );
 dirstructurecheck(DIRCHECKER);
 sprintf( DIRCHECKER, "%s/data/map", COREDIRECTORY );
 printf("\n");
-sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
+
 if( !( file_exist(DIRCHECKER) ) ) {
 	#if FORKING == 0
 	printf("No map detected... now generating...\n");
@@ -1214,7 +1217,7 @@ if( !( file_exist(DIRCHECKER) ) ) {
 	syslog(LOG_INFO, "No map detected... now generating...\n");
 	mapgen();
 }
-
+sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
 if ( file_exist(DIRCHECKER) ) {
 	printf("%s\n","Pipe file detected, auto switching to client mode");
 } else {

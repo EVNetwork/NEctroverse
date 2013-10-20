@@ -6,7 +6,7 @@
 //Do not change this "on the fly", you will not beable to login. (Unless you use the md5-sum of your password)
 #define HASHENCRYPTION 1
 
-#define FORKING 1
+#define FORKING 0
 
 #define HTTP_PORT (9122)
 
@@ -55,7 +55,7 @@ static int cmdAdminEmpire = 0;
 #define DELAY_TIME (00)
 // 1 * 60 seconds... so every 1 min. But we should change this from fixed.
 //#define SV_TICK_TIME (1*60)
-#define SV_TICK_TIME (1*10)
+#define SV_TICK_TIME (1*2)
 
 #define START_TIME " Apr 16 20:00"		//Yer, this ain't good...
 #define STOP_TIME "May 14 16:00"		//Ahh crap, there's two of em...

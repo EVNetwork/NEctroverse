@@ -87,14 +87,14 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   //This is for random emp
   if( famnum == -1 )
   {
-    for( a = b = 0 ; a < binfo[4] ; a++ )
+    for( a = b = 0 ; a < binfo[MAP_EMPIRES] ; a++ )
     {
       fam[a] = 0;
       cmdExecGetFamPass( a, fname );
       if( fname[0] )
         continue;
       dbMapRetrieveEmpire( a, &empired );
-      if( !( binfo[5] - empired.numplayers ) )
+      if( !( binfo[MAP_EMEMBERS] - empired.numplayers ) )
         continue;
       fam[a] = 1 + ( empired.numplayers << 16 );
       b += fam[a];
@@ -116,7 +116,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   else
   {
   	//This the user specified what emp and have the right to do it
-    if( (unsigned int)famnum >= binfo[4] )
+    if( (unsigned int)famnum >= binfo[MAP_EMPIRES] )
     {
       cmdErrorString = "The empire doesn't exist!";
       return -1;
@@ -144,7 +144,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
     cmdErrorString = "The empire doesn't exist!";
     return -1;
   }
-  if( (unsigned int)empired.numplayers >= binfo[5] )
+  if( (unsigned int)empired.numplayers >= binfo[MAP_EMEMBERS] )
   {
     cmdErrorString = "This empire is full!";
     return -1;
@@ -1200,9 +1200,9 @@ int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
   int *rels;
 
   cmdErrorString = 0;
-  if( (unsigned int)fam >= dbMapBInfoStatic[4] )
+  if( (unsigned int)fam >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( (unsigned int)famtarget >= dbMapBInfoStatic[4] )
+  if( (unsigned int)famtarget >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
 
   if( ( num = dbEmpireRelsList( fam, &rels ) ) < 0 )
@@ -1248,9 +1248,9 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
   dbMainEmpireDef empire2d;
 
   cmdErrorString = 0;
-  if( (unsigned int)fam >= dbMapBInfoStatic[4] )
+  if( (unsigned int)fam >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( (unsigned int)famtarget >= dbMapBInfoStatic[4] )
+  if( (unsigned int)famtarget >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( fam == famtarget )
     return -3;
@@ -1599,7 +1599,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
   }
   else
   {
-    if( ( (unsigned int)x >= dbMapBInfoStatic[0] ) || ( (unsigned int)y >= dbMapBInfoStatic[1] ) )
+    if( ( (unsigned int)x >= dbMapBInfoStatic[MAP_SIZEX] ) || ( (unsigned int)y >= dbMapBInfoStatic[MAP_SIZEY] ) )
     {
       cmdErrorString = "These coordinates would lead your ships outside the galaxy!";
       return -3;

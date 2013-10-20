@@ -100,7 +100,7 @@ void iohttpFunc_adminforum( svConnectionPtr cnt )
 
   if( ( actionstring = iohttpVarsFind( "famforum" ) ) )
   {
-    for( a = 0 ; a < dbMapBInfoStatic[4] ; a++ )
+    for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ )
     {
       sprintf( forumd.title, "Empire %d forum", a );
       forumd.rperms = 2;
@@ -1056,7 +1056,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
 
 */
 
-    for( a = 0 ; a < dbMapBInfoStatic[4] ; a++ )
+    for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ )
     {
       sprintf( forumd.title, "Empire %d forum", a );
       forumd.rperms = 2;
@@ -1318,7 +1318,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
 
   if( action[16] )
   {
-    for( a = 0 ; a < dbMapBInfoStatic[2] ; a++ )
+    for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
     {
       dbMapRetrieveSystem( a, &systemd );
       systemd.unexplored = 0;
@@ -1341,7 +1341,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
 
   if( action[18] )
   {
-    for( a = 0 ; a < dbMapBInfoStatic[3] ; a++ )
+    for( a = 0 ; a < dbMapBInfoStatic[MAP_PLANETS] ; a++ )
     {
       dbMapRetrievePlanet( a, &planetd );
       if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
@@ -1379,7 +1379,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
 
   if( action[21] )
   {
-    for( a = b = 0 ; a < dbMapBInfoStatic[3] ; a++ )
+    for( a = b = 0 ; a < dbMapBInfoStatic[MAP_PLANETS] ; a++ )
     {
       dbMapRetrievePlanet( a, &planetd );
       if( !( planetd.special[1] ) )

@@ -564,10 +564,11 @@ if( strlen(text) ) {
 			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 				data[stdata.st_size] = 0;
 				if( ( file = fopen( IOHTTP_READ_DIRECTORY "/login.txt", "rb" ) ) ) {
-					fread( data, 1, stdata.st_size, file );
-					if( strlen(data) ) {
-					svSendString( cnt, "<br><br>" );
-					svSendString( cnt, data );
+					if( stdata.st_size > 0 ) {
+						svSendString( cnt, "<br>" );
+						while( fgets( data, stdata.st_size, file ) != NULL ) {
+							svSendPrintf( cnt, "%s<br>", data );
+						}
 					}
 					fclose( file );
 				}
@@ -598,6 +599,22 @@ svSendString( cnt, "</body></html>\n" );
 return;
 }
 
+void iohttpFunc_boxstart( svConnectionPtr cnt, char *title ) {
+
+svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
+svSendPrintf( cnt, "%s", title);
+svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"i30.jpg\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\"><br>" );
+
+return;
+}
+
+void iohttpFunc_boxend( svConnectionPtr cnt ) {
+
+svSendString( cnt, "<br><br></td><td width=\"7\" background=\"i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"i47.jpg\"><img height=\"12\" src=\"i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"i49.jpg\" width=\"62\"></td></tr></table>" );
+
+return;
+}
+
 void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
 	struct stat stdata;
 	char *data;	
@@ -613,6 +630,33 @@ if( strlen(text) )
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
 
 //notices
+int lines = 0;
+if( stat( IOHTTP_READ_DIRECTORY "/updates.txt", &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/updates.txt", "rb" ) ) ) {
+			if( stdata.st_size > 0 ) {
+				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					if(lines == 0) {
+						iohttpFunc_boxstart( cnt, data );
+					} else {
+						svSendPrintf( cnt, "%s<br>", data );
+					}
+					if( (lines > 1) && (strlen(data) >= 0 ) ) {
+						iohttpFunc_boxend( cnt );
+						svSendString( cnt, "<br>" );
+						lines = 0;
+					} else {
+						lines++;
+					}
+				}
+			}
+			fclose( file );
+		}
+	free( data );
+	}
+}
+/*
 if( stat( IOHTTP_READ_DIRECTORY "/updates.html", &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -623,7 +667,7 @@ if( stat( IOHTTP_READ_DIRECTORY "/updates.html", &stdata ) != -1 ) {
 		}
 		free( data );
 	}
-}
+}*/
 //end notes
 
 svSendString( cnt, "</td><td width=\"6%\">" );
@@ -641,12 +685,13 @@ if( stat( IOHTTP_READ_DIRECTORY "/todo.txt", &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/todo.txt", "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			if( strlen(data) ) {
+			if( stdata.st_size > 0 ) {
 			svSendString( cnt, "<i>Items on the admins to-do list :</i>" );
 			svSendString( cnt, "<br>" );
-			svSendString( cnt, data );
-			svSendString( cnt, "<br>" );
+			while( fgets( data, stdata.st_size, file ) != NULL ) {
+				if( strlen(data) > 1 )
+					svSendPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", data );
+			}
 			svSendString( cnt, "<br>" );
 			}
 			fclose( file );
@@ -874,5 +919,7 @@ svSendString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td w
 iohttpFunc_endhtml( cnt );
 return;
 }
+
+
 
 

@@ -30,14 +30,14 @@ void cmdTickGenRanks()
     fclose( file );
     return;
   }
-  if( !( stats = malloc( 6*dbMapBInfoStatic[4]*sizeof(int) + sizeof(dbMainEmpireDef)*dbMapBInfoStatic[4] ) ) )
+  if( !( stats = malloc( 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int) + sizeof(dbMainEmpireDef)*dbMapBInfoStatic[MAP_EMPIRES] ) ) )
   {
     fclose( file );
     return;
   }
-  empirep = (void *)&stats[6*dbMapBInfoStatic[4]];
-  memset( stats, 0, 6*dbMapBInfoStatic[4]*sizeof(int) );
-  for( b = c = num = 0 ; b < dbMapBInfoStatic[4] ; b++ )
+  empirep = (void *)&stats[6*dbMapBInfoStatic[MAP_EMPIRES]];
+  memset( stats, 0, 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int) );
+  for( b = c = num = 0 ; b < dbMapBInfoStatic[MAP_EMPIRES] ; b++ )
   {
     if( dbMapRetrieveEmpire( b, &empirep[b] ) < 0 )
       continue;
@@ -150,21 +150,20 @@ if( artsnum > artmax )
 	artmax = artsnum;
 
 if( artsnum == ARTEFACT_NUMUSED ) {
-	if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
-		dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + AUTOVICTORYIN;
-		dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
-		dbMapSetMain( dbMapBInfoStatic );
-	} else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
-		svTickStatus = 0;
-		svTickAutoStart = 0;
-		svRoundEnd = svTickNum;
-	}
+        if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
+                dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + AUTOVICTORYIN;
+                dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
+                dbMapSetMain( dbMapBInfoStatic );
+        } else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
+                svTickStatus = 0;
+                svTickAutoStart = 0;
+                svRoundEnd = svTickNum;
+        }
 } else if( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) {
-	dbMapBInfoStatic[MAP_ARTITIMER] = -1;
-	dbMapBInfoStatic[MAP_TIMEMPIRE] = -1;
-	dbMapSetMain( dbMapBInfoStatic );
+        dbMapBInfoStatic[MAP_ARTITIMER] = -1;
+        dbMapBInfoStatic[MAP_TIMEMPIRE] = -1;
+        dbMapSetMain( dbMapBInfoStatic );
 } 
-
 
     if( ( 3*artsnum >= ARTEFACT_NUMUSED ) || ( (3*dbArtefactMax)/2 >= ARTEFACT_NUMUSED ) )
     {
@@ -575,7 +574,7 @@ svDebugTickId = 0;
 	//Maybe useless but can t cause trouble only set the news buffer to 0
 	memset(&newd, 0, sizeof(long long int)*DB_USER_NEWS_BASE);
 
-  for( a = 0 ; a < dbMapBInfoStatic[4] ; a++ )
+  for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ )
   {
     if( dbMapRetrieveEmpire( a, &empired ) < 0 )
       continue;

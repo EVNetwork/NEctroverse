@@ -468,10 +468,10 @@ if( chdir( COREDIR ) == -1 ) {
 
   if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
     return 0;
-  dbMapBInfoStatic[2] = dbMapBInfoStatic[2];
-  if( !( dbMapSystems = malloc( dbMapBInfoStatic[2] * sizeof(dbMainSystemDef) ) ) )
+  dbMapBInfoStatic[MAP_SYSTEMS] = dbMapBInfoStatic[MAP_SYSTEMS];
+  if( !( dbMapSystems = malloc( dbMapBInfoStatic[MAP_SYSTEMS] * sizeof(dbMainSystemDef) ) ) )
     return 0;
-  for( a = 0 ; a < dbMapBInfoStatic[2] ; a++ )
+  for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
     dbMapRetrieveSystem( 0x10000000 | a, &dbMapSystems[a] );
 
 if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
@@ -521,7 +521,7 @@ if( !( file = fopen( "forums", "rb+" ) ) ) {
 	forumd.time = 0;
 	forumd.tick = 0;
 	forumd.flags = 0;
-	for( a = 0 ; a < dbMapBInfoStatic[4] ; a++ ) {
+	for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 		sprintf( forumd.title, "Empire %d forum", a );
 		forumd.rperms = 2;
 		forumd.wperms = 2;
@@ -599,7 +599,7 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
   dbFlush();
 
   // Find artefacts
-  for( a = 0 ; a < dbMapBInfoStatic[3] ; a++ )
+  for( a = 0 ; a < dbMapBInfoStatic[MAP_PLANETS] ; a++ )
   {
     dbMapRetrievePlanet( a, &planetd );
     if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
@@ -632,7 +632,7 @@ void dbEnd()
 int dbMapFindSystem( int x, int y )
 {
   int a, position = ( y << 16 ) + x;
-  for( a = 0 ; a < dbMapBInfoStatic[2] ; a++ )
+  for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
   {
     if( dbMapSystems[a].position == position )
       return a;
@@ -2267,7 +2267,7 @@ int dbMapSetSystem( int sysid, dbMainSystemPtr systemd ) {
 if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 	return -3;
 
-if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
+if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 	return -3;
 
 fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
@@ -2285,7 +2285,7 @@ if( ( sysid & 0x10000000 ) ) {
 	if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 		return -3;
 
-	if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
+	if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 		return -3;
 
 	fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
@@ -2294,7 +2294,7 @@ if( ( sysid & 0x10000000 ) ) {
 	return 1;
 }
 
-if( (unsigned int)sysid >= dbMapBInfoStatic[2] )
+if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 	return -3;
 
 memcpy( systemd, &dbMapSystems[sysid], sizeof(dbMainSystemDef) );
@@ -2308,10 +2308,10 @@ int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd ) {
 if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 	return -3;
 
-if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
+if( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] )
 	return -3;
 
-fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
 fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
 
 return 1;
@@ -2326,10 +2326,10 @@ if( plnid == -1)
 if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 	return -3;
 
-if( (unsigned int)plnid >= dbMapBInfoStatic[3] )
+if( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] )
 	return -3;
 
-fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
 fread( planetd, 1, sizeof(dbMainPlanetDef), file );
 
 return 1;
@@ -2344,7 +2344,7 @@ int dbMapSetEmpire( int famid, dbMainEmpirePtr empired ) {
 if(!( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 	return -3;
 
-if((unsigned int)famid >= dbMapBInfoStatic[4])
+if((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES])
 	return -3;
 
 //---------------------
@@ -2358,7 +2358,7 @@ if ( empired->numplayers == 1) {
 }
 //-----------------------
 
-fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
 fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
 
 return 1;
@@ -2370,10 +2370,10 @@ int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired ) {
 if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 	return -3;
 
-if( (unsigned int)famid >= dbMapBInfoStatic[4] )
+if( (unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES] )
 	return -3;
 
-fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[2]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[3]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
 fread( empired, 1, sizeof(dbMainEmpireDef), file );
 
 return 1;
@@ -2394,7 +2394,7 @@ int dbEmpireRelsAdd( int id, int *rel )
 {
   int pos;
   FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[4] )
+  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
@@ -2412,7 +2412,7 @@ int dbEmpireRelsRemove( int id, int relid )
 {
   int a, num, data[4];
   FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[4] )
+  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
@@ -2441,7 +2441,7 @@ int dbEmpireRelsList( int id, int **rel )
   int num;
   FILE *file;
   int *relp;
-  if( (unsigned int)id >= dbMapBInfoStatic[4] )
+  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
@@ -2461,7 +2461,7 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
 {
   int num;
   FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[4] )
+  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
@@ -2482,7 +2482,7 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
 int dbEmpireMessageSet( int id, int num, char *text )
 {
   FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[4] )
+  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( !( file = dbFileFamOpen( id, 1 ) ) )
     return -3;
@@ -2495,7 +2495,7 @@ int dbEmpireMessageSet( int id, int num, char *text )
 int dbEmpireMessageRetrieve( int id, int num, char *text )
 {
   FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[4] )
+  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( !( file = dbFileFamOpen( id, 1 ) ) )
     return -3;

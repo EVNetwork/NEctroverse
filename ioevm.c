@@ -186,16 +186,16 @@ printf( "STATUS\n" );
 
 printf( "MAP\n" );
 
-      stmsg[0] = 7*sizeof(int) + dbMapBInfoStatic[2] * 5*sizeof(int);
+      stmsg[0] = 7*sizeof(int) + dbMapBInfoStatic[MAP_SYSTEMS] * 5*sizeof(int);
       stmsg[1] = EVM_MAP;
       stmsg[2] = 0;
-      stmsg[3] = dbMapBInfoStatic[0];
-      stmsg[4] = dbMapBInfoStatic[1];
-      stmsg[5] = dbMapBInfoStatic[2];
-      stmsg[6] = dbMapBInfoStatic[3];
-      stmsg[7] = dbMapBInfoStatic[4];
+      stmsg[3] = dbMapBInfoStatic[MAP_SIXEX];
+      stmsg[4] = dbMapBInfoStatic[MAP_SIXEY];
+      stmsg[5] = dbMapBInfoStatic[MAP_SYSTEMS];
+      stmsg[6] = dbMapBInfoStatic[MAP_PLANETS];
+      stmsg[7] = dbMapBInfoStatic[MAP_EMPIRES];
       svSend( cnt, stmsg, 8*sizeof(int) );
-      for( a = 0 ; a < dbMapBInfoStatic[2] ; a++ )
+      for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
       {
         dbMapRetrieveSystem( a, &systemd );
         stmsg[0] = systemd.position;

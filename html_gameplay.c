@@ -1372,12 +1372,13 @@ void iohttpFunc_hq( svConnectionPtr cnt )
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/hq.txt", "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			if( strlen(data) ) {
+			if( stdata.st_size > 0 ) {
 				svSendString( cnt, "<table width=\"80%\" border=\"1\"><tr><td align=\"center\">" );
 				svSendString( cnt, "<i>Message from Administration:</i><br><br>" );
-				svSendString( cnt, data );
-				svSendString( cnt, "<br><br></td></tr></table><br>" );
+				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					svSendPrintf( cnt, "%s<br>", data );
+				}
+				svSendString( cnt, "<br></td></tr></table><br>" );
 			}
 			fclose( file );
 		}
@@ -3089,7 +3090,7 @@ void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int ty
   {
    x = ( buffer[a] >> 8 ) & 0xFFF;
    y = buffer[a] >> 20;
-   b = y * dbMapBInfoStatic[0] + x;
+   b = y * dbMapBInfoStatic[MAP_SIZEX] + x;
    mapp[b] &= 0xFF00FFFF;
    mapp[b] |= andl;
   }
@@ -3100,7 +3101,7 @@ void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int ty
   {
    x = ( buffer[a] >> 8 ) & 0xFFF;
    y = buffer[a] >> 20;
-   mapp[ y * dbMapBInfoStatic[0] + x ] |= andl;
+   mapp[ y * dbMapBInfoStatic[MAP_SIZEX] + x ] |= andl;
   }
  }
  free( buffer );
@@ -3132,13 +3133,13 @@ void iohttpFunc_map( svConnectionPtr cnt )
  if( dbUserMainRetrieve( id, &maind ) < 0 )
   maind.empire = -1;
 
- if( !( mapp = malloc( dbMapBInfoStatic[0]*dbMapBInfoStatic[1]*sizeof(int) ) ) )
+ if( !( mapp = malloc( dbMapBInfoStatic[MAP_SIZEX]*dbMapBInfoStatic[MAP_SIZEY]*sizeof(int) ) ) )
  {
   iohttpBase( cnt, 1|2 );
   svSendString( cnt, "Error, could not allocate memory</body></html>" );
   return;
  }
- memset( mapp, 0, dbMapBInfoStatic[0]*dbMapBInfoStatic[1]*sizeof(int) );
+ memset( mapp, 0, dbMapBInfoStatic[MAP_SIZEX]*dbMapBInfoStatic[MAP_SIZEY]*sizeof(int) );
 
  iohttpVarsInit( cnt );
  if( !( iohttpVarsMapcoords( cnt, zoompos ) ) )
@@ -3209,12 +3210,12 @@ void iohttpFunc_map( svConnectionPtr cnt )
   if( advopt[a] == 6 )
    explcol = advcol[a] & 0xF0000;
  }
- for( a = 0 ; a < dbMapBInfoStatic[2] ; a++ )
+ for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
  {
   dbMapRetrieveSystem( a, &systemd );
   x = systemd.position & 0xFFFF;
   y = systemd.position >> 16;
-  i = y * dbMapBInfoStatic[0] + x;
+  i = y * dbMapBInfoStatic[MAP_SIZEX] + x;
   mapp[i] = a+1;
   if( systemd.empire != -1 )
    mapp[i] |= 0x1000000;
@@ -3325,8 +3326,8 @@ void iohttpFunc_map( svConnectionPtr cnt )
  if( zoomsize <= 0 )
  {
   basex = basey = 0;
-  endx = dbMapBInfoStatic[0];
-  endy = dbMapBInfoStatic[1];
+  endx = dbMapBInfoStatic[MAP_SIZEX];
+  endy = dbMapBInfoStatic[MAP_SIZEY];
  }
  else
  {
@@ -3335,10 +3336,10 @@ void iohttpFunc_map( svConnectionPtr cnt )
    basex = 0;
    endx = ( zoomsize << 1 );
   }
-  else if( zoompos[0] > dbMapBInfoStatic[0]-zoomsize )
+  else if( zoompos[0] > dbMapBInfoStatic[MAP_SIZEX]-zoomsize )
   {
-   basex = dbMapBInfoStatic[0] - ( zoomsize << 1 );
-   endx = dbMapBInfoStatic[0];
+   basex = dbMapBInfoStatic[MAP_SIZEX] - ( zoomsize << 1 );
+   endx = dbMapBInfoStatic[MAP_SIZEX];
   }
   else
   {
@@ -3350,10 +3351,10 @@ void iohttpFunc_map( svConnectionPtr cnt )
    basey = 0;
    endy = ( zoomsize << 1 );
   }
-  else if( zoompos[1] > dbMapBInfoStatic[1]-zoomsize )
+  else if( zoompos[1] > dbMapBInfoStatic[MAP_SIZEY]-zoomsize )
   {
-   basey = dbMapBInfoStatic[1] - ( zoomsize << 1 );
-   endy = dbMapBInfoStatic[1];
+   basey = dbMapBInfoStatic[MAP_SIZEY] - ( zoomsize << 1 );
+   endy = dbMapBInfoStatic[MAP_SIZEY];
   }
   else
   {
@@ -3366,7 +3367,7 @@ void iohttpFunc_map( svConnectionPtr cnt )
  for( x = basex ; x < endx ; x++ )
   svSendPrintf( cnt, "<td align=\"center\">%d</td>", x );
  svSendString( cnt, "<td>&nbsp;</td></tr>" );
- i = basex + ( basey * dbMapBInfoStatic[0] );
+ i = basex + ( basey * dbMapBInfoStatic[MAP_SIZEX] );
  srand( 0 );
  for( y = basey ; y < endy ; y++ )
  {
@@ -3386,7 +3387,7 @@ void iohttpFunc_map( svConnectionPtr cnt )
    }
   }
   if( zoomsize >= 0 )
-   i += dbMapBInfoStatic[0] - ( zoomsize << 1 );
+   i += dbMapBInfoStatic[MAP_SIZEX] - ( zoomsize << 1 );
   svSendPrintf( cnt, "<td>%d</tr>", y );
  }
  svSendString( cnt, "<tr><td>&nbsp;</td>" );
@@ -3435,18 +3436,18 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  b = maind.home >> 20;
  svSendPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"mapadv\">map generation</a> settings.<br>Your home system is located at the coordinates <a href=\"map?%d,%d\">%d,%d</a> ( click to zoom there ).<br><br>", a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
 
- a = dbMapBInfoStatic[0] * IOHTTP_MAPPICK_DIVIDE;
+ a = dbMapBInfoStatic[MAP_SIZEX] * IOHTTP_MAPPICK_DIVIDE;
  svSendPrintf( cnt, "<table border=\"0\" width=\"%d\" cellpadding=\"0\" cellspacing=\"0\">", a + 80 );
  a /= 3;
- svSendPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[0] >> 1, a, dbMapBInfoStatic[0] );
+ svSendPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
  svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"galaxyr%d.png\" ismap></a></td>", ROUND_ID );
  svSendPrintf( cnt, "<td height=\"%d\" align=\"left\" valign=\"top\"><b>0</b></td></tr>", a );
- svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[0] >> 1, a, dbMapBInfoStatic[0] >> 1 );
- svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[0], a, dbMapBInfoStatic[0] );
+ svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] >> 1 );
+ svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX], a, dbMapBInfoStatic[MAP_SIZEX] );
 
- svSendPrintf( cnt, "<tr><td>&nbsp;</td><td align=\"left\"><b>0</b></td><td align=\"center\"><b>%d</b></td><td align=\"right\"><b>%d</b></td><td>&nbsp;</td></tr>", dbMapBInfoStatic[0] >> 1, dbMapBInfoStatic[0] );
+ svSendPrintf( cnt, "<tr><td>&nbsp;</td><td align=\"left\"><b>0</b></td><td align=\"center\"><b>%d</b></td><td align=\"right\"><b>%d</b></td><td>&nbsp;</td></tr>", dbMapBInfoStatic[MAP_SIZEX] >> 1, dbMapBInfoStatic[MAP_SIZEX] );
  svSendString( cnt, "</table>" );
 
  svSendString( cnt, "<br><form action=\"mappick\" method=\"GET\"><select name=\"size\">" );
@@ -7314,14 +7315,14 @@ void iohttpFunc_search( svConnectionPtr cnt )
   svSendString( cnt, "\"><input type=\"submit\" size=\"2\" value=\"Search\"></form><br><br>" );
 
   svSendString( cnt, "<table><tr><td>" );
-  svSendPrintf( cnt, "<b>To find an empire</b><br>Specify the empire number in the search field, as <b>%d</b> or <b>#%d</b>.<br><br>", rand() % dbMapBInfoStatic[4], rand() % dbMapBInfoStatic[4] );
-  svSendPrintf( cnt, "<b>To find a system</b><br>Enter the system coordinates in the format <b>x,y</b>, as <b>%d,%d</b>.<br><br>", rand() % dbMapBInfoStatic[0], rand() % dbMapBInfoStatic[1] );
-  svSendPrintf( cnt, "<b>To find a planet</b><br>Enter the planet coordinates in the format <b>x,y:z</b>, as <b>%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[0], rand() % dbMapBInfoStatic[1], rand() & 15 );
-  svSendPrintf( cnt, "<b>To see a map sector</b><br>To zoom on a specific area on the map, enter coordinates in the format <b>!x,y</b>, as <b>!%d,%d</b>.<br><br>", rand() % dbMapBInfoStatic[0], rand() % dbMapBInfoStatic[1] );
+  svSendPrintf( cnt, "<b>To find an empire</b><br>Specify the empire number in the search field, as <b>%d</b> or <b>#%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_EMPIRES], rand() % dbMapBInfoStatic[MAP_EMPIRES] );
+  svSendPrintf( cnt, "<b>To find a system</b><br>Enter the system coordinates in the format <b>x,y</b>, as <b>%d,%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY] );
+  svSendPrintf( cnt, "<b>To find a planet</b><br>Enter the planet coordinates in the format <b>x,y:z</b>, as <b>%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
+  svSendPrintf( cnt, "<b>To see a map sector</b><br>To zoom on a specific area on the map, enter coordinates in the format <b>!x,y</b>, as <b>!%d,%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY] );
   svSendString( cnt, "<b>To search an faction name</b><br>To search an faction from its name, enter the partial or full name, it is not case sensitive.<br><br>" );
   svSendPrintf( cnt, "<b>To find an faction</b><br>Enter the faction ID number in the format <b>@ID</b>, as <b>@%d</b>.<br><br>", rand() & 0xFF );
-  svSendPrintf( cnt, "<b>To attack a planet</b><br>Enter the planet coordinates in the format <b>&x,y:z</b>, as <b>&%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[0], rand() % dbMapBInfoStatic[1], rand() & 15 );
-  svSendPrintf( cnt, "<b>To perform a special operation on a planet</b><br>Enter the planet coordinates in the format <b>*x,y:z</b>, as <b>*%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[0], rand() % dbMapBInfoStatic[1], rand() & 15 );
+  svSendPrintf( cnt, "<b>To attack a planet</b><br>Enter the planet coordinates in the format <b>&x,y:z</b>, as <b>&%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
+  svSendPrintf( cnt, "<b>To perform a special operation on a planet</b><br>Enter the planet coordinates in the format <b>*x,y:z</b>, as <b>*%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
   svSendString( cnt, "</td></tr></table>" );
 
   iohttpBodyEnd( cnt );
