@@ -144,7 +144,7 @@ for( y = 0 ; y < MAP_SIZEY ; y++ ) {
 	for( x = 0 ; x < MAP_SIZEX ; x++ )  {
 		pixies[(y*MAP_SIZEX)+x] = 0;
 	    if( mapfactor[(y*MAP_SIZEX)+x] > 0xFF ) {
-		pixies[(y*MAP_SIZEX)+x] = 126;
+		pixies[(y*MAP_SIZEX)+x] = 32;
 		}
 
 	}  
@@ -344,20 +344,21 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 // New families generation, based on defaults.
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired = dbEmpireDefault;
-	
+	memset(empired.password, '\0', sizeof(empired.password));
 	if( ( cmdAdminEmpire == a ) && ( strlen(cmdAdminEmpirePass) ) ) {
 		strcpy( empired.name, "Administration");
 		#if HASHENCRYPTION == 1
 		if( strlen(cmdAdminEmpirePass) )
-			sprintf(cmdAdminEmpirePass, "%s", hashencrypt(cmdAdminEmpirePass) );
+			strcpy(empired.password, hashencrypt(cmdAdminEmpirePass) );
+		#else
+		if( strlen(cmdAdminEmpirePass) )
+			strcpy(empired.password, cmdAdminEmpirePass );
 		#endif
-		strcpy( empired.password, cmdAdminEmpirePass );
 		#if FORKING == 0
 		printf("Empire %d Claimed for Administration.\n", cmdAdminEmpire);
 		#endif
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", cmdAdminEmpire);
 	}
-
 	empired.homeid = empire_system[a];
 	empired.homepos = system_pos[ empire_system[a] ];
 	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );

@@ -13,11 +13,12 @@ char *hashencrypt( char *passhash ) {
 	char *password;
 	const char *const seedchars = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	unsigned long seed[2];
-	char salted[] = "$1$";
+	char salted[128];
 	char urandom[9];
 	char random[33];
 	FILE *fh;     
 
+strcpy(salted,"$1$");
 srand((unsigned int) time(0));  
    
 for(i = 0; i < 6; ++i) {
@@ -32,7 +33,7 @@ if( (fh = fopen("/dev/urandom", "rb")) ) {
 	fclose(fh);
 }
 
-seed[0] = random;
+seed[0] = (long)random;
 seed[1] = getpid() ^ (seed[0] >> 14 & 0x30000);
     
 for (i = 0; i < 6; i++)

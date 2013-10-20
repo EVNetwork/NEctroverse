@@ -58,11 +58,11 @@ int linux_cpuinfo( char *buffer )
 {
   int a;
   FILE *file;
-  char temp[4096];
+  char temp[896];
   file = fopen( "/proc/cpuinfo", "r" );
   if( file )
   {
-    a = fread( temp, 1, 4096, file );
+    a = fread( temp, 1, 896, file );
     temp[a] = 0;
     fclose( file );
     for( a = 0 ; temp[a] ; a++ )
@@ -88,7 +88,7 @@ void iohttpFunc_status( svConnectionPtr cnt )
   FILE *file;
   char fname[256], addstring[32];
   int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-  char buffer[256];
+  char buffer[896];
   float boottime, runtime, userload, kernelload;
   char stringuptime[128];
 	struct sysinfo  si;
@@ -97,7 +97,7 @@ void iohttpFunc_status( svConnectionPtr cnt )
 iohttpBase( cnt, 1|8 );
 iohttpFunc_frontmenu( cnt, 7 );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
+svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
 
   pid = getpid();
   sprintf( fname, "/proc/%d/stat", pid );
@@ -124,7 +124,7 @@ if( sysinfo(&si) != 0 ) {
 
   svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
   sprintf(buffer, "%s status", SERVERNAME);
-  iohttpBodyInit( cnt, buffer);
+  iohttpFunc_boxstart( cnt, buffer);
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
   svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
   svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
@@ -133,15 +133,15 @@ if( sysinfo(&si) != 0 ) {
     svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( svTickTime - time(0) ) );
   else
     svSendPrintf( cnt, "Next tick : Time Frozen!<br>" );
-//  svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
-//  svSendString( cnt, "<b>Server Processor(s)</b><br>" );
-//  linux_cpuinfo( buffer );
-//  svSendString( cnt, buffer );
+  svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
+  svSendString( cnt, "<b>Server Processor(s)</b><br>" );
+  linux_cpuinfo( buffer );
+  svSendString( cnt, buffer );
 
   svSendString( cnt, "</td></tr></table>" );
-iohttpBodyEnd( cnt );
+iohttpFunc_boxend( cnt );
   svSendString( cnt, "</td><td width=\"50%\" align=\"left\" valign=\"top\">" );
-  iohttpBodyInit( cnt, "Server status" );
+  iohttpFunc_boxstart( cnt, "Server status" );
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
   svSendString( cnt, "<b>System info</b><br>" );
   uname( &stustname );
@@ -161,7 +161,7 @@ iohttpBodyEnd( cnt );
   svSendPrintf( cnt, "Server has used : %d bytes ( %d mb )<br>", stvsize, stvsize >> 20 );
   svSendPrintf( cnt, "Resident Size : %d pages<br><br>", strss );
   svSendString( cnt, "</td></tr></table>" );
-  iohttpBodyEnd( cnt );
+  iohttpFunc_boxend( cnt );
   svSendString( cnt, "</td></tr></table>" );
 
 

@@ -642,11 +642,11 @@ int dbMapFindSystem( int x, int y )
 
 int dbMapFindValid( int x, int y )
 {
-  int binfo[7];
+  int binfo[MAP_TOTAL_INFO];
   dbMapRetrieveMain( binfo );
-  if( (unsigned int)x >= binfo[0] )
+  if( (unsigned int)x >= binfo[MAP_SIZEX] )
     return 0;
-  if( (unsigned int)y >= binfo[1] )
+  if( (unsigned int)y >= binfo[MAP_SIZEY] )
     return 0;
   return 1;
 }
@@ -1106,7 +1106,7 @@ return pos;
 
 
 int dbUserBuildRemove( int id, int bldid ) {
-	int a, num, data[13];
+	int a, num, data[sizeof(dbUserBuildDef)];
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )

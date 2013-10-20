@@ -639,35 +639,26 @@ if( stat( IOHTTP_READ_DIRECTORY "/updates.txt", &stdata ) != -1 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if(lines == 0) {
 						iohttpFunc_boxstart( cnt, data );
-					} else {
-						svSendPrintf( cnt, "%s<br>", data );
+					} else if (strlen(data) > 1 ) {
+						svSendPrintf( cnt, "&nbsp;&nbsp;%s<br>", data );
 					}
-					if( (lines > 1) && (strlen(data) >= 0 ) ) {
+					if( (lines >= 1) && (strlen(data) == 1 ) ) {
 						iohttpFunc_boxend( cnt );
-						svSendString( cnt, "<br>" );
+						svSendString( cnt, "<br><br>" );
 						lines = 0;
 					} else {
 						lines++;
 					}
 				}
+			iohttpFunc_boxend( cnt );
+			svSendString( cnt, "<br>" );
+			svSendString( cnt, "<br>" );
 			}
 			fclose( file );
 		}
 	free( data );
 	}
 }
-/*
-if( stat( IOHTTP_READ_DIRECTORY "/updates.html", &stdata ) != -1 ) {
-	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/updates.html", "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, data );
-			fclose( file );
-		}
-		free( data );
-	}
-}*/
 //end notes
 
 svSendString( cnt, "</td><td width=\"6%\">" );

@@ -352,9 +352,9 @@ void iohttpForum( svConnectionPtr cnt )
  dbForumForumDef forumd;
  dbForumThreadDef threadd;
  dbForumPostDef postd;
- char timebuf[256];
- char COREDIR[256];
- char timetemp[200];
+ char timebuf[512];
+ char COREDIR[512];
+ char timetemp[512];
  char *text;
 	FILE *fFile;
 

@@ -63,10 +63,10 @@ syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int level )
 {
   int a, b, c, x, y, p, i, total=0;
-  int binfo[8], fam[1024];
+  int binfo[MAP_TOTAL_INFO], fam[1024];
   //Max 200 emp
   int nPlayer[200];
-  char fname[32];
+  char epass[128];
   dbUserMainDef maind;
   dbMainEmpireDef empired;
   dbMainSystemDef systemd;
@@ -90,8 +90,8 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
     for( a = b = 0 ; a < binfo[MAP_EMPIRES] ; a++ )
     {
       fam[a] = 0;
-      cmdExecGetFamPass( a, fname );
-      if( fname[0] )
+      cmdExecGetFamPass( a, epass );
+      if( epass[0] )
         continue;
       dbMapRetrieveEmpire( a, &empired );
       if( !( binfo[MAP_EMEMBERS] - empired.numplayers ) )
@@ -121,11 +121,11 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
       cmdErrorString = "The empire doesn't exist!";
       return -1;
     }
-    cmdExecGetFamPass( famnum, fname );
+    cmdExecGetFamPass( famnum, epass );
 #if HASHENCRYPTION == 1
-    if( ( fname[0] ) && !( checkencrypt( fampass, fname ) ) )
+    if( ( strlen(epass) ) && !( checkencrypt( fampass, epass ) ) )
 #else
-    if( ( fname[0] ) && !( ioCompareExact( fname, fampass ) ) )
+    if( ( strlen(epass) ) && !( ioCompareExact( epass, fampass ) ) )
 #endif
     {
       cmdErrorString = "The empire password is incorrect!";

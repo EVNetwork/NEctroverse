@@ -8,10 +8,22 @@ endif
 REQUIRED = config.h global.h
 CONFIGS := $(shell cat config.h)
 FLAGS = --fast-math -Wall -fno-strict-aliasing -lpng
-#The -s flag was removed from the flags above, since it strips excess headers... such as debugging.
+
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb
 #OK, now to scan the config.h file and see what we need to compile.
+ifneq ($(findstring GCCOPTOMIZE 1,$(CONFIGS)),)
+FLAGS += -O1
+endif
+ifneq ($(findstring GCCOPTOMIZE 2,$(CONFIGS)),)
+FLAGS += -O2
+endif
+ifneq ($(findstring GCCOPTOMIZE 3,$(CONFIGS)),)
+FLAGS += -O3
+endif
+
+
+
 ifneq ($(findstring MYSQLENABLE 1,$(CONFIGS)),)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)

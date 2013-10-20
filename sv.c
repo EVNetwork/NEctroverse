@@ -797,9 +797,12 @@ return str;
 
 //Read from pipe file... command execution latter to come...
 void svPipeScan(int pipefileid){
-	int num, pipeclient, stop;
+	int num, stop;
 	char DIRCHECKER[256];
 	char buffer[128] = {0};
+
+if(pipefileid < 0 )
+return;
 
 num = read(pipefileid, buffer, sizeof(buffer));
 buffer[num] = '\0';
@@ -836,7 +839,6 @@ if( stop ) {
 	exit(1);
 }
 
-
 return;
 }
 
@@ -850,16 +852,16 @@ sprintf( DIRCHECKER, "%s/evserver.%s", TMPDIR, ( pipedirection ? "pipe" : "clien
 if( file_exist(DIRCHECKER) && strlen(message) ) {
 	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
 		#if FORKING == 0
-		printf( "Piping Responce Error: unable to open client." );
+		printf( "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		#endif
-		syslog(LOG_ERR, "Piping Responce Error: unable to open client." );
+		syslog(LOG_ERR, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		return 0;
 	}
 	if( ( num = fprintf(pipefile, message) ) < 0) {
 		#if FORKING == 0
-		printf( "Piping Responce Error: unable to write to client." );
+		printf( "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		#endif
-		syslog(LOG_ERR, "Piping Responce Error: unable to write to client." );
+		syslog(LOG_ERR, "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		return 0;
 	}
 	fflush(pipefile);
@@ -878,15 +880,28 @@ return 1;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 void daemonloop(int pipefileid) {
-	char TICKFILE[256];
 	int a, curtime;
+	#if FORKING == 1
+	int pipe;
 	FILE *file;
+	#endif
 	ioInterfacePtr io;
+
+#if FORKING == 1
+#if GCCOPTOMIZE > 0 //Don't ask me why this needs to be here, I just don't get it.
+if(pipefileid)
+pipe = pipefileid;
+#endif
+#endif
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
 		#if FORKING == 1
-		svPipeScan(pipefileid);
+		#if GCCOPTOMIZE == 0
+		svPipeScan( pipefileid );
+		#else
+		svPipeScan( pipe );
+		#endif
 		#endif
 		svSelect();
 		svListen();
@@ -920,16 +935,15 @@ void daemonloop(int pipefileid) {
 			io = &ioInterface[a];
 			io->TickEnd();
 		}
-
-		sprintf( TICKFILE, "%s/ticks", COREDIRECTORY );  
-		file = fopen( TICKFILE, "r+" );
+		#if FORKING == 1
+		file = fopen( COREDIRECTORY "/ticks", "r+" );
 		if(!file)
-			file = fopen( TICKFILE, "w" );
+			file = fopen( COREDIRECTORY "/ticks", "w" );
 		if(file) {
 			fprintf( file, "%d", svTickNum );
 			fclose( file );
 		}
-
+		#endif
 		cmdExecuteFlush();
 		
 	}
@@ -940,8 +954,8 @@ return;
 //begin upgrade to daemon, I don't like shell dependancy!
 int daemon_init( char *argument ) {
 	int a;
-	int pipingin;
-	int binfo[7];
+        int pipingin;
+	int binfo[MAP_TOTAL_INFO];
 	char DIRCHECKER[256];
 	FILE *file;
 	ioInterfacePtr io;
@@ -985,6 +999,7 @@ umask(0);
 close(STDIN_FILENO);
 close(STDOUT_FILENO);
 close(STDERR_FILENO);
+
 }
 #endif
 
@@ -1013,6 +1028,7 @@ signal( SIGSYS, &svSignal );
 signal( SIGTERM, &svSignal );
 signal( SIGUSR1, &svSignal );
 signal( SIGTRAP, &svSignal );
+signal( SIGABRT, &svSignal );
 	
 srand( time(NULL) ); //Random Init
 	
@@ -1070,7 +1086,7 @@ mkfifo(DIRCHECKER, 0666);
 pipingin = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 syslog(LOG_INFO, "Completed initiation of %s daemon.\n", SERVERNAME );
 #else
-pipingin = 0;
+pipingin = -1;
 printf("All checks passed, begining server loop...\n");
 #endif
 
@@ -1229,7 +1245,7 @@ if ( file_exist(DIRCHECKER) ) {
 	}
 #if FORKING == 1
 	printf("%s\n", "Returning to shell, daemon has loaded in the background.");
-	printf("%s\n", "Use \'daemonize'\ if you want to run in the old shell mode" );
+	printf("%s\n", "Use \'daemonize\' if you want to run in the old shell mode" );
 #endif
 printf("\n");
 
