@@ -218,7 +218,7 @@ if( artsnum ) {
 				fprintf( file, "<br><br><b>All Artefacts held by: %s<br>Round will end in %d weeks!</b><br>", empired.name, dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
 		} else {
 			if( (dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum) <= 0 )
-				fprintf( file, "<br><br><b>All Artefacts held by: %d</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE] );
+				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE] );
 			else
 				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d<br>Round will end in %d weeks!</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE], dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
 		}
