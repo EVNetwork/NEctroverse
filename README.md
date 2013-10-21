@@ -1,4 +1,4 @@
-NEctroverse Relaunch!
+NEctroverse Alpha TBA!
 ========
 
 NEctroverse is a recode of the game Ectroverse created by Maloeran.<br>
@@ -30,6 +30,3 @@ The server by default is on port 9122. This can be changed in config.h
 
 KNOWN BUGS - Very annoying and need to go:
 * ... ?
-
-
-NEctroverse is currently unavalible to play due to development stage.
