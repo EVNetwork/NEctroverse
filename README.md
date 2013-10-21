@@ -15,7 +15,7 @@ Additional Librarys needed for optinal components:
 * build-essentials -- needed, but you should already have that.
 * libmysqlclient-dev -- needed for mySql addition.
 * libssl-dev -- needed for extra password security.
-* libpng-dev -- needed for galaxy map
+* libpng-dev & imagemagick (ImageMagick is only needed because I don't know how to scale the image in lib)
 
 Run:
 * make 
