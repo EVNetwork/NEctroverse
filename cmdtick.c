@@ -367,8 +367,9 @@ if(!file) {
 }
 if(file) {
 	fprintf( file, "%d", svTickNum );
-	fclose( file );
+	fflush( file );
 }
+fclose( file );
 #endif
 cmdTickGenRanks();
 

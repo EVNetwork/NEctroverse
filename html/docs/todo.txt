@@ -1,1 +1,4 @@
-Work some improvments.
+Upgrade the admin/mod interface
+Work some improvments
+Automatic "SpiceUp"
+Clean Races Page

@@ -5,57 +5,63 @@
 #include "global.h"
 #endif
 
+enum 
+{
+DB_FILE_USERS,
+DB_FILE_MAP,
+DB_FILE_MARKET,
+DB_FILE_TOTAL,
+};
 
 char dbFileUsersName[] = "%s/userdb";
 char dbFileMapName[] = "map";
 char dbFileMarketName[] = "market";
 
-#define DB_FILE_NUMBER 3
-#define DB_FILE_USERS 0
-#define DB_FILE_MAP 1
-#define DB_FILE_MARKET 2
-
-char *dbFileList[DB_FILE_NUMBER] = { dbFileUsersName, dbFileMapName, dbFileMarketName };
-FILE *dbFilePtr[DB_FILE_NUMBER];
+char *dbFileList[DB_FILE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName };
+FILE *dbFilePtr[DB_FILE_TOTAL];
 
 
+enum 
+{
+DB_FILE_USER_INFO,
+DB_FILE_USER_MAILIN,
+DB_FILE_USER_MAILOUT,
+DB_FILE_USER_RECORD,
+
+DB_FILE_USER_MAIN,
+DB_FILE_USER_BUILD,
+DB_FILE_USER_PLANETS,
+DB_FILE_USER_FLEETS,
+DB_FILE_USER_NEWS,
+DB_FILE_USER_MARKET,
+DB_FILE_USER_SPECOPS,
+DB_FILE_USER_FLAGS,
+
+DB_FILE_USER_TOTAL,
+};
 
 char dbFileUserUserName[] = "%s/user%d/info";
+char dbFileUserMailInName[] = "%s/user%d/mailin";
+char dbFileUserMailOutName[] = "%s/user%d/mailout";
+char dbFileUserRecordName[] = "%s/user%d/record";
+
 char dbFileUserMainName[] = "%s/user%d/main";
 char dbFileUserBuildName[] = "%s/user%d/build";
 char dbFileUserPlanetsName[] = "%s/user%d/planets";
 char dbFileUserFleetsName[] = "%s/user%d/fleets";
 char dbFileUserNewsName[] = "%s/user%d/news";
 char dbFileUserMarketName[] = "%s/user%d/market";
-char dbFileUserMailInName[] = "%s/user%d/mailin";
-char dbFileUserMailOutName[] = "%s/user%d/mailout";
 char dbFileUserSpecOpsName[] = "%s/user%d/specops";
-char dbFileUserRecordName[] = "%s/user%d/record";
-char dbFileUserFlags[] = "%s/user%d/info";
+char dbFileUserGameFlags[] = "%s/user%d/flags";
 
-
-#define DB_FILE_USER_NUMBER 12
-
-#define DB_FILE_USER_USER 0
-#define DB_FILE_USER_MAIN 1
-#define DB_FILE_USER_BUILD 2
-#define DB_FILE_USER_PLANETS 3
-#define DB_FILE_USER_FLEETS 4
-#define DB_FILE_USER_NEWS 5
-#define DB_FILE_USER_MARKET 6
-#define DB_FILE_USER_MAILIN 7
-#define DB_FILE_USER_MAILOUT 8
-#define DB_FILE_USER_SPECOPS 9
-#define DB_FILE_USER_RECORD 10
-#define DB_FILE_USER_USER_FLAGS 11
-
-char *dbFileUserList[DB_FILE_USER_NUMBER] = { dbFileUserUserName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserFlags };
+char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserUserName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserRecordName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserSpecOpsName, dbFileUserGameFlags };
 
 long long int dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
-long long int dbFileUserListDat1[] = { 0, 8 };
+int dbFileUserListDat1[] = { 0, 8 };
 
-int dbFileUserListBase[DB_FILE_USER_NUMBER] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
-long long int *dbFileUserListData[DB_FILE_USER_NUMBER] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, 0 };
+
+int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 8, 8, 4, 0, 4, 4, 4, 40, 8, 4, 0 };
+long long int *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, 0 };
 
 
 dbMainSystemPtr dbMapSystems;
@@ -268,7 +274,7 @@ void dbFileGenClose( int num )
 void dbFlush()
 {
   int a;
-  for( a = 0 ; a < DB_FILE_NUMBER ; a++ )
+  for( a = 0 ; a < DB_FILE_TOTAL ; a++ )
     dbFileGenClose( a );
   return;
 }
@@ -279,7 +285,7 @@ FILE *dbFileUserOpen( int id, int num ) {
 	char COREDIR[256];
 	FILE *file;
 
-if((num&0xFFFF) == DB_FILE_USER_USER) {
+if((num&0xFFFF) == DB_FILE_USER_INFO) {
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );  
 	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
 } else {
@@ -304,7 +310,6 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 
 	return 0;
 }
-
 
 
 return file;
@@ -449,7 +454,7 @@ int dbInit() {
 	int a, b, c;
 	int array[4];
 	dbUserPtr user;
-	dbUserMainDef maind;
+	dbUserInfoDef infod;
 	dbMainPlanetDef planetd;
 	dbForumForumDef forumd;
 	FILE *file;
@@ -462,17 +467,17 @@ if( chdir( COREDIR ) == -1 ) {
 	printf("Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
 	#endif
 	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
-
 	return 0;
 }
 
-  if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
-    return 0;
-  dbMapBInfoStatic[MAP_SYSTEMS] = dbMapBInfoStatic[MAP_SYSTEMS];
-  if( !( dbMapSystems = malloc( dbMapBInfoStatic[MAP_SYSTEMS] * sizeof(dbMainSystemDef) ) ) )
-    return 0;
-  for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
-    dbMapRetrieveSystem( 0x10000000 | a, &dbMapSystems[a] );
+if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
+	return 0;
+
+if( !( dbMapSystems = malloc( dbMapBInfoStatic[MAP_SYSTEMS] * sizeof(dbMainSystemDef) ) ) )
+	return 0;
+
+for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
+	dbMapRetrieveSystem( 0x10000000 | a, &dbMapSystems[a] );
 
 if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	#if FORKING == 0
@@ -553,75 +558,73 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 		syslog(LOG_ERR, "Error, could not create user database!\n" );
 		return 0;
 	}
-    fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
-    a = 0;
-    fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-    fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-    dbFileGenClose( DB_FILE_USERS );
-    return 1;
-  } else {
+	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
+	a = 0;
+	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	dbFileGenClose( DB_FILE_USERS );
+	return 1;
+} else {
 	dbInitUsersReset();
-  }
-
-
-  fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
-  fread( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-
-  for( a = 0 ; a < b ; a++ )
-  {
-    if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_USER ) ) )
-      continue;
-    fread( &c, 1, sizeof(int), file );
-    if( !( user = dbUserAllocate( a ) ) )
-    {
-      fclose( file );
-      continue;
-    }
-    
-    fread( &user->level, 1, sizeof(int), file );
-    fread( &user->flags, 1, sizeof(int), file );
-    fread( &user->reserved, 1, sizeof(int), file );
-    fread( &user->name, 1, 64, file );
-    fclose( file );
-    
-    if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_USER_FLAGS ) ) )
-      continue;
-    
-    fseek( file, sizeof(int)*2, SEEK_SET );
-    fread( &user->flags, 1, sizeof(int), file );
-    fclose(file);
-    dbUserMainRetrieve( a, &maind );
-    sprintf( user->faction, maind.faction );
-    sprintf( user->forumtag, maind.forumtag );
-    user->lasttime = maind.lasttime;
-  }
-
-  dbFlush();
-
-  // Find artefacts
-  for( a = 0 ; a < dbMapBInfoStatic[MAP_PLANETS] ; a++ )
-  {
-    dbMapRetrievePlanet( a, &planetd );
-    if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
-      continue;
-    dbArtefactPos[b] = planetd.position;
-  }
-	
-  return 1;
 }
 
 
-void dbEnd()
-{
-  dbUserPtr user, next;
-  for( user = dbUserList ; user ; user = next )
-  {
-    next = user->next;
-    dbUserFree( user );
-  }
-  if( dbMapSystems )
-    free( dbMapSystems );
-  return;
+fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
+fread( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+
+for( a = 0 ; a < b ; a++ ) {
+	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) )
+		continue;
+	fread( &c, 1, sizeof(int), file );
+	if( !( user = dbUserAllocate( a ) ) ) {
+		fclose( file );
+		continue;
+	}
+    
+	fread( &user->level, 1, sizeof(int), file );
+	fread( &user->flags, 1, sizeof(int), file );
+	fread( &user->reserved, 1, sizeof(int), file );
+	fread( &user->name, 1, 64, file );
+	fclose( file );
+    
+	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_FLAGS ) ) )
+		continue;
+    
+	fseek( file, sizeof(int)*2, SEEK_SET );
+	fread( &user->flags, 1, sizeof(int), file );
+	fclose(file);
+	dbUserInfoRetrieve( a, &infod );
+	sprintf( user->faction, infod.faction );
+	sprintf( user->forumtag, infod.forumtag );
+	user->lasttime = infod.lasttime;
+}
+
+dbFlush();
+
+for( a = 0 ; a < dbMapBInfoStatic[MAP_PLANETS] ; a++ ) {
+	dbMapRetrievePlanet( a, &planetd );
+	if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
+		continue;
+	dbArtefactPos[b] = planetd.position;
+}
+	
+
+return 1;
+}
+
+
+void dbEnd() {
+	dbUserPtr user, next;
+
+for( user = dbUserList ; user ; user = next ) {
+	next = user->next;
+	dbUserFree( user );
+}
+
+if( dbMapSystems )
+	free( dbMapSystems );
+
+return;
 }
 
 
@@ -629,117 +632,107 @@ void dbEnd()
 
 // Quick map search
 
-int dbMapFindSystem( int x, int y )
-{
-  int a, position = ( y << 16 ) + x;
-  for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
-  {
-    if( dbMapSystems[a].position == position )
-      return a;
-  }
-  return -1;
+int dbMapFindSystem( int x, int y ) {
+	int a, position = ( y << 16 ) + x;
+
+for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ ) {
+	if( dbMapSystems[a].position == position )
+		return a;
 }
 
-int dbMapFindValid( int x, int y )
-{
-  int binfo[MAP_TOTAL_INFO];
-  dbMapRetrieveMain( binfo );
-  if( (unsigned int)x >= binfo[MAP_SIZEX] )
-    return 0;
-  if( (unsigned int)y >= binfo[MAP_SIZEY] )
-    return 0;
-  return 1;
+return -1;
+}
+
+int dbMapFindValid( int x, int y ) {
+	int binfo[MAP_TOTAL_INFO];
+	
+dbMapRetrieveMain( binfo );
+if( (unsigned int)x >= binfo[MAP_SIZEX] )
+	return 0;
+if( (unsigned int)y >= binfo[MAP_SIZEY] )
+	return 0;
+
+return 1;
 }
 
 
 
 
 // Users functions
+int dbUserSearch( char *name ) {
+	dbUserPtr user;
 
-int dbUserSearch( char *name )
-{
-  dbUserPtr user;
-  for( user = dbUserList ; user ; user = user->next )
-  {
-  	//printf("%s, %s, %d\n", name, user->name, user->id);
-  	
-  	if( !( ioCompareExact( name, user->name ) ) )
-      continue;
+for( user = dbUserList ; user ; user = user->next ) {
+	if( !( ioCompareExact( name, user->name ) ) )
+		continue;
 
-    return user->id;
-  }
-  return -1;
+	return user->id;
 }
 
-int dbUserSearchFaction( char *name )
-{
-  dbUserPtr user;
-  for( user = dbUserList ; user ; user = user->next )
-  {
-    if( !( ioCompareExact( name, user->faction ) ) )
-      continue;
-    //printf("%d this is it\n", user->id);
-    return user->id;
-  }
-  return -1;
+return -1;
 }
 
-dbUserPtr dbUserLinkID( int id )
-{
-/*
-  dbUserPtr user;
-  for( user = dbUserList ; ; user = user->next )
-  {
-    if( !( user ) )
-      return 0;
-    if( id == user->id )
-      break;
-  }
-  return user;
-*/
-  if( (unsigned int)id >= 16384 )
-    return 0;
-  return dbUserTable[id];
+int dbUserSearchFaction( char *name ) {
+	dbUserPtr user;
+
+for( user = dbUserList ; user ; user = user->next ) {
+	if( !( ioCompareExact( name, user->faction ) ) )
+		continue;
+
+	return user->id;
+}
+
+return -1;
+}
+
+dbUserPtr dbUserLinkID( int id ) {
+
+if( (unsigned int)id >= 16384 )
+	return 0;
+
+return dbUserTable[id];
 }
 
 
-int dbUserAdd( char *name, char *faction, char *forumtag )
-{
-  int a, id, freenum;
-  dbUserPtr user;
-  char dname[532], fname[532], uname[532];
-  char COREDIR[256];
-  dbUserDescDef descd;
-  FILE *file;
+int dbUserAdd( char *name, char *faction, char *forumtag ) {
+	int a, id, freenum;
+	int *user_hashes;
+	int num_users=0;
+	int *user_ptr;
+	char dname[532], fname[532], uname[532];
+	char COREDIR[512];
+	dbUserDescDef descd;
+	dbUserPtr h_user;
+	dbUserPtr user;
+	FILE *file;
 
-  if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
-    return -3;
 
-  fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-  fread( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  if( !( freenum ) )
-  {
-    fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
-    fread( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  }
-  else
-  {
-    a = freenum - 1;
-    fseek( dbFilePtr[DB_FILE_USERS], 8 + ( a << 2 ), SEEK_SET );
-    fread( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  }
+if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
+	return -3;
+
+fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
+fread( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+
+if( !( freenum ) ) {
+	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
+	fread( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+} else {
+	a = freenum - 1;
+	fseek( dbFilePtr[DB_FILE_USERS], 8 + ( a << 2 ), SEEK_SET );
+	fread( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+}
 	
-  user = dbUserAllocate( id );
+user = dbUserAllocate( id );
   
-  //create both folder for player
-  sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
-  sprintf( uname, "%s/users/user%d", COREDIRECTORY, id );
+//create both folder for player
+sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
+sprintf( uname, "%s/users/user%d", COREDIRECTORY, id );
   
-  mkdir( dname, S_IRWXU );
-  mkdir( uname, S_IRWXU );
+mkdir( dname, S_IRWXU );
+mkdir( uname, S_IRWXU );
   
- 	//Create a db Database in the db other server
-for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- ) {
+//Create a db Database in the db other server
+for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 	sprintf( COREDIR, "%s/data", COREDIRECTORY );
   	sprintf( fname, dbFileUserList[a], COREDIR, id );
     
@@ -760,19 +753,19 @@ for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- ) {
 	fclose( file );
 }
 
-  fwrite( &id, 1, sizeof(int), file );
-  a = 0;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &a, 1, sizeof(int), file );
-  memset( fname, 0, 64 );
-  sprintf( fname, name );
-  fwrite( fname, 1, 64, file );
-  fclose( file );
+fwrite( &id, 1, sizeof(int), file );
+a = 0;
+fwrite( &a, 1, sizeof(int), file );
+fwrite( &a, 1, sizeof(int), file );
+fwrite( &a, 1, sizeof(int), file );
+memset( fname, 0, 64 );
+sprintf( fname, name );
+fwrite( fname, 1, 64, file );
+fclose( file );
  
   
-  //Create a user Database in the db 10Min server
-for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- ) {
+//Create a user Database in the db 10Min server
+for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );
   	sprintf( fname, dbFileUserList[a], COREDIR, id );
 
@@ -789,121 +782,116 @@ for( a = DB_FILE_USER_NUMBER-2 ;  ; a-- ) {
 	if( a == 0 )
 		break;
 	if( dbFileUserListBase[a] ) {
-		//printf("write base of %s", fname);
+		printf("write base of %s\n", fname);
 		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
 	}
 	fclose( file );
 }
 	
-  fwrite( &id, 1, sizeof(int), file );
-  a = 0;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &a, 1, sizeof(int), file );
-  memset( fname, 0, 64 );
-  sprintf( fname, name );
-  fwrite( fname, 1, 64, file );
-  fclose( file );
+fwrite( &id, 1, sizeof(int), file );
+a = 0;
+fwrite( &a, 1, sizeof(int), file );
+fwrite( &a, 1, sizeof(int), file );
+fwrite( &a, 1, sizeof(int), file );
+memset( fname, 0, 64 );
+sprintf( fname, name );
+fwrite( fname, 1, 64, file );
+fclose( file );
 	
-	if( !( freenum ) )
-  {
-    fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
-    a = id + 1;
-    fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  }
-  else
-  {
-    a = freenum - 1;
-    fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-    fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  }
+if( !( freenum ) ) {
+	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
+	a = id + 1;
+	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+} else {
+	a = freenum - 1;
+	fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
+	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+}
 
-  descd.desc[0] = 0;
-  dbUserDescSet( id, &descd );
+descd.desc[0] = 0;
+dbUserDescSet( id, &descd );
 
-	//preserve user hashes so they are not logged out
-	int *user_hashes;
-	int num_users=0;
-	int *user_ptr;
-	dbUserPtr h_user;
+//preserve user hashes so they are not logged out
+for(h_user=dbUserList;h_user;h_user=h_user->next) {
+	num_users++;
+}
 
-	for(h_user=dbUserList;h_user;h_user=h_user->next) {
-		num_users++;
+user_hashes=(int*)malloc(num_users*5*sizeof(int));
+user_ptr=user_hashes;
+
+for(h_user=dbUserList;h_user;h_user=h_user->next) {
+	user_ptr[0]=h_user->id;
+	user_ptr[1]=h_user->session[0];
+	user_ptr[2]=h_user->session[1];
+	user_ptr[3]=h_user->session[2];
+	user_ptr[4]=h_user->session[3];
+	user_ptr+=5;
+}
+
+dbEnd();
+dbInit();
+
+//restore the hashes
+user_ptr=user_hashes;
+for(h_user=dbUserList;h_user;h_user=h_user->next) {
+	if(user_ptr[0]!=h_user->id) {
+		#if FORKING == 0
+		printf("WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
+		#endif
+		syslog(LOG_INFO, "WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
+		continue;
 	}
-
-	user_hashes=(int*)malloc(num_users*5*sizeof(int));
-
-	user_ptr=user_hashes;
-	for(h_user=dbUserList;h_user;h_user=h_user->next) {
-		user_ptr[0]=h_user->id;
-		user_ptr[1]=h_user->session[0];
-		user_ptr[2]=h_user->session[1];
-		user_ptr[3]=h_user->session[2];
-		user_ptr[4]=h_user->session[3];
-		user_ptr+=5;
-	}
-
-  dbEnd();
-  dbInit();
-
-	//restore the hashes
-	user_ptr=user_hashes;
-	for(h_user=dbUserList;h_user;h_user=h_user->next) {
-		if(user_ptr[0]!=h_user->id) {
-			#if FORKING == 0
-			printf("WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
-			#endif
-			syslog(LOG_INFO, "WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
-			continue;
-		}
-		h_user->session[0]=user_ptr[1];
-		h_user->session[1]=user_ptr[2];
-		h_user->session[2]=user_ptr[3];
-		h_user->session[3]=user_ptr[4];
-		user_ptr+=5;
-	}
-	free(user_hashes);
+	h_user->session[0]=user_ptr[1];
+	h_user->session[1]=user_ptr[2];
+	h_user->session[2]=user_ptr[3];
+	h_user->session[3]=user_ptr[4];
+	user_ptr+=5;
+}
+free(user_hashes);
 
 
 return id;
 }
 
-int dbUserRemove( int id )
-{
-  int a;
-  dbUserPtr user;
-  char dname[532], fname[532];
-  char COREDIR[256];
 
-  if( !( user = dbUserLinkID( id ) ) )
-    return 0;
-  if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
-    return 0;
-  dbUserFree( user );
+int dbUserRemove( int id ) {
+	int a;
+	char COREDIR[512];
+	char dname[532], fname[532];
+	dbUserPtr user;
 
-  fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-  fread( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  a++;
-  fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-  fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-  fseek( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2, SEEK_SET );
-  fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
-  for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ ) {
-    sprintf( COREDIR, "%s/users", COREDIRECTORY );
-    sprintf( fname, dbFileUserList[a], COREDIR, id );
-    unlink( fname );
-  }
-  for( a = 0 ; a < DB_FILE_USER_NUMBER-1 ; a++ )
-  {
-    sprintf( COREDIR, "%s/data", COREDIRECTORY );
-    sprintf( fname, dbFileUserList[a], COREDIR, id );
-    unlink( fname );
-  }
-  sprintf( dname, "%s/users/user%d", COREDIRECTORY, id );
-  rmdir( dname );
-  sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
-  rmdir( dname );
+if( !( user = dbUserLinkID( id ) ) )
+	return 0;
+if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
+	return 0;
+
+dbUserFree( user );
+
+fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
+fread( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+a++;
+fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
+fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+fseek( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2, SEEK_SET );
+fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+
+for( a = 0 ; a < DB_FILE_USER_TOTAL-1 ; a++ ) {
+	sprintf( COREDIR, "%s/users", COREDIRECTORY );
+	sprintf( fname, dbFileUserList[a], COREDIR, id );
+	unlink( fname );
+}
+
+for( a = 0 ; a < DB_FILE_USER_TOTAL-1 ; a++ ) {
+	sprintf( COREDIR, "%s/data", COREDIRECTORY );
+	sprintf( fname, dbFileUserList[a], COREDIR, id );
+	unlink( fname );
+}
+
+sprintf( dname, "%s/users/user%d", COREDIRECTORY, id );
+rmdir( dname );
+sprintf( dname, "%s/data/user%d", COREDIRECTORY, id );
+rmdir( dname );
 
 
 return 1;
@@ -913,7 +901,7 @@ return 1;
 int dbUserSave( int id, dbUserPtr user ) {
 	FILE *file;
   
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	#if FORKING == 0
 	printf("Error %02d, fopen dbsetname\n", errno );
 	#endif
@@ -928,11 +916,11 @@ fwrite( &user->reserved, 1, sizeof(int), file );
 fwrite( user->name, 1, 64, file );
 fclose( file );
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER_FLAGS ) ) ) {
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLAGS ) ) ) {
 	#if FORKING == 0
-	printf("Error %02d, fopen dbsetname\n", errno );
+	printf("Error %02d, fopen dbuserflags\n", errno );
 	#endif
-	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
+	syslog(LOG_ERR, "Error %02d, fopen dbuserflags\n", errno );
 	return -3;
 }
 
@@ -947,7 +935,7 @@ int dbUserSetPassword( int id, char *pass ) {
 	char fname[128];
 	FILE *file;
   
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	#if FORKING == 0
 	printf("Error %02d, fopen dbsetpassword\n", errno );
 	#endif
@@ -970,7 +958,7 @@ return 1;
 int dbUserRetrievePassword( int id, char *pass ) {
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_USER ) ) ) {
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	#if FORKING == 0
 	printf("Error %02d, fopen dbretrievepassword\n", errno );
 	#endif
@@ -1039,31 +1027,35 @@ return 1;
 
 // user main data functions
 
-int dbUserMainSet( int id, dbUserMainPtr maind )
-{
-  dbUserPtr user;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
+int dbUserMainSet( int id, dbUserMainPtr maind ) {
+	dbUserPtr user;
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
     return -3;
-  fwrite( maind, 1, sizeof(dbUserMainDef), file );
-  fclose( file );
-  if( !( user = dbUserLinkID( id ) ) )
-    return -3;
-  sprintf( user->faction, maind->faction );
-  sprintf( user->forumtag, maind->forumtag );
-  return 1;
+
+fwrite( maind, 1, sizeof(dbUserMainDef), file );
+fclose( file );
+
+if( !( user = dbUserLinkID( id ) ) )
+	return -3;
+sprintf( user->faction, maind->faction );
+sprintf( user->forumtag, maind->forumtag );
+
+return 1;
 }
 
-int dbUserMainRetrieve( int id, dbUserMainPtr maind )
-{
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
-    return -3;
+int dbUserMainRetrieve( int id, dbUserMainPtr maind ) {
+	FILE *file;
 
-  memset( maind, 0, sizeof(dbUserMainDef) );
-  fread( maind, 1, sizeof(dbUserMainDef), file );
-  fclose( file );
-  return 1;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
+	return -3;
+
+memset( maind, 0, sizeof(dbUserMainDef) );
+fread( maind, 1, sizeof(dbUserMainDef), file );
+fclose( file );
+
+return 1;
 };
 
 
@@ -3693,6 +3685,7 @@ int dbMailList( int id, int type, int base, int end, dbMailPtr *mails, int *rtnu
 
   *mails = mailsp;
   fclose( file );
+
   return b;
 }
 
@@ -3700,7 +3693,6 @@ int dbMailAdd( int id, int type, dbMailPtr maild )
 {
   int a, num, offset;
   FILE *file;
-
   if( ( type & 0xFFFFFFE ) )
     return -3;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
@@ -3919,29 +3911,65 @@ int dbUserSpecOpEmpty( int id )
 
 
 
+int dbUserInfoSet( int id, dbUserInfoPtr infod ) {
+	FILE *file;
+	dbUserPtr user;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) )
+	return -3;
+
+fseek( file, 0, SEEK_SET );
+fwrite( infod, 1, sizeof(dbUserInfoDef), file );
+fclose( file );
+
+if( !( user = dbUserLinkID( id ) ) )
+	return -3;
+
+sprintf( user->faction, infod->faction );
+sprintf( user->forumtag, infod->forumtag );
 
 
-int dbUserDescSet( int id, dbUserDescPtr descd )
-{
-//  int num;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
-    return -3;
-  fseek( file, 0, SEEK_SET );
-  fwrite( descd, 1, sizeof(dbUserDescDef), file );
-  fclose( file );
-  return 1;
+return 1;
 }
 
-int dbUserDescRetrieve( int id, dbUserDescPtr descd )
-{
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
-    return -3;
-  fseek( file, 0, SEEK_SET );
-  fread( descd, 1, sizeof(dbUserDescDef), file );
-  fclose( file );
-  return 1;
+int dbUserInfoRetrieve( int id, dbUserInfoPtr infod ) {
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) )
+	return -3;
+
+fseek( file, 0, SEEK_SET );
+fread( infod, 1, sizeof(dbUserInfoDef), file );
+fclose( file );
+
+return 1;
+}
+
+
+int dbUserDescSet( int id, dbUserDescPtr descd ) {
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
+	return -3;
+
+fseek( file, 0, SEEK_SET );
+fwrite( descd, 1, sizeof(dbUserDescDef), file );
+fclose( file );
+
+return 1;
+}
+
+int dbUserDescRetrieve( int id, dbUserDescPtr descd ) {
+	FILE *file;
+
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
+	return -3;
+
+fseek( file, 0, SEEK_SET );
+fread( descd, 1, sizeof(dbUserDescDef), file );
+fclose( file );
+
+return 1;
 }
 
 

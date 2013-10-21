@@ -2,6 +2,7 @@
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 int iohttpIdentifyHex( char *num );
+int iohttpIdentify( svConnectionPtr cnt, int action );
 
 void iohttpBase( svConnectionPtr cnt, int flags );
 

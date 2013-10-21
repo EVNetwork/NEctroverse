@@ -1,30 +1,5 @@
 #define DATABASEINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
-/*
-Losing an illusion makes you wiser than finding a truth.
-- Ludwig Borne
-
-We would rather be ruined than changed.
-We would rather die in our dread,
-Than climb the cross of the moment,
-And let our illusions die.
-
-Without leaving the house I know the whole universe.
-- Lao-Tzu
-
-1.	Get enough food to eat, and eat it.
-2.	Find a place to sleep where it is quiet, and sleep there.
-3.	Reduce intellectual and emotional noise until you arrive at the silence of yourself, and listen to it.
-4.
-- Richard Brautigan
-
-If you can spend a perfectly useless afternoon in a perfectly useless manner, you have learned how to live. 
-- Lin Yu-T'ang
-
-Enlightenment is not something you achieve.  It is the absence of something.  All your life you
-have been going forward after something, pursuing some goal.  Enlightenment is dropping all that.
-- Charlotte Joko Beck
-*/
 
 
 typedef struct
@@ -44,6 +19,26 @@ typedef struct
   void *next;
   void **prev;
 } dbUserDef, *dbUserPtr;
+
+typedef struct
+{
+  int id;
+  int rank;
+  int level;
+  int flags;
+  int createtime;
+  int lasttime;
+  int tagpoints;
+  int session[4];
+  char name[64];
+  char password[128];
+  char email[128];
+  char faction[32];
+  char forumtag[32];
+} dbUserInfoDef, *dbUserInfoPtr;
+
+int dbUserInfoSet( int id, dbUserInfoPtr info );
+int dbUserInfoRetrieve( int id, dbUserInfoPtr info );
 
 extern dbUserPtr dbUserList;
 
@@ -100,7 +95,7 @@ typedef struct
   int artefacts;
   int rank;
   int aidaccess;
-  long long int articount;		//Can be use to count thing for artefact (ex: delay)
+  long long int articount;   		//Can be use to count thing for artefact (ex: delay)
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );
@@ -446,7 +441,7 @@ typedef struct
 {
   int length;
   int authorid;
-  char authorname[32];
+  char authorname[64];
   int authorempire;
   int time;
   int tick;
@@ -511,6 +506,10 @@ typedef struct
   int reserved[32];
 } dbUserDescDef, *dbUserDescPtr;
 
+int dbUserDescSet( int id, dbUserDescPtr descd );
+int dbUserDescRetrieve( int id, dbUserDescPtr descd );
+
+
 typedef struct
 {
   int roundid;
@@ -531,9 +530,6 @@ typedef struct
 
   int reseved[16];
 } dbUserRecordDef, *dbUserRecordPtr;
-
-int dbUserDescSet( int id, dbUserDescPtr descd );
-int dbUserDescRetrieve( int id, dbUserDescPtr descd );
 
 int dbUserRecordAdd( int id, dbUserRecordPtr recordd );
 int dbUserRecordList( int id, dbUserRecordPtr *records );

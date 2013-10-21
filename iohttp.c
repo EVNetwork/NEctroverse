@@ -504,9 +504,24 @@ sprintf( COREDIR, "%s/data", COREDIRECTORY );
 
   file = iohttpFileAdd( 0 );
   file->type = 1;
-  file->function = iohttpFunc_admin;
+  file->function = iohttpFunc_oldadmin;
   sprintf( file->path, "/admin" );
   
+  file = iohttpFileAdd( 0 );
+  file->type = 1;
+  file->function = iohttpFunc_adminframe;
+  sprintf( file->path, "/admin2" );
+
+  file = iohttpFileAdd( 0 );
+  file->type = 1;
+  file->function = iohttpFunc_adminmenu;
+  sprintf( file->path, "/adminmenu" );
+
+  file = iohttpFileAdd( 0 );
+  file->type = 1;
+  file->function = iohttpFunc_adminforum;
+  sprintf( file->path, "/adminforum" );
+
   file = iohttpFileAdd( 0 );
   file->type = 2;
   sprintf( file->path, "/chat" );

@@ -438,7 +438,7 @@ iohttpFunc_frontmenu( cnt, 2 );
 iohttpFunc_frontmenu( cnt, 2 );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
-/*
+
   sprintf( COREDIR, "%s/logs/register", COREDIRECTORY );
   if( ( file = fopen( COREDIR, "ab" ) ) )
   {
@@ -461,7 +461,7 @@ iohttpFunc_frontmenu( cnt, 2 );
    fprintf( file, "Cookie %s;;", iohttp->cookie );
    fprintf(file, "ID : %d ( %X );\n", id, id);
    fclose( file );
-  }*/
+  }
 } else {
 iohttpBase( cnt, 1|8 );
 iohttpFunc_frontmenu( cnt, 2 );
@@ -616,12 +616,20 @@ return;
 }
 
 void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
+	dbUserMainDef maind;
 	struct stat stdata;
-	char *data;	
+	char *data;
 	FILE *file;
+	int id;
 
 
 iohttpBase( cnt, 1|8 );
+
+if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	if( dbUserMainRetrieve( id, &maind ) < 0 )
+	return;
+} 
+
 iohttpFunc_frontmenu( cnt, 1 );
 
 if( strlen(text) )
@@ -669,7 +677,20 @@ svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspa
 svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Log in</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
 svSendString( cnt, "<table cellspacing=\"8\"><tr><td>" );
-svSendString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
+
+if( (id < 0) || (strlen(text)) ) {
+	svSendString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
+} else {
+	svSendPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", cnt->dbuser->name );
+	svSendString( cnt, "<br>" );
+	svSendString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a>" );
+	svSendString( cnt, "<br>" );
+	svSendString( cnt, "<br>" );
+	svSendString( cnt, "<a href=\"/logout\" target=\"_top\">Log out</a>" );
+	svSendString( cnt, "<br>" );
+	svSendString( cnt, "<br>" );
+}
+
 svSendString( cnt, "</td></tr></table>" );
 
 if( stat( IOHTTP_READ_DIRECTORY "/todo.txt", &stdata ) != -1 ) {
@@ -763,9 +784,9 @@ svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"t
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
 svSendString( cnt, "<tr><td><font size=\"2\">" );
-svSendString( cnt, "This page is a guide to new players on how to get started. It is important to read this to get the best possible experience when first playing!<br>" );
+svSendString( cnt, "<center>This page is a basic guide to new players on how to get started.<br>It is important to read this to get the best possible experience when first playing!</center>" );
 
-svSendString( cnt, "<br><b>Creating an account:</b><br><br>" );
+svSendString( cnt, "<br><b>Creating an account:</b><br>" );
 svSendString( cnt, "<a href=\"#a0\">0. Registering the account.</a><br>" );
 svSendString( cnt, "<a href=\"#a1\">1. The user name and faction name.</a><br>" );
 svSendString( cnt, "<a href=\"#a2\">2. Joining an empire.</a><br>" );
@@ -773,14 +794,14 @@ svSendString( cnt, "<a href=\"#a3\">3. Choosing your race.</a><br>" );
 svSendString( cnt, "<a href=\"#a4\">4. Completion and logging in.</a><br>" );
 svSendString( cnt, "</a><br>" );
 
-svSendString( cnt, "<br><b>Playing the game:</b><br><br>" );
+svSendString( cnt, "<br><b>Playing the game:</b><br>" );
 svSendString( cnt, "<a href=\"#b0\">0. Resources & Buildings.</a><br>" );
 svSendString( cnt, "<a href=\"#b1\">1. Planets.</a><br>" );
 svSendString( cnt, "<a href=\"#b2\">2. Research.</a><br>" );
 svSendString( cnt, "<a href=\"#b3\">3. Military.</a><br>" );
 svSendString( cnt, "</a><br>" );
 
-svSendString( cnt, "<br><b>Tips:</b><br><br>" );
+svSendString( cnt, "<br><b>Tips:</b><br>" );
 svSendString( cnt, "<a href=\"#c0\">0. Map generation.</a><br>" );
 svSendString( cnt, "<a href=\"#c1\">1. Fleet page.</a><br>" );
 svSendString( cnt, "<a href=\"#c2\">2. Account page.</a><br>" );

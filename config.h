@@ -8,7 +8,7 @@
 
 #define GCCOPTOMIZE 3
 
-#define FORKING 1
+#define FORKING 0
 
 #define HTTP_PORT (9122)
 

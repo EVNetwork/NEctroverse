@@ -22,7 +22,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  name = iohttpVarsFind( "name" );
  pass = iohttpVarsFind( "pass" );
  iohttpVarsCut();
-/*
+
  sprintf( COREDIR, "%s/logs/login", COREDIRECTORY );
  if( ( file = fopen( COREDIR, "ab" ) ) )
  {
@@ -42,7 +42,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
   fprintf( file, "%s;", timebuf );
   fprintf( file, "%s;", iohttp->cookie );
  }
-*/
+
  if( ( name ) && ( pass ) )
  {
   for( a = 0 ; name[a] ; a++ )
@@ -130,7 +130,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
 	   if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
 	    svSendString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
 	   if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
-	    svSendString( cnt, "<br><a href=\"admin\">Admin panel</a>" );
+	    svSendString( cnt, "<br><a href=\"admin2\">Admin panel</a>" );
 	  }
    svSendString( cnt, "</center></body></html>" );
    return;
@@ -225,7 +225,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
   if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
    svSendString( cnt, "<br><a href=\"moderator\" target=\"main\">Moderator panel</a>" );
   if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
-   svSendString( cnt, "<br><a href=\"admin\" target=\"main\">Admin panel</a>" );
+   svSendString( cnt, "<br><a href=\"admin2\" target=\"_top\">Admin panel</a>" );
  }
 
  svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
@@ -3383,7 +3383,7 @@ void iohttpFunc_map( svConnectionPtr cnt )
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
     svSendPrintf( cnt, "<td><a href=\"system?id=%d\"", ( mapp[i] & 0xFFFF ) - 1 );
-    svSendPrintf( cnt, "><img border=\"0\" src=\"m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
+    svSendPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )
@@ -6979,7 +6979,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  newd[3] = 0;
 			  newd[4] = id;
 			  newd[5] = maind.empire;
-			  memcpy( &newd[6], maind.faction, 32 );
+			  memcpy( &newd[6], maind.faction, 64 );
 			  cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
 			
 			  (maild.mail).authorid = a;

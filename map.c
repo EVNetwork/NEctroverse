@@ -344,7 +344,6 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 // New families generation, based on defaults.
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired = dbEmpireDefault;
-	memset(empired.password, '\0', sizeof(empired.password));
 	if( ( cmdAdminEmpire == a ) && ( strlen(cmdAdminEmpirePass) ) ) {
 		strcpy( empired.name, "Administration");
 		#if HASHENCRYPTION == 1

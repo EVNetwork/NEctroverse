@@ -7,11 +7,11 @@
 
 
 
-void iohttpFunc_admin2( svConnectionPtr cnt )
+void iohttpFunc_adminframe( svConnectionPtr cnt )
 {
   int id;
-  if( ( id = iohttpIdentify( cnt, 0 ) ) < 0 )
-    goto denied;
+  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+    return;
   if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto denied;
   svSendString( cnt, "Content-Type: text/html\n\n" );
@@ -23,10 +23,9 @@ void iohttpFunc_admin2( svConnectionPtr cnt )
   return;
   denied:
   svSendString( cnt, "You do not have administrator privileges." );
-  svSendString( cnt, "</body></html>" );
   return;
 }
-
+/*
 void iohttpFunc_adminmenu( svConnectionPtr cnt )
 {
   int id;
@@ -58,12 +57,56 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
   svSendString( cnt, "<a href=\"/\" target=\"_top\">Back to Mainpage</a><br>" );
   svSendString( cnt, "</font></b>" );
   svSendString( cnt, "</body></html>" );
+  return;
   denied:
   svSendString( cnt, "You do not have administrator privileges." );
   svSendString( cnt, "</body></html>" );
   return;
 }
+*/
 
+
+void iohttpFunc_adminmenu( svConnectionPtr cnt )
+{
+ int id, i, j;
+ char szFaction[32];
+ dbUserMainDef maind;
+ svSendString( cnt, "Content-Type: text/html\n\n" );
+ svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"mbg.gif\">" );
+ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+  return;
+ if( dbUserMainRetrieve( id, &maind ) < 0 )
+  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
+    goto denied;
+
+ svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"i18.jpg\" width=\"150\"></td></tr><tr><td background=\"i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+
+ svSendString( cnt, "<a href=\"adminforum\" target=\"main\">Forums</a></font></b></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
+ svSendPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
+ svSendString( cnt, "<a href=\"fleets\" target=\"main\">Fleets</a><br>" );
+ svSendString( cnt, "<a href=\"mappick\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- <a href=\"map\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- <a href=\"mapadv\" target=\"main\">Map generation</a><br>" );
+ svSendString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
+ svSendString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
+
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"i36.jpg\"><img height=\"15\" src=\"i53.jpg\" width=\"150\"></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"famranks\" target=\"main\">Empire rankings</a><br>" );
+ svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
+ svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
+ svSendString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
+ 
+   svSendString( cnt, "<br><a href=\"admin\" target=\"main\">Old Admin</a>" );
+   svSendString( cnt, "<br><a href=\"main\" target=\"_top\">Back to Game</a>" );
+   svSendString( cnt, "<br><a href=\"/\" target=\"_top\">Mainpage</a>" );
+
+
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
+return;
+ denied:
+  svSendString( cnt, "You do not have administrator privileges." );
+  svSendString( cnt, "</body></html>" );
+ return;
+}
 
 void iohttpAdminForm( svConnectionPtr cnt, char *target )
 {
@@ -79,24 +122,27 @@ void iohttpAdminSubmit( svConnectionPtr cnt, char *name )
 
 
 
-void iohttpFunc_adminforum( svConnectionPtr cnt )
-{
-  int a, id;
-  char *actionstring, *str0;
-  dbForumForumDef forumd;
+void iohttpFunc_adminforum( svConnectionPtr cnt ) {
+	int a, id;
+	char *actionstring, *str0;
+	dbForumForumDef forumd;
+	dbUserMainDef maind;
 
-  iohttpBase( cnt, 1 );
-  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
-    return;
-  if( (cnt->dbuser)->level < LEVEL_FORUMMOD )
-  {
+iohttpBase( cnt, 1 );
+
+if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
+	return;
+if( (cnt->dbuser)->level < LEVEL_FORUMMOD ) {
     svSendString( cnt, "This account does not have adminitrator privileges" );
     svSendString( cnt, "</center></body></html>" );
     return;
-  }
+}
+if( !( iohttpHeader( cnt, id, &maind ) ) )
+	return;
 
-  iohttpVarsInit( cnt );
+iohttpVarsInit( cnt );
 
+iohttpBodyInit( cnt, "Forums Administration" );
 
   if( ( actionstring = iohttpVarsFind( "famforum" ) ) )
   {
@@ -161,7 +207,7 @@ void iohttpFunc_adminforum( svConnectionPtr cnt )
 
 
 
-  svSendString( cnt, "</center></body></html>" );
+iohttpBodyEnd( cnt );
   return;
 
 
@@ -948,7 +994,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
 
 
 
-void iohttpFunc_admin( svConnectionPtr cnt )
+void iohttpFunc_oldadmin( svConnectionPtr cnt )
 {
   int a, b, c, cmd[2], id;
   int *buffer;
@@ -966,7 +1012,7 @@ void iohttpFunc_admin( svConnectionPtr cnt )
   int curtime;
 	FILE *fFile;
 	
-  iohttpBase( cnt, 0 );
+  iohttpBase( cnt, 1 );
 
   if( ( id = iohttpIdentify( cnt, 0 ) ) < 0 )
     goto iohttpFunc_admin_mainL0;
