@@ -1,4 +1,4 @@
-NEctroverse Relaunch!
+NEctroverse Alpha TBA!
 ========
 
 NEctroverse is a recode of the game Ectroverse created by Maloeran.<br>
@@ -13,8 +13,9 @@ Edit config.h and change as required.<br>
 
 Additional Librarys needed for optinal components:
 * build-essentials -- needed, but you should already have that.
-* libmysqlclinet-dev -- needed for mySql addition.
+* libmysqlclient-dev -- needed for mySql addition.
 * libssl-dev -- needed for extra password security.
+* libpng-dev -- needed for galaxy map
 
 Run:
 * make 
@@ -30,6 +31,3 @@ The server by default is on port 9122. This can be changed in config.h
 
 KNOWN BUGS - Very annoying and need to go:
 * ... ?
-
-
-NEctroverse is currently unavalible to play due to development stage.
