@@ -1,4 +1,4 @@
-Upgrade the admin/mod interface
-Work some improvments
-Automatic "SpiceUp"
-Clean Races Page
+Finish Empire Polotics. -- Leads to Empire Fund.
+More Automatic "SpiceUp" -- Such as these pages
+Update Races Page it shoulden't need to be manualy edited.
+Upgrade the admin/mod interface -- Oh this is long overdue!

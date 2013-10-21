@@ -55,17 +55,15 @@ c=0;
 for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 	svListenSocket[b] = socket( AF_INET, SOCK_STREAM, 0 );
 	if( svListenSocket[b] == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, creating listening socket\n", errno );
-		#endif
 		syslog(LOG_ERR, "Error %03d, creating listening socket\n", errno );
 		continue;
 	}
 	a = 1;
 	if( setsockopt( svListenSocket[b], SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, setsockopt\n", errno );
-		#endif
 		syslog(LOG_ERR, "Error %03d, setsockopt\n", errno );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
@@ -77,42 +75,37 @@ for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 	sinInterface.sin_addr.s_addr = htonl(INADDR_ANY);
 	sinInterface.sin_port = htons( svListenPort[b] );
 	if( bind( svListenSocket[b], (struct sockaddr *)&sinInterface, sizeof(struct sockaddr_in) ) == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, binding listening socket to port: %d\n", errno, svListenPort[b] );
-		#endif
 		syslog(LOG_ERR, "Error %03d, binding listening socket to port: %d\n", errno, svListenPort[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	}
 	if( listen( svListenSocket[b], SOMAXCONN ) == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, listen on port: %d\n", errno, svListenPort[b] );
-		#endif
 		syslog(LOG_ERR, "Error %03d, listen on port: %d\n", errno, svListenPort[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} 
 	if( fcntl( svListenSocket[b], F_SETFL, O_NONBLOCK ) == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, setting non-blocking on port: %d\n", errno, svListenPort[b] );
-		#endif
 		syslog(LOG_ERR, "Error %03d, setting non-blocking on port: %d\n", errno, svListenPort[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} else { c++; }
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Server awaiting connections on port: %d\n", svListenPort[b] );
-	#endif
 	syslog(LOG_ERR, "Server awaiting connections on port: %d\n", svListenPort[b] );
 }
 
 if ( c == 0 ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Server Binding failed, ports are not avalible/allowed!!\n" );
-	#endif
 	syslog(LOG_CRIT, "Server Binding failed, ports are not avalible/allowed!!\n" );
 //Empty Return to indicate no ports avaliable, and server can not iniate.
 	return 0;
@@ -135,9 +128,8 @@ unlink(DIRCHECKER);
 syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
 syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
 closelog();
-#if FORKING == 0
+if( svShellMode )
 printf("Server has been Completly shutdown!\n");
-#endif
 } else {
 sprintf( DIRCHECKER, "%s/evserver.temp.pipe", TMPDIR );
 unlink(DIRCHECKER);
@@ -149,9 +141,8 @@ return;
 void svEnd() {
 	int a;
 	svConnectionPtr cnt, next;
-#if FORKING == 0
+if( svShellMode )
 printf("Shutdown called, begin deamon breakdown...\n" );
-#endif
 syslog(LOG_INFO, "Shutdown called, begin deamon breakdown...\n" );
 for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	next = cnt->next;
@@ -162,19 +153,16 @@ for( a = 0 ; a < SV_INTERFACES ; a++ ) {
 		continue;
 
    	if( shutdown( svListenSocket[a], 2 ) == -1 )
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, unable to shutdown listening socket\n", errno );
-		#endif
 		syslog(LOG_ERR, "Error %03d, unable to shutdown listening socket\n", errno );
  		if( close( svListenSocket[a] ) == -1 ) {
-			#if FORKING == 0
+			if( svShellMode )
 			printf("Error %03d, closing socket\n", errno );
-			#endif
 			syslog(LOG_ERR, "Error %03d, closing socket\n", errno );
 		} else {
-			#if FORKING == 0
+			if( svShellMode )
 			printf("Server released port: %d\n", svListenPort[a] );
-			#endif
 			syslog(LOG_INFO, "Server released port: %d\n", svListenPort[a] );
 		}
 
@@ -198,46 +186,39 @@ for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 	if( socket == -1 ) {
 		if( errno == EWOULDBLOCK )
 			continue;
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, failed to accept a connection %s\n", errno, inet_ntoa(sockaddr.sin_addr) );
-		#endif
 		syslog(LOG_ERR, "Error %03d, failed to accept a connection %s\n", errno, inet_ntoa(sockaddr.sin_addr) );
 		continue;
-		#if FORKING == 0
+		if( svShellMode )
 		printf("This is a critical problem... should we really keep going past this?? - We do anways.\n" );
-		#endif
 		syslog(LOG_CRIT, "This is a critical problem... should we really keep going past this?? - We do anways.\n" );
 	}
 	if( socket >= FD_SETSIZE ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error, socket >= FD_SETSIZE, %d\n", socket );
-		#endif
 		syslog(LOG_ERR, "Error, socket >= FD_SETSIZE, %d\n", socket );
 		if( close( socket ) == -1 ) {
-			#if FORKING == 0
+			if( svShellMode )
 			printf("Error %03d, unable to close socket\n", errno );
-			#endif
 			syslog(LOG_ERR, "Error %03d, unable to close socket\n", errno );
 		}
 	continue;
 }
 #if SERVER_REPORT_CONNECT == 1
 else
-#if FORKING == 0
+if( svShellMode )
 printf("Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
-#endif
-	syslog(LOG_INFO, "Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
+syslog(LOG_INFO, "Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
 #endif
 
 	if( !( cnt = malloc( sizeof(svConnectionDef) ) ) ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("ERROR, not enough memory to create a connection structure\n");	
-		#endif
 		syslog(LOG_ERR, "ERROR, not enough memory to create a connection structure\n" );
 		if( close( socket ) == -1 ) {
-			#if FORKING == 0
+			if( svShellMode )
 			printf("Error %03d, unable to close socket\n", errno );	
-			#endif
 			syslog(LOG_ERR, "Error %03d, unable to close socket\n", errno );
 		}
 		continue;
@@ -268,17 +249,15 @@ printf("Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin_addr ), n
 #if SERVER_NAGLE_BUFFERING == 0
 	a = 1;
 	if( setsockopt( socket, IPPROTO_TCP, TCP_NODELAY, (char *)&a, sizeof(int) ) == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, setsockopt\n", errno );
-		#endif
 		syslog(LOG_ERR, "Error %03d, setsockopt\n", errno );
 	}
 #endif
 
 	if( fcntl( socket, F_SETFL, O_NONBLOCK ) == -1 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %03d, setting a socket to non-blocking\n", errno );
-		#endif
 		syslog(LOG_ERR, "Error %03d, setting a socket to non-blocking\n", errno );
 	}
 
@@ -332,9 +311,8 @@ to.tv_usec = ( SERVER_SELECT_MSEC % 1000 ) * 1000;
 to.tv_sec = SERVER_SELECT_MSEC / 1000;
 
 if( select( rmax+1, &svSelectRead, &svSelectWrite, &svSelectError, &to ) < 0 ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %03d, select()\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %03d, select()\n", errno );
 	return;
 }
@@ -357,9 +335,8 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	io = cnt->io;
 	if( ( time - cnt->time >= io->timeout ) && !( cnt->flags & SV_FLAGS_TIMEOUT ) ) {
 		#if SERVER_REPORT_ERROR == 1
-		#if FORKING == 0
+		if( svShellMode )
 		printf("%s>%d Timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		#endif
 		syslog(LOG_ERR, "%s>%d Timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
 		#endif
 		io->inError( cnt, 0 );
@@ -367,9 +344,8 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	}
 	if( time - cnt->time >= io->hardtimeout ) {
 		#if SERVER_REPORT_ERROR == 1
-		#if FORKING == 0
+		if( svShellMode )
 		printf("%s>%d Hard timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		#endif
 		syslog(LOG_ERR, "%s>%d Hard timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
 		#endif
 		svFree( cnt );
@@ -423,9 +399,8 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 		if( ( a == -1 ) && ( errno == EWOULDBLOCK ) )
 			continue;
 		#if SERVER_REPORT_ERROR == 1
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Connection to %s>%d died : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		#endif
 		syslog(LOG_INFO, "Connection to %s>%d died : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
 		#endif
 		io->inClosed( cnt );
@@ -449,9 +424,8 @@ return;
 void svShutdown( svConnectionPtr cnt ) {
 
 #if SERVER_REPORT_CLOSE == 1
-#if FORKING == 0
+if( svShellMode )
 printf("Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket );
-#endif
 syslog(LOG_INFO, "Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 #endif
 shutdown( cnt->socket, 1 );
@@ -462,9 +436,8 @@ return;
 void svClose( svConnectionPtr cnt ) {
 
 #if SERVER_REPORT_CLOSE == 1
-#if FORKING == 0
+if( svShellMode )
 printf("Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
-#endif
 syslog(LOG_INFO, "Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 #endif
 if( close( cnt->socket ) == -1 )
@@ -481,9 +454,8 @@ svConnectionPtr next;
 if( cnt->socket != -1 )
 	svClose( cnt );
 #if SERVER_REPORT_CLOSE == 1
-#if FORKING == 0
+if( svShellMode )
 printf("Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
-#endif
 syslog(LOG_INFO, "Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
 #endif
 svSendEnd( cnt );
@@ -510,9 +482,8 @@ int svSendAddBuffer( svBufferPtr *bufferp, int size ) {
 	char *mem;
 
 if( !( mem = malloc( sizeof(svBufferDef) + size ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %03d, add buffer malloc\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %03d, add buffer malloc\n", errno );
 	return 0;
 }
@@ -565,10 +536,9 @@ for( ; cnt->sendflushbuf ; cnt->sendflushbuf = (cnt->sendflushbuf)->next ) {
 	if( a == -1 ) {
 		if( errno == EWOULDBLOCK )
 			return 0;
-		#if FORKING == 0
-		printf("Error %d, send\n", errno);
-		#endif
-		syslog(LOG_ERR, "Error %d, send\n", errno);
+		if( svShellMode )
+		printf("Error %d, send flush\n", errno);
+		syslog(LOG_ERR, "Error %d, send flush\n", errno);
 		return 1;
 	}
 	if( a != size ) {
@@ -677,9 +647,8 @@ if(signal == SIGUSR1) {
 
 if(signal == SIGUSR2) {
   	//Free memory db and reload it to have a new member in :P
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Ask a dbinit\n");
-	#endif
 	syslog(LOG_INFO, "Ask a dbinit\n");
   	dbEnd();
   	dbInit();
@@ -691,43 +660,43 @@ syslog(LOG_ERR, "ERROR, signal %d\n", signal);
 syslog(LOG_ERR, "cnt : %d\n", (int)(intptr_t)svDebugConnection);
 syslog(LOG_ERR, "tick pass : %d\n", svDebugTickPass);
 syslog(LOG_ERR, "tick id : %d\n", svDebugTickId);
-#if FORKING == 0
-printf( "ERROR, signal %d\n", signal );
-fflush( stdout );
-printf( "cnt : %d\n", (int)(intptr_t)svDebugConnection);
-fflush( stdout );
-printf( "tick pass : %d\n", svDebugTickPass );
-fflush( stdout );
-printf( "tick id : %d\n", svDebugTickId );
-fflush( stdout );
-#endif
+if( svShellMode ) {
+	printf( "ERROR, signal %d\n", signal );
+	fflush( stdout );
+	printf( "cnt : %d\n", (int)(intptr_t)svDebugConnection);
+	fflush( stdout );
+	printf( "tick pass : %d\n", svDebugTickPass );
+	fflush( stdout );
+	printf( "tick id : %d\n", svDebugTickId );
+	fflush( stdout );
+}
 if( svDebugConnection ) {
-	#if FORKING == 0
-	printf( "OK\n" );
-	fflush( stdout );
-	#endif
+	if( svShellMode ) {
+		printf( "OK\n" );
+		fflush( stdout );
+	}
 	iohttp = svDebugConnection->iodata;
-	#if FORKING == 0
-	printf( "OK\n" );
-	fflush( stdout );
-	printf( "iohttp : %d\n", (int)(intptr_t)iohttp );
-	fflush( stdout );
-	printf( "iohttp->path : %s\n", iohttp->path );
-	fflush( stdout );
-	printf("iottp content lenth: %d\n", iohttp->content_length);
-	fflush(stdout);
-	printf( "iohttp->content : " );
-	printf( "iohttp->query_string : %s\n", iohttp->query_string );
-	fflush( stdout );
-	printf( "iohttp->cookie : %s\n", iohttp->cookie );
-	fflush( stdout );
-	printf( "iohttp->referer : %s\n", iohttp->referer );
-	fflush( stdout );
-	printf( "iohttp->user_agent : %s\n", iohttp->user_agent );
-	fflush( stdout );
-	fwrite( iohttp->content, 1, iohttp->content_length, stdout );
-	fflush( stdout );
-	#endif
+	if( svShellMode ) {
+		printf( "OK\n" );
+		fflush( stdout );
+		printf( "iohttp : %d\n", (int)(intptr_t)iohttp );
+		fflush( stdout );
+		printf( "iohttp->path : %s\n", iohttp->path );
+		fflush( stdout );
+		printf("iottp content lenth: %d\n", iohttp->content_length);
+		fflush(stdout);
+		printf( "iohttp->content : " );
+		printf( "iohttp->query_string : %s\n", iohttp->query_string );
+		fflush( stdout );
+		printf( "iohttp->cookie : %s\n", iohttp->cookie );
+		fflush( stdout );
+		printf( "iohttp->referer : %s\n", iohttp->referer );
+		fflush( stdout );
+		printf( "iohttp->user_agent : %s\n", iohttp->user_agent );
+		fflush( stdout );
+		fwrite( iohttp->content, 1, iohttp->content_length, stdout );
+		fflush( stdout );
+	}
 	syslog(LOG_ERR, "iohttp : %d\n", (int)(intptr_t)iohttp );
 	syslog(LOG_ERR, "iohttp->path : %s\n", iohttp->path );
 	syslog(LOG_ERR, "iottp content lenth: %d\n", iohttp->content_length );
@@ -743,15 +712,13 @@ if( svDebugConnection ) {
 		else
 			size = svDebugConnection->sendpos - svDebugConnection->sendflushpos;
 		a = size;
-		#if FORKING == 0
+		if( svShellMode )
 		fwrite( &(svDebugConnection->sendflushbuf)->data[svDebugConnection->sendflushpos], 1, size, stdout ); // hmmz ...
-		#endif
 		if( a == -1 ) {
 			if( errno == EWOULDBLOCK )
 				return;
-			#if FORKING == 0
+			if( svShellMode )
 			printf("Error %d, send\n", errno);
-			#endif
 			syslog(LOG_ERR, "Error %d, send\n", errno);
 			return;
 		}
@@ -811,9 +778,8 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 	if( !(strcmp(buffer,"stop") ) ) {
 		stop = 1;
 	} else {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
-		#endif
 		syslog(LOG_ERR, "Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
 	}
 	sprintf(DIRCHECKER, "Recived command \"%s\", I will now process.", buffer );
@@ -822,9 +788,8 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 
 if( stop ) {
 	svPipeSend(0,"Server is shutting down as requested..");
-	#if FORKING == 0
+	if( svShellMode )
 	printf("%s\n", "Shutdown command recived from Pipe.");
-	#endif
 	syslog(LOG_INFO, "%s\n", "Shutdown command recived from Pipe.");
 }
 
@@ -851,25 +816,22 @@ int svPipeSend(int pipedirection, char *message){
 sprintf( DIRCHECKER, "%s/evserver.%s", TMPDIR, ( pipedirection ? "pipe" : "client.pipe" ) );
 if( file_exist(DIRCHECKER) && strlen(message) ) {
 	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf( "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
-		#endif
 		syslog(LOG_ERR, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		return 0;
 	}
 	if( ( num = fprintf(pipefile, message) ) < 0) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf( "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
-		#endif
 		syslog(LOG_ERR, "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		return 0;
 	}
 	fflush(pipefile);
 	fclose(pipefile);
 } else {
-	#if FORKING == 0
+	if( svShellMode )
 	printf( "Piping Error: message to send but no pipe avaliable" );
-	#endif
 	syslog(LOG_ERR, "Piping Error: message to send but no pipe avaliable" );
 	return 0;
 }
@@ -880,29 +842,17 @@ return 1;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 void daemonloop(int pipefileid) {
+	ioInterfacePtr io;
 	int a, curtime;
-	#if FORKING == 1
 	int pipe;
 	FILE *file;
-	#endif
-	ioInterfacePtr io;
 
-#if FORKING == 1
-#if GCCOPTOMIZE > 0 //Don't ask me why this needs to be here, I just don't get it.
 if(pipefileid)
 pipe = pipefileid;
-#endif
-#endif
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
-		#if FORKING == 1
-		#if GCCOPTOMIZE == 0
-		svPipeScan( pipefileid );
-		#else
 		svPipeScan( pipe );
-		#endif
-		#endif
 		svSelect();
 		svListen();
 		svRecv();
@@ -935,7 +885,7 @@ pipe = pipefileid;
 			io = &ioInterface[a];
 			io->TickEnd();
 		}
-		#if FORKING == 1
+
 		file = fopen( COREDIRECTORY "/ticks", "r+" );
 		if(!file)
 			file = fopen( COREDIRECTORY "/ticks", "w" );
@@ -944,7 +894,7 @@ pipe = pipefileid;
 			fflush( file );
 			fclose( file );
 		}
-		#endif
+
 		cmdExecuteFlush();
 		
 	}
@@ -960,17 +910,16 @@ int daemon_init( char *argument ) {
 	char DIRCHECKER[256];
 	FILE *file;
 	ioInterfacePtr io;
-#if FORKING == 1
 	pid_t pid, sid;
 
-if( ( strcmp(argument,"daemonize") ) && ( strcmp(argument,"start") ) ) {
-printf("\'%s\' is not a valid command, use \'daemonize\' or \'start\'.\n", argument);
+if( ( strcmp(argument,"daemonize") ) && ( strcmp(argument,"start") && ( strcmp(argument,"shell") ) ) ) {
+printf("\'%s\' is not a valid command, use \'daemonize\', \'start\' or \'shell\'.\n", argument);
 return 0;
 }
 
 printf("%s\n", "Server process iniating...");
 
-if( strcmp(argument,"daemonize") ) {
+if( ( strcmp(argument,"daemonize") ) && ( strcmp(argument,"shell") ) ) {
 pid = fork();
 if(pid < 0) {
 	syslog(LOG_ERR, "Forking Error: %d\n", errno);
@@ -978,7 +927,7 @@ if(pid < 0) {
 } else if(pid > 0) {
 	return 1; // So we forked it, time to return and wait for results on a client pipe.
 }
-printf("%d\n",pid);
+
 syslog(LOG_INFO, "Begining initiation of %s daemon...", SERVERNAME);
 
 // First, start a new session
@@ -1002,7 +951,7 @@ close(STDOUT_FILENO);
 close(STDERR_FILENO);
 
 }
-#endif
+
 
 svTickTime = time(0) + SV_TICK_TIME;
 sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );	
@@ -1034,17 +983,15 @@ signal( SIGABRT, &svSignal );
 srand( time(NULL) ); //Random Init
 	
 if( !( svInit() ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Server initialisation failed, exiting\n");
-	#endif
 	syslog(LOG_ERR, "Server initialisation failed, exiting\n");
 	return 0;
 }
 
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Database initialisation failed, exiting\n");
-	#endif
 	syslog(LOG_ERR, "Database initialisation failed, exiting\n");
 	return 0;
 }
@@ -1054,17 +1001,15 @@ for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
 }
 
 if( !( cmdInit() ) )  {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Basic Iniation failed, exiting\n");
-	#endif
 	syslog(LOG_ERR, "Basic Iniation failed, exiting\n");
 	return 0;
 }
 sprintf( DIRCHECKER, "%s/data", COREDIRECTORY );  
 if( chdir( DIRCHECKER ) == -1 ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Change into Database Dir Failed, exiting\n");
-	#endif
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
@@ -1081,15 +1026,14 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0
 }
 
 //add local pipe, for basic commands from shell
-#if FORKING == 1
+
 sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
 mkfifo(DIRCHECKER, 0666);
 pipingin = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 syslog(LOG_INFO, "Completed initiation of %s daemon.\n", SERVERNAME );
-#else
-pipingin = -1;
+if( svShellMode )
 printf("All checks passed, begining server loop...\n");
-#endif
+
 
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
@@ -1178,14 +1122,12 @@ if ( split == NULL ) {
 			strcat(mkthisdir, split[i]);
 			check = mkdir(mkthisdir,0755);
 			if (!check) {
-				#if FORKING == 0
+				if( svShellMode )
 				printf("Directory \"%s\" created.\n", mkthisdir );
-				#endif
 				syslog(LOG_INFO, "Directory \"%s\" created.\n", mkthisdir );
 			} else if ( errno != 17 ) {
-				#if FORKING == 0
+				if( svShellMode )
 				printf("Error creating directory: \"%s\"\n", mkthisdir );
-				#endif
 				syslog(LOG_ERR, "Error creating directory: \"%s\"\n", mkthisdir );
 			}
 		}
@@ -1198,18 +1140,22 @@ free( strCpy );
 return;
 }
 
+int svShellMode = 0;
+
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[256];
 	int num, pipeserver, pipeclient;
 
-#if FORKING == 1
 if ( argc != 2 ) {
+	printf("\n");
 	printf( "Usage: \"%s COMMAND\"\n", argv[0] );
+	printf( "Commands: \"background\", \"daemonize\" or \"shell\"\n" );
+	printf("\n");
 	return 0;
 }
-#else
-argv[1] = "daemonize";
-#endif
+
+svShellMode = strcmp(argv[1],"shell") ? 0 : 1;
+
 
 //Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc. (in config.h)
 openlog(LOGTAG, LOG_CONS | LOG_PID | LOG_NDELAY, LOGFAC);
@@ -1228,9 +1174,8 @@ sprintf( DIRCHECKER, "%s/data/map", COREDIRECTORY );
 printf("\n");
 
 if( !( file_exist(DIRCHECKER) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("No map detected... now generating...\n");
-	#endif
 	syslog(LOG_INFO, "No map detected... now generating...\n");
 	mapgen();
 }
@@ -1240,20 +1185,19 @@ if ( file_exist(DIRCHECKER) ) {
 } else {
 //Begin deamonization and initate server loop.
 	if( !( daemon_init(argv[1]) ) ) {
-	printf( "Can not load, oh this is bad...\n" );
-	syslog(LOG_CRIT, "<<< !!!! CRITICAL ERROR !!!! >>>\n");
-	return 0;
+		printf( "Can not load, oh this is bad...\n" );
+		syslog(LOG_CRIT, "<<< !!!! CRITICAL ERROR !!!! >>>\n");
+		return 0;
 	}
-#if FORKING == 1
-	printf("%s\n", "Returning to shell, daemon has loaded in the background.");
-	printf("%s\n", "Use \'daemonize\' if you want to run in the old shell mode" );
-#endif
-printf("\n");
-
-return 1;
+	if( !( svShellMode ) ) {
+		printf("%s\n", "Returning to shell, daemon has loaded in the background.");
+		printf("%s\n", "Use \'shell\' if you want to run in the old shell output mode" );
+		printf("\n");
+	}
+	return 1;
 }
 
-#if FORKING == 1
+
 //OK, so we made it down here... that means we are a client and the pipe is active.
 
 if ((pipeserver = open(DIRCHECKER, O_WRONLY | O_NONBLOCK)) < 0)
@@ -1281,10 +1225,6 @@ while( file_exist(DIRCHECKER) ) {
 cleanUp(pipeclient,0);
 printf("\n");
 
-#else
-//We should never get here... parent proccess is set to self destruct! -- Yer, we do now... haha.
-printf( "Mooooooooooooooo, just to be a cow... I made it to this line, which I never should!!!\n" );
-#endif
 
 return 1;
 }

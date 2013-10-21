@@ -8,7 +8,7 @@
 
 #define GCCOPTOMIZE 3
 
-#define FORKING 0
+#define FORKING 1 //Depreciated... now compulsary!
 
 #define HTTP_PORT (9122)
 
@@ -38,14 +38,14 @@ static int cmdAdminEmpire = 0;
 #endif
 
 #define TMPDIR "/tmp/evcore"
-#define COREDIRECTORY "/media/stephen/mini/git/NEctroverse/core"
+#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
 
 //IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
-#define IOHTTP_FILES_DIRECTORY "/media/stephen/mini/git/NEctroverse/html/images"
-#define IOHTTP_READ_DIRECTORY "/media/stephen/mini/git/NEctroverse/html/docs"
+#define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
+#define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
 
 //we want to change this latter... no real "Public" forums.
-#define PUBLIC_FORUM_DIRECTORY "/media/stephen/mini/git/NEctroverse/core/data"
+#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
 
 // Umm, IRC... old skool...
 #define IRC_SERVER "irc.freenode.net"

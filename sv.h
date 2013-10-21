@@ -101,6 +101,7 @@ extern int svRoundEnd;
 extern int svDebugTickPass;
 extern int svDebugTickId;
 
+extern int svShellMode;
 
 /*
 

@@ -782,7 +782,7 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 	if( a == 0 )
 		break;
 	if( dbFileUserListBase[a] ) {
-		printf("write base of %s\n", fname);
+//		printf("write base of %s\n", fname);
 		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
 	}
 	fclose( file );

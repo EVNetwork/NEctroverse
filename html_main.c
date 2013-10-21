@@ -365,7 +365,9 @@ iohttpBase( cnt, 1|8 );
 iohttpFunc_frontmenu( cnt, 2 );
 
 svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
-svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+svSendString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
+
+//svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 iohttpFunc_endhtml( cnt );
 
@@ -387,9 +389,9 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
  iohttpVarsInit( cnt );
- name = iohttpVarsFind( "name" );
+/* name = iohttpVarsFind( "name" );
  pass = iohttpVarsFind( "pass" );
- faction = iohttpVarsFind( "faction" );
+ faction = iohttpVarsFind( "faction" );*/
  iohttpVarsCut();
  if( ( name ) && ( pass ) && ( faction ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
@@ -464,11 +466,9 @@ iohttpFunc_frontmenu( cnt, 2 );
   }
 } else {
 iohttpBase( cnt, 1|8 );
-iohttpFunc_frontmenu( cnt, 2 );
-
 if( ( id = iohttpIdentify( cnt, 4|1 ) ) < 0 )
 	return;
-
+iohttpFunc_frontmenu( cnt, 2 );
 svSendString( cnt, "This account was not activated yet." );
 }
 
@@ -498,9 +498,9 @@ void iohttpFunc_register3( svConnectionPtr cnt )
  char *race;
 
  iohttpBase( cnt, 1|8 );
-iohttpFunc_frontmenu( cnt, 2 );
  if( ( id = iohttpIdentify( cnt, 1|4 ) ) < 0 )
   return;
+iohttpFunc_frontmenu( cnt, 2 );
 
  iohttpVarsInit( cnt );
  empire = iohttpVarsFind( "empire" );

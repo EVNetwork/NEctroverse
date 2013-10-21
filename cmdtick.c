@@ -351,28 +351,15 @@ dbArtefactMax = artmax;
 
 
 
-void cmdTickInit()
-{
-  return;
+void cmdTickInit(){
+
+return;
 }
 
 
 void cmdTickEnd() {
-#if FORKING == 0
-	FILE *file;
 
-file = fopen( COREDIRECTORY "/ticks", "r+" );
-if(!file) {
-	file = fopen( COREDIRECTORY "/ticks", "w" );
-}
-if(file) {
-	fprintf( file, "%d", svTickNum );
-	fflush( file );
-}
-fclose( file );
-#endif
 cmdTickGenRanks();
-
 
 return;
 }
