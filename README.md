@@ -13,7 +13,7 @@ Edit config.h and change as required.<br>
 
 Additional Librarys needed for optinal components:
 * build-essentials -- needed, but you should already have that.
-* libmysqlclinet-dev -- needed for mySql addition.
+* libmysqlclient-dev -- needed for mySql addition.
 * libssl-dev -- needed for extra password security.
 
 Run:
