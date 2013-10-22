@@ -2266,7 +2266,7 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
     sscanf( resstring[a], "%d", &res[a] );
   }
   
-  if( cmdExecSendAid( id, b, maind.empire, res, 0 ) < 0 )
+  if( cmdExecSendAid( id, b, maind.empire, res ) < 0 )
   {
    if( cmdErrorString )
     reportstring = cmdErrorString;

@@ -28,7 +28,7 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild );
 int cmdExecAddBid( int id, int action, int resource, int price, int quantity );
 int cmdExecRemoveBid( int id, int bidid );
 int cmdExecGetMarket( int *market );
-int cmdExecSendAid( int id, int destid, int fam, int *res , int nAlly);
+int cmdExecSendAid( int id, int destid, int fam, int *res );
 int cmdExecGetAid( int id, int destid, int fam, int *res );
 int cmdExecAidAccess( int id, int access );
 int cmdExecChangeVote( int id, int vote );

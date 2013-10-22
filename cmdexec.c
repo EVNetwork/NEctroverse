@@ -873,12 +873,10 @@ int cmdExecGetMarket( int *market )
 }
 
 
-//Ive add nAlly to know their ally and ally trade with them
-int cmdExecSendAid( int id, int destid, int fam, int *res, int nAlly)
+int cmdExecSendAid( int id, int destid, int fam, int *res)
 {
   int a, b;
   dbMainEmpireDef empired;
-  dbMainEmpireDef empire2d;
   dbUserMainDef maind, main2d;
   long long int newd[DB_USER_NEWS_BASE];
 
@@ -891,11 +889,6 @@ int cmdExecSendAid( int id, int destid, int fam, int *res, int nAlly)
   cmdErrorString = 0;
   if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
     return -3;
-  if(nAlly != -1)
-  {
-  	if( dbMapRetrieveEmpire( nAlly, &empire2d ) < 0 )
-    	return -3;
-  }
   b = 0;
   for( a = 0 ; a < empired.numplayers ; a++ )
   {
@@ -905,14 +898,6 @@ int cmdExecSendAid( int id, int destid, int fam, int *res, int nAlly)
     if( empired.player[a] == destid )
       b |= 2;	
   }
-  if(nAlly != -1)
-  {
-	  for( a = 0 ; a < empire2d.numplayers ; a++ )
-	  {
-	  	if( empire2d.player[a] == destid )
-	      b |= 2;	
-	  }
-}
   if( b != 3 )
     return -3;
   b = 0;
