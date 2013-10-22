@@ -200,7 +200,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
  svSendString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
  
- svSendString( cnt, "<form action=\"search\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"10\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form><br>" );
+ svSendString( cnt, "<form action=\"search\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form><br>" );
  
  strcpy(szFaction, maind.faction);
  for(i=0;i<strlen(szFaction);i++)
@@ -1330,8 +1330,6 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  struct stat stdata;
  char *data;
  char message[4096];
- char sMd5[33];
- //FILE *fFile;
 
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1343,17 +1341,7 @@ void iohttpFunc_hq( svConnectionPtr cnt )
   return;
  }
  iohttpBodyInit( cnt, "Headquarters" );
-/*
-	For Round END script need reuz
-	sprintf(message, "echo -n %s%d | md5sum > out", maind.faction, id+9);
-	system(message);
-	fFile = fopen("out", "rb");
-	sMd5[32] = 0;
-	fread(sMd5, 16, 1, fFile);
-	fread(&(sMd5[16]), 16, 1, fFile);
-	system("rm out");
-*/
-	sMd5[0] = 0;
+
  svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
  if( svTickStatus )
   svSendPrintf( cnt, "%d seconds before tick<br>", (int)( svTickTime - time(0) ) );
@@ -1362,9 +1350,6 @@ void iohttpFunc_hq( svConnectionPtr cnt )
 
  svSendPrintf( cnt, "User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
 	
-//	if(svRoundEnd)
-//		svSendPrintf( cnt, "<a href=\"?page=Vote&id=%d&key=%s\">Click here to vote for the End of Round award</a>", id, sMd5);
-
  svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : %d<br>Population : %lld0<br>Networth : %lld</td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
  svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : %d%%<br>Psychics readiness : %d%%<br>Agents readiness : %d%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[0] >> 16, maind.readiness[1] >> 16, maind.readiness[2] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
 
@@ -2244,7 +2229,6 @@ iohttpFunc_frontmenu( cnt, 0 );
 void iohttpFunc_famaid( svConnectionPtr cnt )
 {
  int a, b, id, res[4], j, i, k, nAlly;
- int *rel;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  dbMainEmpireDef empire2d;
@@ -2269,33 +2253,6 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
   return;
  iohttpBodyInit( cnt, "Send Aid" );
 	
-	//Find ally (Both way alliance)
-nAlly = -1;
-// if( ( j = dbEmpireRelsList( maind.empire, &rel ) ) >= 0 )
-// {
- 	//printf("%d\n",j);
-// 	for( i = 0 ; i < j*4 ; i += 4 )
-//  {
-  	//printf("%d %d %d %d\n", rel[i], rel[i+1], rel[i+2], rel[i+3]);
-//   if( ( rel[i+3] & 1 ) || ( rel[i+1] != CMD_RELATION_ALLY ) )
-//    continue;
-//   for( k = 0 ; k < j*4 ; k += 4 )
-//   {
-   	//printf("checking %d and %d\n", rel[i+2] ,rel[k+2]);
-//    if( !( rel[k+3] & 1 ) || ( rel[k+1] != CMD_RELATION_ALLY ) || ( rel[i+2] != rel[k+2] ) )
-//     continue;
-    //Found the ally if we reach this line 
-//    nAlly = rel[i+2];
-//    dbMapRetrieveEmpire( nAlly, &empire2d );
-    //printf("found one %d\n", nAlly);
-//    j = dbEmpireRelsList( maind.empire, &rel );
-    //empire2d is the ally so list them in the trade box and allow trade to them
-//  		}
-//  }
-//  free( rel );
-// }
- //Find ally end
-	
  reportstring = 0;
  if( playerstring )
  {
@@ -2309,7 +2266,7 @@ nAlly = -1;
     sscanf( resstring[a], "%d", &res[a] );
   }
   
-  if( cmdExecSendAid( id, b, maind.empire, res, nAlly ) < 0 )
+  if( cmdExecSendAid( id, b, maind.empire, res, 0 ) < 0 )
   {
    if( cmdErrorString )
     reportstring = cmdErrorString;
@@ -2332,7 +2289,7 @@ nAlly = -1;
   iohttpBodyEnd( cnt );
   return;
  }
- if(( empired.numplayers == 1 )&&(nAlly == -1))
+ if( empired.numplayers == 1 )
  {
   svSendString( cnt, "There is no one to send aid to in your empire yet!" );
   iohttpBodyEnd( cnt );
@@ -2348,14 +2305,7 @@ nAlly = -1;
    continue;
   svSendPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
  }
-if( nAlly > -1 ) {
- for( a = 0 ; a < empire2d.numplayers ; a++ )
- {
-  if( !( user = dbUserLinkID( empire2d.player[a] ) ) )
-   continue;
-  svSendPrintf( cnt, "<option value=\"%d\">%s", empire2d.player[a], user->faction );
- }
-}
+
  svSendString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   svSendPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", maind.ressource[a], cmdRessourceName[a], a );
@@ -3544,7 +3494,7 @@ void iohttpFunc_system( svConnectionPtr cnt )
  dbMainPlanetDef planetd;
  char *systemstring;
 
- int b, c, d, ln, lns[4], pics[64];
+ int b, c, d, ln, lns[32], pics[64];
  float fa;
 
  iohttpBase( cnt, 1 );
