@@ -845,7 +845,6 @@ void daemonloop(int pipefileid) {
 	ioInterfacePtr io;
 	int a, curtime;
 	int pipe;
-	FILE *file;
 
 if(pipefileid)
 pipe = pipefileid;
@@ -861,11 +860,11 @@ pipe = pipefileid;
 		if( curtime < svTickTime )
 			continue;
 
-		if(strstr(ctime((const time_t *)&curtime), START_TIME))
-			svTickStatus = 1;
+//		if(strstr(ctime((const time_t *)&curtime), START_TIME))
+//			svTickStatus = 1;
 		
-		if(strstr(ctime((const time_t *)&curtime), STOP_TIME))
-			svTickStatus = 0;
+//		if(strstr(ctime((const time_t *)&curtime), STOP_TIME))
+//			svTickStatus = 0;
 			
 		svTickTime += SV_TICK_TIME;
 		
@@ -886,14 +885,6 @@ pipe = pipefileid;
 			io->TickEnd();
 		}
 
-		file = fopen( COREDIRECTORY "/ticks", "r+" );
-		if(!file)
-			file = fopen( COREDIRECTORY "/ticks", "w" );
-		if(file) {
-			fprintf( file, "%d", svTickNum );
-			fflush( file );
-			fclose( file );
-		}
 
 		cmdExecuteFlush();
 		
@@ -1149,7 +1140,7 @@ int main( int argc, char *argv[] ) {
 if ( argc != 2 ) {
 	printf("\n");
 	printf( "Usage: \"%s COMMAND\"\n", argv[0] );
-	printf( "Commands: \"background\", \"daemonize\" or \"shell\"\n" );
+	printf( "Commands: \"start\", \"daemonize\" or \"shell\"\n" );
 	printf("\n");
 	return 0;
 }

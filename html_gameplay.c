@@ -2231,7 +2231,6 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
  int a, b, id, res[4], j, i, k, nAlly;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- dbMainEmpireDef empire2d;
  char *playerstring, *resstring[4];
  char *reportstring;
  dbUserPtr user;

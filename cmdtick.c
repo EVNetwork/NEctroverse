@@ -358,8 +358,19 @@ return;
 
 
 void cmdTickEnd() {
+	FILE *file;
 
 cmdTickGenRanks();
+
+
+file = fopen( COREDIRECTORY "/ticks", "r+" );
+if(!file)
+	file = fopen( COREDIRECTORY "/ticks", "w" );
+if(file) {
+	fprintf( file, "%d", svTickNum );
+	fflush( file );
+	fclose( file );
+}
 
 return;
 }

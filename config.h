@@ -59,9 +59,6 @@ static int cmdAdminEmpire = 0;
 //#define SV_TICK_TIME (1*60)
 #define SV_TICK_TIME (1*2)
 
-#define START_TIME " Apr 16 20:00"		//Yer, this ain't good...
-#define STOP_TIME "May 14 16:00"		//Ahh crap, there's two of em...
-
 // 0 = Off | 1 = On
 #define SERVER_REPORT_CONNECT 0
 #define SERVER_REPORT_CLOSE 0
