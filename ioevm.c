@@ -171,10 +171,10 @@ printf( "STATUS\n" );
       stmsg[0] = 24;
       stmsg[1] = EVM_STATUS;
       stmsg[2] = sysconfig.round;
-      stmsg[3] = svTickStatus;
-      stmsg[4] = svTickNum;
-      stmsg[5] = (int)( svTickTime - time(0) );
-      stmsg[6] = sysconfig.ticktime;
+      stmsg[3] = ticks.status;
+      stmsg[4] = ticks.number;
+      stmsg[5] = (int)( ticks.next - time(0) );
+      stmsg[6] = ticks.time;
       svSend( cnt, stmsg, 7*sizeof(int) );
     }
     else if( evmsg == EVM_MAP )

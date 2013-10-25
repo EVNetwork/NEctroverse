@@ -12,6 +12,7 @@ typedef struct {
 	int warend;
 	int victory;
 	int ticktime;
+	int autoresume;
 	int round;
 	//evmap
 	bool evmpactv;
@@ -40,22 +41,15 @@ extern configDef sysconfig;
 typedef struct {
 	int number;
 	int time;
+	int next;
 	int status;
 	int autostart;
-	int endafter;
 	int round;
+	int passid;
+	int pass;
 } tickDef, *tickPtr;
 
 extern tickDef ticks;
-
-extern int svTickNum;
-extern int svTickTime;
-extern int svTickStatus;
-extern int svTickAutoStart;
-extern int svRoundEnd;
-
-extern int svDebugTickPass;
-extern int svDebugTickId;
 
 extern int svShellMode;
 

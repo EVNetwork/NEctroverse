@@ -906,7 +906,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
     newd[1] = CMD_NEWS_FLAGS_NEW;
     andl = 0xFFFFFFFF;
   }
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   memcpy( cmdFleetActionNewd, newd, 2*sizeof(long long int) );
 
   if( fleetd->order == CMD_FLEET_ORDER_EXPLORE )
@@ -1943,7 +1943,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       return -3;
 
     marketbid[DB_MARKETBID_RESSOURCE] = cmd[3];
-    newd[0] = svTickNum;
+    newd[0] = ticks.number;
     newd[1] = CMD_NEWS_FLAGS_NEW;
     newd[3] = cmd[3];
     c = cmd[5];
@@ -2150,7 +2150,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
     }
     dbUserMainSet( cmd[2], &main2d );
 
-    newd[0] = svTickNum;
+    newd[0] = ticks.number;
     newd[1] = CMD_NEWS_FLAGS_NEW;
     newd[2] = CMD_NEWS_AID;
     newd[3] = cmd[1];

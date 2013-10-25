@@ -209,7 +209,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	  if( dbUserMainRetrieve( id, &maind ) < 0 )
 	    return;
 
-	   if( ( maind.readiness[2] < 0 ) || (( planetd.owner == id )&&(fleetd->order!=CMD_FLEET_ORDER_PLANETBEACON) && (fleetd->order!=CMD_FLEET_ORDER_NUKEPLANET)) ||  !( svTickStatus ) )
+	   if( ( maind.readiness[2] < 0 ) || (( planetd.owner == id )&&(fleetd->order!=CMD_FLEET_ORDER_PLANETBEACON) && (fleetd->order!=CMD_FLEET_ORDER_NUKEPLANET)) ||  !( ticks.status ) )
 	  {
 	  	cmdUserNewsAdd( id, newd, postnew );
 	    return;
@@ -766,7 +766,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
     return;
   if( !( dbUserFleetRetrieve( id, 0, &fleetd ) ) )
     return;
-  if( ( (unsigned int)psychics > fleetd.unit[CMD_UNIT_WIZARD] ) || ( maind.readiness[1] < 0 ) ||  !( svTickStatus ) )
+  if( ( (unsigned int)psychics > fleetd.unit[CMD_UNIT_WIZARD] ) || ( maind.readiness[1] < 0 ) ||  !( ticks.status ) )
   {
     cmdUserNewsAdd( id, newd, 0 );
     return;
@@ -1180,7 +1180,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
   }
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return;
-  if( ( maind.readiness[1] < 0 ) || !( svTickStatus ) )
+  if( ( maind.readiness[1] < 0 ) || !( ticks.status ) )
   {
     cmdUserNewsAdd( id, newd, postnew );
     return;

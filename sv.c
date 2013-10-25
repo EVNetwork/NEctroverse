@@ -28,16 +28,6 @@ svConnectionPtr svDebugConnection;
 #include "svban.c" //Lets try and change this in the future too... Flat file baning is just flat out bad.
 
 int svShellMode = 0;
-int svTickNum = 0;
-int svTickTime;
-int svTickStatus = 0;
-int svRoundEnd = 0;
-
-int svTickAutoStart = 1;
-
-int svDebugTickPass;
-int svDebugTickId;
-
 
 int svTime() {
 	struct timeval lntime;
@@ -635,16 +625,16 @@ void svSignal( int signal ) {
 iohttpDataPtr iohttp;
 syslog(LOG_ERR, "ERROR, signal %d\n", signal);
 syslog(LOG_ERR, "cnt : %d\n", (int)(intptr_t)svDebugConnection);
-syslog(LOG_ERR, "tick pass : %d\n", svDebugTickPass);
-syslog(LOG_ERR, "tick id : %d\n", svDebugTickId);
+syslog(LOG_ERR, "tick pass : %d\n", ticks.pass);
+syslog(LOG_ERR, "tick id : %d\n", ticks.passid);
 if( svShellMode ) {
 	printf( "ERROR, signal %d\n", signal );
 	fflush( stdout );
 	printf( "cnt : %d\n", (int)(intptr_t)svDebugConnection);
 	fflush( stdout );
-	printf( "tick pass : %d\n", svDebugTickPass );
+	printf( "tick pass : %d\n", ticks.pass );
 	fflush( stdout );
-	printf( "tick id : %d\n", svDebugTickId );
+	printf( "tick id : %d\n", ticks.passid );
 	fflush( stdout );
 }
 if( svDebugConnection ) {
@@ -822,10 +812,10 @@ void daemonloop(int pipefileid) {
 		svRecv();
 		svDebugConnection = 0;
 		curtime = time( 0 );
-		if( curtime < svTickTime )
+		if( curtime < ticks.next )
 			continue;
 
-		svTickTime += sysconfig.ticktime;
+		ticks.next += ticks.time;
 		
 		for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
 		io = &ioInterface[a];
@@ -833,9 +823,9 @@ void daemonloop(int pipefileid) {
 		}
 		
 		cmdTickInit();
-		if( svTickStatus ) {
+		if( ticks.status ) {
 			cmdTick();
-			svTickNum++;
+			ticks.number++;
 		}
 		cmdTickEnd();
 
@@ -902,7 +892,7 @@ close(STDERR_FILENO);
 
 }
 
-svTickTime = time(0) + sysconfig.ticktime;
+ticks.next = time(0) + ticks.time;
 	
 //Time to set some signals
 signal( SIGPIPE, SIG_IGN );
@@ -954,11 +944,10 @@ if( chdir( DIRCHECKER ) == -1 ) {
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
-
+ticks.number = ticks.status = 0;
 sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );	
 if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
-	if( fscanf( file, "%d", &svTickNum ) == 0 ) {
-		svTickNum = 0;
+	if( fscanf( file, "%d", &ticks.number ) == 0 ) {
 	 	if( svShellMode )
 			printf("Error getting tick number\n");
 		syslog(LOG_ERR, "Error getting tick number\n");
@@ -969,9 +958,9 @@ if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
 
 
 dbMapRetrieveMain( binfo );
-if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0 ) ) {
-	if( ( svTickAutoStart == 1 ) && ( !svTickStatus ) && (svTickNum) )
-		svTickStatus = 1;
+if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <= 0 ) ) {
+	if( ( ticks.autostart == 1 ) && ( !ticks.status ) && (ticks.number) )
+		ticks.status = 1;
 }
 
 //add local pipe, for basic commands from shell
@@ -1104,6 +1093,8 @@ if (MATCH("system", "port")) {
 	pconfig->round = atoi(value);
 } else if (MATCH("system", "tick_time")) {
 	pconfig->ticktime = atoi(value);
+} else if (MATCH("system", "autoresume")) {
+	pconfig->autoresume = strcmp(value,"false") ? true : false;
 } else if (MATCH("system", "stockpile")) {
 	pconfig->stockpile = atoi(value);
 } else if (MATCH("system", "auto_endwar_afterticks")) {
@@ -1165,6 +1156,16 @@ SV_INTERFACES = 1;
 
 if( sysconfig.httpport )
 svListenPort[0] = sysconfig.httpport;
+
+if( sysconfig.ticktime )
+ticks.time = sysconfig.ticktime;
+
+if( sysconfig.round )
+ticks.round = sysconfig.round;
+
+if( sysconfig.autoresume )
+ticks.autostart = sysconfig.autoresume;
+
 
 return 1;
 }

@@ -157,8 +157,8 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
  svSendString( cnt, "<td width=\"41\"><img height=\"21\" src=\"i03.jpg\" width=\"41\"></td>" );
  svSendString( cnt, "<td background=\"i05.jpg\">" );
 
- if( svTickStatus )
- svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : %d seconds left</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", mainp->networth, (int)( svTickTime - time(0) ), mainp->ressource[CMD_RESSOURCE_POPULATION] );
+ if( ticks.status )
+ svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : %d seconds left</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", mainp->networth, (int)( ticks.next - time(0) ), mainp->ressource[CMD_RESSOURCE_POPULATION] );
  else
  svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", mainp->networth, mainp->ressource[CMD_RESSOURCE_POPULATION] );
 
@@ -406,7 +406,7 @@ iohttpFunc_frontmenu( cnt, 2 );
 		svSendString( cnt, "<br><br><a href=\"register\">Try again?</a>" );
 		goto iohttpFunc_register2L0;
 	}
-  	newd[0] = svTickNum;
+  	newd[0] = ticks.number;
 	 	newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[2] = CMD_NEWS_MAIL;
   newd[3] = 0;
@@ -422,7 +422,7 @@ iohttpFunc_frontmenu( cnt, 2 );
   sprintf( (maild.mail).authorname, "Admin" );
   (maild.mail).authorempire = 0;
   (maild.mail).time = time( 0 )-(3600*SERVER_TIME_ZONE);
-  (maild.mail).tick = svTickNum;
+  (maild.mail).tick = ticks.number;
   (maild.mail).flags = 0;
   if( dbMailAdd( id, 0, &maild ) < 0 )
 	syslog(LOG_ERR, "Error sending registration email\n" );

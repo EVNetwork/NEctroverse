@@ -915,7 +915,7 @@ int battle( int id, int fltid, int *results )
 	if( results[3] & 0x800 )
     defdam = 1;
 
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[3] = id;
   newd[4] = maind.empire;

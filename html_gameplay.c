@@ -225,7 +225,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
   if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
    svSendString( cnt, "<br><a href=\"moderator\" target=\"main\">Moderator panel</a>" );
   if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
-   svSendString( cnt, "<br><a href=\"admin2\" target=\"_top\">Admin panel</a>" );
+   svSendString( cnt, "<br><a href=\"administration\" target=\"_top\">Admin panel</a>" );
  }
 
  svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
@@ -997,9 +997,9 @@ void iohttpFamNews( svConnectionPtr cnt, int num, long long int *newsd, dbMainEm
   if( dbUserMainRetrieve( empired->player[a], &mfamd[a] ) < 0 )
    continue;
  }
- svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
- if( svTickStatus )
-  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( svTickTime - time(0) ) );
+ svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+ if( ticks.status )
+  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
  else
   svSendPrintf( cnt, "Time frozen<br>" );
 
@@ -1334,7 +1334,7 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohttpBase( cnt, 1 );
- num = dbUserNewsListUpdate( id, &newsp, svTickNum );
+ num = dbUserNewsListUpdate( id, &newsp, ticks.number );
  if( !( iohttpHeader( cnt, id, &maind ) ) )
  {
   free( newsp );
@@ -1342,9 +1342,9 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  }
  iohttpBodyInit( cnt, "Headquarters" );
 
- svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
- if( svTickStatus )
-  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( svTickTime - time(0) ) );
+ svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+ if( ticks.status )
+  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
  else
   svSendPrintf( cnt, "Time frozen<br>" );
 
@@ -1418,9 +1418,9 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohttpBodyInit( cnt, "Older reports" );
 
- svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
- if( svTickStatus )
-  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( svTickTime - time(0) ) );
+ svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+ if( ticks.status )
+  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
  else
   svSendPrintf( cnt, "Time frozen<br>" );
 
@@ -2622,7 +2622,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  iohttpBodyInit( cnt, "Empire #%d news", curfam );
 
-	num = dbFamNewsList( curfam, &newsp, svTickNum );
+	num = dbFamNewsList( curfam, &newsp, ticks.number );
  newsd = newsp;
  iohttpFamNews( cnt, num, newsd, &empired );
  if( newsp )
@@ -6654,7 +6654,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
  }
 
- newd[0] = svTickNum;
+ newd[0] = ticks.number;
  newd[1] = 0;
  specopPsychicsPerformOp( id, targetid, order, psychics, newd );
 
@@ -6913,7 +6913,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  sprintf( (maild.mail).authorname, (cnt->dbuser)->faction );
 			  (maild.mail).authorempire = maind.empire;
 			  (maild.mail).time = time( 0 )-(3600*SERVER_TIME_ZONE);
-			  (maild.mail).tick = svTickNum;
+			  (maild.mail).tick = ticks.number;
 			  (maild.mail).flags = 0;
 			  if( dbMailAdd( a, 0, &maild ) < 0 )
 			  {
@@ -6922,7 +6922,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  else
 			  svSendPrintf( cnt, "<i>Message sent to <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></i><br><br>", a, main2d.faction, main2d.empire, main2d.empire );
 			
-			  newd[0] = svTickNum;
+			  newd[0] = ticks.number;
 			  newd[1] = CMD_NEWS_FLAGS_NEW;
 			  newd[2] = CMD_NEWS_MAIL;
 			  newd[3] = 0;

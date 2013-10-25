@@ -482,7 +482,7 @@ iohttpFunc_frontmenu( cnt, 3 );
    svSendString( cnt, "</td></tr></table>" );
   }
   else
-   svSendPrintf( cnt, "Week %d, Year %d</td></tr></table>", svTickNum % 52, svTickNum / 52 );
+   svSendPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
 
   if( forumd.threads > IOHTTP_FORUM_THREADSNUM )
   {
@@ -589,7 +589,7 @@ iohttpFunc_frontmenu( cnt, 3 );
    svSendString( cnt, "</td></tr></table>" );
   }
   else
-   svSendPrintf( cnt, "Week %d, Year %d</td></tr></table>", svTickNum % 52, svTickNum / 52 );
+   svSendPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
 
   if( threadd.posts > IOHTTP_FORUM_POSTSNUM )
   {
@@ -681,7 +681,7 @@ iohttpFunc_frontmenu( cnt, 3 );
   else
    sprintf( threadd.authorname, "Anonymous" );
   threadd.time = time( 0 )-(3600*SERVER_TIME_ZONE);
-  threadd.tick = svTickNum;
+  threadd.tick = ticks.number;
   threadd.flags = 0;
   memcpy( &(threadd.sin_addr), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
   thread = dbForumAddThread( forum, &threadd );
@@ -741,7 +741,7 @@ iohttpFunc_frontmenu( cnt, 3 );
    postd.post.authortag[0] = 0;
   }
   postd.post.time = time( 0 )-(3600*SERVER_TIME_ZONE);  //to be in GMT with the server running anywhere worldwide
-  postd.post.tick = svTickNum;
+  postd.post.tick = ticks.number;
   postd.post.flags = 0;
   memcpy( &(postd.post.sin_addr), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
   a = dbForumAddPost( forum, thread, &postd );
@@ -875,7 +875,7 @@ iohttpFunc_frontmenu( cnt, 3 );
   postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*IOHTTP_FORUM_BUFFER], 2*IOHTTP_FORUM_BUFFER - 512 );
   a = time( 0 )-(3600*SERVER_TIME_ZONE);
   strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&a ) );
-  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, svTickNum % 52, svTickNum / 52, timebuf );
+  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, timebuf );
 
   a = dbForumEditPost( forum, thread, post, &postd );
   if( a >= 0 )

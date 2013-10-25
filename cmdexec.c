@@ -651,7 +651,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
   if( (unsigned int)action >= 2 )
    return -3;
 
-  if( !( svTickStatus ) )
+  if( !( ticks.status ) )
   {
     cmdErrorString = "You can't place a bid before time started.";
     return -3;
@@ -676,7 +676,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
 		return -3;
 	}
   marketbid[DB_MARKETBID_RESSOURCE] = resource;
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[3] = resource;
   c = quantity;
@@ -879,7 +879,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
   dbUserMainDef maind, main2d;
   long long int newd[DB_USER_NEWS_BASE];
 
-  if( !( svTickStatus ) )
+  if( !( ticks.status ) )
   {
     cmdErrorString = "You can't send aid before the beginning of the round.";
     return -3;
@@ -934,7 +934,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
   }
   dbUserMainSet( destid, &main2d );
 
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[2] = CMD_NEWS_AID;
   newd[3] = id;
@@ -964,7 +964,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   dbUserPtr user2;
   long long int newd[DB_USER_NEWS_BASE];
 
-  if( !( svTickStatus ) )
+  if( !( ticks.status ) )
   {
     cmdErrorString = "You can't receive aid before the beginning of the round.";
     return -3;
@@ -1033,7 +1033,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   }
   dbUserMainSet( destid, &main2d );
 
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[2] = CMD_NEWS_GETAID;
   newd[3] = destid;
@@ -1250,7 +1250,7 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
       cmdErrorString = "You can't send more than 1 alliance offer!";
       return -3;
     }
-    rel[0] = svTickNum;
+    rel[0] = ticks.number;
     rel[1] = type;
     rel[2] = fam;
     rel[3] = 1;
@@ -1272,7 +1272,7 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
       cmdErrorString = "You can't declare war on a empire less than 60% your empire size.";
       return -3;
     }
-    rel[0] = svTickNum;
+    rel[0] = ticks.number;
     rel[1] = type;
     rel[2] = fam;
     rel[3] = 1;
@@ -1294,7 +1294,7 @@ int cmdExecDelRelation( int fam, int relid )
   cmdErrorString = 0;
   if( dbEmpireRelsGet( fam, relid, rel ) < 0 )
     return -3;
-  if( ( rel[0]+26 > svTickNum ) /*&& ( rel[1] != CMD_RELATION_WAR )*/ )
+  if( ( rel[0]+26 > ticks.number ) /*&& ( rel[1] != CMD_RELATION_WAR )*/ )
   {
     cmdErrorString = "A relation can't be canceled for 26 weeks after being declared.";
     return -3;
@@ -1916,7 +1916,7 @@ int cmdExecOfferPlanet( int id, int destid, int plnid )
 
   if( destid >= 0 )
   {
-    newd[0] = svTickNum;
+    newd[0] = ticks.number;
     newd[1] = CMD_NEWS_FLAGS_NEW;
     newd[2] = CMD_NEWS_PLANET_OFFER;
     newd[3] = id;
@@ -1968,7 +1968,7 @@ int cmdExecTakePlanet( int id, int plnid )
   if( dbUserMainSet( id, &maind ) < 0 )
     return -3;
 
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   newd[1] = 0;
   newd[2] = CMD_NEWS_PLANET_TAKEN;
   newd[3] = planetd.owner;
@@ -1976,7 +1976,7 @@ int cmdExecTakePlanet( int id, int plnid )
   newd[5] = planetd.position;
   cmdUserNewsAdd( id, newd, 0 );
 
-  newd[0] = svTickNum;
+  newd[0] = ticks.number;
   newd[1] = CMD_NEWS_FLAGS_NEW;
   newd[2] = CMD_NEWS_PLANET_GIVEN;
   newd[3] = id;

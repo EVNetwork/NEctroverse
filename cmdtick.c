@@ -49,7 +49,7 @@ if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 )
 wnum <<= 2;
 for( wa = 0 ; wa < wnum ; wa += 4 ) {
 	if( rels[wa+1] == CMD_RELATION_WAR ) {
-		if( (rels[wa] + sysconfig.warend) <= svTickNum ) {
+		if( (rels[wa] + sysconfig.warend) <= ticks.number ) {
 			cmdExecDelRelation( b, wa / 4 );
 		} 
 	}
@@ -151,13 +151,11 @@ if( artsnum > artmax )
 
 if( artsnum == ARTEFACT_NUMUSED ) {
         if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
-                dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + sysconfig.victory;
+                dbMapBInfoStatic[MAP_ARTITIMER] = ticks.number + sysconfig.victory;
                 dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
                 dbMapSetMain( dbMapBInfoStatic );
-        } else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
-                svTickStatus = 0;
-                svTickAutoStart = 0;
-                svRoundEnd = svTickNum;
+        } else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= ticks.number ) ) {
+                ticks.status = 0;
         }
 } else if( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) {
         dbMapBInfoStatic[MAP_ARTITIMER] = -1;
@@ -212,15 +210,15 @@ if( artsnum ) {
 		if( dbMapRetrieveEmpire( dbMapBInfoStatic[MAP_TIMEMPIRE], &empired ) < 0 )
 		      return;
 		if( empired.name[0] ) {
-			if( (dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum) <= 0 )
+			if( (dbMapBInfoStatic[MAP_ARTITIMER] - ticks.number) <= 0 )
 				fprintf( file, "<br><br><b>All Artefacts held by: %s</b><br>", empired.name );
 			else
-				fprintf( file, "<br><br><b>All Artefacts held by: %s<br>Round will end in %d weeks!</b><br>", empired.name, dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
+				fprintf( file, "<br><br><b>All Artefacts held by: %s<br>Round will end in %d weeks!</b><br>", empired.name, dbMapBInfoStatic[MAP_ARTITIMER] - ticks.number );
 		} else {
-			if( (dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum) <= 0 )
+			if( (dbMapBInfoStatic[MAP_ARTITIMER] - ticks.number) <= 0 )
 				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE] );
 			else
-				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d<br>Round will end in %d weeks!</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE], dbMapBInfoStatic[MAP_ARTITIMER] - svTickNum );
+				fprintf( file, "<br><br><b>All Artefacts held by: Empire #%d<br>Round will end in %d weeks!</b><br>", dbMapBInfoStatic[MAP_TIMEMPIRE], dbMapBInfoStatic[MAP_ARTITIMER] - ticks.number );
 		}
 	} else {
 		fprintf( file, "<br><br><b>Artefacts found</b><br>" );
@@ -367,7 +365,7 @@ file = fopen( COREDIRECTORY "/ticks", "r+" );
 if(!file)
 	file = fopen( COREDIRECTORY "/ticks", "w" );
 if(file) {
-	fprintf( file, "%d", svTickNum );
+	fprintf( file, "%d", ticks.number );
 	fflush( file );
 	fclose( file );
 }
@@ -388,7 +386,7 @@ int cmdTickPlanets( int usrid, dbUserMainPtr mainp )
   dbUserFleetPtr fleetd;
   dbUserSpecOpPtr specopd;
 
-svDebugTickPass = 0 + 10000;
+ticks.pass = 0 + 10000;
 
 
   memset( mainp->totalbuilding, 0, 16*sizeof(long long int) );
@@ -418,7 +416,7 @@ svDebugTickPass = 0 + 10000;
     return 0;
   }
 
-svDebugTickPass = 1 + 10000;
+ticks.pass = 1 + 10000;
 
   population = 0;
   for( a = 0 ; a < num ; a++ )
@@ -431,7 +429,7 @@ svDebugTickPass = 1 + 10000;
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
 			planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * (CMD_POPULATION_CITIES+1000) ) );
 	*/	
-svDebugTickPass = 2 + 10000;
+ticks.pass = 2 + 10000;
 		
 		//No more pop grow bonus it will count as upkeep reducer multiplier
 		//Planet grow pop is 2% each tick
@@ -456,7 +454,7 @@ svDebugTickPass = 2 + 10000;
     }
 
 
-svDebugTickPass = 3 + 10000;
+ticks.pass = 3 + 10000;
 
 
     /* CRAP */
@@ -470,7 +468,7 @@ svDebugTickPass = 3 + 10000;
     dbMapSetPlanet( buffer[a], &planetd );
 
 
-svDebugTickPass = 4 + 10000;
+ticks.pass = 4 + 10000;
 
 
 
@@ -486,7 +484,7 @@ svDebugTickPass = 4 + 10000;
       mainp->totalbuilding[CMD_BLDG_NUMUSED]++;
 
 
-svDebugTickPass = 5 + 10000;
+ticks.pass = 5 + 10000;
 
 		if( planetd.special[1] )
     {
@@ -505,7 +503,7 @@ svDebugTickPass = 5 + 10000;
     }
 
 
-svDebugTickPass = 6 + 10000;
+ticks.pass = 6 + 10000;
 
 
     if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
@@ -516,29 +514,29 @@ svDebugTickPass = 6 + 10000;
     dbMapSetEmpire( mainp->empire, &empired );
 
 
-svDebugTickPass = 7 + 10000;
+ticks.pass = 7 + 10000;
 
   }
   mainp->planets = num;
   mainp->ressource[CMD_RESSOURCE_POPULATION] = (long long int)population;
 
 
-svDebugTickPass = 8 + 10000;
+ticks.pass = 8 + 10000;
 
 
   free( buffer );
 
-svDebugTickPass = 9 + 10000;
+ticks.pass = 9 + 10000;
 
   if( portals )
     free( portals );
 
-svDebugTickPass = 10 + 10000;
+ticks.pass = 10 + 10000;
 
   if( ( num = dbUserFleetList( usrid, &fleetd ) ) < 0 )
     return 0;
 
-svDebugTickPass = 11 + 10000;
+ticks.pass = 11 + 10000;
 
   for( a = 0 ; a < num ; a++ )
   {
@@ -546,11 +544,11 @@ svDebugTickPass = 11 + 10000;
       mainp->totalunit[b] += fleetd[a].unit[b];
   }
 
-svDebugTickPass = 12 + 10000;
+ticks.pass = 12 + 10000;
 
   free( fleetd );
 
-svDebugTickPass = 13 + 10000;
+ticks.pass = 13 + 10000;
 
   return 1;
 }
@@ -580,8 +578,8 @@ int cmdTick()
   dbMainEmpireDef empired;
 
 
-svDebugTickPass = 0;
-svDebugTickId = 0;
+ticks.pass = 0;
+ticks.passid = 0;
 
 	//Maybe useless but can t cause trouble only set the news buffer to 0
 	memset(&newd, 0, sizeof(long long int)*DB_USER_NEWS_BASE);
@@ -591,14 +589,14 @@ svDebugTickId = 0;
     if( dbMapRetrieveEmpire( a, &empired ) < 0 )
       continue;
 
-svDebugTickId = a;
+ticks.passid = a;
 		nArti |= empired.artefacts;	//Will have all discovered arti in here
 		empired.artefacts = 0;
     dbMapSetEmpire( a, &empired );
   }
 
 
-svDebugTickPass = 1;
+ticks.pass = 1;
 
 	
   if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
@@ -611,7 +609,7 @@ svDebugTickPass = 1;
     if( !( user->flags & CMD_USER_FLAGS_ACTIVATED ) )
       continue;
 
-svDebugTickId = user->id;
+ticks.passid = user->id;
 
     if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
 	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id  );
@@ -619,7 +617,7 @@ svDebugTickId = user->id;
     }
     
 			
-svDebugTickPass = 2;
+ticks.pass = 2;
 
 
     if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
@@ -655,11 +653,11 @@ svDebugTickPass = 2;
     }
 
 
-svDebugTickPass = 3;
+ticks.pass = 3;
 
 
     num = dbUserBuildListReduceTime( user->id, &build );
-    newd[0] = svTickNum;
+    newd[0] = ticks.number;
     newd[1] = CMD_NEWS_FLAGS_NEW;
     for( a = num-1 ; a >= 0 ; a-- )
     {
@@ -703,12 +701,12 @@ svDebugTickPass = 3;
     free( build );
 
 
-svDebugTickPass = 4;
+ticks.pass = 4;
 		
 // calc total of buildings, units, artefacts
     cmdTickPlanets( user->id, &maind );
 		
-svDebugTickPass = 5;
+ticks.pass = 5;
 	
 
 // add research
@@ -733,7 +731,7 @@ svDebugTickPass = 5;
     }
     maind.fundresearch = (long long int)( 0.9 * (double)maind.fundresearch );
     
-svDebugTickPass = 6;
+ticks.pass = 6;
 
    // SK: because of the network backbone arti, we need to calculate Tech research first
     int addedFromTech = 0;
@@ -790,7 +788,7 @@ svDebugTickPass = 6;
             maind.totalresearch[a]--;
                     }
 
-svDebugTickPass = 7;
+ticks.pass = 7;
 
 
 // calc infos
@@ -849,7 +847,7 @@ maind.infos[5] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] -
   }
     
     
-svDebugTickPass = 8;
+ticks.pass = 8;
 
     for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
 	{
@@ -916,7 +914,7 @@ maind.infos[10] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL]
 	{
 		maind.infos[CMD_RESSOURCE_ECTROLIUM] *= 1.50;
 	}	*/
-svDebugTickPass = 9;
+ticks.pass = 9;
 
 
 // fleets decay?
@@ -967,7 +965,7 @@ svDebugTickPass = 9;
     }
 
 
-svDebugTickPass = 10;
+ticks.pass = 10;
 
 
 // calculate phantoms decay rate
@@ -1036,7 +1034,7 @@ svDebugTickPass = 10;
     dbUserMainRetrieve( user->id, &maind );
 
 
-svDebugTickPass = 11;
+ticks.pass = 11;
 
 
 // units decay on planets
@@ -1065,7 +1063,7 @@ svDebugTickPass = 11;
       free( plist );
 
 
-svDebugTickPass = 12;
+ticks.pass = 12;
 
 
 // income
@@ -1115,13 +1113,13 @@ svDebugTickPass = 12;
       free( specopd );
 
 
-svDebugTickPass = 13;
+ticks.pass = 13;
 
     dbUserMainSet( user->id, &maind );
   }
 
 
-svDebugTickPass = 14;
+ticks.pass = 14;
 
 
 // bids energy decay
@@ -1151,7 +1149,7 @@ svDebugTickPass = 14;
   }
 
 
-svDebugTickPass = 15;
+ticks.pass = 15;
 
 
 // bids crystal decay
@@ -1180,7 +1178,7 @@ svDebugTickPass = 15;
   }
 
 
-svDebugTickPass = 16;
+ticks.pass = 16;
 
 
   return 1;

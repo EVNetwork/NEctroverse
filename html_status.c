@@ -126,10 +126,10 @@ if( sysinfo(&si) != 0 ) {
   iohttpFunc_boxstart( cnt, buffer);
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
   svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
-  svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
-    svSendPrintf( cnt, "Tick time : %d seconds<br>", sysconfig.ticktime );
- if( svTickStatus )
-    svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( svTickTime - time(0) ) );
+  svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+    svSendPrintf( cnt, "Tick time : %d seconds<br>", ticks.time );
+ if( ticks.status )
+    svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( ticks.next - time(0) ) );
   else
     svSendPrintf( cnt, "Next tick : Time Frozen!<br>" );
   svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );

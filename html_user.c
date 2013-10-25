@@ -28,7 +28,7 @@ void iohttpFunc_account( svConnectionPtr cnt )
 
   iohttpBodyInit( cnt, "Account Options" );
 
-  if( !( svTickStatus | svTickNum ) )
+  if( !( ticks.status | ticks.number ) )
   {
     if( faction )
     {
@@ -75,7 +75,7 @@ void iohttpFunc_account( svConnectionPtr cnt )
   svSendPrintf( cnt, "Tag points : <b>%d</b><br>", maind.tagpoints );
   svSendPrintf( cnt, "Account ID : <b>%d</b><br>", id );
 
-  if( !( svTickStatus | svTickNum ) )
+  if( !( ticks.status | ticks.number ) )
   {
     svSendString( cnt, "<br>Change Faction name<br><i>Only available before time starts.</i><br>" );
     svSendPrintf( cnt, "<form action=\"account\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", maind.faction );
@@ -194,7 +194,7 @@ void iohttpFunc_delete( svConnectionPtr cnt )
   iohttpBodyInit( cnt, "Delete faction" );
 
   c = 3600*48;
-  if( !( svTickStatus | svTickNum ) )
+  if( !( ticks.status | ticks.number ) )
     c = 120;
   a = time( 0 );
   if( maind.createtime+c > a )
@@ -208,9 +208,9 @@ void iohttpFunc_delete( svConnectionPtr cnt )
   
 
   //cant delete for 24hrs after round start
- // if(((svTickNum < 144)&&(svTickNum > 0))||(svTickNum))
+ // if(((ticks.number < 144)&&(ticks.number > 0))||(ticks.number))
  // {
- // 	svSendPrintf(cnt, "You must wait 24 hours after round start to delete your account. There are %d hours and %d minutes left.<br><br>", 23 - svTickNum/6, 59-(svTickNum%6)*10);
+ // 	svSendPrintf(cnt, "You must wait 24 hours after round start to delete your account. There are %d hours and %d minutes left.<br><br>", 23 - ticks.number/6, 59-(ticks.number%6)*10);
  // 	iohttpBodyEnd( cnt );
  //   return;
  // }

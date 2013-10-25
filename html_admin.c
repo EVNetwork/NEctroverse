@@ -468,9 +468,9 @@ sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
       goto iohttpFunc_moderatorL0;
     if( !( user = dbUserLinkID( actionid ) ) )
       goto iohttpFunc_moderatorL0;
-    svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
-    if( svTickStatus )
-      svSendPrintf( cnt, "%d seconds before tick<br>", (int)( svTickTime - time(0) ) );
+    svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+    if( ticks.status )
+      svSendPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
     else
       svSendPrintf( cnt, "Time frozen<br>" );
     num = dbUserNewsList( actionid, &newsp );
@@ -1241,8 +1241,8 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
 
   if( action[8] )
   {
-    svTickStatus = !svTickStatus;
-    svSendPrintf( cnt, "Time flow status : %d<br><br>", svTickStatus );
+    ticks.status = !ticks.status;
+    svSendPrintf( cnt, "Time flow status : %d<br><br>", ticks.status );
   }
 
   if( action[9] )
@@ -1317,15 +1317,10 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
     for( user = dbUserList ; user ; user = user->next )
       cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
-    svRoundEnd = 0;
 
 		if( ( fFile = fopen( COREDIRECTORY "/ticks", "r+" ) ) )
 	  {
 	   fscanf( fFile, "%d", &a );
-	   /* do
-	    {
-	    	a = fprintf(fFile, " %d", svRoundEnd);
-	    }while(!a);*/
 	    fclose( fFile );
 	  }
   }
@@ -1466,14 +1461,9 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
     for( user = dbUserList ; user ; user = user->next )
       cmdExecUserDeactivate( user->id, 0 );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
-    svRoundEnd = 0;
 		if( ( fFile = fopen( COREDIRECTORY "/ticks", "r+" ) ) )
 	  {
 	   fscanf( fFile, "%d", &a );
-	   /* do
-	    {
-	    	a = fprintf(fFile, " %d", svRoundEnd);
-	    }while(!a);*/
 	    fclose( fFile );
 	  }
   }
