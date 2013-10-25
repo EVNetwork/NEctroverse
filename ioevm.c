@@ -54,7 +54,7 @@ void inNewDataEvm( svConnectionPtr cnt )
   if( cnt->recv_pos < 4 )
     return;
   isize = ((int *)cnt->recv)[0];
-  if( (unsigned int)isize > 65536 )
+  if( (int)isize > 65536 )
   {
     cnt->flags |= SV_FLAGS_TO_CLOSE;
 
@@ -73,10 +73,10 @@ printf( "Error EVM isize: %d\n", isize );
 void outSendReplyEvm( svConnectionPtr cnt )
 {
   int a, b, num, id, isize, evmsg, stmsg[64];
-  unsigned char pass[32];
-  unsigned char buf0[64], buf1[64];
+  char pass[32];
+  char buf0[64], buf1[64];
   int *idata;
-  unsigned char *bdata;
+  char *bdata;
   ioevmDataPtr evm;
   dbUserPtr user, userfound;
   dbMainSystemDef systemd;
@@ -89,7 +89,7 @@ void outSendReplyEvm( svConnectionPtr cnt )
   {
     stmsg[EVMSIZE] = 8;
     stmsg[EVMMSG] = EVM_WELCOME;
-    a = 1 + sprintf( (unsigned char *)(&stmsg[EVM+1]), "Welcome to the EVmap Server v0.0" );
+    a = 1 + sprintf( (char *)(&stmsg[EVM+1]), "Welcome to the EVmap Server v0.0" );
     stmsg[EVM+0] = a;
     stmsg[EVMSIZE] += a;
     svSend( cnt, stmsg, 4+stmsg[EVMSIZE] );
@@ -112,7 +112,7 @@ void outSendReplyEvm( svConnectionPtr cnt )
     if( cnt->recv_pos < 4 )
       break;
     isize = ((int *)cnt->recv)[0];
-    if( (unsigned int)(isize) > 65536 )
+    if( (int)(isize) > 65536 )
     {
       cnt->flags |= SV_FLAGS_TO_CLOSE;
 
@@ -124,7 +124,7 @@ printf( "Error EVM isize: %d\n", isize );
       break;
     evmsg = ((int *)cnt->recv)[1];
     idata = &((int *)cnt->recv)[2];
-    bdata = (unsigned char *)idata;
+    bdata = (char *)idata;
 
 
     if( evmsg == EVM_NULL )
@@ -170,11 +170,11 @@ printf( "STATUS\n" );
 
       stmsg[0] = 24;
       stmsg[1] = EVM_STATUS;
-      stmsg[2] = ROUND_ID;
+      stmsg[2] = sysconfig.round;
       stmsg[3] = svTickStatus;
       stmsg[4] = svTickNum;
       stmsg[5] = (int)( svTickTime - time(0) );
-      stmsg[6] = SV_TICK_TIME;
+      stmsg[6] = sysconfig.ticktime;
       svSend( cnt, stmsg, 7*sizeof(int) );
     }
     else if( evmsg == EVM_MAP )
@@ -189,8 +189,8 @@ printf( "MAP\n" );
       stmsg[0] = 7*sizeof(int) + dbMapBInfoStatic[MAP_SYSTEMS] * 5*sizeof(int);
       stmsg[1] = EVM_MAP;
       stmsg[2] = 0;
-      stmsg[3] = dbMapBInfoStatic[MAP_SIXEX];
-      stmsg[4] = dbMapBInfoStatic[MAP_SIXEY];
+      stmsg[3] = dbMapBInfoStatic[MAP_SIZEX];
+      stmsg[4] = dbMapBInfoStatic[MAP_SIZEY];
       stmsg[5] = dbMapBInfoStatic[MAP_SYSTEMS];
       stmsg[6] = dbMapBInfoStatic[MAP_PLANETS];
       stmsg[7] = dbMapBInfoStatic[MAP_EMPIRES];

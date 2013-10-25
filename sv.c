@@ -5,36 +5,38 @@
 #include "global.h"
 #endif
 
+#include "ini.c"
 
 svConnectionPtr svConnectionList = 0;
 fd_set svSelectRead;
 fd_set svSelectWrite;
 fd_set svSelectError;
 
+configDef sysconfig;
+tickDef ticks;
 
-#if EVMAPENABLE == 1
-#define SV_INTERFACES 2
-#else
-#define SV_INTERFACES 1
-#endif
+int SV_INTERFACES = 2;
 
+int svListenPort[2] = { 9990, 9991 };
+int svListenIO[2] = { 0, 1 };
 
-int svListenPort[SV_INTERFACES] = { HTTP_PORT
-#if EVMAPENABLE == 1
-, EVMP_PORT
-#endif
-};
-int svListenIO[SV_INTERFACES] = { 0
-#if EVMAPENABLE == 1
-, 1
-#endif
-};
-int svListenSocket[SV_INTERFACES];
+int svListenSocket[2];
 
 svConnectionPtr svDebugConnection;
 
 
 #include "svban.c" //Lets try and change this in the future too... Flat file baning is just flat out bad.
+
+int svShellMode = 0;
+int svTickNum = 0;
+int svTickTime;
+int svTickStatus = 0;
+int svRoundEnd = 0;
+
+int svTickAutoStart = 1;
+
+int svDebugTickPass;
+int svDebugTickId;
 
 
 int svTime() {
@@ -625,35 +627,10 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size ) {
 return;
 }
 
-int svDebugTickPass;
-int svDebugTickId;
 
 void svSignal( int signal ) {
-	char TICKFILE[256];
 	int a, size;
-	FILE *fFile;  
-    
-sprintf( TICKFILE, "%s/ticks", COREDIRECTORY );  
-    
-if(signal == SIGUSR1) {
-	svRoundEnd = 1;
-		if( ( fFile = fopen( TICKFILE, "r+" ) ) ) {
-		fscanf( fFile, "%d", &a );
-	   //	fprintf(fFile, " %d", svRoundEnd);
-	   	fclose( fFile );
-	}
-	return;
-}
-
-if(signal == SIGUSR2) {
-  	//Free memory db and reload it to have a new member in :P
-	if( svShellMode )
-	printf("Ask a dbinit\n");
-	syslog(LOG_INFO, "Ask a dbinit\n");
-  	dbEnd();
-  	dbInit();
-  	return;
-}
+ 
 
 iohttpDataPtr iohttp;
 syslog(LOG_ERR, "ERROR, signal %d\n", signal);
@@ -735,14 +712,6 @@ cleanUp(-1,1);
 exit(1);
 }
 
-
-int svTickNum = 0;
-int svTickTime;
-int svTickStatus = 0;
-int svRoundEnd = 0;
-
-int svTickAutoStart = 1;
-
 char *trimwhitespace(char *str) {
 	char *end;
 // Trim leading space
@@ -821,7 +790,7 @@ if( file_exist(DIRCHECKER) && strlen(message) ) {
 		syslog(LOG_ERR, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		return 0;
 	}
-	if( ( num = fprintf(pipefile, message) ) < 0) {
+	if( ( num = fprintf(pipefile, "%s", message) ) < 0) {
 		if( svShellMode )
 		printf( "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		syslog(LOG_ERR, "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
@@ -844,14 +813,10 @@ return 1;
 void daemonloop(int pipefileid) {
 	ioInterfacePtr io;
 	int a, curtime;
-	int pipe;
-
-if(pipefileid)
-pipe = pipefileid;
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
-		svPipeScan( pipe );
+		svPipeScan( pipefileid );
 		svSelect();
 		svListen();
 		svRecv();
@@ -860,13 +825,7 @@ pipe = pipefileid;
 		if( curtime < svTickTime )
 			continue;
 
-//		if(strstr(ctime((const time_t *)&curtime), START_TIME))
-//			svTickStatus = 1;
-		
-//		if(strstr(ctime((const time_t *)&curtime), STOP_TIME))
-//			svTickStatus = 0;
-			
-		svTickTime += SV_TICK_TIME;
+		svTickTime += sysconfig.ticktime;
 		
 		for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
 		io = &ioInterface[a];
@@ -919,7 +878,7 @@ if(pid < 0) {
 	return 1; // So we forked it, time to return and wait for results on a client pipe.
 }
 
-syslog(LOG_INFO, "Begining initiation of %s daemon...", SERVERNAME);
+syslog(LOG_INFO, "Begining initiation of %s daemon...", sysconfig.servername);
 
 // First, start a new session
 if((sid = setsid()) < 0) {
@@ -943,20 +902,12 @@ close(STDERR_FILENO);
 
 }
 
-
-svTickTime = time(0) + SV_TICK_TIME;
-sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );	
-if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
-	fscanf( file, "%d", &a );
-	//  fscanf( file, "%d", &svRoundEnd );
-	fclose( file );
-}
+svTickTime = time(0) + sysconfig.ticktime;
 	
 //Time to set some signals
 signal( SIGPIPE, SIG_IGN );
 signal( SIGHUP, SIG_IGN );
 signal( SIGFPE, &svSignal );
-signal( SIGUSR2, &svSignal);
 signal( SIGBUS, &svSignal );
 signal( SIGILL, &svSignal );
 signal( SIGINT, &svSignal );
@@ -967,7 +918,6 @@ signal( SIGQUIT, &svSignal );
 signal( SIGSEGV, &svSignal );
 signal( SIGSYS, &svSignal );
 signal( SIGTERM, &svSignal );
-signal( SIGUSR1, &svSignal );
 signal( SIGTRAP, &svSignal );
 signal( SIGABRT, &svSignal );
 	
@@ -1004,11 +954,19 @@ if( chdir( DIRCHECKER ) == -1 ) {
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
-sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );  
+
+sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );	
 if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
-	fscanf( file, "%d", &svTickNum );
+	if( fscanf( file, "%d", &svTickNum ) == 0 ) {
+		svTickNum = 0;
+	 	if( svShellMode )
+			printf("Error getting tick number\n");
+		syslog(LOG_ERR, "Error getting tick number\n");
+	}
+	//  fscanf( file, "%d", &svRoundEnd );
 	fclose( file );
 }
+
 
 dbMapRetrieveMain( binfo );
 if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0 ) ) {
@@ -1021,7 +979,7 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - svTickNum) <= 0
 sprintf( DIRCHECKER, "%s/evserver.pipe", TMPDIR );
 mkfifo(DIRCHECKER, 0666);
 pipingin = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
-syslog(LOG_INFO, "Completed initiation of %s daemon.\n", SERVERNAME );
+syslog(LOG_INFO, "Completed initiation of %s daemon.\n", sysconfig.servername );
 if( svShellMode )
 printf("All checks passed, begining server loop...\n");
 
@@ -1131,24 +1089,114 @@ free( strCpy );
 return;
 }
 
-int svShellMode = 0;
+
+static int handler(void* fconfig, const char* section, const char* name, const char* value) {
+	configPtr pconfig = (configPtr)fconfig;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+if (MATCH("system", "port")) {
+	pconfig->httpport = atoi(value);
+} else if (MATCH("system", "name")) {
+	pconfig->servername = strdup(value);
+} else if (MATCH("system", "directory")) {
+	pconfig->directory = strdup(value);
+} else if (MATCH("system", "round")) {
+	pconfig->round = atoi(value);
+} else if (MATCH("system", "tick_time")) {
+	pconfig->ticktime = atoi(value);
+} else if (MATCH("system", "stockpile")) {
+	pconfig->stockpile = atoi(value);
+} else if (MATCH("system", "auto_endwar_afterticks")) {
+	pconfig->warend = atoi(value);
+} else if (MATCH("system", "auto_victory_afterticks")) {
+	pconfig->victory = atoi(value);
+} else if (MATCH("system", "encryption")) {
+        pconfig->encryption = strcmp(value,"false") ? true : false;
+} else if (MATCH("evmap", "port")) {
+	pconfig->evmpport = atoi(value);
+} else if (MATCH("evmap", "enabled")) {
+        pconfig->evmpactv = strcmp(value,"false") ? true : false;
+} else if (MATCH("admin", "name")) {
+        pconfig->admin_name = strdup(value);
+} else if (MATCH("admin", "faction")) {
+        pconfig->admin_faction = strdup(value);
+} else if (MATCH("admin", "forumtag")) {
+        pconfig->admin_forumtag = strdup(value);
+} else if (MATCH("admin", "password")) {
+        pconfig->admin_password = strdup(value);
+} else if (MATCH("admin", "level")) {
+        pconfig->admin_level = atoi(value);
+} else if (MATCH("admin", "race")) {
+        pconfig->admin_race = atoi(value);
+} else if (MATCH("admin_empire", "number")) {
+        pconfig->admin_empire_number = atoi(value);
+} else if (MATCH("admin_empire", "name")) {
+        pconfig->admin_empire_name = strdup(value);
+} else if (MATCH("admin_empire", "password")) {
+        pconfig->admin_empire_password = strdup(value);
+} else if (MATCH("mysql", "enabled")) {
+        pconfig->mysqlactv = strcmp(value,"false") ? true : false;
+} else if (MATCH("mysql", "host")) {
+        pconfig->mysql_host = strdup(value);
+} else if (MATCH("mysql", "user")) {
+        pconfig->mysql_user = strdup(value);
+} else if (MATCH("mysql", "password")) {
+        pconfig->mysql_password = strdup(value);
+} else if (MATCH("mysql", "database")) {
+        pconfig->mysql_database = strdup(value);
+} else {
+        return 0;
+}
+
+return 1;
+}
+
+int loadconfig( char *file ) {
+
+if (ini_parse(file, handler, &sysconfig) < 0) {
+        printf("Can't load '%s'\n", file);
+	return 0;
+}
+
+if( sysconfig.evmpactv )
+svListenPort[1] = sysconfig.evmpport;
+else
+SV_INTERFACES = 1;
+
+if( sysconfig.httpport )
+svListenPort[0] = sysconfig.httpport;
+
+return 1;
+}
 
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[256];
 	int num, pipeserver, pipeclient;
+
+// OK, so can you see what I've done here? Sneaky eh? Hehe =P
+#ifdef HAHA_MY_INFO_IS_HIDDEN
+char file[] = "config.nogit.ini";
+#else
+char file[] = "config.ini";
+#endif
+
+if( !(loadconfig(file)) ) {
+	printf("Error loading config... please check the logs.\n");
+	return 1;
+}
 
 if ( argc != 2 ) {
 	printf("\n");
 	printf( "Usage: \"%s COMMAND\"\n", argv[0] );
 	printf( "Commands: \"start\", \"daemonize\" or \"shell\"\n" );
 	printf("\n");
-	return 0;
+	return 1;
 }
 
 svShellMode = strcmp(argv[1],"shell") ? 0 : 1;
 
 
-//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc. (in config.h)
+//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc. (in sysconfig.h)
 openlog(LOGTAG, LOG_CONS | LOG_PID | LOG_NDELAY, LOGFAC);
 dirstructurecheck(TMPDIR);
 //check basic dir structure and create as needed.	
@@ -1178,14 +1226,14 @@ if ( file_exist(DIRCHECKER) ) {
 	if( !( daemon_init(argv[1]) ) ) {
 		printf( "Can not load, oh this is bad...\n" );
 		syslog(LOG_CRIT, "<<< !!!! CRITICAL ERROR !!!! >>>\n");
-		return 0;
+		return 1;
 	}
 	if( !( svShellMode ) ) {
 		printf("%s\n", "Returning to shell, daemon has loaded in the background.");
 		printf("%s\n", "Use \'shell\' if you want to run in the old shell output mode" );
 		printf("\n");
 	}
-	return 1;
+	return 0;
 }
 
 
@@ -1217,7 +1265,7 @@ cleanUp(pipeclient,0);
 printf("\n");
 
 
-return 1;
+return 0;
 }
 
 

@@ -108,11 +108,10 @@ svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
   }
 
 if( sysinfo(&si) != 0 ) {
- 	#if FORKING == 0
+ 	if( svShellMode )
 	printf("Failure getting system infomation... Critical failure.");
-	#endif
 	syslog(LOG_INFO, "Failure getting system infomation... Critical failure." );
-	cleanUp();
+	cleanUp(-1,-1);
 	exit(EXIT_FAILURE);
 }
 
@@ -123,12 +122,12 @@ if( sysinfo(&si) != 0 ) {
   kernelload = 100.0 * ( CT_TO_SECS( ( (float)ststime ) ) / runtime );
 
   svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
-  sprintf(buffer, "%s status", SERVERNAME);
+  sprintf(buffer, "%s status", sysconfig.servername );
   iohttpFunc_boxstart( cnt, buffer);
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
   svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
   svSendPrintf( cnt, "Current date : Week %d, year %d<br>", svTickNum % 52, svTickNum / 52 );
-    svSendPrintf( cnt, "Tick time : %d seconds<br>", SV_TICK_TIME );
+    svSendPrintf( cnt, "Tick time : %d seconds<br>", sysconfig.ticktime );
  if( svTickStatus )
     svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( svTickTime - time(0) ) );
   else

@@ -29,6 +29,7 @@
 #endif
 #include <png.h>
 #include <pwd.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,43 @@
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
+
+
+#ifndef CT_TO_SECS
+#define CT_TO_SECS(x) ((x)/HZ)
+#endif
+
+#ifndef TMPDIR
+#define TMPDIR "/tmp/evcore"
+#endif
+
+#ifndef TIMES
+#define TIMES
+static const long minute = 60;
+static const long hour = (60 * 60);
+static const long day = ((60*60) * 24);
+static const double megabyte = (1024 * 1024);
+#endif
+
+#ifndef SERVER_RECV_BUFSIZE
+#define SERVER_RECV_BUFSIZE (32768)
+#endif
+
+#ifndef SERVER_PATH_BUFSIZE
+#define SERVER_PATH_BUFSIZE (512)
+#endif
+
+#ifndef SERVER_SELECT_MSEC
+#define SERVER_SELECT_MSEC (1000)
+#endif
+
+#ifndef SERVER_NAGLE_BUFFERING
+#define SERVER_NAGLE_BUFFERING 0
+#endif
+
+#ifndef SERVER_TIME_ZONE
+#define SERVER_TIME_ZONE 0
+#endif
 
 //double option here.
 #if HASHENCRYPTION == 1
@@ -108,8 +146,7 @@
 #include "map.h"
 #endif
 
-
-
-#ifndef CT_TO_SECS
-#define CT_TO_SECS(x) ((x)/HZ)
+#ifndef INIINCLUDES
+#include "ini.h"
 #endif
+

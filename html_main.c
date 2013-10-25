@@ -99,7 +99,7 @@ void iohttpBase( svConnectionPtr cnt, int flags ) {
 	
 svSendString( cnt, "Content-Type: text/html\n\n" );
 svSendString( cnt, "<html><head>");
-svSendPrintf( cnt, "<title>%s</title>", SERVERNAME );
+svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
 svSendPrintf( cnt, "<link rel=\"icon\" href=\"favicon.ico\">" );
 if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
@@ -284,7 +284,7 @@ void iohttpBodyEnd( svConnectionPtr cnt )
 void iohttpFunc_races( svConnectionPtr cnt )
 {
  iohttpBase( cnt, 0 );
- svSendPrintf( cnt, "<br><b>%s races</b><br><br>", SERVERNAME );
+ svSendPrintf( cnt, "<br><b>%s races</b><br><br>", sysconfig.servername );
 
  svSendString( cnt, "<h3>Harks</h3><table width=\"620\" border=\"0\"><tr>" );
  svSendString( cnt, "<td valign=\"top\" width=\"340\"><i>Main bonuses</i><br>-10% Energy production<br>+20% Research production <br>-20% Population upkeep reduction<br>+40% Attack strength<br>-10% Defence strength<br>+40% Travel speed<br><br>" );

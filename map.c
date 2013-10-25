@@ -94,10 +94,8 @@ uint8_t *mapCalcFactors()
   float fpos[2];
   float angle, anglevar;
   float fdir[2];
-	char fname[256];
   float pts[65536][2];
   int ptsnum;
-  FILE *file;
 
   ptsnum = 0;
   memset( mapfactor, 0, sizeof(int)*MAP_SIZEX*MAP_SIZEY );
@@ -243,9 +241,8 @@ for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
 	if( system_home[b] )
 		goto mainL2;
 	artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
-	#if FORKING == 0
+	if( svShellMode )
 	printf("( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
-	#endif
 	syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
 }
 
@@ -344,19 +341,21 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 // New families generation, based on defaults.
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired = dbEmpireDefault;
-	if( ( cmdAdminEmpire == a ) && ( strlen(cmdAdminEmpirePass) ) ) {
+	if( ( sysconfig.admin_empire_number == a ) && ( strlen(sysconfig.admin_empire_password) ) ) {
+		if( strlen(sysconfig.admin_empire_name) )
+		strcpy( empired.name, sysconfig.admin_empire_name);
+		else
 		strcpy( empired.name, "Administration");
 		#if HASHENCRYPTION == 1
-		if( strlen(cmdAdminEmpirePass) )
-			strcpy(empired.password, hashencrypt(cmdAdminEmpirePass) );
+		if( strlen(sysconfig.admin_empire_password) )
+			strcpy(empired.password, hashencrypt(sysconfig.admin_empire_password) );
 		#else
-		if( strlen(cmdAdminEmpirePass) )
-			strcpy(empired.password, cmdAdminEmpirePass );
+		if( strlen(sysconfig.admin_empire_password) )
+			strcpy(empired.password, sysconfig.admin_empire_password );
 		#endif
-		#if FORKING == 0
-		printf("Empire %d Claimed for Administration.\n", cmdAdminEmpire);
-		#endif
-		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", cmdAdminEmpire);
+		if( svShellMode )
+		printf("Empire %d Claimed for Administration.\n", a);
+		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);
 	}
 	empired.homeid = empire_system[a];
 	empired.homepos = system_pos[ empire_system[a] ];
@@ -412,7 +411,7 @@ if(mapgen.width > MAP_SIZEX) {
 	mapgen.data = pixels;
 }
 
-sprintf( fname, IOHTTP_FILES_DIRECTORY "/galaxyr%d.png", ROUND_ID );
+sprintf( fname, IOHTTP_FILES_DIRECTORY "/galaxyr%d.png", sysconfig.round );
 imgWritePngFile( fname, &mapgen );
 free(pixels);
 
@@ -421,7 +420,12 @@ free(pixels);
 //<<WORKNEEDED>> Such a dirty fix, but well... it works. =/
 if(mapgen.width == MAP_SIZEX) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
-	system(imgsizer);
+	if( system(imgsizer) ) {
+		if( svShellMode )
+			printf( "Map Error: unable to convert map size\n" );
+		syslog(LOG_ERR, "Map Error: unable to convert map size\n" );
+	}
+
 }
 
 return 1;

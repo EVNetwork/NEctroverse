@@ -24,9 +24,7 @@ extern ioInterfaceDef ioInterface[];
 enum
 {
 IO_INTERFACE_HTTP=0,
-#if EVMAPENABLE == 1
 IO_INTERFACE_EVM,
-#endif
 IO_INTERFACE_NUM,
 };
 

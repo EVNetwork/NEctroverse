@@ -251,9 +251,8 @@ FILE *dbFileGenOpen( int num ) {
 		return dbFilePtr[num];
     
 	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
-		#endif
 		syslog(LOG_ERR, "DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
 		return 0;
 	}
@@ -302,9 +301,8 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 	}
 
 	if( num < 0x10000 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %02d, fopen %s\n", errno, fname );
-		#endif
 		syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
 	}
 
@@ -340,9 +338,8 @@ FILE *dbFileFamOpen( int id, int num )
       return file;
     }
 	if( num < 0x10000 ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error %02d, fopen %s\n", errno, fname );
-		#endif
 		syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
 	}
     return 0;
@@ -363,9 +360,8 @@ dbUserPtr dbUserAllocate( int id )
   char pass[128];
   dbUserPtr user;
   if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error, malloc dbuser failed\n" );
-	#endif
 	syslog(LOG_ERR, "Error, malloc dbuser failed\n" );
     return 0;
   }
@@ -463,9 +459,8 @@ int dbInit() {
 	
 sprintf( COREDIR, "%s/data", COREDIRECTORY );  
 if( chdir( COREDIR ) == -1 ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
-	#endif
 	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
 	return 0;
 }
@@ -480,15 +475,13 @@ for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
 	dbMapRetrieveSystem( 0x10000000 | a, &dbMapSystems[a] );
 
 if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Market database not found, creating...\n" );
-	#endif
 	syslog(LOG_INFO, "Market database not found, creating...\n" );
 
 	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error, could not create market database!\n" );
-		#endif
 		syslog(LOG_ERR, "Error, could not create market database!\n" );
 		return 0;
 	}
@@ -509,14 +502,12 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 
 
 if( !( file = fopen( "forums", "rb+" ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Forum database not found, creating...\n" );
-	#endif
 	syslog(LOG_INFO, "Forum database not found, creating...\n" );
 	if( !( file = fopen( "forums", "wb+" ) ) ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error, could not create forum database!\n" );
-		#endif
 		syslog(LOG_ERR, "Error, could not create forum database!\n" );
 		return 0;
 	}
@@ -533,9 +524,8 @@ if( !( file = fopen( "forums", "rb+" ) ) ) {
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( &forumd, 1, 100+a );
 	}
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Created Forums for %d Empires.\n", a-1 );
-	#endif
 	syslog(LOG_INFO, "Created Forums for %d Empires.\n", a-1 );
 
 }
@@ -543,18 +533,16 @@ fclose( file );
 
 
 if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("User database not found, creating...\n" );
-	#endif
 	syslog(LOG_INFO, "User database not found, creating...\n" );
 
     // Create a path to the users file in the same way as dbFileGenOpen
 	sprintf( COREDIR, "%s/users", COREDIRECTORY );
 	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
 	if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) ) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Error, could not create user database!\n" );
-		#endif
 		syslog(LOG_ERR, "Error, could not create user database!\n" );
 		return 0;
 	}
@@ -740,9 +728,8 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		#if FORKING == 0
+		if( svShellMode )
 		printf("Data: %02d, fopen dbuseradd\n", errno );
-		#endif
 		syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
 		return -3;
 	}
@@ -773,9 +760,8 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		#if FORKING == 0
+		if( svShellMode )
 		printf("User: %02d, fopen dbuseradd\n", errno );
-		#endif
 		syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
 		return -3;
 	}
@@ -835,9 +821,8 @@ dbInit();
 user_ptr=user_hashes;
 for(h_user=dbUserList;h_user;h_user=h_user->next) {
 	if(user_ptr[0]!=h_user->id) {
-		#if FORKING == 0
+		if( svShellMode )
 		printf("WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
-		#endif
 		syslog(LOG_INFO, "WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
 		continue;
 	}
@@ -902,9 +887,8 @@ int dbUserSave( int id, dbUserPtr user ) {
 	FILE *file;
   
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbsetname\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
 	return -3;
 }
@@ -917,9 +901,8 @@ fwrite( user->name, 1, 64, file );
 fclose( file );
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLAGS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbuserflags\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbuserflags\n", errno );
 	return -3;
 }
@@ -936,9 +919,8 @@ int dbUserSetPassword( int id, char *pass ) {
 	FILE *file;
   
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbsetpassword\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbsetpassword\n", errno );
 	return -3;
 }
@@ -959,9 +941,8 @@ int dbUserRetrievePassword( int id, char *pass ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbretrievepassword\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbretrievepassword\n", errno );
 	return -3;
 }
@@ -1877,9 +1858,8 @@ int dbUserNewsAdd( int id, long long int *data, long long int flags )
   FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernewsadd\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
 	return -3;
 }
@@ -1939,9 +1919,8 @@ long long int dbUserNewsGetFlags( int id ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernewsflags\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsflags\n", errno );
 	return -3;
 }
@@ -1961,9 +1940,8 @@ int dbUserNewsList( int id, long long int **data )
   *data = 0;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernewslist\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
 	return -3;
 }
@@ -1996,9 +1974,8 @@ long long int dbUserNewsListUpdate( int id, long long int **data, long long int 
   long long int *datap;
   *data = 0;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernews\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernews\n", errno );
 	return -3;
 }
@@ -2070,9 +2047,8 @@ int dbUserNewsEmpty( int id ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernewsempty\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsempty\n", errno );
 	return -3;
 }
@@ -2096,9 +2072,8 @@ int dbFamNewsAdd( int id, long long int *data )
   char fname[32];
   sprintf( fname, "fam%dnews", id );
 if( !( file = fopen( fname, "rb+" ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernewsadd\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
   	return -3;
 }
@@ -2158,9 +2133,8 @@ int dbFamNewsList( int id, long long int **data, int time )
   sprintf( fname, "fam%dnews", id );
 
 if( !( file = fopen( fname, "rb+" ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, fopen dbusernewslist\n", errno );
-	#endif
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
 	return -3;
 }
@@ -3139,9 +3113,8 @@ int dbForumRemoveForum( int forum )
   else
   	a = sprintf( fname,  "%s/forum%d", PUBLIC_FORUM_DIRECTORY, forum );
   if( !( dirdata = opendir( fname ) ) ) {
-	#if FORKING == 0
+	if( svShellMode )
 	printf("Error %02d, opendir(%s)\n", errno, fname );
-	#endif
 	syslog(LOG_ERR, "Error %02d, opendir(%s)\n", errno, fname );
 	return -3;
   }

@@ -423,7 +423,7 @@ iohttpFunc_frontmenu( cnt, 3 );
   }
   a = time( 0 )-(3600*SERVER_TIME_ZONE);
   strftime( timebuf, 256, "%T, %b %d", localtime( (time_t *)&a ) );
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", SERVERNAME, SERVERNAME, timebuf );
+  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", sysconfig.servername, sysconfig.servername, timebuf );
   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
    svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
   svSendString( cnt, "</td></tr></table>" );
@@ -471,7 +471,7 @@ iohttpFunc_frontmenu( cnt, 3 );
 		 	}
 	  	}
 	 }
-		svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", SERVERNAME, SERVERNAME, forumd.title );
+		svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forumd.title );
   if( forum < 100 )
   {
    a = time( 0 )-(3600*SERVER_TIME_ZONE);
@@ -578,7 +578,7 @@ iohttpFunc_frontmenu( cnt, 3 );
    return;
   }
 
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", SERVERNAME, SERVERNAME, forum, forumd.title, threadd.topic );
+  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forum, forumd.title, threadd.topic );
   if( forum < 100 )
   {
    a = time( 0 )-(3600*SERVER_TIME_ZONE);

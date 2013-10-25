@@ -2259,38 +2259,29 @@ int cmdInit() {
 	dbUserMainDef maind;
 	dbMainEmpireDef empired;
 
-for( a = 0 ; a < CMD_ADMIN_NUM ; a++ ) {
-	if( ( id = dbUserSearch( cmdAdminName[a] ) ) >= 0 )
-		continue;
-	#if FORKING == 0
-	printf("Creating Administrator account named: \"%s\"\n", cmdAdminName[a] );
-	#endif
-	syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", cmdAdminName[a] );
+if( ( id = dbUserSearch( sysconfig.admin_name ) ) >= 0 )
+	return 1;
 
-	if( ( id = cmdExecNewUser( cmdAdminName[a], cmdAdminPass[a], cmdAdminFaction[a] ) ) < 0 ) {
-	#if FORKING == 0
-	printf("Failure Creating Administrator account: \"%s\"\n", cmdAdminName[a] );
-	#endif
-	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", cmdAdminName[a] );
-	}
-	user = dbUserLinkID( id );
-	user->flags = 0;
-	user->level = cmdAdminLevel[a];
-	dbUserSave( id, user );
-	dbUserMainRetrieve(id, &maind);
-	sprintf( maind.forumtag, "%s", cmdAdminForumTag[a] );
-	dbUserMainSet(id, &maind);
+if( svShellMode )
+	printf("Creating Administrator account named: \"%s\"\n", sysconfig.admin_name );
+syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", sysconfig.admin_name );
+if( ( id = cmdExecNewUser( sysconfig.admin_name, sysconfig.admin_password, sysconfig.admin_faction ) ) < 0 ) {
+	if( svShellMode )
+		printf("Failure Creating Administrator account: \"%s\"\n", sysconfig.admin_name );
+	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", sysconfig.admin_name );
+}
+user = dbUserLinkID( id );
+user->flags = 0;
+user->level = sysconfig.admin_level;
+dbUserSave( id, user );
+dbUserMainRetrieve(id, &maind);
+sprintf( maind.forumtag, "%s", sysconfig.admin_forumtag );
+dbUserMainSet(id, &maind);
 
-	if( cmdExecNewUserEmpire( id, cmdAdminEmpire, cmdAdminEmpirePass, cmdAdminRace[a], cmdAdminLevel[a] ) < 0 ) {
- 	#if FORKING == 0
-	printf("Failure Placing Administrator account: \"%s\"\n", cmdAdminName[a] );
-	#endif
-	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", cmdAdminName[a] );
-	}
-	dbMapRetrieveEmpire( cmdAdminEmpire, &empired );
-	if( !strlen(empired.name) )
-	sprintf(empired.name,"%s","Administration");
-	dbMapSetEmpire( cmdAdminEmpire, &empired );
+if( cmdExecNewUserEmpire( id, sysconfig.admin_empire_number, sysconfig.admin_empire_password, sysconfig.admin_race, sysconfig.admin_level ) < 0 ) {
+	if( svShellMode )
+		printf("Failure Placing Administrator account: \"%s\"\n", sysconfig.admin_name );
+	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", sysconfig.admin_name );
 }
 	
 dbFlush();

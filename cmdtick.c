@@ -49,7 +49,7 @@ if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 )
 wnum <<= 2;
 for( wa = 0 ; wa < wnum ; wa += 4 ) {
 	if( rels[wa+1] == CMD_RELATION_WAR ) {
-		if( (rels[wa] + AUTOENDWARS) <= svTickNum ) {
+		if( (rels[wa] + sysconfig.warend) <= svTickNum ) {
 			cmdExecDelRelation( b, wa / 4 );
 		} 
 	}
@@ -151,7 +151,7 @@ if( artsnum > artmax )
 
 if( artsnum == ARTEFACT_NUMUSED ) {
         if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
-                dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + AUTOVICTORYIN;
+                dbMapBInfoStatic[MAP_ARTITIMER] = svTickNum + sysconfig.victory;
                 dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
                 dbMapSetMain( dbMapBInfoStatic );
         } else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= svTickNum ) ) {
@@ -833,7 +833,7 @@ svDebugTickPass = 7;
     
   fa = CMD_ENERGY_DECAY;
 
-fc = STOCKPERMITTED * maind.infos[4];
+fc = sysconfig.stockpile * maind.infos[4];
 maind.infos[5] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
 
 
@@ -884,7 +884,7 @@ svDebugTickPass = 8;
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
     	
-fc = STOCKPERMITTED * maind.infos[9];
+fc = sysconfig.stockpile * maind.infos[9];
 maind.infos[10] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
 
 

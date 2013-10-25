@@ -82,14 +82,14 @@ void iohttpFunc_main( svConnectionPtr cnt )
   dbUserMainRetrieve( id, &maind );
   maind.lasttime = time( 0 );
   dbUserMainSet( id, &maind );
-/*
+
   if( ( file ) && ( (cnt->dbuser)->flags & ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) )
   {
    fprintf( file, "ID : %d ( %x ) deactivated\n", id, id );
    fclose( file );
    file = 0;
   }
-*/
+
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_KILLED )
   {
    iohttpBase( cnt, 0 );
@@ -130,7 +130,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
 	   if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
 	    svSendString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
 	   if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
-	    svSendString( cnt, "<br><a href=\"admin2\">Admin panel</a>" );
+	    svSendString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
 	  }
    svSendString( cnt, "</center></body></html>" );
    return;
@@ -142,16 +142,16 @@ void iohttpFunc_main( svConnectionPtr cnt )
   if( ( id = iohttpIdentify( cnt, 0 ) ) < 0 )
    goto iohttpFunc_mainL0;
  }
-/*
+
  if( file )
  {
   fprintf( file, "ID : %d ( %x )\n", id, id );
   fclose( file );
   file = 0;
  }
-*/
+
  svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", SERVERNAME );
+ svSendPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
  svSendString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
  svSendString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
  svSendString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
@@ -159,14 +159,14 @@ void iohttpFunc_main( svConnectionPtr cnt )
  return;
 
  iohttpFunc_mainL0:
-/*
+
  if( file )
  {
   fprintf( file, "Failed\n" );
   fclose( file );
   file = 0;
  }
-*/
+
 iohttpFunc_login( cnt, 0, "Name or password incorrect!" );
  return;
 }
@@ -3391,7 +3391,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"galaxyr%d.png\" ismap></a></td>", ROUND_ID );
+ svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"galaxyr%d.png\" ismap></a></td>", sysconfig.round );
  svSendPrintf( cnt, "<td height=\"%d\" align=\"left\" valign=\"top\"><b>0</b></td></tr>", a );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] >> 1 );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX], a, dbMapBInfoStatic[MAP_SIZEX] );

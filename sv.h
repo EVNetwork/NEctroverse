@@ -1,6 +1,64 @@
 #define SERVERINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+//config struct
+typedef struct {
+	//server
+	char* servername;
+	char* directory;
+	bool encryption;
+	int httpport;
+	int stockpile;
+	int warend;
+	int victory;
+	int ticktime;
+	int round;
+	//evmap
+	bool evmpactv;
+	int evmpport;
+	//admin
+	char* admin_name;
+	char* admin_faction;
+	char* admin_password;
+	char* admin_forumtag;
+	int admin_empire_number;
+	char* admin_empire_name;
+	char* admin_empire_password;
+	int admin_level;
+	int admin_race;
+	//mysql
+	bool mysqlactv;
+	char* mysql_host;
+	char* mysql_user;
+	char* mysql_password;
+	char* mysql_database;
+} configDef, *configPtr;
+
+extern configDef sysconfig;
+
+
+typedef struct {
+	int number;
+	int time;
+	int status;
+	int autostart;
+	int endafter;
+	int round;
+} tickDef, *tickPtr;
+
+extern tickDef ticks;
+
+extern int svTickNum;
+extern int svTickTime;
+extern int svTickStatus;
+extern int svTickAutoStart;
+extern int svRoundEnd;
+
+extern int svDebugTickPass;
+extern int svDebugTickId;
+
+extern int svShellMode;
+
 typedef struct
 {
   char *data;
@@ -64,6 +122,8 @@ void svShutdown( svConnectionPtr cnt );
 void svClose( svConnectionPtr cnt );
 int svFree( svConnectionPtr cnt );
 
+void cleanUp(int pipefileid, int type);
+
 void svPipeScan(int pipefileid);
 int svPipeSend(int pipedirection, char *message);
 
@@ -92,16 +152,6 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size );
 #define SV_FLAGS_TIMEOUT (0x20)
 
 
-extern int svTickNum;
-extern int svTickTime;
-extern int svTickStatus;
-extern int svTickAutoStart;
-extern int svRoundEnd;
-
-extern int svDebugTickPass;
-extern int svDebugTickId;
-
-extern int svShellMode;
 
 /*
 

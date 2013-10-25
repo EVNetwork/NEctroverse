@@ -33,9 +33,8 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
   }
 	
   a = dbUserAdd( name, faction, "Player" );
-#if FORKING == 0
+if( svShellMode )
 printf("Created User: #%d Name: \"%s\"\n", a, name );
-#endif
 syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 
   sprintf( cmdUserMainDefault.faction, faction );
@@ -226,7 +225,7 @@ int cmdExecUserDeactivate( int id, int flags )
 
   if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( user->flags & CMD_USER_FLAGS_ACTIVATED ) && ( maind.empire != -1 ) )
   {
-    recordd.roundid = ROUND_ID;
+    recordd.roundid = sysconfig.round;
     recordd.planets = maind.planets;
     recordd.networth = maind.networth;
     memcpy( recordd.faction, maind.faction, 32 );
