@@ -203,7 +203,7 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
 
 void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags ) {
 
-svSendString( cnt, "<center>" );
+svSendString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td align=\"center\"><img src=\"ectro_03.jpg\" width=350 height=80  alt=\"ect Top\"></td></tr>" );
 
@@ -225,10 +225,10 @@ if( !( flags == 1 ) )
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"register\">Register</a>" );
 }
-if( !( flags == 3 ) ) {
-svSendString( cnt, " | " );
-svSendString( cnt, "<a href=\"forum\">Forums</a>" );
-}
+//if( !( flags == 3 ) ) {
+//svSendString( cnt, " | " );
+//svSendString( cnt, "<a href=\"forum\">Forums</a>" );
+//}
 if( !( flags == 4 ) ) {
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"faq\">FAQ</a>" );
@@ -356,7 +356,7 @@ Energy Surge - Spreads a destructive wave in an faction network, feeding on the 
 
 void iohttpFunc_register( svConnectionPtr cnt ) {
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 2 );
 
 svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
@@ -390,7 +390,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  iohttpVarsCut();
  if( ( name ) && ( pass ) && ( faction ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
-		iohttpBase( cnt, 1|8 );
+		iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 2 );
 
 		if( cmdErrorString )
@@ -425,13 +425,13 @@ iohttpFunc_frontmenu( cnt, 2 );
   
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
   {
-   iohttpBase( cnt, 1|8 );
+   iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 2 );
    svSendString( cnt, "Error encountered while registering session" );
    goto iohttpFunc_register2L0;
   }
   svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", id, session[0], session[1], session[2], session[3] );
-  iohttpBase( cnt, 1|8 );
+  iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 2 );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
@@ -460,7 +460,7 @@ iohttpFunc_frontmenu( cnt, 2 );
    fclose( file );
   }
 } else {
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 if( ( id = iohttpIdentify( cnt, 4|1 ) ) < 0 )
 	return;
 iohttpFunc_frontmenu( cnt, 2 );
@@ -492,7 +492,7 @@ void iohttpFunc_register3( svConnectionPtr cnt )
  char *fampass;
  char *race;
 
- iohttpBase( cnt, 1|8 );
+ iohttpBase( cnt, 8 );
  if( ( id = iohttpIdentify( cnt, 1|4 ) ) < 0 )
   return;
 iohttpFunc_frontmenu( cnt, 2 );
@@ -549,7 +549,7 @@ void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
 	char DIRCHECKER[256];
 	FILE *file;
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 0 );
 
 
@@ -590,7 +590,7 @@ void iohttpFunc_endhtml( svConnectionPtr cnt ) {
 
 
 svSendString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>\n" );
-svSendString( cnt, "</center>\n" );
+svSendString( cnt, "</td></tr></tbody></table>\n" );
 svSendString( cnt, "</body></html>\n" );
 
 return;
@@ -621,7 +621,7 @@ void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
 	int id;
 
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
@@ -632,8 +632,10 @@ iohttpFunc_frontmenu( cnt, 1 );
 
 if( strlen(text) )
 	svSendPrintf( cnt, "<b>%s</b><br><br>", text );
+else
+svSendString( cnt, "<br>" );
 
-svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"top\">" );
+svSendString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
 //notices
 int lines = 0;
@@ -747,7 +749,7 @@ void iohttpFunc_faq( svConnectionPtr cnt ) {
 	char DIRCHECKER[256];
 	FILE *file;
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 4 );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
@@ -775,7 +777,7 @@ return;
 
 void iohttpFunc_gettingstarted( svConnectionPtr cnt ) {
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 5 );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
@@ -908,7 +910,7 @@ void iohttpFunc_halloffame( svConnectionPtr cnt ) {
 	char DIRCHECKER[256];
 	FILE *file;
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 6 );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );

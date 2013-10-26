@@ -88,7 +88,7 @@ void iohttpFunc_status( svConnectionPtr cnt )
 	struct sysinfo  si;
 	struct utsname stustname;
 
-iohttpBase( cnt, 1|8 );
+iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, 7 );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
@@ -155,10 +155,7 @@ iohttpFunc_boxend( cnt );
   svSendPrintf( cnt, "Resident Size : %d pages<br><br>", strss );
   svSendString( cnt, "</td></tr></table>" );
   iohttpFunc_boxend( cnt );
-  svSendString( cnt, "</td></tr></table>" );
 
-
-  svSendString( cnt, "</center>" );
 
 iohttpFunc_endhtml( cnt );
 

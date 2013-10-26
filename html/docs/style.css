@@ -1,18 +1,110 @@
-a:link,a:active,a:visited {
-text-decoration: none;
-color : #FFFFFF;
+
+.left{
+	margin-left:auto;
+	margin-right:auto;
+	text-align:left;
 }
-body,td{
-font-size:smaller;
-font-family:verdana,geneva,arial,helvetica,sans-serif;
+.right{
+	margin-left:auto;
+	margin-right:auto;
+	text-align:right;
+}
+.center{
+	margin-left:auto;
+	margin-right:auto;
+	text-align:center;
+}
+
+a {
+	text-decoration: none;
+	color : #FFFFFF;
+}
+a:link,a:active,a:visited {
+	text-decoration: none;
+	color : #FFFFFF;
 }
 a:hover{
-color:#00aaaa
+	color:#00aaaa
 }
-body{
-background-color: #000000;
-font-size : 12px;
-font-family:verdana,geneva,arial,helvetica,sans-serif;
-margin:auto;
-color:#C0D0D8;
+.centerdiv {
+	position:absolute;
+	visibility:hidden;
+	float:left;
+	left:350;
+	width:250;
+	height:100px;
+	color:#FFFFFF;
+	border:2px solid #ffffff;
+	background:#d8cfc8;
+	text-align:center;
+	margin-left: auto;
+	margin-right: auto;
 }
+
+body {
+	background-color: #000000; color: #C0D0D8;
+	background-image : url(background2.gif);
+	background-attachment:fixed;
+	font-size : 12px;
+	font-family:verdana,geneva,arial,helvetica,sans-serif;
+}
+body,td{
+	font-size: smaller;
+	font-family:verdana,geneva,arial,helvetica,sans-serif;
+}
+.bodyline	{
+	margin:auto;
+	border: 1px #0075B2 solid;
+	background-image : url(mbg.gif);
+	background-attachment:fixed;
+}
+
+.genblue { 
+	font-size : 12px; 
+}
+.genmedblue { 
+	font-size : 11px; 
+}
+.gensmallblue { 
+	font-size : 10px; 
+}
+.genblue,.genmedblue,.gensmallblue {
+	color : #006699;
+}
+.genblack { 
+	font-size : 12px; 
+}
+.genmedblack { 
+	font-size : 11px; 
+}
+.gensmallblack { 
+	font-size : 10px; 
+}
+.genblack,.genmedblack,.gensmallblack {
+	color : #000000;
+}
+
+.code {
+	font-family: Courier, 'Courier New', sans-serif;
+	font-size: 11px;
+	color: Lime;
+	border: #DDDDDD;
+	border-style: solid;
+	border-left-width: 1px;
+	border-top-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 1px
+}
+.quote {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #8BC7FF;
+	line-height: 125%;
+	border: #DDDDDD;
+	border-style: solid;
+	border-left-width: 1px;
+	border-top-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 1px
+}
+
