@@ -82,7 +82,8 @@ void iohttpFunc_main( svConnectionPtr cnt )
 
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_KILLED )
   {
-   iohttpBase( cnt, 0 );
+   iohttpBase( cnt, 8 );
+iohttpFunc_frontmenu( cnt, 4 );
    svSendString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
    num = dbUserNewsList( id, &newsp );
    newsd = newsp;
@@ -98,20 +99,23 @@ void iohttpFunc_main( svConnectionPtr cnt )
   }
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_DELETED )
   {
-   iohttpBase( cnt, 0 );
+   iohttpBase( cnt, 8 );
+iohttpFunc_frontmenu( cnt, 4 );
    svSendString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
    goto iohttpFunc_mainL1;
   }
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_NEWROUND )
   {
-   iohttpBase( cnt, 0 );
+   iohttpBase( cnt, 8 );
+iohttpFunc_frontmenu( cnt, 4 );
    svSendString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"register2\">Complete account registration</a><br><br>" );
    goto iohttpFunc_mainL1;
   }
 
   if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) )
   {
-   iohttpBase( cnt, 0 );
+   iohttpBase( cnt, 8 );
+iohttpFunc_frontmenu( cnt, 4 );
    svSendString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
    iohttpFunc_mainL1:
    svSendString( cnt, "<a href=\"forum\">Public Forums</a>" );
@@ -122,7 +126,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
 	   if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
 	    svSendString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
 	  }
-   svSendString( cnt, "</center></body></html>" );
+   iohttpFunc_endhtml( cnt );
    return;
   }
 
@@ -1864,7 +1868,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohttpBodyInit( cnt, "Planets" );
 
-
  iohttpVarsInit( cnt );
  sortstring = iohttpVarsFind( "sort" );
  iohttpVarsCut();
@@ -1872,11 +1875,14 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( !( sortstring ) || ( sscanf( sortstring, "%d", &sort ) <= 0 ) )
   sort = 0;
 
- if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 )
-  {
-   svSendString( cnt, "Error while retriving planets list" );
-   return;
-  }
+if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 ) {
+	svSendString( cnt, "Error while retriving planets list" );
+	iohttpBodyEnd( cnt );
+	return;
+}
+
+
+
  svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
  svSendString( cnt, "<form action=\"massbuild\" method=\"POST\">");
 
@@ -4600,7 +4606,7 @@ void iohttpFunc_fleets( svConnectionPtr cnt )
 
  if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 )
  {
-  svSendString( cnt, "Error while retriving user fleets list</body></html>" );
+  svSendString( cnt, "Error while retriving user fleets list" );
   iohttpBodyEnd( cnt );
   return;
  }
@@ -5641,7 +5647,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( dbUserFleetRetrieve( id, 0, &fleetd ) < 0 )
  {
   svSendString( cnt, "Error encountered while getting main fleet agent stats</body></html>" );
-  iohttpBodyEnd( cnt );
   return;
  }
 

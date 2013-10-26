@@ -65,9 +65,6 @@ body,td{
 .gensmall {
 	font-size : 10px;
 }
-.genwhite { 
-	font-size : 12px; 
-}
 .genmedwhite { 
 	font-size : 11px; 
 }
@@ -76,9 +73,6 @@ body,td{
 }
 .genwhite,.genmedwhite,.gensmallwhite {
 	color : #FFFFFF;
-}
-.genred { 
-	font-size : 12px; 
 }
 .genmedred { 
 	font-size : 11px; 
