@@ -1,9 +1,3 @@
-#ifndef CONFIGINCLUDED
-#include "config.h"
-#endif
-#ifndef GLOBALINCLUDED
-#include "global.h"
-#endif
 
 
 int iohttpIdentifyHex( char *num )

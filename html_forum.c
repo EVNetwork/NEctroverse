@@ -1,13 +1,3 @@
-#ifndef CONFIGINCLUDED
-#include "config.h"
-#endif
-#ifndef GLOBALINCLUDED
-#include "global.h"
-#endif
-
-
-
-
 #define IOHTTP_FORUM_BUFFER (65536)
 
 #define IOHTTP_FORUM_THREADSNUM (40)

@@ -1,11 +1,6 @@
-#ifndef CONFIGINCLUDED
-#include "config.h"
-#endif
 #ifndef GLOBALINCLUDED
 #include "global.h"
 #endif
-
-#include "md5.h"
 
 //Time to add some hash protection to our passwords.
 char *hashencrypt( char *passhash ) {

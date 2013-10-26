@@ -14,16 +14,13 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
-
 #include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
-#if MYSQLENABLE == 1
 #include <mysql.h>
-#endif
 #include <png.h>
 #include <pwd.h>
 #include <stdbool.h>
@@ -35,6 +32,37 @@
 #include <time.h>
 #include <unistd.h>
 
+#ifndef COREDIRECTORY
+#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
+#endif
+
+//IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
+#ifndef IOHTTP_FILES_DIRECTORY
+#define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
+#endif
+
+#ifndef IOHTTP_READ_DIRECTORY
+#define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
+#endif
+
+//we want to change this latter... no real "Public" forums.
+#ifndef PUBLIC_FORUM_DIRECTORY
+#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
+#endif
+
+// 0 = Off | 1 = On
+#ifndef SERVER_REPORT_CONNECT
+#define SERVER_REPORT_CONNECT 0
+#endif
+
+
+#ifndef SERVER_REPORT_CLOSE
+#define SERVER_REPORT_CLOSE 0
+#endif
+
+#ifndef SERVER_REPORT_IGNOREDHEADER
+#define SERVER_REPORT_IGNOREDHEADER 0
+#endif
 
 #ifndef CT_TO_SECS
 #define CT_TO_SECS(x) ((x)/HZ)
