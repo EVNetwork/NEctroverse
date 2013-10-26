@@ -1181,31 +1181,6 @@ if (MATCH("ticks", "status")) {
 return 1;
 }
 
-
-const char * MailPrefix = "mail:";
-const char AtSign = '@';
-char * extractpath(const char *eMail)
-{
-    int length = strlen( eMail );
-    char * posAtSign = strrchr( eMail, AtSign );
-    int prefixLength = strlen( MailPrefix );
-
-    char * toret = (char *) malloc( length + 1 );
-    if ( toret != NULL
-      && posAtSign != NULL
-      && strncmp( eMail, MailPrefix, prefixLength ) == 0 )
-    {
-        memset( toret, 0, length  +1 );
-        strncpy( toret, eMail + prefixLength, posAtSign - prefixLength - eMail );
-    }
-    else {
-        free( toret );
-        toret = NULL;
-    }
-
-    return toret;
-}
-
 int loadconfig( char *file, int type ) {
 	int logfac = LOG_SYSLOG;
 
