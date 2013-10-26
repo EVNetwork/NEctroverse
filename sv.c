@@ -1268,7 +1268,7 @@ return 1;
 
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[256];
-	int num, pipeserver, pipeclient;
+	int num, pipeserver, pipeclient, test;
 	// OK, so can you see what I've done here? Sneaky eh? Hehe =P
 	#ifdef HAHA_MY_INFO_IS_HIDDEN
 	char file[] = "evconfig.nogit.ini";
@@ -1302,8 +1302,6 @@ if ( argc != 2 ) {
 
 svShellMode = strcmp(argv[1],"shell") ? 0 : 1;
 
-
-
 dirstructurecheck(TMPDIR);
 //check basic dir structure and create as needed.	
 sprintf( DIRCHECKER, "%s/data", sysconfig.directory );
@@ -1315,9 +1313,52 @@ dirstructurecheck(DIRCHECKER);
 //well its not really public yet now is it... <<<WORKNEEDED>>>
 sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
-printf("\n");
 
+if( !( file_exist(sysconfig.httpimages) ) ) {
+	dirstructurecheck(sysconfig.httpimages);
+	printf("Image base not found, fetching with wget...");
+	fflush(stdout);
+	syslog(LOG_INFO, "Image base not found... now fetching...\n");
+	sprintf(DIRCHECKER,"wget -q \"http://www.sknill.com/evbasic/images.tar.gz\" -O %s/images.tar.gz",TMPDIR);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+	printf("Extracting images...");
+	fflush(stdout);
+	syslog(LOG_INFO, "Extracting images...\n");
+	sprintf(DIRCHECKER,"tar -xzf %s/images.tar.gz -C %s",TMPDIR,sysconfig.httpimages);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+}
+
+if( !( file_exist(sysconfig.httpfiles) ) ) {
+	dirstructurecheck(sysconfig.httpfiles);
+	printf("Image base not found, fetching with wget...");
+	fflush(stdout);
+	syslog(LOG_INFO, "Doc base not found... now fetching...\n");
+	sprintf(DIRCHECKER,"wget -q \"http://www.sknill.com/evbasic/docs.tar.gz\" -O %s/docs.tar.gz",TMPDIR);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+	printf("Extracting images...");
+	fflush(stdout);
+	syslog(LOG_INFO, "Extracting files...\n");
+	sprintf(DIRCHECKER,"tar -xzf %s/docs.tar.gz -C %s",TMPDIR,sysconfig.httpfiles);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+}
+printf("\n");
+sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 if( !( file_exist(DIRCHECKER) ) ) {
 	if( svShellMode )
 	printf("No map detected... now generating...\n");
