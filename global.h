@@ -4,9 +4,7 @@
 #include <asm/param.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#if HASHENCRYPTION == 1
 #include <openssl/md5.h>
-#endif
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -16,9 +14,8 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
-#if HASHENCRYPTION == 1
+
 #include <crypt.h>
-#endif
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -75,13 +72,10 @@ static const double megabyte = (1024 * 1024);
 #define SERVER_TIME_ZONE 0
 #endif
 
-//double option here.
-#if HASHENCRYPTION == 1
 #ifndef HASHINCLUDES
-#include "optional/md5.h"
+#include "md5.h"
 #endif
-#endif
-//The order of these is somewhat importatant, as each can call from another...
+
 #ifndef ARTEFACTINCLUDES
 #include "artefact.h"
 #endif

@@ -63,11 +63,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
    goto iohttpFunc_mainL0;
   if( dbUserRetrievePassword( id, rtpass ) < 0 )
    goto iohttpFunc_mainL0;
-#if HASHENCRYPTION == 1
   if( !( checkencrypt( pass, rtpass ) ) )
-#else
-  if( !( ioCompareExact( pass, rtpass ) ) )
-#endif
    goto iohttpFunc_mainL0;
   if( dbUserLinkDatabase( cnt, id ) < 0 )
    goto iohttpFunc_mainL0;

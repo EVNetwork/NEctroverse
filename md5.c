@@ -1,8 +1,8 @@
 #ifndef CONFIGINCLUDED
-#include "../config.h"
+#include "config.h"
 #endif
 #ifndef GLOBALINCLUDED
-#include "../global.h"
+#include "global.h"
 #endif
 
 #include "md5.h"

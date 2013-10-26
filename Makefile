@@ -8,6 +8,7 @@ endif
 REQUIRED = config.h global.h
 CONFIGS := $(shell cat config.h)
 FLAGS = --fast-math -Wall -fno-strict-aliasing -lpng -O3
+LIBS = -lcrypt -lcrypto -lssl
 
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb
@@ -21,22 +22,17 @@ LIBS += $(SQLLIBS)
 else
 LIBS += -lm
 endif
-#Incoming MD5 password encryption, disabled for now since it's not really deployed.
-ifneq ($(findstring HASHENCRYPTION 1,$(CONFIGS)),)
-LIBS += -lcrypt -lcrypto -lssl
-MODS += md5.o
-endif
 
 #This is what enables the compile to read my real login info, I don't like even using a default.
 #I have *.nogit ignored by git commits... so I can use my real info withought breach.
 #If this file does not exist... it loads the default from config.h
-ifneq ($(wildcard config.nogit.ini),) 
+ifneq ($(wildcard svconfig.nogit.ini),) 
 FLAGS += -DHAHA_MY_INFO_IS_HIDDEN
 endif
 
 # Right then, now we know all of that... lets build something!
-server: sv.o io.o db.o cmd.o html.o map.o $(MODS)
-	$(CC) sv.o io.o db.o cmd.o html.o map.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS)
+	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 sv.o: sv.c svban.c sv.h io.h db.h cmd.h artefact.h $(REQUIRED)
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
@@ -56,8 +52,8 @@ map.o: map.c map.h $(REQUIRED)
 html.o: html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c $(REQUIRED)
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-md5.o: optional/md5.c optional/md5.h $(REQUIRED)
-	$(CC) optional/md5.c $(DEFS) -o md5.o -c $(FLAGS)
+md5.o: md5.c md5.h $(REQUIRED)
+	$(CC) md5.c $(DEFS) -o md5.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
 clean:

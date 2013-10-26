@@ -6,7 +6,6 @@ typedef struct {
 	//server
 	char* servername;
 	char* directory;
-	bool encryption;
 	int httpport;
 	int stockpile;
 	int warend;
@@ -33,6 +32,9 @@ typedef struct {
 	char* mysql_user;
 	char* mysql_password;
 	char* mysql_database;
+	//syslog
+	char* syslog_tagname;
+	char* syslog_facility;
 } configDef, *configPtr;
 
 extern configDef sysconfig;

@@ -145,11 +145,7 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
     }
     if( dbUserRetrievePassword( id, oldpass ) < 0 )
       svSendString( cnt, "<i>Error encountered when retrieving password.</i><br><br>" );
-#if HASHENCRYPTION == 1
     else if( !( checkencrypt( newpass[0], oldpass ) ) )
-#else
-    else if( !( ioCompareExact( newpass[0], oldpass ) ) )
-#endif
       svSendString( cnt, "<i>Wrong old password</i><br><br>" );
     else if( !( ioCompareExact( newpass[1], newpass[2] ) ) )
       svSendString( cnt, "<i>Different new passwords? Check your typing.</i><br><br>" );

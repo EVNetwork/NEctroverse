@@ -174,7 +174,6 @@ memset( &systemd, 0, sizeof(dbMainSystemDef) );
 memset( &planetd, 0, sizeof(dbMainPlanetDef) );
 memset( &empired, 0, sizeof(dbMainEmpireDef) );
 
-openlog(LOGTAG, LOG_PID | LOG_NDELAY, LOGFAC);
 sprintf( fname, "%s/data", COREDIRECTORY );
 dirstructurecheck(fname);
 
@@ -346,13 +345,8 @@ for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 		strcpy( empired.name, sysconfig.admin_empire_name);
 		else
 		strcpy( empired.name, "Administration");
-		#if HASHENCRYPTION == 1
 		if( strlen(sysconfig.admin_empire_password) )
 			strcpy(empired.password, hashencrypt(sysconfig.admin_empire_password) );
-		#else
-		if( strlen(sysconfig.admin_empire_password) )
-			strcpy(empired.password, sysconfig.admin_empire_password );
-		#endif
 		if( svShellMode )
 		printf("Empire %d Claimed for Administration.\n", a);
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);

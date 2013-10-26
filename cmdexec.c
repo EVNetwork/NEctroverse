@@ -121,11 +121,8 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
       return -1;
     }
     cmdExecGetFamPass( famnum, epass );
-#if HASHENCRYPTION == 1
+
     if( ( strlen(epass) ) && !( checkencrypt( fampass, epass ) ) )
-#else
-    if( ( strlen(epass) ) && !( ioCompareExact( epass, fampass ) ) )
-#endif
     {
       cmdErrorString = "The empire password is incorrect!";
       return -1;
@@ -1148,11 +1145,8 @@ for( a = 0 ; a < 127 ; a++ ) {
 }
 empired.password[a] = 0;
 
-#if HASHENCRYPTION == 1
 if( strlen(empired.password) )
   sprintf(empired.password, "%s", hashencrypt(empired.password) );
-#endif
-
 
 if( dbMapSetEmpire( fam, &empired ) < 0 )
 	return -3;

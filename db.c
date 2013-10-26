@@ -927,10 +927,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 
 fseek( file, 16+65, SEEK_SET );
 memset( fname, 0, 128 );
-sprintf( fname, pass );
-#if HASHENCRYPTION == 1
-sprintf( fname, "%s", hashencrypt(fname) );
-#endif
+sprintf( fname, hashencrypt(pass) );
 fwrite( fname, 1, 128, file );
 fclose( file );
 

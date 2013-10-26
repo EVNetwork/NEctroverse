@@ -875,7 +875,7 @@ if((sid = setsid()) < 0) {
 	return 0;
 }
 
-// Next, make / the current directory -- daemons like this kinda stuff.
+// Next, make / the current directory.
 if((chdir("/")) < 0) {
 	syslog(LOG_ERR, "%s\n", "chdir has failed, unable to fork into daemon");
 	return 0;
@@ -1088,8 +1088,6 @@ if (MATCH("system", "port")) {
 	pconfig->warend = atoi(value);
 } else if (MATCH("system", "auto_victory_afterticks")) {
 	pconfig->victory = atoi(value);
-} else if (MATCH("system", "encryption")) {
-        pconfig->encryption = strcmp(value,"false") ? true : false;
 } else if (MATCH("evmap", "port")) {
 	pconfig->evmpport = atoi(value);
 } else if (MATCH("evmap", "enabled")) {
@@ -1122,6 +1120,10 @@ if (MATCH("system", "port")) {
         pconfig->mysql_password = strdup(value);
 } else if (MATCH("mysql", "database")) {
         pconfig->mysql_database = strdup(value);
+} else if (MATCH("syslog", "tag")) {
+        pconfig->syslog_tagname = strdup(value);
+} else if (MATCH("syslog", "facility")) {
+        pconfig->syslog_facility = strdup(value);
 } else {
         return 0;
 }
@@ -1151,23 +1153,50 @@ return 1;
 }
 
 int loadconfig( char *file, int type ) {
+	int logfac = LOG_SYSLOG;
 
 if(type) {
 	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
-        	printf("Can't load '%s'\n", file);
+		syslog(LOG_ERR, "Config Error: can not load \"%s\"\n", file );
+        	printf("Config Error: can not load \"%s\"\n", file);
 		return 0;
 	}
-	if( sysconfig.evmpactv )
+	if( sysconfig.evmpactv ) {
 		svListenPort[1] = sysconfig.evmpport;
-	else
+	} else {
 		SV_INTERFACES = 1;
+	}
 
 	if( sysconfig.httpport )
 		svListenPort[0] = sysconfig.httpport;
 
+	if( strlen(sysconfig.syslog_facility) && strcmp(sysconfig.syslog_facility,"LOG_SYSLOG") ){
+		closelog();
+		if( strcmp(sysconfig.syslog_facility,"LOG_DAEMON") == 0 ) {
+			logfac = LOG_DAEMON;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_USER") == 0 ) {
+			logfac = LOG_USER;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL0") == 0 ) {
+			logfac = LOG_LOCAL0;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL1") == 0 ) {
+			logfac = LOG_LOCAL1;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL2") == 0 ) {
+			logfac = LOG_LOCAL2;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL3") == 0 ) {
+			logfac = LOG_LOCAL3;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL4") == 0 ) {
+			logfac = LOG_LOCAL4;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL5") == 0 ) {
+			logfac = LOG_LOCAL5;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL6") == 0 ) {
+			logfac = LOG_LOCAL6;
+		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL7") == 0 ) {
+			logfac = LOG_LOCAL7;
+		}
+		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
+	}
 } else {
 	if (ini_parse(file, tickconfig_handler, &ticks ) < 0) {
-	        printf("Can't load '%s'\n", file);
 		return 0;
 	}
 }
@@ -1203,23 +1232,24 @@ int main( int argc, char *argv[] ) {
 	int num, pipeserver, pipeclient;
 	// OK, so can you see what I've done here? Sneaky eh? Hehe =P
 	#ifdef HAHA_MY_INFO_IS_HIDDEN
-	char file[] = "config.nogit.ini";
+	char file[] = "svconfig.nogit.ini";
 	#else
-	char file[] = "config.ini";
+	char file[] = "svconfig.ini";
 	#endif
 
-sprintf( DIRCHECKER, "%s/ticks.ini", COREDIRECTORY );	
+openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
+
+sprintf( DIRCHECKER, "%s/ticks.ini", COREDIRECTORY );
 if( !(loadconfig(DIRCHECKER,0)) ) {
-	ticks.number = 0;
-	sysconfig.ticktime = 0;
-	ticks.next = 0;
 	ticks.status = false;
+	ticks.number = 0;
+	ticks.next = 0;
 	ticks.debug_id = 0;
 	ticks.debug_pass = 0;
 }
 
 if( !(loadconfig(file,1)) ) {
-	printf("Error loading system config... please check the logs.\n");
+	printf("Error loading system config. Unable to start.\n");
 	return 1;
 }
 
@@ -1234,8 +1264,7 @@ if ( argc != 2 ) {
 svShellMode = strcmp(argv[1],"shell") ? 0 : 1;
 
 
-//Proper logging facility -- can change to LOG_LOCAL* or even LOG_SYSLOG etc. (in sysconfig.h)
-openlog(LOGTAG, LOG_CONS | LOG_PID | LOG_NDELAY, LOGFAC);
+
 dirstructurecheck(TMPDIR);
 //check basic dir structure and create as needed.	
 sprintf( DIRCHECKER, "%s/data", COREDIRECTORY );
