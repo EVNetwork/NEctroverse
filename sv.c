@@ -1073,6 +1073,8 @@ if (MATCH("system", "port")) {
 	pconfig->httpport = atoi(value);
 } else if (MATCH("system", "name")) {
 	pconfig->servername = strdup(value);
+} else if (MATCH("system", "downfrom")) {
+	pconfig->downfrom = strdup(value);
 } else if (MATCH("system", "directory")) {
 	pconfig->directory = strdup(value);
 } else if (MATCH("system", "httpimages")) {
@@ -1313,50 +1315,49 @@ dirstructurecheck(DIRCHECKER);
 //well its not really public yet now is it... <<<WORKNEEDED>>>
 sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
-
-if( !( file_exist(sysconfig.httpimages) ) ) {
-	dirstructurecheck(sysconfig.httpimages);
-	printf("Image base not found, fetching with wget...");
-	fflush(stdout);
-	syslog(LOG_INFO, "Image base not found... now fetching...\n");
-	sprintf(DIRCHECKER,"wget -q \"http://www.sknill.com/evbasic/images.tar.gz\" -O %s/images.tar.gz",TMPDIR);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-	printf("Extracting images...");
-	fflush(stdout);
-	syslog(LOG_INFO, "Extracting images...\n");
-	sprintf(DIRCHECKER,"tar -xzf %s/images.tar.gz -C %s",TMPDIR,sysconfig.httpimages);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-}
-
 if( !( file_exist(sysconfig.httpfiles) ) ) {
 	dirstructurecheck(sysconfig.httpfiles);
-	printf("Image base not found, fetching with wget...");
+	printf("Doc base not found, fetching \"%s/docs.tar.gz\" with wget ...", sysconfig.downfrom );
 	fflush(stdout);
-	syslog(LOG_INFO, "Doc base not found... now fetching...\n");
-	sprintf(DIRCHECKER,"wget -q \"http://www.sknill.com/evbasic/docs.tar.gz\" -O %s/docs.tar.gz",TMPDIR);
+	syslog(LOG_INFO, "Doc base not found, fetching \"%s/docs.tar.gz\" with wget.\n", sysconfig.downfrom );
+	sprintf(DIRCHECKER,"wget -q \"%s/docs.tar.gz\" -O %s/docs.tar.gz", sysconfig.downfrom, TMPDIR);
 	test = system(DIRCHECKER);
 	printf(" %s!\n", test ? "Fail" : "Done");
 	fflush(stdout);
 	if(test)
 	return 1;
-	printf("Extracting images...");
+	printf("Extracting files to: \"%s\" ...", sysconfig.httpfiles);
 	fflush(stdout);
-	syslog(LOG_INFO, "Extracting files...\n");
-	sprintf(DIRCHECKER,"tar -xzf %s/docs.tar.gz -C %s",TMPDIR,sysconfig.httpfiles);
+	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpfiles);
+	sprintf(DIRCHECKER,"tar -xzf %s/docs.tar.gz -C %s", TMPDIR, sysconfig.httpfiles);
 	test = system(DIRCHECKER);
 	printf(" %s!\n", test ? "Fail" : "Done");
 	fflush(stdout);
 	if(test)
 	return 1;
 }
+if( !( file_exist(sysconfig.httpimages) ) ) {
+	dirstructurecheck(sysconfig.httpimages);
+	printf("Image base not found, fetching \"%s/images.tar.gz\" with wget ...", sysconfig.downfrom );
+	fflush(stdout);
+	syslog(LOG_INFO, "Image base not found, fetching \"%s/images.tar.gz\" with wget.\n", sysconfig.downfrom);
+	sprintf(DIRCHECKER,"wget -q \"%s/images.tar.gz\" -O %s/images.tar.gz", sysconfig.downfrom, TMPDIR);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+	printf("Extracting images to: \"%s\" ...", sysconfig.httpimages);
+	fflush(stdout);
+	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpimages);
+	sprintf(DIRCHECKER,"tar -xzf %s/images.tar.gz -C %s", TMPDIR, sysconfig.httpimages);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+}
+
 printf("\n");
 sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 if( !( file_exist(DIRCHECKER) ) ) {

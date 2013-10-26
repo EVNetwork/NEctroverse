@@ -6,6 +6,7 @@ typedef struct {
 	//server
 	char* servername;
 	char* directory;
+	char* downfrom;
 	char* httpimages;
 	char* httpfiles;
 	char* pubforum;
