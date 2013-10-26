@@ -1280,6 +1280,11 @@ int main( int argc, char *argv[] ) {
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
+if( !(loadconfig(file,1)) ) {
+	printf("Error loading system config. Unable to start.\n");
+	return 1;
+}
+
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 if( !(loadconfig(DIRCHECKER,0)) ) {
 	ticks.status = false;
@@ -1287,11 +1292,6 @@ if( !(loadconfig(DIRCHECKER,0)) ) {
 	ticks.next = 0;
 	ticks.debug_id = 0;
 	ticks.debug_pass = 0;
-}
-
-if( !(loadconfig(file,1)) ) {
-	printf("Error loading system config. Unable to start.\n");
-	return 1;
 }
 
 if ( argc != 2 ) {
