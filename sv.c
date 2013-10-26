@@ -1181,6 +1181,31 @@ if (MATCH("ticks", "status")) {
 return 1;
 }
 
+
+const char * MailPrefix = "mail:";
+const char AtSign = '@';
+char * extractpath(const char *eMail)
+{
+    int length = strlen( eMail );
+    char * posAtSign = strrchr( eMail, AtSign );
+    int prefixLength = strlen( MailPrefix );
+
+    char * toret = (char *) malloc( length + 1 );
+    if ( toret != NULL
+      && posAtSign != NULL
+      && strncmp( eMail, MailPrefix, prefixLength ) == 0 )
+    {
+        memset( toret, 0, length  +1 );
+        strncpy( toret, eMail + prefixLength, posAtSign - prefixLength - eMail );
+    }
+    else {
+        free( toret );
+        toret = NULL;
+    }
+
+    return toret;
+}
+
 int loadconfig( char *file, int type ) {
 	int logfac = LOG_SYSLOG;
 
@@ -1278,9 +1303,18 @@ int main( int argc, char *argv[] ) {
 	char file[] = "evconfig.ini";
 	#endif
 
+sprintf(DIRCHECKER, "%s", argv[0] );
+
+if( strlen( dirname(DIRCHECKER) ) > 1 ) {
+	strcat(DIRCHECKER,"/");
+	strcat(DIRCHECKER,file);
+} else {
+	sprintf(DIRCHECKER, "%s", file );
+}
+
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
-if( !(loadconfig(file,1)) ) {
+if( !(loadconfig(DIRCHECKER,1)) ) {
 	printf("Error loading system config. Unable to start.\n");
 	return 1;
 }
