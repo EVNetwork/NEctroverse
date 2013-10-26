@@ -39,17 +39,16 @@ extern configDef sysconfig;
 
 
 typedef struct {
+	bool status;
 	int number;
-	int time;
 	int next;
-	int status;
-	int autostart;
-	int round;
-	int passid;
-	int pass;
+	int debug_id;
+	int debug_pass;
 } tickDef, *tickPtr;
 
 extern tickDef ticks;
+extern int savetickconfig();
+
 
 extern int svShellMode;
 

@@ -174,7 +174,7 @@ printf( "STATUS\n" );
       stmsg[3] = ticks.status;
       stmsg[4] = ticks.number;
       stmsg[5] = (int)( ticks.next - time(0) );
-      stmsg[6] = ticks.time;
+      stmsg[6] = sysconfig.ticktime;
       svSend( cnt, stmsg, 7*sizeof(int) );
     }
     else if( evmsg == EVM_MAP )

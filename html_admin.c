@@ -1299,7 +1299,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
         continue;
       //after 3 day + one day per tagpoints? you are inactive
       //a = 3*24*60*60 + 24*60*60*(int)sqrt( (double)(maind.tagpoints) );
-      a = 120*24*60*60; //90 days
+      a = 90*day; //90 days
       printf("curr = %d, last = %d ", curtime, user->lasttime);
       if( curtime - user->lasttime < a )
         continue;
@@ -1461,11 +1461,6 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
     for( user = dbUserList ; user ; user = user->next )
       cmdExecUserDeactivate( user->id, 0 );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
-		if( ( fFile = fopen( COREDIRECTORY "/ticks", "r+" ) ) )
-	  {
-	   fscanf( fFile, "%d", &a );
-	    fclose( fFile );
-	  }
   }
 
   if( action[25] )

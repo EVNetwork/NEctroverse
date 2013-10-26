@@ -356,19 +356,11 @@ return;
 
 
 void cmdTickEnd() {
-	FILE *file;
+
 
 cmdTickGenRanks();
 
-
-file = fopen( COREDIRECTORY "/ticks", "r+" );
-if(!file)
-	file = fopen( COREDIRECTORY "/ticks", "w" );
-if(file) {
-	fprintf( file, "%d", ticks.number );
-	fflush( file );
-	fclose( file );
-}
+savetickconfig();
 
 return;
 }
@@ -386,7 +378,7 @@ int cmdTickPlanets( int usrid, dbUserMainPtr mainp )
   dbUserFleetPtr fleetd;
   dbUserSpecOpPtr specopd;
 
-ticks.pass = 0 + 10000;
+ticks.debug_pass = 0 + 10000;
 
 
   memset( mainp->totalbuilding, 0, 16*sizeof(long long int) );
@@ -416,7 +408,7 @@ ticks.pass = 0 + 10000;
     return 0;
   }
 
-ticks.pass = 1 + 10000;
+ticks.debug_pass = 1 + 10000;
 
   population = 0;
   for( a = 0 ; a < num ; a++ )
@@ -429,7 +421,7 @@ ticks.pass = 1 + 10000;
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
 			planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * (CMD_POPULATION_CITIES+1000) ) );
 	*/	
-ticks.pass = 2 + 10000;
+ticks.debug_pass = 2 + 10000;
 		
 		//No more pop grow bonus it will count as upkeep reducer multiplier
 		//Planet grow pop is 2% each tick
@@ -454,7 +446,7 @@ ticks.pass = 2 + 10000;
     }
 
 
-ticks.pass = 3 + 10000;
+ticks.debug_pass = 3 + 10000;
 
 
     /* CRAP */
@@ -468,7 +460,7 @@ ticks.pass = 3 + 10000;
     dbMapSetPlanet( buffer[a], &planetd );
 
 
-ticks.pass = 4 + 10000;
+ticks.debug_pass = 4 + 10000;
 
 
 
@@ -484,7 +476,7 @@ ticks.pass = 4 + 10000;
       mainp->totalbuilding[CMD_BLDG_NUMUSED]++;
 
 
-ticks.pass = 5 + 10000;
+ticks.debug_pass = 5 + 10000;
 
 		if( planetd.special[1] )
     {
@@ -503,7 +495,7 @@ ticks.pass = 5 + 10000;
     }
 
 
-ticks.pass = 6 + 10000;
+ticks.debug_pass = 6 + 10000;
 
 
     if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
@@ -514,29 +506,29 @@ ticks.pass = 6 + 10000;
     dbMapSetEmpire( mainp->empire, &empired );
 
 
-ticks.pass = 7 + 10000;
+ticks.debug_pass = 7 + 10000;
 
   }
   mainp->planets = num;
   mainp->ressource[CMD_RESSOURCE_POPULATION] = (long long int)population;
 
 
-ticks.pass = 8 + 10000;
+ticks.debug_pass = 8 + 10000;
 
 
   free( buffer );
 
-ticks.pass = 9 + 10000;
+ticks.debug_pass = 9 + 10000;
 
   if( portals )
     free( portals );
 
-ticks.pass = 10 + 10000;
+ticks.debug_pass = 10 + 10000;
 
   if( ( num = dbUserFleetList( usrid, &fleetd ) ) < 0 )
     return 0;
 
-ticks.pass = 11 + 10000;
+ticks.debug_pass = 11 + 10000;
 
   for( a = 0 ; a < num ; a++ )
   {
@@ -544,11 +536,11 @@ ticks.pass = 11 + 10000;
       mainp->totalunit[b] += fleetd[a].unit[b];
   }
 
-ticks.pass = 12 + 10000;
+ticks.debug_pass = 12 + 10000;
 
   free( fleetd );
 
-ticks.pass = 13 + 10000;
+ticks.debug_pass = 13 + 10000;
 
   return 1;
 }
@@ -578,8 +570,8 @@ int cmdTick()
   dbMainEmpireDef empired;
 
 
-ticks.pass = 0;
-ticks.passid = 0;
+ticks.debug_pass = 0;
+ticks.debug_id = 0;
 
 	//Maybe useless but can t cause trouble only set the news buffer to 0
 	memset(&newd, 0, sizeof(long long int)*DB_USER_NEWS_BASE);
@@ -589,14 +581,14 @@ ticks.passid = 0;
     if( dbMapRetrieveEmpire( a, &empired ) < 0 )
       continue;
 
-ticks.passid = a;
+ticks.debug_id = a;
 		nArti |= empired.artefacts;	//Will have all discovered arti in here
 		empired.artefacts = 0;
     dbMapSetEmpire( a, &empired );
   }
 
 
-ticks.pass = 1;
+ticks.debug_pass = 1;
 
 	
   if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
@@ -609,7 +601,7 @@ ticks.pass = 1;
     if( !( user->flags & CMD_USER_FLAGS_ACTIVATED ) )
       continue;
 
-ticks.passid = user->id;
+ticks.debug_id = user->id;
 
     if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
 	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id  );
@@ -617,7 +609,7 @@ ticks.passid = user->id;
     }
     
 			
-ticks.pass = 2;
+ticks.debug_pass = 2;
 
 
     if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
@@ -653,7 +645,7 @@ ticks.pass = 2;
     }
 
 
-ticks.pass = 3;
+ticks.debug_pass = 3;
 
 
     num = dbUserBuildListReduceTime( user->id, &build );
@@ -701,12 +693,12 @@ ticks.pass = 3;
     free( build );
 
 
-ticks.pass = 4;
+ticks.debug_pass = 4;
 		
 // calc total of buildings, units, artefacts
     cmdTickPlanets( user->id, &maind );
 		
-ticks.pass = 5;
+ticks.debug_pass = 5;
 	
 
 // add research
@@ -731,7 +723,7 @@ ticks.pass = 5;
     }
     maind.fundresearch = (long long int)( 0.9 * (double)maind.fundresearch );
     
-ticks.pass = 6;
+ticks.debug_pass = 6;
 
    // SK: because of the network backbone arti, we need to calculate Tech research first
     int addedFromTech = 0;
@@ -788,7 +780,7 @@ ticks.pass = 6;
             maind.totalresearch[a]--;
                     }
 
-ticks.pass = 7;
+ticks.debug_pass = 7;
 
 
 // calc infos
@@ -847,7 +839,7 @@ maind.infos[5] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] -
   }
     
     
-ticks.pass = 8;
+ticks.debug_pass = 8;
 
     for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
 	{
@@ -914,7 +906,7 @@ maind.infos[10] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL]
 	{
 		maind.infos[CMD_RESSOURCE_ECTROLIUM] *= 1.50;
 	}	*/
-ticks.pass = 9;
+ticks.debug_pass = 9;
 
 
 // fleets decay?
@@ -965,7 +957,7 @@ ticks.pass = 9;
     }
 
 
-ticks.pass = 10;
+ticks.debug_pass = 10;
 
 
 // calculate phantoms decay rate
@@ -1034,7 +1026,7 @@ ticks.pass = 10;
     dbUserMainRetrieve( user->id, &maind );
 
 
-ticks.pass = 11;
+ticks.debug_pass = 11;
 
 
 // units decay on planets
@@ -1063,7 +1055,7 @@ ticks.pass = 11;
       free( plist );
 
 
-ticks.pass = 12;
+ticks.debug_pass = 12;
 
 
 // income
@@ -1113,13 +1105,13 @@ ticks.pass = 12;
       free( specopd );
 
 
-ticks.pass = 13;
+ticks.debug_pass = 13;
 
     dbUserMainSet( user->id, &maind );
   }
 
 
-ticks.pass = 14;
+ticks.debug_pass = 14;
 
 
 // bids energy decay
@@ -1149,7 +1141,7 @@ ticks.pass = 14;
   }
 
 
-ticks.pass = 15;
+ticks.debug_pass = 15;
 
 
 // bids crystal decay
@@ -1178,7 +1170,7 @@ ticks.pass = 15;
   }
 
 
-ticks.pass = 16;
+ticks.debug_pass = 16;
 
 
   return 1;

@@ -625,16 +625,16 @@ void svSignal( int signal ) {
 iohttpDataPtr iohttp;
 syslog(LOG_ERR, "ERROR, signal %d\n", signal);
 syslog(LOG_ERR, "cnt : %d\n", (int)(intptr_t)svDebugConnection);
-syslog(LOG_ERR, "tick pass : %d\n", ticks.pass);
-syslog(LOG_ERR, "tick id : %d\n", ticks.passid);
+syslog(LOG_ERR, "tick pass : %d\n", ticks.debug_pass);
+syslog(LOG_ERR, "tick id : %d\n", ticks.debug_id);
 if( svShellMode ) {
 	printf( "ERROR, signal %d\n", signal );
 	fflush( stdout );
 	printf( "cnt : %d\n", (int)(intptr_t)svDebugConnection);
 	fflush( stdout );
-	printf( "tick pass : %d\n", ticks.pass );
+	printf( "tick pass : %d\n", ticks.debug_pass );
 	fflush( stdout );
-	printf( "tick id : %d\n", ticks.passid );
+	printf( "tick id : %d\n", ticks.debug_id );
 	fflush( stdout );
 }
 if( svDebugConnection ) {
@@ -815,7 +815,7 @@ void daemonloop(int pipefileid) {
 		if( curtime < ticks.next )
 			continue;
 
-		ticks.next += ticks.time;
+		ticks.next += sysconfig.ticktime;
 		
 		for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
 		io = &ioInterface[a];
@@ -848,7 +848,6 @@ int daemon_init( char *argument ) {
         int pipingin;
 	int binfo[MAP_TOTAL_INFO];
 	char DIRCHECKER[256];
-	FILE *file;
 	ioInterfacePtr io;
 	pid_t pid, sid;
 
@@ -892,7 +891,7 @@ close(STDERR_FILENO);
 
 }
 
-ticks.next = time(0) + ticks.time;
+ticks.next = time(0) + sysconfig.ticktime;
 	
 //Time to set some signals
 signal( SIGPIPE, SIG_IGN );
@@ -944,22 +943,10 @@ if( chdir( DIRCHECKER ) == -1 ) {
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
-ticks.number = ticks.status = 0;
-sprintf( DIRCHECKER, "%s/ticks", COREDIRECTORY );	
-if( ( file = fopen( DIRCHECKER, "r" ) ) ) {
-	if( fscanf( file, "%d", &ticks.number ) == 0 ) {
-	 	if( svShellMode )
-			printf("Error getting tick number\n");
-		syslog(LOG_ERR, "Error getting tick number\n");
-	}
-	//  fscanf( file, "%d", &svRoundEnd );
-	fclose( file );
-}
-
 
 dbMapRetrieveMain( binfo );
 if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <= 0 ) ) {
-	if( ( ticks.autostart == 1 ) && ( !ticks.status ) && (ticks.number) )
+	if( ( sysconfig.autoresume == 1 ) && ( !ticks.status ) && (ticks.number) )
 		ticks.status = 1;
 }
 
@@ -1079,7 +1066,7 @@ return;
 }
 
 
-static int handler(void* fconfig, const char* section, const char* name, const char* value) {
+static int sysconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
 	configPtr pconfig = (configPtr)fconfig;
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
@@ -1142,29 +1129,70 @@ if (MATCH("system", "port")) {
 return 1;
 }
 
-int loadconfig( char *file ) {
+static int tickconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
+	tickPtr pconfig = (tickPtr)fconfig;
 
-if (ini_parse(file, handler, &sysconfig) < 0) {
-        printf("Can't load '%s'\n", file);
-	return 0;
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+if (MATCH("ticks", "status")) {
+	pconfig->status = strcmp(value,"false") ? true : false;
+} else if (MATCH("ticks", "number")) {
+	pconfig->number = atoi(value);
+} else if (MATCH("ticks", "next")) {
+	pconfig->next = atoi(value);
+} else if (MATCH("ticks", "debug_id")) {
+	pconfig->debug_id = atoi(value);
+} else if (MATCH("ticks", "debug_pass")) {
+	pconfig->debug_pass = atoi(value);
+} else {
+        return 0;
 }
 
-if( sysconfig.evmpactv )
-svListenPort[1] = sysconfig.evmpport;
-else
-SV_INTERFACES = 1;
+return 1;
+}
 
-if( sysconfig.httpport )
-svListenPort[0] = sysconfig.httpport;
+int loadconfig( char *file, int type ) {
 
-if( sysconfig.ticktime )
-ticks.time = sysconfig.ticktime;
+if(type) {
+	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
+        	printf("Can't load '%s'\n", file);
+		return 0;
+	}
+	if( sysconfig.evmpactv )
+		svListenPort[1] = sysconfig.evmpport;
+	else
+		SV_INTERFACES = 1;
 
-if( sysconfig.round )
-ticks.round = sysconfig.round;
+	if( sysconfig.httpport )
+		svListenPort[0] = sysconfig.httpport;
 
-if( sysconfig.autoresume )
-ticks.autostart = sysconfig.autoresume;
+} else {
+	if (ini_parse(file, tickconfig_handler, &ticks ) < 0) {
+	        printf("Can't load '%s'\n", file);
+		return 0;
+	}
+}
+
+
+return 1;
+}
+
+int savetickconfig() {
+	FILE *file;
+
+file = fopen( COREDIRECTORY "/ticks.ini", "r+" );
+if(!file)
+	file = fopen( COREDIRECTORY "/ticks.ini", "w" );
+if(file) {
+	fprintf( file, ";Auto generated, there should be no need to edit this file!\n" );
+	fprintf( file, "[ticks]\n" );
+	fprintf( file, "status=%s\n", ( ticks.status ? "true" : "false" ) );
+	fprintf( file, "number=%d\n", ticks.number );
+	fprintf( file, "next=%d\n", ticks.next );
+	fprintf( file, "debug_id=%d\n", ticks.debug_id );
+	fprintf( file, "debug_pass=%d\n", ticks.debug_pass );
+	fflush( file );
+	fclose( file );
+}
 
 
 return 1;
@@ -1173,16 +1201,25 @@ return 1;
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[256];
 	int num, pipeserver, pipeclient;
+	// OK, so can you see what I've done here? Sneaky eh? Hehe =P
+	#ifdef HAHA_MY_INFO_IS_HIDDEN
+	char file[] = "config.nogit.ini";
+	#else
+	char file[] = "config.ini";
+	#endif
 
-// OK, so can you see what I've done here? Sneaky eh? Hehe =P
-#ifdef HAHA_MY_INFO_IS_HIDDEN
-char file[] = "config.nogit.ini";
-#else
-char file[] = "config.ini";
-#endif
+sprintf( DIRCHECKER, "%s/ticks.ini", COREDIRECTORY );	
+if( !(loadconfig(DIRCHECKER,0)) ) {
+	ticks.number = 0;
+	sysconfig.ticktime = 0;
+	ticks.next = 0;
+	ticks.status = false;
+	ticks.debug_id = 0;
+	ticks.debug_pass = 0;
+}
 
-if( !(loadconfig(file)) ) {
-	printf("Error loading config... please check the logs.\n");
+if( !(loadconfig(file,1)) ) {
+	printf("Error loading system config... please check the logs.\n");
 	return 1;
 }
 

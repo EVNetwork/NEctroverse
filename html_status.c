@@ -127,7 +127,7 @@ if( sysinfo(&si) != 0 ) {
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
   svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
   svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
-    svSendPrintf( cnt, "Tick time : %d seconds<br>", ticks.time );
+    svSendPrintf( cnt, "Tick time : %d seconds<br>", sysconfig.ticktime );
  if( ticks.status )
     svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( ticks.next - time(0) ) );
   else
