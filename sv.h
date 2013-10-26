@@ -6,6 +6,9 @@ typedef struct {
 	//server
 	char* servername;
 	char* directory;
+	char* httpimages;
+	char* httpfiles;
+	char* pubforum;
 	int httpport;
 	int stockpile;
 	int warend;
@@ -16,28 +19,38 @@ typedef struct {
 	//evmap
 	bool evmpactv;
 	int evmpport;
-	//admin
-	char* admin_name;
-	char* admin_faction;
-	char* admin_password;
-	char* admin_forumtag;
-	int admin_empire_number;
-	char* admin_empire_name;
-	char* admin_empire_password;
-	int admin_level;
-	int admin_race;
-	//mysql
-	bool mysqlactv;
-	char* mysql_host;
-	char* mysql_user;
-	char* mysql_password;
-	char* mysql_database;
 	//syslog
 	char* syslog_tagname;
 	char* syslog_facility;
 } configDef, *configPtr;
 
 extern configDef sysconfig;
+
+typedef struct {
+	//admin
+	char* name;
+	char* faction;
+	char* password;
+	char* forumtag;
+	int empire_number;
+	char* empire_name;
+	char* empire_password;
+	int level;
+	int race;
+} adminDef, *adminPtr;
+
+extern adminDef admincfg;
+
+typedef struct {
+	//mysql
+	bool active;
+	char* host;
+	char* user;
+	char* password;
+	char* database;
+} mySqlDef, *mySqlPtr;
+
+extern mySqlDef mysqlcfg;
 
 
 typedef struct {

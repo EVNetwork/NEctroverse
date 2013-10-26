@@ -451,7 +451,7 @@ iohttpFunc_frontmenu( cnt, 3 );
 	  {
 	  	if(forum>100)
 	  	{
-			sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
+			sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
 	  		fFile = fopen( COREDIR, "a+t" );
 		  	if( fFile )
 		 		{

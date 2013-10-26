@@ -53,7 +53,7 @@ syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
   //copy this file into the 10 min db
   //actualy copy an empty file
   
- 	sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", COREDIRECTORY, a, COREDIRECTORY, a);
+ 	sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", sysconfig.directory, a, sysconfig.directory, a);
   system(szCommmand);
 
   return a;

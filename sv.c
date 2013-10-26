@@ -10,6 +10,8 @@ fd_set svSelectWrite;
 fd_set svSelectError;
 
 configDef sysconfig;
+adminDef admincfg;
+mySqlDef mysqlcfg;
 tickDef ticks;
 
 int SV_INTERFACES = 2;
@@ -933,7 +935,7 @@ if( !( cmdInit() ) )  {
 	syslog(LOG_ERR, "Basic Iniation failed, exiting\n");
 	return 0;
 }
-sprintf( DIRCHECKER, "%s/data", COREDIRECTORY );  
+sprintf( DIRCHECKER, "%s/data", sysconfig.directory );  
 if( chdir( DIRCHECKER ) == -1 ) {
 	if( svShellMode )
 	printf("Change into Database Dir Failed, exiting\n");
@@ -1073,6 +1075,12 @@ if (MATCH("system", "port")) {
 	pconfig->servername = strdup(value);
 } else if (MATCH("system", "directory")) {
 	pconfig->directory = strdup(value);
+} else if (MATCH("system", "httpimages")) {
+	pconfig->httpimages = strdup(value);
+} else if (MATCH("system", "httpfiles")) {
+	pconfig->httpfiles = strdup(value);
+} else if (MATCH("system", "publicforum")) {
+	pconfig->pubforum = strdup(value);
 } else if (MATCH("system", "round")) {
 	pconfig->round = atoi(value);
 } else if (MATCH("system", "tick_time")) {
@@ -1089,38 +1097,60 @@ if (MATCH("system", "port")) {
 	pconfig->evmpport = atoi(value);
 } else if (MATCH("evmap", "enabled")) {
         pconfig->evmpactv = strcmp(value,"false") ? true : false;
-} else if (MATCH("admin", "name")) {
-        pconfig->admin_name = strdup(value);
-} else if (MATCH("admin", "faction")) {
-        pconfig->admin_faction = strdup(value);
-} else if (MATCH("admin", "forumtag")) {
-        pconfig->admin_forumtag = strdup(value);
-} else if (MATCH("admin", "password")) {
-        pconfig->admin_password = strdup(value);
-} else if (MATCH("admin", "level")) {
-        pconfig->admin_level = atoi(value);
-} else if (MATCH("admin", "race")) {
-        pconfig->admin_race = atoi(value);
-} else if (MATCH("admin_empire", "number")) {
-        pconfig->admin_empire_number = atoi(value);
-} else if (MATCH("admin_empire", "name")) {
-        pconfig->admin_empire_name = strdup(value);
-} else if (MATCH("admin_empire", "password")) {
-        pconfig->admin_empire_password = strdup(value);
-} else if (MATCH("mysql", "enabled")) {
-        pconfig->mysqlactv = strcmp(value,"false") ? true : false;
-} else if (MATCH("mysql", "host")) {
-        pconfig->mysql_host = strdup(value);
-} else if (MATCH("mysql", "user")) {
-        pconfig->mysql_user = strdup(value);
-} else if (MATCH("mysql", "password")) {
-        pconfig->mysql_password = strdup(value);
-} else if (MATCH("mysql", "database")) {
-        pconfig->mysql_database = strdup(value);
 } else if (MATCH("syslog", "tag")) {
         pconfig->syslog_tagname = strdup(value);
 } else if (MATCH("syslog", "facility")) {
         pconfig->syslog_facility = strdup(value);
+} else {
+        return 0;
+}
+
+return 1;
+}
+
+static int adminconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
+	adminPtr pconfig = (adminPtr)fconfig;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+if (MATCH("admin", "name")) {
+        pconfig->name = strdup(value);
+} else if (MATCH("admin", "faction")) {
+        pconfig->faction = strdup(value);
+} else if (MATCH("admin", "forumtag")) {
+        pconfig->forumtag = strdup(value);
+} else if (MATCH("admin", "password")) {
+        pconfig->password = strdup(value);
+} else if (MATCH("admin", "level")) {
+        pconfig->level = atoi(value);
+} else if (MATCH("admin", "race")) {
+        pconfig->race = atoi(value);
+} else if (MATCH("admin_empire", "number")) {
+        pconfig->empire_number = atoi(value);
+} else if (MATCH("admin_empire", "name")) {
+        pconfig->empire_name = strdup(value);
+} else if (MATCH("admin_empire", "password")) {
+        pconfig->empire_password = strdup(value);
+} else {
+        return 0;
+}
+
+return 1;
+}
+
+static int mysqlconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
+	mySqlPtr pconfig = (mySqlPtr)fconfig;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+if (MATCH("mysql", "enabled")) {
+        pconfig->active = strcmp(value,"false") ? true : false;
+} else if (MATCH("mysql", "host")) {
+        pconfig->host = strdup(value);
+} else if (MATCH("mysql", "user")) {
+        pconfig->user = strdup(value);
+} else if (MATCH("mysql", "password")) {
+        pconfig->password = strdup(value);
+} else if (MATCH("mysql", "database")) {
+        pconfig->database = strdup(value);
 } else {
         return 0;
 }
@@ -1154,6 +1184,16 @@ int loadconfig( char *file, int type ) {
 
 if(type) {
 	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
+		syslog(LOG_ERR, "Config Error: can not load \"%s\"\n", file );
+        	printf("Config Error: can not load \"%s\"\n", file);
+		return 0;
+	}
+	if (ini_parse(file, adminconfig_handler, &admincfg) < 0) {
+		syslog(LOG_ERR, "Config Error: can not load \"%s\"\n", file );
+        	printf("Config Error: can not load \"%s\"\n", file);
+		return 0;
+	}
+	if (ini_parse(file, mysqlconfig_handler, &mysqlcfg) < 0) {
 		syslog(LOG_ERR, "Config Error: can not load \"%s\"\n", file );
         	printf("Config Error: can not load \"%s\"\n", file);
 		return 0;
@@ -1203,11 +1243,13 @@ return 1;
 }
 
 int savetickconfig() {
+	char DIRCHECKER[256];
 	FILE *file;
 
-file = fopen( COREDIRECTORY "/ticks.ini", "r+" );
+sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
+file = fopen( DIRCHECKER, "r+" );
 if(!file)
-	file = fopen( COREDIRECTORY "/ticks.ini", "w" );
+	file = fopen( DIRCHECKER, "w" );
 if(file) {
 	fprintf( file, ";Auto generated, there should be no need to edit this file!\n" );
 	fprintf( file, "[ticks]\n" );
@@ -1236,7 +1278,7 @@ int main( int argc, char *argv[] ) {
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
-sprintf( DIRCHECKER, "%s/ticks.ini", COREDIRECTORY );
+sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 if( !(loadconfig(DIRCHECKER,0)) ) {
 	ticks.status = false;
 	ticks.number = 0;
@@ -1264,16 +1306,16 @@ svShellMode = strcmp(argv[1],"shell") ? 0 : 1;
 
 dirstructurecheck(TMPDIR);
 //check basic dir structure and create as needed.	
-sprintf( DIRCHECKER, "%s/data", COREDIRECTORY );
+sprintf( DIRCHECKER, "%s/data", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/users", COREDIRECTORY );
+sprintf( DIRCHECKER, "%s/users", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/logs", COREDIRECTORY );
+sprintf( DIRCHECKER, "%s/logs", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
 //well its not really public yet now is it... <<<WORKNEEDED>>>
-sprintf( DIRCHECKER, "%s/forum", COREDIRECTORY );
+sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/data/map", COREDIRECTORY );
+sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 printf("\n");
 
 if( !( file_exist(DIRCHECKER) ) ) {

@@ -90,6 +90,7 @@ void iohttpBase( svConnectionPtr cnt, int flags ) {
 	FILE *file;
 	struct stat stdata;
 	char *data;
+	char DIRCHECKER[256];
 	
 svSendString( cnt, "Content-Type: text/html\n\n" );
 svSendString( cnt, "<html><head>");
@@ -99,11 +100,11 @@ if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
  
 svSendString( cnt, "<style type=\"text/css\">" );
-
-if( stat( IOHTTP_READ_DIRECTORY "/style.css", &stdata ) != -1 ) {
+sprintf( DIRCHECKER, "%s/style.css", sysconfig.httpfiles );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/style.css", "rb" ) ) ) {
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			fread( data, 1, stdata.st_size, file );
 			svSendString( cnt, data );
 			fclose( file );
@@ -435,7 +436,7 @@ iohttpFunc_frontmenu( cnt, 2 );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
 
-  sprintf( COREDIR, "%s/logs/register", COREDIRECTORY );
+  sprintf( COREDIR, "%s/logs/register", sysconfig.directory );
   if( ( file = fopen( COREDIR, "ab" ) ) )
   {
    //fprintf( file, "Register ID %d ( %x )\n", id, id );
@@ -544,7 +545,8 @@ iohttpFunc_endhtml( cnt );
 
 void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
 	struct stat stdata;
-	char *data;	
+	char *data;
+	char DIRCHECKER[256];
 	FILE *file;
 
 iohttpBase( cnt, 1|8 );
@@ -554,10 +556,11 @@ iohttpFunc_frontmenu( cnt, 0 );
 if( strlen(text) ) {
 	svSendPrintf( cnt, "<br>%s", text );
 	if( flag ) {
-		if( stat( IOHTTP_READ_DIRECTORY "/login.txt", &stdata ) != -1 ) {
+		sprintf( DIRCHECKER, "%s/login.txt", sysconfig.httpfiles );
+		if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 				data[stdata.st_size] = 0;
-				if( ( file = fopen( IOHTTP_READ_DIRECTORY "/login.txt", "rb" ) ) ) {
+				if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 					if( stdata.st_size > 0 ) {
 						svSendString( cnt, "<br>" );
 						while( fgets( data, stdata.st_size, file ) != NULL ) {
@@ -613,6 +616,7 @@ void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
 	dbUserMainDef maind;
 	struct stat stdata;
 	char *data;
+	char DIRCHECKER[256];
 	FILE *file;
 	int id;
 
@@ -633,10 +637,11 @@ svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"40%\" valign=\"t
 
 //notices
 int lines = 0;
-if( stat( IOHTTP_READ_DIRECTORY "/updates.txt", &stdata ) != -1 ) {
+sprintf( DIRCHECKER, "%s/updates.txt", sysconfig.httpfiles );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/updates.txt", "rb" ) ) ) {
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if(lines == 0) {
@@ -686,11 +691,11 @@ if( (id < 0) || (strlen(text)) ) {
 }
 
 svSendString( cnt, "</td></tr></table>" );
-
-if( stat( IOHTTP_READ_DIRECTORY "/todo.txt", &stdata ) != -1 ) {
+sprintf( DIRCHECKER, "%s/todo.txt", sysconfig.httpfiles );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/todo.txt", "rb" ) ) ) {
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
 			svSendString( cnt, "<i>Items on the admins to-do list :</i>" );
 			svSendString( cnt, "<br>" );
@@ -738,7 +743,8 @@ return;
 
 void iohttpFunc_faq( svConnectionPtr cnt ) {
 	struct stat stdata;
-	char *data;	
+	char *data;
+	char DIRCHECKER[256];
 	FILE *file;
 
 iohttpBase( cnt, 1|8 );
@@ -747,11 +753,11 @@ iohttpFunc_frontmenu( cnt, 4 );
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
-
-if( stat( IOHTTP_READ_DIRECTORY "/faq.html", &stdata ) != -1 ) {
+sprintf( DIRCHECKER, "%s/faq.html", sysconfig.httpfiles );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/faq.html", "rb" ) ) ) {
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			fread( data, 1, stdata.st_size, file );
 			svSendString( cnt, data );
 			fclose( file );
@@ -898,7 +904,8 @@ return;
 
 void iohttpFunc_halloffame( svConnectionPtr cnt ) {
 	struct stat stdata;
-	char *data;	
+	char *data;
+	char DIRCHECKER[256];
 	FILE *file;
 
 iohttpBase( cnt, 1|8 );
@@ -907,11 +914,11 @@ iohttpFunc_frontmenu( cnt, 6 );
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
-
-if( stat( IOHTTP_READ_DIRECTORY "/halloffame.html", &stdata ) != -1 ) {
+sprintf( DIRCHECKER, "%s/halloffame.html", sysconfig.httpfiles );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/halloffame.html", "rb" ) ) ) {
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			fread( data, 1, stdata.st_size, file );
 			svSendString( cnt, data );
 			fclose( file );

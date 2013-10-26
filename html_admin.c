@@ -250,7 +250,7 @@ void iohttpFunc_moderator( svConnectionPtr cnt )
     return;
   }
 
-sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
+sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     if( !( file = fopen( COREDIR, "a+t" ) ) )
         return;
 
@@ -1309,12 +1309,6 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
     for( user = dbUserList ; user ; user = user->next )
       cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
-
-		if( ( fFile = fopen( COREDIRECTORY "/ticks", "r+" ) ) )
-	  {
-	   fscanf( fFile, "%d", &a );
-	    fclose( fFile );
-	  }
   }
 
   if( action[13] )

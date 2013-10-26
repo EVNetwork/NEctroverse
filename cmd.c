@@ -2256,29 +2256,29 @@ int cmdInit() {
 	dbUserMainDef maind;
 	dbMainEmpireDef empired;
 
-if( ( id = dbUserSearch( sysconfig.admin_name ) ) >= 0 )
+if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;
 
 if( svShellMode )
-	printf("Creating Administrator account named: \"%s\"\n", sysconfig.admin_name );
-syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", sysconfig.admin_name );
-if( ( id = cmdExecNewUser( sysconfig.admin_name, sysconfig.admin_password, sysconfig.admin_faction ) ) < 0 ) {
+	printf("Creating Administrator account named: \"%s\"\n", admincfg.name );
+syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", admincfg.name );
+if( ( id = cmdExecNewUser( admincfg.name, admincfg.password, admincfg.faction ) ) < 0 ) {
 	if( svShellMode )
-		printf("Failure Creating Administrator account: \"%s\"\n", sysconfig.admin_name );
-	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", sysconfig.admin_name );
+		printf("Failure Creating Administrator account: \"%s\"\n", admincfg.name );
+	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", admincfg.name );
 }
 user = dbUserLinkID( id );
 user->flags = 0;
-user->level = sysconfig.admin_level;
+user->level = admincfg.level;
 dbUserSave( id, user );
 dbUserMainRetrieve(id, &maind);
-sprintf( maind.forumtag, "%s", sysconfig.admin_forumtag );
+sprintf( maind.forumtag, "%s", admincfg.forumtag );
 dbUserMainSet(id, &maind);
 
-if( cmdExecNewUserEmpire( id, sysconfig.admin_empire_number, sysconfig.admin_empire_password, sysconfig.admin_race, sysconfig.admin_level ) < 0 ) {
+if( cmdExecNewUserEmpire( id, admincfg.empire_number, admincfg.empire_password, admincfg.race, admincfg.level ) < 0 ) {
 	if( svShellMode )
-		printf("Failure Placing Administrator account: \"%s\"\n", sysconfig.admin_name );
-	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", sysconfig.admin_name );
+		printf("Failure Placing Administrator account: \"%s\"\n", admincfg.name );
+	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );
 }
 	
 dbFlush();

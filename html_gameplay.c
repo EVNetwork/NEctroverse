@@ -17,7 +17,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  pass = iohttpVarsFind( "pass" );
  iohttpVarsCut();
 
- sprintf( COREDIR, "%s/logs/login", COREDIRECTORY );
+ sprintf( COREDIR, "%s/logs/login", sysconfig.directory );
  if( ( file = fopen( COREDIR, "ab" ) ) )
  {
   a = time( 0 )-(3600*SERVER_TIME_ZONE);
@@ -1320,6 +1320,7 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  struct stat stdata;
  char *data;
  char message[4096];
+ char DIRCHECKER[256];
 
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1342,11 +1343,11 @@ void iohttpFunc_hq( svConnectionPtr cnt )
 	
  svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : %d<br>Population : %lld0<br>Networth : %lld</td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
  svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : %d%%<br>Psychics readiness : %d%%<br>Agents readiness : %d%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[0] >> 16, maind.readiness[1] >> 16, maind.readiness[2] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
-
- if( stat( IOHTTP_READ_DIRECTORY "/hq.txt", &stdata ) != -1 ) {
+sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpfiles );
+ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
-		if( ( file = fopen( IOHTTP_READ_DIRECTORY "/hq.txt", "rb" ) ) ) {
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
 				svSendString( cnt, "<table width=\"80%\" border=\"1\"><tr><td align=\"center\">" );
 				svSendString( cnt, "<i>Message from Administration:</i><br><br>" );
@@ -2594,7 +2595,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
    curfam = maind.empire;
   if(cnt->dbuser->level >= LEVEL_MODERATOR)
  	{
-		sprintf( COREDIR, "%s/logs/modlog.txt", COREDIRECTORY );
+		sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
  		fFile = fopen( COREDIR, "a+t" );
  		if( fFile )
  		{
@@ -2810,7 +2811,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
    }
    b = iohttpMimeFind( filename );
   }
-  sprintf( fname, IOHTTP_FILES_DIRECTORY "/fampic%02d", curfam );
+  sprintf( fname, "%s/fampic%02d", sysconfig.httpimages, curfam );
   if( ( file = fopen( fname, "wb" ) ) )
   {
    fwrite( fampic, 1, filesize, file );
@@ -7077,7 +7078,7 @@ iohttpFunc_frontmenu( cnt, 0 );
 }
 
 iohttpBodyInit( cnt, "Faction rankings" );
-sprintf( COREDIR, "%s/data/ranks.txt", COREDIRECTORY );
+sprintf( COREDIR, "%s/data/ranks.txt", sysconfig.directory );
 // svSendString( cnt, "<table cellspacing=\"4\"><tr><td>Rank</td><td>Faction</td><td>Empire</td><td>Planets</td><td>Networth</td></tr>" );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -7114,7 +7115,7 @@ iohttpFunc_frontmenu( cnt, 0 );
 }
 
 iohttpBodyInit( cnt, "Empire rankings" );
-sprintf( COREDIR, "%s/data/famranks.txt", COREDIRECTORY );
+sprintf( COREDIR, "%s/data/famranks.txt", sysconfig.directory );
 // svSendString( cnt, "<table cellspacing=\"4\"><tr><td align=\"right\">Rank</td><td>Name</td><td>Planets</td><td>Players</td><td>Networth</td></tr>" );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -7141,7 +7142,7 @@ void iohttpFunc_ptrankings( svConnectionPtr cnt ) {
 	char COREDIR[256];
 
 svSendString( cnt, "Content-type: text/plain\n\n" );
-sprintf( COREDIR, "%s/data/ranksplain.txt", COREDIRECTORY );
+sprintf( COREDIR, "%s/data/ranksplain.txt", sysconfig.directory );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -7164,7 +7165,7 @@ void iohttpFunc_ptfamranks( svConnectionPtr cnt ) {
 	char COREDIR[256];
  
 svSendString( cnt, "Content-type: text/plain\n\n" );
-sprintf( COREDIR, "%s/data/famranksplain.txt", COREDIRECTORY );
+sprintf( COREDIR, "%s/data/famranksplain.txt", sysconfig.directory );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;

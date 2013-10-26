@@ -171,7 +171,7 @@ memset( &systemd, 0, sizeof(dbMainSystemDef) );
 memset( &planetd, 0, sizeof(dbMainPlanetDef) );
 memset( &empired, 0, sizeof(dbMainEmpireDef) );
 
-sprintf( fname, "%s/data", COREDIRECTORY );
+sprintf( fname, "%s/data", sysconfig.directory );
 dirstructurecheck(fname);
 
 srand( time( 0 ) );
@@ -244,7 +244,8 @@ for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
 
 
 // OK, a new headers write.
-file = fopen( COREDIRECTORY "/data/map", "wb" );
+sprintf( fname, "%s/data/map", sysconfig.directory );
+file = fopen( fname, "wb" );
 mapd.sizex = MAP_SIZEX;
 mapd.sizey = MAP_SIZEY;
 mapd.systems = MAP_SYSTEMS;
@@ -337,13 +338,13 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 // New families generation, based on defaults.
 for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired = dbEmpireDefault;
-	if( ( sysconfig.admin_empire_number == a ) && ( strlen(sysconfig.admin_empire_password) ) ) {
-		if( strlen(sysconfig.admin_empire_name) )
-		strcpy( empired.name, sysconfig.admin_empire_name);
+	if( ( admincfg.empire_number == a ) && ( strlen(admincfg.empire_password) ) ) {
+		if( strlen(admincfg.empire_name) )
+		strcpy( empired.name, admincfg.empire_name);
 		else
 		strcpy( empired.name, "Administration");
-		if( strlen(sysconfig.admin_empire_password) )
-			strcpy(empired.password, hashencrypt(sysconfig.admin_empire_password) );
+		if( strlen(admincfg.empire_password) )
+			strcpy(empired.password, hashencrypt(admincfg.empire_password) );
 		if( svShellMode )
 		printf("Empire %d Claimed for Administration.\n", a);
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);
@@ -352,7 +353,7 @@ for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 	empired.homepos = system_pos[ empire_system[a] ];
 	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
 // <<WORKNEEDED>>
-	sprintf( fname, COREDIRECTORY "/data/fam%dnews", a );
+	sprintf( fname, "%s/data/fam%dnews", sysconfig.directory, a );
 	file2 = fopen( fname, "wb" );
 	j = 0;
 	fwrite( &j, 1, sizeof(long long int), file2 );
@@ -402,7 +403,7 @@ if(mapgen.width > MAP_SIZEX) {
 	mapgen.data = pixels;
 }
 
-sprintf( fname, IOHTTP_FILES_DIRECTORY "/galaxyr%d.png", sysconfig.round );
+sprintf( fname, "%s/galaxyr%d.png", sysconfig.httpimages, sysconfig.round );
 imgWritePngFile( fname, &mapgen );
 free(pixels);
 

@@ -32,24 +32,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#ifndef COREDIRECTORY
-#define COREDIRECTORY "/home/stephen/git/NEctroverse/core"
-#endif
-
-//IOHTTP_*_DIRECTORY MUST exist with content... since they have files we need.
-#ifndef IOHTTP_FILES_DIRECTORY
-#define IOHTTP_FILES_DIRECTORY "/home/stephen/git/NEctroverse/html/images"
-#endif
-
-#ifndef IOHTTP_READ_DIRECTORY
-#define IOHTTP_READ_DIRECTORY "/home/stephen/git/NEctroverse/html/docs"
-#endif
-
-//we want to change this latter... no real "Public" forums.
-#ifndef PUBLIC_FORUM_DIRECTORY
-#define PUBLIC_FORUM_DIRECTORY "/home/stephen/git/NEctroverse/core/data"
-#endif
-
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT
 #define SERVER_REPORT_CONNECT 0
@@ -62,22 +44,6 @@
 
 #ifndef SERVER_REPORT_IGNOREDHEADER
 #define SERVER_REPORT_IGNOREDHEADER 0
-#endif
-
-#ifndef CT_TO_SECS
-#define CT_TO_SECS(x) ((x)/HZ)
-#endif
-
-#ifndef TMPDIR
-#define TMPDIR "/tmp/evcore"
-#endif
-
-#ifndef TIMES
-#define TIMES
-static const long minute = 60;
-static const long hour = (60 * 60);
-static const long day = ((60*60) * 24);
-static const double megabyte = (1024 * 1024);
 #endif
 
 #ifndef SERVER_RECV_BUFSIZE
@@ -98,6 +64,22 @@ static const double megabyte = (1024 * 1024);
 
 #ifndef SERVER_TIME_ZONE
 #define SERVER_TIME_ZONE 0
+#endif
+
+#ifndef CT_TO_SECS
+#define CT_TO_SECS(x) ((x)/HZ)
+#endif
+
+#ifndef TMPDIR
+#define TMPDIR "/tmp/evcore"
+#endif
+
+#ifndef TIMES
+#define TIMES
+static const long minute = 60;
+static const long hour = (60 * 60);
+static const long day = ((60*60) * 24);
+static const double megabyte = (1024 * 1024);
 #endif
 
 #ifndef HASHINCLUDES

@@ -98,12 +98,13 @@ void InitHTTP()
   FILE *fd;
   dbMainEmpireDef empired;
 
-  if( chdir( IOHTTP_FILES_DIRECTORY ) == -1 )
+
+  if( chdir( sysconfig.httpimages ) == -1 )
   {
-    printf( "Error %d, chdir, Dir : %s\n", errno, IOHTTP_FILES_DIRECTORY );
+    printf( "Error %d, chdir, Dir : %s\n", errno, sysconfig.httpimages );
     return;
   }
-  if( !( dirdata = opendir( IOHTTP_FILES_DIRECTORY ) ) )
+  if( !( dirdata = opendir( sysconfig.httpimages ) ) )
   {
     printf( "Error %03d, opendir\n", errno );
     return;
@@ -133,7 +134,7 @@ void InitHTTP()
     fclose( fd );
   }
   closedir( dirdata );
-sprintf( COREDIR, "%s/data", COREDIRECTORY );
+sprintf( COREDIR, "%s/data", sysconfig.directory );
   if( chdir( COREDIR ) != -1 )
   {
     for( file = iohttpFileList ; file ; file = file->next )
@@ -753,7 +754,7 @@ fflush( stdout );
     svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
     svSendString( cnt, "Pragma: no-cache\n" );
     svSendString( cnt, "Content-Type: text/html\n\n" );
-    sprintf( path, IOHTTP_READ_DIRECTORY "/%s", file->fileread );
+    sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
     if( stat( path, &stdata ) == -1 )
       goto outSendReplyHTTPL0;
     if( !( data = malloc( stdata.st_size + 1 ) ) )
