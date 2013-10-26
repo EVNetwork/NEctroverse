@@ -1349,12 +1349,13 @@ sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpfiles );
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
-				svSendString( cnt, "<table width=\"80%\" border=\"1\"><tr><td align=\"center\">" );
-				svSendString( cnt, "<i>Message from Administration:</i><br><br>" );
+				svSendString( cnt, "<table width=\"80%\"><tr><td align=\"center\">" );
+				svSendString( cnt, "<div class=\"genwhite\"><i>Message from Administration:</i></div>" );
+				svSendString( cnt, "<div class=\"quote\"><br>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					svSendPrintf( cnt, "%s<br>", data );
 				}
-				svSendString( cnt, "<br></td></tr></table><br>" );
+				svSendString( cnt, "<br></div></td></tr></table><br>" );
 			}
 			fclose( file );
 		}
@@ -1464,25 +1465,26 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\">+%lld</td></tr>", maind.infos[8] );
  svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[7] );
  svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[11] );
- svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\">%+lld</td></tr>", maind.infos[CMD_RESSOURCE_ENERGY] );
+ svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_ENERGY] );
 
  svSendString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
- svSendPrintf( cnt, "<tr><td>Mineral produced</td><td>+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
- svSendPrintf( cnt, "<tr><td>Crystal produced</td><td>+%lld</td></tr>", maind.infos[9] );
- svSendPrintf( cnt, "<tr><td>Crystal decayed</td><td>-%lld</td></tr>", maind.infos[10] );
- svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td>+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
+ svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
+ svSendPrintf( cnt, "<tr><td>Crystal produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[9] );
+ svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[10] );
+ svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( (maind.infos[9] - maind.infos[10]) < 0 ) ? " class=\"genred\"" : "" ), (maind.infos[9] - maind.infos[10]) );
+ svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
 
  svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
- svSendString( cnt, "<b>Buildings</b><br>" );
+ svSendString( cnt, "<b>Buildings</b><br><table>" );
  for( a = b = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
  {
-  svSendPrintf( cnt, "%s : %lld<br>", cmdBuildingName[a], maind.totalbuilding[a] );
+  svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\">%lld</td></tr>", cmdBuildingName[a], maind.totalbuilding[a] );
   b += (int)maind.totalbuilding[a];
  }
- svSendPrintf( cnt, "Total : %d<br><br>", b );
+ svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
  svSendString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
  memset( sums, 0, 16*sizeof(int) );
  svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
@@ -1513,13 +1515,13 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  svSendString( cnt, "</td><td align=\"center\" valign=\"top\">" );
 
- svSendString( cnt, "<b>Units</b><br>" );
+ svSendString( cnt, "<b>Units</b><br><table>" );
  for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
-  svSendPrintf( cnt, "%s : %lld <br>", cmdUnitName[a], maind.totalunit[a] );
+  svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\">%lld</td></tr>", cmdUnitName[a], maind.totalunit[a] );
   b += (int)maind.totalunit[a];
  }
- svSendPrintf( cnt, "Total : %d<br><br>", b );
+ svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
  svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
  svSendString( cnt, "<script language=\"javascript\">function togglem() { for(i=0;i<document.forms[1].length;i++) if(document.forms[1].elements[i].type == \"checkbox\") document.forms[1].elements[i].click(); }</script>" );
  
@@ -1852,7 +1854,7 @@ void iohttpFunc_planets( svConnectionPtr cnt )
  int totals[7];
  float totalob;
  char *sortstring;
-
+ static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1964,7 +1966,7 @@ else
   if( d >= 0 )
    svSendPrintf( cnt, " <img src=\"%s\">", artefactImage[d] );
   else if(planetd.special[1])
-  	svSendPrintf( cnt, " <img src=\"pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
+  	svSendPrintf( cnt, " <img src=\"pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], bonusname[planetd.special[0]], bonusname[planetd.special[0]], planetd.special[1] );
 
   svSendPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;

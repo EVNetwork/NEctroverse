@@ -59,8 +59,35 @@ body,td{
 	background-attachment:fixed;
 }
 
-.genblue { 
+.genmed { 
+	font-size : 11px;
+}
+.gensmall {
+	font-size : 10px;
+}
+.genwhite { 
 	font-size : 12px; 
+}
+.genmedwhite { 
+	font-size : 11px; 
+}
+.gensmallwhite { 
+	font-size : 10px; 
+}
+.genwhite,.genmedwhite,.gensmallwhite {
+	color : #FFFFFF;
+}
+.genred { 
+	font-size : 12px; 
+}
+.genmedred { 
+	font-size : 11px; 
+}
+.gensmallred { 
+	font-size : 10px; 
+}
+.genred,.genmedred,.gensmallred {
+	color : #880000;
 }
 .genmedblue { 
 	font-size : 11px; 
@@ -70,9 +97,6 @@ body,td{
 }
 .genblue,.genmedblue,.gensmallblue {
 	color : #006699;
-}
-.genblack { 
-	font-size : 12px; 
 }
 .genmedblack { 
 	font-size : 11px; 
@@ -107,4 +131,8 @@ body,td{
 	border-right-width: 1px;
 	border-bottom-width: 1px
 }
+.dotted {
+    border-bottom: 1px dotted #ccc;
+}
+
 
