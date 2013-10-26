@@ -9,7 +9,7 @@ You can find the original source code at https://github.com/ectroverse/evsource
 
 
 To install the game:<br>
-Edit config.ini and change as required.<br>
+Edit evconfig.ini and change as required.<br>
 
 Additional Librarys needed for optinal components:
 * build-essentials -- needed, but you should already have that.
@@ -27,7 +27,7 @@ Map creation is embeded into the core.
 NEctroverse can run in forked daemon mode, which does not require a shell.<br>
 This does not require any extra librarys, and will save logs via syslog feature.
 
-If port setting in config.ini is invalid or blanked out the server will default to port 9990.
+If port setting in evconfig.ini is invalid or blanked out the server will default to port 9990.
 
 KNOWN BUGS - Very annoying and need to go:
 * ... ?

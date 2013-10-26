@@ -19,7 +19,7 @@ DEFS = -ggdb
 #This is what enables the compile to read my real login info, I don't like even using a default.
 #I have *.nogit ignored by git commits... so I can use my real info withought breach.
 #If this file does not exist... it loads the default from config.h
-ifneq ($(wildcard svconfig.nogit.ini),) 
+ifneq ($(wildcard evconfig.nogit.ini),) 
 FLAGS += -DHAHA_MY_INFO_IS_HIDDEN
 endif
 

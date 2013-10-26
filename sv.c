@@ -1271,9 +1271,9 @@ int main( int argc, char *argv[] ) {
 	int num, pipeserver, pipeclient;
 	// OK, so can you see what I've done here? Sneaky eh? Hehe =P
 	#ifdef HAHA_MY_INFO_IS_HIDDEN
-	char file[] = "svconfig.nogit.ini";
+	char file[] = "evconfig.nogit.ini";
 	#else
-	char file[] = "svconfig.ini";
+	char file[] = "evconfig.ini";
 	#endif
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
