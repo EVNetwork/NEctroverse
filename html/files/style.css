@@ -43,7 +43,7 @@ a:hover{
 
 body {
 	background-color: #000000; color: #C0D0D8;
-	background-image : url(background2.gif);
+	background-image : url(images/background2.gif);
 	background-attachment:fixed;
 	font-size : 12px;
 	font-family:verdana,geneva,arial,helvetica,sans-serif;
@@ -55,7 +55,7 @@ body,td{
 .bodyline	{
 	margin:auto;
 	border: 1px #0075B2 solid;
-	background-image : url(mbg.gif);
+	background-image : url(images/mbg.gif);
 	background-attachment:fixed;
 }
 

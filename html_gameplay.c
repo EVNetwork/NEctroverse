@@ -83,7 +83,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_KILLED )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 4 );
+iohttpFunc_frontmenu( cnt, 1 );
    svSendString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
    num = dbUserNewsList( id, &newsp );
    newsd = newsp;
@@ -100,7 +100,7 @@ iohttpFunc_frontmenu( cnt, 4 );
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_DELETED )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 4 );
+iohttpFunc_frontmenu( cnt, 1 );
    svSendString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
    goto iohttpFunc_mainL1;
   }
@@ -115,7 +115,7 @@ iohttpFunc_frontmenu( cnt, 4 );
   if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 4 );
+iohttpFunc_frontmenu( cnt, 1 );
    svSendString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
    iohttpFunc_mainL1:
    svSendString( cnt, "<a href=\"forum\">Public Forums</a>" );
@@ -172,15 +172,15 @@ void iohttpFunc_menu( svConnectionPtr cnt )
  char szFaction[32];
  dbUserMainDef maind;
  svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"mbg.gif\">" );
+ svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
  if( dbUserMainRetrieve( id, &maind ) < 0 )
   maind.empire = -1;
 
- svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"i18.jpg\" width=\"150\"></td></tr><tr><td background=\"i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"images/i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
 
- svSendString( cnt, "<a href=\"hq\" target=\"main\">Headquarters</a></font></b></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<a href=\"hq\" target=\"main\">Headquarters</a></font></b></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
  svSendPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
  svSendString( cnt, "<a href=\"fleets\" target=\"main\">Fleets</a><br>" );
@@ -188,7 +188,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
  svSendString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
  svSendString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
 
- svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"i36.jpg\"><img height=\"15\" src=\"i53.jpg\" width=\"150\"></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"images/i36.jpg\"><img height=\"15\" src=\"images/i53.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"famranks\" target=\"main\">Empire rankings</a><br>" );
  svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
@@ -222,7 +222,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
    svSendString( cnt, "<br><a href=\"administration\" target=\"_top\">Admin panel</a>" );
  }
 
- svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"images/i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"images/i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
 
  return;
 }
@@ -966,7 +966,7 @@ void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, long long int *newsd 
  if( !( iohttpFamNewsEntryCount ) )
   svSendPrintf( cnt, " width=\"5%%\"" );
  if( picture >= 0 )
-  svSendPrintf( cnt, "><img src=\"fn%d.gif\"></td><td", picture );
+  svSendPrintf( cnt, "><img src=\"images/fn%d.gif\"></td><td", picture );
  else
   svSendPrintf( cnt, "><br></td><td" );
  if( !( iohttpFamNewsEntryCount ) )
@@ -1347,7 +1347,7 @@ void iohttpFunc_hq( svConnectionPtr cnt )
 	
  svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : %d<br>Population : %lld0<br>Networth : %lld</td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
  svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : %d%%<br>Psychics readiness : %d%%<br>Agents readiness : %d%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[0] >> 16, maind.readiness[1] >> 16, maind.readiness[2] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
-sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpfiles );
+sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
  if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -1622,7 +1622,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br>", cmdUnitName[a] );
 
    if( a < 5 )
-      svSendPrintf( cnt, "<img src=\"u%d.jpg\">", a );
+      svSendPrintf( cnt, "<img src=\"images/u%d.jpg\">", a );
 
   svSendString( cnt, "</td><td valign=\"top\" nowrap>" );
 
@@ -1924,7 +1924,7 @@ else
   for( c = d = 0 ; c < CMD_BLDG_NUMUSED ; c++ )
    d += planetd.building[c];
   if(planetd.flags & CMD_PLANET_FLAGS_BEACON)
-  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a><img src=\"beacon.jpg\"></td><td>%d</td><td>%d", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF, planetd.size, d );
+  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a><img src=\"images/beacon.jpg\"></td><td>%d</td><td>%d", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF, planetd.size, d );
   else
   	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a></td><td>%d</td><td>%d", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF, planetd.size, d );
   if( planetd.construction )
@@ -1970,9 +1970,9 @@ else
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   svSendPrintf( cnt, " <img src=\"%s\">", artefactImage[d] );
+   svSendPrintf( cnt, " <img src=\"images/%s\">", artefactImage[d] );
   else if(planetd.special[1])
-  	svSendPrintf( cnt, " <img src=\"pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], bonusname[planetd.special[0]], bonusname[planetd.special[0]], planetd.special[1] );
+  	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], bonusname[planetd.special[0]], bonusname[planetd.special[0]], planetd.special[1] );
 
   svSendPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;
@@ -2060,7 +2060,7 @@ iohttpFunc_frontmenu( cnt, 0 );
 
  sprintf( fname, "/fampic%02d%d", curfam, empired.pictime );
  if( iohttpFileFind( fname ) )
-  svSendPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
+  svSendPrintf( cnt, "<br><img src=\"images/%s\"><br>", &fname[1] );
 
  if( !( empired.numplayers ) )
  {
@@ -2185,7 +2185,7 @@ iohttpFunc_frontmenu( cnt, 0 );
   for( a = 0, b = 1 ; a < ARTEFACT_NUMUSED ; a++, b <<= 1 )
   {
    if( empired.artefacts & b )
-    svSendPrintf( cnt, "<img src=\"%s\"> %s<br>", artefactImage[a], artefactDescription[a] );
+    svSendPrintf( cnt, "<img src=\"images/%s\"> %s<br>", artefactImage[a], artefactDescription[a] );
   }
   svSendString( cnt, "</td></tr></table>" );
  }
@@ -2210,7 +2210,7 @@ iohttpFunc_frontmenu( cnt, 0 );
    {
    	if( empired.artefacts & b )
    	{
-   		svSendPrintf( cnt, "<img src=\"%s\"> %s<br>", artefactImage[a], artefactDescription[a] );
+   		svSendPrintf( cnt, "<img src=\"images/%s\"> %s<br>", artefactImage[a], artefactDescription[a] );
    	}
    }
    svSendString( cnt, "</td></tr></table>" );
@@ -3331,7 +3331,7 @@ void iohttpFunc_map( svConnectionPtr cnt )
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
     svSendPrintf( cnt, "<td><a href=\"system?id=%d\"", ( mapp[i] & 0xFFFF ) - 1 );
-    svSendPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
+    svSendPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"images/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )
@@ -3390,7 +3390,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"galaxyr%d.png\" ismap></a></td>", sysconfig.round );
+ svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"images/galaxyr%d.png\" ismap></a></td>", sysconfig.round );
  svSendPrintf( cnt, "<td height=\"%d\" align=\"left\" valign=\"top\"><b>0</b></td></tr>", a );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] >> 1 );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX], a, dbMapBInfoStatic[MAP_SIZEX] );
@@ -3543,7 +3543,7 @@ void iohttpFunc_system( svConnectionPtr cnt )
 
   svSendPrintf( cnt, "<td align=\"center\" width=\"%d%%\">", lns[b] );
   dbMapRetrievePlanet( plnid, &planetd );
-  svSendPrintf( cnt, "<a href=\"planet?id=%d\"><img src=\"p%02d.gif\" border=\"0\"></a><br>", plnid, pics[a] );
+  svSendPrintf( cnt, "<a href=\"planet?id=%d\"><img src=\"images/p%02d.gif\" border=\"0\"></a><br>", plnid, pics[a] );
 
   if( planetd.owner == -1 )
   {
@@ -3741,7 +3741,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  srand( planetd.system );
  for( a = 0 ; a < b ; a++ )
   rand();
- svSendPrintf( cnt, "<img src=\"p%02d.gif\" border=\"0\"><br><br>", rand() & 0xF );
+ svSendPrintf( cnt, "<img src=\"images/p%02d.gif\" border=\"0\"><br><br>", rand() & 0xF );
 
  if( unstationstring )
  {
@@ -5996,10 +5996,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
-      svSendPrintf( cnt, " <img src=\"%s\">", artefactImage[d] );
+      svSendPrintf( cnt, " <img src=\"images/%s\">", artefactImage[d] );
      
      if(planetd.special[1])
-     	svSendPrintf( cnt, " <img src=\"pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
+     	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
 
      svSendPrintf( cnt, "</td></tr>" );
      totals[3] += planetd.population;
@@ -6108,7 +6108,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
     svSendPrintf( cnt, "Size : %d<br>", planetd.size );
     d = (int)artefactPrecense( &planetd );
     if( d >= 0 )
-     svSendPrintf( cnt, "Artefact : <img src=\"%s\"><br>", artefactImage[d] );
+     svSendPrintf( cnt, "Artefact : <img src=\"images/%s\"><br>", artefactImage[d] );
     if( planetd.special[1] )
     {
      switch(planetd.special[0])
@@ -6125,7 +6125,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
      	case 3:
      		strcpy(szChaine, "Ectrolium");
      }
-     svSendPrintf( cnt, "%s : <img src=\"pr%d.gif\">+%d%%<br>", szChaine, planetd.special[0], planetd.special[1] );
+     svSendPrintf( cnt, "%s : <img src=\"images/pr%d.gif\">+%d%%<br>", szChaine, planetd.special[0], planetd.special[1] );
     }
     svSendPrintf( cnt, "Portal : %s<br><br>", ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ? "yes" : "no" );
    }

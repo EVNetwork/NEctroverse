@@ -71,7 +71,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
   if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto denied;
 
- svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"i18.jpg\" width=\"150\"></td></tr><tr><td background=\"i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
 
  svSendString( cnt, "<a href=\"adminforum\" target=\"main\">Forums</a></font></b></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
@@ -81,7 +81,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
  svSendString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
  svSendString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
 
- svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"i36.jpg\"><img height=\"15\" src=\"i53.jpg\" width=\"150\"></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"i36.jpg\"><img height=\"15\" src=\"images/i53.jpg\" width=\"150\"></td></tr><tr><td background=\"i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"famranks\" target=\"main\">Empire rankings</a><br>" );
  svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
@@ -92,7 +92,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
    svSendString( cnt, "<br><a href=\"/\" target=\"_top\">Mainpage</a>" );
 
 
- svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"images/i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"images/i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
 return;
  denied:
   svSendString( cnt, "You do not have administrator privileges." );

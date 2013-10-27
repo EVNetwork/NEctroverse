@@ -9,6 +9,7 @@ typedef struct {
 	char* downfrom;
 	char* httpimages;
 	char* httpfiles;
+	char* httpread;
 	char* pubforum;
 	int httpport;
 	int stockpile;

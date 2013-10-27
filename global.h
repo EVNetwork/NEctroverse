@@ -71,6 +71,18 @@
 #define CT_TO_SECS(x) ((x)/HZ)
 #endif
 
+#ifndef DEF_PI
+#define DEF_PI 3.14159265358979323846
+#endif
+
+#ifndef ANG_SIN
+#define ANG_SIN(x) sin((x*2*DEF_PI)/360.0)
+#endif
+
+#ifndef ANG_COS
+#define ANG_COS(x) cos((x*2*DEF_PI)/360.0)
+#endif
+
 #ifndef TMPDIR
 #define TMPDIR "/tmp/evcore"
 #endif

@@ -99,58 +99,62 @@ void InitHTTP()
   dbMainEmpireDef empired;
 
 
-  if( chdir( sysconfig.httpimages ) == -1 )
-  {
-    printf( "Error %d, chdir, Dir : %s\n", errno, sysconfig.httpimages );
-    return;
-  }
-  if( !( dirdata = opendir( sysconfig.httpimages ) ) )
-  {
-    printf( "Error %03d, opendir\n", errno );
-    return;
-  }
-  while( ( direntry = readdir( dirdata ) ) )
-  {
-    if( stat( direntry->d_name, &stdata ) == -1 )
-      continue;
-    if( !( S_ISREG( stdata.st_mode ) ) )
-      continue;
-    if( strlen(direntry->d_name) >= SERVER_PATH_BUFSIZE-1 )
-      continue;
-    if( !( fd = fopen( direntry->d_name, "rb" ) ) )
-      continue;
-    if( !( file = iohttpFileAdd( stdata.st_size ) ) )
-    {
-      printf( "Error %03d, malloc\n", errno );
-      fclose( fd );
-      continue;
-    }
-    file->type = 0;
-    file->path[0] = '/';
-    file->mime = iohttpMimeFind( direntry->d_name );
-    memcpy( &file->scurtime, &stdata.st_mtime, sizeof(time_t) );
-    sprintf( &file->path[1], direntry->d_name );
-    fread( file->data, 1, file->size, fd );
-    fclose( fd );
-  }
-  closedir( dirdata );
+if( chdir( sysconfig.httpimages ) == -1 ) {
+	printf( "Error %d, chdir, Dir : %s\n", errno, sysconfig.httpimages );
+	return;
+}
+if( !( dirdata = opendir( sysconfig.httpimages ) ) ) {
+	printf( "Error %03d, opendir\n", errno );
+	return;
+}
+while( ( direntry = readdir( dirdata ) ) ) {
+	if( stat( direntry->d_name, &stdata ) == -1 )
+		continue;
+	if( !( S_ISREG( stdata.st_mode ) ) )
+		continue;
+	if( strlen(direntry->d_name) >= SERVER_PATH_BUFSIZE-1 )
+		continue;
+	if( !( fd = fopen( direntry->d_name, "rb" ) ) )
+		continue;
+	if( !( file = iohttpFileAdd( stdata.st_size ) ) ) {
+		printf( "Error %03d, malloc\n", errno );
+		fclose( fd );
+		continue;
+	}
+	file->type = 0;
+	file->path[0] = '/';
+	file->mime = iohttpMimeFind( direntry->d_name );
+	memcpy( &file->scurtime, &stdata.st_mtime, sizeof(time_t) );
+	sprintf( &file->path[1], "images/%s", direntry->d_name );
+	fread( file->data, 1, file->size, fd );
+	fclose( fd );
+}
+closedir( dirdata );
+
+if( chdir( sysconfig.httpfiles ) == -1 ) {
+	printf( "Error %d, chdir, Dir : %s\n", errno, sysconfig.httpfiles );
+	return;
+}
+if( !( dirdata = opendir( sysconfig.httpfiles ) ) ) {
+	printf( "Error %03d, opendir\n", errno );
+	return;
+}
+
 sprintf( COREDIR, "%s/data", sysconfig.directory );
-  if( chdir( COREDIR ) != -1 )
-  {
-    for( file = iohttpFileList ; file ; file = file->next )
-    {
-      if( !( ioCompareFindWords( file->path, "/fampic" ) ) )
-        continue;
-      if( sscanf( &file->path[7], "%d", &a ) != 1 )
-        continue;
-      if( dbMapRetrieveEmpire( a, &empired ) < 0 )
-        continue;
-      if( (unsigned int)empired.picmime > IOHTTP_MIME_TYPES )
-        continue;
-      file->mime = empired.picmime;
-      sprintf( file->path, "/fampic%02d%d", a, empired.pictime );
-    }
-  }
+if( chdir( COREDIR ) != -1 ) {
+	for( file = iohttpFileList ; file ; file = file->next ) {
+		if( !( ioCompareFindWords( file->path, "/fampic" ) ) )
+			continue;
+		if( sscanf( &file->path[7], "%d", &a ) != 1 )
+			continue;
+		if( dbMapRetrieveEmpire( a, &empired ) < 0 )
+			continue;
+		if( (unsigned int)empired.picmime > IOHTTP_MIME_TYPES )
+			continue;
+		file->mime = empired.picmime;
+		sprintf( file->path, "/fampic%02d%d", a, empired.pictime );
+	}
+}
 
   // ahhaha... yes, we'll make a table
 
@@ -158,11 +162,6 @@ sprintf( COREDIR, "%s/data", sysconfig.directory );
   file->type = 1;
   file->function = iohttpFunc_front;
   sprintf( file->path, "/" );
-
-  file = iohttpFileAdd( 0 );
-  file->type = 2;
-  sprintf( file->path, "/possibilities" );
-  sprintf( file->fileread, "possibilities.html" );
 
   file = iohttpFileAdd( 0 );
   file->type = 1;
@@ -188,7 +187,6 @@ sprintf( COREDIR, "%s/data", sysconfig.directory );
   file->type = 1;
   file->function = iohttpFunc_races;
   sprintf( file->path, "/races" );
-
 
   file = iohttpFileAdd( 0 );
   file->type = 1;
@@ -436,18 +434,15 @@ sprintf( COREDIR, "%s/data", sysconfig.directory );
   file->function = iohttpFunc_incantsend;
   sprintf( file->path, "/incantsend" );
 
-
   file = iohttpFileAdd( 0 );
   file->type = 1;
   file->function = iohttpFunc_research;
   sprintf( file->path, "/research" );
 
-
   file = iohttpFileAdd( 0 );
   file->type = 1;
   file->function = iohttpFunc_mail;
   sprintf( file->path, "/mail" );
-
 
   file = iohttpFileAdd( 0 );
   file->type = 1;
@@ -468,7 +463,6 @@ sprintf( COREDIR, "%s/data", sysconfig.directory );
   file->type = 1;
   file->function = iohttpFunc_ptfamranks;
   sprintf( file->path, "/ptfamranks" );
-
 
   file = iohttpFileAdd( 0 );
   file->type = 1;
@@ -520,11 +514,6 @@ sprintf( COREDIR, "%s/data", sysconfig.directory );
   file->function = iohttpFunc_adminforum;
   sprintf( file->path, "/adminforum" );
 
-  file = iohttpFileAdd( 0 );
-  file->type = 2;
-  sprintf( file->path, "/chat" );
-  sprintf( file->fileread, "chat.html" );
-
   file = iohttpFileAdd(0);
   file->type = 1;
   file->function = iohttpForum;
@@ -539,7 +528,18 @@ sprintf( COREDIR, "%s/data", sysconfig.directory );
   file->type = 2;
   sprintf( file->path, "/stats" );
   sprintf( file->fileread, "stats.html" );
-  return;
+
+  file = iohttpFileAdd( 0 );
+  file->type = 2;
+  sprintf( file->path, "/chat" );
+  sprintf( file->fileread, "chat.html" );
+
+  file = iohttpFileAdd( 0 );
+  file->type = 2;
+  sprintf( file->path, "/style" );
+  sprintf( file->fileread, "style.css" );
+
+return;
 }
 
 
@@ -646,26 +646,6 @@ void inNewDataHTTP( svConnectionPtr cnt )
   return;
 }
 
-/*
-static int debugmem()
-{
-  int pid;
-  FILE *file;
-  char fname[256];
-  int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-  pid = getpid();
-  sprintf( fname, "/proc/%d/stat", pid );
-  if( ( file = fopen( fname, "r" ) ) )
-  {
-    fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %d %d %*d %*d %d %*d %*u %*u %u %u %u", &stutime, &ststime, &stpriority, &ststarttime, &stvsize, &strss );
-    fclose( file );
-  }
-  return stvsize;
-}
-
-*/
-
-
 void outSendReplyHTTP( svConnectionPtr cnt )
 {
   time_t curtime;
@@ -676,13 +656,6 @@ void outSendReplyHTTP( svConnectionPtr cnt )
   struct stat stdata;
   char *data;
   char path[4096];
-
-/*
-printf( "Q %s ( %s )\n", iohttp->path, iohttp->cookie );
-printf( "Memory used : %d\n", debugmem() >> 10 );
-fflush( stdout );
-*/
-
 
   file = iohttp->file;
   if( iohttp->code == 200 )

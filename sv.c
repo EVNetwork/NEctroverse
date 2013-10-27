@@ -1081,6 +1081,8 @@ if (MATCH("system", "port")) {
 	pconfig->httpimages = strdup(value);
 } else if (MATCH("system", "httpfiles")) {
 	pconfig->httpfiles = strdup(value);
+} else if (MATCH("system", "httpread")) {
+	pconfig->httpread = strdup(value);
 } else if (MATCH("system", "publicforum")) {
 	pconfig->pubforum = strdup(value);
 } else if (MATCH("system", "round")) {
@@ -1324,8 +1326,8 @@ dirstructurecheck(DIRCHECKER);
 //well its not really public yet now is it... <<<WORKNEEDED>>>
 sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
-if( !( file_exist(sysconfig.httpfiles) ) ) {
-	dirstructurecheck(sysconfig.httpfiles);
+if( !( file_exist(sysconfig.httpread) ) ) {
+	dirstructurecheck(sysconfig.httpread);
 	printf("Doc base not found, fetching \"%s/docs.tar.gz\" with wget ...", sysconfig.downfrom );
 	fflush(stdout);
 	syslog(LOG_INFO, "Doc base not found, fetching \"%s/docs.tar.gz\" with wget.\n", sysconfig.downfrom );
@@ -1335,10 +1337,10 @@ if( !( file_exist(sysconfig.httpfiles) ) ) {
 	fflush(stdout);
 	if(test)
 	return 1;
-	printf("Extracting files to: \"%s\" ...", sysconfig.httpfiles);
+	printf("Extracting files to: \"%s\" ...", sysconfig.httpread);
 	fflush(stdout);
-	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpfiles);
-	sprintf(DIRCHECKER,"tar -xzf %s/docs.tar.gz -C %s", TMPDIR, sysconfig.httpfiles);
+	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpread);
+	sprintf(DIRCHECKER,"tar -xzf %s/docs.tar.gz -C %s", TMPDIR, sysconfig.httpread);
 	test = system(DIRCHECKER);
 	printf(" %s!\n", test ? "Fail" : "Done");
 	fflush(stdout);

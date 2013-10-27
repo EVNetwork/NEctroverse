@@ -21,7 +21,7 @@
 */
 
 
-// These can move into config.h soonish.
+
 #define MAP_SIZEX (105)
 #define MAP_SIZEY (105)
 #define MAP_SYSTEMS (709)
@@ -39,8 +39,6 @@
 #define MAP_GEN_LNKLENGHTBASE (2)
 #define MAP_GEN_LNKLENGHTVAR (64)
 
-
-
 #define MAP_RESOURCES (25+20+10+8)
 
 // solar, mineral, crystal, ectrolium
@@ -56,66 +54,40 @@ int system_pbase[MAP_SYSTEMS];
 int system_home[MAP_SYSTEMS];
 int empire_system[MAP_FAMILIES];
 int artefact_planet[MAP_ARTEFACTS];
-
-#define CMD_PLANET_FLAGS_HOME 4
-
 int mapfactor[MAP_SIZEX*MAP_SIZEY];
 
 
-void mapGetRandnorm( float *fvars )
-{
-  float norm;
-  for( ; ; )
-  {
-    fvars[0] = (float)( ( rand() & 0xFF ) - 0x80 );
-    fvars[1] = (float)( ( rand() & 0xFF ) - 0x80 );
-    norm = sqrt( fvars[0]*fvars[0] + fvars[1]*fvars[1] );
-    if( norm < 10.0 )
-      continue;
-    fvars[0] /= norm;
-    fvars[1] /= norm;
-    break;
-  }
-  return;
+uint8_t *mapCalcFactors() {
+	int a, b, c, x, y, index;
+	float fx, fy, dist, mindist;
+	float fpos[2];
+	float angle, anglevar;
+	float fdir[2];
+	float pts[65536][2];
+	int ptsnum;
+	uint8_t *pixies;
+
+ptsnum = 0;
+memset( mapfactor, 0, sizeof(int)*MAP_SIZEX*MAP_SIZEY );
+
+for( a = 0 ; a < MAP_GEN_LNKNUM ; a++ ) {
+	fpos[0] = (float)( MAP_GENBORDER + ( rand() % ( MAP_SIZEX-2*MAP_GENBORDER ) ) );
+	fpos[1] = (float)( MAP_GENBORDER + ( rand() % ( MAP_SIZEY-2*MAP_GENBORDER ) ) );
+	angle = rand() % 360;
+	anglevar = (float)( ( rand() & 0xFFF ) - 0x800 ) / MAP_GENANGLEVAR;
+
+	c = MAP_GEN_LNKLENGHTBASE + ( rand() % MAP_GEN_LNKLENGHTVAR );
+	for( b = 0 ; b < c ; b++ ) {
+		pts[ptsnum+b][0] = fpos[0];
+		pts[ptsnum+b][1] = fpos[1];
+		fdir[0] = ANG_COS( angle );
+		fdir[1] = ANG_SIN( angle );
+		fpos[0] += fdir[0];
+		fpos[1] += fdir[1];
+		angle += anglevar;
+	}
+	ptsnum += c;
 }
-
-
-#define DEF_PI 3.14159265358979323846
-#define ANG_SIN(x) sin((x*2*DEF_PI)/360.0)
-#define ANG_COS(x) cos((x*2*DEF_PI)/360.0)
-
-uint8_t *mapCalcFactors()
-{
-  int a, b, c, x, y, index;
-  float fx, fy, dist, mindist;
-  float fpos[2];
-  float angle, anglevar;
-  float fdir[2];
-  float pts[65536][2];
-  int ptsnum;
-
-  ptsnum = 0;
-  memset( mapfactor, 0, sizeof(int)*MAP_SIZEX*MAP_SIZEY );
-  for( a = 0 ; a < MAP_GEN_LNKNUM ; a++ )
-  {
-    fpos[0] = (float)( MAP_GENBORDER + ( rand() % ( MAP_SIZEX-2*MAP_GENBORDER ) ) );
-    fpos[1] = (float)( MAP_GENBORDER + ( rand() % ( MAP_SIZEY-2*MAP_GENBORDER ) ) );
-    angle = rand() % 360;
-    anglevar = (float)( ( rand() & 0xFFF ) - 0x800 ) / MAP_GENANGLEVAR;
-
-    c = MAP_GEN_LNKLENGHTBASE + ( rand() % MAP_GEN_LNKLENGHTVAR );
-    for( b = 0 ; b < c ; b++ )
-    {
-      pts[ptsnum+b][0] = fpos[0];
-      pts[ptsnum+b][1] = fpos[1];
-      fdir[0] = ANG_COS( angle );
-      fdir[1] = ANG_SIN( angle );
-      fpos[0] += fdir[0];
-      fpos[1] += fdir[1];
-      angle += anglevar;
-    }
-    ptsnum += c;
-  }
 
 for( y = index = 0 ; y < MAP_SIZEY ; y++ ) {
 	for( x = 0 ; x < MAP_SIZEY ; x++, index++ ) {
@@ -132,20 +104,15 @@ for( y = index = 0 ; y < MAP_SIZEY ; y++ ) {
 	}
 }
 
-
-uint8_t *pixies;   
 pixies = malloc( MAP_SIZEX * MAP_SIZEY );
 for( y = 0 ; y < MAP_SIZEY ; y++ ) { 
 	for( x = 0 ; x < MAP_SIZEX ; x++ )  {
-		pixies[(y*MAP_SIZEX)+x] = 0;
-	    if( mapfactor[(y*MAP_SIZEX)+x] > 0xFF ) {
-		pixies[(y*MAP_SIZEX)+x] = 32;
-		}
-
+		pixies[(y*MAP_SIZEX)+x] = (mapfactor[(y*MAP_SIZEX)+x] >> 3);
 	}  
 }
 
-  return pixies;
+
+return pixies;
 }
 
 
@@ -227,7 +194,7 @@ for( a = 0 ; a < MAP_SYSTEMS ; a++ ) {
 	}
 	system_pbase[a] = p;
 	p += system_planets[a];
-	mapdata[i] = 1;
+	mapdata[i] = 0xFF;
 }
 
 
@@ -371,7 +338,7 @@ fclose( file );
 for( y = 0 ; y < MAP_SIZEX ; y++ ) { 
 	for( x = 0 ; x < MAP_SIZEY ; x++ )  {
 		if ( mapdata[(y*MAP_SIZEY)+x] )
-			pixels[(y*MAP_SIZEY)+x] = 255;
+			pixels[(y*MAP_SIZEY)+x] = mapdata[(y*MAP_SIZEY)+x];
 	}  
 }
 
@@ -404,6 +371,7 @@ if(mapgen.width > MAP_SIZEX) {
 }
 
 sprintf( fname, "%s/galaxyr%d.png", sysconfig.httpimages, sysconfig.round );
+//imgConvertGrayscale(&mapgen,IMG_IMAGE_FORMAT_RGB24);
 imgWritePngFile( fname, &mapgen );
 free(pixels);
 
