@@ -1328,10 +1328,10 @@ sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
 if( !( file_exist(sysconfig.httpread) ) ) {
 	dirstructurecheck(sysconfig.httpread);
-	printf("Doc base not found, fetching \"%s/docs.tar.gz\" with wget ...", sysconfig.downfrom );
+	printf("Doc base not found, fetching \"%s/read.tar.gz\" with wget ...", sysconfig.downfrom );
 	fflush(stdout);
-	syslog(LOG_INFO, "Doc base not found, fetching \"%s/docs.tar.gz\" with wget.\n", sysconfig.downfrom );
-	sprintf(DIRCHECKER,"wget -q \"%s/docs.tar.gz\" -O %s/docs.tar.gz", sysconfig.downfrom, TMPDIR);
+	syslog(LOG_INFO, "Doc base not found, fetching \"%s/read.tar.gz\" with wget.\n", sysconfig.downfrom );
+	sprintf(DIRCHECKER,"wget -q \"%s/read.tar.gz\" -O %s/read.tar.gz", sysconfig.downfrom, TMPDIR);
 	test = system(DIRCHECKER);
 	printf(" %s!\n", test ? "Fail" : "Done");
 	fflush(stdout);
@@ -1340,7 +1340,28 @@ if( !( file_exist(sysconfig.httpread) ) ) {
 	printf("Extracting files to: \"%s\" ...", sysconfig.httpread);
 	fflush(stdout);
 	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpread);
-	sprintf(DIRCHECKER,"tar -xzf %s/docs.tar.gz -C %s", TMPDIR, sysconfig.httpread);
+	sprintf(DIRCHECKER,"tar -xzf %s/read.tar.gz -C %s", TMPDIR, sysconfig.httpread);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+}
+if( !( file_exist(sysconfig.httpfiles) ) ) {
+	dirstructurecheck(sysconfig.httpfiles);
+	printf("Doc base not found, fetching \"%s/files.tar.gz\" with wget ...", sysconfig.downfrom );
+	fflush(stdout);
+	syslog(LOG_INFO, "Doc base not found, fetching \"%s/files.tar.gz\" with wget.\n", sysconfig.downfrom );
+	sprintf(DIRCHECKER,"wget -q \"%s/files.tar.gz\" -O %s/files.tar.gz", sysconfig.downfrom, TMPDIR);
+	test = system(DIRCHECKER);
+	printf(" %s!\n", test ? "Fail" : "Done");
+	fflush(stdout);
+	if(test)
+	return 1;
+	printf("Extracting files to: \"%s\" ...", sysconfig.httpfiles);
+	fflush(stdout);
+	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpfiles);
+	sprintf(DIRCHECKER,"tar -xzf %s/files.tar.gz -C %s", TMPDIR, sysconfig.httpfiles);
 	test = system(DIRCHECKER);
 	printf(" %s!\n", test ? "Fail" : "Done");
 	fflush(stdout);
