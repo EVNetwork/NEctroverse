@@ -204,7 +204,7 @@ for( a = 0 ; a < MAP_ARTEFACTS ; a++ ) {
 	if( system_home[b] )
 		goto mainL2;
 	artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
-	if( svShellMode )
+	if( options.verbose )
 	printf("( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
 	syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
 }
@@ -312,7 +312,7 @@ for( a = 0 ; a < MAP_FAMILIES ; a++ ) {
 		strcpy( empired.name, "Administration");
 		if( strlen(admincfg.empire_password) )
 			strcpy(empired.password, hashencrypt(admincfg.empire_password) );
-		if( svShellMode )
+		if( options.verbose )
 		printf("Empire %d Claimed for Administration.\n", a);
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);
 	}
@@ -381,7 +381,7 @@ free(pixels);
 if(mapgen.width == MAP_SIZEX) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
-		if( svShellMode )
+		if( options.verbose )
 			printf( "Map Error: unable to convert map size\n" );
 		syslog(LOG_ERR, "Map Error: unable to convert map size\n" );
 	}

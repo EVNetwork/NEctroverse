@@ -33,7 +33,7 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
   }
 	
   a = dbUserAdd( name, faction, "Player" );
-if( svShellMode )
+if( options.verbose )
 printf("Created User: #%d Name: \"%s\"\n", a, name );
 syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 

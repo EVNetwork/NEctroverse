@@ -2259,11 +2259,11 @@ int cmdInit() {
 if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;
 
-if( svShellMode )
+if( options.verbose )
 	printf("Creating Administrator account named: \"%s\"\n", admincfg.name );
 syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", admincfg.name );
 if( ( id = cmdExecNewUser( admincfg.name, admincfg.password, admincfg.faction ) ) < 0 ) {
-	if( svShellMode )
+	if( options.verbose )
 		printf("Failure Creating Administrator account: \"%s\"\n", admincfg.name );
 	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", admincfg.name );
 }
@@ -2276,7 +2276,7 @@ sprintf( maind.forumtag, "%s", admincfg.forumtag );
 dbUserMainSet(id, &maind);
 
 if( cmdExecNewUserEmpire( id, admincfg.empire_number, admincfg.empire_password, admincfg.race, admincfg.level ) < 0 ) {
-	if( svShellMode )
+	if( options.verbose )
 		printf("Failure Placing Administrator account: \"%s\"\n", admincfg.name );
 	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );
 }

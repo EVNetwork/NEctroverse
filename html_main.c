@@ -95,7 +95,7 @@ void iohttpBase( svConnectionPtr cnt, int flags ) {
 svSendString( cnt, "Content-Type: text/html\n\n" );
 svSendString( cnt, "<html><head>");
 svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-svSendPrintf( cnt, "<link rel=\"icon\" href=\"favicon.ico\">" );
+svSendPrintf( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
 svSendPrintf( cnt, "<link href=\"style\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
 if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );

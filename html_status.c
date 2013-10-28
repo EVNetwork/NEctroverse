@@ -102,7 +102,7 @@ svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
   }
 
 if( sysinfo(&si) != 0 ) {
- 	if( svShellMode )
+ 	if( options.verbose )
 	printf("Failure getting system infomation... Critical failure.");
 	syslog(LOG_INFO, "Failure getting system infomation... Critical failure." );
 	cleanUp(-1,-1);

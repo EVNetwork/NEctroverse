@@ -15,14 +15,6 @@ LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb
 
-
-#This is what enables the compile to read my real login info, I don't like even using a default.
-#I have *.nogit ignored by git commits... so I can use my real info withought breach.
-#If this file does not exist... it loads the default from config.h
-ifneq ($(wildcard evconfig.nogit.ini),) 
-FLAGS += -DHAHA_MY_INFO_IS_HIDDEN
-endif
-
 # Right then, now we know all of that... lets build something!
 server: sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS)
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)

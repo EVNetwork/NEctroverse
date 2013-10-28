@@ -43,6 +43,36 @@ typedef struct {
 
 extern adminDef admincfg;
 
+enum 
+{
+OPTION_MODE,
+OPTION_SYSINI,
+OPTION_MAPINI,
+OPTION_TOTAL,
+};
+
+enum 
+{
+MODE_DAEMON,
+MODE_FORKED,
+MODE_TOTAL,
+};
+
+typedef struct {
+	//startup options
+	int mode;
+	int port;
+	int serverpipe;
+	int clientpipe;
+	bool verbose;
+	char sysini[512];
+	char mapini[512];
+	char pipefile[512];
+	char pipestring[128];
+} optionsDef, *optionsPtr;
+
+extern optionsDef options;
+
 typedef struct {
 	//mysql
 	bool active;
@@ -66,8 +96,6 @@ typedef struct {
 extern tickDef ticks;
 extern int savetickconfig();
 
-
-extern int svShellMode;
 
 typedef struct
 {
