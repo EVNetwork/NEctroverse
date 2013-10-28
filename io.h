@@ -21,16 +21,6 @@ typedef struct
 extern ioInterfaceDef ioInterface[];
 
 
-enum
-{
-IO_INTERFACE_HTTP=0,
-IO_INTERFACE_EVM,
-IO_INTERFACE_NUM,
-};
-
-
-
-
 char *ioCompareWords( char *string, char *word );
 char *ioCompareFindWords( char *string, char *word );
 char *ioCompareFindBinwords( char *string, char *word, int size );

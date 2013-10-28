@@ -9,13 +9,13 @@ fd_set svSelectRead;
 fd_set svSelectWrite;
 fd_set svSelectError;
 
-configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", false, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
-optionsDef options = { MODE_DAEMON, { false, false }, false, -1, -1, true, "", "", "evserver", "status" };
+configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
+optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "evserver", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
 tickDef ticks = { false, 0, 0, 0, 0 };
 
-int svListenSocket[2];
+int svListenSocket[PORT_TOTAL];
 
 svConnectionPtr svDebugConnection;
 
@@ -408,7 +408,7 @@ void svShutdown( svConnectionPtr cnt ) {
 
 #if SERVER_REPORT_CLOSE == 1
 if( options.verbose )
-printf("Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket );
+	printf("Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket );
 syslog(LOG_INFO, "Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 #endif
 shutdown( cnt->socket, 1 );
@@ -420,7 +420,7 @@ void svClose( svConnectionPtr cnt ) {
 
 #if SERVER_REPORT_CLOSE == 1
 if( options.verbose )
-printf("Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
+	printf("Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 syslog(LOG_INFO, "Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 #endif
 if( close( cnt->socket ) == -1 )
@@ -438,7 +438,7 @@ if( cnt->socket != -1 )
 	svClose( cnt );
 #if SERVER_REPORT_CLOSE == 1
 if( options.verbose )
-printf("Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
+	printf("Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
 syslog(LOG_INFO, "Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
 #endif
 svSendEnd( cnt );
@@ -786,6 +786,8 @@ if( file_exist(DIRCHECKER) && strlen(message) ) {
 	return 0;
 }
 
+if( options.verbose )
+	fflush(stdout);
 
 return 1;
 }
@@ -808,7 +810,7 @@ void daemonloop() {
 
 		ticks.next += sysconfig.ticktime;
 		
-		for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
+		for( a = 0 ; a < options.interfaces ; a++ ) {
 		io = &ioInterface[a];
 		io->TickStart();
 		}
@@ -820,7 +822,7 @@ void daemonloop() {
 		}
 		cmdTickEnd();
 
-		for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
+		for( a = 0 ; a < options.interfaces ; a++ ) {
 			io = &ioInterface[a];
 			io->TickEnd();
 		}
@@ -910,7 +912,7 @@ if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
 	syslog(LOG_ERR, "Database initialisation failed, exiting\n");
 	return 0;
 }
-for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
+for( a = 0 ; a < options.interfaces ; a++ ) {
 	io = &ioInterface[a];
 	io->Init();
 }
@@ -947,10 +949,10 @@ sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[POR
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 syslog(LOG_INFO, "Completed initiation of %s daemon.\n", sysconfig.servername );
-if( options.verbose )
-printf("All checks passed, begining server loop...\n");
-
-fflush(stdout);
+if( options.verbose ) {
+	printf("All checks passed, begining server loop...\n");
+	fflush(stdout);
+}
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 daemonloop();
@@ -958,7 +960,7 @@ daemonloop();
 cmdEnd();
 dbEnd();
 
-for( a = 0 ; a < IO_INTERFACE_NUM ; a++ ) {
+for( a = 0 ; a < options.interfaces ; a++ ) {
 	io = &ioInterface[a];
 	io->End();
 }

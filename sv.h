@@ -53,14 +53,13 @@ PORT_TOTAL
 enum 
 {
 MODE_DAEMON,
-MODE_FORKED,
-MODE_TOTAL
+MODE_FORKED
 };
 
 typedef struct {
 	//startup options
 	int mode;
-	int port[2];
+	int port[PORT_TOTAL];
 	int interfaces;
 	int serverpipe;
 	int clientpipe;
@@ -152,7 +151,7 @@ void svEnd();
 void svSelect();
 void svRecv();
 
-int file_exist (char *filename);
+int file_exist(char *filename);
 char *trimwhitespace(char *str);
 char** str_split(char* str, char delim, int* numSplits );
 void dirstructurecheck(char *directory);
@@ -175,9 +174,7 @@ void svSendStaticFlush( svConnectionPtr cnt );
 // Functions used by the Output interface
 void svSend( svConnectionPtr cnt, void *data, int size );
 void svSendString( svConnectionPtr cnt, char *string );
-/*
-void svSendPrintf( svConnectionPtr cnt, char *string, ... );
-*/
+
 __attribute__ ((format (printf, 2, 3))) void svSendPrintf( svConnectionPtr cnt, char *string, ... );
 
 void svSendStatic( svConnectionPtr cnt, void *data, int size );
@@ -189,14 +186,6 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size );
 #define SV_FLAGS_TO_CLOSE (0x8)
 #define SV_FLAGS_WAIT_CLOSE (0x10)
 #define SV_FLAGS_TIMEOUT (0x20)
-
-
-
-/*
-
-__attribute__ ((format (printf, 1, 2)))
-
-*/
 
 
 extern int svBanNum;

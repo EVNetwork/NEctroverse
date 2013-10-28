@@ -42,7 +42,6 @@ void iohttpFunc_account( svConnectionPtr cnt )
     {
       if( ( sscanf( race, "%d", &a ) == 1 ) && ( (unsigned int)a < CMD_RACE_NUMUSED ) )
       {
-      	if(((cnt->dbuser)->level >= LEVEL_MODERATOR)||(a != CMD_RACE_ULTI))
       		maind.raceid = a;
         svSendString( cnt, "<i>Race changed</i><br><br>" );
         dbUserMainSet( id, &maind );

@@ -1114,7 +1114,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
 
     cmdEnd();
     dbEnd();
-    for( a = 0 ; a < IO_INTERFACE_NUM ; a++ )
+    for( a = 0 ; a < options.interfaces ; a++ )
     {
       io = &ioInterface[a];
       io->End();

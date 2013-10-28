@@ -59,6 +59,9 @@ body,td{
 	background-attachment:fixed;
 }
 
+.genlarge { 
+	font-size : 25px;
+}
 .genmed { 
 	font-size : 11px;
 }

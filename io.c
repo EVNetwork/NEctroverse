@@ -27,7 +27,7 @@ void inErrorEvm( svConnectionPtr cnt, int type );
 
 
 
-ioInterfaceDef ioInterface[IO_INTERFACE_NUM] =
+ioInterfaceDef ioInterface[PORT_TOTAL] =
 {
   // HTTP interface definition
   {

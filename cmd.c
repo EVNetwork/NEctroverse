@@ -335,7 +335,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   1 | 2 | 4 | 0 | 16 | 32 |  0 | 128 | 512,
   1 | 0 | 4 | 8 |  0 |  0 |  0,
   0 | 2 | 4 | 0 |  0 |  0 |  0,
- },/*
+ },
  {//dreamweaver
   1.0+(1.1*0.02), 1.0, 0.7, 1.0*2.0,
   {   0.7,   1.4,   2.8,   1.4,   1.4,   1.4,   1.4 },
@@ -379,7 +379,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
- },*/
+ },
 };
 
 char *cmdRaceName[CMD_RACE_NUMUSED] =
@@ -388,10 +388,10 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 "Manticarias",
 "Foohons",
 "Spacebornes",
-"Dreamweavers",/*
+"Dreamweavers",
 "Furtifons",
 "Samsonites",
-"Ultimums"*/
+"Ultimums"
 };
 
 int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
