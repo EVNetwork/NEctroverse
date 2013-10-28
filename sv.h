@@ -45,29 +45,22 @@ extern adminDef admincfg;
 
 enum 
 {
-OPTION_MODE,
-OPTION_SYSINI,
-OPTION_MAPINI,
-OPTION_TOTAL,
-};
-
-enum 
-{
 PORT_HTTP,
 PORT_EVMP,
+PORT_TOTAL
 };
 
 enum 
 {
 MODE_DAEMON,
 MODE_FORKED,
-MODE_TOTAL,
+MODE_TOTAL
 };
 
 typedef struct {
 	//startup options
 	int mode;
-	int port[16];
+	int port[2];
 	int interfaces;
 	int serverpipe;
 	int clientpipe;

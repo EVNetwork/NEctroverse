@@ -10,15 +10,12 @@ fd_set svSelectWrite;
 fd_set svSelectError;
 
 configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", false, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
-optionsDef options = { MODE_DAEMON, { false }, false, -1, -1, true, "", "", "evserver", "status" };
-
+optionsDef options = { MODE_DAEMON, { false, false }, false, -1, -1, true, "", "", "evserver", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
-
 adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
-
 tickDef ticks = { false, 0, 0, 0, 0 };
 
-int svListenSocket[16];
+int svListenSocket[2];
 
 svConnectionPtr svDebugConnection;
 
@@ -1203,7 +1200,6 @@ if(type) {
 	} else {
 		options.interfaces = 1;
 	}
-
 	if( sysconfig.httpport )
 		options.port[PORT_HTTP] = options.port[PORT_HTTP] ? options.port[PORT_HTTP] : sysconfig.httpport;
 
