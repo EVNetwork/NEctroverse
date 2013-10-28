@@ -1347,6 +1347,7 @@ void iohttpFunc_hq( svConnectionPtr cnt )
 	
  svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : %d<br>Population : %lld0<br>Networth : %lld</td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
  svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : %d%%<br>Psychics readiness : %d%%<br>Agents readiness : %d%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[0] >> 16, maind.readiness[1] >> 16, maind.readiness[2] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
+//read hq message from hq.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
  if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -1357,7 +1358,7 @@ sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
 				svSendString( cnt, "<div class=\"genwhite\"><i>Message from Administration:</i></div>" );
 				svSendString( cnt, "<div class=\"quote\"><br>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
-					svSendPrintf( cnt, "%s<br>", data );
+					svSendPrintf( cnt, "%s<br>", trimwhitespace(data) );
 				}
 				svSendString( cnt, "<br></div></td></tr></table><br>" );
 			}
@@ -1366,7 +1367,7 @@ sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
 	free( data );
 	}
 }
-
+//end hq message
  if( ( dbEmpireMessageRetrieve( maind.empire, 0, message ) >= 0 ) && ( message[0] ) )
  {
   svSendString( cnt, "<b>Message from your leader</b><br>" );
@@ -2022,13 +2023,13 @@ void iohttpFunc_empire( svConnectionPtr cnt )
  int stats[64];
 
 maind.empire = -1;
-iohttpBase( cnt, 1 );
-
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	iohttpBase( cnt, 1 );
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 0 );
+	iohttpBase( cnt, 8 );
+	iohttpFunc_frontmenu( cnt, 0 );
 }
 
  iohttpVarsInit( cnt );
@@ -3581,13 +3582,13 @@ void iohttpFunc_player( svConnectionPtr cnt )
  dbUserDescDef descd;
  dbUserRecordPtr recordd;
 
- iohttpBase( cnt, 1 );
-
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	iohttpBase( cnt, 1 );
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 0 );
+	iohttpBase( cnt, 8 );
+	iohttpFunc_frontmenu( cnt, 0 );
 }
 
  iohttpVarsInit( cnt );
@@ -7075,13 +7076,13 @@ void iohttpFunc_rankings( svConnectionPtr cnt ) {
 	char COREDIR[256];
 	dbUserMainDef maind;
 
-iohttpBase( cnt, 1 );
-
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	iohttpBase( cnt, 1 );
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
-	return;
+		return;
 } else {
-iohttpFunc_frontmenu( cnt, 0 );
+	iohttpBase( cnt, 8 );
+	iohttpFunc_frontmenu( cnt, 0 );
 }
 
 iohttpBodyInit( cnt, "Faction rankings" );
@@ -7112,13 +7113,13 @@ void iohttpFunc_famranks( svConnectionPtr cnt ) {
 	char COREDIR[256];
 	dbUserMainDef maind;
 
-iohttpBase( cnt, 1 );
-
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	iohttpBase( cnt, 1 );
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 0 );
+	iohttpBase( cnt, 8 );
+	iohttpFunc_frontmenu( cnt, 0 );
 }
 
 iohttpBodyInit( cnt, "Empire rankings" );

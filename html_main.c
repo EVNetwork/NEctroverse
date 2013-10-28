@@ -93,10 +93,16 @@ void iohttpBase( svConnectionPtr cnt, int flags ) {
 	char DIRCHECKER[256];
 	
 svSendString( cnt, "Content-Type: text/html\n\n" );
-svSendString( cnt, "<html><head>");
+svSendString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
+svSendString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
+svSendString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
+svSendString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
+svSendString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
 svSendPrintf( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
-svSendPrintf( cnt, "<link href=\"style\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+svSendPrintf( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+svSendPrintf( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
+
 if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
 if( flags & 1 ) { 
@@ -267,15 +273,16 @@ void iohttpFunc_races( svConnectionPtr cnt ) {
 	int a, b, c, id;
 	dbUserMainDef maind;
 
-iohttpBase( cnt, 1 );
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	iohttpBase( cnt, 1 );
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 3 );
+	iohttpBase( cnt, 8 );
+	iohttpFunc_frontmenu( cnt, 0 );
 }
 
-iohttpBodyInit( cnt, "%s races", sysconfig.servername );
+iohttpBodyInit( cnt, "%s: Races", sysconfig.servername );
 
 for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	svSendPrintf( cnt, "<div class=\"genlarge\">%s</div><br>", cmdRaceName[a] );
@@ -291,7 +298,7 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 		svSendPrintf( cnt, "Imune to Dark Web Effects!<br>" );
 
 	svSendString( cnt, "<table width=\"*\" border=\"0\"><tr>" );
-	svSendString( cnt, "<td valign=\"top\" width=\"200\"><i><b>Main bonuses</b></i><br>" );
+	svSendString( cnt, "<td valign=\"top\" width=\"250\"><i><b>Main bonuses</b></i><br>" );
 	if( (cmdRace[a].attack - 1) )
 	svSendPrintf( cnt, "%+.0f%% Attack.<br>", ( cmdRace[a].attack - 1 ) * 100 );
 	if( cmdRace[a].defense - 1 )
@@ -302,8 +309,8 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 		if( (cmdRace[a].unit[b] - 1) )
 			svSendPrintf( cnt, " %+.0f%% %s strength.<br>", ( cmdRace[a].unit[b] - 1 ) * 100, cmdUnitName[b] );
 	}
-	svSendPrintf( cnt, "%+.0f%% Population Upkeep Reduction<br>", (((cmdRace[a].growth-1)/0.02) - 1 ) * 100 );
 	svSendPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
+	svSendPrintf( cnt, "%+.0f%% Population Upkeep Reduction<br>", (((cmdRace[a].growth-1)/0.02) - 1 ) * 100 );
 	for( b = 0; b < CMD_RESSOURCE_NUMUSED ; b++) {
 		if( (cmdRace[a].resource[b] - 1) )
 			svSendPrintf( cnt, "%+.0f%% %s production<br>", ( cmdRace[a].resource[b] - 1 ) * 100, cmdRessourceName[b] );
@@ -553,7 +560,7 @@ if( strlen(text) ) {
 					if( stdata.st_size > 0 ) {
 						svSendString( cnt, "<br>" );
 						while( fgets( data, stdata.st_size, file ) != NULL ) {
-							svSendPrintf( cnt, "%s<br>", data );
+							svSendPrintf( cnt, "%s<br>", trimwhitespace(data) );
 						}
 					}
 					fclose( file );
@@ -578,9 +585,9 @@ return;
 void iohttpFunc_endhtml( svConnectionPtr cnt ) {
 
 
-svSendString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>\n" );
-svSendString( cnt, "</td></tr></tbody></table>\n" );
-svSendString( cnt, "</body></html>\n" );
+svSendString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
+svSendString( cnt, "</td></tr></tbody></table>" );
+svSendString( cnt, "</body></html>" );
 
 return;
 }
@@ -604,6 +611,7 @@ return;
 void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
 	dbUserMainDef maind;
 	struct stat stdata;
+	bool boxopen = false;
 	char *data;
 	char DIRCHECKER[256];
 	FILE *file;
@@ -626,8 +634,7 @@ svSendString( cnt, "<br>" );
 
 svSendString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
-//notices
-int lines = 0;
+//read notices from updates.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/updates.txt", sysconfig.httpread );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -635,19 +642,19 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
-					if(lines == 0) {
-						iohttpFunc_boxstart( cnt, data );
-					} else if (strlen(data) > 1 ) {
-						svSendPrintf( cnt, "&nbsp;&nbsp;%s<br>", data );
+					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
+						iohttpFunc_boxstart( cnt, trimwhitespace(data) );
+						boxopen = true;
+					} else if ( strlen( trimwhitespace(data) ) ) {
+						svSendPrintf( cnt, "&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
 					}
-					if( (lines >= 1) && (strlen(data) == 1 ) ) {
+					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
 						iohttpFunc_boxend( cnt );
+						boxopen = false;
 						svSendString( cnt, "<br><br>" );
-						lines = 0;
-					} else {
-						lines++;
 					}
 				}
+			if(boxopen)
 			iohttpFunc_boxend( cnt );
 			svSendString( cnt, "<br>" );
 			svSendString( cnt, "<br>" );
@@ -657,7 +664,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	free( data );
 	}
 }
-//end notes
+//end notices
 
 svSendString( cnt, "</td><td width=\"6%\">" );
 svSendString( cnt, "&nbsp;" );
@@ -680,8 +687,9 @@ if( (id < 0) || (strlen(text)) ) {
 	svSendString( cnt, "<br>" );
 	svSendString( cnt, "<br>" );
 }
-
 svSendString( cnt, "</td></tr></table>" );
+
+//read the todo list from todo.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/todo.txt", sysconfig.httpread );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -692,7 +700,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			svSendString( cnt, "<br>" );
 			while( fgets( data, stdata.st_size, file ) != NULL ) {
 				if( strlen(data) > 1 )
-					svSendPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", data );
+					svSendPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
 			}
 			svSendString( cnt, "<br>" );
 			}
@@ -701,6 +709,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		free( data );
 	}
 }
+//end todo list
 
 /*
 svSendString( cnt, "<iframe src=\"images///www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FEctroverse%2F133044593518078&amp;send=false&amp;layout=box_count&amp;width=450&amp;show_faces=false&amp;font=segoe+ui&amp;colorscheme=dark&amp;action=like&amp;height=90\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:90px;\" allowTransparency=\"true\"></iframe>\n" );
@@ -750,7 +759,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, data );
+			svSendString( cnt, trimwhitespace(data) );
 			fclose( file );
 		}
 		free( data );

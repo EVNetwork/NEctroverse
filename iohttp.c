@@ -121,7 +121,7 @@ while( ( direntry = readdir( dirdata ) ) ) {
 		fclose( fd );
 		continue;
 	}
-	file->type = 0;
+	file->type = FILE_IMAGEDIR;
 	file->path[0] = '/';
 	file->mime = iohttpMimeFind( direntry->d_name );
 	memcpy( &file->scurtime, &stdata.st_mtime, sizeof(time_t) );
@@ -159,385 +159,389 @@ if( chdir( COREDIR ) != -1 ) {
   // ahhaha... yes, we'll make a table
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_front;
   sprintf( file->path, "/" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_faq;
   sprintf( file->path, "/faq" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_gettingstarted;
   sprintf( file->path, "/gettingstarted" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_halloffame;
   sprintf( file->path, "/halloffame" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_status;
   sprintf( file->path, "/status" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_races;
   sprintf( file->path, "/races" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_register;
   sprintf( file->path, "/register" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_register2;
   sprintf( file->path, "/register2" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_register3;
   sprintf( file->path, "/register3" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_login;
   sprintf( file->path, "/login" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_main;
   sprintf( file->path, "/main" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_menu;
   sprintf( file->path, "/menu" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_hq;
   sprintf( file->path, "/hq" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_news;
   sprintf( file->path, "/news" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_council;
   sprintf( file->path, "/council" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_units;
   sprintf( file->path, "/units" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_market;
   sprintf( file->path, "/market" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_planets;
   sprintf( file->path, "/planets" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_pltake;
   sprintf( file->path, "/pltake" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_empire;
   sprintf( file->path, "/empire" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famaid;
   sprintf( file->path, "/famaid" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famgetaid;
   sprintf( file->path, "/famgetaid" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famvote;
   sprintf( file->path, "/famvote" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famnews;
   sprintf( file->path, "/famnews" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famrels;
   sprintf( file->path, "/famrels" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famleader;
   sprintf( file->path, "/famleader" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_map;
   sprintf( file->path, "/map" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_mappick;
   sprintf( file->path, "/mappick" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_mapadv;
   sprintf( file->path, "/mapadv" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_system;
   sprintf( file->path, "/system" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_player;
   sprintf( file->path, "/player" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_playerlist;
   sprintf( file->path, "/playerlist" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_planet;
   sprintf( file->path, "/planet" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_build;
   sprintf( file->path, "/build" );
   
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_cancelbuild;
   sprintf( file->path, "/cancelbuild" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_massbuild;
   sprintf( file->path, "/massbuild" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_raze;
   sprintf( file->path, "/raze" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleets;
   sprintf( file->path, "/fleets" );
 
-	file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file = iohttpFileAdd( 0 );
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleetssplit;
   sprintf( file->path, "/fleetssplit" );
   
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleetsmerge;
   sprintf( file->path, "/fleetsmerge" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleetdisband;
   sprintf( file->path, "/fleetdisband" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleetsend;
   sprintf( file->path, "/fleetsend" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleetchange;
   sprintf( file->path, "/fleetchange" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_fleetattack;
   sprintf( file->path, "/fleetattack" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_explore;
   sprintf( file->path, "/explore" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_attack;
   sprintf( file->path, "/attack" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_station;
   sprintf( file->path, "/station" );
 
-
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_spec;
   sprintf( file->path, "/spec" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_specinfos;
   sprintf( file->path, "/specinfos" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_operation;
   sprintf( file->path, "/operation" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_spell;
   sprintf( file->path, "/spell" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_incant;
   sprintf( file->path, "/incant" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_operationsend;
   sprintf( file->path, "/operationsend" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_spellsend;
   sprintf( file->path, "/spellsend" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_incantsend;
   sprintf( file->path, "/incantsend" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_research;
   sprintf( file->path, "/research" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_mail;
   sprintf( file->path, "/mail" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_rankings;
   sprintf( file->path, "/rankings" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famranks;
   sprintf( file->path, "/famranks" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_ptrankings;
   sprintf( file->path, "/ptrankings" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_ptfamranks;
   sprintf( file->path, "/ptfamranks" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_account;
   sprintf( file->path, "/account" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_changepass;
   sprintf( file->path, "/changepass" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_delete;
   sprintf( file->path, "/delete" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_logout;
   sprintf( file->path, "/logout" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_search;
   sprintf( file->path, "/search" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_moderator;
   sprintf( file->path, "/moderator" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_oldadmin;
   sprintf( file->path, "/admin" );
   
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_adminframe;
   sprintf( file->path, "/administration" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_adminmenu;
   sprintf( file->path, "/adminmenu" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_adminforum;
   sprintf( file->path, "/adminforum" );
 
   file = iohttpFileAdd(0);
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpForum;
   sprintf(file->path, "/forum");
   
   file = iohttpFileAdd( 0 );
-  file->type = 1;
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_Approve;
   sprintf( file->path, "/approve" );
   
   file = iohttpFileAdd( 0 );
-  file->type = 2;
+  file->type = FILE_HTML;
   sprintf( file->path, "/stats" );
   sprintf( file->fileread, "stats.html" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 2;
+  file->type = FILE_HTML;
   sprintf( file->path, "/chat" );
   sprintf( file->fileread, "chat.html" );
 
   file = iohttpFileAdd( 0 );
-  file->type = 2;
-  sprintf( file->path, "/style" );
+  file->type = FILE_CSS;
+  sprintf( file->path, "/style.css" );
   sprintf( file->fileread, "style.css" );
+
+  file = iohttpFileAdd( 0 );
+  file->type = FILE_JAVA;
+  sprintf( file->path, "/javascript.js" );
+  sprintf( file->fileread, "javascript.js" );
 
 return;
 }
@@ -702,7 +706,7 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     svSendPrintf( cnt, "HTTP Code : %d<br>Path requested : %s<br>Method : %d<br>Query string : %s<br>Agent : %s<br>Content : %s<br>Host : %s<br>Referer : %s<br>Cookie : %s<br>", iohttp->code, iohttp->path, iohttp->method, iohttp->query_string, iohttp->user_agent, iohttp->content, iohttp->host, iohttp->referer, iohttp->cookie );
     svSendString( cnt, "</body></html>" );
   }
-  else if( file->type == 0 )
+  else if( file->type == FILE_IMAGEDIR )
   {
     strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &file->scurtime ) );
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
@@ -710,7 +714,7 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     svSendPrintf( cnt, iohttpMime[file->mime].def );
     svSendStatic( cnt, file->data, file->size );
   }
-  else if( file->type == 1 )
+  else if( file->type == FILE_FUNCTION )
   {
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
     svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
@@ -721,12 +725,58 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     cmdExecuteFlush();
 */
   }
-  else if( file->type == 2 )
+  else if( file->type == FILE_HTML )
   {
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
     svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
     svSendString( cnt, "Pragma: no-cache\n" );
     svSendString( cnt, "Content-Type: text/html\n\n" );
+    sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
+    if( stat( path, &stdata ) == -1 )
+      goto outSendReplyHTTPL0;
+    if( !( data = malloc( stdata.st_size + 1 ) ) )
+      goto outSendReplyHTTPL0;
+    if( !( fd = fopen( path, "rb" ) ) )
+    {
+      free( data );
+      goto outSendReplyHTTPL0;
+    }
+    data[stdata.st_size] = 0;
+    fread( data, 1, stdata.st_size, fd );
+    svSendString( cnt, data );
+    fclose( fd );
+    free( data );
+  }
+
+  else if( file->type == FILE_CSS )
+  {
+    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
+    svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
+    svSendString( cnt, "Pragma: no-cache\n" );
+    svSendString( cnt, "Content-Type: text/css\n\n" );
+    sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
+    if( stat( path, &stdata ) == -1 )
+      goto outSendReplyHTTPL0;
+    if( !( data = malloc( stdata.st_size + 1 ) ) )
+      goto outSendReplyHTTPL0;
+    if( !( fd = fopen( path, "rb" ) ) )
+    {
+      free( data );
+      goto outSendReplyHTTPL0;
+    }
+    data[stdata.st_size] = 0;
+    fread( data, 1, stdata.st_size, fd );
+    svSendString( cnt, data );
+    fclose( fd );
+    free( data );
+  }
+
+  else if( file->type == FILE_JAVA )
+  {
+    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
+    svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
+    svSendString( cnt, "Pragma: no-cache\n" );
+    svSendString( cnt, "Content-Type: text/javascript\n\n" );
     sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
     if( stat( path, &stdata ) == -1 )
       goto outSendReplyHTTPL0;

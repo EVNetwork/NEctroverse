@@ -348,13 +348,13 @@ void iohttpForum( svConnectionPtr cnt )
  char *text;
 	FILE *fFile;
 
-iohttpBase( cnt, 1 );
-	
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
+	iohttpBase( cnt, 1 );
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-iohttpFunc_frontmenu( cnt, 3 );
+	iohttpBase( cnt, 8 );
+	iohttpFunc_frontmenu( cnt, 0 );
 }
 	
  iohttpVarsInit( cnt );
