@@ -684,6 +684,7 @@ void outSendReplyHTTP( svConnectionPtr cnt )
 
   if( iohttp->flags & 16 )
   {
+    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
     svSendString( cnt, "Content-Type: text/html\n\n" );
     svSendString( cnt, "<html><head><style type=\"text/css\">body,td{font-size:smaller;font-family:verdana,geneva,arial,helvetica,sans-serif;}a:hover{color:#00aaaa}</style></head><body bgcolor=\"#000000\" text=\"#C0D0D8\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\">" );
     svSendPrintf( cnt, "Your IP has been banned from %s, it is likely that you know why if it went that far.<br><br>Have a nice day!", sysconfig.servername );
@@ -711,6 +712,8 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &file->scurtime ) );
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
     svSendString( cnt, "Expires: Thu, 01 Dec 2004 16:00:00 GMT\n" );
+    svSendPrintf( cnt, "Content-Length: %d\n", file->size );
+    svSendPrintf( cnt, "Content-MD5: %s\n", str2md5(file->data) );
     svSendPrintf( cnt, iohttpMime[file->mime].def );
     svSendStatic( cnt, file->data, file->size );
   }
@@ -727,10 +730,6 @@ void outSendReplyHTTP( svConnectionPtr cnt )
   }
   else if( ( file->type == FILE_HTML ) || ( file->type == FILE_CSS ) || ( file->type == FILE_JAVA ) )
   {
-    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
-    svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
-    svSendString( cnt, "Pragma: no-cache\n" );
-    svSendPrintf( cnt, "%s\n\n", iohttpMime[file->type].def );
     sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
     if( stat( path, &stdata ) == -1 )
       goto outSendReplyHTTPL0;
@@ -743,6 +742,16 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     }
     data[stdata.st_size] = 0;
     fread( data, 1, stdata.st_size, fd );
+
+    strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &stdata.st_mtime ) );
+    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
+    svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
+    svSendPrintf( cnt, "Content-Length: %d\n", (int)stdata.st_size );
+    svSendPrintf( cnt, "Content-MD5: %s\n", str2md5(data) );
+    svSendString( cnt, "Pragma: no-cache\n" );
+    file->mime = iohttpMimeFind( file->fileread );
+    svSendPrintf( cnt, iohttpMime[file->mime].def );
+
     svSendString( cnt, data );
     fclose( fd );
     free( data );

@@ -8,7 +8,6 @@ SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
 #The standard config needed to compile basic server, withought these it won't work.
-REQUIRED = global.h
 FLAGS = $(SQLFLAG) --fast-math -Wall -fno-strict-aliasing -lpng -O3 
 LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl
 
@@ -19,25 +18,25 @@ DEFS = -ggdb
 server: sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS)
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
-sv.o: sv.c svban.c sv.h io.h db.h cmd.h artefact.h $(REQUIRED)
+sv.o: *.h sv.c svban.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
-io.o: io.c sv.h io.h db.h cmd.h artefact.h iohttpvars.c iohttp.c iohttpmime.c ioevm.c $(REQUIRED)
+io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
-db.o: db.c sv.h io.h db.h cmd.h $(REQUIRED)
+db.o: *.h db.c
 	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)
 
-cmd.o: cmd.c cmdexec.c cmdtick.c battle.c specop.c sv.h io.h db.h cmd.h artefact.h $(REQUIRED)
+cmd.o: *.h cmd.c cmdexec.c cmdtick.c battle.c specop.c
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
 
-map.o: map.c map.h $(REQUIRED)
+map.o: *.h map.c
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c $(REQUIRED)
+html.o: *.h html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-md5.o: md5.c md5.h $(REQUIRED)
+md5.o: *.h md5.c
 	$(CC) md5.c $(DEFS) -o md5.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
@@ -56,7 +55,7 @@ blank: clean
 	rm /tmp/evcore -rf
 
 #Not yet in deployment. This is just my testing section.
-mysql.o: optional/mysql.c optional/mysql.h $(REQUIRED)
+mysql.o: optional/mysql.c optional/mysql.h *.h
 	$(CC) optional/mysql.c $(DEFS) -o mysql.o -c $(FLAGS) $(LIBS)
 
 mysqltest: mysql.o md5.o

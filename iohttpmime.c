@@ -48,7 +48,7 @@ iohttpMimeDef iohttpMime[IOHTTP_MIME_TYPES] =
 { "Content-Type: application/octet-stream\n\n", iohttpMimeHeaderExts0, IOHTTP_MIME_HEADERS0 },
 { "Content-Type: text/plain\n\n", iohttpMimeHeaderExts1, IOHTTP_MIME_HEADERS1 },
 { "Content-Type: text/html\n\n", iohttpMimeHeaderExts2, IOHTTP_MIME_HEADERS2 },
-{ "Content-Type: text/css\n\n", iohttpMimeHeaderExts3, IOHTTP_MIME_HEADERS3	 },
+{ "Content-Type: text/css\n\n", iohttpMimeHeaderExts3, IOHTTP_MIME_HEADERS3 },
 { "Content-Type: text/javascript\n\n", iohttpMimeHeaderExts4, IOHTTP_MIME_HEADERS4 },
 { "Content-Type: image/gif\n\n", iohttpMimeHeaderExts5, IOHTTP_MIME_HEADERS5 },
 { "Content-Type: image/jpg\n\n", iohttpMimeHeaderExts6, IOHTTP_MIME_HEADERS6 },
