@@ -725,12 +725,12 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     cmdExecuteFlush();
 */
   }
-  else if( file->type == FILE_HTML )
+  else if( ( file->type == FILE_HTML ) || ( file->type == FILE_CSS ) || ( file->type == FILE_JAVA ) )
   {
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
     svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
     svSendString( cnt, "Pragma: no-cache\n" );
-    svSendString( cnt, "Content-Type: text/html\n\n" );
+    svSendPrintf( cnt, "%s\n\n", iohttpMime[file->type].def );
     sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
     if( stat( path, &stdata ) == -1 )
       goto outSendReplyHTTPL0;
@@ -747,53 +747,6 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     fclose( fd );
     free( data );
   }
-
-  else if( file->type == FILE_CSS )
-  {
-    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
-    svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
-    svSendString( cnt, "Pragma: no-cache\n" );
-    svSendString( cnt, "Content-Type: text/css\n\n" );
-    sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
-    if( stat( path, &stdata ) == -1 )
-      goto outSendReplyHTTPL0;
-    if( !( data = malloc( stdata.st_size + 1 ) ) )
-      goto outSendReplyHTTPL0;
-    if( !( fd = fopen( path, "rb" ) ) )
-    {
-      free( data );
-      goto outSendReplyHTTPL0;
-    }
-    data[stdata.st_size] = 0;
-    fread( data, 1, stdata.st_size, fd );
-    svSendString( cnt, data );
-    fclose( fd );
-    free( data );
-  }
-
-  else if( file->type == FILE_JAVA )
-  {
-    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
-    svSendString( cnt, "Cache-control: no-store, no-cache, max-age=0, must-revalidate\n" );
-    svSendString( cnt, "Pragma: no-cache\n" );
-    svSendString( cnt, "Content-Type: text/javascript\n\n" );
-    sprintf( path, "%s/%s", sysconfig.httpfiles, file->fileread );
-    if( stat( path, &stdata ) == -1 )
-      goto outSendReplyHTTPL0;
-    if( !( data = malloc( stdata.st_size + 1 ) ) )
-      goto outSendReplyHTTPL0;
-    if( !( fd = fopen( path, "rb" ) ) )
-    {
-      free( data );
-      goto outSendReplyHTTPL0;
-    }
-    data[stdata.st_size] = 0;
-    fread( data, 1, stdata.st_size, fd );
-    svSendString( cnt, data );
-    fclose( fd );
-    free( data );
-  }
-
 
 /*
   printf( "Path : %s\n", iohttp->path );

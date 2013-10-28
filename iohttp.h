@@ -7,10 +7,13 @@ FILE_FUNCTION,
 FILE_HTML,
 FILE_CSS,
 FILE_JAVA,
+FILE_TOTAL
 };
 
 extern char iohttpEnd[2][5];
 extern int iohttpEndSize[2];
+
+extern char outputformat[FILE_TOTAL];
 
 int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, char *cmd );
 
