@@ -9,19 +9,16 @@ fd_set svSelectRead;
 fd_set svSelectWrite;
 fd_set svSelectError;
 
-configDef sysconfig;
-adminDef admincfg;
-mySqlDef mysqlcfg;
-tickDef ticks;
+configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", false, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
+optionsDef options = { MODE_DAEMON, { false }, false, -1, -1, true, "", "", "evserver", "status" };
 
-optionsDef options = { MODE_DAEMON, false, -1, -1, true, "", "", "evserver", "status" };
+mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 
-int SV_INTERFACES = 2;
+adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
 
-int svListenPort[2] = { 9990, 9991 };
-int svListenIO[2] = { 0, 1 };
+tickDef ticks = { false, 0, 0, 0, 0 };
 
-int svListenSocket[2];
+int svListenSocket[16];
 
 svConnectionPtr svDebugConnection;
 
@@ -43,7 +40,7 @@ int svInit() {
 	struct sockaddr_in sinInterface;
 
 c=0;
-for( b = 0 ; b < SV_INTERFACES ; b++ ) {
+for( b = 0 ; b < options.interfaces ; b++ ) {
 	svListenSocket[b] = socket( AF_INET, SOCK_STREAM, 0 );
 	if( svListenSocket[b] == -1 ) {
 		if( options.verbose )
@@ -61,37 +58,35 @@ for( b = 0 ; b < SV_INTERFACES ; b++ ) {
 		continue;
 	}
 	sinInterface.sin_family = AF_INET;
-	//sinInterface.sin_addr.s_addr = inet_addr("212.79.239.2");
-	//Should work on all server now
 	sinInterface.sin_addr.s_addr = htonl(INADDR_ANY);
-	sinInterface.sin_port = htons( svListenPort[b] );
+	sinInterface.sin_port = htons( options.port[b] );
 	if( bind( svListenSocket[b], (struct sockaddr *)&sinInterface, sizeof(struct sockaddr_in) ) == -1 ) {
 		if( options.verbose )
-		printf("Error %03d, binding listening socket to port: %d\n", errno, svListenPort[b] );
-		syslog(LOG_ERR, "Error %03d, binding listening socket to port: %d\n", errno, svListenPort[b] );
+		printf("Error %03d, binding listening socket to port: %d\n", errno, options.port[b] );
+		syslog(LOG_ERR, "Error %03d, binding listening socket to port: %d\n", errno, options.port[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	}
 	if( listen( svListenSocket[b], SOMAXCONN ) == -1 ) {
 		if( options.verbose )
-		printf("Error %03d, listen on port: %d\n", errno, svListenPort[b] );
-		syslog(LOG_ERR, "Error %03d, listen on port: %d\n", errno, svListenPort[b] );
+		printf("Error %03d, listen on port: %d\n", errno, options.port[b] );
+		syslog(LOG_ERR, "Error %03d, listen on port: %d\n", errno, options.port[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} 
 	if( fcntl( svListenSocket[b], F_SETFL, O_NONBLOCK ) == -1 ) {
 		if( options.verbose )
-		printf("Error %03d, setting non-blocking on port: %d\n", errno, svListenPort[b] );
-		syslog(LOG_ERR, "Error %03d, setting non-blocking on port: %d\n", errno, svListenPort[b] );
+		printf("Error %03d, setting non-blocking on port: %d\n", errno, options.port[b] );
+		syslog(LOG_ERR, "Error %03d, setting non-blocking on port: %d\n", errno, options.port[b] );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} else { c++; }
 	if( options.verbose )
-	printf("Server awaiting connections on port: %d\n", svListenPort[b] );
-	syslog(LOG_ERR, "Server awaiting connections on port: %d\n", svListenPort[b] );
+	printf("Server awaiting connections on port: %d\n", options.port[b] );
+	syslog(LOG_ERR, "Server awaiting connections on port: %d\n", options.port[b] );
 }
 
 if ( c == 0 ) {
@@ -114,7 +109,7 @@ close(pipefileid);
 
 
 if( type ) {
-sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, svListenPort[0] );
+sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 unlink(DIRCHECKER);
 syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
 syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
@@ -122,7 +117,7 @@ closelog();
 if( options.verbose )
 printf("Server has been Completly shutdown!\n");
 } else {
-sprintf( DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, svListenPort[0] );
+sprintf( DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 unlink(DIRCHECKER);
 }
 
@@ -139,11 +134,11 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	next = cnt->next;
 	svFree( cnt );
 }
-for( a = 0 ; a < SV_INTERFACES ; a++ ) {
+for( a = 0 ; a < options.interfaces ; a++ ) {
 	if( svListenSocket[a] == -1 )
 		continue;
 
-   	if( shutdown( svListenSocket[a], 2 ) == -1 )
+   	if( shutdown( options.port[a], 2 ) == -1 )
 		if( options.verbose )
 		printf("Error %03d, unable to shutdown listening socket\n", errno );
 		syslog(LOG_ERR, "Error %03d, unable to shutdown listening socket\n", errno );
@@ -153,8 +148,8 @@ for( a = 0 ; a < SV_INTERFACES ; a++ ) {
 			syslog(LOG_ERR, "Error %03d, closing socket\n", errno );
 		} else {
 			if( options.verbose )
-			printf("Server released port: %d\n", svListenPort[a] );
-			syslog(LOG_INFO, "Server released port: %d\n", svListenPort[a] );
+			printf("Server released port: %d\n", options.port[a] );
+			syslog(LOG_INFO, "Server released port: %d\n", options.port[a] );
 		}
 
    	}
@@ -169,7 +164,7 @@ int svListen () {
 	svConnectionPtr cnt;
 	ioInterfacePtr io;
 
-for( b = 0 ; b < SV_INTERFACES ; b++ ) {
+for( b = 0 ; b < options.interfaces ; b++ ) {
 	if( svListenSocket[b] == -1 )
 		continue;
 	a = sizeof( struct sockaddr_in );
@@ -262,7 +257,7 @@ syslog(LOG_INFO, "Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin
 		svConnectionList->previous = &(cnt->next);
 	svConnectionList = cnt;
 
-	io = cnt->io = &ioInterface[svListenIO[b]];
+	io = cnt->io = &ioInterface[ ( (b == PORT_EVMP) ? true : false ) ];
 	svSendInit( cnt, io->outputsize );
 	io->inNew( cnt );
 }
@@ -280,7 +275,7 @@ void svSelect() {
 	FD_ZERO( &svSelectWrite );
 	FD_ZERO( &svSelectError );
 rmax = 0;
-for( a = 0 ; a < SV_INTERFACES ; a++ ) {
+for( a = 0 ; a < options.interfaces ; a++ ) {
 	if( svListenSocket[a] == -1 )
 		continue;
 	FD_SET( svListenSocket[a], &svSelectRead );
@@ -771,7 +766,7 @@ int svPipeSend(int pipedirection, char *message){
 	FILE *pipefile;
 	char DIRCHECKER[256];
 
-sprintf( DIRCHECKER, "%s/%s.%d.%s", TMPDIR, options.pipefile, svListenPort[0], ( pipedirection ? "pipe" : "client.pipe" ) );
+sprintf( DIRCHECKER, "%s/%s.%d.%s", TMPDIR, options.pipefile, options.port[PORT_HTTP], ( pipedirection ? "pipe" : "client.pipe" ) );
 if( file_exist(DIRCHECKER) && strlen(message) ) {
 	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
 		if( options.verbose )
@@ -945,7 +940,7 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <
 
 //add local pipe, for basic commands from shell
 
-sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, svListenPort[0] );
+sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 	if( mkfifo(DIRCHECKER, 0666) < 0 ) {
 	syslog(LOG_INFO, "Error creating pipe: %s\n", DIRCHECKER );
 	if( options.verbose )
@@ -1203,13 +1198,14 @@ if(type) {
 		return 0;
 	}
 	if( sysconfig.evmpactv ) {
-		svListenPort[1] = sysconfig.evmpport;
+		options.interfaces = 2;
+		options.port[PORT_EVMP] = sysconfig.evmpport;
 	} else {
-		SV_INTERFACES = 1;
+		options.interfaces = 1;
 	}
 
 	if( sysconfig.httpport )
-		svListenPort[0] = options.port ? options.port : sysconfig.httpport;
+		options.port[PORT_HTTP] = options.port[PORT_HTTP] ? options.port[PORT_HTTP] : sysconfig.httpport;
 
 	if( strlen(sysconfig.syslog_facility) && strcmp(sysconfig.syslog_facility,"LOG_SYSLOG") ){
 		closelog();
@@ -1292,8 +1288,8 @@ while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
 			sprintf(options.mapini, "%s", optarg);
 			break;
 		case 'p':
-			options.port = atoi(optarg);
-			svListenPort[0] = options.port;
+			options.port[PORT_HTTP] = atoi(optarg);
+			options.port[PORT_HTTP] = options.port[PORT_HTTP];
 			break;
 		case 'q':
 			options.verbose = false;
@@ -1345,12 +1341,11 @@ if( checkops(argc,argv) ) {
 
 if( file_exist(options.sysini) == 0 ) {
 	printf("File does not exist: \'%s\'\n",options.sysini);
-	printf("Use \'-c /path/to/evconfig.ini\' to specify ini file.\n");
+	printf("Use \'-c /path/to/evconfig.ini\' to specify ini file to load (including the file name)\n");
 	fflush(stdout);
 	exit(true);
 } else if( options.verbose ) {
 	printf("Loading config from file: \'%s\'\n",options.sysini);
-	printf("Use \'-c /path/to/evconfig.ini\' to specify a different file.\n");
 	fflush(stdout);
 }
 
@@ -1361,21 +1356,14 @@ if( !(loadconfig(options.sysini,1)) ) {
 	exit(true);
 }
 
-sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, svListenPort[0] );
+sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
 	printf("%s\n","Pipe file detected, auto switching to client mode");
 	goto CLIENT;
 }
 
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
-if( !(loadconfig(DIRCHECKER,0)) ) {
-	ticks.status = false;
-	ticks.number = 0;
-	ticks.next = 0;
-	ticks.debug_id = 0;
-	ticks.debug_pass = 0;
-}
-
+loadconfig(DIRCHECKER,0);
 
 dirstructurecheck(TMPDIR);
 
@@ -1489,7 +1477,7 @@ return 0;
 //OK, so we made it down here... that means we are a client and the pipe is active.
 CLIENT:
 
-sprintf(DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, svListenPort[0] );
+sprintf(DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 mkfifo(DIRCHECKER, 0666);
 
 if( strlen(options.pipestring) ) {

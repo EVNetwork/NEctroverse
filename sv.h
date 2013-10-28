@@ -53,6 +53,12 @@ OPTION_TOTAL,
 
 enum 
 {
+PORT_HTTP,
+PORT_EVMP,
+};
+
+enum 
+{
 MODE_DAEMON,
 MODE_FORKED,
 MODE_TOTAL,
@@ -61,7 +67,8 @@ MODE_TOTAL,
 typedef struct {
 	//startup options
 	int mode;
-	int port;
+	int port[16];
+	int interfaces;
 	int serverpipe;
 	int clientpipe;
 	bool verbose;
@@ -77,6 +84,7 @@ typedef struct {
 	//mysql
 	bool active;
 	char* host;
+	int port;
 	char* user;
 	char* password;
 	char* database;
