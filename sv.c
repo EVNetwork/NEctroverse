@@ -160,8 +160,6 @@ int svListen () {
 	svConnectionPtr cnt;
 	ioInterfacePtr io;
 
-	loadconfig(options.banini,2);
-
 for( b = 0 ; b < options.interfaces ; b++ ) {
 	if( svListenSocket[b] == -1 )
 		continue;
@@ -801,6 +799,7 @@ void daemonloop() {
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
 		svPipeScan( options.serverpipe );
+		loadconfig(options.banini,2);
 		svSelect();
 		svListen();
 		svRecv();
