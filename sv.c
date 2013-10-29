@@ -1302,8 +1302,11 @@ int checkops(int argc, char **argv) {
      
 opterr = 0;
 result = false;
-while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
+while( (option = getopt(argc, argv, "b:c:fm:p:qs:") ) != -1) {
 	switch(option) {
+		case 'b':
+			sprintf(options.banini, "%s", optarg);
+			break;
 		case 'c':
 			sprintf(options.sysini, "%s", optarg);
 			break;
@@ -1316,7 +1319,6 @@ while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
 			break;
 		case 'p':
 			options.port[PORT_HTTP] = atoi(optarg);
-			options.port[PORT_HTTP] = options.port[PORT_HTTP];
 			break;
 		case 'q':
 			options.verbose = false;
@@ -1327,7 +1329,7 @@ while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
 
 
 		case '?':
-			if( (optopt == 'c') || (optopt == 'm') || (optopt == 'p') || (optopt == 's') ) {
+			if( (optopt == 'b') || (optopt == 'c') || (optopt == 'm') || (optopt == 'p') || (optopt == 's') ) {
 				fprintf (stderr, "Option \'-%c\' requires an argument.\n", optopt);
 				result = true;
 			} else if( isprint(optopt) ) {
