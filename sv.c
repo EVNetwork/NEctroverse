@@ -1213,17 +1213,17 @@ if (MATCH("mapgen", "size")) {
 	pconfig->families = atoi(value);
 } else if (MATCH("mapgen", "members_perfamily")) {
 	pconfig->fmembers = atoi(value);
-} else if (MATCH("mapgen", "genborder")) {
+} else if (MATCH("mapgen", "border")) {
 	pconfig->border = atoi(value);
-} else if (MATCH("mapgen", "genanglevar")) {
+} else if (MATCH("mapgen", "anglevar")) {
 	pconfig->anglevar = atoi(value);
 } else if (MATCH("mapgen", "linknum")) {
 	pconfig->num = atoi(value);
-} else if (MATCH("mapgen", "linkradius")) {
+} else if (MATCH("mapgen", "radius")) {
 	pconfig->radius = atoi(value);
-} else if (MATCH("mapgen", "lnklenghtbase")) {
+} else if (MATCH("mapgen", "lenghtbase")) {
 	pconfig->lenghtbase = atoi(value);
-} else if (MATCH("mapgen", "lnklenghtvar")) {
+} else if (MATCH("mapgen", "lenghtvar")) {
 	pconfig->lenghtvar = atoi(value);
 } else {
         return 0;
@@ -1543,7 +1543,7 @@ if( !( file_exist(sysconfig.httpimages) ) ) {
 	if(test)
 	return 1;
 }
-	spawn_map();
+
 printf("\n");
 sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 if( !( file_exist(DIRCHECKER) ) ) {
