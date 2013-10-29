@@ -5,7 +5,7 @@
 #include "imgpng.c"
 
 
-uint8_t *mapCalcFactors(mapstoreDef mapstore) {
+void mapCalcFactors(mapstoreDef *mapstore) {
 	int a, b, c, x, y, index;
 	float fx, fy, dist, mindist;
 	float fpos[2];
@@ -13,7 +13,6 @@ uint8_t *mapCalcFactors(mapstoreDef mapstore) {
 	float fdir[2];
 	float pts[65536][2];
 	int ptsnum;
-	uint8_t *pixies;
 
 ptsnum = 0;
 
@@ -47,19 +46,14 @@ for( y = index = 0 ; y < mapcfg.sizey ; y++ ) {
 			continue;
 			mindist += mapcfg.radius - dist;
 		}
-		mapstore.factor[index] += (int)floor( mindist );
+		mapstore->factor[index] += (int)floor( mindist );
 	}
 }
 
-pixies = malloc( mapcfg.sizex*mapcfg.sizey );
-for( y = 0 ; y < mapcfg.sizey ; y++ ) { 
-	for( x = 0 ; x < mapcfg.sizex ; x++ )  {
-		pixies[(y*mapcfg.sizex)+x] = (mapstore.factor[(y*mapcfg.sizex)+x] >> 3);
-	}  
-}
 
 
-return pixies;
+
+return;
 }
 
 
@@ -124,7 +118,7 @@ mapgen.format = IMG_IMAGE_FORMAT_GRAYSCALE;
 mapgen.bytesperpixel = 1;
 mapgen.bytesperline = mapgen.width;
 
-pixels = mapCalcFactors(mapstore);
+mapCalcFactors(&mapstore);
 
 for( a = 0 ; a < mapcfg.families ; a++ ) {
 	mainL1:
@@ -311,12 +305,18 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 fclose( file );
 //End family generation
 
-for( y = 0 ; y < mapcfg.sizex ; y++ ) { 
-	for( x = 0 ; x < mapcfg.sizey ; x++ )  {
-		if ( mapstore.data[(y*mapcfg.sizey)+x] )
-			pixels[(y*mapcfg.sizey)+x] = mapstore.data[(y*mapcfg.sizey)+x];
+//Arightyz, we've got all the data... now lets put it to some use and spalt a image out.
+pixels = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+memset( pixels, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+
+for( y = 0 ; y < mapcfg.sizey ; y++ ) { 
+	for( x = 0 ; x < mapcfg.sizex ; x++ )  {
+		pixels[(y*mapcfg.sizex)+x] = (mapstore.factor[(y*mapcfg.sizex)+x] >> 3); //here the milk gets set
+		if( mapstore.data[(y*mapcfg.sizex)+x] )
+			pixels[(y*mapcfg.sizex)+x] = mapstore.data[(y*mapcfg.sizex)+x]; //here the dots get pointed
 	}  
 }
+
 
 /*
 mapgen.width = MAP_DEFINE_SIZEX *3;

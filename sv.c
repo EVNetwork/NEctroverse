@@ -12,7 +12,7 @@ fd_set svSelectError;
 configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
-mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24 };
+mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24, 0 };
 adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
 tickDef ticks = { false, 0, 0, 0, 0 };
 
@@ -1181,7 +1181,7 @@ return 1;
 }
 
 static int mapconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	int a;
+	int a, i;
 	char DIRCHECKER[256];
 	mapcfgPtr pconfig = (mapcfgPtr)fconfig;
 
@@ -1191,6 +1191,9 @@ static int mapconfig_handler(void* fconfig, const char* section, const char* nam
 pconfig->bonusvar = malloc( CMD_RESSOURCE_NUMUSED * sizeof(int) );
 for(a = 0; a < CMD_RESSOURCE_NUMUSED; a++) {
 	sprintf(DIRCHECKER,"%s",cmdRessourceName[a]);
+	for(i = 0; DIRCHECKER[i]; i++){
+		DIRCHECKER[i] = tolower(DIRCHECKER[i]);
+	}
 	if (MATCH("mapgen", DIRCHECKER)) {
 		pconfig->bonusnum += atoi(value);
 		pconfig->bonusvar[a] = atoi(value);
@@ -1200,10 +1203,10 @@ for(a = 0; a < CMD_RESSOURCE_NUMUSED; a++) {
 }
 free(pconfig->bonusvar);
 
-if (MATCH("mapgen", "sizex")) {
+if (MATCH("mapgen", "size")) {
 	pconfig->sizex = atoi(value);
-} else if (MATCH("mapgen", "sizey")) {
-	pconfig->sizey = atoi(value);
+//} else if (MATCH("mapgen", "height")) {
+	pconfig->sizey = atoi(value); 
 } else if (MATCH("mapgen", "systems")) {
 	pconfig->systems = atoi(value);
 } else if (MATCH("mapgen", "families")) {
@@ -1540,7 +1543,7 @@ if( !( file_exist(sysconfig.httpimages) ) ) {
 	if(test)
 	return 1;
 }
-
+	spawn_map();
 printf("\n");
 sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 if( !( file_exist(DIRCHECKER) ) ) {
