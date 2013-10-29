@@ -65,6 +65,7 @@ typedef struct {
 	int clientpipe;
 	bool verbose;
 	char sysini[512];
+	char banini[512];
 	char mapini[512];
 	char pipefile[512];
 	char pipestring[128];
@@ -152,6 +153,8 @@ void svSelect();
 void svRecv();
 
 int file_exist(char *filename);
+int loadconfig( char *file, int type );
+
 char *trimwhitespace(char *str);
 char** str_split(char* str, char delim, int* numSplits );
 void dirstructurecheck(char *directory);
@@ -191,8 +194,8 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size );
 typedef struct {
 	//new ban listing
 	int number;
-	char (*list)[32];
+	char (*ip)[32];
 } svbanDef, *svbanPtr;
 
-extern svbanDef svbanlist;
+extern svbanDef banlist;
 

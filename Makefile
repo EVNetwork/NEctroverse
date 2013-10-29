@@ -18,7 +18,7 @@ DEFS = -ggdb
 server: sv.o io.o db.o cmd.o html.o map.o md5.o
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
-sv.o: *.h sv.c svban.c
+sv.o: *.h sv.c svban.c ini.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
 io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c

@@ -575,9 +575,9 @@ void inNewHTTP( svConnectionPtr cnt )
   memset( cnt->iodata, 0, sizeof(iohttpDataDef) );
 
   iohttp = cnt->iodata;
-  for( i = 0 ; i < svbanlist.number ; i++ )
+  for( i = 0 ; i < banlist.number ; i++ )
   {
-    if( !( ioCompareFindWords( inet_ntoa( cnt->sockaddr.sin_addr ), svbanlist.list[i] ) ) )
+    if( !( ioCompareFindWords( inet_ntoa( cnt->sockaddr.sin_addr ), banlist.ip[i] ) ) )
       continue;
     cnt->flags |= SV_FLAGS_NEED_WRITE;
     iohttp->flags = 8 | 16;

@@ -155,7 +155,6 @@ int ini_parse_file(FILE* file,
 #if !INI_USE_STACK
     free(line);
 #endif
-
     return error;
 }
 
@@ -168,7 +167,7 @@ int ini_parse(const char* filename,
     int error;
 
     file = fopen(filename, "r");
-    if (!file)
+    if (!file) 
         return -1;
     error = ini_parse_file(file, handler, user);
     fclose(file);

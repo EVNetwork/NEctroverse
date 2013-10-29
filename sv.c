@@ -10,7 +10,7 @@ fd_set svSelectWrite;
 fd_set svSelectError;
 
 configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
-optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "evserver", "status" };
+optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
 tickDef ticks = { false, 0, 0, 0, 0 };
@@ -19,7 +19,7 @@ int svListenSocket[PORT_TOTAL];
 
 svConnectionPtr svDebugConnection;
 
-svbanDef svbanlist = { 0 };
+svbanDef banlist = { 0 };
 
 int svTime() {
 	struct timeval lntime;
@@ -159,6 +159,8 @@ int svListen () {
 	struct sockaddr_in sockaddr;
 	svConnectionPtr cnt;
 	ioInterfacePtr io;
+
+	loadconfig(options.banini,2);
 
 for( b = 0 ; b < options.interfaces ; b++ ) {
 	if( svListenSocket[b] == -1 )
@@ -1185,16 +1187,16 @@ static int banconfig_handler(void* fconfig, const char* section, const char* nam
 if (MATCH("banned_ips", "number")) {
 	pconfig->number = atoi(value);
 }
-pconfig->list = malloc(pconfig->number * sizeof(*pconfig->list));
-for(a = 0; a < svbanlist.number; a++) {
+pconfig->ip = malloc(pconfig->number * sizeof(*pconfig->ip)); //Not really sure if this is needed, but I figger it's safer.
+for(a = 0; a < banlist.number; a++) {
 	sprintf(DIRCHECKER,"ip%d",(a+1));
 	if (MATCH("banned_ips", DIRCHECKER)) {
-		sprintf(pconfig->list[a],"%s",value);
+		sprintf(pconfig->ip[a],"%s",value);
 	} else {
 		continue;
 	}
 }
-free(pconfig->list);
+free(pconfig->ip); //Not really sure if this is needed, but I figger it's safer.
 
 return 1;
 }
@@ -1253,7 +1255,8 @@ if(type == 1) {
 		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
 	}
 } else if( type == 2 ){
-	if (ini_parse(file, banconfig_handler, &svbanlist ) < 0) {
+	banlist.number = 0;
+	if (ini_parse(file, banconfig_handler, &banlist ) < 0) {
 		return 0;
 	}
 } else {
@@ -1275,8 +1278,8 @@ file = fopen( DIRCHECKER, "r+" );
 if(!file)
 	file = fopen( DIRCHECKER, "w" );
 if(file) {
-	fprintf( file, ";Auto generated, there should be no need to edit this file!\n" );
-	fprintf( file, "[ticks]\n" );
+	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
+	fprintf( file, "%s\n", "[ticks]" );
 	fprintf( file, "status=%s\n", ( ticks.status ? "true" : "false" ) );
 	fprintf( file, "number=%d\n", ticks.number );
 	fprintf( file, "next=%d\n", ticks.next );
@@ -1346,6 +1349,16 @@ if( !( strlen(options.sysini) > 0 ) ) {
 	}
 }
 
+if( !( strlen(options.banini) > 0 ) ) {
+	if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
+		sprintf(options.banini, "%s/evbaned.ini" ,DIRCHECKER);
+	} else {
+		perror("getcwd() error");
+		result = true;
+	}
+}
+
+
 for( index = optind; index < argc; index++ ) {
 	printf ("Non-option argument: \'%s\'\n", argv[index]);
 	result = true;
@@ -1389,10 +1402,8 @@ if ( file_exist(DIRCHECKER) ) {
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,0);
 
-if( !(loadconfig("evbaned.ini",2)) ) {
-	printf("Error loading evbaned config. Unable to start.\n");
-	exit(true);
-}
+loadconfig(options.banini,2);
+
 
 dirstructurecheck(TMPDIR);
 
