@@ -217,6 +217,7 @@ typedef struct
   int numplanets;
   int empire;
   int unexplored;
+  int jumpgate;
 } dbMainSystemDef, *dbMainSystemPtr;
 
 int dbMapSetSystem( int sysid, dbMainSystemPtr systemd );
@@ -263,9 +264,10 @@ typedef struct
   int artefacts;
   int rank;
   int construction;
-  int building[8];
   int taxation;
+  int building[8];
   long long int fund[8];
+  char message[2][4096];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
 typedef struct

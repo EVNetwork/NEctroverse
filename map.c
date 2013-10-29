@@ -271,6 +271,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 // New families generation, based on defaults.
 for( a = 0 ; a < mapcfg.families ; a++ ) {
 	empired = dbEmpireDefault;
+	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
 	if( ( admincfg.empire_number == a ) && ( strlen(admincfg.empire_password) ) ) {
 		if( strlen(admincfg.empire_name) )
 		strcpy( empired.name, admincfg.empire_name);

@@ -463,6 +463,7 @@ dbMainSystemDef dbSystemDefault =
   -1,
   -1,
   -1,
+  -1,
 };
 
 dbMainPlanetDef dbPlanetDefault =
@@ -504,6 +505,7 @@ dbMainEmpireDef dbEmpireDefault =
   0,
   { 0, 0, 0, 0, 0, 0, 0, 0 },
   { 0, 0, 0, 0, 0, 0, 0, 0 },
+  {"",""},
 };
 
 

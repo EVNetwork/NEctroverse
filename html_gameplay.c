@@ -1319,11 +1319,11 @@ void iohttpFunc_hq( svConnectionPtr cnt )
 {
  int id, a, num;
  dbUserMainDef maind;
+ dbMainEmpireDef empired;
  long long int *newsp, *newsd;
  FILE *file;
  struct stat stdata;
  char *data;
- char message[4096];
  char DIRCHECKER[256];
 
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -1335,6 +1335,13 @@ void iohttpFunc_hq( svConnectionPtr cnt )
   free( newsp );
   return;
  }
+
+ if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
+ {
+  svSendString( cnt, "Error retriving Empire details!</body></html>" );
+  return;
+ }
+
  iohttpBodyInit( cnt, "Headquarters" );
 
  svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
@@ -1368,10 +1375,10 @@ sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
 	}
 }
 //end hq message
- if( ( dbEmpireMessageRetrieve( maind.empire, 0, message ) >= 0 ) && ( message[0] ) )
+ if( ( strlen(empired.message[0]) ) )
  {
   svSendString( cnt, "<b>Message from your leader</b><br>" );
-  svSendString( cnt, message );
+  svSendString( cnt, empired.message[0] );
   svSendString( cnt, "<br><br>" );
  }
 
@@ -2654,7 +2661,6 @@ void iohttpFunc_famrels( svConnectionPtr cnt )
  dbMainEmpireDef empired;
  char *empirestring;
  int *rel;
- char message[4096];
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2683,10 +2689,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  iohttpBodyInit( cnt, "Empire #%d relations", curfam );
 
- if( ( dbEmpireMessageRetrieve( curfam, 1, message ) >= 0 ) && ( message[0] ) )
+ if( strlen( empired.message[1] ) )
  {
   svSendString( cnt, "<b>Message from your leader</b><br>" );
-  svSendString( cnt, message );
+  svSendString( cnt, empired.message[1] );
   svSendString( cnt, "<br><br>" );
  }
 
@@ -2799,7 +2805,6 @@ if( taxstring ){
 		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 			svSendString( cnt, "<i>Error setting new tax...</i><br><br>" );
 		} else {
-			dbMapRetrieveEmpire( curfam, &empired );
 			svSendPrintf( cnt, "<i>Taxation set to %d%%</i><br><br>", empired.taxation );
 		}
 	}
@@ -2818,7 +2823,6 @@ if( taxstring ){
   else
   {
    svSendString( cnt, "<i>Empire name changed</i><br><br>" );
-   dbMapRetrieveEmpire( curfam, &empired );
   }
  }
 
@@ -2918,24 +2922,30 @@ if( taxstring ){
    svSendPrintf( cnt, "<i>Changed relation with empire #%d</i><br><br>", relfam );
  }
 
- if( hqmesstring )
- {
-  iohttpForumFilter( message, hqmesstring, 4096, 0 );
-  iohttpForumFilter2( message2, message, 4096 );
-  dbEmpireMessageSet( curfam, 0, message2 );
-  svSendString( cnt, "<i>Leader message changed</i><br><br>" );
- }
+if( hqmesstring ) {
+	iohttpForumFilter( message, hqmesstring, 4096, 0 );
+	iohttpForumFilter2( message2, message, 4096 );
+	strcpy(empired.message[0],message2);
+	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
+		svSendString( cnt, "<i>Error changing Leader message...</i><br><br>" );
+	} else {
+		svSendString( cnt, "<i>Leader message changed</i><br><br>" );
+	}
+}
 
- if( relsmesstring )
- {
-  iohttpForumFilter( message, relsmesstring, 4096, 0 );
-  iohttpForumFilter2( message2, message, 4096 );
-  dbEmpireMessageSet( curfam, 1, message2 );
-  svSendString( cnt, "<i>Relations message changed</i><br><br>" );
- }
+if( relsmesstring ) {
+	iohttpForumFilter( message, relsmesstring, 4096, 0 );
+	iohttpForumFilter2( message2, message, 4096 );
+	strcpy(empired.message[1],message2);
+	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
+		svSendString( cnt, "<i>Error changing Leader message...</i><br><br>" );
+	} else {
+		svSendString( cnt, "<i>Leader message changed</i><br><br>" );
+	}
+}
 
  iohttpFunc_famleaderL0:
-
+ dbMapRetrieveEmpire( curfam, &empired );
  svSendString( cnt, "<table>" );
 
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Empire name</td></tr>" );
@@ -2951,6 +2961,7 @@ if( taxstring ){
  svSendString( cnt, "<tr><td><input type=\"file\" name=\"fname\" size=\"64\"></td></tr>" );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Upload\"></form><br><br><br></td></tr>" );
 
+ if( empired.numplayers > 1 ) {
  svSendString( cnt, "<tr><td>Set an empire member status</td></tr>" );
  svSendString( cnt, "<tr><td><i>Vice-leaders can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\"><select name=\"sid\">" );
@@ -2964,7 +2975,7 @@ if( taxstring ){
  }
  svSendString( cnt, "</select> <select name=\"status\"><option value=\"0\">No tag<option value=\"1\">Vice-leader</option><option value=\"2\">Minister of Communication<option value=\"3\">Minister of Development<option value=\"4\">Minister of War<option value=\"5\">Independent</select></td></tr>" );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
-
+ }
  cmdExecGetFamPass( curfam, fname );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Empire password</td></tr>" );
  svSendString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
@@ -3017,14 +3028,14 @@ if( taxstring ){
  svSendString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
  svSendString( cnt, "</table></td></tr>" );
 
- dbEmpireMessageRetrieve( curfam, 0, message );
- iohttpForumFilter3( message2, message, 4096 );
+// dbEmpireMessageRetrieve( curfam, 0, message );
+ iohttpForumFilter3( message2, empired.message[0], 4096 );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Leader message</td></tr>" );
  svSendPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- dbEmpireMessageRetrieve( curfam, 1, message );
- iohttpForumFilter3( message2, message, 4096 );
+// dbEmpireMessageRetrieve( curfam, 1, message );
+ iohttpForumFilter3( message2, empired.message[1], 4096 );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Relations message</td></tr>" );
  svSendPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );

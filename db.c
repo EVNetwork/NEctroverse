@@ -2438,39 +2438,6 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
 }
 
 
-
-int dbEmpireMessageSet( int id, int num, char *text )
-{
-  FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
-    return -3;
-  if( !( file = dbFileFamOpen( id, 1 ) ) )
-    return -3;
-  fseek( file, num*sizeof(dbEmpireDescDef), SEEK_SET );
-  fwrite( text, 1, strlen( (const char *)text ) + 1, file );
-  fclose( file );
-  return 1;
-}
-
-int dbEmpireMessageRetrieve( int id, int num, char *text )
-{
-  FILE *file;
-  if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
-    return -3;
-  if( !( file = dbFileFamOpen( id, 1 ) ) )
-    return -3;
-  fseek( file, num*sizeof(dbEmpireDescDef), SEEK_SET );
-  fread( text, 1, sizeof(dbEmpireDescDef), file );
-  fclose( file );
-  return 1;
-}
-
-
-
-
-
-
-
 /*
 market
    4:num max bids
