@@ -19,7 +19,7 @@ typedef struct {
 	int lenghtvar;
 	
 	int bonusnum;
-	int *bonusvar;
+	int bonusvar[CMD_BONUS_NUMUSED];
 } mapcfgDef, *mapcfgPtr;
 
 extern mapcfgDef mapcfg;

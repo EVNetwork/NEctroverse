@@ -13,6 +13,17 @@ char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2] =
 "Population"
 };
 
+char *cmdBonusName[CMD_BONUS_NUMUSED] =
+{
+"Energy",
+"Mineral",
+"Crystal",
+"Ectrolium",
+"Research",
+"Disease",
+"Population"
+};
+
 char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
 {
 "Solar collectors",

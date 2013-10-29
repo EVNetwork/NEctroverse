@@ -1187,10 +1187,8 @@ static int mapconfig_handler(void* fconfig, const char* section, const char* nam
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
-//ok, here we go again... another dynamic array.
-pconfig->bonusvar = malloc( CMD_RESSOURCE_NUMUSED * sizeof(int) );
-for(a = 0; a < CMD_RESSOURCE_NUMUSED; a++) {
-	sprintf(DIRCHECKER,"%s",cmdRessourceName[a]);
+for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
+	sprintf(DIRCHECKER,"%s",cmdBonusName[a]);
 	for(i = 0; DIRCHECKER[i]; i++){
 		DIRCHECKER[i] = tolower(DIRCHECKER[i]);
 	}
@@ -1201,7 +1199,6 @@ for(a = 0; a < CMD_RESSOURCE_NUMUSED; a++) {
 		continue;
 	}
 }
-free(pconfig->bonusvar);
 
 if (MATCH("mapgen", "size")) {
 	pconfig->sizex = atoi(value);
@@ -1453,7 +1450,6 @@ sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,CONFIG_TICKS);
 
 loadconfig(options.sysini,CONFIG_BANNED);
-
 
 dirstructurecheck(TMPDIR);
 
