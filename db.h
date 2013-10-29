@@ -264,6 +264,7 @@ typedef struct
   int rank;
   int construction;
   int building[8];
+  int taxation;
   long long int fund[8];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 

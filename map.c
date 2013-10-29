@@ -74,19 +74,16 @@ int spawn_map() {
 	dbMainEmpireDef empired;
 
 memset( &mapstore, 0, sizeof(mapstoreDef) ); // ahaha... holy cow this is gonna be hectic =P
-
 mapstore.factor = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
 memset( mapstore.factor, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
 mapstore.data = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
 memset( mapstore.data, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
-
 mapstore.posx = malloc( sizeof(int)*mapcfg.bonusnum );
 memset( mapstore.posx, 0, sizeof(int)*mapcfg.bonusnum );
 mapstore.posy = malloc( sizeof(int)*mapcfg.bonusnum );
 memset( mapstore.posy, 0, sizeof(int)*mapcfg.bonusnum );
 mapstore.type = malloc( sizeof(int)*mapcfg.bonusnum );
 memset( mapstore.type, 0, sizeof(int)*mapcfg.bonusnum );
-
 mapstore.pos = malloc( sizeof(int)*mapcfg.systems );
 memset( mapstore.pos, 0, sizeof(int)*mapcfg.systems );
 mapstore.planets = malloc( sizeof(int)*mapcfg.systems );
@@ -97,10 +94,10 @@ mapstore.home = malloc( sizeof(int)*mapcfg.systems );
 memset( mapstore.home, 0, sizeof(int)*mapcfg.systems );
 mapstore.system = malloc( sizeof(int)*mapcfg.families );
 memset( mapstore.system, 0, sizeof(int)*mapcfg.families );
-
 mapstore.arti = malloc( sizeof(int)*ARTEFACT_NUMUSED );
 memset( mapstore.arti, 0, sizeof(int)*ARTEFACT_NUMUSED );
 
+mapCalcFactors(&mapstore);
 
 memset( &mapd, 0, sizeof(dbMainMapDef) );
 memset( &systemd, 0, sizeof(dbMainSystemDef) );
@@ -118,7 +115,6 @@ mapgen.format = IMG_IMAGE_FORMAT_GRAYSCALE;
 mapgen.bytesperpixel = 1;
 mapgen.bytesperline = mapgen.width;
 
-mapCalcFactors(&mapstore);
 
 for( a = 0 ; a < mapcfg.families ; a++ ) {
 	mainL1:
@@ -289,7 +285,7 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	empired.homeid = mapstore.system[a];
 	empired.homepos = mapstore.pos[ mapstore.system[a] ];
 	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
-// <<WORKNEEDED>>
+// FIXME: Well duh... we got all the other stuff nice and flexible... what about this!
 	sprintf( fname, "%s/data/fam%dnews", sysconfig.directory, a );
 	file2 = fopen( fname, "wb" );
 	j = 0;
@@ -353,7 +349,7 @@ free(pixels);
 
 
 
-//<<WORKNEEDED>> Such a dirty fix, but well... it works. =/
+//FIXME: Such a dirty fix, but well... it works. =/
 if(mapgen.width == mapcfg.sizex) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {

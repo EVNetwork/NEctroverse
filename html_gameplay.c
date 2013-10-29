@@ -2175,9 +2175,23 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   }
   svSendString( cnt, "</td></tr>" );
   a = stats[a+1];
- }
+ 
+}
  svSendString( cnt, "</table><br>" );
 
+
+if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
+	svSendString( cnt, "<br>Empire Fund:" );	
+	svSendString( cnt, "<table>" );
+	svSendString( cnt, "<tr>" );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], empired.fund[CMD_RESSOURCE_ENERGY] );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_CRYSTAL], empired.fund[CMD_RESSOURCE_CRYSTAL] );
+	svSendString( cnt, "</tr><tr>" );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_MINERAL], empired.fund[CMD_RESSOURCE_MINERAL] );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ECTROLIUM], empired.fund[CMD_RESSOURCE_ECTROLIUM] );
+	svSendString( cnt, "</tr>" );
+	svSendString( cnt, "</table>" );
+}
 
 /*
  if( empired.artefacts )
@@ -2219,6 +2233,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  }
  if( curfam == maind.empire )
   svSendString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );	
+
 
  iohttpBodyEnd( cnt );
  return;
@@ -2727,7 +2742,7 @@ void iohttpFunc_famleader( svConnectionPtr cnt )
  int a, b, c, id, filesize, curfam, sid, status, relfam, reltype;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *fampic, *filename;
+ char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *fampic, *filename, *taxstring;
  char fname[256];
  FILE *file;
  iohttpFilePtr cfile;
@@ -2751,6 +2766,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   sidstring = iohttpVarsFind( "sid" );
   statusstring = iohttpVarsFind( "status" );
   fampassstring = iohttpVarsFind( "fampass" );
+  taxstring = iohttpVarsFind( "taxlevel" );
   relfamstring = iohttpVarsFind( "relfam" );
   reltypestring = iohttpVarsFind( "reltype" );
   hqmesstring = iohttpVarsFind( "hqmes" );
@@ -2774,6 +2790,21 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  }
 
  iohttpBodyInit( cnt, "Leader options" );
+
+if( taxstring ){
+	if( atoi(taxstring) > 25 ) {
+		svSendString( cnt, "<i>Tax level too high!!</i><br><br>" );
+	} else {
+		empired.taxation = atoi(taxstring);
+		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
+			svSendString( cnt, "<i>Error setting new tax...</i><br><br>" );
+		} else {
+			dbMapRetrieveEmpire( curfam, &empired );
+			svSendPrintf( cnt, "<i>Taxation set to %d%%</i><br><br>", empired.taxation );
+		}
+	}
+}
+
  if( fnamestring )
  {
   a = iohttpForumFilter( fname, fnamestring, 63, 0 );
@@ -2795,8 +2826,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  {
   iohttpForumFilter( fname, fampassstring, 32, 0 );
   
-  //ONLY ROUND #23 - 24 changes comment the next line
-  
+
   if(cmdExecSetFamPass( curfam, fname) != 1)
 			svSendString( cnt, "<i>Empire password did not changed</i><br><br>" );
 		else
@@ -2863,7 +2893,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
    goto iohttpFunc_famleaderL0;
   if( !( relfamstring ) )
   {
-  	//Cancel all rel cancelation by commenting this if
    if( cmdExecDelRelation( curfam, reltype ) < 0 )
    {
     if( cmdErrorString )
@@ -2877,9 +2906,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   }
   if( sscanf( relfamstring, "%d", &relfam ) != 1 )
    goto iohttpFunc_famleaderL0;
-   
-   //ONLY #23 - 24 Can't give ally rel only war :D
-//   reltype = CMD_RELATION_WAR;
    
   if( cmdExecAddRelation( curfam, reltype, relfam ) < 0 )
   {
@@ -2916,6 +2942,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fname\" size=\"64\" value=\"%s\"></td></tr>", curfam, empired.name );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
+ svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Taxation</td></tr>" );
+ svSendPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%d\"></td></tr>", empired.taxation );
+ svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+
  svSendString( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">Empire picture</td></tr>" );
  svSendString( cnt, "<tr><td><i>Note : Family pictures can't exceed 64k</i></td></tr>" );
  svSendString( cnt, "<tr><td><input type=\"file\" name=\"fname\" size=\"64\"></td></tr>" );
@@ -2937,12 +2967,12 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  cmdExecGetFamPass( curfam, fname );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Empire password</td></tr>" );
- svSendString( cnt, "<tr><td><i>The empire password is required for players to join the empire. Leave the field blank to let anyone join.</i></td></tr>" );
+ svSendString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
  svSendPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fampass\" size=\"64\" value=\"%s\"></td></tr>", curfam, fname );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  svSendString( cnt, "<tr><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">" );
-// svSendString( cnt, "<tr><td width=\"40%\"><form action=\"famleader\" method=\"POST\">Offer an alliance to an empire</td><td width=\"60%\" rowspan=\"4\" valign=\"top\">" );
+ svSendString( cnt, "<tr><td width=\"40%\"><form action=\"famleader\" method=\"POST\">Offer an alliance to an empire</td><td width=\"60%\" rowspan=\"4\" valign=\"top\">" );
  if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 )
  {
   svSendString( cnt, "<b>Empire relations</b><br><br>" );
@@ -3001,24 +3031,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  svSendString( cnt, "</table>" );
 
-
-/* Images upload?
- svSendString( cnt, "<form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">" );
- svSendPrintf( cnt, "Empire name<br><br><input type=\"file\" name=\"fname\">" );
- svSendPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"sdaffsafsd\">" );
- svSendString( cnt, "<br><br><input type=\"submit\" value=\"Change\"></form>" );
-
-Content-length: 196
-Content-Type: multipart/form-data; boundary=----------r7GsgKZ4BfAeDg8UgRpujN
-
-------------r7GsgKZ4BfAeDg8UgRpujN
-Content-Disposition: form-data; name="fname"; filename="hello.txt"
-Content-Type: text/plain; name="hello.txt"
-
-ABCDE
-
-------------r7GsgKZ4BfAeDg8UgRpujN--
-*/
 
  iohttpBodyEnd( cnt );
 
