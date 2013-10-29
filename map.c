@@ -4,41 +4,8 @@
 
 #include "imgpng.c"
 
-//FIXME time to move this stuff
-#define MAP_DEFINE_SIZEX (105)
-#define MAP_DEFINE_SIZEY (105)
-#define MAP_DEFINE_SYSTEMS (709)
 
-#define MAP_DEFINE_FAMILIES (61)
-#define MAP_DEFINE_FAMMEMBERS (7)
-
-#define MAP_DEFINE_GENBORDER (20)
-#define MAP_DEFINE_GENANGLEVAR (1024.0)
-
-#define MAP_DEFINE_GEN_LNKNUM (60)
-#define MAP_DEFINE_GEN_LNKRADIUS (8.0)
-#define MAP_DEFINE_GEN_LNKLENGHTBASE (2)
-#define MAP_DEFINE_GEN_LNKLENGHTVAR (64)
-
-#define MAP_DEFINE_RESOURCES (24+23+17+10)
-
-// solar, mineral, crystal, ectrolium
-int MAP_DEFINE_resources_gen[4] = { 24, 23, 17, 10 };
-
-int MAP_DEFINE_resources_posx[MAP_DEFINE_RESOURCES];
-int MAP_DEFINE_resources_posy[MAP_DEFINE_RESOURCES];
-int MAP_DEFINE_resources_type[MAP_DEFINE_RESOURCES];
-int mapdata[MAP_DEFINE_SIZEX*MAP_DEFINE_SIZEY];
-int system_pos[MAP_DEFINE_SYSTEMS];
-int system_planets[MAP_DEFINE_SYSTEMS];
-int system_pbase[MAP_DEFINE_SYSTEMS];
-int system_home[MAP_DEFINE_SYSTEMS];
-int empire_system[MAP_DEFINE_FAMILIES];
-int artefact_planet[ARTEFACT_NUMUSED];
-int mapfactor[MAP_DEFINE_SIZEX*MAP_DEFINE_SIZEY];
-
-
-uint8_t *mapCalcFactors() {
+uint8_t *mapCalcFactors(mapstoreDef mapstore) {
 	int a, b, c, x, y, index;
 	float fx, fy, dist, mindist;
 	float fpos[2];
@@ -49,15 +16,14 @@ uint8_t *mapCalcFactors() {
 	uint8_t *pixies;
 
 ptsnum = 0;
-memset( mapfactor, 0, sizeof(int)*MAP_DEFINE_SIZEX*MAP_DEFINE_SIZEY );
 
-for( a = 0 ; a < MAP_DEFINE_GEN_LNKNUM ; a++ ) {
-	fpos[0] = (float)( MAP_DEFINE_GENBORDER + ( rand() % ( MAP_DEFINE_SIZEX-2*MAP_DEFINE_GENBORDER ) ) );
-	fpos[1] = (float)( MAP_DEFINE_GENBORDER + ( rand() % ( MAP_DEFINE_SIZEY-2*MAP_DEFINE_GENBORDER ) ) );
+for( a = 0 ; a < mapcfg.num ; a++ ) {
+	fpos[0] = (float)( mapcfg.border + ( rand() % ( mapcfg.sizex-2*mapcfg.border ) ) );
+	fpos[1] = (float)( mapcfg.border + ( rand() % ( mapcfg.sizey-2*mapcfg.border ) ) );
 	angle = rand() % 360;
-	anglevar = (float)( ( rand() & 0xFFF ) - 0x800 ) / MAP_DEFINE_GENANGLEVAR;
+	anglevar = (float)( ( rand() & 0xFFF ) - 0x800 ) / mapcfg.anglevar;
 
-	c = MAP_DEFINE_GEN_LNKLENGHTBASE + ( rand() % MAP_DEFINE_GEN_LNKLENGHTVAR );
+	c = mapcfg.lenghtbase + ( rand() % mapcfg.lenghtvar );
 	for( b = 0 ; b < c ; b++ ) {
 		pts[ptsnum+b][0] = fpos[0];
 		pts[ptsnum+b][1] = fpos[1];
@@ -70,25 +36,25 @@ for( a = 0 ; a < MAP_DEFINE_GEN_LNKNUM ; a++ ) {
 	ptsnum += c;
 }
 
-for( y = index = 0 ; y < MAP_DEFINE_SIZEY ; y++ ) {
-	for( x = 0 ; x < MAP_DEFINE_SIZEY ; x++, index++ ) {
+for( y = index = 0 ; y < mapcfg.sizey ; y++ ) {
+	for( x = 0 ; x < mapcfg.sizey ; x++, index++ ) {
 		mindist = 0;
 		for( a = 0 ; a < ptsnum ; a++ ) {
 			fx = (float)x - pts[a][0];
 			fy = (float)y - pts[a][1];
 			dist = sqrt( fx*fx + fy*fy );
-			if( dist >= MAP_DEFINE_GEN_LNKRADIUS )
+			if( dist >= mapcfg.radius )
 			continue;
-			mindist += MAP_DEFINE_GEN_LNKRADIUS - dist;
+			mindist += mapcfg.radius - dist;
 		}
-		mapfactor[index] += (int)floor( mindist );
+		mapstore.factor[index] += (int)floor( mindist );
 	}
 }
 
-pixies = malloc( MAP_DEFINE_SIZEX * MAP_DEFINE_SIZEY );
-for( y = 0 ; y < MAP_DEFINE_SIZEY ; y++ ) { 
-	for( x = 0 ; x < MAP_DEFINE_SIZEX ; x++ )  {
-		pixies[(y*MAP_DEFINE_SIZEX)+x] = (mapfactor[(y*MAP_DEFINE_SIZEX)+x] >> 3);
+pixies = malloc( mapcfg.sizex*mapcfg.sizey );
+for( y = 0 ; y < mapcfg.sizey ; y++ ) { 
+	for( x = 0 ; x < mapcfg.sizex ; x++ )  {
+		pixies[(y*mapcfg.sizex)+x] = (mapstore.factor[(y*mapcfg.sizex)+x] >> 3);
 	}  
 }
 
@@ -97,7 +63,7 @@ return pixies;
 }
 
 
-int mapgen() {
+int spawn_map() {
 	int a, b, c, d, e, i, p, x, y, x2, y2;
 	long long int j;
 	float dist, distmax;
@@ -107,11 +73,39 @@ int mapgen() {
 	FILE *file;
 	FILE *file2;
 	imgImage mapgen;
+	mapstoreDef mapstore;
 	dbMainMapDef mapd;
 	dbMainSystemDef systemd;
 	dbMainPlanetDef planetd;
 	dbMainEmpireDef empired;
 
+memset( &mapstore, 0, sizeof(mapstoreDef) ); // ahaha... holy cow this is gonna be hectic =P
+
+mapstore.factor = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+memset( mapstore.factor, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+mapstore.data = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+memset( mapstore.data, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+
+mapstore.posx = malloc( sizeof(int)*mapcfg.bonusnum );
+memset( mapstore.posx, 0, sizeof(int)*mapcfg.bonusnum );
+mapstore.posy = malloc( sizeof(int)*mapcfg.bonusnum );
+memset( mapstore.posy, 0, sizeof(int)*mapcfg.bonusnum );
+mapstore.type = malloc( sizeof(int)*mapcfg.bonusnum );
+memset( mapstore.type, 0, sizeof(int)*mapcfg.bonusnum );
+
+mapstore.pos = malloc( sizeof(int)*mapcfg.systems );
+memset( mapstore.pos, 0, sizeof(int)*mapcfg.systems );
+mapstore.planets = malloc( sizeof(int)*mapcfg.systems );
+memset( mapstore.planets, 0, sizeof(int)*mapcfg.systems );
+mapstore.pbase = malloc( sizeof(int)*mapcfg.systems );
+memset( mapstore.pbase, 0, sizeof(int)*mapcfg.systems );
+mapstore.home = malloc( sizeof(int)*mapcfg.systems );
+memset( mapstore.home, 0, sizeof(int)*mapcfg.systems );
+mapstore.system = malloc( sizeof(int)*mapcfg.families );
+memset( mapstore.system, 0, sizeof(int)*mapcfg.families );
+
+mapstore.arti = malloc( sizeof(int)*ARTEFACT_NUMUSED );
+memset( mapstore.arti, 0, sizeof(int)*ARTEFACT_NUMUSED );
 
 
 memset( &mapd, 0, sizeof(dbMainMapDef) );
@@ -124,100 +118,100 @@ dirstructurecheck(fname);
 
 srand( time( 0 ) );
 
-mapgen.width = MAP_DEFINE_SIZEX;
-mapgen.height = MAP_DEFINE_SIZEY;
+mapgen.width = mapcfg.sizex;
+mapgen.height = mapcfg.sizey;
 mapgen.format = IMG_IMAGE_FORMAT_GRAYSCALE;
 mapgen.bytesperpixel = 1;
 mapgen.bytesperline = mapgen.width;
 
-pixels = mapCalcFactors();
+pixels = mapCalcFactors(mapstore);
 
-for( a = 0 ; a < MAP_DEFINE_FAMILIES ; a++ ) {
+for( a = 0 ; a < mapcfg.families ; a++ ) {
 	mainL1:
-	empire_system[a] = rand() % MAP_DEFINE_SYSTEMS;
-	if( system_home[ empire_system[a] ] )
+	mapstore.system[a] = rand() % mapcfg.systems;
+	if( mapstore.home[ mapstore.system[a] ] )
 		goto mainL1;
-	system_home[ empire_system[a] ] = a+1;
-	system_planets[ empire_system[a] ] = MAP_DEFINE_FAMMEMBERS;
+	mapstore.home[ mapstore.system[a] ] = a+1;
+	mapstore.planets[ mapstore.system[a] ] = mapcfg.fmembers;
 }
 
-for( a = b = c = 0 ; a < MAP_DEFINE_RESOURCES ; a++, b++ ) {
-	MAP_DEFINE_resources_posx[a] = rand() % MAP_DEFINE_SIZEX;
-	MAP_DEFINE_resources_posy[a] = rand() % MAP_DEFINE_SIZEY;
-	if( b >= MAP_DEFINE_resources_gen[c] ) {
-		b -= MAP_DEFINE_resources_gen[c];
+for( a = b = c = 0 ; a < mapcfg.bonusnum ; a++, b++ ) {
+	mapstore.posx[a] = rand() % mapcfg.sizex;
+	mapstore.posy[a] = rand() % mapcfg.sizey;
+	if( b >= mapcfg.bonusvar[c] ) {
+		b -= mapcfg.bonusvar[c];
 		c++;
 	}
-	MAP_DEFINE_resources_type[a] = c;
+	mapstore.type[a] = c;
 }
 
 p = 0;
-for( a = 0 ; a < MAP_DEFINE_SYSTEMS ; a++ ) {
+for( a = 0 ; a < mapcfg.systems ; a++ ) {
 	mainL0:
 	for( ; ; ) {
-		x = rand() % MAP_DEFINE_SIZEX;
-		y = rand() % MAP_DEFINE_SIZEY;
-		i = ( y * MAP_DEFINE_SIZEX ) + x;
-		if( ( rand() & 0xFF ) >= mapfactor[i] )
+		x = rand() % mapcfg.sizex;
+		y = rand() % mapcfg.sizey;
+		i = ( y * mapcfg.sizex ) + x;
+		if( ( rand() & 0xFF ) >= mapstore.factor[i] )
 			continue;
 		break;
 	}
-	if( mapdata[i] )
+	if( mapstore.data[i] )
 		goto mainL0;
-	system_pos[a] = ( y << 16 ) + x;
-	if( !( system_planets[a] ) ) {
-		system_planets[a] = 4 + rand() % 4;
+	mapstore.pos[a] = ( y << 16 ) + x;
+	if( !( mapstore.planets[a] ) ) {
+		mapstore.planets[a] = 4 + rand() % 4;
 		if( !( rand() & 7 ) )
-			system_planets[a] += rand() % 12;
+			mapstore.planets[a] += rand() % 12;
 		if( !( rand() & 7 ) )
-			system_planets[a] += rand() % 8;
+			mapstore.planets[a] += rand() % 8;
 
 	}
-	system_pbase[a] = p;
-	p += system_planets[a];
-	mapdata[i] = 0xFF;
+	mapstore.pbase[a] = p;
+	p += mapstore.planets[a];
+	mapstore.data[i] = 0xFF;
 }
 
 
 for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
 	mainL2:
-	b = rand() % MAP_DEFINE_SYSTEMS;
-	if( system_home[b] )
+	b = rand() % mapcfg.systems;
+	if( mapstore.home[b] )
 		goto mainL2;
-	artefact_planet[a] = system_pbase[b] + ( rand() % system_planets[b] );
+	mapstore.arti[a] = mapstore.pbase[b] + ( rand() % mapstore.planets[b] );
 	if( options.verbose )
-	printf("( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
-	syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", system_pos[b] & 0xFFFF, system_pos[b] >> 16, artefact_planet[a], artefactName[a] );
+	printf("( %d,%d ) ID:%d Holds: %s\n", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
+	syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
 }
 
 
 // OK, a new headers write.
 sprintf( fname, "%s/data/map", sysconfig.directory );
 file = fopen( fname, "wb" );
-mapd.sizex = MAP_DEFINE_SIZEX;
-mapd.sizey = MAP_DEFINE_SIZEY;
-mapd.systems = MAP_DEFINE_SYSTEMS;
+mapd.sizex = mapcfg.sizex;
+mapd.sizey = mapcfg.sizey;
+mapd.systems = mapcfg.systems;
 mapd.planets = p;
-mapd.families = MAP_DEFINE_FAMILIES;
-mapd.fmembers = MAP_DEFINE_FAMMEMBERS;
-mapd.capacity = MAP_DEFINE_FAMILIES * MAP_DEFINE_FAMMEMBERS;
+mapd.families = mapcfg.families;
+mapd.fmembers = mapcfg.fmembers;
+mapd.capacity = mapcfg.families * mapcfg.fmembers;
 mapd.artitimer = -1;
 mapd.timempire = -1;
 fwrite( &mapd, 1, sizeof(dbMainMapDef), file ); 
 
 // New system generation, based on defaults.
 p = 0;
-for( a = 0 ; a < MAP_DEFINE_SYSTEMS ; a++ ) {
+for( a = 0 ; a < mapcfg.systems ; a++ ) {
 	systemd = dbSystemDefault;
-	systemd.position = system_pos[a];
+	systemd.position = mapstore.pos[a];
 	systemd.indexplanet = p;
-	p += system_planets[a];
-	systemd.numplanets = system_planets[a];
+	p += mapstore.planets[a];
+	systemd.numplanets = mapstore.planets[a];
 
-	if( system_home[a] ) {
-		systemd.empire = system_home[a] - 1;
+	if( mapstore.home[a] ) {
+		systemd.empire = mapstore.home[a] - 1;
 	} else {
-		systemd.unexplored = system_planets[a];
+		systemd.unexplored = mapstore.planets[a];
 	}
 	fwrite( &systemd, 1, sizeof(dbMainSystemDef), file );
 }
@@ -225,36 +219,37 @@ for( a = 0 ; a < MAP_DEFINE_SYSTEMS ; a++ ) {
 
 // New planet generation, based on defaults.
 for( a = b = c = 0 ; a < p ; a++, b++ ) {
+	dist = 0;
 	planetd = dbPlanetDefault;
-	if( b >= system_planets[c] ) {
-		b -= system_planets[c];
+	if( b >= mapstore.planets[c] ) {
+		b -= mapstore.planets[c];
 		c++;
 	}
 	planetd.system = c;
-	x = system_pos[c] & 0xFFFF;
-	y = system_pos[c] >> 16;
+	x = mapstore.pos[c] & 0xFFFF;
+	y = mapstore.pos[c] >> 16;
 	i = ( y << 20 ) + ( x << 8 ) + b;
 	planetd.position = i;
-	if( !( system_home[c] ) ) {
+	if( !( mapstore.home[c] ) ) {
 		planetd.size = 128 + ( rand() % 192 );
 		if( !( rand() & 7 ) )
 			planetd.size += rand() & 255;
 		if( !( rand() & 31 ) )
 			planetd.size += rand() & 511;
 	}
-	if( system_home[c] )
+	if( mapstore.home[c] )
 		planetd.flags = CMD_PLANET_FLAGS_HOME;
 
 	e = i = 0;
-	if( !( system_home[c] ) ) {
+	if( !( mapstore.home[c] ) ) {
 		distmax = (float)0xFFFF;
-		for( d = 0 ; d < MAP_DEFINE_RESOURCES ; d++ ) {
-			x2 = x - MAP_DEFINE_resources_posx[d];
-			y2 = y - MAP_DEFINE_resources_posy[d];
+		for( d = 0 ; d < mapcfg.bonusnum ; d++ ) {
+			x2 = x - mapstore.posx[d];
+			y2 = y - mapstore.posy[d];
 			dist = sqrt( x2*x2 + y2*y2 );
 			if( dist < distmax ) {
 				distmax = dist;
-				e = MAP_DEFINE_resources_type[d];
+				e = mapstore.type[d];
 			}
 		}
 		d = 160.0 * dist;
@@ -271,7 +266,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	// artefacts
 	i = 0;
 	for( d = 0 ; d < ARTEFACT_NUMUSED ; d++ ) {
-		if( a != artefact_planet[d] )
+		if( a != mapstore.arti[d] )
 			continue;
 			i = d + 1;
 			break;
@@ -284,7 +279,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 
 
 // New families generation, based on defaults.
-for( a = 0 ; a < MAP_DEFINE_FAMILIES ; a++ ) {
+for( a = 0 ; a < mapcfg.families ; a++ ) {
 	empired = dbEmpireDefault;
 	if( ( admincfg.empire_number == a ) && ( strlen(admincfg.empire_password) ) ) {
 		if( strlen(admincfg.empire_name) )
@@ -297,8 +292,8 @@ for( a = 0 ; a < MAP_DEFINE_FAMILIES ; a++ ) {
 		printf("Empire %d Claimed for Administration.\n", a);
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);
 	}
-	empired.homeid = empire_system[a];
-	empired.homepos = system_pos[ empire_system[a] ];
+	empired.homeid = mapstore.system[a];
+	empired.homepos = mapstore.pos[ mapstore.system[a] ];
 	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
 // <<WORKNEEDED>>
 	sprintf( fname, "%s/data/fam%dnews", sysconfig.directory, a );
@@ -316,10 +311,10 @@ for( a = 0 ; a < MAP_DEFINE_FAMILIES ; a++ ) {
 fclose( file );
 //End family generation
 
-for( y = 0 ; y < MAP_DEFINE_SIZEX ; y++ ) { 
-	for( x = 0 ; x < MAP_DEFINE_SIZEY ; x++ )  {
-		if ( mapdata[(y*MAP_DEFINE_SIZEY)+x] )
-			pixels[(y*MAP_DEFINE_SIZEY)+x] = mapdata[(y*MAP_DEFINE_SIZEY)+x];
+for( y = 0 ; y < mapcfg.sizex ; y++ ) { 
+	for( x = 0 ; x < mapcfg.sizey ; x++ )  {
+		if ( mapstore.data[(y*mapcfg.sizey)+x] )
+			pixels[(y*mapcfg.sizey)+x] = mapstore.data[(y*mapcfg.sizey)+x];
 	}  
 }
 
@@ -344,7 +339,7 @@ for( y = 0 ; y < mapgen.height ; y++ ) {
 */
 
 
-if(mapgen.width > MAP_DEFINE_SIZEX) {
+if(mapgen.width > mapcfg.sizex) {
 	mapgen.data = bigpixies;
 	free(bigpixies);
 } else {
@@ -359,7 +354,7 @@ free(pixels);
 
 
 //<<WORKNEEDED>> Such a dirty fix, but well... it works. =/
-if(mapgen.width == MAP_DEFINE_SIZEX) {
+if(mapgen.width == mapcfg.sizex) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
 		if( options.verbose )
@@ -368,6 +363,24 @@ if(mapgen.width == MAP_DEFINE_SIZEX) {
 	}
 
 }
+
+
+//Ahh yes, I'll free all those malloc's back up now... better safe eh.
+free(mapstore.data);
+free(mapstore.factor);
+
+free(mapstore.posx);
+free(mapstore.posy);
+free(mapstore.type);
+
+free(mapstore.pos);
+free(mapstore.planets);
+free(mapstore.pbase);
+free(mapstore.home);
+free(mapstore.system);
+
+free(mapstore.arti);
+
 
 return 1;
 }

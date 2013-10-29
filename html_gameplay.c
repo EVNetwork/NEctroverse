@@ -2059,9 +2059,9 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  if( curfam == maind.empire )
   svSendPrintf( cnt, "<br>" );
 
- sprintf( fname, "/fampic%02d%d", curfam, empired.pictime );
+ sprintf( fname, "/images/fampic%02d%d", curfam, empired.pictime );
  if( iohttpFileFind( fname ) )
-  svSendPrintf( cnt, "<br><img src=\"images/%s\"><br>", &fname[1] );
+  svSendPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
 
  if( !( empired.numplayers ) )
  {
@@ -2825,7 +2825,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   {
    fwrite( fampic, 1, filesize, file );
    fclose( file );
-   sprintf( fname, "/fampic%02d%d", curfam, empired.pictime );
+   sprintf( fname, "/images/fampic%02d%d", curfam, empired.pictime );
    iohttpFileDel( fname );
    if( ( cfile = iohttpFileAdd( filesize ) ) )
    {
@@ -2835,7 +2835,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
     empired.pictime = time( 0 );
     a = time( 0 );
     memcpy( &cfile->scurtime, &a, sizeof(time_t) );
-    sprintf( cfile->path, "/fampic%02d%d", curfam, empired.pictime );
+    sprintf( cfile->path, "/images/fampic%02d%d", curfam, empired.pictime );
     memcpy( cfile->data, fampic, filesize );
     svSendString( cnt, "<i>Empire picture uploaded on server</i><br><br>" );
    }

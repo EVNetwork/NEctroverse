@@ -12,8 +12,11 @@ fd_set svSelectError;
 configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
+mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24 };
 adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
 tickDef ticks = { false, 0, 0, 0, 0 };
+
+
 
 int svListenSocket[PORT_TOTAL];
 
@@ -1177,6 +1180,57 @@ if (MATCH("ticks", "status")) {
 return 1;
 }
 
+static int mapconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
+	int a;
+	char DIRCHECKER[256];
+	mapcfgPtr pconfig = (mapcfgPtr)fconfig;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+
+//ok, here we go again... another dynamic array.
+pconfig->bonusvar = malloc( CMD_RESSOURCE_NUMUSED * sizeof(int) );
+for(a = 0; a < CMD_RESSOURCE_NUMUSED; a++) {
+	sprintf(DIRCHECKER,"%s",cmdRessourceName[a]);
+	if (MATCH("mapgen", DIRCHECKER)) {
+		pconfig->bonusnum += atoi(value);
+		pconfig->bonusvar[a] = atoi(value);
+	} else {
+		continue;
+	}
+}
+free(pconfig->bonusvar);
+
+if (MATCH("mapgen", "sizex")) {
+	pconfig->sizex = atoi(value);
+} else if (MATCH("mapgen", "sizey")) {
+	pconfig->sizey = atoi(value);
+} else if (MATCH("mapgen", "systems")) {
+	pconfig->systems = atoi(value);
+} else if (MATCH("mapgen", "families")) {
+	pconfig->families = atoi(value);
+} else if (MATCH("mapgen", "members_perfamily")) {
+	pconfig->fmembers = atoi(value);
+} else if (MATCH("mapgen", "genborder")) {
+	pconfig->border = atoi(value);
+} else if (MATCH("mapgen", "genanglevar")) {
+	pconfig->anglevar = atoi(value);
+} else if (MATCH("mapgen", "linknum")) {
+	pconfig->num = atoi(value);
+} else if (MATCH("mapgen", "linkradius")) {
+	pconfig->radius = atoi(value);
+} else if (MATCH("mapgen", "lnklenghtbase")) {
+	pconfig->lenghtbase = atoi(value);
+} else if (MATCH("mapgen", "lnklenghtvar")) {
+	pconfig->lenghtvar = atoi(value);
+} else {
+        return 0;
+}
+
+
+
+return 1;
+}
+
 static int banconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
 	int a;
 	char DIRCHECKER[256];
@@ -1207,6 +1261,11 @@ if( type == CONFIG_SYSTEM ) {
 	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
 		syslog(LOG_ERR, "System Config Error: can not load \"%s\"\n", file );
         	printf("System Config Error: can not load \"%s\"\n", file);
+		return 0;
+	}
+	if (ini_parse(file, mapconfig_handler, &mapcfg) < 0) {
+		syslog(LOG_ERR, "Map Config Error: can not load \"%s\"\n", file );
+        	printf("Map Config Error: can not load \"%s\"\n", file);
 		return 0;
 	}
 	if (ini_parse(file, adminconfig_handler, &admincfg) < 0) {
@@ -1488,7 +1547,7 @@ if( !( file_exist(DIRCHECKER) ) ) {
 	if( options.verbose )
 	printf("No map detected... now generating...\n");
 	syslog(LOG_INFO, "No map detected... now generating...\n");
-	mapgen();
+	spawn_map();
 }
 //Begin deamonization and initate server loop.
 if( !( daemon_init( ) ) ) {
