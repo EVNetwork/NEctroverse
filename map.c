@@ -12,8 +12,6 @@
 #define MAP_DEFINE_FAMILIES (61)
 #define MAP_DEFINE_FAMMEMBERS (7)
 
-#define MAP_DEFINE_ARTEFACTS (9)
-
 #define MAP_DEFINE_GENBORDER (20)
 #define MAP_DEFINE_GENANGLEVAR (1024.0)
 
@@ -36,7 +34,7 @@ int system_planets[MAP_DEFINE_SYSTEMS];
 int system_pbase[MAP_DEFINE_SYSTEMS];
 int system_home[MAP_DEFINE_SYSTEMS];
 int empire_system[MAP_DEFINE_FAMILIES];
-int artefact_planet[MAP_DEFINE_ARTEFACTS];
+int artefact_planet[ARTEFACT_NUMUSED];
 int mapfactor[MAP_DEFINE_SIZEX*MAP_DEFINE_SIZEY];
 
 
@@ -181,7 +179,7 @@ for( a = 0 ; a < MAP_DEFINE_SYSTEMS ; a++ ) {
 }
 
 
-for( a = 0 ; a < MAP_DEFINE_ARTEFACTS ; a++ ) {
+for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
 	mainL2:
 	b = rand() % MAP_DEFINE_SYSTEMS;
 	if( system_home[b] )
@@ -272,7 +270,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	planetd.special[1] = i;
 	// artefacts
 	i = 0;
-	for( d = 0 ; d < MAP_DEFINE_ARTEFACTS ; d++ ) {
+	for( d = 0 ; d < ARTEFACT_NUMUSED ; d++ ) {
 		if( a != artefact_planet[d] )
 			continue;
 			i = d + 1;
