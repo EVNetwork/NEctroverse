@@ -15,8 +15,8 @@ LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl
 DEFS = -ggdb
 
 # Right then, now we know all of that... lets build something!
-server: sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS)
-	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: sv.o io.o db.o cmd.o html.o map.o md5.o
+	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 sv.o: *.h sv.c svban.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)

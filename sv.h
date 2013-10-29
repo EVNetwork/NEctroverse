@@ -188,6 +188,11 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size );
 #define SV_FLAGS_TIMEOUT (0x20)
 
 
-extern int svBanNum;
-extern char *svBanList[];
+typedef struct {
+	//new ban listing
+	int number;
+	char (*list)[32];
+} svbanDef, *svbanPtr;
+
+extern svbanDef svbanlist;
 

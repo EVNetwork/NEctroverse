@@ -575,9 +575,9 @@ void inNewHTTP( svConnectionPtr cnt )
   memset( cnt->iodata, 0, sizeof(iohttpDataDef) );
 
   iohttp = cnt->iodata;
-  for( i = 0 ; i < svBanNum ; i++ )
+  for( i = 0 ; i < svbanlist.number ; i++ )
   {
-    if( !( ioCompareFindWords( inet_ntoa( cnt->sockaddr.sin_addr ), svBanList[i] ) ) )
+    if( !( ioCompareFindWords( inet_ntoa( cnt->sockaddr.sin_addr ), svbanlist.list[i] ) ) )
       continue;
     cnt->flags |= SV_FLAGS_NEED_WRITE;
     iohttp->flags = 8 | 16;
@@ -714,7 +714,7 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     svSendString( cnt, "Expires: Thu, 01 Dec 2004 16:00:00 GMT\n" );
     svSendPrintf( cnt, "Content-Length: %d\n", file->size );
     svSendPrintf( cnt, "Content-MD5: %s\n", str2md5(file->data) );
-    svSendPrintf( cnt, iohttpMime[file->mime].def );
+    svSendString( cnt, iohttpMime[file->mime].def );
     svSendStatic( cnt, file->data, file->size );
   }
   else if( file->type == FILE_FUNCTION )
@@ -750,7 +750,7 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     svSendPrintf( cnt, "Content-MD5: %s\n", str2md5(data) );
     svSendString( cnt, "Pragma: no-cache\n" );
     file->mime = iohttpMimeFind( file->fileread );
-    svSendPrintf( cnt, iohttpMime[file->mime].def );
+    svSendString( cnt, iohttpMime[file->mime].def );
 
     svSendString( cnt, data );
     fclose( fd );

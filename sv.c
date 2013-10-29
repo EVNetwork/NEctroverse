@@ -19,8 +19,7 @@ int svListenSocket[PORT_TOTAL];
 
 svConnectionPtr svDebugConnection;
 
-
-#include "svban.c" //Lets try and change this in the future too... Flat file baning is just flat out bad.
+svbanDef svbanlist = { 0 };
 
 int svTime() {
 	struct timeval lntime;
@@ -1177,10 +1176,33 @@ if (MATCH("ticks", "status")) {
 return 1;
 }
 
+static int banconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
+	int a;
+	char DIRCHECKER[256];
+	svbanPtr pconfig = (svbanPtr)fconfig;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+if (MATCH("banned_ips", "number")) {
+	pconfig->number = atoi(value);
+}
+pconfig->list = malloc(pconfig->number * sizeof(*pconfig->list));
+for(a = 0; a < svbanlist.number; a++) {
+	sprintf(DIRCHECKER,"ip%d",(a+1));
+	if (MATCH("banned_ips", DIRCHECKER)) {
+		sprintf(pconfig->list[a],"%s",value);
+	} else {
+		continue;
+	}
+}
+free(pconfig->list);
+
+return 1;
+}
+
 int loadconfig( char *file, int type ) {
 	int logfac = LOG_SYSLOG;
 
-if(type) {
+if(type == 1) {
 	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
 		syslog(LOG_ERR, "System Config Error: can not load \"%s\"\n", file );
         	printf("System Config Error: can not load \"%s\"\n", file);
@@ -1229,6 +1251,10 @@ if(type) {
 			logfac = LOG_LOCAL7;
 		}
 		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
+	}
+} else if( type == 2 ){
+	if (ini_parse(file, banconfig_handler, &svbanlist ) < 0) {
+		return 0;
 	}
 } else {
 	if (ini_parse(file, tickconfig_handler, &ticks ) < 0) {
@@ -1362,6 +1388,11 @@ if ( file_exist(DIRCHECKER) ) {
 
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,0);
+
+if( !(loadconfig("evbaned.ini",2)) ) {
+	printf("Error loading evbaned config. Unable to start.\n");
+	exit(true);
+}
 
 dirstructurecheck(TMPDIR);
 
