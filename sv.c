@@ -10,7 +10,7 @@ fd_set svSelectWrite;
 fd_set svSelectError;
 
 configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
-optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "", "status" };
+optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
 tickDef ticks = { false, 0, 0, 0, 0 };
@@ -799,7 +799,7 @@ void daemonloop() {
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
 		svPipeScan( options.serverpipe );
-		loadconfig(options.banini,2);
+		loadconfig(options.sysini,2);
 		svSelect();
 		svListen();
 		svRecv();
@@ -1301,11 +1301,8 @@ int checkops(int argc, char **argv) {
      
 opterr = 0;
 result = false;
-while( (option = getopt(argc, argv, "b:c:fm:p:qs:") ) != -1) {
+while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
 	switch(option) {
-		case 'b':
-			sprintf(options.banini, "%s", optarg);
-			break;
 		case 'c':
 			sprintf(options.sysini, "%s", optarg);
 			break;
@@ -1328,7 +1325,7 @@ while( (option = getopt(argc, argv, "b:c:fm:p:qs:") ) != -1) {
 
 
 		case '?':
-			if( (optopt == 'b') || (optopt == 'c') || (optopt == 'm') || (optopt == 'p') || (optopt == 's') ) {
+			if( (optopt == 'c') || (optopt == 'm') || (optopt == 'p') || (optopt == 's') ) {
 				fprintf (stderr, "Option \'-%c\' requires an argument.\n", optopt);
 				result = true;
 			} else if( isprint(optopt) ) {
@@ -1349,16 +1346,6 @@ if( !( strlen(options.sysini) > 0 ) ) {
 		result = true;
 	}
 }
-
-if( !( strlen(options.banini) > 0 ) ) {
-	if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
-		sprintf(options.banini, "%s/evbaned.ini" ,DIRCHECKER);
-	} else {
-		perror("getcwd() error");
-		result = true;
-	}
-}
-
 
 for( index = optind; index < argc; index++ ) {
 	printf ("Non-option argument: \'%s\'\n", argv[index]);
@@ -1403,7 +1390,7 @@ if ( file_exist(DIRCHECKER) ) {
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,0);
 
-loadconfig(options.banini,2);
+loadconfig(options.sysini,2);
 
 
 dirstructurecheck(TMPDIR);

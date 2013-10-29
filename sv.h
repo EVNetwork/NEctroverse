@@ -65,7 +65,6 @@ typedef struct {
 	int clientpipe;
 	bool verbose;
 	char sysini[512];
-	char banini[512];
 	char mapini[512];
 	char pipefile[512];
 	char pipestring[128];
