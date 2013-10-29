@@ -799,7 +799,7 @@ void daemonloop() {
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 	while (1) {
 		svPipeScan( options.serverpipe );
-		loadconfig(options.sysini,2);
+		loadconfig(options.sysini,CONFIG_BANNED);
 		svSelect();
 		svListen();
 		svRecv();
@@ -1203,7 +1203,7 @@ return 1;
 int loadconfig( char *file, int type ) {
 	int logfac = LOG_SYSLOG;
 
-if(type == 1) {
+if( type == CONFIG_SYSTEM ) {
 	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
 		syslog(LOG_ERR, "System Config Error: can not load \"%s\"\n", file );
         	printf("System Config Error: can not load \"%s\"\n", file);
@@ -1253,12 +1253,12 @@ if(type == 1) {
 		}
 		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
 	}
-} else if( type == 2 ){
+} else if( type == CONFIG_BANNED ){
 	banlist.number = 0;
 	if (ini_parse(file, banconfig_handler, &banlist ) < 0) {
 		return 0;
 	}
-} else {
+} else if( type == CONFIG_TICKS ) {
 	if (ini_parse(file, tickconfig_handler, &ticks ) < 0) {
 		return 0;
 	}
@@ -1376,7 +1376,7 @@ if( file_exist(options.sysini) == 0 ) {
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
-if( !(loadconfig(options.sysini,1)) ) {
+if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
 	printf("Error loading system config. Unable to start.\n");
 	exit(true);
 }
@@ -1388,9 +1388,9 @@ if ( file_exist(DIRCHECKER) ) {
 }
 
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
-loadconfig(DIRCHECKER,0);
+loadconfig(DIRCHECKER,CONFIG_TICKS);
 
-loadconfig(options.sysini,2);
+loadconfig(options.sysini,CONFIG_BANNED);
 
 
 dirstructurecheck(TMPDIR);

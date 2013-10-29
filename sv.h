@@ -56,6 +56,13 @@ MODE_DAEMON,
 MODE_FORKED
 };
 
+enum 
+{
+CONFIG_TICKS,
+CONFIG_SYSTEM,
+CONFIG_BANNED
+};
+
 typedef struct {
 	//startup options
 	int mode;
