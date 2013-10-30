@@ -1336,11 +1336,11 @@ void iohttpFunc_hq( svConnectionPtr cnt )
   return;
  }
 
- if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
- {
-  svSendString( cnt, "Error retriving Empire details!</body></html>" );
-  return;
- }
+if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+	svSendString( cnt, "Error retriving Empire details!" );
+	if( cnt->dbuser->level < LEVEL_MODERATOR )
+		return;
+}
 
  iohttpBodyInit( cnt, "Headquarters" );
 
@@ -1375,12 +1375,11 @@ sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
 	}
 }
 //end hq message
- if( ( strlen(empired.message[0]) ) )
- {
-  svSendString( cnt, "<b>Message from your leader</b><br>" );
-  svSendString( cnt, empired.message[0] );
-  svSendString( cnt, "<br><br>" );
- }
+if( ( strlen(empired.message[0]) ) ) {
+	svSendString( cnt, "<b>Message from your leader</b><br>" );
+	svSendString( cnt, empired.message[0] );
+	svSendString( cnt, "<br><br>" );
+}
 
  newsd = newsp;
  if( num )
@@ -2763,7 +2762,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
 
- empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = relsmesstring = filename = 0;
+ empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = relsmesstring = filename = taxstring = 0;
  if( !( fampic = iohttpVarsUpload( cnt, &filename, &filesize ) ) )
  {
   iohttpVarsInit( cnt );
@@ -2957,7 +2956,7 @@ if( relsmesstring ) {
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  svSendString( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">Empire picture</td></tr>" );
- svSendString( cnt, "<tr><td><i>Note : Family pictures can't exceed 64k</i></td></tr>" );
+ svSendString( cnt, "<tr><td><i>Note : Empire pictures can't exceed 64k</i></td></tr>" );
  svSendString( cnt, "<tr><td><input type=\"file\" name=\"fname\" size=\"64\"></td></tr>" );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Upload\"></form><br><br><br></td></tr>" );
 
@@ -3028,13 +3027,11 @@ if( relsmesstring ) {
  svSendString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
  svSendString( cnt, "</table></td></tr>" );
 
-// dbEmpireMessageRetrieve( curfam, 0, message );
  iohttpForumFilter3( message2, empired.message[0], 4096 );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Leader message</td></tr>" );
  svSendPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
-// dbEmpireMessageRetrieve( curfam, 1, message );
  iohttpForumFilter3( message2, empired.message[1], 4096 );
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Relations message</td></tr>" );
  svSendPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
@@ -7109,7 +7106,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 }
 
 iohttpBodyInit( cnt, "Faction rankings" );
-sprintf( COREDIR, "%s/data/ranks.txt", sysconfig.directory );
+sprintf( COREDIR, "%s/rankings/round%dranks.txt", sysconfig.directory, sysconfig.round );
 // svSendString( cnt, "<table cellspacing=\"4\"><tr><td>Rank</td><td>Faction</td><td>Empire</td><td>Planets</td><td>Networth</td></tr>" );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -7146,7 +7143,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 }
 
 iohttpBodyInit( cnt, "Empire rankings" );
-sprintf( COREDIR, "%s/data/famranks.txt", sysconfig.directory );
+sprintf( COREDIR, "%s/rankings/round%dfamranks.txt", sysconfig.directory, sysconfig.round );
 // svSendString( cnt, "<table cellspacing=\"4\"><tr><td align=\"right\">Rank</td><td>Name</td><td>Planets</td><td>Players</td><td>Networth</td></tr>" );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -7173,7 +7170,7 @@ void iohttpFunc_ptrankings( svConnectionPtr cnt ) {
 	char COREDIR[256];
 
 svSendString( cnt, "Content-type: text/plain\n\n" );
-sprintf( COREDIR, "%s/data/ranksplain.txt", sysconfig.directory );
+sprintf( COREDIR, "%s/rankings/round%dranksplain.txt", sysconfig.directory, sysconfig.round );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -7196,7 +7193,7 @@ void iohttpFunc_ptfamranks( svConnectionPtr cnt ) {
 	char COREDIR[256];
  
 svSendString( cnt, "Content-type: text/plain\n\n" );
-sprintf( COREDIR, "%s/data/famranksplain.txt", sysconfig.directory );
+sprintf( COREDIR, "%s/rankings/round%dfamranksplain.txt", sysconfig.directory, sysconfig.round );
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;

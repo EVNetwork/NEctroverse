@@ -20,11 +20,11 @@ void cmdTickGenRanks()
 
   artmax = 0;
 
-  sprintf( COREDIR, "%s/data/famranks.txt", sysconfig.directory );
+  sprintf( COREDIR, "%s/rankings/round%dfamranks.txt", sysconfig.directory, sysconfig.round );
   memset( artefacts, 0, ARTEFACT_NUMUSED*sizeof(int) );
   if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
-  sprintf( COREDIR, "%s/data/famranksplain.txt", sysconfig.directory);
+  sprintf( COREDIR, "%s/rankings/round%dfamranksplain.txt", sysconfig.directory, sysconfig.round);
   if( !( filep =fopen( COREDIR, "wb" ) ) )
   {
     fclose( file );
@@ -242,10 +242,10 @@ dbArtefactMax = artmax;
 
 
 // player rankings
-  sprintf( COREDIR, "%s/data/ranks.txt", sysconfig.directory );
+  sprintf( COREDIR, "%s/rankings/round%dranks.txt", sysconfig.directory, sysconfig.round );
   if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
-  sprintf( COREDIR, "%s/data/ranksplain.txt", sysconfig.directory );
+  sprintf( COREDIR, "%s/rankings/round%dranksplain.txt", sysconfig.directory, sysconfig.round );
   if( !( filep = fopen( COREDIR, "wb" ) ) )
   {
     fclose( file );

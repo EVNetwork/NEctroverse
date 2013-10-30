@@ -1460,6 +1460,9 @@ sprintf( DIRCHECKER, "%s/users", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
 sprintf( DIRCHECKER, "%s/logs", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
+sprintf( DIRCHECKER, "%s/rankings", sysconfig.directory );
+dirstructurecheck(DIRCHECKER);
+
 //well its not really public yet now is it... <<<WORKNEEDED>>>
 sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
