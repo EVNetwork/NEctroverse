@@ -5492,18 +5492,22 @@ iohttpVarsCut();
 
 if( systemstring ) {
 	if( ( sscanf( systemstring, "%d", &system ) <= 0 ) || dbMapRetrieveSystem( system, &systemd ) < 0 ) {
-		svSendString( cnt, "Error retriving system!" );
+		svSendString( cnt, "Error retriving system!<br>" );
+		goto iohttpFunc_exploreL1;
+	} else if ( systemd.empire != -1 ) {
+		svSendString( cnt, "Unable to explore as Empire System!<br>" );
 		goto iohttpFunc_exploreL1;
 	} else {
-	goto SYSTEMEXPO;
+		goto SYSTEMEXPO;
 	}
+
 }
 if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
-	svSendString( cnt, "This planet doesn't seem to exist!" );
+	svSendString( cnt, "This planet doesn't seem to exist!<br>" );
 	goto iohttpFunc_exploreL1;
 }
 if( planetd.flags & CMD_PLANET_FLAGS_HOME ) {
-	svSendString( cnt, "You can't explore a home planet!" );
+	svSendString( cnt, "You can't explore a home planet!<br>" );
 	goto iohttpFunc_exploreL1;
 }
 SYSTEMEXPO:
@@ -5511,14 +5515,14 @@ if( systemstring ) {
 	if( explorestring ) {
 		for(a = 0, num = systemd.indexplanet; a < systemd.unexplored; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
-					svSendString( cnt, "Planet retrvial error!" );
+					svSendString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
 			} else if ( planetd.owner == -1 ) {
 				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
 					if( cmdErrorString ) {
 						svSendPrintf( cnt, "%s<br>", cmdErrorString );
 					} else {
-						svSendString( cnt, "Error encountered while retrieving exploration information" );
+						svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
 						goto iohttpFunc_exploreL0;
 					}
 				} else {
@@ -5530,7 +5534,7 @@ if( systemstring ) {
 	} else {
 		for(a = 0, num = systemd.indexplanet; a < systemd.unexplored; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
-					svSendString( cnt, "Planet retrvial error!" );
+					svSendString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
 			} 
 			if ( planetd.owner == -1 ) {
@@ -5541,7 +5545,7 @@ if( systemstring ) {
 			if( cmdErrorString )
 				svSendPrintf( cnt, "%s", cmdErrorString );
 			else
-				svSendString( cnt, "Error encountered while retrieving exploration information" );
+				svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
 				goto iohttpFunc_exploreL0;
 		}
 		svSendPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
@@ -5554,7 +5558,7 @@ if( systemstring ) {
 		if( cmdErrorString ) {
 			svSendPrintf( cnt, "%s", cmdErrorString );
 		} else {
-			svSendString( cnt, "Error encountered while retrieving exploration information" );
+			svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
 			goto iohttpFunc_exploreL0;
 		}
 	}
@@ -5564,7 +5568,7 @@ if( systemstring ) {
 		if( cmdErrorString )
 			svSendPrintf( cnt, "%s", cmdErrorString );
 		else
-			svSendString( cnt, "Error encountered while retrieving exploration information" );
+			svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
 			goto iohttpFunc_exploreL0;
 	}
 	if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
