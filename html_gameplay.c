@@ -1450,16 +1450,25 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 void iohttpFunc_council( svConnectionPtr cnt )
 {
  int a, b, c, id, numbuild;
+ dbMainEmpireDef empired;
  dbUserBuildPtr build;
  dbUserMainDef maind;
  int sums[16];
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+
  iohttpBase( cnt, 1 );
 
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
+
+if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+        svSendString( cnt, "Error retriving Empire details!" );
+        if( cnt->dbuser->level < LEVEL_MODERATOR )
+                return;
+}
+
  iohttpBodyInit( cnt, "Council" );
 
  if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 )
@@ -1467,6 +1476,9 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   svSendString( cnt, "Error while retriving user build list</body></html>" );
   return;
  }
+
+if(empired.taxation)
+ svSendPrintf( cnt, "Your Empire leaders have set a taxation level of %d%%, this is automaticly deducted from your production.", empired.taxation );
  svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
@@ -2187,7 +2199,12 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 
 
 if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
-	svSendString( cnt, "<br>Empire Fund:" );	
+	svSendString( cnt, "<br>Empire Fund: " );	
+	if( empired.taxation ) {
+		svSendPrintf( cnt, "<i>Taxation set at %d%%</i>", empired.taxation );
+	} else {
+		svSendString( cnt, "<i>No tax set</i>" );
+	}
 	svSendString( cnt, "<table>" );
 	svSendString( cnt, "<tr>" );
 	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], empired.fund[CMD_RESSOURCE_ENERGY] );
@@ -2804,7 +2821,11 @@ if( taxstring ){
 		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 			svSendString( cnt, "<i>Error setting new tax...</i><br><br>" );
 		} else {
-			svSendPrintf( cnt, "<i>Taxation set to %d%%</i><br><br>", empired.taxation );
+			if( empired.taxation ) {
+				svSendPrintf( cnt, "<i>Taxation set to %d%%</i><br><br>", empired.taxation );
+			} else {
+				svSendString( cnt, "<i>Empire taxation removed!</i><br><br>" );
+			}
 		}
 	}
 }

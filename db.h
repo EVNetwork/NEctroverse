@@ -111,7 +111,7 @@ typedef struct
   int time;
   int plnid;
   int plnpos;
-  long long int cost[4];
+  long long int cost[CMD_RESSOURCE_NUMUSED];
 } dbUserBuildDef, *dbUserBuildPtr;
 
 int dbUserBuildAdd( int id, int type, long long int *cost, int quantity, int time, int plnid, int plnloc );
@@ -176,19 +176,6 @@ int dbFamNewsList( int id, long long int **data, int time );
 int dbEmpireMessageSet( int id, int num, char *text );
 int dbEmpireMessageRetrieve( int id, int num, char *text );
 
-enum 
-{
-MAP_SIZEX,
-MAP_SIZEY,
-MAP_SYSTEMS,
-MAP_PLANETS,
-MAP_EMPIRES,
-MAP_EMEMBERS,
-MAP_CAPACITY,
-MAP_ARTITIMER,
-MAP_TIMEMPIRE,
-MAP_TOTAL_INFO,
-};
 
 
 typedef struct
@@ -295,10 +282,6 @@ int dbEmpireRelsGet( int id, int relid, int *rel );
 
 
 
-#define DB_USER_NEWS_SIZE 256
-#define DB_USER_NEWS_BASE 30
-
-
 extern dbMainSystemPtr dbMapSystems;
 extern int dbMapSystemsNum;
 
@@ -309,19 +292,6 @@ extern dbMainEmpireDef dbEmpireDefault;
 
 ////////
 
-
-enum
-{
-DB_MARKETBID_ACTION,
-DB_MARKETBID_RESSOURCE,
-DB_MARKETBID_PRICE,
-DB_MARKETBID_QUANTITY,
-DB_MARKETBID_USERID,
-
-DB_MARKETBID_NUMUSED
-};
-
-#define DB_MARKETBID_BIDID 4
 
 int dbMarketReset();
 int dbMarketFull( int *list );
@@ -338,13 +308,12 @@ int dbUserMarketQuantity( int id, int bidid, int quantity );
 int dbUserMarketRemove( int id, int bidid );
 
 
-#define DB_MARKET_RANGE 251
+
 
 
 ////////
 
 
-#define DB_FORUM_NAME_SIZE 64
 
 typedef struct
 {
@@ -423,17 +392,6 @@ int dbForumRemoveThread( int forum, int thread );
 int dbForumAddPost( int forum, int thread, dbForumPostPtr postd );
 int dbForumRemovePost( int forum, int thread, int post );
 int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd );
-
-
-#define DB_FORUM_FLAGS_POSTERROR 1
-
-#define DB_FORUM_FLAGS_FORUMUNUSED 1
-
-#define DB_FORUM_FLAGS_FORUMFAMILY 2
-
-#define DB_FORUM_FLAGS_THREADFREE 1
-
-#define DB_FORUM_FLAGS_THREAD_LOCK 0xEFEF
 
 
 //////////

@@ -1,14 +1,6 @@
 #define IOHTTPINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
-enum {
-FILE_IMAGEDIR,
-FILE_FUNCTION,
-FILE_HTML,
-FILE_CSS,
-FILE_JAVA,
-};
-
 extern char iohttpEnd[2][5];
 extern int iohttpEndSize[2];
 

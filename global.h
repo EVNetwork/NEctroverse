@@ -95,6 +95,10 @@ static const long day = ((60*60) * 24);
 static const double megabyte = (1024 * 1024);
 #endif
 
+#ifndef ENUMINCLUDES
+#include "enum.h"
+#endif
+
 #ifndef HASHINCLUDES
 #include "md5.h"
 #endif
