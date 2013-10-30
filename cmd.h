@@ -114,6 +114,7 @@ extern long long int cmdFleetActionNewd[DB_USER_NEWS_BASE];
 
 extern char *cmdErrorString;
 
+extern char *cmdBuildingName[CMD_BLDG_NUMUSED+1];
 
 extern char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2];
 

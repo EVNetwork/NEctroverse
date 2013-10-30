@@ -3580,7 +3580,8 @@ void iohttpFunc_system( svConnectionPtr cnt )
 
 
  plnid = systemd.indexplanet;
-
+if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
+ svSendPrintf( cnt, "<br>There are %d unexplored planets in this system<br><a href=\"explore?system=%d\">Mass explore system</a>", systemd.unexplored, sysid );
  svSendString( cnt, "<table width=\"100%\" cellspacing=\"6\" cellpadding=\"6\">" );
  for( a = b = ln = 0 ; a < systemd.numplanets ; a++, plnid++ )
  {
@@ -3816,6 +3817,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( planetd.flags & CMD_PLANET_FLAGS_HOME )
    svSendPrintf( cnt, "No one owns this planet, but it is part of a home system and unavailable for exploration" );
+	else
 svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a href=\"explore?id=%d\">Explore this planet</a><br><br><a href=\"spec?id=%d\">Special operation</a>", plnid, plnid );
  }
  else if( planetd.owner == id )
@@ -5459,72 +5461,130 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 
 
-void iohttpFunc_explore( svConnectionPtr cnt )
-{
- int id, plnid, explore;
- dbMainPlanetDef planetd;
- dbUserMainDef maind;
- char *planetstring;
- char *explorestring;
+void iohttpFunc_explore( svConnectionPtr cnt ) {
+	int a, id, num, plnid, system, explore;
+	char *planetstring, *explorestring, *systemstring;
+	dbMainPlanetDef planetd;
+	dbMainSystemDef systemd;
+	dbUserFleetPtr fleetd;
+	dbUserMainDef maind;
+
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
-  return;
- iohttpBase( cnt, 1 );
+	return;
+iohttpBase( cnt, 1 );
 
- if( !( iohttpHeader( cnt, id, &maind ) ) )
-  return;
- iohttpBodyInit( cnt, "Exploration" );
+if( !( iohttpHeader( cnt, id, &maind ) ) )
+	return;
 
- iohttpVarsInit( cnt );
- planetstring = iohttpVarsFind( "id" );
- explorestring = iohttpVarsFind( "explore" );
- iohttpVarsCut();
+if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 ) {
+	svSendString( cnt, "Error while retriving user fleets list" );
+	goto iohttpFunc_exploreL1;
+}
 
- if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) )
- {
-  svSendString( cnt, "This planet doesn't seem to exist!</body></html>" );
-  iohttpBodyEnd( cnt );
-  return;
- }
- if( planetd.flags & CMD_PLANET_FLAGS_HOME )
- {
-  svSendString( cnt, "You can't explore a home planet!</body></html>" );
-  iohttpBodyEnd( cnt );
-  return;
- }
+iohttpBodyInit( cnt, "Exploration" );
 
- if( explorestring  )
- {
-  if( ( cmdExecExplore( id, plnid, &explore ) ) < 0 )
-  {
-   if( cmdErrorString )
-    svSendPrintf( cnt, "%s", cmdErrorString );
-   else
-    svSendString( cnt, "Error encountered while retrieving exploration information</body></html>" );
-   goto iohttpFunc_exploreL0;
-  }
-  svSendPrintf( cnt, "We have sent our exploration ship! If everything goes well, this planet will be ours in %d weeks<br><br>", explore );
- }
- else
- {
-  if( ( cmdExecExploreInfo( id, plnid, &explore ) ) < 0 )
-  {
-   if( cmdErrorString )
-    svSendPrintf( cnt, "%s", cmdErrorString );
-   else
-    svSendString( cnt, "Error encountered while retrieving exploration information</body></html>" );
-   goto iohttpFunc_exploreL0;
-  }
-		
-  svSendPrintf( cnt, "It would take %d weeks for an exploration ship to reach this planet.<br><br>", explore );
-  svSendPrintf( cnt, "<b><a href=\"explore?id=%d&explore=1\">Explore this planet</a></b><br>", plnid );
- }
- iohttpFunc_exploreL0:
- svSendPrintf( cnt, "<br><br><a href=\"planet?id=%d\">View planet</a>", plnid );
- svSendPrintf( cnt, "<br><br><a href=\"system?id=%d\">View system</a>", planetd.system );
+iohttpVarsInit( cnt );
+planetstring = iohttpVarsFind( "id" );
+explorestring = iohttpVarsFind( "dispatch" );
+systemstring = iohttpVarsFind( "system" );
+iohttpVarsCut();
 
- iohttpBodyEnd( cnt );
- return;
+if( systemstring ) {
+	if( ( sscanf( systemstring, "%d", &system ) <= 0 ) || dbMapRetrieveSystem( system, &systemd ) < 0 ) {
+		svSendString( cnt, "Error retriving system!" );
+		goto iohttpFunc_exploreL1;
+	} else {
+	goto SYSTEMEXPO;
+	}
+}
+if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
+	svSendString( cnt, "This planet doesn't seem to exist!" );
+	goto iohttpFunc_exploreL1;
+}
+if( planetd.flags & CMD_PLANET_FLAGS_HOME ) {
+	svSendString( cnt, "You can't explore a home planet!" );
+	goto iohttpFunc_exploreL1;
+}
+SYSTEMEXPO:
+if( systemstring ) {
+	if( explorestring ) {
+		for(a = 0, num = systemd.indexplanet; a < systemd.unexplored; a++, num++) {
+			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
+					svSendString( cnt, "Planet retrvial error!" );
+					goto iohttpFunc_exploreL1;
+			} else if ( planetd.owner == -1 ) {
+				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
+					if( cmdErrorString ) {
+						svSendPrintf( cnt, "%s<br>", cmdErrorString );
+					} else {
+						svSendString( cnt, "Error encountered while retrieving exploration information" );
+						goto iohttpFunc_exploreL0;
+					}
+				} else {
+					svSendPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
+				}
+			}
+		}
+	goto iohttpFunc_exploreL0;
+	} else {
+		for(a = 0, num = systemd.indexplanet; a < systemd.unexplored; a++, num++) {
+			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
+					svSendString( cnt, "Planet retrvial error!" );
+					goto iohttpFunc_exploreL1;
+			} 
+			if ( planetd.owner == -1 ) {
+				break;
+			}
+		}
+		if( ( cmdExecExploreInfo( id, num, &explore ) ) < 0 ) {
+			if( cmdErrorString )
+				svSendPrintf( cnt, "%s", cmdErrorString );
+			else
+				svSendString( cnt, "Error encountered while retrieving exploration information" );
+				goto iohttpFunc_exploreL0;
+		}
+		svSendPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
+		svSendString( cnt, "<br><br>" );
+		svSendPrintf( cnt, "It will take %d weeks for an %s to reach this system.<br><br>", explore, cmdUnitName[CMD_UNIT_EXPLORATION] );
+		svSendPrintf( cnt, "<a href=\"explore?system=%d&dispatch=1\">Dispatch %s</a>", system, cmdUnitName[CMD_UNIT_EXPLORATION] );
+	}
+} else if( explorestring ) {
+	if( ( cmdExecExplore( id, plnid, &explore ) ) < 0 ) {
+		if( cmdErrorString ) {
+			svSendPrintf( cnt, "%s", cmdErrorString );
+		} else {
+			svSendString( cnt, "Error encountered while retrieving exploration information" );
+			goto iohttpFunc_exploreL0;
+		}
+	}
+	svSendPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br><br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
+} else {
+	if( ( cmdExecExploreInfo( id, plnid, &explore ) ) < 0 ) {
+		if( cmdErrorString )
+			svSendPrintf( cnt, "%s", cmdErrorString );
+		else
+			svSendString( cnt, "Error encountered while retrieving exploration information" );
+			goto iohttpFunc_exploreL0;
+	}
+	if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
+		svSendPrintf( cnt, "It would take %d weeks for an %s to reach this planet.<br><br>", explore, cmdUnitName[CMD_UNIT_EXPLORATION] );
+		svSendPrintf( cnt, "<b><a href=\"explore?id=%d&dispatch=1\">Explore this planet</a></b><br>", plnid );
+	} else {
+		svSendPrintf( cnt, "You don't have any %s to send!", cmdUnitName[CMD_UNIT_EXPLORATION] );
+	}
+}
+
+iohttpFunc_exploreL0:
+if ( !( systemstring ) )
+	svSendPrintf( cnt, "<br><br><a href=\"planet?id=%d\">View planet</a>", plnid );
+
+svSendPrintf( cnt, "<br><br><a href=\"system?id=%d\">View system</a><br>", systemstring ? system : planetd.system );
+
+iohttpFunc_exploreL1:
+iohttpBodyEnd( cnt );
+
+return;
 }
 
 
@@ -6793,7 +6853,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 void iohttpFunc_research( svConnectionPtr cnt )
 {
  int a, b, id, cmd[3];
- char fundstring[1024];
+ char *fundstring;
  char *fund;
  char *rschptr[CMD_RESEARCH_NUMUSED];
  int rschvalue[CMD_RESEARCH_NUMUSED];
@@ -6814,7 +6874,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  fund = iohttpVarsFind( "fund" );
  iohttpVarsCut();
 
- fundstring[0] = 0;
+ fundstring = 0;
  if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) )
  {
   cmd[0] = CMD_FUND_RESEARCH;

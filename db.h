@@ -221,7 +221,7 @@ typedef struct
   int population;
   int maxpopulation;
   int special[3];
-  int building[CMD_BLDG_NUMUSED+1];
+  int building[CMD_BLDG_NUMUSED];
   int unit[CMD_UNIT_NUMUSED];
   int construction;
   int protection;
