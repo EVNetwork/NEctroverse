@@ -83,7 +83,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_KILLED )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 1 );
+iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    svSendString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
    num = dbUserNewsList( id, &newsp );
    newsd = newsp;
@@ -100,14 +100,14 @@ iohttpFunc_frontmenu( cnt, 1 );
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_DELETED )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 1 );
+iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    svSendString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
    goto iohttpFunc_mainL1;
   }
   if( (cnt->dbuser)->flags & CMD_USER_FLAGS_NEWROUND )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 4 );
+iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    svSendString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"register2\">Complete account registration</a><br><br>" );
    goto iohttpFunc_mainL1;
   }
@@ -115,7 +115,7 @@ iohttpFunc_frontmenu( cnt, 4 );
   if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 1 );
+iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    svSendString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
    iohttpFunc_mainL1:
    svSendString( cnt, "<a href=\"forum\">Public Forums</a>" );
@@ -2035,7 +2035,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		return;
 } else {
 	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, 0 );
+	iohttpFunc_frontmenu( cnt, FMENU_NONE );
 }
 
  iohttpVarsInit( cnt );
@@ -3608,7 +3608,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		return;
 } else {
 	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, 0 );
+	iohttpFunc_frontmenu( cnt, FMENU_NONE );
 }
 
  iohttpVarsInit( cnt );
@@ -7125,7 +7125,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		return;
 } else {
 	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, 0 );
+	iohttpFunc_frontmenu( cnt, FMENU_NONE );
 }
 
 

@@ -210,31 +210,31 @@ svSendString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_09.jpg\" wi
 svSendString( cnt, "<tr><td background=\"images/ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"images/ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
 
-if( !( flags == 1 ) ) {
+if( !( flags == FMENU_MAIN ) ) {
 svSendString( cnt, "<a href=\"/\">Main</a>" );
 }
-if( !( flags == 2 ) ) {
-if( !( flags == 1 ) )
+if( !( flags == FMENU_REGISTER ) ) {
+if( !( flags == FMENU_MAIN ) )
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"register\">Register</a>" );
 }
-//if( !( flags == 3 ) ) {
+//if( !( flags == FMENU_FORUM ) ) {
 //svSendString( cnt, " | " );
 //svSendString( cnt, "<a href=\"forum\">Forums</a>" );
 //}
-if( !( flags == 4 ) ) {
+if( !( flags == FMENU_FAQ ) ) {
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"faq\">FAQ</a>" );
 }
-if( !( flags == 5 ) ) {
+if( !( flags == FMENU_GSTART ) ) {
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"gettingstarted\">Getting Started</a>" );
 }
-if( !( flags == 6 ) ) {
+if( !( flags == FMENU_RANKS ) ) {
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"halloffame\">Hall of fame</a> " );
 }
-if( !( flags == 7 ) ) {
+if( !( flags == FMENU_SERVER ) ) {
 svSendString( cnt, " | " );
 svSendString( cnt, "<a href=\"status\">Server Status</a>" );
 }
@@ -279,7 +279,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		return;
 } else {
 	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, 0 );
+	iohttpFunc_frontmenu( cnt, FMENU_NONE );
 }
 
 iohttpBodyInit( cnt, "%s: Races", sysconfig.servername );
@@ -353,7 +353,7 @@ iohttpBodyEnd( cnt );
 void iohttpFunc_register( svConnectionPtr cnt ) {
 
 iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 
 svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
 svSendString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
@@ -387,7 +387,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  if( ( name ) && ( pass ) && ( faction ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
 		iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 
 		if( cmdErrorString )
 			svSendString( cnt, cmdErrorString );
@@ -422,13 +422,13 @@ iohttpFunc_frontmenu( cnt, 2 );
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
   {
    iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
    svSendString( cnt, "Error encountered while registering session" );
    goto iohttpFunc_register2L0;
   }
   svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", id, session[0], session[1], session[2], session[3] );
   iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 
   svSendPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
 
@@ -459,7 +459,7 @@ iohttpFunc_frontmenu( cnt, 2 );
 iohttpBase( cnt, 8 );
 if( ( id = iohttpIdentify( cnt, 4|1 ) ) < 0 )
 	return;
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 svSendString( cnt, "This account was not activated yet." );
 }
 
@@ -491,7 +491,7 @@ void iohttpFunc_register3( svConnectionPtr cnt )
  iohttpBase( cnt, 8 );
  if( ( id = iohttpIdentify( cnt, 1|4 ) ) < 0 )
   return;
-iohttpFunc_frontmenu( cnt, 2 );
+iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 
  iohttpVarsInit( cnt );
  empire = iohttpVarsFind( "empire" );
@@ -546,7 +546,7 @@ void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
 	FILE *file;
 
 iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 0 );
+iohttpFunc_frontmenu( cnt, FMENU_NONE );
 
 
 if( strlen(text) ) {
@@ -625,7 +625,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	return;
 } 
 
-iohttpFunc_frontmenu( cnt, 1 );
+iohttpFunc_frontmenu( cnt, FMENU_MAIN );
 
 if( strlen(text) )
 	svSendPrintf( cnt, "<b>%s</b><br><br>", text );
@@ -748,7 +748,7 @@ void iohttpFunc_faq( svConnectionPtr cnt ) {
 	FILE *file;
 
 iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 4 );
+iohttpFunc_frontmenu( cnt, FMENU_FAQ );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
@@ -776,7 +776,7 @@ return;
 void iohttpFunc_gettingstarted( svConnectionPtr cnt ) {
 
 iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 5 );
+iohttpFunc_frontmenu( cnt, FMENU_GSTART );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 
@@ -911,7 +911,7 @@ void iohttpFunc_halloffame( svConnectionPtr cnt ) {
 	FILE *file;
 
 iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 6 );
+iohttpFunc_frontmenu( cnt, FMENU_RANKS );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );

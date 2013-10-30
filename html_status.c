@@ -89,7 +89,7 @@ void iohttpFunc_status( svConnectionPtr cnt )
 	struct utsname stustname;
 
 iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, 7 );
+iohttpFunc_frontmenu( cnt, FMENU_SERVER );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
 

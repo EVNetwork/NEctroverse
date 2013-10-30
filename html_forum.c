@@ -354,7 +354,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		return;
 } else {
 	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, 0 );
+	iohttpFunc_frontmenu( cnt, FMENU_FORUM );
 }
 	
  iohttpVarsInit( cnt );
