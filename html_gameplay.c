@@ -1892,7 +1892,6 @@ void iohttpFunc_planets( svConnectionPtr cnt )
  int totals[7];
  float totalob;
  char *sortstring;
- static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2004,9 +2003,9 @@ else
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   svSendPrintf( cnt, " <img src=\"images/%s\">", artefactImage[d] );
+   svSendPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
   else if(planetd.special[1])
-  	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], bonusname[planetd.special[0]], bonusname[planetd.special[0]], planetd.special[1] );
+  	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
   svSendPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;
@@ -3762,7 +3761,6 @@ void iohttpFunc_planet( svConnectionPtr cnt )
  char *planetstring;
  char *unstationstring;
  char *plgivestring;
- static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -3822,11 +3820,16 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
  }
  else if( planetd.owner == id )
  {
-  svSendPrintf( cnt, "This planet is yours.<br><br>Population : %d0<br>", planetd.population );
-  
-  if(planetd.special[1])
-   svSendPrintf( cnt, "%s production : <font color=\"#20FF20\">+%d%%</font><br>", bonusname[planetd.special[0]], planetd.special[1] );
-  
+  svSendString( cnt, "This planet is yours.<br>" );
+  svSendPrintf( cnt, "Population : %d0<br>", planetd.population );
+ b = (int)artefactPrecense( &planetd );
+  if( b >= 0 )
+   svSendPrintf( cnt, "<br><img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
+  else if(planetd.special[1])
+   svSendPrintf( cnt, "<br><img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+
+
+ 
   svSendPrintf( cnt, "<SCRIPT type=\"text/JavaScript\">\n ");
   sprintf(szString, " function Areyousure(plnid)\n{if(confirm(\"Are you sure you want to raze eveything on this planet??\"))open(\"raze?id=\"+plnid+\"");
   for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ )
@@ -5495,7 +5498,7 @@ if( systemstring ) {
 		svSendString( cnt, "Error retriving system!<br>" );
 		goto iohttpFunc_exploreL1;
 	} else if ( systemd.empire != -1 ) {
-		svSendString( cnt, "Unable to explore as Empire System!<br>" );
+		svSendString( cnt, "Unable to explore an Empire System!<br>" );
 		goto iohttpFunc_exploreL1;
 	} else {
 		goto SYSTEMEXPO;

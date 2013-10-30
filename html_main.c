@@ -263,6 +263,7 @@ void iohttpBodyEnd( svConnectionPtr cnt )
 // Woo, new races page... all auto-generated =D
 void iohttpFunc_races( svConnectionPtr cnt ) {
 	int a, b, id;
+	bool c;
 	dbUserMainDef maind;
 
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
@@ -301,11 +302,20 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 		if( (cmdRace[a].unit[b] - 1) )
 			svSendPrintf( cnt, " %+.0f%% %s strength.<br>", ( cmdRace[a].unit[b] - 1 ) * 100, cmdUnitName[b] );
 	}
-	svSendPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
-	svSendPrintf( cnt, "%+.0f%% Population Upkeep Reduction<br>", (((cmdRace[a].growth-1)/0.02) - 1 ) * 100 );
+	c = false;
+	if( (int)((((cmdRace[a].growth-1)/0.02) - 1 ) * 100 ) != 0 ) {
+		svSendPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
+		svSendPrintf( cnt, "%+.0f%% Population Upkeep Reduction<br>", (((cmdRace[a].growth-1)/0.02) - 1 ) * 100 );
+		c = true;
+	}
 	for( b = 0; b < CMD_RESSOURCE_NUMUSED ; b++) {
-		if( (cmdRace[a].resource[b] - 1) )
+		if( (cmdRace[a].resource[b] - 1) ) {
+			if( c == false ) {
+				svSendPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
+				c = true;
+			}
 			svSendPrintf( cnt, "%+.0f%% %s production<br>", ( cmdRace[a].resource[b] - 1 ) * 100, cmdRessourceName[b] );
+		}
 	}
 	svSendString( cnt, "</td><td valign=\"top\" width=\"225\">" );
 	svSendPrintf( cnt, "<i><b>Research bonuses</b></i><br>" );

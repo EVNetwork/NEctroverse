@@ -15,13 +15,13 @@ char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2] =
 
 char *cmdBonusName[CMD_BONUS_NUMUSED] =
 {
-"Energy",
+"Solar",
 "Mineral",
 "Crystal",
 "Ectrolium",
 "Research",
+"Population",
 "Disease",
-"Population"
 };
 
 char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
@@ -670,7 +670,7 @@ int cmdTotalsCalculate( int usrid, dbUserMainPtr mainp )
   dbMainEmpireDef empired;
   dbUserFleetPtr fleetd;
 
-  memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(long long int) );
+  memset( mainp->totalbuilding, 0, CMD_BLDG_NUMUSED*sizeof(long long int) );
   memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(long long int) );
   if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )
     return 0;
@@ -946,7 +946,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
     planetd.owner = id;
     planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
     planetd.protection = 0.0;
-    memset( planetd.building, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
+    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
     memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
     planetd.construction = 0;
     dbMapSetPlanet( fleetd->destid, &planetd );
