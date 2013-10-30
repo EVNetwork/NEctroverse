@@ -1478,26 +1478,41 @@ if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
  }
 
 if(empired.taxation)
- svSendPrintf( cnt, "Your Empire leaders have set a taxation level of %d%%, this is automaticly deducted from your production.", empired.taxation );
+ svSendPrintf( cnt, "<i>Empire leaders have set a taxation level of %d%%, this is automaticly deducted from your production.</i>", empired.taxation );
  svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
- svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\">+%lld</td></tr>", maind.infos[4] );
- svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[5] );
- svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[6] );
- svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\">+%lld</td></tr>", maind.infos[8] );
- svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[7] );
- svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[11] );
+ svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_ENERGY_PRODUCTION] );
+ if( maind.infos[INFOS_ENERGY_TAX] )
+ svSendPrintf( cnt, "<tr><td>Taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_TAX] );
+ svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_DECAY] );
+ svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_BUILDING_UPKEEP] );
+ svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_POPULATION_REDUCTION] );
+ svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_UNITS_UPKEEP] );
+ svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_PORTALS_UPKEEP] );
  svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_ENERGY] );
 
  svSendString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
- svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
- svSendPrintf( cnt, "<tr><td>Crystal produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[9] );
- svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[10] );
- svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( (maind.infos[9] - maind.infos[10]) < 0 ) ? " class=\"genred\"" : "" ), (maind.infos[9] - maind.infos[10]) );
- svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
+
+ if( maind.infos[INFOS_MINERAL_TAX] ) {
+ svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_MINERAL_PRODUCTION] );
+ svSendPrintf( cnt, "<tr><td>Mineral taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_MINERAL_TAX] );
+}
+ svSendPrintf( cnt, "<tr><td>Mineral income</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
+
+ svSendPrintf( cnt, "<tr><td>Crystal production</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_CRYSTAL_PRODUCTION] );
+ if( maind.infos[INFOS_CRYSTAL_TAX] )
+ svSendPrintf( cnt, "<tr><td>Crystal taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_TAX] );
+
+ svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_DECAY] );
+ svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_CRYSTAL] );
+ if( maind.infos[INFOS_ECTROLIUM_TAX] ) {
+ svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_PRODUCTION] );
+ svSendPrintf( cnt, "<tr><td>Ectrolium taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_TAX] );
+}
+ svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
 
  svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
@@ -2266,7 +2281,7 @@ if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_F
 
 void iohttpFunc_famaid( svConnectionPtr cnt )
 {
- int a, b, id, res[4], j, i, k, nAlly;
+ int a, b, id, res[4];
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *playerstring, *resstring[4];
@@ -3818,7 +3833,7 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
 	  strcat(szString, szTemp);
 	 }
   strcat(szString, "\",\"_self\");\n}");
-  svSendPrintf( cnt, szString);
+  svSendString( cnt, szString);
 		
   svSendPrintf( cnt,"</SCRIPT>\n"); 
 
@@ -6950,7 +6965,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 				else
 				{
 			  (maild.mail).authorid = id;
-			  sprintf( (maild.mail).authorname, (cnt->dbuser)->faction );
+			  sprintf( (maild.mail).authorname, "%s", (cnt->dbuser)->faction );
 			  (maild.mail).authorempire = maind.empire;
 			  (maild.mail).time = time( 0 )-(3600*SERVER_TIME_ZONE);
 			  (maild.mail).tick = ticks.number;
@@ -6972,7 +6987,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
 			
 			  (maild.mail).authorid = a;
-			  sprintf( (maild.mail).authorname, main2d.faction );
+			  sprintf( (maild.mail).authorname, "%s", main2d.faction );
 			  (maild.mail).authorempire = main2d.empire;
 			  dbMailAdd( id, 1, &maild );
 			

@@ -71,17 +71,17 @@ typedef struct
 {
   char faction[32];
   char forumtag[32];
-  long long int ressource[8];
+  long long int ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
-  long long int infos[16];
-  long long int research[8];
+  long long int infos[INFOS_TOTAL_NUMUSED];
+  long long int research[CMD_RESEARCH_NUMUSED];
   int readiness[3];
   int home; // ( y << 20 ) + ( x << 8 ) + planet
-  long long int totalbuilding[16];
-  long long int totalunit[16];
-  long long int totalresearch[8];
+  long long int totalbuilding[CMD_BLDG_NUMUSED+1];
+  long long int totalunit[CMD_UNIT_NUMUSED];
+  long long int totalresearch[CMD_RESEARCH_NUMUSED];
   long long int networth;
-  int allocresearch[8];
+  int allocresearch[CMD_RESEARCH_NUMUSED];
   long long int fundresearch;
   int planets;
   int config_fleet;
@@ -140,7 +140,7 @@ int dbUserPortalsListCoords( int id, int **list );
 
 typedef struct
 {
-  int unit[16];
+  int unit[CMD_UNIT_NUMUSED];
   int order;
   int destination;
   int destid;
@@ -221,8 +221,8 @@ typedef struct
   int population;
   int maxpopulation;
   int special[3];
-  int building[16];
-  int unit[16];
+  int building[CMD_BLDG_NUMUSED+1];
+  int unit[CMD_UNIT_NUMUSED];
   int construction;
   int protection;
   int surrender;
@@ -253,7 +253,8 @@ typedef struct
   int construction;
   int taxation;
   int building[8];
-  long long int fund[8];
+  long long int fund[CMD_RESSOURCE_NUMUSED];
+  long long int infos[CMD_RESSOURCE_NUMUSED];
   char message[2][4096];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 

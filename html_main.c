@@ -20,10 +20,6 @@ int iohttpIdentifyHex( char *num )
 int iohttpIdentify( svConnectionPtr cnt, int action ) {
 	int a, b, id, session[4];
 	char *src;
-	char *data;
-	FILE *file;
-	struct stat stdata;
-
 
 iohttpDataPtr iohttp = cnt->iodata;
 
@@ -87,10 +83,6 @@ return -1;
 }
 
 void iohttpBase( svConnectionPtr cnt, int flags ) {
-	FILE *file;
-	struct stat stdata;
-	char *data;
-	char DIRCHECKER[256];
 	
 svSendString( cnt, "Content-Type: text/html\n\n" );
 svSendString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
@@ -270,7 +262,7 @@ void iohttpBodyEnd( svConnectionPtr cnt )
 
 // Woo, new races page... all auto-generated =D
 void iohttpFunc_races( svConnectionPtr cnt ) {
-	int a, b, c, id;
+	int a, b, id;
 	dbUserMainDef maind;
 
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
@@ -287,15 +279,15 @@ iohttpBodyInit( cnt, "%s: Races", sysconfig.servername );
 for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	svSendPrintf( cnt, "<div class=\"genlarge\">%s</div><br>", cmdRaceName[a] );
 	if( cmdRace[a].special )
-	svSendPrintf( cnt, "<i><b>Special bonus.</b></i><br>", cmdRaceName[a] );
+	svSendPrintf( cnt, "<i><b>Special bonus.</b></i><br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_POPRESEARCH )
-		svSendPrintf( cnt, "Each 4000 population produces 1 research point every week!<br>" );
+		svSendString( cnt, "Each 4000 population produces 1 research point every week!<br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_SOLARP15 )
-		svSendPrintf( cnt, "Solar Production increased by 15%!<br>" );
+		svSendString( cnt, "Solar Production increased by 15%!<br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_CULPROTECT )
-		svSendPrintf( cnt, "Culture Research production provides a psychic shield for planets!<br>" );
+		svSendString( cnt, "Culture Research production provides a psychic shield for planets!<br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_IDW )
-		svSendPrintf( cnt, "Imune to Dark Web Effects!<br>" );
+		svSendString( cnt, "Imune to Dark Web Effects!<br>" );
 
 	svSendString( cnt, "<table width=\"*\" border=\"0\"><tr>" );
 	svSendString( cnt, "<td valign=\"top\" width=\"250\"><i><b>Main bonuses</b></i><br>" );
@@ -905,10 +897,8 @@ return;
 void iohttpFunc_halloffame( svConnectionPtr cnt ) {
 	int a;
 	struct stat stdata;
-	char *data;
 	char DIRCHECKER[256];
 	char LINKSTRING[256];
-	FILE *file;
 
 iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_RANKS );
@@ -925,11 +915,11 @@ svSendPrintf( cnt, "<tr><td><br>Round %d<br>", a );
 
 sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", sysconfig.directory, a );
 sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d&typ=1\">", a );
-svSendPrintf( cnt, "%sEmpires</a> - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+svSendPrintf( cnt, "%sEmpires%s - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
 
 sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", sysconfig.directory, a );
 sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d\">", a );
-svSendPrintf( cnt, "%sPlayers</a>", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+svSendPrintf( cnt, "%sPlayers%s", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
 svSendString( cnt, "</tr></td>" );
 
 }
