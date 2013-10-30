@@ -7087,7 +7087,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 
 
-
+//New rankings output,  fmt 0 = html, fmt 1 = plaintext, typ 0 = Faction ranks, typ 1 = Empire ranks, rnd (unset) = current round, rnd (set) = display for round #rnd (if it exists)
 void iohttpFunc_rankings( svConnectionPtr cnt ) {
 	int id, round, type, format;
 	FILE *file;
