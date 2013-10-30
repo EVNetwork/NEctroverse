@@ -903,9 +903,11 @@ return;
 }
 
 void iohttpFunc_halloffame( svConnectionPtr cnt ) {
+	int a;
 	struct stat stdata;
 	char *data;
 	char DIRCHECKER[256];
+	char LINKSTRING[256];
 	FILE *file;
 
 iohttpBase( cnt, 8 );
@@ -914,18 +916,24 @@ iohttpFunc_frontmenu( cnt, 6 );
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
-sprintf( DIRCHECKER, "%s/halloffame.html", sysconfig.httpread );
-if( stat( DIRCHECKER, &stdata ) != -1 ) {
-	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-		data[stdata.st_size] = 0;
-		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, data );
-			fclose( file );
-		}
-		free( data );
-	}
+
+svSendPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", sysconfig.round );
+
+for( a = ( sysconfig.round - 1 ); a > -1; a--) {
+
+svSendPrintf( cnt, "<tr><td><br>Round %d<br>", a );
+
+sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", sysconfig.directory, a );
+sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d&typ=1\">", a );
+svSendPrintf( cnt, "%sEmpires</a> - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+
+sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", sysconfig.directory, a );
+sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d\">", a );
+svSendPrintf( cnt, "%sPlayers</a>", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+svSendString( cnt, "</tr></td>" );
+
 }
+
 
 svSendString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
 

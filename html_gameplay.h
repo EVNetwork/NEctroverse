@@ -108,10 +108,4 @@ void iohttpFunc_mail( svConnectionPtr cnt );
 
 void iohttpFunc_rankings( svConnectionPtr cnt );
 
-void iohttpFunc_famranks( svConnectionPtr cnt );
-
-void iohttpFunc_ptrankings( svConnectionPtr cnt );
-
-void iohttpFunc_ptfamranks( svConnectionPtr cnt );
-
 void iohttpFunc_search( svConnectionPtr cnt );

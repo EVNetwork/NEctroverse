@@ -189,7 +189,7 @@ void iohttpFunc_menu( svConnectionPtr cnt )
  svSendString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
 
  svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"images/i36.jpg\"><img height=\"15\" src=\"images/i53.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- svSendString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"famranks\" target=\"main\">Empire rankings</a><br>" );
+ svSendString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"rankings?typ=1\" target=\"main\">Empire rankings</a><br>" );
  svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
  svSendString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
@@ -7089,12 +7089,35 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 
 void iohttpFunc_rankings( svConnectionPtr cnt ) {
-	int id;
+	int id, round, type, format;
 	FILE *file;
 	struct stat stdata;
-	char *data;
+	char *data, *roundstring, *typestring, *formatstring;
 	char COREDIR[256];
 	dbUserMainDef maind;
+
+type = format = 0;
+round = sysconfig.round;
+iohttpVarsInit( cnt );
+formatstring = iohttpVarsFind( "fmt" );
+roundstring = iohttpVarsFind( "rnd" );
+typestring = iohttpVarsFind( "typ" );
+iohttpVarsCut();
+
+
+if( roundstring ) {
+	round = atoi(roundstring);
+}
+
+if( typestring ) {
+	type = atoi(typestring);
+}
+
+if( formatstring ) {
+	format = atoi(formatstring);
+	if( format )
+	goto PLAINTEXT;
+}
 
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	iohttpBase( cnt, 1 );
@@ -7105,9 +7128,20 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	iohttpFunc_frontmenu( cnt, 0 );
 }
 
-iohttpBodyInit( cnt, "Faction rankings" );
-sprintf( COREDIR, "%s/rankings/round%dranks.txt", sysconfig.directory, sysconfig.round );
-// svSendString( cnt, "<table cellspacing=\"4\"><tr><td>Rank</td><td>Faction</td><td>Empire</td><td>Planets</td><td>Networth</td></tr>" );
+
+if( (round != sysconfig.round) ) {
+	iohttpBodyInit( cnt, "%s rankings for Round #%d", ( type ? "Empire" : "Faction" ), round );
+} else {
+	iohttpBodyInit( cnt, "%s rankings", ( type ? "Empire" : "Faction" ) );
+}
+
+PLAINTEXT:
+if( format ) {
+	svSendString( cnt, "Content-type: text/plain\n\n" );
+}
+
+sprintf( COREDIR, "%s/rankings/round%d%sranks%s.txt", sysconfig.directory, round, ( type ? "fam" : "" ), ( format ? "plain" : "" )  );
+
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -7119,97 +7153,16 @@ if( stat( COREDIR, &stdata ) != -1 ) {
 		free( data );
 	}
 }
-// svSendString( cnt, "</table>" );
-
- iohttpBodyEnd( cnt );
- return;
+if( format ) {
+	goto PLAINEXIT;
 }
-
-void iohttpFunc_famranks( svConnectionPtr cnt ) {
-	int id;
-	FILE *file;
-	struct stat stdata;
-	char *data;
-	char COREDIR[256];
-	dbUserMainDef maind;
-
-if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
-	iohttpBase( cnt, 1 );
-	if( !( iohttpHeader( cnt, id, &maind ) ) )
-		return;
-} else {
-	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, 0 );
-}
-
-iohttpBodyInit( cnt, "Empire rankings" );
-sprintf( COREDIR, "%s/rankings/round%dfamranks.txt", sysconfig.directory, sysconfig.round );
-// svSendString( cnt, "<table cellspacing=\"4\"><tr><td align=\"right\">Rank</td><td>Name</td><td>Planets</td><td>Players</td><td>Networth</td></tr>" );
-if( stat( COREDIR, &stdata ) != -1 ) {
-	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-		data[stdata.st_size] = 0;
-		if( ( file = fopen( COREDIR, "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, data );
-			fclose( file );
-		}
-		free( data );
-	}
-}
-// svSendString( cnt, "</table>" );
 
 iohttpBodyEnd( cnt );
 
+PLAINEXIT:
 return;
 }
 
-void iohttpFunc_ptrankings( svConnectionPtr cnt ) {
-	FILE *file;
-	struct stat stdata;
-	char *data;
-	char COREDIR[256];
-
-svSendString( cnt, "Content-type: text/plain\n\n" );
-sprintf( COREDIR, "%s/rankings/round%dranksplain.txt", sysconfig.directory, sysconfig.round );
-if( stat( COREDIR, &stdata ) != -1 ) {
-	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-		data[stdata.st_size] = 0;
-		if( ( file = fopen( COREDIR, "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, data );
-			fclose( file );
-		}
-		free( data );
-	}
-}
-
-return;
-}
-
-void iohttpFunc_ptfamranks( svConnectionPtr cnt ) {
-	FILE *file;
-	struct stat stdata;
-	char *data;
-	char COREDIR[256];
- 
-svSendString( cnt, "Content-type: text/plain\n\n" );
-sprintf( COREDIR, "%s/rankings/round%dfamranksplain.txt", sysconfig.directory, sysconfig.round );
-if( stat( COREDIR, &stdata ) != -1 ) {
-	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-		data[stdata.st_size] = 0;
-		if( ( file = fopen( COREDIR, "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, data );
-			fclose( file );
-		}
-		free( data );
-	}
-}
-
-
-return;
-}
- 
 
 
 

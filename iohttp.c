@@ -450,21 +450,6 @@ if( chdir( COREDIR ) != -1 ) {
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_famranks;
-  sprintf( file->path, "/famranks" );
-
-  file = iohttpFileAdd( 0 );
-  file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_ptrankings;
-  sprintf( file->path, "/ptrankings" );
-
-  file = iohttpFileAdd( 0 );
-  file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_ptfamranks;
-  sprintf( file->path, "/ptfamranks" );
-
-  file = iohttpFileAdd( 0 );
-  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_account;
   sprintf( file->path, "/account" );
 
