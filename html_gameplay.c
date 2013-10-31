@@ -5516,11 +5516,12 @@ if( planetd.flags & CMD_PLANET_FLAGS_HOME ) {
 SYSTEMEXPO:
 if( systemstring ) {
 	if( explorestring ) {
-		for(a = 0, num = systemd.indexplanet; a < systemd.unexplored; a++, num++) {
+		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
 					svSendString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
-			} else if ( planetd.owner == -1 ) {
+			} 
+			if ( planetd.owner == -1 ) {
 				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
 					if( cmdErrorString ) {
 						svSendPrintf( cnt, "%s<br>", cmdErrorString );
@@ -5535,7 +5536,7 @@ if( systemstring ) {
 		}
 	goto iohttpFunc_exploreL0;
 	} else {
-		for(a = 0, num = systemd.indexplanet; a < systemd.unexplored; a++, num++) {
+		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
 					svSendString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
