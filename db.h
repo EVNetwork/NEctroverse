@@ -251,7 +251,7 @@ typedef struct
   int artefacts;
   int rank;
   int construction;
-  int taxation;
+  float taxation;
   int building[8];
   long long int fund[CMD_RESSOURCE_NUMUSED];
   long long int infos[CMD_RESSOURCE_NUMUSED];

@@ -507,6 +507,7 @@ ticks.debug_pass = 6 + 10000;
     if( dbMapRetrieveEmpire( mainp->empire, &empired ) < 0 )
       continue;
     empired.artefacts |= 1 << b;
+
     dbMapSetEmpire( mainp->empire, &empired );
 
 
@@ -617,11 +618,6 @@ if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
 	if( options.verbose )
 	printf( "Tick error: Retriving User %d\n", user->id );
 	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id );
-	continue;
-} else if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
-	if( options.verbose )
-	printf( "Tick error: Retriving empire %d\n", maind.empire );
-	syslog(LOG_ERR, "Tick error: Retriving empire %d\n", maind.empire  );
 	continue;
 }
     
@@ -910,11 +906,16 @@ maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_R
 maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
 maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);      
 
-
-maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * ( (double)empired.taxation / 100 ) ) );
-maind.infos[INFOS_MINERAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_MINERAL_PRODUCTION] * ( (double)empired.taxation / 100 ) ) );
-maind.infos[INFOS_CRYSTAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_CRYSTAL_PRODUCTION] * ( (double)empired.taxation / 100 ) ) );
-maind.infos[INFOS_ECTROLIUM_TAX] = fmax( 0.0, ( maind.infos[INFOS_ECTROLIUM_PRODUCTION] * ( (double)empired.taxation / 100 ) ) );
+if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+	if( options.verbose )
+	printf( "Tick error: Retriving empire %d\n", maind.empire );
+	syslog(LOG_ERR, "Tick error: Retriving empire %d\n", maind.empire  );
+	continue;
+}
+maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * empired.taxation ) );
+maind.infos[INFOS_MINERAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_MINERAL_PRODUCTION] * empired.taxation ) );
+maind.infos[INFOS_CRYSTAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_CRYSTAL_PRODUCTION] * empired.taxation ) );
+maind.infos[INFOS_ECTROLIUM_TAX] = fmax( 0.0, ( maind.infos[INFOS_ECTROLIUM_PRODUCTION] * empired.taxation ) );
 
 maind.infos[CMD_RESSOURCE_ENERGY] = maind.infos[INFOS_ENERGY_PRODUCTION] - maind.infos[INFOS_ENERGY_DECAY] - maind.infos[INFOS_BUILDING_UPKEEP] - maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_POPULATION_REDUCTION] - maind.infos[INFOS_PORTALS_UPKEEP] - maind.infos[INFOS_ENERGY_TAX];
 
