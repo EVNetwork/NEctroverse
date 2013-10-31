@@ -69,8 +69,8 @@ int dbSessionRetrieve( dbUserPtr user, int *session );
 
 typedef struct
 {
-  char faction[32];
-  char forumtag[32];
+  char faction[32]; //FIXME: Needs to be moved!
+  char forumtag[32]; //FIXME: Needs to be moved!
   long long int ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
   long long int infos[INFOS_TOTAL_NUMUSED];
@@ -86,11 +86,11 @@ typedef struct
   int planets;
   int config_fleet;
   int config_flee[4];
-  int createtime;
-  int lasttime;
+  int createtime; //FIXME: Needs to be moved!
+  int lasttime; //FIXME: Needs to be moved!
   int config_mapsize;
   int config_map[8];
-  int tagpoints;
+  int tagpoints; //FIXME: Needs to be moved!
   int raceid;
   int artefacts;
   int rank;

@@ -2831,7 +2831,7 @@ if( taxstring ){
 	} else if( tax > 25 ) {
 		svSendString( cnt, "<i>Tax level too high!!</i><br><br>" );
 	} else {
-		empired.taxation = ( tax / 100 );
+		empired.taxation = fmax( 0.0, ( tax / 100 ) );
 		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 			svSendString( cnt, "<i>Error setting new tax...</i><br><br>" );
 		} else {
