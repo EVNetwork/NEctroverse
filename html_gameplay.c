@@ -3,7 +3,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
 {
  int a, i, id, num;
  char *name, *pass;
- char rtpass[32];
+ char rtpass[128];
  int session[4];
  FILE *file;
  iohttpDataPtr iohttp;
@@ -1466,7 +1466,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
         svSendString( cnt, "Error retriving Empire details!" );
-        if( cnt->dbuser->level < LEVEL_MODERATOR )
                 return;
 }
 

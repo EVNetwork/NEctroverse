@@ -3180,7 +3180,7 @@ int dbUserMarketList( int id, int **list )
   if( !( listp = malloc( num*5*sizeof(int) ) ) )
     return -1;
   fseek( file, 8, SEEK_SET );
-  if( fread( listp, 1, num*5*sizeof(int), file ) < 1 ) {
+  if( ( fread( listp, 1, num*5*sizeof(int), file ) < 1 ) && ( num ) ) {
  	if( options.verbose )
 		printf("Failure reading file x51.1\n" );
 	syslog(LOG_ERR, "Failure reading file x51.1\n" );
@@ -3318,7 +3318,7 @@ int dbForumListForums( int perms, dbForumForumPtr *forums )
 }
   if( !( forumsp = malloc( num * sizeof(dbForumForumDef) ) ) )
     return -3;
-  if( fread( forumsp, 1, num*sizeof(dbForumForumDef), file ) < 1 ) {
+  if( (fread( forumsp, 1, num*sizeof(dbForumForumDef), file ) < 1 ) && ( num ) ) {
  	if( options.verbose )
 		printf("Failure reading file x54.1\n" );
 	syslog(LOG_ERR, "Failure reading file x54.1\n" );
