@@ -1478,7 +1478,7 @@ if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
  }
 
 if(empired.taxation)
- svSendPrintf( cnt, "<i>Empire leaders have set a taxation level of %.02f%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100 ) );
+ svSendPrintf( cnt, "<i>Empire leaders have set a taxation level of %.02f%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
  svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
@@ -2215,7 +2215,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
 	svSendString( cnt, "<br>Empire Fund: " );	
 	if( empired.taxation ) {
-		svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100 ) );
+		svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
 	} else {
 		svSendString( cnt, "<i>No tax set</i>" );
 	}
@@ -2828,15 +2828,15 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 if( taxstring ){
 	if( ( sscanf( taxstring, "%f", &tax ) != 1 ) ) {
 		svSendString( cnt, "<i>Invalid input, numbers only!!</i><br><br>" );
-	} else if( tax > 25 ) {
+	} else if( tax > 25.0 ) {
 		svSendString( cnt, "<i>Tax level too high!!</i><br><br>" );
 	} else {
-		empired.taxation = fmax( 0.0, ( tax / 100 ) );
+		empired.taxation = fmax( 0.0, ( tax / 100.0 ) );
 		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 			svSendString( cnt, "<i>Error setting new tax...</i><br><br>" );
 		} else {
 			if( empired.taxation ) {
-				svSendPrintf( cnt, "<i>Taxation set to %.02f%%</i><br><br>", ( empired.taxation * 100 ) );
+				svSendPrintf( cnt, "<i>Taxation set to %.02f%%</i><br><br>", ( empired.taxation * 100.0 ) );
 			} else {
 				svSendString( cnt, "<i>Empire taxation removed!</i><br><br>" );
 			}
@@ -2987,7 +2987,7 @@ if( relsmesstring ) {
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Taxation</td></tr>" );
- svSendPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100 ) );
+ svSendPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100.0 ) );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  svSendString( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">Empire picture</td></tr>" );
