@@ -48,8 +48,6 @@ void inNewEvm( svConnectionPtr cnt )
 void inNewDataEvm( svConnectionPtr cnt )
 {
   int isize;
-  ioevmDataPtr evm;
-  evm = cnt->iodata;
 
   if( cnt->recv_pos < 4 )
     return;

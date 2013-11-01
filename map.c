@@ -336,7 +336,7 @@ for( y = 0 ; y < mapgen.height ; y++ ) {
 */
 
 
-if(mapgen.width > mapcfg.sizex) {
+if( mapgen.width > mapcfg.sizex ) {
 	mapgen.data = bigpixies;
 	free(bigpixies);
 } else {
@@ -351,7 +351,7 @@ free(pixels);
 
 
 //FIXME: Such a dirty fix, but well... it works. =/
-if(mapgen.width == mapcfg.sizex) {
+if( mapgen.width == mapcfg.sizex ) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
 		if( options.verbose )

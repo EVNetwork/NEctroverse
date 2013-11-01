@@ -24,7 +24,7 @@ urandom[i] = '\0';
 strcat(salted, str2md5(urandom) );
 
 if( (fh = fopen("/dev/urandom", "rb")) ) {
-	if( fread( &random, 1, 32, fh ) != 1 ) {
+	if( fread( &random, 1, 32, fh ) < 1 ) {
 	 	if( options.verbose )
 			printf("Error Getting random for MD5... Critical failure.\n");
 		syslog(LOG_ERR, "Error Getting random for MD5... Critical failure." );

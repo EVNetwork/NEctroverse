@@ -56,12 +56,12 @@ syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", sysconfig.directory, a, sysconfig.directory, a);
 if( system(szCommmand) ) {
 	if( options.verbose )
-		printf("Cloned User: #%d\n", a );
-	syslog(LOG_INFO, "Cloned User: %d\n", a );
-} else {
-	if( options.verbose )
 		printf("Error Cloning User: #%d\n", a );
 	syslog(LOG_ERR, "Error Cloning User: %d\n", a );
+} else {
+	if( options.verbose )
+		printf("Cloned User: #%d\n", a );
+	syslog(LOG_INFO, "Cloned User: %d\n", a );
 }
 
   return a;

@@ -126,7 +126,11 @@ while( ( direntry = readdir( dirdata ) ) ) {
 	file->mime = iohttpMimeFind( direntry->d_name );
 	memcpy( &file->scurtime, &stdata.st_mtime, sizeof(time_t) );
 	sprintf( &file->path[1], "images/%s", direntry->d_name );
-	fread( file->data, 1, file->size, fd );
+	if( fread( file->data, 1, file->size, fd ) < 1 ) {
+		if( options.verbose )
+			printf("Error reading file for http: %s\n", file->path);
+		syslog(LOG_ERR, "Error reading file for http: %s\n", file->path);
+	}
 	fclose( fd );
 }
 closedir( dirdata );
@@ -726,7 +730,12 @@ void outSendReplyHTTP( svConnectionPtr cnt )
       goto outSendReplyHTTPL0;
     }
     data[stdata.st_size] = 0;
-    fread( data, 1, stdata.st_size, fd );
+    if( ( fread( data, 1, stdata.st_size, fd ) < 1 ) && (stdata.st_size) ) {
+		 if( options.verbose )
+	printf("Error reading file for http: %s\n", path);
+	syslog(LOG_ERR, "Error reading file for http: %s\n", path);
+    }
+
 
     strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &stdata.st_mtime ) );
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
