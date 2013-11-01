@@ -37,8 +37,8 @@ if( options.verbose )
 printf("Created User: #%d Name: \"%s\"\n", a, name );
 syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 
-  sprintf( cmdUserMainDefault.faction, faction );
-  sprintf( cmdUserMainDefault.forumtag, "Player" );
+  sprintf( cmdUserMainDefault.faction, "%s", faction );
+  sprintf( cmdUserMainDefault.forumtag, "%s", "Player" );
   cmdUserMainDefault.empire = -1;
   b = time( 0 );
   cmdUserMainDefault.createtime = b;
@@ -53,18 +53,25 @@ syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
   //copy this file into the 10 min db
   //actualy copy an empty file
   
- 	sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", sysconfig.directory, a, sysconfig.directory, a);
-  system(szCommmand);
+sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", sysconfig.directory, a, sysconfig.directory, a);
+if( system(szCommmand) ) {
+	if( options.verbose )
+		printf("Cloned User: #%d\n", a );
+	syslog(LOG_INFO, "Cloned User: %d\n", a );
+} else {
+	if( options.verbose )
+		printf("Error Cloning User: #%d\n", a );
+	syslog(LOG_ERR, "Error Cloning User: %d\n", a );
+}
 
   return a;
 }
 
 int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int level )
 {
-  int a, b, c, x, y, p, i, total=0;
+  int a, b, c, x, y;
   int binfo[MAP_TOTAL_INFO], fam[1024];
   //Max 200 emp
-  int nPlayer[200];
   char epass[128];
   dbUserMainDef maind;
   dbMainEmpireDef empired;
@@ -147,7 +154,6 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   }
 
   empired.player[empired.numplayers] = id;
-  p = empired.numplayers;
   empired.numplayers++;
   dbMapSetEmpire( maind.empire, &empired );
 
@@ -361,10 +367,10 @@ int cmdExecUserDeactivate( int id, int flags )
 
   memcpy( &main2d, &cmdUserMainDefault, sizeof(dbUserMainDef) );
   if( user->level == 0 )
-    sprintf( main2d.forumtag, cmdTagFind( maind.tagpoints ) );
+    sprintf( main2d.forumtag, "%s", cmdTagFind( maind.tagpoints ) );
   else
-    sprintf( main2d.forumtag, maind.forumtag );
-  sprintf( main2d.faction, maind.faction );
+    sprintf( main2d.forumtag, "%s", maind.forumtag );
+  sprintf( main2d.faction, "%s", maind.faction );
   main2d.empire = -1;
   main2d.tagpoints = maind.tagpoints;
   if( !( dbUserMainSet( id, &main2d ) ) )
@@ -469,7 +475,7 @@ int cmdExecChangeName( int id, char *faction )
     cmdErrorString = "This faction name is already in use!";
     return -2;
   }
-  sprintf( maind.faction, faction );
+  sprintf( maind.faction, "%s", faction );
   dbUserMainSet( id, &maind );
   return 1;
 }
@@ -1156,7 +1162,6 @@ return 1;
 }
 
 int cmdExecGetFamPass( int fam, char *pass ) {
-	int a;
 	dbMainEmpireDef empired;
 
 cmdErrorString = 0;

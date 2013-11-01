@@ -748,7 +748,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
 */
 void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, long long int *newd )
 {
-  int a, penalty, defense, stealth, i, k;
+  int a, penalty, defense, stealth, i;
   long long int j, attack;
   float fa, success, refatt, refdef, tlosses;
   dbUserFleetDef fleetd, fleet2d;
@@ -959,7 +959,6 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
 {
     if (a<0)
     a = 0;
-    k = 0;
     j = dbUserSpecOpList(id, &specop2d);
     	for(i=0;i<j;i++)
     	{

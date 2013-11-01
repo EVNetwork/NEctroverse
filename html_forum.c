@@ -190,7 +190,7 @@ int iohttpForumFilter3( char *dest, char *string, int size )
    goto iohttpForumFilter3L0;
   if( (unsigned int)c >= IOHTTP_FORUM_SMILETOTAL )
    goto iohttpForumFilter3L0;
-  b += sprintf( &dest[b], iohttpForumSmileys[IOHTTP_FORUM_SMILEBASE+c].string );
+  b += sprintf( &dest[b], "%s", iohttpForumSmileys[IOHTTP_FORUM_SMILEBASE+c].string );
   string = string2;
   continue;
   iohttpForumFilter3L0:
@@ -665,7 +665,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   threadd.posts = 0;
   threadd.authorid = id;
   if( id != -1 )
-   sprintf( threadd.authorname, (cnt->dbuser)->faction );
+   sprintf( threadd.authorname, "%s", (cnt->dbuser)->faction );
   else if( namestring )
    iohttpForumFilter( threadd.authorname, namestring, 32, 0 );
   else
@@ -719,8 +719,8 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   postd.post.authorid = id;
   if( id != -1 )
   {
-   sprintf( postd.post.authorname, (cnt->dbuser)->faction );
-   sprintf( postd.post.authortag, (cnt->dbuser)->forumtag );
+   sprintf( postd.post.authorname, "%s", (cnt->dbuser)->faction );
+   sprintf( postd.post.authortag, "%s", (cnt->dbuser)->forumtag );
   }
   else
   {
@@ -840,8 +840,8 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    free( posts );
    return;
   }
-  sprintf( postd.post.authorname, posts[0].post.authorname );
-  sprintf( postd.post.authortag, posts[0].post.authortag );
+  sprintf( postd.post.authorname, "%s", posts[0].post.authorname );
+  sprintf( postd.post.authortag, "%s", posts[0].post.authortag );
   postd.post.time = posts[0].post.time;
   postd.post.tick = posts[0].post.tick;
   postd.post.authorid = posts[0].post.authorid;

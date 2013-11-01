@@ -380,7 +380,8 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  long long int newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
-
+ 
+ name = pass = faction = 0;
  iohttpVarsInit( cnt );
 /* name = iohttpVarsFind( "name" );
  pass = iohttpVarsFind( "pass" );
@@ -657,7 +658,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 					}
 				}
 			if(boxopen)
-			iohttpFunc_boxend( cnt );
+				iohttpFunc_boxend( cnt );
 			svSendString( cnt, "<br>" );
 			svSendString( cnt, "<br>" );
 			}
@@ -698,13 +699,13 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
-			svSendString( cnt, "<i>Items on the admins to-do list :</i>" );
-			svSendString( cnt, "<br>" );
-			while( fgets( data, stdata.st_size, file ) != NULL ) {
-				if( strlen(data) > 1 )
-					svSendPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
-			}
-			svSendString( cnt, "<br>" );
+				svSendString( cnt, "<i>Items on the admins to-do list :</i>" );
+				svSendString( cnt, "<br>" );
+				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					if( strlen(data) > 1 )
+						svSendPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
+				}
+				svSendString( cnt, "<br>" );
 			}
 			fclose( file );
 		}
@@ -760,8 +761,13 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
-			fread( data, 1, stdata.st_size, file );
-			svSendString( cnt, trimwhitespace(data) );
+			if( fread( data, 1, stdata.st_size, file ) != 1 ) {
+				if( options.verbose )
+					printf("Failure reading faq file.\n");
+				syslog(LOG_INFO, "Failure reading faq file." );
+			} else {
+				svSendString( cnt, trimwhitespace(data) );
+			}
 			fclose( file );
 		}
 		free( data );

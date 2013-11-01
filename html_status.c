@@ -1,17 +1,52 @@
 
 
-void iohttpFuncConvertTime( char *buffer, int eltime )
-{
-  int up_days, up_hrs, up_mins, up_secs;
-  up_days = eltime/86400;
-  up_hrs = (eltime-(up_days*86400))/3600;
-  up_mins = (eltime-(up_days*86400)-(up_hrs*3600))/60;
-  up_secs = (eltime-(up_days*86400)-(up_hrs*3600)-(up_mins*60));
-  if( up_days )
-    sprintf( buffer, "%d %s %02d %s %02d %s %02d %s", up_days, ( up_days==1?"day":"days" ), up_hrs, ( up_hrs==1?"hour":"hours" ), up_mins, ( up_mins==1?"minute":"minutes" ), up_secs, ( up_secs==1?"second":"seconds" ) );
-  else
-    sprintf( buffer, "%d %s %02d %s %02d %s", up_hrs, ( up_hrs==1?"hour":"hours" ), up_mins, ( up_mins==1?"minute":"minutes" ), up_secs, ( up_secs==1?"second":"seconds" ) );
-  return;
+void iohttpFuncConvertTime( char *buffer, int eltime ) {
+	int up_days, up_hrs, up_mins, up_secs;
+	bool bdays, bhours, bmins;
+	char timeline[32];
+
+bdays = bhours = bmins = false;
+up_days = eltime / day;
+up_hrs = (eltime-(up_days*day))/hour;
+up_mins = (eltime-(up_days*day)-(up_hrs*hour))/minute;
+up_secs = (eltime-(up_days*day)-(up_hrs*hour)-(up_mins*minute));
+
+strcpy(buffer,"");
+if( up_days ) {
+	sprintf( timeline, "%d %s", up_days, ( ( up_days == 1 ) ? "day" : "days" ) );
+	strcat(buffer, timeline);
+	bdays = true;
+} 
+
+if ( up_hrs ) {
+	if( bdays )
+		strcat(buffer, " ");
+	sprintf( timeline, "%d %s", up_hrs, ( ( up_hrs == 1 ) ? "hour" :"hours" ) );
+	strcat(buffer, timeline);
+	bhours = true;
+} 
+
+if ( up_mins ) {
+	if( ( bdays ) || ( bhours ) )
+		strcat(buffer, " ");
+	sprintf( timeline, "%02d %s", up_mins, ( ( up_mins == 1 ) ? "minute" : "minutes" ) );
+	strcat(buffer, timeline);
+	bmins = true;
+} 
+
+if ( up_secs ) {
+	if( ( bdays ) || ( bhours ) || ( bmins ) )
+		strcat(buffer, " ");
+	sprintf( timeline, "%02d %s", up_secs, ( ( up_secs == 1 ) ? "second" : "seconds" ) );
+	strcat(buffer, timeline);
+}
+
+if( !( strlen( buffer ) ) ) {
+	strcpy(buffer, "Never, or bad time input!" );
+}
+
+
+return;
 }
 
 
@@ -20,7 +55,7 @@ void iohttpFunc_status( svConnectionPtr cnt ) {
 	FILE *file;
 	char fname[256], addstring[32];
 	int stutime, ststime, stpriority, ststarttime, stvsize, strss;
-	float boottime, runtime, userload, kernelload;
+	float runtime, userload, kernelload;
 	float loadavg[3];
 	float shiftfloat;
 	char stringuptime[128];
@@ -39,14 +74,18 @@ svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
 pid = getpid();
 sprintf( fname, "/proc/%d/stat", pid );
 if( ( file = fopen( fname, "r" ) ) ) {
-	fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %d %d %*d %*d %d %*d %*u %*u %u %u %u", &stutime, &ststime, &stpriority, &ststarttime, &stvsize, &strss );
+	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %d %d %*d %*d %d %*d %*u %*u %u %u %u", &stutime, &ststime, &stpriority, &ststarttime, &stvsize, &strss ) != 6 ) {
+		 if( options.verbose )
+	printf("Error getting process stat Info...\n");
+	syslog(LOG_ERR, "Error getting process stat Info...\n");
+	}
 	fclose( file );
 }
 
 if( sysinfo(&si) != 0 ) {
  	if( options.verbose )
-	printf("Failure getting system infomation... Critical failure.");
-	syslog(LOG_INFO, "Failure getting system infomation... Critical failure." );
+		printf("Failure getting system infomation... Critical failure.\n");
+	syslog(LOG_ERR, "Failure getting system infomation... Critical failure." );
 	cleanUp(-1,-1);
 	exit(EXIT_FAILURE);
 }
@@ -64,6 +103,7 @@ svSendString( cnt, "<table border=\"0\"><tr><td>" );
 svSendPrintf( cnt, "General status : No problems detected<br>" ); // Should we partially keep running through signals?
 svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
 svSendPrintf( cnt, "Tick time : %d seconds<br>", sysconfig.ticktime );
+
 if( ticks.status ) {
 	svSendPrintf( cnt, "Next tick : %d seconds<br>", (int)( ticks.next - time(0) ) );
 } else {
@@ -77,10 +117,13 @@ loadavg[1]=((float)si.loads[1])/shiftfloat;
 loadavg[2]=((float)si.loads[2])/shiftfloat;
 svSendString( cnt, "<b>Server Processor Info</b><br>" );
 svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
+
 if( (loadavg[0] > 0) || (loadavg[1] > 0) || (loadavg[2] > 0) )
 	svSendPrintf( cnt, "<tr><td>Load Averages</td><td>&nbsp;:&nbsp;</td><td>%f (1 min) - %f (5 mins) - %f (15 mins)</td></tr>",loadavg[0],loadavg[1],loadavg[2]);
+
 svSendPrintf( cnt, "<tr><td>CPU Type</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", cpuinfo.identifier, cpuArchName[cpuinfo.arch] );
 svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", cpuinfo.vendorstring, cpuClassName[cpuinfo.class] );
+
 if( cpuinfo.cachesizeL3 > 0 )
 	svSendPrintf( cnt, "<tr><td>Level 3 Cache</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>", cpuinfo.cachesizeL3 );
 

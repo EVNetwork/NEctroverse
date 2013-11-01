@@ -46,18 +46,17 @@ void cmdTickGenRanks()
     if( !( empirep[b].numplayers ) )
       continue;
 
-if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 )
-	return -3;
-wnum <<= 2;
-for( wa = 0 ; wa < wnum ; wa += 4 ) {
-	if( rels[wa+1] == CMD_RELATION_WAR ) {
-		if( (rels[wa] + sysconfig.warend) <= ticks.number ) {
-			cmdExecDelRelation( b, wa / 4 );
-		} 
+if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 ) {
+	wnum <<= 2;
+	for( wa = 0 ; wa < wnum ; wa += 4 ) {
+		if( rels[wa+1] == CMD_RELATION_WAR ) {
+			if( (rels[wa] + sysconfig.warend) <= ticks.number ) {
+				cmdExecDelRelation( b, wa / 4 );
+			} 
+		}
 	}
+	free( rels );
 }
-free( rels );
-
     stats[c+0] = b;
 // calc NW, planets and empire artefacts
     for( a = 0 ; a < empirep[b].numplayers ; a++ )
@@ -564,7 +563,7 @@ int cmdTick()
   int marketbid[DB_MARKETBID_NUMUSED];
   int bidresult[2];
   int *plist;
-  int nArti = 0, nNum;
+  int nArti = 0;
   dbUserPtr user;
   dbUserMainDef maind;
   dbUserBuildPtr build;
@@ -741,7 +740,7 @@ ticks.debug_pass = 5;
 ticks.debug_pass = 6;
 
    // SK: because of the network backbone arti, we need to calculate Tech research first
-    int addedFromTech = 0;
+//    int addedFromTech = 0;
      
     // calculate total research for tech
      
@@ -761,7 +760,7 @@ ticks.debug_pass = 6;
           else if( b < maind.totalresearch[CMD_RESEARCH_TECH] )
             maind.totalresearch[CMD_RESEARCH_TECH]--;
      
-              addedFromTech = b/10;
+              //addedFromTech = b/10;
      
      
     // calculate total research

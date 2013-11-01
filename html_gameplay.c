@@ -3411,7 +3411,7 @@ void iohttpFunc_mappick( svConnectionPtr cnt )
  int a, b, id;
  dbUserMainDef maind;
  char *sizestring;
- static int sizes[MAPPICKSIZES] = { 15, 20, 25, 30, 45, 60 };
+ static int sizes[MAPPICKSIZES] = { 15, 20, 25, 30/*, 45, 60*/ };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -5371,7 +5371,7 @@ void iohttpAttackReport( svConnectionPtr cnt, int *results, int sats )
 
 void iohttpFunc_fleetattack( svConnectionPtr cnt )
 {
- int id, cmd[3], fltid;
+ int id, cmd[3];
  int results[4+8*CMD_UNIT_FLEET+2];
  dbUserMainDef maind, main2d;
  char *fleetstring;
@@ -5399,7 +5399,6 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   iohttpBodyEnd( cnt );
   return;
  }
- fltid = cmd[2];
 
  if( cmdErrorString )
   svSendPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
@@ -7250,9 +7249,14 @@ if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( COREDIR, "rb" ) ) ) {
-		fread( data, 1, stdata.st_size, file );
-		svSendString( cnt, data );
-		fclose( file );
+			if( fread( data, 1, stdata.st_size, file ) != 1 ) {
+			if( options.verbose )
+				printf("Failure reading round rankings infomation: %s\n", COREDIR);
+			syslog(LOG_INFO, "Failure reading round rankings infomation: %s\n", COREDIR );
+			} else {
+				svSendString( cnt, data );
+			}
+			fclose( file );
 		}
 		free( data );
 	}

@@ -18,10 +18,10 @@ char *cmdBonusName[CMD_BONUS_NUMUSED] =
 "Solar",
 "Mineral",
 "Crystal",
-"Ectrolium",
+"Ectrolium"/*,
 "Research",
 "Population",
-"Disease",
+"Disease",*/
 };
 
 char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
@@ -357,7 +357,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   0 | 0 | 4 | 0 | 16 | 32 | 64 |   0 |   0,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
   1 | 0 | 0 | 8 |  0 | 32 | 64,
- },
+ },/*
   {//Furtifon
   1.0+(0.9*0.02), 0.90, 1.0, 1.6*2.0,
   {   0.90,  0.90,   0.90,   0.90,   0.90,   0.90,   1.8 },
@@ -390,7 +390,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
- },
+ },*/
 };
 
 char *cmdRaceName[CMD_RACE_NUMUSED] =
@@ -399,10 +399,10 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 "Manticarias",
 "Foohons",
 "Spacebornes",
-"Dreamweavers",
+"Dreamweavers"/*,
 "Furtifons",
 "Samsonites",
-"Ultimums"
+"Ultimums"*/
 };
 
 int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
@@ -424,10 +424,10 @@ dbUserMainDef cmdUserMainDefault =
 {
   { },
   { },
-  { 120000, 6000, 1500, 3000, 0, 0, 0, 0 },
+  { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ },
   0,
   { },
-  { 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0/*, 0*/ },
   { 100*65536, 100*65536, 100*65536 },
   0,
   { },
@@ -476,8 +476,8 @@ dbMainPlanetDef dbPlanetDefault =
   50000,
   90000,
   { 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0/*, 0, 0, 0, 0, 0, 0, 0*/ },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/*, 0, 0, 0*/ },
   0,
   0,
   -1,
@@ -503,9 +503,9 @@ dbMainEmpireDef dbEmpireDefault =
   -1,
   0,
   0,
-  { 0, 0, 0, 0 },
-  { 0, 0, 0, 0 },
   { 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0 },
+  { 0, 0, 0, 0 },
   {"",""},
 };
 
@@ -1372,9 +1372,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
     {
       a = sprintf( cmdErrorBuffer, "I think you should try asking for a more reasonable amount of " );
       if( !( cmd[2] >> 16 ) )
-        sprintf( &cmdErrorBuffer[a], cmdBuildingName[ cmd[2] & 0xFFF ] );
+        sprintf( &cmdErrorBuffer[a], "%s", cmdBuildingName[ cmd[2] & 0xFFF ] );
       else
-        sprintf( &cmdErrorBuffer[a], cmdUnitName[ cmd[2] & 0xFFF ] );
+        sprintf( &cmdErrorBuffer[a], "%s", cmdUnitName[ cmd[2] & 0xFFF ] );
       cmdErrorString = cmdErrorBuffer;
       return -1;
     }
@@ -2266,10 +2266,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 
 int cmdInit() {
-	int a, id;
+	int id;
 	dbUserPtr user;
 	dbUserMainDef maind;
-	dbMainEmpireDef empired;
 
 if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;
