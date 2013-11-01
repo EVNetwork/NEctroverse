@@ -2647,7 +2647,7 @@ return 1;
 
 int dbMapSetEmpire( int famid, dbMainEmpirePtr empired ) {
 	FILE *file;
-	dbUserPtr user;
+//	dbUserPtr user;
 
 
 if(!( file = dbFileGenOpen( DB_FILE_MAP ) ) )
@@ -2655,7 +2655,7 @@ if(!( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 
 if((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES])
 	return -3;
-
+/*
 //---------------------
 if ( empired->numplayers == 1) {
 	empired->leader = empired->player[0];
@@ -2666,6 +2666,7 @@ if ( empired->numplayers == 1) {
 	}
 }
 //-----------------------
+*/
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
 fwrite( empired, 1, sizeof(dbMainEmpireDef), file );

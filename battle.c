@@ -1021,7 +1021,7 @@ int battle( int id, int fltid, int *results )
     dbUserMainSet( id, &maind );
     dbUserMainSet( defid, &main2d );
     if( !( main2d.planets ) )
-      cmdExecUserDeactivate( defid, CMD_USER_FLAGS_KILLED );
+      cmdExecUserDeactivate( defid, cmdUserFlags[CMD_FLAGS_KILLED] );
     return 1;
   }
   planetd.owner = id;

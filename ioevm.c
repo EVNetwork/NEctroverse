@@ -254,7 +254,7 @@ printf( "SEARCH %s\n", bdata );
       userfound = 0;
       for( user = dbUserList ; user ; user = user->next )
       {
-        if( !( user->flags & CMD_USER_FLAGS_ACTIVATED ) )
+        if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
           continue;
         iohttpCaseLow( buf1, user->faction );
         if( !( ioCompareFindWords( buf1, buf0 ) ) )

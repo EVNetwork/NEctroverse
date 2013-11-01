@@ -919,13 +919,13 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     if( ( user = dbUserLinkID( actionid ) ) )
     {
 		if( i0 == 1 )
-		user->flags = CMD_USER_FLAGS_ACTIVATED;
+		user->flags = cmdUserFlags[CMD_FLAGS_ACTIVATED];
 		if( i0 == 2 )
-        user->flags = CMD_USER_FLAGS_KILLED;
+        user->flags = cmdUserFlags[CMD_FLAGS_KILLED];
 		if( i0 == 3 )
-        user->flags = CMD_USER_FLAGS_DELETED;
+        user->flags = cmdUserFlags[CMD_FLAGS_DELETED];
 		if( i0 == 4 )
-        user->flags = CMD_USER_FLAGS_NEWROUND;
+        user->flags = cmdUserFlags[CMD_FLAGS_NEWROUND];
 		dbUserSave( actionid, user );
     }
     svSendPrintf( cnt, "changed status of %d", actionid );
@@ -1228,7 +1228,7 @@ if( action[0] ) {
   {
     if( sscanf( action[7], "%d", &a ) == 1 )
     {
-      cmdExecUserDeactivate( a, CMD_USER_FLAGS_DELETED );
+      cmdExecUserDeactivate( a, cmdUserFlags[CMD_FLAGS_DELETED] );
       svSendPrintf( cnt, "Player %d deactivated<br><br>", a );
     }
   }
@@ -1309,7 +1309,7 @@ if( action[0] ) {
   {
   	curtime = time( 0 );
     for( user = dbUserList ; user ; user = user->next )
-      cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
+      cmdExecUserDeactivate( user->id, cmdUserFlags[CMD_FLAGS_NEWROUND] );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
   }
 

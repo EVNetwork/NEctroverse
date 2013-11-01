@@ -262,7 +262,7 @@ dbArtefactMax = artmax;
 
   for( b = c = 0, user = dbUserList ; user ; user = user->next )
   {
-    if( !( user->flags & CMD_USER_FLAGS_ACTIVATED ) )
+    if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
 	{
 	  //printf("user %d not activated\n", user->id );
       continue;
@@ -608,7 +608,7 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
   {
   		
 				
-    if( !( user->flags & CMD_USER_FLAGS_ACTIVATED ) )
+    if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
       continue;
 
 ticks.debug_id = user->id;

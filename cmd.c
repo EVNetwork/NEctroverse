@@ -407,6 +407,11 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 
 int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
 {
+0x1,
+0x10,
+0x20,
+0x40,
+
 0x10000,
 0x20000,
 0x40000,

@@ -180,7 +180,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   if( !( user = dbUserLinkID( id ) ) )
     return -1;
-  user->flags = CMD_USER_FLAGS_ACTIVATED;
+  user->flags = cmdUserFlags[CMD_FLAGS_ACTIVATED];
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -213,7 +213,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( maind.empire != -1 )
     dbMapRetrieveEmpire( maind.empire, &empired );
 
-  if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( user->flags & CMD_USER_FLAGS_ACTIVATED ) && ( maind.empire != -1 ) )
+  if( ( flags == cmdUserFlags[CMD_FLAGS_NEWROUND] ) && ( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( maind.empire != -1 ) )
   {
     recordd.roundid = sysconfig.round;
     recordd.planets = maind.planets;

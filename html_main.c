@@ -46,7 +46,7 @@ for( a = 0 ; a < 4 ; a++ ) {
 }
 
 if(( action & 2 )&&(cnt->dbuser)) {
-	if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) && ( (cnt->dbuser)->level < LEVEL_MODERATOR ) ) {
+	if( !( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( (cnt->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
 			if( action & 8 )
 			iohttpBase( cnt, 1|2 );
@@ -57,7 +57,7 @@ if(( action & 2 )&&(cnt->dbuser)) {
 }
 
 if( action & 4 ) {
-	if( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) {
+	if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) {
 		if( action & 1 ) {
 			if( action & 8 )
 				iohttpBase( cnt, 1|2 );

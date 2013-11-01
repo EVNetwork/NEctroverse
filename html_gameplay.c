@@ -73,14 +73,14 @@ void iohttpFunc_main( svConnectionPtr cnt )
   maind.lasttime = time( 0 );
   dbUserMainSet( id, &maind );
 
-  if( ( file ) && ( (cnt->dbuser)->flags & ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) )
+  if( ( file ) && ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
   {
    fprintf( file, "ID : %d ( %x ) deactivated\n", id, id );
    fclose( file );
    file = 0;
   }
 
-  if( (cnt->dbuser)->flags & CMD_USER_FLAGS_KILLED )
+  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_KILLED] )
   {
    iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_MAIN );
@@ -97,14 +97,14 @@ iohttpFunc_frontmenu( cnt, FMENU_MAIN );
     free( newsp );
    goto iohttpFunc_mainL1;
   }
-  if( (cnt->dbuser)->flags & CMD_USER_FLAGS_DELETED )
+  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_DELETED] )
   {
    iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    svSendString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
    goto iohttpFunc_mainL1;
   }
-  if( (cnt->dbuser)->flags & CMD_USER_FLAGS_NEWROUND )
+  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_NEWROUND] )
   {
    iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_MAIN );
@@ -112,7 +112,7 @@ iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    goto iohttpFunc_mainL1;
   }
 
-  if( !( (cnt->dbuser)->flags & CMD_USER_FLAGS_ACTIVATED ) )
+  if( !( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
   {
    iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_MAIN );
@@ -2155,7 +2155,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   b = a >> 1;
   c = empired.player[b];
   user = dbUserLinkID( c );
-  user->flags |= CMD_USER_FLAGS_ACTIVATED;
+  user->flags |= cmdUserFlags[CMD_FLAGS_ACTIVATED];
   dbUserSave( c, user);
   svSendString( cnt, "<tr>" );
   if( !( user ) )
@@ -7319,7 +7319,7 @@ void iohttpFunc_search( svConnectionPtr cnt )
    a = 0;
    for( user = dbUserList ; user ; user = user->next )
    {
-    if( !( user->flags & CMD_USER_FLAGS_ACTIVATED ) )
+    if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
      continue;
     if( a == 256 )
     {
