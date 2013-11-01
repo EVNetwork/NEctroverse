@@ -274,8 +274,8 @@ if( chdir( COREDIR ) != -1 ) {
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_famvote;
-  sprintf( file->path, "/famvote" );
+  file->function = iohttpFunc_vote;
+  sprintf( file->path, "/vote" );
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;

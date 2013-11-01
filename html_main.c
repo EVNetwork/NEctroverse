@@ -475,7 +475,7 @@ svSendString( cnt, "This account was not activated yet." );
 
  svSendString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
 
- svSendString( cnt, "<br><br><a href=\"famranks\" target=\"_blank\">See empire rankings</a>" );
+ svSendString( cnt, "<br><br><a href=\"rankings?typ=1\" target=\"_blank\">See empire rankings</a>" );
  svSendString( cnt, "<br><a href=\"rankings\" target=\"_blank\">See faction rankings</a>" );
 
  iohttpFunc_register2L0:
@@ -836,7 +836,7 @@ svSendString( cnt, "Being part of an Empire is one of the most important aspects
 svSendString( cnt, "You start out small and will need other players to grow.<br>" );
 svSendString( cnt, "Know anyone in the game? Ask them for their empire number and password.<br>" );
 svSendString( cnt, "<br>" );
-svSendString( cnt, "If you want to start an Empire of your own, look at the <a href=\"famranks\">Empire</a> rankings and pick a number not yet in the list!" );
+svSendString( cnt, "If you want to start an Empire of your own, look at the <a href=\"rankings?typ=1\">Empire rankings</a> and pick a number not yet in the list!" );
 svSendString( cnt, "<br>Want to team up with random players? Leave blank. But remember, be a teamplayer and you'll earn a rank in the Empire.<br>" );
 svSendString( cnt, "<br>" );
 
@@ -845,7 +845,7 @@ svSendString( cnt, "You are well on your way to making a name for yourself.<br>"
 svSendString( cnt, "But how will people remember you? As an aggressive attacker? A proud and rich Energy provider? A self made and self sufficient powerhouse?<br>" );
 svSendString( cnt, "<br>" );
 svSendString( cnt, "Your race will decide which path you will walk.<br>" );
-svSendString( cnt, "View the stats for each race <a href=\"races\">here</a>.<br><br>" );
+svSendString( cnt, "<a href=\"races\">View the stats for each race here</a>.<br><br>" );
 
 svSendString( cnt, "<a name=\"a4\"><b><i>4. Completion and logging in.</i></b></a><br>" );
 svSendString( cnt, "Congratulations. You have created an account, chosen an Empire to fight for and selected your race.<br>" );

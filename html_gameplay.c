@@ -171,18 +171,21 @@ void iohttpFunc_menu( svConnectionPtr cnt )
  int id, i, j;
  char szFaction[32];
  dbUserMainDef maind;
+
  svSendString( cnt, "Content-Type: text/html\n\n" );
  svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
- if( dbUserMainRetrieve( id, &maind ) < 0 )
-  maind.empire = -1;
+if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+	maind.empire = -1;
+}
 
  svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"images/i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
 
  svSendString( cnt, "<a href=\"hq\" target=\"main\">Headquarters</a></font></b></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
  svSendPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
+
  svSendString( cnt, "<a href=\"fleets\" target=\"main\">Fleets</a><br>" );
  svSendString( cnt, "<a href=\"mappick\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- <a href=\"map\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- <a href=\"mapadv\" target=\"main\">Map generation</a><br>" );
  svSendString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
@@ -2082,14 +2085,16 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  else
   iohttpBodyInit( cnt, "Empire #%d ( <a href=\"system?id=%d\">%d,%d</a> )", curfam, empired.homeid, empired.homepos & 0xFFFF, empired.homepos >> 16 );
 
- if( curfam == maind.empire )
-  svSendPrintf( cnt, "<a href=\"/forum?forum=%d\">Empire Forum</a>", curfam + 100 );
- if( curfam == maind.empire )
-  svSendPrintf( cnt, " <a href=\"famvote\">Change vote</a> <a href=\"famaid\">Send aid</a> <a href=\"famgetaid\">Receive aid</a> <a href=\"famnews\">Empire news</a> <a href=\"famrels\">Empire relations</a>" );
- if( ( id != -1 ) && ( id == empired.leader ) )
-  svSendPrintf( cnt, " <a href=\"famleader\">Leader options</a>" );
- if( curfam == maind.empire )
-  svSendPrintf( cnt, "<br>" );
+if ( curfam == maind.empire ) {
+	if( ( empired.leader == -1 ) ) {
+		svSendString( cnt, "<div class=\"genred\">Your Empire has no leader!!</div>" );
+	}
+	svSendString( cnt, "<a href=\"vote?type=eleader\">Change your vote</a>" );
+	if( id == empired.leader ) {
+		svSendString( cnt, "&nbsp;-&nbsp;<a href=\"famleader\" target=\"main\">Leadership Options</a>" );
+	}
+	svSendString( cnt, "<br>" );
+}
 
  sprintf( fname, "/images/fampic%02d%d", curfam, empired.pictime );
  if( iohttpFileFind( fname ) )
@@ -2211,9 +2216,8 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 }
  svSendString( cnt, "</table><br>" );
 
-
 if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
-	svSendString( cnt, "<br>Empire Fund: " );	
+	svSendString( cnt, "Empire Fund: " );	
 	if( empired.taxation ) {
 		svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
 	} else {
@@ -2230,18 +2234,7 @@ if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_F
 	svSendString( cnt, "</table>" );
 }
 
-/*
- if( empired.artefacts )
- {
-  svSendString( cnt, "<table border=\"0\"><tr><td>" );
-  for( a = 0, b = 1 ; a < ARTEFACT_NUMUSED ; a++, b <<= 1 )
-  {
-   if( empired.artefacts & b )
-    svSendPrintf( cnt, "<img src=\"images/%s\"> %s<br>", artefactImage[a], artefactDescription[a] );
-  }
-  svSendString( cnt, "</td></tr></table>" );
- }
-*/
+
  if( empired.artefacts )
  {
  	if( ( id >= 0 ) && ( ( curfam == maind.empire ) || ( ( cnt->dbuser ) && ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) ) )
@@ -2532,98 +2525,100 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
 
 
 
-void iohttpFunc_famvote( svConnectionPtr cnt )
-{
- int a, b, id, fampos, vote;
- dbUserMainDef maind, main2d;
- dbMainEmpireDef empired;
- char *votestring;
+void iohttpFunc_vote( svConnectionPtr cnt ) {
+	int a, b, id, fampos, vote;
+	dbUserMainDef maind, main2d;
+	dbMainEmpireDef empired;
+	char *votestring, *typestring;
+	bool evote = false;
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
-  return;
- iohttpBase( cnt, 1 );
+	return;
 
- if( !( iohttpHeader( cnt, id, &maind ) ) )
-  return;
- iohttpBodyInit( cnt, "Empire votes" );
+iohttpBase( cnt, 1 );
 
- iohttpVarsInit( cnt );
- votestring = iohttpVarsFind( "id" );
- iohttpVarsCut();
+if( !( iohttpHeader( cnt, id, &maind ) ) )
+	return;
 
- if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
- {
-  svSendString( cnt, "Error while retrieving empire data" );
-  iohttpBodyEnd( cnt );
-  return;
- }
- for( a = 0 ; ; a++ )
- {
-  if( a == empired.numplayers )
-  {
-   svSendString( cnt, "This is a strange error" );
-   iohttpBodyEnd( cnt );
-   return;
-  }
-  if( id == empired.player[a] )
-  {
-   fampos = a;
-   break;
-  }
- }
+iohttpVarsInit( cnt );
+votestring = iohttpVarsFind( "id" );
+typestring = iohttpVarsFind( "type" );
+iohttpVarsCut();
 
- if( ( votestring ) && ( sscanf( votestring, "%d", &vote ) == 1 ) )
- {
-  if( cmdExecChangeVote( id, vote ) < 0 )
-   svSendString( cnt, "<i>Failed to change vote...?!</i><br><br>" );
-  else
-  {
-   svSendString( cnt, "<i>Vote changed</i><br><br>" );
-   dbMapRetrieveEmpire( maind.empire, &empired );
-  }
- }
+if( typestring ) {
+	evote = strcmp(typestring,"eleader") ? false : true;
+}
 
- if( empired.leader == -1 )
-  svSendString( cnt, "<b>Your empire didn't elect a leader yet</b>" );
- else if( empired.leader == id )
-  svSendString( cnt, "<b>You are the leader</b>" );
- else
- {
-  if( dbUserMainRetrieve( empired.leader, &main2d ) < 0 )
-   svSendString( cnt, "Error while retriving leader's main data" );
-  else
-   svSendPrintf( cnt, "<b>The empire leader is %s</b>", main2d.faction );
- }
+iohttpBodyInit( cnt, "%s votes", evote ? "Empire" : ( "Unavalible" ) );
 
- svSendString( cnt, "<br><form action=\"famvote\" method=\"POST\"><table cellspacing=\"8\"><tr><td><b>Empire members</b></td><td>Networth</td><td>Planets</td><td>Your vote</td></tr>" );
- for( a = b = 0 ; a < empired.numplayers ; a++ )
- {
-  if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
-  {
-   svSendString( cnt, "Error while retriving user's main data" );
-   return;
-  }
-  svSendPrintf( cnt, "<tr><td><a href=\"player?id=%d\">", empired.player[a] );
-  if( empired.leader == empired.player[a] )
-   svSendPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", main2d.faction );
-  else
-   svSendString( cnt, main2d.faction );
-  svSendPrintf( cnt, "</a></td><td>%lld</td><td>%d</td><td align=\"center\"><input type=\"radio\" value=\"%d\" name=\"id\"", main2d.networth, main2d.planets, empired.player[a] );
-  if( empired.vote[fampos] == a )
-  {
-   svSendString( cnt, " checked" );
-   b = 1;
-  }
-  svSendString( cnt, "></td></tr>" );
- }
- svSendString( cnt, "<tr><td>Vote blank</td><td>&nbsp;</td><td>&nbsp;</td><td align=\"center\"><input type=\"radio\" value=\"-1\" name=\"id\"" );
- if( !( b ) )
-  svSendString( cnt, " checked" );
- svSendString( cnt, "></td></tr>" );
- svSendString( cnt, "</table><br><input type=\"submit\" value=\"Change vote\"></form>" );
+if( evote ) {
+	if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+		svSendString( cnt, "Error while retrieving empire data" );
+		goto VOTEEND;
+	}
+	for( a = 0 ; ; a++ ) {
+		if( a == empired.numplayers ) {
+			svSendString( cnt, "This is a strange error" );
+			goto VOTEEND;
+		}
+		if( id == empired.player[a] ) {
+			fampos = a;
+			break;
+		}
+	}
+	if( ( votestring ) && ( sscanf( votestring, "%d", &vote ) == 1 ) ) {
+		if( cmdExecChangeVote( id, vote ) < 0 ) {
+			svSendString( cnt, "<i>Failed to change vote...?!</i><br><br>" );
+		} else {
+			svSendString( cnt, "<i>Vote changed</i><br><br>" );
+			dbMapRetrieveEmpire( maind.empire, &empired );
+		}
+	}
+	if( empired.leader == -1 ) {
+		svSendString( cnt, "<b>Your empire didn't elect a leader yet</b>" );
+	} else if( empired.leader == id ) {
+		svSendString( cnt, "<b>You are the leader</b>" );
+	} else {
+		if( dbUserMainRetrieve( empired.leader, &main2d ) < 0 ) {
+			svSendString( cnt, "Error while retriving leader's main data" );
+		} else {
+			svSendPrintf( cnt, "<b>The empire leader is %s</b>", main2d.faction );
+		}
+	}
+	svSendString( cnt, "<br><form action=\"vote\" method=\"POST\"><table cellspacing=\"8\"><tr><td><b>Empire members</b></td><td>Networth</td><td>Planets</td><td>Your vote</td></tr>" );
+	for( a = b = 0 ; a < empired.numplayers ; a++ ) {
+		if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 ) {
+			svSendString( cnt, "Error while retriving user's main data" );
+			return;
+		}
+		svSendPrintf( cnt, "<tr><td><a href=\"player?id=%d\">", empired.player[a] );
+		if( empired.leader == empired.player[a] ) {
+			svSendPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", main2d.faction );
+		} else {
+			svSendString( cnt, main2d.faction );
+		}
+		svSendPrintf( cnt, "</a></td><td>%lld</td><td>%d</td><td align=\"center\"><input type=\"radio\" value=\"%d\" name=\"id\"", main2d.networth, main2d.planets, empired.player[a] );
+		if( empired.vote[fampos] == a ) {
+			svSendString( cnt, " checked" );
+			b = 1;
+		}
+		svSendString( cnt, "></td></tr>" );
+	}
+	svSendString( cnt, "<tr><td>Vote blank</td><td>&nbsp;</td><td>&nbsp;</td><td align=\"center\"><input type=\"radio\" value=\"-1\" name=\"id\"" );
+	if( !( b ) )
+		svSendString( cnt, " checked" );
+	svSendString( cnt, "></td></tr>" );
+	svSendString( cnt, "</table><br><input type=\"hidden\" name=\"type\" value=\"eleader\"><input type=\"submit\" value=\"Change vote\"></form>" );
+} else {
+	svSendString( cnt, "Not yet avalible. =(" );
+}
 
- iohttpBodyEnd( cnt );
- return;
+
+VOTEEND:
+iohttpBodyEnd( cnt );
+
+
+return;
 }
 
 void iohttpFunc_famnews( svConnectionPtr cnt )
@@ -5479,11 +5474,6 @@ iohttpBase( cnt, 1 );
 if( !( iohttpHeader( cnt, id, &maind ) ) )
 	return;
 
-if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 ) {
-	svSendString( cnt, "Error while retriving user fleets list" );
-	goto iohttpFunc_exploreL1;
-}
-
 iohttpBodyInit( cnt, "Exploration" );
 
 iohttpVarsInit( cnt );
@@ -5491,6 +5481,11 @@ planetstring = iohttpVarsFind( "id" );
 explorestring = iohttpVarsFind( "dispatch" );
 systemstring = iohttpVarsFind( "system" );
 iohttpVarsCut();
+
+if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 ) {
+	svSendString( cnt, "Error while retriving user fleets list" );
+	goto iohttpFunc_exploreL1;
+}
 
 if( systemstring ) {
 	if( ( sscanf( systemstring, "%d", &system ) <= 0 ) || dbMapRetrieveSystem( system, &systemd ) < 0 ) {

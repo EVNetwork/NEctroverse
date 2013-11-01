@@ -273,6 +273,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 for( a = 0 ; a < mapcfg.families ; a++ ) {
 	memset( &empired, 0, sizeof(dbMainEmpireDef) );
 	memset( empired.player, -1, mapcfg.fmembers*sizeof(int) );
+	memset( empired.vote, -1, mapcfg.fmembers*sizeof(int) );
 	empired.leader = empired.rank = -1;
 	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
 	if( ( admincfg.empire_number == a ) && ( strlen(admincfg.empire_password) ) ) {
