@@ -385,8 +385,8 @@ int cmdTickPlanets( int usrid, dbUserMainPtr mainp )
 ticks.debug_pass = 0 + 10000;
 
 
-  memset( mainp->totalbuilding, 0, 16*sizeof(long long int) );
-  memset( mainp->totalunit, 0, 16*sizeof(long long int) );
+  memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(long long int) );
+  memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(long long int) );
   memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int) );
   
   
@@ -507,6 +507,7 @@ ticks.debug_pass = 6 + 10000;
     if( dbMapRetrieveEmpire( mainp->empire, &empired ) < 0 )
       continue;
     empired.artefacts |= 1 << b;
+
     dbMapSetEmpire( mainp->empire, &empired );
 
 
@@ -536,7 +537,7 @@ ticks.debug_pass = 11 + 10000;
 
   for( a = 0 ; a < num ; a++ )
   {
-    for( b = 0 ; b < 16 ; b++ )
+    for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
       mainp->totalunit[b] += fleetd[a].unit[b];
   }
 
@@ -580,23 +581,29 @@ ticks.debug_id = 0;
 	//Maybe useless but can t cause trouble only set the news buffer to 0
 	memset(&newd, 0, sizeof(long long int)*DB_USER_NEWS_BASE);
 
-  for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ )
-  {
-    if( dbMapRetrieveEmpire( a, &empired ) < 0 )
-      continue;
-
-ticks.debug_id = a;
-		nArti |= empired.artefacts;	//Will have all discovered arti in here
-		empired.artefacts = 0;
-    dbMapSetEmpire( a, &empired );
-  }
+for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
+	if( dbMapRetrieveEmpire( a, &empired ) < 0 )
+		continue;
+	ticks.debug_id = a;
+	nArti |= empired.artefacts;	//Will have all discovered arti in here
+	empired.artefacts = 0;
+	//Add decay to empire funds, decay (if any) removed before deposits from this tick.
+	empired.infos[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( CMD_ENERGY_DECAY * empired.fund[CMD_RESSOURCE_ENERGY] ) );
+	empired.infos[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, (  CMD_CRYSTAL_DECAY * empired.fund[CMD_RESSOURCE_CRYSTAL] ) );
+	empired.fund[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ENERGY] - empired.infos[CMD_RESSOURCE_ENERGY] ) );
+	empired.fund[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_CRYSTAL] - empired.infos[CMD_RESSOURCE_CRYSTAL] ) );
+	dbMapSetEmpire( a, &empired );
+}
 
 
 ticks.debug_pass = 1;
 
 	
-  if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
-	syslog(LOG_ERR, "Tick error: Retriving Map Info\n" );
+if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
+	if( options.verbose )
+	printf( "Tick error: Retriving Map Info!\n" );
+	syslog(LOG_ERR, "Tick error: Retriving Map Info!\n" );
+}
     
   for( user = dbUserList ; user ; user = user->next )
   {
@@ -607,19 +614,23 @@ ticks.debug_pass = 1;
 
 ticks.debug_id = user->id;
 
-    if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
-	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id  );
-      continue;
-    }
+if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
+	if( options.verbose )
+	printf( "Tick error: Retriving User %d\n", user->id );
+	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id );
+	continue;
+}
     
 			
 ticks.debug_pass = 2;
 
 
-    if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
-	syslog(LOG_ERR, "Tick error: SpecOps User %d\n", user->id  );
-      continue;
-    }
+if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
+	if( options.verbose )
+	printf( "Tick error: SpecOps User %d\n", user->id );
+	syslog(LOG_ERR, "Tick error: SpecOps User %d\n", user->id );
+	continue;
+}
     opvirus = 0;
     
     //WAR  ILLUSION we recalcul each tick 
@@ -813,32 +824,33 @@ ticks.debug_pass = 7;
 	fb = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ENERGY] * ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_ENERGY] );
 
 	
-  maind.infos[4] = (long long int)( fa * fb );
-    
+  maind.infos[INFOS_ENERGY_PRODUCTION] = (long long int)( fa * fb );
+
+   
     /* This block is for the automated funding from energy production if used add the funding into the council with maind.infos
     	dbUserMainSet(user->id, &maind);
 			cmd[0] = CMD_FUND_RESEARCH;
     	cmd[1] = user->id;
-    	cmd[2] = maind.infos[4]*0.08;
+    	cmd[2] = maind.infos[INFOS_ENERGY_PRODUCTION]*0.08;
 			cmdExecute( (svConnectionPtr)NULL, cmd, 0, 0 );
 			dbUserMainRetrieve( cmd[1], &maind );
-			//maind.infos[4] -= maind.infos[4]*0.08;  //This line remove the actual funding from the production
+			//maind.infos[INFOS_ENERGY_PRODUCTION] -= maind.infos[INFOS_ENERGY_PRODUCTION]*0.08;  //This line remove the actual funding from the production
   */
     
   fa = CMD_ENERGY_DECAY;
 
-fc = sysconfig.stockpile * maind.infos[4];
-maind.infos[5] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
+fc = sysconfig.stockpile * maind.infos[INFOS_ENERGY_PRODUCTION];
+maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
 
 
   // meh! building upkeep
-  maind.infos[6] = 0;
+  maind.infos[INFOS_BUILDING_UPKEEP] = 0;
   for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
   {
   	if( ( a == CMD_BUILDING_SOLAR ) || ( a == CMD_BUILDING_FISSION ) )
-   	  maind.infos[6] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a] * fb;
+   	  maind.infos[INFOS_BUILDING_UPKEEP] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a] * fb;
         else
-          maind.infos[6] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a];
+          maind.infos[INFOS_BUILDING_UPKEEP] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a];
   
   }
     
@@ -852,25 +864,25 @@ ticks.debug_pass = 8;
 	}
 
 
-    maind.infos[7] = 0;
+    maind.infos[INFOS_UNITS_UPKEEP] = 0;
     for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
 		{
-			maind.infos[7] += ((float)maind.totalunit[a])*cmdUnitUpkeep[a];
+			maind.infos[INFOS_UNITS_UPKEEP] += ((float)maind.totalunit[a])*cmdUnitUpkeep[a];
 		}
 		//ARTI CODE Romulan Military Outpost
 		if(maind.artefacts & ARTEFACT_16_BIT)
-		maind.infos[7] *= 1.5;	
-		maind.infos[8] = (1.0/35.0) * (float)maind.ressource[CMD_RESSOURCE_POPULATION]* ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_WELFARE] ) * (cmdRace[maind.raceid].growth);
+		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;	
+		maind.infos[INFOS_POPULATION_REDUCTION] = (1.0/35.0) * (float)maind.ressource[CMD_RESSOURCE_POPULATION]* ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_WELFARE] ) * (cmdRace[maind.raceid].growth);
     
     
-    if( maind.infos[8] >= maind.infos[6] )
-      maind.infos[8] = maind.infos[6];
+    if( maind.infos[INFOS_POPULATION_REDUCTION] >= maind.infos[INFOS_BUILDING_UPKEEP] )
+      maind.infos[INFOS_POPULATION_REDUCTION] = maind.infos[INFOS_BUILDING_UPKEEP];
     
     //virus network mean more upkeep Based on the upkeep of a building with after pop reduction
     for( a = 0 ; a < opvirus ; a++ )
-      maind.infos[6] += (long long int)( (float)(maind.infos[6]-maind.infos[8]) * 0.15 );
+      maind.infos[INFOS_BUILDING_UPKEEP] += (long long int)( (float)(maind.infos[INFOS_BUILDING_UPKEEP]-maind.infos[INFOS_POPULATION_REDUCTION]) * 0.15 );
       
-    maind.infos[9] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
+    maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
 		fa = CMD_CRYSTAL_DECAY;
 		
@@ -878,27 +890,52 @@ ticks.debug_pass = 8;
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
     	
-fc = sysconfig.stockpile * maind.infos[9];
-maind.infos[10] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
+fc = sysconfig.stockpile * maind.infos[INFOS_CRYSTAL_PRODUCTION];
+maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
 
 
-    maind.infos[11] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
+    maind.infos[INFOS_PORTALS_UPKEEP] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
     
     //ARTI CODE Mana Gate
 		//if(maind.artefacts & ARTEFACT_MANA_BIT)
-		//	maind.infos[11] /= 2;
+		//	maind.infos[INFOS_PORTALS_UPKEEP] /= 2;
         
-    if( maind.infos[11] < 0 )
-      maind.infos[11] = 0;
-      
-    maind.infos[CMD_RESSOURCE_ENERGY] = maind.infos[4] - maind.infos[5] - maind.infos[6] - maind.infos[7] + maind.infos[8] - maind.infos[11];
+    if( maind.infos[INFOS_PORTALS_UPKEEP] < 0 )
+      maind.infos[INFOS_PORTALS_UPKEEP] = 0;
 
-    maind.infos[CMD_RESSOURCE_MINERAL] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
+maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
+maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);      
 
-	maind.infos[CMD_RESSOURCE_CRYSTAL] = (maind.infos[9] - maind.infos[10]);
+if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+	if( options.verbose )
+	printf( "Tick error: Retriving empire %d\n", maind.empire );
+	syslog(LOG_ERR, "Tick error: Retriving empire %d\n", maind.empire  );
+	continue;
+}
+maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * empired.taxation ) );
+maind.infos[INFOS_MINERAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_MINERAL_PRODUCTION] * empired.taxation ) );
+maind.infos[INFOS_CRYSTAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_CRYSTAL_PRODUCTION] * empired.taxation ) );
+maind.infos[INFOS_ECTROLIUM_TAX] = fmax( 0.0, ( maind.infos[INFOS_ECTROLIUM_PRODUCTION] * empired.taxation ) );
+
+maind.infos[CMD_RESSOURCE_ENERGY] = maind.infos[INFOS_ENERGY_PRODUCTION] - maind.infos[INFOS_ENERGY_DECAY] - maind.infos[INFOS_BUILDING_UPKEEP] - maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_POPULATION_REDUCTION] - maind.infos[INFOS_PORTALS_UPKEEP] - maind.infos[INFOS_ENERGY_TAX];
+
+maind.infos[CMD_RESSOURCE_MINERAL] = (maind.infos[INFOS_MINERAL_PRODUCTION] - maind.infos[INFOS_MINERAL_TAX]);
+
+maind.infos[CMD_RESSOURCE_CRYSTAL] = ( (maind.infos[INFOS_CRYSTAL_PRODUCTION] - maind.infos[INFOS_CRYSTAL_TAX] ) - maind.infos[INFOS_CRYSTAL_DECAY]);
 	
-	
-	maind.infos[CMD_RESSOURCE_ECTROLIUM] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
+maind.infos[CMD_RESSOURCE_ECTROLIUM] = (maind.infos[INFOS_ECTROLIUM_PRODUCTION] - maind.infos[INFOS_ECTROLIUM_TAX]);
+
+empired.fund[CMD_RESSOURCE_ENERGY] += maind.infos[INFOS_ENERGY_TAX];
+empired.fund[CMD_RESSOURCE_MINERAL] += maind.infos[INFOS_MINERAL_TAX];
+empired.fund[CMD_RESSOURCE_CRYSTAL] += maind.infos[INFOS_CRYSTAL_TAX];
+empired.fund[CMD_RESSOURCE_ECTROLIUM] += maind.infos[INFOS_ECTROLIUM_TAX];
+
+if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
+	if( options.verbose )
+	printf( "Tick error: Setting Empire #%d Fund!\n", maind.empire );
+	syslog(LOG_ERR, "Tick error: Setting Empire #%d Fund!\n", maind.empire );
+}
+
 		
 	//ARTI CODE Mineral enhancement
 		if(maind.artefacts & ARTEFACT_64_BIT)

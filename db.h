@@ -69,28 +69,28 @@ int dbSessionRetrieve( dbUserPtr user, int *session );
 
 typedef struct
 {
-  char faction[32];
-  char forumtag[32];
-  long long int ressource[8];
+  char faction[32]; //FIXME: Needs to be moved!
+  char forumtag[32]; //FIXME: Needs to be moved!
+  long long int ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
-  long long int infos[16];
-  long long int research[8];
+  long long int infos[INFOS_TOTAL_NUMUSED];
+  long long int research[CMD_RESEARCH_NUMUSED];
   int readiness[3];
   int home; // ( y << 20 ) + ( x << 8 ) + planet
-  long long int totalbuilding[16];
-  long long int totalunit[16];
-  long long int totalresearch[8];
+  long long int totalbuilding[CMD_BLDG_NUMUSED+1];
+  long long int totalunit[CMD_UNIT_NUMUSED];
+  long long int totalresearch[CMD_RESEARCH_NUMUSED];
   long long int networth;
-  int allocresearch[8];
+  int allocresearch[CMD_RESEARCH_NUMUSED];
   long long int fundresearch;
   int planets;
   int config_fleet;
   int config_flee[4];
-  int createtime;
-  int lasttime;
+  int createtime; //FIXME: Needs to be moved!
+  int lasttime; //FIXME: Needs to be moved!
   int config_mapsize;
   int config_map[8];
-  int tagpoints;
+  int tagpoints; //FIXME: Needs to be moved!
   int raceid;
   int artefacts;
   int rank;
@@ -111,7 +111,7 @@ typedef struct
   int time;
   int plnid;
   int plnpos;
-  long long int cost[4];
+  long long int cost[CMD_RESSOURCE_NUMUSED];
 } dbUserBuildDef, *dbUserBuildPtr;
 
 int dbUserBuildAdd( int id, int type, long long int *cost, int quantity, int time, int plnid, int plnloc );
@@ -140,7 +140,7 @@ int dbUserPortalsListCoords( int id, int **list );
 
 typedef struct
 {
-  int unit[16];
+  int unit[CMD_UNIT_NUMUSED];
   int order;
   int destination;
   int destid;
@@ -176,19 +176,6 @@ int dbFamNewsList( int id, long long int **data, int time );
 int dbEmpireMessageSet( int id, int num, char *text );
 int dbEmpireMessageRetrieve( int id, int num, char *text );
 
-enum 
-{
-MAP_SIZEX,
-MAP_SIZEY,
-MAP_SYSTEMS,
-MAP_PLANETS,
-MAP_EMPIRES,
-MAP_EMEMBERS,
-MAP_CAPACITY,
-MAP_ARTITIMER,
-MAP_TIMEMPIRE,
-MAP_TOTAL_INFO,
-};
 
 
 typedef struct
@@ -234,8 +221,8 @@ typedef struct
   int population;
   int maxpopulation;
   int special[3];
-  int building[16];
-  int unit[16];
+  int building[CMD_BLDG_NUMUSED];
+  int unit[CMD_UNIT_NUMUSED];
   int construction;
   int protection;
   int surrender;
@@ -264,9 +251,10 @@ typedef struct
   int artefacts;
   int rank;
   int construction;
-  int taxation;
+  float taxation;
   int building[8];
-  long long int fund[8];
+  long long int fund[CMD_RESSOURCE_NUMUSED];
+  long long int infos[CMD_RESSOURCE_NUMUSED];
   char message[2][4096];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
@@ -295,10 +283,6 @@ int dbEmpireRelsGet( int id, int relid, int *rel );
 
 
 
-#define DB_USER_NEWS_SIZE 256
-#define DB_USER_NEWS_BASE 30
-
-
 extern dbMainSystemPtr dbMapSystems;
 extern int dbMapSystemsNum;
 
@@ -309,19 +293,6 @@ extern dbMainEmpireDef dbEmpireDefault;
 
 ////////
 
-
-enum
-{
-DB_MARKETBID_ACTION,
-DB_MARKETBID_RESSOURCE,
-DB_MARKETBID_PRICE,
-DB_MARKETBID_QUANTITY,
-DB_MARKETBID_USERID,
-
-DB_MARKETBID_NUMUSED
-};
-
-#define DB_MARKETBID_BIDID 4
 
 int dbMarketReset();
 int dbMarketFull( int *list );
@@ -338,13 +309,12 @@ int dbUserMarketQuantity( int id, int bidid, int quantity );
 int dbUserMarketRemove( int id, int bidid );
 
 
-#define DB_MARKET_RANGE 251
+
 
 
 ////////
 
 
-#define DB_FORUM_NAME_SIZE 64
 
 typedef struct
 {
@@ -423,17 +393,6 @@ int dbForumRemoveThread( int forum, int thread );
 int dbForumAddPost( int forum, int thread, dbForumPostPtr postd );
 int dbForumRemovePost( int forum, int thread, int post );
 int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd );
-
-
-#define DB_FORUM_FLAGS_POSTERROR 1
-
-#define DB_FORUM_FLAGS_FORUMUNUSED 1
-
-#define DB_FORUM_FLAGS_FORUMFAMILY 2
-
-#define DB_FORUM_FLAGS_THREADFREE 1
-
-#define DB_FORUM_FLAGS_THREAD_LOCK 0xEFEF
 
 
 //////////

@@ -1450,16 +1450,25 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 void iohttpFunc_council( svConnectionPtr cnt )
 {
  int a, b, c, id, numbuild;
+ dbMainEmpireDef empired;
  dbUserBuildPtr build;
  dbUserMainDef maind;
  int sums[16];
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
+
  iohttpBase( cnt, 1 );
 
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
+
+if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+        svSendString( cnt, "Error retriving Empire details!" );
+        if( cnt->dbuser->level < LEVEL_MODERATOR )
+                return;
+}
+
  iohttpBodyInit( cnt, "Council" );
 
  if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 )
@@ -1467,25 +1476,43 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   svSendString( cnt, "Error while retriving user build list</body></html>" );
   return;
  }
+
+if(empired.taxation)
+ svSendPrintf( cnt, "<i>Empire leaders have set a taxation level of %.02f%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100 ) );
  svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
- svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\">+%lld</td></tr>", maind.infos[4] );
- svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[5] );
- svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[6] );
- svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\">+%lld</td></tr>", maind.infos[8] );
- svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[7] );
- svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[11] );
+ svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_ENERGY_PRODUCTION] );
+ if( maind.infos[INFOS_ENERGY_TAX] )
+ svSendPrintf( cnt, "<tr><td>Taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_TAX] );
+ svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_DECAY] );
+ svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_BUILDING_UPKEEP] );
+ svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_POPULATION_REDUCTION] );
+ svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_UNITS_UPKEEP] );
+ svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_PORTALS_UPKEEP] );
  svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_ENERGY] );
 
  svSendString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
 
  svSendString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
- svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
- svSendPrintf( cnt, "<tr><td>Crystal produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[9] );
- svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[10] );
- svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( (maind.infos[9] - maind.infos[10]) < 0 ) ? " class=\"genred\"" : "" ), (maind.infos[9] - maind.infos[10]) );
- svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
+
+ if( maind.infos[INFOS_MINERAL_TAX] ) {
+ svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_MINERAL_PRODUCTION] );
+ svSendPrintf( cnt, "<tr><td>Mineral taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_MINERAL_TAX] );
+}
+ svSendPrintf( cnt, "<tr><td>Mineral income</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
+
+ svSendPrintf( cnt, "<tr><td>Crystal production</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_CRYSTAL_PRODUCTION] );
+ if( maind.infos[INFOS_CRYSTAL_TAX] )
+ svSendPrintf( cnt, "<tr><td>Crystal taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_TAX] );
+
+ svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_DECAY] );
+ svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_CRYSTAL] );
+ if( maind.infos[INFOS_ECTROLIUM_TAX] ) {
+ svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_PRODUCTION] );
+ svSendPrintf( cnt, "<tr><td>Ectrolium taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_TAX] );
+}
+ svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
 
  svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
@@ -1865,7 +1892,6 @@ void iohttpFunc_planets( svConnectionPtr cnt )
  int totals[7];
  float totalob;
  char *sortstring;
- static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1977,9 +2003,9 @@ else
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   svSendPrintf( cnt, " <img src=\"images/%s\">", artefactImage[d] );
+   svSendPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
   else if(planetd.special[1])
-  	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], bonusname[planetd.special[0]], bonusname[planetd.special[0]], planetd.special[1] );
+  	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
   svSendPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;
@@ -2187,7 +2213,12 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 
 
 if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
-	svSendString( cnt, "<br>Empire Fund:" );	
+	svSendString( cnt, "<br>Empire Fund: " );	
+	if( empired.taxation ) {
+		svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100 ) );
+	} else {
+		svSendString( cnt, "<i>No tax set</i>" );
+	}
 	svSendString( cnt, "<table>" );
 	svSendString( cnt, "<tr>" );
 	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], empired.fund[CMD_RESSOURCE_ENERGY] );
@@ -2249,7 +2280,7 @@ if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_F
 
 void iohttpFunc_famaid( svConnectionPtr cnt )
 {
- int a, b, id, res[4], j, i, k, nAlly;
+ int a, b, id, res[4];
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *playerstring, *resstring[4];
@@ -2738,13 +2769,11 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  return;
 }
 
-int iohttpForumFilter( char *dest, char *string, int size, int html );
-int iohttpForumFilter2( char *dest, char *string, int size );
-int iohttpForumFilter3( char *dest, char *string, int size );
 
 void iohttpFunc_famleader( svConnectionPtr cnt )
 {
  int a, b, c, id, filesize, curfam, sid, status, relfam, reltype;
+ float tax;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *fampic, *filename, *taxstring;
@@ -2797,14 +2826,20 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  iohttpBodyInit( cnt, "Leader options" );
 
 if( taxstring ){
-	if( atoi(taxstring) > 25 ) {
+	if( ( sscanf( taxstring, "%f", &tax ) != 1 ) ) {
+		svSendString( cnt, "<i>Invalid input, numbers only!!</i><br><br>" );
+	} else if( tax > 25 ) {
 		svSendString( cnt, "<i>Tax level too high!!</i><br><br>" );
 	} else {
-		empired.taxation = atoi(taxstring);
+		empired.taxation = fmax( 0.0, ( tax / 100 ) );
 		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 			svSendString( cnt, "<i>Error setting new tax...</i><br><br>" );
 		} else {
-			svSendPrintf( cnt, "<i>Taxation set to %d%%</i><br><br>", empired.taxation );
+			if( empired.taxation ) {
+				svSendPrintf( cnt, "<i>Taxation set to %.02f%%</i><br><br>", ( empired.taxation * 100 ) );
+			} else {
+				svSendString( cnt, "<i>Empire taxation removed!</i><br><br>" );
+			}
 		}
 	}
 }
@@ -2952,7 +2987,7 @@ if( relsmesstring ) {
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  svSendString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Taxation</td></tr>" );
- svSendPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%d\"></td></tr>", empired.taxation );
+ svSendPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100 ) );
  svSendString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  svSendString( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">Empire picture</td></tr>" );
@@ -3544,7 +3579,8 @@ void iohttpFunc_system( svConnectionPtr cnt )
 
 
  plnid = systemd.indexplanet;
-
+if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
+ svSendPrintf( cnt, "<br>There are %d unexplored planets in this system<br><a href=\"explore?system=%d\">Mass explore system</a>", systemd.unexplored, sysid );
  svSendString( cnt, "<table width=\"100%\" cellspacing=\"6\" cellpadding=\"6\">" );
  for( a = b = ln = 0 ; a < systemd.numplanets ; a++, plnid++ )
  {
@@ -3725,7 +3761,6 @@ void iohttpFunc_planet( svConnectionPtr cnt )
  char *planetstring;
  char *unstationstring;
  char *plgivestring;
- static char *bonusname[4] = { "Solar energy", "Mineral", "Crystal", "Ectrolium" };
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -3780,15 +3815,21 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( planetd.flags & CMD_PLANET_FLAGS_HOME )
    svSendPrintf( cnt, "No one owns this planet, but it is part of a home system and unavailable for exploration" );
+	else
 svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a href=\"explore?id=%d\">Explore this planet</a><br><br><a href=\"spec?id=%d\">Special operation</a>", plnid, plnid );
  }
  else if( planetd.owner == id )
  {
-  svSendPrintf( cnt, "This planet is yours.<br><br>Population : %d0<br>", planetd.population );
-  
-  if(planetd.special[1])
-   svSendPrintf( cnt, "%s production : <font color=\"#20FF20\">+%d%%</font><br>", bonusname[planetd.special[0]], planetd.special[1] );
-  
+  svSendString( cnt, "This planet is yours.<br>" );
+  svSendPrintf( cnt, "Population : %d0<br>", planetd.population );
+ b = (int)artefactPrecense( &planetd );
+  if( b >= 0 )
+   svSendPrintf( cnt, "<br><img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
+  else if(planetd.special[1])
+   svSendPrintf( cnt, "<br><img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+
+
+ 
   svSendPrintf( cnt, "<SCRIPT type=\"text/JavaScript\">\n ");
   sprintf(szString, " function Areyousure(plnid)\n{if(confirm(\"Are you sure you want to raze eveything on this planet??\"))open(\"raze?id=\"+plnid+\"");
   for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ )
@@ -3797,7 +3838,7 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
 	  strcat(szString, szTemp);
 	 }
   strcat(szString, "\",\"_self\");\n}");
-  svSendPrintf( cnt, szString);
+  svSendString( cnt, szString);
 		
   svSendPrintf( cnt,"</SCRIPT>\n"); 
 
@@ -5423,72 +5464,135 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 
 
-void iohttpFunc_explore( svConnectionPtr cnt )
-{
- int id, plnid, explore;
- dbMainPlanetDef planetd;
- dbUserMainDef maind;
- char *planetstring;
- char *explorestring;
+void iohttpFunc_explore( svConnectionPtr cnt ) {
+	int a, id, num, plnid, system, explore;
+	char *planetstring, *explorestring, *systemstring;
+	dbMainPlanetDef planetd;
+	dbMainSystemDef systemd;
+	dbUserFleetPtr fleetd;
+	dbUserMainDef maind;
+
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
-  return;
- iohttpBase( cnt, 1 );
+	return;
+iohttpBase( cnt, 1 );
 
- if( !( iohttpHeader( cnt, id, &maind ) ) )
-  return;
- iohttpBodyInit( cnt, "Exploration" );
+if( !( iohttpHeader( cnt, id, &maind ) ) )
+	return;
 
- iohttpVarsInit( cnt );
- planetstring = iohttpVarsFind( "id" );
- explorestring = iohttpVarsFind( "explore" );
- iohttpVarsCut();
+if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 ) {
+	svSendString( cnt, "Error while retriving user fleets list" );
+	goto iohttpFunc_exploreL1;
+}
 
- if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) )
- {
-  svSendString( cnt, "This planet doesn't seem to exist!</body></html>" );
-  iohttpBodyEnd( cnt );
-  return;
- }
- if( planetd.flags & CMD_PLANET_FLAGS_HOME )
- {
-  svSendString( cnt, "You can't explore a home planet!</body></html>" );
-  iohttpBodyEnd( cnt );
-  return;
- }
+iohttpBodyInit( cnt, "Exploration" );
 
- if( explorestring  )
- {
-  if( ( cmdExecExplore( id, plnid, &explore ) ) < 0 )
-  {
-   if( cmdErrorString )
-    svSendPrintf( cnt, "%s", cmdErrorString );
-   else
-    svSendString( cnt, "Error encountered while retrieving exploration information</body></html>" );
-   goto iohttpFunc_exploreL0;
-  }
-  svSendPrintf( cnt, "We have sent our exploration ship! If everything goes well, this planet will be ours in %d weeks<br><br>", explore );
- }
- else
- {
-  if( ( cmdExecExploreInfo( id, plnid, &explore ) ) < 0 )
-  {
-   if( cmdErrorString )
-    svSendPrintf( cnt, "%s", cmdErrorString );
-   else
-    svSendString( cnt, "Error encountered while retrieving exploration information</body></html>" );
-   goto iohttpFunc_exploreL0;
-  }
-		
-  svSendPrintf( cnt, "It would take %d weeks for an exploration ship to reach this planet.<br><br>", explore );
-  svSendPrintf( cnt, "<b><a href=\"explore?id=%d&explore=1\">Explore this planet</a></b><br>", plnid );
- }
- iohttpFunc_exploreL0:
- svSendPrintf( cnt, "<br><br><a href=\"planet?id=%d\">View planet</a>", plnid );
- svSendPrintf( cnt, "<br><br><a href=\"system?id=%d\">View system</a>", planetd.system );
+iohttpVarsInit( cnt );
+planetstring = iohttpVarsFind( "id" );
+explorestring = iohttpVarsFind( "dispatch" );
+systemstring = iohttpVarsFind( "system" );
+iohttpVarsCut();
 
- iohttpBodyEnd( cnt );
- return;
+if( systemstring ) {
+	if( ( sscanf( systemstring, "%d", &system ) <= 0 ) || dbMapRetrieveSystem( system, &systemd ) < 0 ) {
+		svSendString( cnt, "Error retriving system!<br>" );
+		goto iohttpFunc_exploreL1;
+	} else if ( systemd.empire != -1 ) {
+		svSendString( cnt, "Unable to explore an Empire System!<br>" );
+		goto iohttpFunc_exploreL1;
+	} else {
+		goto SYSTEMEXPO;
+	}
+
+}
+if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
+	svSendString( cnt, "This planet doesn't seem to exist!<br>" );
+	goto iohttpFunc_exploreL1;
+}
+if( planetd.flags & CMD_PLANET_FLAGS_HOME ) {
+	svSendString( cnt, "You can't explore a home planet!<br>" );
+	goto iohttpFunc_exploreL1;
+}
+SYSTEMEXPO:
+if( systemstring ) {
+	if( explorestring ) {
+		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
+			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
+					svSendString( cnt, "Planet retrvial error!<br>" );
+					goto iohttpFunc_exploreL1;
+			} 
+			if ( planetd.owner == -1 ) {
+				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
+					if( cmdErrorString ) {
+						svSendPrintf( cnt, "%s<br>", cmdErrorString );
+					} else {
+						svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
+						goto iohttpFunc_exploreL0;
+					}
+				} else {
+					svSendPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
+				}
+			}
+		}
+	goto iohttpFunc_exploreL0;
+	} else {
+		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
+			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
+					svSendString( cnt, "Planet retrvial error!<br>" );
+					goto iohttpFunc_exploreL1;
+			} 
+			if ( planetd.owner == -1 ) {
+				break;
+			}
+		}
+		if( ( cmdExecExploreInfo( id, num, &explore ) ) < 0 ) {
+			if( cmdErrorString )
+				svSendPrintf( cnt, "%s", cmdErrorString );
+			else
+				svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
+				goto iohttpFunc_exploreL0;
+		}
+		svSendPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
+		svSendString( cnt, "<br><br>" );
+		svSendPrintf( cnt, "It will take %d weeks for an %s to reach this system.<br><br>", explore, cmdUnitName[CMD_UNIT_EXPLORATION] );
+		svSendPrintf( cnt, "<a href=\"explore?system=%d&dispatch=1\">Dispatch %s</a>", system, cmdUnitName[CMD_UNIT_EXPLORATION] );
+	}
+} else if( explorestring ) {
+	if( ( cmdExecExplore( id, plnid, &explore ) ) < 0 ) {
+		if( cmdErrorString ) {
+			svSendPrintf( cnt, "%s", cmdErrorString );
+		} else {
+			svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
+			goto iohttpFunc_exploreL0;
+		}
+	}
+	svSendPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br><br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
+} else {
+	if( ( cmdExecExploreInfo( id, plnid, &explore ) ) < 0 ) {
+		if( cmdErrorString )
+			svSendPrintf( cnt, "%s", cmdErrorString );
+		else
+			svSendString( cnt, "Error encountered while retrieving exploration information<br>" );
+			goto iohttpFunc_exploreL0;
+	}
+	if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
+		svSendPrintf( cnt, "It would take %d weeks for an %s to reach this planet.<br><br>", explore, cmdUnitName[CMD_UNIT_EXPLORATION] );
+		svSendPrintf( cnt, "<b><a href=\"explore?id=%d&dispatch=1\">Explore this planet</a></b><br>", plnid );
+	} else {
+		svSendPrintf( cnt, "You don't have any %s to send!", cmdUnitName[CMD_UNIT_EXPLORATION] );
+	}
+}
+
+iohttpFunc_exploreL0:
+if ( !( systemstring ) )
+	svSendPrintf( cnt, "<br><br><a href=\"planet?id=%d\">View planet</a>", plnid );
+
+svSendPrintf( cnt, "<br><br><a href=\"system?id=%d\">View system</a><br>", systemstring ? system : planetd.system );
+
+iohttpFunc_exploreL1:
+iohttpBodyEnd( cnt );
+
+return;
 }
 
 
@@ -6757,7 +6861,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 void iohttpFunc_research( svConnectionPtr cnt )
 {
  int a, b, id, cmd[3];
- char fundstring[1024];
+ char *fundstring;
  char *fund;
  char *rschptr[CMD_RESEARCH_NUMUSED];
  int rschvalue[CMD_RESEARCH_NUMUSED];
@@ -6778,7 +6882,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  fund = iohttpVarsFind( "fund" );
  iohttpVarsCut();
 
- fundstring[0] = 0;
+ fundstring = 0;
  if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) )
  {
   cmd[0] = CMD_FUND_RESEARCH;
@@ -6929,7 +7033,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 				else
 				{
 			  (maild.mail).authorid = id;
-			  sprintf( (maild.mail).authorname, (cnt->dbuser)->faction );
+			  sprintf( (maild.mail).authorname, "%s", (cnt->dbuser)->faction );
 			  (maild.mail).authorempire = maind.empire;
 			  (maild.mail).time = time( 0 )-(3600*SERVER_TIME_ZONE);
 			  (maild.mail).tick = ticks.number;
@@ -6951,7 +7055,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
 			
 			  (maild.mail).authorid = a;
-			  sprintf( (maild.mail).authorname, main2d.faction );
+			  sprintf( (maild.mail).authorname, "%s", main2d.faction );
 			  (maild.mail).authorempire = main2d.empire;
 			  dbMailAdd( id, 1, &maild );
 			

@@ -34,14 +34,3 @@ void iohttpFunc_gettingstarted( svConnectionPtr cnt );
 
 void iohttpFunc_halloffame( svConnectionPtr cnt );
 
-enum {
-FMENU_NONE,
-FMENU_MAIN,
-FMENU_REGISTER,
-FMENU_FORUM,
-FMENU_FAQ,
-FMENU_GSTART,
-FMENU_RANKS,
-FMENU_SERVER,
-FMENU_TOTAL,
-};
