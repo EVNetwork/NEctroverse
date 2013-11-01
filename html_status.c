@@ -14,90 +14,6 @@ void iohttpFuncConvertTime( char *buffer, int eltime )
   return;
 }
 
-//Now caped at one processor, we don't need to display the same infomation multiple times for the cores/siblings.
-int linux_cpuinfo( CPUInfoDef *cpuinfos ) {
-	int a;
-	FILE *file;
-	char temp[1024];
-	char* match;
-	
-file = fopen( "/proc/cpuinfo", "r" );
-if( file ) {
-	a = fread( temp, 1, sizeof(temp), file );
-	if( !(a) ){
-		return 0; 
-	}
-}
-
-match = strstr(temp, "cpu cores");
-if( sscanf(match, "cpu cores  :  %d", &cpuinfos->cores) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Core Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Core Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "siblings");
-if( sscanf(match, "siblings  :  %d", &cpuinfos->siblings) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Siblings Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Siblings Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "cache size");
-if( sscanf(match, "cache size  :  %d", &cpuinfos->cache) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Cache Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Cache Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "model");
-if( sscanf(match, "model  :  %d", &cpuinfos->model) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Model Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Model Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "bogomips");
-if( sscanf(match, "bogomips  :  %f", &cpuinfos->bogomips) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Bogomips Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Bogomips Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "cpu MHz");
-if( sscanf(match, "cpu MHz  :  %f", &cpuinfos->speed) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU MHz Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Mhz Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "vendor_id");
-if( sscanf(match, "vendor_id  :  %[^\n]", (char *)&cpuinfos->vendor_id) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Vendor Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Vendor Info...\n");
-	return 0;
-}
-
-match = strstr(temp, "model name");
-if( sscanf(match, "model name  :  %[^\n]", (char *)&cpuinfos->name) != 1 ) {
-	if( options.verbose )
-	printf("Error getting CPU Name Info...\n");
-	syslog(LOG_INFO, "Error getting CPU Name Info...\n");
-	return 0;
-}
-
-
-
-return 1;
-}
-
 
 void iohttpFunc_status( svConnectionPtr cnt ) {
 	int pid;
@@ -110,9 +26,9 @@ void iohttpFunc_status( svConnectionPtr cnt ) {
 	char stringuptime[128];
 	struct sysinfo  si;
 	struct utsname stustname;
+	cpuInfo cpuinfo;
 
-
-CPUInfoDef cpuinfo = { -1, -1, -1, -1, -1, -1, -1, "", "" };
+cpuGetInfo( &cpuinfo );
 
 
 iohttpBase( cnt, 8 );
@@ -155,25 +71,37 @@ if( ticks.status ) {
 }
 svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
 
-if( linux_cpuinfo( &cpuinfo ) ) {
-	shiftfloat=(float)(1<<SI_LOAD_SHIFT);
-	loadavg[0]=((float)si.loads[0])/shiftfloat;
-	loadavg[1]=((float)si.loads[1])/shiftfloat;
-	loadavg[2]=((float)si.loads[2])/shiftfloat;
-	svSendPrintf( cnt, "<b>Server Processor%s</b><br>", (cpuinfo.cores > 1) ? "s" : "" );
-	svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-	if( (loadavg[0] > 0) || (loadavg[1] > 0) || (loadavg[2] > 0) )
+shiftfloat=(float)(1<<SI_LOAD_SHIFT);
+loadavg[0]=((float)si.loads[0])/shiftfloat;
+loadavg[1]=((float)si.loads[1])/shiftfloat;
+loadavg[2]=((float)si.loads[2])/shiftfloat;
+svSendString( cnt, "<b>Server Processor Info</b><br>" );
+svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
+if( (loadavg[0] > 0) || (loadavg[1] > 0) || (loadavg[2] > 0) )
 	svSendPrintf( cnt, "<tr><td>Load Averages</td><td>&nbsp;:&nbsp;</td><td>%f (1 min) - %f (5 mins) - %f (15 mins)</td></tr>",loadavg[0],loadavg[1],loadavg[2]);
-	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", cpuinfo.vendor_id, cpuinfo.name );
-	if( (cpuinfo.siblings > 0) && (cpuinfo.cores > 0) ) {
-		svSendString( cnt, "<tr><td>CPU Info</td><td>&nbsp;:&nbsp;</td><td>" );
-		svSendPrintf( cnt, "Processor has %d sibling%s with %d core%s</td></tr>", cpuinfo.siblings, ( cpuinfo.siblings > 1) ? "s" : "", cpuinfo.cores, ( cpuinfo.cores > 1) ? "s" : "" );
-	}
-	svSendPrintf( cnt, "<tr><td>Current Speed</td><td>&nbsp;:&nbsp;</td><td>%.02f MHz</td></tr>",cpuinfo.speed);
-	svSendPrintf( cnt, "<tr><td>Bogomips</td><td>&nbsp;:&nbsp;</td><td>%.02f</td></tr>",cpuinfo.bogomips);
-	svSendPrintf( cnt, "<tr><td>Cache Size</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>",cpuinfo.cache);
-	svSendString( cnt, "</table>" );
+svSendPrintf( cnt, "<tr><td>CPU Type</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", cpuinfo.identifier, cpuArchName[cpuinfo.arch] );
+svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", cpuinfo.vendorstring, cpuClassName[cpuinfo.class] );
+if( cpuinfo.cachesizeL3 > 0 )
+	svSendPrintf( cnt, "<tr><td>Level 3 Cache</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>", cpuinfo.cachesizeL3 );
+
+if( cpuinfo.cachesizeL2 > 0 )
+	svSendPrintf( cnt, "<tr><td>Level 2 Cache</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>", cpuinfo.cachesizeL2 );
+
+if( cpuinfo.cachesizeL1data > 0 )
+	svSendPrintf( cnt, "<tr><td>Level 1 Cache</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>", cpuinfo.cachesizeL1data );
+
+if( cpuinfo.cacheunifiedL1 > 0 )
+	svSendPrintf( cnt, "<tr><td>Unified Cache</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>", cpuinfo.cacheunifiedL1 );
+
+svSendPrintf( cnt, "<tr><td>Physical Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketphysicalcores );
+svSendPrintf( cnt, "<tr><td>Logical Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketlogicalcores );
+
+if( cpuinfo.socketcount ) {
+	svSendPrintf( cnt, "<tr><td>Sockets</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketcount );
+	svSendPrintf( cnt, "<tr><td>Total Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.totalcorecount );
 }
+svSendString( cnt, "</table>" );
+
 
 svSendString( cnt, "</td></tr></table>" );
 iohttpFunc_boxend( cnt );

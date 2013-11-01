@@ -2,6 +2,9 @@
 #include "global.h"
 #endif
 
+
+#include "cpuinfo.c"
+
 #include "html_gameplay.c"
 
 #include "html_main.c"
