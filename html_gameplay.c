@@ -1525,7 +1525,7 @@ if(empired.taxation)
  }
  svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
  svSendString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
- memset( bsums, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+ memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
  svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
  for( a = c = 0 ; a < numbuild ; a++ )
  {

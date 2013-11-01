@@ -2780,7 +2780,7 @@ int dbEmpireRelsList( int id, int **rel )
     fclose( file );
     return -1;
   }
-  if( fread( relp, 1, num*sizeof(dbEmpireRelationsDef), file ) < 1 ) {
+  if( ( fread( relp, 1, num*sizeof(dbEmpireRelationsDef), file ) < 1 ) && ( num ) ) {
  	if( options.verbose )
 		printf("Failure reading file x42.1\n" );
 	syslog(LOG_ERR, "Failure reading file x42.1\n" );
