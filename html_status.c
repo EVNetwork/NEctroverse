@@ -105,7 +105,7 @@ void iohttpFunc_status( svConnectionPtr cnt ) {
 	char fname[256], addstring[32];
 	int stutime, ststime, stpriority, ststarttime, stvsize, strss;
 	float boottime, runtime, userload, kernelload;
-	float fav[3];
+	float loadavg[3];
 	float shiftfloat;
 	char stringuptime[128];
 	struct sysinfo  si;
@@ -157,12 +157,13 @@ svSendPrintf( cnt, "Process priority : %d<br><br>", stpriority );
 
 if( linux_cpuinfo( &cpuinfo ) ) {
 	shiftfloat=(float)(1<<SI_LOAD_SHIFT);
-	fav[0]=((float)si.loads[0])/shiftfloat;
-	fav[1]=((float)si.loads[1])/shiftfloat;
-	fav[2]=((float)si.loads[2])/shiftfloat;
+	loadavg[0]=((float)si.loads[0])/shiftfloat;
+	loadavg[1]=((float)si.loads[1])/shiftfloat;
+	loadavg[2]=((float)si.loads[2])/shiftfloat;
 	svSendPrintf( cnt, "<b>Server Processor%s</b><br>", (cpuinfo.cores > 1) ? "s" : "" );
 	svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-	svSendPrintf( cnt, "<tr><td>Load Averages</td><td>&nbsp;:&nbsp;</td><td>%f (1 min) - %f (5 mins) - %f (15 mins)</td></tr>",fav[0],fav[1],fav[2]);
+	if( (loadavg[0] > 0) || (loadavg[1] > 0) || (loadavg[2] > 0) )
+	svSendPrintf( cnt, "<tr><td>Load Averages</td><td>&nbsp;:&nbsp;</td><td>%f (1 min) - %f (5 mins) - %f (15 mins)</td></tr>",loadavg[0],loadavg[1],loadavg[2]);
 	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", cpuinfo.vendor_id, cpuinfo.name );
 	if( (cpuinfo.siblings > 0) && (cpuinfo.cores > 0) ) {
 		svSendString( cnt, "<tr><td>CPU Info</td><td>&nbsp;:&nbsp;</td><td>" );
@@ -190,9 +191,10 @@ svSendPrintf( cnt, "Total system memory : %ld bytes ( %ld mb )<br>", si.totalram
 svSendPrintf( cnt, "Avalible memory now : %ld bytes ( %ld mb )<br>", si.freeram, (si.freeram >> 20) );
 if( (si.totalswap) > 0 )
 	svSendPrintf( cnt, "Total Swap: %ld bytes ( %ld mb )<br>Free Swap: %ld bytes ( %ld mb )<br>", si.totalswap, (si.totalswap >> 20), si.freeswap, (si.freeswap >> 20));
-svSendPrintf( cnt, "Buffer Usage: %ld bytes ( %ld mb )<br>", si.bufferram, (si.bufferram >> 20));
+if( (si.bufferram) > 0 )
+	svSendPrintf( cnt, "Buffer Usage: %ld bytes ( %ld mb )<br>", si.bufferram, (si.bufferram >> 20));
 if( (si.sharedram) > 0 )
-svSendPrintf( cnt, "Shared Ram: %ld bytes ( %ld mb )<br>", si.sharedram, (si.sharedram >> 20) );
+	svSendPrintf( cnt, "Shared Ram: %ld bytes ( %ld mb )<br>", si.sharedram, (si.sharedram >> 20) );
 
 svSendString( cnt, "<br><b>Game Server usage ( average )</b><br>" );
 svSendPrintf( cnt, "Memory used : %d bytes ( %d mb )<br>", stvsize, stvsize >> 20 );
