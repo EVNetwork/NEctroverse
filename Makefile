@@ -30,10 +30,10 @@ db.o: *.h db.c
 cmd.o: *.h cmd.c cmdexec.c cmdtick.c battle.c specop.c
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
 
-map.o: *.h map.c
+map.o: *.h map.c imgpng.c
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: *.h html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c
+html.o: *.h html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c cpuinfo.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
 md5.o: *.h md5.c
