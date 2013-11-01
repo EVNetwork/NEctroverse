@@ -203,32 +203,32 @@ svSendString( cnt, "<tr><td background=\"images/ectro_12.jpg\" align=\"center\">
 svSendString( cnt, "<tr><td background=\"images/ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
-svSendString( cnt, "<a href=\"/\">Main</a>" );
+	svSendString( cnt, "<a href=\"/\">Main</a>" );
 }
 if( !( flags == FMENU_REGISTER ) ) {
-if( !( flags == FMENU_MAIN ) )
-svSendString( cnt, " | " );
-svSendString( cnt, "<a href=\"register\">Register</a>" );
+	if( !( flags == FMENU_MAIN ) )
+		svSendString( cnt, " | " );
+	svSendString( cnt, "<a href=\"register\">Register</a>" );
 }
 //if( !( flags == FMENU_FORUM ) ) {
-//svSendString( cnt, " | " );
-//svSendString( cnt, "<a href=\"forum\">Forums</a>" );
+	//svSendString( cnt, " | " );
+	//svSendString( cnt, "<a href=\"forum\">Forums</a>" );
 //}
 if( !( flags == FMENU_FAQ ) ) {
-svSendString( cnt, " | " );
-svSendString( cnt, "<a href=\"faq\">FAQ</a>" );
+	svSendString( cnt, " | " );
+	svSendString( cnt, "<a href=\"faq\">FAQ</a>" );
 }
 if( !( flags == FMENU_GSTART ) ) {
-svSendString( cnt, " | " );
-svSendString( cnt, "<a href=\"gettingstarted\">Getting Started</a>" );
+	svSendString( cnt, " | " );
+	svSendString( cnt, "<a href=\"gettingstarted\">Getting Started</a>" );
 }
 if( !( flags == FMENU_RANKS ) ) {
-svSendString( cnt, " | " );
-svSendString( cnt, "<a href=\"halloffame\">Hall of fame</a> " );
+	svSendString( cnt, " | " );
+	svSendString( cnt, "<a href=\"halloffame\">Hall of fame</a> " );
 }
 if( !( flags == FMENU_SERVER ) ) {
-svSendString( cnt, " | " );
-svSendString( cnt, "<a href=\"status\">Server Status</a>" );
+	svSendString( cnt, " | " );
+	svSendString( cnt, "<a href=\"status\">Server Status</a>" );
 }
 
 svSendString( cnt, "</b></td></tr>" );
