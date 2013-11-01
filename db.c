@@ -21,21 +21,22 @@ FILE *dbFilePtr[DB_FILE_TOTAL];
 enum 
 {
 DB_FILE_USER_INFO,
-DB_FILE_USER_MAILIN,
-DB_FILE_USER_MAILOUT,
-DB_FILE_USER_RECORD,
-
 DB_FILE_USER_MAIN,
 DB_FILE_USER_BUILD,
 DB_FILE_USER_PLANETS,
 DB_FILE_USER_FLEETS,
 DB_FILE_USER_NEWS,
 DB_FILE_USER_MARKET,
+DB_FILE_USER_MAILIN,
+DB_FILE_USER_MAILOUT,
 DB_FILE_USER_SPECOPS,
+DB_FILE_USER_RECORD,
 DB_FILE_USER_FLAGS,
 
 DB_FILE_USER_TOTAL,
 };
+
+
 
 char dbFileUserInfoName[] = "%s/user%d/info";
 char dbFileUserMailInName[] = "%s/user%d/mailin";
@@ -51,17 +52,15 @@ char dbFileUserMarketName[] = "%s/user%d/market";
 char dbFileUserSpecOpsName[] = "%s/user%d/specops";
 char dbFileUserGameFlags[] = "%s/user%d/flags";
 
-char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserRecordName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserSpecOpsName, dbFileUserGameFlags };
+char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserGameFlags };
 
 long long int dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
 int dbFileUserListDat1[] = { 0, 8 };
 
+int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
+long long int *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
 
-int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 8, 8, 4, 0, 4, 4, 4, 40, 8, 4, 0 };
-long long int *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, 0 };
 
-
-dbMainSystemPtr dbMapSystems;
 int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
 
@@ -465,12 +464,6 @@ if( chdir( COREDIR ) == -1 ) {
 if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
 	return 0;
 
-if( !( dbMapSystems = malloc( dbMapBInfoStatic[MAP_SYSTEMS] * sizeof(dbMainSystemDef) ) ) )
-	return 0;
-
-for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ )
-	dbMapRetrieveSystem( 0x10000000 | a, &dbMapSystems[a] );
-
 if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	if( options.verbose )
 	printf("Market database not found, creating...\n" );
@@ -635,9 +628,6 @@ for( user = dbUserList ; user ; user = next ) {
 	dbUserFree( user );
 }
 
-if( dbMapSystems )
-	free( dbMapSystems );
-
 return;
 }
 
@@ -647,10 +637,12 @@ return;
 // Quick map search
 
 int dbMapFindSystem( int x, int y ) {
+	dbMainSystemDef systemd;
 	int a, position = ( y << 16 ) + x;
 
 for( a = 0 ; a < dbMapBInfoStatic[MAP_SYSTEMS] ; a++ ) {
-	if( dbMapSystems[a].position == position )
+	dbMapRetrieveSystem( a, &systemd );
+	if( systemd.position == position )
 		return a;
 }
 
@@ -2573,7 +2565,6 @@ if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 
 fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
 fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
-memcpy( &dbMapSystems[sysid], systemd, sizeof(dbMainSystemDef) );
 
 return 1;
 }
@@ -2581,28 +2572,18 @@ return 1;
 int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd ) {
 	FILE *file;
 
-if( ( sysid & 0x10000000 ) ) {
-	sysid &= 0xFFFFFF;
-	if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-		return -3;
-
-	if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
-		return -3;
-
-	fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
-	if( fread( systemd, 1, sizeof(dbMainSystemDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x37.0\n" );
-	syslog(LOG_ERR, "Failure reading file x37.0\n" );
-}
-
-	return 1;
-}
+if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+	return -3;
 
 if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 	return -3;
 
-memcpy( systemd, &dbMapSystems[sysid], sizeof(dbMainSystemDef) );
+fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
+if( fread( systemd, 1, sizeof(dbMainSystemDef), file ) < 1 ) {
+	if( options.verbose )
+		printf("Failure reading file x37.0\n" );
+	syslog(LOG_ERR, "Failure reading file x37.0\n" );
+}
 
 return 1;
 }

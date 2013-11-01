@@ -1377,6 +1377,7 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
   int a, b;
   float fa;
   dbUserMainDef maind;
+  dbMainSystemDef systemd;
   dbUserFleetDef fleetd, fleet2d;
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
@@ -1384,12 +1385,12 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
   fleetd.sysid = dbMapFindSystem( x, y );
   if( ( order == CMD_FLEET_ORDER_ATTACK ) || ( order == CMD_FLEET_ORDER_STATION ) )
   {
-    if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+    if( ( fleetd.sysid < 0 ) || ( dbMapRetrieveSystem( fleetd.sysid, &systemd ) < 0 ) || ( z >= systemd.numplanets ) )
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;
     }
-    fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + z;
+    fleetd.destid = systemd.indexplanet + z;
   }
   else if( order == CMD_FLEET_ORDER_MOVE )
   {
@@ -1482,18 +1483,19 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
   float fa;
   dbUserMainDef maind;
   dbUserFleetDef fleetd, fleet2d;
+  dbMainSystemDef systemd;
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
   fleetd.sysid = dbMapFindSystem( x, y );
   if( ( order < CMD_FLEET_ORDER_FIRSTOP ) || ( order >= CMD_FLEET_ORDER_LASTOP ) )
     return -3;
-  if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+  if( ( fleetd.sysid < 0 ) || ( dbMapRetrieveSystem( fleetd.sysid, &systemd ) < 0 ) || ( z >= systemd.numplanets ) )
   {
     cmdErrorString = "This planet doesn't exist";
     return -3;
   }
-  fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + z;
+  fleetd.destid = systemd.indexplanet + z;
 
   b = cmdFindDistPortal( id, x, y, &a, &fleetd.source );
   if( b == -2 )
@@ -1551,6 +1553,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
   int a, b;
   float fa;
   dbUserMainDef maind;
+  dbMainSystemDef systemd;
   dbUserFleetDef fleetd, fleet2d;
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
@@ -1561,12 +1564,12 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
 
   if( z != -1 )
   {
-    if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+    if( ( fleetd.sysid < 0 ) || ( dbMapRetrieveSystem( fleetd.sysid, &systemd ) < 0 ) || ( z >= systemd.numplanets ) )
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;
     }
-    fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + z;
+    fleetd.destid = systemd.indexplanet + z;
   }
   else
   {
@@ -1746,6 +1749,7 @@ int cmdExecChangeFleet( int id, int x, int y, int z, int order, int fltid )
   float fa;
   dbUserMainDef maind;
   dbUserFleetDef fleetd;
+  dbMainSystemDef systemd;
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
@@ -1835,12 +1839,12 @@ if(order == CMD_FLEET_ORDER_MOVE)
 
     fleetd.basetime = fleetd.time;
     fleetd.sysid = dbMapFindSystem( x, y );
-    if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+    if( ( fleetd.sysid < 0 ) || ( dbMapRetrieveSystem( fleetd.sysid, &systemd ) < 0 ) || ( z >= systemd.numplanets ) )
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;
     }
-    fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + z;
+    fleetd.destid = systemd.indexplanet + z;
     fleetd.destination = ( x << 8 ) + ( y << 20 ) + ( z );
     fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
     if( !( dbUserFleetSet( id, fltid, &fleetd ) ) )
@@ -1863,12 +1867,12 @@ if( fleetd.unit[CMD_UNIT_EXPLORATION] )
 		fleetd.time = ( (int)( (float)a / fa ) >> 8 ) + 1;
 		fleetd.basetime = fleetd.time;
 		fleetd.sysid = dbMapFindSystem( x, y );
-		if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+		if( ( fleetd.sysid < 0 ) || ( dbMapRetrieveSystem( fleetd.sysid, &systemd ) < 0 ) || ( z >= systemd.numplanets ) )
 			{
 				cmdErrorString = "This planet doesn't exist";
 				return -3;
 			}
-    fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + z;
+    fleetd.destid = systemd.indexplanet + z;
     fleetd.destination = ( x << 8 ) + ( y << 20 ) + ( z );
     fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
     if( !( dbUserFleetSet( id, fltid, &fleetd ) ) )

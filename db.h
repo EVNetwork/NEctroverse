@@ -281,10 +281,6 @@ int dbEmpireRelsList( int id, int **rel );
 int dbEmpireRelsGet( int id, int relid, int *rel );
 
 
-
-extern dbMainSystemPtr dbMapSystems;
-extern int dbMapSystemsNum;
-
 ////////
 
 
