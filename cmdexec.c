@@ -68,7 +68,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -1;
-  if( (unsigned int)raceid >= CMD_RACE_NUMUSED )
+  if( !( raceid < CMD_RACE_NUMUSED ) )
     return -1;
     
   maind.raceid = raceid;
@@ -109,7 +109,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   else
   {
   	//This the user specified what emp and have the right to do it
-    if( (unsigned int)famnum >= binfo[MAP_EMPIRES] )
+    if( famnum >= binfo[MAP_EMPIRES] )
     {
       cmdErrorString = "The empire doesn't exist!";
       return -1;
@@ -134,7 +134,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
     cmdErrorString = "The empire doesn't exist!";
     return -1;
   }
-  if( (unsigned int)empired.numplayers >= binfo[MAP_EMEMBERS] )
+  if( empired.numplayers >= binfo[MAP_EMEMBERS] )
   {
     cmdErrorString = "This empire is full!";
     return -1;
@@ -168,6 +168,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   planetd.maxpopulation = planetd.size * CMD_POPULATION_SIZE_FACTOR;
   planetd.flags |= CMD_PLANET_FLAGS_HOME | CMD_PLANET_FLAGS_PORTAL;
   planetd.owner = id;
+  planetd.protection = 100;
   planetd.population = 5000;
   memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
   memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
@@ -636,9 +637,9 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
   long long int newd[DB_USER_NEWS_BASE];
 
   cmdErrorString = 0;
-  if( (unsigned int)resource >= 3 )
+  if( resource >= 3 )
     return -3;
-  if( (unsigned int)action >= 2 )
+  if( action >= 2 )
    return -3;
 
   if( !( ticks.status ) )
@@ -647,12 +648,12 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     return -3;
   }
 
-  if( !( price ) || ( (unsigned int)price >= DB_MARKET_RANGE ) )
+  if( !( price ) || ( price >= DB_MARKET_RANGE ) )
   {
     cmdErrorString = "The price must be between 1 and 250";
     return -3;
   }
-  if( (unsigned int)quantity > (2000000000/price) )
+  if( quantity > (2000000000/price) )
   {
     cmdErrorString = "Your bid is too large";
     return -3;
@@ -687,7 +688,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     {
       marketbid[DB_MARKETBID_PRICE] = a;
       b = dbMarketListStart( marketbid );
-      while( (unsigned int)b < 0x1000000 )
+      while( b < 0x1000000 )
       {
         d = dbMarketListNext( b, bidresult );
         if( c < bidresult[0] )
@@ -739,7 +740,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     {
       marketbid[DB_MARKETBID_PRICE] = a;
       b = dbMarketListStart( marketbid );
-      while( (unsigned int)b < 0x1000000 )
+      while( b < 0x1000000 )
       {
         d = dbMarketListNext( b, bidresult );
         if( c < bidresult[0] )
@@ -893,7 +894,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
   for( a = 0 ; a < 4 ; a++ )
   {
     b |= res[a];
-    if( (unsigned int)res[a] >= 1000000000 )
+    if( res[a] >= 1000000000 )
       return -3;
   }
   if( !( b ) )
@@ -977,7 +978,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   for( a = 0 ; a < 4 ; a++ )
   {
     b |= res[a];
-    if( (unsigned int)res[a] >= 1000000000 )
+    if( res[a] >= 1000000000 )
       return -3;
   }
   if( !( b ) )
@@ -1112,7 +1113,7 @@ int cmdExecFamMemberFlags( int id, int fam, int flags )
   }
   if( !( user = dbUserLinkID( id ) ) )
     return -3;
-  if( (unsigned int)flags > CMD_USER_FLAGS_NUMUSED )
+  if( flags > CMD_USER_FLAGS_NUMUSED )
     return -3;
   user->flags &= 0xFFFF;
   if( flags )
@@ -1170,9 +1171,9 @@ int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
   int *rels;
 
   cmdErrorString = 0;
-  if( (unsigned int)fam >= dbMapBInfoStatic[MAP_EMPIRES] )
+  if( fam >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( (unsigned int)famtarget >= dbMapBInfoStatic[MAP_EMPIRES] )
+  if( famtarget >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
 
   if( ( num = dbEmpireRelsList( fam, &rels ) ) < 0 )
@@ -1218,9 +1219,9 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
   dbMainEmpireDef empire2d;
 
   cmdErrorString = 0;
-  if( (unsigned int)fam >= dbMapBInfoStatic[MAP_EMPIRES] )
+  if( fam >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( (unsigned int)famtarget >= dbMapBInfoStatic[MAP_EMPIRES] )
+  if( famtarget >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
   if( fam == famtarget )
     return -3;
@@ -1383,7 +1384,7 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
   fleetd.sysid = dbMapFindSystem( x, y );
   if( ( order == CMD_FLEET_ORDER_ATTACK ) || ( order == CMD_FLEET_ORDER_STATION ) )
   {
-    if( ( fleetd.sysid < 0 ) || ( (unsigned int)z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+    if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;
@@ -1444,7 +1445,7 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
     return -3;
   for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
   {
-    if( (unsigned int)sendunit[a] > fleet2d.unit[a] )
+    if( sendunit[a] > fleet2d.unit[a] )
     {
       sprintf( cmdErrorBuffer, "You don't have as many as %d %s in your main fleet!", sendunit[a], cmdUnitName[a] );
       cmdErrorString = cmdErrorBuffer;
@@ -1487,7 +1488,7 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
   fleetd.sysid = dbMapFindSystem( x, y );
   if( ( order < CMD_FLEET_ORDER_FIRSTOP ) || ( order >= CMD_FLEET_ORDER_LASTOP ) )
     return -3;
-  if( ( fleetd.sysid < 0 ) || ( (unsigned int)z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+  if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
   {
     cmdErrorString = "This planet doesn't exist";
     return -3;
@@ -1515,13 +1516,13 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
 
   if( !( dbUserFleetRetrieve( id, 0, &fleet2d ) ) )
     return -3;
-  if( (unsigned int)agents > fleet2d.unit[CMD_UNIT_AGENT] )
+  if( agents > fleet2d.unit[CMD_UNIT_AGENT] )
   {
     sprintf( cmdErrorBuffer, "You don't have as many as %d %s in your main fleet!", agents, cmdUnitName[CMD_UNIT_AGENT] );
     cmdErrorString = cmdErrorBuffer;
     return -3;
   }
-  if( (unsigned int)agents == 0 )
+  if( agents == 0 )
   {
     sprintf( cmdErrorBuffer, "You can't send an empty fleet!" );
     cmdErrorString = cmdErrorBuffer;
@@ -1560,7 +1561,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
 
   if( z != -1 )
   {
-    if( ( fleetd.sysid < 0 ) || ( (unsigned int)z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+    if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;
@@ -1569,7 +1570,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
   }
   else
   {
-    if( ( (unsigned int)x >= dbMapBInfoStatic[MAP_SIZEX] ) || ( (unsigned int)y >= dbMapBInfoStatic[MAP_SIZEY] ) )
+    if( ( x >= dbMapBInfoStatic[MAP_SIZEX] ) || ( y >= dbMapBInfoStatic[MAP_SIZEY] ) )
     {
       cmdErrorString = "These coordinates would lead your ships outside the galaxy!";
       return -3;
@@ -1598,13 +1599,13 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
   fleetd.basetime = fleetd.time = (int)( (float)a / fa ) >> 8;
   if( !( dbUserFleetRetrieve( id, 0, &fleet2d ) ) )
     return -3;
-  if( (unsigned int)ghosts > fleet2d.unit[CMD_UNIT_GHOST] )
+  if( ghosts > fleet2d.unit[CMD_UNIT_GHOST] )
   {
     sprintf( cmdErrorBuffer, "You don't have as many as %d %s in your main fleet!", ghosts, cmdUnitName[CMD_UNIT_GHOST] );
     cmdErrorString = cmdErrorBuffer;
     return -3;
   }
-  if( (unsigned int)ghosts == 0 )
+  if( ghosts == 0 )
   {
     sprintf( cmdErrorBuffer, "You can't send an empty fleet!" );
     cmdErrorString = cmdErrorBuffer;
@@ -1834,7 +1835,7 @@ if(order == CMD_FLEET_ORDER_MOVE)
 
     fleetd.basetime = fleetd.time;
     fleetd.sysid = dbMapFindSystem( x, y );
-    if( ( fleetd.sysid < 0 ) || ( (unsigned int)z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+    if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;
@@ -1862,7 +1863,7 @@ if( fleetd.unit[CMD_UNIT_EXPLORATION] )
 		fleetd.time = ( (int)( (float)a / fa ) >> 8 ) + 1;
 		fleetd.basetime = fleetd.time;
 		fleetd.sysid = dbMapFindSystem( x, y );
-		if( ( fleetd.sysid < 0 ) || ( (unsigned int)z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
+		if( ( fleetd.sysid < 0 ) || ( z >= dbMapSystems[ fleetd.sysid ].numplanets ) )
 			{
 				cmdErrorString = "This planet doesn't exist";
 				return -3;

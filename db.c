@@ -4726,7 +4726,7 @@ if( fread( &num, 1, 4, file ) < 1 ) {
 }
   if( !( recordp = malloc( num * sizeof(dbUserRecordDef) ) ) )
     return -3;
-if( fread( recordp, 1, num * sizeof(dbUserRecordDef), file ) < 1 ) {
+if( ( fread( recordp, 1, num * sizeof(dbUserRecordDef), file ) < 1 ) && ( num ) ) {
  	if( options.verbose )
 		printf("Failure reading file x76.1\n" );
 	syslog(LOG_ERR, "Failure reading file x76.1\n" );

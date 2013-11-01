@@ -239,7 +239,7 @@ typedef struct
   char password[128];
   char vote[32];
   int numplayers;
-  int player[32];
+  int player[128];
   int homeid;
   int homepos; // ( y << 16 ) + x
   int leader;
@@ -285,11 +285,6 @@ int dbEmpireRelsGet( int id, int relid, int *rel );
 
 extern dbMainSystemPtr dbMapSystems;
 extern int dbMapSystemsNum;
-
-
-extern dbMainSystemDef dbSystemDefault;
-extern dbMainPlanetDef dbPlanetDefault;
-extern dbMainEmpireDef dbEmpireDefault;
 
 ////////
 

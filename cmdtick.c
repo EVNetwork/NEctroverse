@@ -563,7 +563,6 @@ int cmdTick()
   int marketbid[DB_MARKETBID_NUMUSED];
   int bidresult[2];
   int *plist;
-  int nArti = 0;
   dbUserPtr user;
   dbUserMainDef maind;
   dbUserBuildPtr build;
@@ -584,7 +583,6 @@ for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 	if( dbMapRetrieveEmpire( a, &empired ) < 0 )
 		continue;
 	ticks.debug_id = a;
-	nArti |= empired.artefacts;	//Will have all discovered arti in here
 	empired.artefacts = 0;
 	//Add decay to empire funds, decay (if any) removed before deposits from this tick.
 	empired.infos[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( CMD_ENERGY_DECAY * empired.fund[CMD_RESSOURCE_ENERGY] ) );
