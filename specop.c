@@ -533,8 +533,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	      planetd.owner = -1;
 	      planetd.construction = 0;
 	      planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-	      memset( planetd.building, 0, 16*sizeof(int) );
-	      memset( planetd.unit, 0, 16*sizeof(int) );
+	      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+	      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 	      dbMapSetPlanet( fleetd->destid, &planetd );
 	      planetd.owner = a;
 	      dbMapRetrieveSystem( planetd.system, &systemd );
@@ -652,8 +652,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	    planetd.owner = -1;
 	    planetd.construction = 0;
 	    planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-	    memset( planetd.building, 0, 16*sizeof(int) );
-	    memset( planetd.unit, 0, 16*sizeof(int) );
+	    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+	    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 	    dbMapSetPlanet( fleetd->destid, &planetd );
 	    planetd.owner = a;
 	    dbMapRetrieveSystem( planetd.system, &systemd );
@@ -1426,7 +1426,7 @@ else //code arti
       planetd.owner = id;
       planetd.construction = 0;
       planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.unit, 0, 16*sizeof(int) );
+      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
       dbMapSetPlanet( fleetd->destid, &planetd );
       dbUserPlanetAdd( id, fleetd->destid, planetd.system, planetd.position, planetd.flags );
       planetd.owner = a;

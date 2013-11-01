@@ -1453,7 +1453,8 @@ void iohttpFunc_council( svConnectionPtr cnt )
  dbMainEmpireDef empired;
  dbUserBuildPtr build;
  dbUserMainDef maind;
- int sums[16];
+ int bsums[CMD_BLDG_NUMUSED+1];
+ int usums[CMD_UNIT_NUMUSED];
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1524,14 +1525,14 @@ if(empired.taxation)
  }
  svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
  svSendString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
- memset( sums, 0, 16*sizeof(int) );
+ memset( bsums, 0, CMD_BLDG_NUMUSED*sizeof(int) );
  svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
  for( a = c = 0 ; a < numbuild ; a++ )
  {
   if( build[a].type >> 16 )
    continue;
   svSendPrintf( cnt, "<tr><td>%d %s in %d weeks at <a href=\"planet?id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
-  sums[ build[a].type & 0xFFFF ] += build[a].quantity;
+  bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
   c++;
  }
  if( !( c ) )
@@ -1543,10 +1544,10 @@ if(empired.taxation)
   svSendString( cnt, "<br><i>Summary</i><br>" );
   for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ )
   {
-   if( !( sums[a] ) )
+   if( !( bsums[a] ) )
     continue;
-   svSendPrintf( cnt, "%d %s<br>", sums[a], cmdBuildingName[a] );
-   b += sums[a];
+   svSendPrintf( cnt, "%d %s<br>", bsums[a], cmdBuildingName[a] );
+   b += bsums[a];
   }
   svSendPrintf( cnt, "<i>Total of %d buildings under construction</i><br>", b );
  }
@@ -1563,13 +1564,13 @@ if(empired.taxation)
  svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
  svSendString( cnt, "<script language=\"javascript\">function togglem() { for(i=0;i<document.forms[1].length;i++) if(document.forms[1].elements[i].type == \"checkbox\") document.forms[1].elements[i].click(); }</script>" );
  
- memset( sums, 0, 16*sizeof(int) );
+ memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
  for( a = c = 0 ; a < numbuild ; a++ )
  {
   if( !( build[a].type >> 16 ) )
    continue;
   svSendPrintf( cnt, "<tr><td>%d %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
-  sums[ build[a].type & 0xFFFF ] += build[a].quantity;
+  usums[ build[a].type & 0xFFFF ] += build[a].quantity;
   c++;
  }
  if( !( c ) )
@@ -1580,10 +1581,10 @@ if(empired.taxation)
   svSendString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
   for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
   {
-   if( !( sums[a] ) )
+   if( !( usums[a] ) )
     continue;
-   svSendPrintf( cnt, "%d %s<br>", sums[a], cmdUnitName[a] );
-   b += sums[a];
+   svSendPrintf( cnt, "%d %s<br>", usums[a], cmdUnitName[a] );
+   b += usums[a];
   }
   svSendPrintf( cnt, "<i>Total of %d units under construction</i><br>", b );
  }
@@ -7249,7 +7250,7 @@ if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( COREDIR, "rb" ) ) ) {
-			if( fread( data, 1, stdata.st_size, file ) < 1 ) {
+			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
 			if( options.verbose )
 				printf("Failure reading round rankings infomation: %s\n", COREDIR);
 			syslog(LOG_INFO, "Failure reading round rankings infomation: %s\n", COREDIR );

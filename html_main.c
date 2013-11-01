@@ -761,7 +761,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
-			if( fread( data, 1, stdata.st_size, file ) < 1 ) {
+			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
 				if( options.verbose )
 					printf("Failure reading faq file.\n");
 				syslog(LOG_INFO, "Failure reading faq file." );

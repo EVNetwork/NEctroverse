@@ -2,7 +2,6 @@
 int cmdExecNewUser( char *name, char *pass, char *faction )
 {
   int a, b;
-  char szCommmand[1000];
 
 	cmdErrorString = 0;
 	if( !( cmdCheckName( name ) ) )
@@ -50,19 +49,7 @@ syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
     cmdUserDelete( a );
     return -2;
   }
-  //copy this file into the 10 min db
-  //actualy copy an empty file
-  
-sprintf(szCommmand, "cp %s/data/user%d/main %s/users/user%d/main -f", sysconfig.directory, a, sysconfig.directory, a);
-if( system(szCommmand) ) {
-	if( options.verbose )
-		printf("Error Cloning User: #%d\n", a );
-	syslog(LOG_ERR, "Error Cloning User: %d\n", a );
-} else {
-	if( options.verbose )
-		printf("Cloned User: #%d\n", a );
-	syslog(LOG_INFO, "Cloned User: %d\n", a );
-}
+
 
   return a;
 }
@@ -182,8 +169,8 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   planetd.flags |= CMD_PLANET_FLAGS_HOME | CMD_PLANET_FLAGS_PORTAL;
   planetd.owner = id;
   planetd.population = 5000;
-  memset( planetd.building, 0, 16*sizeof(int) );
-  memset( planetd.unit, 0, 16*sizeof(int) );
+  memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
   planetd.building[CMD_BUILDING_SOLAR] = 50;
   planetd.building[CMD_BUILDING_MINING] = 20;
   planetd.building[CMD_BUILDING_REFINEMENT] = 10;
@@ -290,8 +277,8 @@ int cmdExecUserDeactivate( int id, int flags )
       planetd.owner = -1;
       planetd.construction = 0;
       planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.building, 0, 16*sizeof(int) );
-      memset( planetd.unit, 0, 16*sizeof(int) );
+      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
       dbMapSetPlanet( buffer[a], &planetd );
       dbMapRetrieveSystem( planetd.system, &systemd );
       systemd.unexplored++;
@@ -404,8 +391,8 @@ int cmdUserDelete( int id )
       planetd.owner = -1;
       planetd.construction = 0;
       planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.building, 0, 16*sizeof(int) );
-      memset( planetd.unit, 0, 16*sizeof(int) );
+      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
       dbMapSetPlanet( buffer[a], &planetd );
       dbMapRetrieveSystem( planetd.system, &systemd );
       systemd.unexplored++;
@@ -2005,7 +1992,7 @@ int cmdExecTakePlanet( int id, int plnid )
   planetd.construction = 0;
   planetd.surrender = -1;
   planetd.flags &= 0xFFFFFFFF - ( CMD_PLANET_FLAGS_PORTAL | CMD_PLANET_FLAGS_PORTAL_BUILD );
-  memset( planetd.unit, 0, 16*sizeof(int) );
+  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
   dbMapSetPlanet( plnid, &planetd );
   dbUserPlanetAdd( id, plnid, planetd.system, planetd.position, planetd.flags );
 

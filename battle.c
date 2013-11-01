@@ -995,7 +995,7 @@ int battle( int id, int fltid, int *results )
 
   if( stationleft )
   {
-    memcpy( fleet2d.unit, planetd.unit, 16*sizeof(int) );
+    memcpy( fleet2d.unit, planetd.unit, CMD_UNIT_NUMUSED*sizeof(int) );
     fleet2d.order = CMD_FLEET_ORDER_CANCELED;
     fleet2d.destination = planetd.position;
     fleet2d.destid = fleetd.destid;

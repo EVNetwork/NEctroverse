@@ -37,7 +37,7 @@ DB_FILE_USER_FLAGS,
 DB_FILE_USER_TOTAL,
 };
 
-char dbFileUserUserName[] = "%s/user%d/info";
+char dbFileUserInfoName[] = "%s/user%d/info";
 char dbFileUserMailInName[] = "%s/user%d/mailin";
 char dbFileUserMailOutName[] = "%s/user%d/mailout";
 char dbFileUserRecordName[] = "%s/user%d/record";
@@ -51,7 +51,7 @@ char dbFileUserMarketName[] = "%s/user%d/market";
 char dbFileUserSpecOpsName[] = "%s/user%d/specops";
 char dbFileUserGameFlags[] = "%s/user%d/flags";
 
-char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserUserName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserRecordName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserSpecOpsName, dbFileUserGameFlags };
+char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserRecordName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserSpecOpsName, dbFileUserGameFlags };
 
 long long int dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
 int dbFileUserListDat1[] = { 0, 8 };
@@ -4541,7 +4541,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
     fclose( file );
     return -1;
   }
-if( fread( specopp, 1, num*sizeof(dbUserSpecOpDef), file ) < 1 ) {
+if( ( fread( specopp, 1, num*sizeof(dbUserSpecOpDef), file ) < 1 ) && ( num ) ) {
  	if( options.verbose )
 		printf("Failure reading file x70.1\n" );
 	syslog(LOG_ERR, "Failure reading file x70.1\n" );
