@@ -3,6 +3,13 @@
 #endif
 
 
+char *cmdReadyName[CMD_READY_NUMUSED] =
+{
+"Fleet",
+"Psychics",
+"Agents"
+};
+
 char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2] =
 {
 "Energy",
@@ -1572,15 +1579,15 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       return -3;
     if( dbUserMainRetrieve( cmd[1], &maind ) < 0 )
       return -3;
-    if( maind.readiness[0] < 0 )
+    if( maind.readiness[CMD_READY_FLEET] < 0 )
     {
       cmdErrorString = "Your people aren't prepared to send another exploration ship!";
       return -3;
     }
 /*
-    maind.readiness[0] -= ( (maind.planets<<16) >> 2 ) + 15*65536;
+    maind.readiness[CMD_READY_FLEET] -= ( (maind.planets<<16) >> 2 ) + 15*65536;
 */
-    maind.readiness[0] -= ( (maind.planets<<16) >> 2 ) + 10*65536;
+    maind.readiness[CMD_READY_FLEET] -= ( (maind.planets<<16) >> 2 ) + 10*65536;
 
     ibuffer[0] = ( ( a / cmdUnitStats[CMD_UNIT_EXPLORATION][CMD_UNIT_STATS_SPEED] ) >> 8 ) + 1;
 		

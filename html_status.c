@@ -104,11 +104,11 @@ svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 svSendPrintf( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
 iohttpFuncConvertTime((char *)&stringuptime,runtime);
 svSendPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stringuptime );
-svSendPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week %d, year %d</td></tr>", ticks.number % 52, ticks.number / 52 );
+svSendPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span id=\"sstatweeks\">%d</span>, year <span id=\"sstatyears\">%d</span></td></tr>", ticks.number % 52, ticks.number / 52 );
 svSendPrintf( cnt, "<tr><td>Tick time</td><td>&nbsp;:&nbsp;</td><td>%d seconds</td></tr>", sysconfig.ticktime );
 
 if( ticks.status ) {
-	svSendPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>%d seconds</td></tr>", (int)( ticks.next - time(0) ) );
+	svSendPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"sstatsTime\">%d seconds</td></tr>", (int)( ticks.next - time(0) ) );
 } else {
 	svSendPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>Time Frozen!</td></tr>" );
 }

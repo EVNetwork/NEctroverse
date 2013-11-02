@@ -33,7 +33,7 @@ cmd.o: *.h cmd.c cmdexec.c cmdtick.c battle.c specop.c
 map.o: *.h map.c imgpng.c
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: *.h html.c html_main.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c cpuinfo.c
+html.o: *.h html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c cpuinfo.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
 md5.o: *.h md5.c

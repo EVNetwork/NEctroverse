@@ -1347,16 +1347,21 @@ if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
 
  iohttpBodyInit( cnt, "Headquarters" );
 
- svSendPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
- if( ticks.status )
-  svSendPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
- else
-  svSendPrintf( cnt, "Time frozen<br>" );
+ svSendString( cnt, "<table>" );
+ svSendPrintf( cnt, "<tr><td align=\"right\">Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span id=\"hqweeks\">%d</span>, year <span id=\"hqyears\">%d</span></td></td>", ticks.number % 52, ticks.number / 52 );
 
- svSendPrintf( cnt, "User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
+if( ticks.status ) {
+	svSendPrintf( cnt, "<tr><td align=\"right\">Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"hqTime\" align=\"center\">%d seconds</td></tr>", (int)( ticks.next - time(0) ) );
+	svSendString( cnt, "</table>" );
+} else {
+	svSendString( cnt, "</table>" );
+	svSendString( cnt, "Time frozen<br>" );
+}
+
+ svSendPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
 	
- svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : %d<br>Population : %lld0<br>Networth : %lld</td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
- svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : %d%%<br>Psychics readiness : %d%%<br>Agents readiness : %d%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[0] >> 16, maind.readiness[1] >> 16, maind.readiness[2] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
+ svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
+ svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : <span id=\"hqfleetready\">%d</span>%%<br>Psychics readiness : <span id=\"hqpsychready\">%d</span>%%<br>Agents readiness : <span id=\"hqagentready\">%d</span>%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[CMD_READY_FLEET] >> 16, maind.readiness[CMD_READY_PSYCH] >> 16, maind.readiness[CMD_READY_AGENT] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
 //read hq message from hq.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
  if( stat( DIRCHECKER, &stdata ) != -1 ) {
@@ -1528,7 +1533,7 @@ if(empired.taxation)
  svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
  svSendString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
  memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
- svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
+
  for( a = c = 0 ; a < numbuild ; a++ )
  {
   if( build[a].type >> 16 )
@@ -1541,7 +1546,7 @@ if(empired.taxation)
   svSendString( cnt, "</form></table>None<br>" );
  else
  {
- 	svSendString(cnt, "<tr><td></td><td><a href=\"javascript:togglemb()\">Toggle</font></a></td></tr>");
+ 	svSendString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
  	svSendString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
   svSendString( cnt, "<br><i>Summary</i><br>" );
   for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ )
@@ -1564,7 +1569,6 @@ if(empired.taxation)
  }
  svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
  svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
- svSendString( cnt, "<script language=\"javascript\">function togglem() { for(i=0;i<document.forms[1].length;i++) if(document.forms[1].elements[i].type == \"checkbox\") document.forms[1].elements[i].click(); }</script>" );
  
  memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
  for( a = c = 0 ; a < numbuild ; a++ )
@@ -1579,7 +1583,7 @@ if(empired.taxation)
   svSendString( cnt, "</form></table>None<br>" );
  else
  {
-  svSendString(cnt, "<tr><td></td><td><a href=\"javascript:togglem()\">Toggle</font></a></td></tr>");
+  svSendString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
   svSendString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
   for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
   {
@@ -1919,7 +1923,6 @@ if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 ) {
 
 
 
- svSendString( cnt, "<script language=\"javascript\">function togglemb() { for(i=0;i<document.forms[0].length;i++) if(document.forms[0].elements[i].type == \"checkbox\") document.forms[0].elements[i].click(); }</script>" );
  svSendString( cnt, "<form action=\"massbuild\" method=\"POST\">");
 
 if (sort == 0)
@@ -1947,7 +1950,7 @@ if (sort == 5)
 else
  svSendString( cnt, "<td width=\"28%\">Build - <a href=\"/planets?sort=5\">Protection</a></td>");
 
- svSendString( cnt, "<td width=\"2%\"><a href=\"javascript:togglemb()\"><font size=\"1\">Toggle</font></a></td></tr>" );
+ svSendString( cnt, "<td width=\"2%\"><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\"><font size=\"1\">Toggle</font></a></td></tr>" );
 
 
 
@@ -5807,7 +5810,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  }
  svSendString( cnt, "</td><td width=\"35%\" align=\"center\" valign=\"top\" nowrap>" );
  svSendPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_AGENT], cmdUnitName[CMD_UNIT_AGENT] );
- svSendPrintf( cnt, "%d%% Agents readiness<br>", maind.readiness[2] >> 16 );
+ svSendPrintf( cnt, "%d%% Agents readiness<br>", maind.readiness[CMD_READY_AGENT] >> 16 );
  svSendPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendagents\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_AGENT] );
  if( plnid >= 0 )
   svSendPrintf( cnt, "Target planet<br> X:<input type=\"text\" size=\"4\" name=\"planetx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"planety\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
@@ -5835,7 +5838,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  }
  svSendString( cnt, "</td><td width=\"35%\" align=\"center\" valign=\"top\" nowrap>" );
  svSendPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_WIZARD], cmdUnitName[CMD_UNIT_WIZARD] );
- svSendPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[1] >> 16 );
+ svSendPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[CMD_READY_PSYCH] >> 16 );
  svSendPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendpsychics\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_WIZARD] );
  svSendPrintf( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">", ( user != 0 ) ? ( (char *)user->faction ) : ( "Faction name or ID" ) );
  svSendString( cnt, "<br><br><input type=\"submit\" value=\"Prepare spell\">" );
@@ -5861,7 +5864,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  svSendString( cnt, "</td><td width=\"35%\" align=\"center\" valign=\"top\" nowrap>" );
  svSendPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_GHOST], cmdUnitName[CMD_UNIT_GHOST] );
- svSendPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[1] >> 16 );
+ svSendPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[CMD_READY_PSYCH] >> 16 );
  svSendPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendghosts\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_GHOST] );
  if( plnid >= 0 )
   svSendPrintf( cnt, "Target system or planet<br> X:<input type=\"text\" size=\"4\" name=\"sysx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
@@ -6055,9 +6058,9 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
    svSendPrintf( cnt, "Planets : <b>%d</b><br>", main2d.planets );
    svSendPrintf( cnt, "Networth : <b>%lld</b><br>", main2d.networth );
    svSendPrintf( cnt, "Empire : <b>#%d</b><br>", main2d.empire );
-   svSendPrintf( cnt, "Fleet readiness : <b>%d %%</b><br>", main2d.readiness[0] >> 16 );
-   svSendPrintf( cnt, "Psychics readiness : <b>%d %%</b><br>", main2d.readiness[1] >> 16 );
-   svSendPrintf( cnt, "Agents readiness : <b>%d %%</b><br>", main2d.readiness[2] >> 16 );
+   svSendPrintf( cnt, "Fleet readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_FLEET] >> 16 );
+   svSendPrintf( cnt, "Psychics readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_PSYCH] >> 16 );
+   svSendPrintf( cnt, "Agents readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_AGENT] >> 16 );
    svSendPrintf( cnt, "</td><td valign=\"top\"><i>Resources</i><br>" );
    for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
     svSendPrintf( cnt, "%s : <b>%lld</b><br>", cmdRessourceName[a], main2d.ressource[a] );

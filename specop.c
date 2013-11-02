@@ -209,7 +209,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	  if( dbUserMainRetrieve( id, &maind ) < 0 )
 	    return;
 
-	   if( ( maind.readiness[2] < 0 ) || (( planetd.owner == id )&&(fleetd->order!=CMD_FLEET_ORDER_PLANETBEACON) && (fleetd->order!=CMD_FLEET_ORDER_NUKEPLANET)) ||  !( ticks.status ) )
+	   if( ( maind.readiness[CMD_READY_AGENT] < 0 ) || (( planetd.owner == id )&&(fleetd->order!=CMD_FLEET_ORDER_PLANETBEACON) && (fleetd->order!=CMD_FLEET_ORDER_NUKEPLANET)) ||  !( ticks.status ) )
 	  {
 	  	cmdUserNewsAdd( id, newd, postnew );
 	    return;
@@ -295,11 +295,11 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	  {  	
 	    newd[2] = CMD_NEWS_OPSPYTARGET;
 	    if( success >= 0.5 )
-	      newd[10] = main2d.readiness[0];
+	      newd[10] = main2d.readiness[CMD_READY_FLEET];
 	    if( success >= 0.7 )
-	      newd[11] = main2d.readiness[1];
+	      newd[11] = main2d.readiness[CMD_READY_PSYCH];
 	    if( success >= 0.9 )
-	      newd[12] = main2d.readiness[2];
+	      newd[12] = main2d.readiness[CMD_READY_AGENT];
 	    specopCalcMarketBids( planetd.owner, resources );
 	    if( success >= 1.0 )
 	      newd[13] = main2d.ressource[0] + resources[0];
@@ -625,7 +625,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 		if(!nCancel)
 	  {
 	  	a = specopAgentsReadiness( specop, &maind, ( planetd.owner != -1 ) ? ( &main2d ) : ( 0 ) );
-	 		maind.readiness[2] -= a;
+	 		maind.readiness[CMD_READY_AGENT] -= a;
 	  	dbUserMainSet( id, &maind );
 	  }
 	}
@@ -766,7 +766,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
     return;
   if( !( dbUserFleetRetrieve( id, 0, &fleetd ) ) )
     return;
-  if( ( (unsigned int)psychics > fleetd.unit[CMD_UNIT_WIZARD] ) || ( maind.readiness[1] < 0 ) ||  !( ticks.status ) )
+  if( ( (unsigned int)psychics > fleetd.unit[CMD_UNIT_WIZARD] ) || ( maind.readiness[CMD_READY_PSYCH] < 0 ) ||  !( ticks.status ) )
   {
     cmdUserNewsAdd( id, newd, 0 );
     return;
@@ -1032,7 +1032,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
 
   dbUserMainRetrieve( id, &maind );
   a = specopPsychicsReadiness( specop, &maind, ( id != targetid ) ? ( &main2d ) : ( 0 ) );
-  maind.readiness[1] -= a;
+  maind.readiness[CMD_READY_PSYCH] -= a;
   dbUserMainSet( id, &maind );
 
   return;
@@ -1179,7 +1179,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
   }
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return;
-  if( ( maind.readiness[1] < 0 ) || !( ticks.status ) )
+  if( ( maind.readiness[CMD_READY_PSYCH] < 0 ) || !( ticks.status ) )
   {
     cmdUserNewsAdd( id, newd, postnew );
     return;
@@ -1581,7 +1581,7 @@ Energy Surge - Spreads a destructive wave in an faction network, feeding on the 
 
   a = specopGhostsReadiness( specop, &maind, ( plntarget ) ? ( &main2d ) : ( 0 ) );
   	
-  maind.readiness[1] -= a;
+  maind.readiness[CMD_READY_PSYCH] -= a;
   dbUserMainSet( id, &maind );
 
   return;

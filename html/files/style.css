@@ -131,5 +131,10 @@ body,td{
 .dotted {
     border-bottom: 1px dotted #ccc;
 }
+.timeClass {
+  font-family:verdana,geneva,arial,helvetica,sans-serif;
+  font-weight:normal;
+  font-size : 11px;
+}
 
 

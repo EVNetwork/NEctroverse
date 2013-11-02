@@ -91,9 +91,11 @@ svSendString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\"
 svSendString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
 svSendString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-svSendPrintf( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
-svSendPrintf( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
-svSendPrintf( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
+svSendString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
+svSendString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+svSendPrintf( cnt, "<script type=\"text/javascript\">\n\nvar sec = %d;\nvar min = %d;\n\n</script>", (int)( ticks.next - time(0) ) % 60, (int)( ticks.next - time(0) ) / 60 );
+svSendString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
+
 
 if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
@@ -109,7 +111,7 @@ svSendString( cnt, "</head>" );
 svSendString( cnt, "<body" );
 
 if( flags & 8 )
-	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }\" " );
+	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
 
 
 svSendString( cnt, "><center>" );
@@ -138,7 +140,7 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
  svSendString( cnt, "<td background=\"images/i05.jpg\">" );
 
  if( ticks.status )
- svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : %d seconds left</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", mainp->networth, (int)( ticks.next - time(0) ), mainp->ressource[CMD_RESSOURCE_POPULATION] );
+ svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><span id=\"headerTime\"><b>Next tick : %d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", mainp->networth, (int)( ticks.next - time(0) ), mainp->ressource[CMD_RESSOURCE_POPULATION] );
  else
  svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", mainp->networth, mainp->ressource[CMD_RESSOURCE_POPULATION] );
 
@@ -149,22 +151,22 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
  svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i15.jpg\" border=\"0\" align=\"center\"><tr>" );
 
  a = dbUserNewsGetFlags( id );
- svSendString( cnt, "<td width=\"41\"><a href=\"hq\"><img height=\"42\" title=\"mail\" src=\"images/i09" );
+ svSendString( cnt, "<td width=\"41\"><a href=\"hq\"><img id=\"headermail\" height=\"42\" title=\"mail\" src=\"images/i09" );
  if( a & CMD_NEWS_FLAGS_MAIL )
   svSendString( cnt, "a" );
  svSendString( cnt, ".jpg\" width=\"41\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"40\"><a href=\"hq\"><img height=\"42\" title=\"reports\" src=\"images/i10" );
+ svSendString( cnt, "<td width=\"40\"><a href=\"hq\"><img id=\"headerbuild\" height=\"42\" title=\"reports\" src=\"images/i10" );
  if( a & CMD_NEWS_FLAGS_BUILD )
   svSendString( cnt, "a" );
  svSendString( cnt, ".jpg\" width=\"40\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img height=\"42\" title=\"economy\" src=\"images/i11" );
+ svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headeraid\" height=\"42\" title=\"economy\" src=\"images/i11" );
  if( a & CMD_NEWS_FLAGS_AID )
   svSendString( cnt, "a" );
  svSendString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img height=\"42\" title=\"fleets\" src=\"images/i12" );
+ svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headerfleet\" height=\"42\" title=\"fleets\" src=\"images/i12" );
  if( a & CMD_NEWS_FLAGS_ATTACK )
   svSendString( cnt, "a" );
  else if( a & CMD_NEWS_FLAGS_FLEET )
@@ -176,7 +178,7 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
 
  svSendString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
  svSendString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
- svSendPrintf( cnt, "Energy: %lld<br>Mineral: %lld</b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: %lld<br>Ectrolium: %lld</b></font>", mainp->ressource[0], mainp->ressource[1], mainp->ressource[2], mainp->ressource[3] );
+ svSendPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", mainp->ressource[CMD_RESSOURCE_ENERGY], mainp->ressource[CMD_RESSOURCE_MINERAL], mainp->ressource[CMD_RESSOURCE_CRYSTAL], mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
  svSendString( cnt, "</td></tr></table>" );
 
  svSendString( cnt, "</td><td width=\"49\"><img height=\"42\" src=\"images/i17.jpg\" width=\"49\"></td></tr></table>" );
@@ -774,7 +776,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	}
 }
 
-svSendString( cnt, "</td></tr></table></td><td width=\"7%\">&nbsp;</td></tr>" );
+svSendString( cnt, "<div id=\"myDiv\"><h2>Let AJAX change this text</h2></div><button type=\"button\" onclick=\"myFunction()\">Change Content</button></td></tr></table></td><td width=\"7%\">&nbsp;</td></tr>" );
 
 iohttpFunc_endhtml( cnt );
 return;

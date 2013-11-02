@@ -252,25 +252,25 @@ int battle( int id, int fltid, int *results )
     cover /= ( 1.0 + 0.01*(float)a );
 
 
-  if( maind.readiness[0] < -65536*100 )
+  if( maind.readiness[CMD_READY_FLEET] < -65536*100 )
   {
     cmdErrorString = "Your forces require time to recover and prepare before engaging a new battle. Forcing them to attack would have more than disastrous consequences.";
     return -3;
   }
-  else if( maind.readiness[0] < -65536*60 )
+  else if( maind.readiness[CMD_READY_FLEET] < -65536*60 )
     cmdErrorString = "<b>Your forces are completely unprepared for another battle! Their effectiveness will be greatly reduced, you can also expect desertions.</b>";
-  else if( maind.readiness[0] < -65536*40 )
+  else if( maind.readiness[CMD_READY_FLEET] < -65536*40 )
     cmdErrorString = "<b>Your forces are exhausted, their effectiveness in battle will be very low.</b>";
-  else if( maind.readiness[0] < -65536*20 )
+  else if( maind.readiness[CMD_READY_FLEET] < -65536*20 )
     cmdErrorString = "<b>Your forces are very tired and certainly won't fight well.</b>";
-  else if( maind.readiness[0] < 0 )
+  else if( maind.readiness[CMD_READY_FLEET] < 0 )
     cmdErrorString = "<b>Your forces seem to require rest, they won't be fighting as well as they could in different circumstances.</b>";
 
 
   // global factors
   fa = 1.0;
-  if( maind.readiness[0] < 0 )
-    fa = 1.0 - ( (float)maind.readiness[0] / (-65536.0*130.0) );
+  if( maind.readiness[CMD_READY_FLEET] < 0 )
+    fa = 1.0 - ( (float)maind.readiness[CMD_READY_FLEET] / (-65536.0*130.0) );
 
   attfactor = ( ( cmdRace[maind.raceid].attack / cmdRace[main2d.raceid].defense ) * fa ) / specopWarIllusionsCalc( defid );
   deffactor = ( ( cmdRace[main2d.raceid].attack / cmdRace[maind.raceid].defense ) / fa ) / specopWarIllusionsCalc( id );
@@ -944,7 +944,7 @@ int battle( int id, int fltid, int *results )
   a = (int)( (float)battleReadinessLoss( &maind, &main2d ) * fb );
   if( ( a >= 20*65536 ) && ( artefactPrecense( &planetd ) >= 0 ) )
     a = 20*65536;
-  maind.readiness[0] -= a;
+  maind.readiness[CMD_READY_FLEET] -= a;
 
   if( ( flee ) || ( attdam <= defdam ) )
   {

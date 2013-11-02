@@ -190,6 +190,11 @@ if( chdir( COREDIR ) != -1 ) {
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
+  file->function = iohttpFunc_ajax;
+  sprintf( file->path, "/ajax" );
+
+  file = iohttpFileAdd( 0 );
+  file->type = FILE_FUNCTION;
   file->function = iohttpFunc_gettingstarted;
   sprintf( file->path, "/gettingstarted" );
 

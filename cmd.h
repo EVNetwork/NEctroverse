@@ -119,6 +119,7 @@ extern char *cmdBuildingName[CMD_BLDG_NUMUSED+1];
 extern char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2];
 
 extern char *cmdBonusName[CMD_BONUS_NUMUSED];
+extern char *cmdReadyName[CMD_READY_NUMUSED];
 
 
 extern char *cmdUnitName[CMD_UNIT_NUMUSED];

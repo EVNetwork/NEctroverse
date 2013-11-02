@@ -17,6 +17,8 @@
 
 #include "html_admin.c"
 
+#include "html_ajax.c"
+
 
 /*This function will be use to approve file uploaded by player to our image server*/
 void iohttpFunc_Approve (svConnectionPtr cnt)
