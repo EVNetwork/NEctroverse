@@ -13,8 +13,8 @@ configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false,
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24, 0 };
-adminDef admincfg = { "", "", "", "", -1, "", "", -1, -1  };
-tickDef ticks = { false, 0, 0, 0, 0 };
+adminDef admincfg;
+tickDef ticks;
 
 
 
@@ -1126,11 +1126,13 @@ if (MATCH("admin", "name")) {
 } else if (MATCH("admin", "race")) {
         pconfig->race = atoi(value);
 } else if (MATCH("admin_empire", "number")) {
-        pconfig->empire_number = atoi(value);
+        pconfig->empire = atoi(value);
 } else if (MATCH("admin_empire", "name")) {
-        pconfig->empire_name = strdup(value);
+        pconfig->ename = strdup(value);
 } else if (MATCH("admin_empire", "password")) {
-        pconfig->empire_password = strdup(value);
+        pconfig->epassword = strdup(value);
+} else if (MATCH("admin_empire", "ommit_from_ranks")) {
+	pconfig->rankommit = strcmp(value,"false") ? true : false;
 } else {
         return 0;
 }
@@ -1435,6 +1437,7 @@ if( file_exist(options.sysini) == 0 ) {
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
+memset( &admincfg, 0, sizeof(adminDef) );
 if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
 	printf("Error loading system config. Unable to start.\n");
 	exit(true);
@@ -1446,6 +1449,7 @@ if ( file_exist(DIRCHECKER) ) {
 	goto CLIENT;
 }
 
+memset( &ticks, 0, sizeof(tickDef) );
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,CONFIG_TICKS);
 

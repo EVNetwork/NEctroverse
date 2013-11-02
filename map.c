@@ -276,13 +276,13 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	memset( empired.vote, -1, mapcfg.fmembers*sizeof(int) );
 	empired.leader = empired.rank = -1;
 	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
-	if( ( admincfg.empire_number == a ) && ( strlen(admincfg.empire_password) ) ) {
-		if( strlen(admincfg.empire_name) )
-		strcpy( empired.name, admincfg.empire_name);
+	if( ( admincfg.empire == a ) && ( strlen(admincfg.epassword) ) ) {
+		if( strlen(admincfg.ename) )
+		strcpy( empired.name, admincfg.ename);
 		else
 		strcpy( empired.name, "Administration");
-		if( strlen(admincfg.empire_password) )
-			strcpy(empired.password, hashencrypt(admincfg.empire_password) );
+		if( strlen(admincfg.epassword) )
+			strcpy(empired.password, hashencrypt(admincfg.epassword) );
 		if( options.verbose )
 		printf("Empire %d Claimed for Administration.\n", a);
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);

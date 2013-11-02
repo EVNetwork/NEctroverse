@@ -2034,7 +2034,7 @@ dbUserMainRetrieve(id, &maind);
 sprintf( maind.forumtag, "%s", admincfg.forumtag );
 dbUserMainSet(id, &maind);
 
-if( cmdExecNewUserEmpire( id, admincfg.empire_number, admincfg.empire_password, admincfg.race, admincfg.level ) < 0 ) {
+if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race, admincfg.level ) < 0 ) {
 	if( options.verbose )
 		printf("Failure Placing Administrator account: \"%s\"\n", admincfg.name );
 	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );

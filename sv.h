@@ -30,15 +30,16 @@ extern configDef sysconfig;
 
 typedef struct {
 	//admin
+	int race;
+	int level;
+	int empire;
+	bool rankommit;
 	char* name;
 	char* faction;
 	char* password;
 	char* forumtag;
-	int empire_number;
-	char* empire_name;
-	char* empire_password;
-	int level;
-	int race;
+	char* ename;
+	char* epassword;
 } adminDef, *adminPtr;
 
 extern adminDef admincfg;

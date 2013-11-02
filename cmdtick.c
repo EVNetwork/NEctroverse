@@ -39,7 +39,7 @@ void cmdTickGenRanks()
   memset( stats, 0, 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int) );
   for( b = c = num = 0 ; b < dbMapBInfoStatic[MAP_EMPIRES] ; b++ )
   {
-	if(b == admincfg.empire_number)
+	if( (b == admincfg.empire) && (admincfg.rankommit) )
 		continue;
     if( dbMapRetrieveEmpire( b, &empirep[b] ) < 0 )
       continue;
@@ -271,7 +271,7 @@ dbArtefactMax = artmax;
 	syslog(LOG_ERR, "Error retreiving maind id: %d\n", user->id );	 
       continue;
 	}
-	if(mainp[b].empire == admincfg.empire_number)
+	if( (mainp[b].empire == admincfg.empire) && (admincfg.rankommit) )
 		continue;
     stats[c+0] = user->id;
     stats[c+1] = mainp[b].planets;
