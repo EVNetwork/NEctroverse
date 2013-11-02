@@ -130,7 +130,7 @@ svSendString( cnt, "</td><td width=\"50%\" align=\"left\" valign=\"top\">" );
 iohttpFunc_boxstart( cnt, "Server Info" );
 svSendString( cnt, "<table border=\"0\"><tr><td>" );
 svSendString( cnt, "<b>System OS</b><br>" );
-uname( &stustname )
+uname( &stustname );
 svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 svSendPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", stustname.sysname, stustname.release );
 svSendPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );
