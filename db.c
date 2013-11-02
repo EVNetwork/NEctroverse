@@ -18,6 +18,14 @@ char *dbFileList[DB_FILE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarket
 FILE *dbFilePtr[DB_FILE_TOTAL];
 
 
+char *dbImageDirs[HTTP_DIR_TOTAL] = {
+"%s",
+"%s/avatars",
+"%s/filetypes",
+"%s/ostypes",
+"%s/smilies",
+};
+
 enum 
 {
 DB_FILE_USER_INFO,

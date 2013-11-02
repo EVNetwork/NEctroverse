@@ -491,7 +491,7 @@ int dbUserRecordList( int id, dbUserRecordPtr *records );
 
 /////////////////////////////////////////////////////////////////////////////////
 
-
+extern char *dbImageDirs[HTTP_DIR_TOTAL];
 
 extern int dbArtefactPos[ARTEFACT_NUMUSED];
 
