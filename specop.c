@@ -533,8 +533,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	      planetd.owner = -1;
 	      planetd.construction = 0;
 	      planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-	      memset( planetd.building, 0, 16*sizeof(int) );
-	      memset( planetd.unit, 0, 16*sizeof(int) );
+	      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+	      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 	      dbMapSetPlanet( fleetd->destid, &planetd );
 	      planetd.owner = a;
 	      dbMapRetrieveSystem( planetd.system, &systemd );
@@ -652,8 +652,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	    planetd.owner = -1;
 	    planetd.construction = 0;
 	    planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-	    memset( planetd.building, 0, 16*sizeof(int) );
-	    memset( planetd.unit, 0, 16*sizeof(int) );
+	    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+	    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 	    dbMapSetPlanet( fleetd->destid, &planetd );
 	    planetd.owner = a;
 	    dbMapRetrieveSystem( planetd.system, &systemd );
@@ -748,7 +748,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
 */
 void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, long long int *newd )
 {
-  int a, penalty, defense, stealth, i, k;
+  int a, penalty, defense, stealth, i;
   long long int j, attack;
   float fa, success, refatt, refdef, tlosses;
   dbUserFleetDef fleetd, fleet2d;
@@ -959,7 +959,6 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
 {
     if (a<0)
     a = 0;
-    k = 0;
     j = dbUserSpecOpList(id, &specop2d);
     	for(i=0;i<j;i++)
     	{
@@ -1427,7 +1426,7 @@ else //code arti
       planetd.owner = id;
       planetd.construction = 0;
       planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.unit, 0, 16*sizeof(int) );
+      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
       dbMapSetPlanet( fleetd->destid, &planetd );
       dbUserPlanetAdd( id, fleetd->destid, planetd.system, planetd.position, planetd.flags );
       planetd.owner = a;

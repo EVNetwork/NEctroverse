@@ -8,7 +8,7 @@ SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
 #The standard config needed to compile basic server, withought these it won't work.
-FLAGS = $(SQLFLAG) --fast-math -Wall -fno-strict-aliasing -lpng -O3 
+FLAGS = $(SQLFLAG) --fast-math -Wall -fno-strict-aliasing -lpng -O3
 LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl
 
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.

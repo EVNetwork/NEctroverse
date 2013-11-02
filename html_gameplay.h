@@ -30,7 +30,7 @@ void iohttpFunc_famaid( svConnectionPtr cnt );
 
 void iohttpFunc_famgetaid( svConnectionPtr cnt );
 
-void iohttpFunc_famvote( svConnectionPtr cnt );
+void iohttpFunc_vote( svConnectionPtr cnt );
 
 void iohttpFunc_famnews( svConnectionPtr cnt );
 

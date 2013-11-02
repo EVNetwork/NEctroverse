@@ -60,8 +60,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
 
 void iohttpFunc_adminmenu( svConnectionPtr cnt )
 {
- int id, i, j;
- char szFaction[32];
+ int id;
  dbUserMainDef maind;
  svSendString( cnt, "Content-Type: text/html\n\n" );
  svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
@@ -219,7 +218,7 @@ iohttpBodyEnd( cnt );
 
 void iohttpFunc_moderator( svConnectionPtr cnt )
 {
-  int id, a, b, c, d, x, y, num, actionid, i0, numbuild, curtime, cmd[2];
+  int id, a, b, c, x, y, num, actionid, i0, numbuild, curtime, cmd[2];
   long long int i1;
   float fa;
   dbUserBuildPtr build;
@@ -491,7 +490,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
     maind.tagpoints += a;
-    sprintf( maind.forumtag, cmdTagFind( maind.tagpoints ) );
+    sprintf( maind.forumtag, "%s", cmdTagFind( maind.tagpoints ) );
     dbUserMainSet( actionid, &maind );
     svSendPrintf( cnt, "The tag points of <b>%s</b> have been increased by <b>%d</b> for a total of <b>%d</b>, tag set to <b>%s</b><br><br>", maind.faction, a, maind.tagpoints, maind.forumtag );
     fprintf( file, "%s > Tag points of player %s have been increased by %d tot a total of %d \n",main2d.faction, maind.faction,a, maind.tagpoints);
@@ -576,8 +575,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     {
       for( a = b = 0 ; a < c ; a++, b += 5 )
       {
-        d = dbUserMarketRemove( actionid, buffer[b+DB_MARKETBID_BIDID] );
-        d = dbMarketRemove( &buffer[b], buffer[b+DB_MARKETBID_BIDID] );
+        dbUserMarketRemove( actionid, buffer[b+DB_MARKETBID_BIDID] );
+        dbMarketRemove( &buffer[b], buffer[b+DB_MARKETBID_BIDID] );
       }
       free( buffer );
     }
@@ -920,13 +919,13 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     if( ( user = dbUserLinkID( actionid ) ) )
     {
 		if( i0 == 1 )
-		user->flags = CMD_USER_FLAGS_ACTIVATED;
+		user->flags = cmdUserFlags[CMD_FLAGS_ACTIVATED];
 		if( i0 == 2 )
-        user->flags = CMD_USER_FLAGS_KILLED;
+        user->flags = cmdUserFlags[CMD_FLAGS_KILLED];
 		if( i0 == 3 )
-        user->flags = CMD_USER_FLAGS_DELETED;
+        user->flags = cmdUserFlags[CMD_FLAGS_DELETED];
 		if( i0 == 4 )
-        user->flags = CMD_USER_FLAGS_NEWROUND;
+        user->flags = cmdUserFlags[CMD_FLAGS_NEWROUND];
 		dbUserSave( actionid, user );
     }
     svSendPrintf( cnt, "changed status of %d", actionid );
@@ -1002,7 +1001,6 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   dbUserDescDef descd;
   ioInterfacePtr io;
   int curtime;
-	FILE *fFile;
 	
   iohttpBase( cnt, 1 );
 
@@ -1046,17 +1044,21 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   action[31] = iohttpVarsFind( "systemcmd" );
   iohttpVarsCut();
 
-  if( action[0] )
-  {
-    if( getcwd( curdir, 1024 ) )
-    {
-	syslog(LOG_INFO, "Admin is Reloading files\n" );
-      EndHTTP();
-      InitHTTP();
-      chdir( curdir );
-    }
-    svSendString( cnt, "<i>HTTP files reloaded</i><br><br>" );
-  }
+if( action[0] ) {
+	if( getcwd( curdir, 1024 ) ) {
+		if( options.verbose )
+			printf("Admin is Reloading files\n" );
+		syslog(LOG_INFO, "Admin is Reloading files\n" );
+		EndHTTP();
+		InitHTTP();
+		if( chdir( curdir ) != 1 ) {
+			if( options.verbose )
+				printf("Error changing DIR in Admin!\n" );
+			syslog(LOG_INFO, "Error changing DIR in Admin!\n" );
+		}
+	}
+	svSendString( cnt, "<i>HTTP files reloaded</i><br><br>" );
+}
 
   if( action[1] )
   {
@@ -1226,7 +1228,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   {
     if( sscanf( action[7], "%d", &a ) == 1 )
     {
-      cmdExecUserDeactivate( a, CMD_USER_FLAGS_DELETED );
+      cmdExecUserDeactivate( a, cmdUserFlags[CMD_FLAGS_DELETED] );
       svSendPrintf( cnt, "Player %d deactivated<br><br>", a );
     }
   }
@@ -1307,7 +1309,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   {
   	curtime = time( 0 );
     for( user = dbUserList ; user ; user = user->next )
-      cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
+      cmdExecUserDeactivate( user->id, cmdUserFlags[CMD_FLAGS_NEWROUND] );
     svSendPrintf( cnt, "All accounts deactivated<br><br>" );
   }
 
@@ -1397,7 +1399,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
       if( user->level != LEVEL_USER )
         continue;
       dbUserMainRetrieve( user->id, &maind );
-      sprintf( maind.forumtag, cmdTagFind( maind.tagpoints ) );
+      sprintf( maind.forumtag, "%s", cmdTagFind( maind.tagpoints ) );
       dbUserMainSet( user->id, &maind );
     }
     dbMarketReset();
@@ -1465,14 +1467,21 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
 	if( action[30] )
   {
   	//Signal to round end
-  	system("kill -n 10 $(pidof svt)");
+		if( system("kill -n 10 $(pidof svt)") )
+			svSendString( cnt, "Executed command \"kill -n 10 $(pidof svt)\"<br><br>" );
+		else
+			svSendString( cnt, "Executed command \"kill -n 10 $(pidof svt)\"<br><br>" );
+
   }
 	
 	//Send some text to OS via system command
 	if( action[31] )
   {
 		iohttpForumFilter( fname, action[31], 200, 0 );
-		system(fname);
+		if( system(fname) )
+			svSendPrintf( cnt, "Executed command %s<br><br>", fname );
+		else
+			svSendPrintf( cnt, "Error with command %s<br><br>", fname );
   }
 
 

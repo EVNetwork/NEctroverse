@@ -100,9 +100,7 @@ memset( mapstore.arti, 0, sizeof(int)*ARTEFACT_NUMUSED );
 mapCalcFactors(&mapstore);
 
 memset( &mapd, 0, sizeof(dbMainMapDef) );
-memset( &systemd, 0, sizeof(dbMainSystemDef) );
-memset( &planetd, 0, sizeof(dbMainPlanetDef) );
-memset( &empired, 0, sizeof(dbMainEmpireDef) );
+
 
 sprintf( fname, "%s/data", sysconfig.directory );
 dirstructurecheck(fname);
@@ -192,12 +190,11 @@ fwrite( &mapd, 1, sizeof(dbMainMapDef), file );
 // New system generation, based on defaults.
 p = 0;
 for( a = 0 ; a < mapcfg.systems ; a++ ) {
-	systemd = dbSystemDefault;
+	memset( &systemd, -1, sizeof(dbMainSystemDef) );
 	systemd.position = mapstore.pos[a];
 	systemd.indexplanet = p;
 	p += mapstore.planets[a];
 	systemd.numplanets = mapstore.planets[a];
-
 	if( mapstore.home[a] ) {
 		systemd.empire = mapstore.home[a] - 1;
 	} else {
@@ -209,8 +206,11 @@ for( a = 0 ; a < mapcfg.systems ; a++ ) {
 
 // New planet generation, based on defaults.
 for( a = b = c = 0 ; a < p ; a++, b++ ) {
+	memset( &planetd, -1, sizeof(dbMainPlanetDef) );
+	memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+	memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+	planetd.construction = planetd.protection = 0;
 	dist = 0;
-	planetd = dbPlanetDefault;
 	if( b >= mapstore.planets[c] ) {
 		b -= mapstore.planets[c];
 		c++;
@@ -221,14 +221,16 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	i = ( y << 20 ) + ( x << 8 ) + b;
 	planetd.position = i;
 	if( !( mapstore.home[c] ) ) {
+		planetd.flags = 0;
 		planetd.size = 128 + ( rand() % 192 );
 		if( !( rand() & 7 ) )
 			planetd.size += rand() & 255;
 		if( !( rand() & 31 ) )
 			planetd.size += rand() & 511;
-	}
-	if( mapstore.home[c] )
+	} else {
+		planetd.size = 450;
 		planetd.flags = CMD_PLANET_FLAGS_HOME;
+	}
 
 	e = i = 0;
 	if( !( mapstore.home[c] ) ) {
@@ -258,19 +260,21 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	for( d = 0 ; d < ARTEFACT_NUMUSED ; d++ ) {
 		if( a != mapstore.arti[d] )
 			continue;
-			i = d + 1;
-			break;
-		}
+		i = d + 1;
+		break;
+	}
 	planetd.special[2] = i;
 	fwrite( &planetd, 1, sizeof(dbMainPlanetDef), file );
-
 }
 //End planet generation
 
 
 // New families generation, based on defaults.
 for( a = 0 ; a < mapcfg.families ; a++ ) {
-	empired = dbEmpireDefault;
+	memset( &empired, 0, sizeof(dbMainEmpireDef) );
+	memset( empired.player, -1, mapcfg.fmembers*sizeof(int) );
+	memset( empired.vote, -1, mapcfg.fmembers*sizeof(int) );
+	empired.leader = empired.rank = -1;
 	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
 	if( ( admincfg.empire_number == a ) && ( strlen(admincfg.empire_password) ) ) {
 		if( strlen(admincfg.empire_name) )
@@ -336,7 +340,7 @@ for( y = 0 ; y < mapgen.height ; y++ ) {
 */
 
 
-if(mapgen.width > mapcfg.sizex) {
+if( mapgen.width > mapcfg.sizex ) {
 	mapgen.data = bigpixies;
 	free(bigpixies);
 } else {
@@ -351,7 +355,7 @@ free(pixels);
 
 
 //FIXME: Such a dirty fix, but well... it works. =/
-if(mapgen.width == mapcfg.sizex) {
+if( mapgen.width == mapcfg.sizex ) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
 		if( options.verbose )

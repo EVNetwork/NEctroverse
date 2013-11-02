@@ -18,10 +18,10 @@ char *cmdBonusName[CMD_BONUS_NUMUSED] =
 "Solar",
 "Mineral",
 "Crystal",
-"Ectrolium",
+"Ectrolium"/*,
 "Research",
 "Population",
-"Disease",
+"Disease",*/
 };
 
 char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
@@ -357,7 +357,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   0 | 0 | 4 | 0 | 16 | 32 | 64 |   0 |   0,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
   1 | 0 | 0 | 8 |  0 | 32 | 64,
- },
+ },/*
   {//Furtifon
   1.0+(0.9*0.02), 0.90, 1.0, 1.6*2.0,
   {   0.90,  0.90,   0.90,   0.90,   0.90,   0.90,   1.8 },
@@ -390,7 +390,7 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
   1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
   1 | 2 | 4 | 8 | 16 | 32 | 64,
- },
+ },*/
 };
 
 char *cmdRaceName[CMD_RACE_NUMUSED] =
@@ -399,14 +399,20 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 "Manticarias",
 "Foohons",
 "Spacebornes",
-"Dreamweavers",
+"Dreamweavers"/*,
 "Furtifons",
 "Samsonites",
-"Ultimums"
+"Ultimums"*/
 };
 
 int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
 {
+0x1,
+0x10,
+0x20,
+0x40,
+0x80,
+
 0x10000,
 0x20000,
 0x40000,
@@ -424,10 +430,10 @@ dbUserMainDef cmdUserMainDefault =
 {
   { },
   { },
-  { 120000, 6000, 1500, 3000, 0, 0, 0, 0 },
+  { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ },
   0,
   { },
-  { 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0/*, 0*/ },
   { 100*65536, 100*65536, 100*65536 },
   0,
   { },
@@ -437,7 +443,7 @@ dbUserMainDef cmdUserMainDefault =
   { },
   0,
   0,
-  0,
+  1,
   { 200, 200, 250, 250 },
   0,
   0,
@@ -454,61 +460,6 @@ dbUserFleetDef cmdUserFleetDefault =
   0,
   0
 };
-
-
-dbMainSystemDef dbSystemDefault =
-{
-  -1,
-  0,
-  -1,
-  -1,
-  -1,
-  -1,
-};
-
-dbMainPlanetDef dbPlanetDefault =
-{
-  -1,
-  -1,
-  -1,
-  450,
-  0,
-  50000,
-  90000,
-  { 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  0,
-  0,
-  -1,
-  -1,
-};
-
-dbMainEmpireDef dbEmpireDefault =
-{
-  "",
-  "",
-  "",
-  0,
-  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-  0,
-  0,
-  -1,
-  { -1, -1, -1, -1 },
-  0,
-  0,
-  0,
-  0,
-  0,
-  -1,
-  0,
-  0,
-  { 0, 0, 0, 0 },
-  { 0, 0, 0, 0 },
-  { 0, 0, 0, 0, 0, 0, 0, 0 },
-  {"",""},
-};
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -600,10 +551,10 @@ int cmdCheckName( char *name )
 void cmdEmpireLeader( dbMainEmpirePtr empired )
 {
   int a, b;
-  int parray[32];
+  int parray[128];
   dbUserPtr user;
 
-  memset( parray, 0, 32*sizeof(int) );
+  memset( parray, 0, 128*sizeof(int) );
   for( a = b = 0 ; a < empired->numplayers ; a++ )
   {
     if( empired->vote[a] == -1 )
@@ -660,7 +611,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
 }
 
 
-float battlePortalCalc( int tx, int ty, int *portals, int num, int research );
+
 
 int cmdTotalsCalculate( int usrid, dbUserMainPtr mainp )
 {
@@ -1204,52 +1155,6 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       return -3;
     }
   }
-/*
-  else if( cmd[0] == CMD_NEWUSER )
-  {
-    cpbuffer = buffer;
-
-    if( !( cmdCheckName( cpbuffer[0] ) ) )
-    {
-      cmdErrorString = "Your name must be between 3 and 31 characters long and contain only alphanumeric and a raisonnably low number of space characters. The first character must be a letter.";
-      return -2;
-    }
-    if( !( cmdCheckName( cpbuffer[1] ) ) )
-    {
-      cmdErrorString = "Your password must have between 3 and 31 characters long and contain only alphanumeric and a raisonnably low number of space characters. The first character must be a letter.";
-      return -2;
-    }
-    if( !( cmdCheckName( cpbuffer[2] ) ) )
-    {
-      cmdErrorString = "Your faction name must have between 3 and 31 characters long and contain only alphanumeric and a raisonnably low number of space characters. The first character must be a letter.";
-      return -2;
-    }
-
-    if( dbUserSearch( cpbuffer[0] ) >= 0 )
-    {
-      cmdErrorString = "This user name is already in use!";
-      return -2;
-    }
-    if( dbUserSearchFaction( cpbuffer[2] ) >= 0 )
-    {
-      cmdErrorString = "This faction name is already in use!";
-      return -2;
-    }
-
-    a = dbUserAdd( cpbuffer[0], cpbuffer[2], "Player" );
-    sprintf( cmdUserMainDefault.faction, cpbuffer[2] );
-    sprintf( cmdUserMainDefault.forumtag, "Player" );
-
-    if( sscanf( cpbuffer[3], "%d", &b ) != 1 )
-      b = -1;
-    if( !( cmdEmpireNewUser( a, b ) ) || ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) || ( dbUserSetPassword( a, cpbuffer[1] ) < 0 ) || ( dbUserFleetAdd( a, &cmdUserFleetDefault ) < 0 ) || ( !( cmdTotalsCalculate( a, &cmdUserMainDefault, 0 ) ) ) || ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) )
-    {
-      cmdUserDelete( a );
-      return -2;
-    }
-    return a;
-  }
-*/
   else if( cmd[0] == CMD_CHANGE_KILLUSER )
   {
     if( cmd[1] < 0 )
@@ -1259,23 +1164,6 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
     if( ( cnt->dbuser->id != cmd[1] ) && ( cnt->dbuser->level < LEVEL_ADMINISTRATOR ) )
       return -3;
     return cmdUserDelete( cmd[1] );
-  }
-  else if( cmd[0] == CMD_CHANGE_NAME )
-  {
-/*
-    if( cmd[1] < 0 )
-      return -2;
-    if( !( cnt->dbuser ) )
-      return -3;
-    if( ( cnt->dbuser->id != cmd[1] ) && ( cnt->dbuser->level <= 1 ) )
-      return -3;
-    if( !( cmdCheckName( buffer ) ) )
-    {
-      cmdErrorString = "Your name must be between 3 and 31 characters long and contain only alphanumeric and a raisonnably low number of space characters.";
-      return -2;
-    }
-    return dbUserSetName( cmd[1], buffer );
-*/
   }
   else if( cmd[0] == CMD_CHANGE_PASSWORD )
   {
@@ -1372,9 +1260,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
     {
       a = sprintf( cmdErrorBuffer, "I think you should try asking for a more reasonable amount of " );
       if( !( cmd[2] >> 16 ) )
-        sprintf( &cmdErrorBuffer[a], cmdBuildingName[ cmd[2] & 0xFFF ] );
+        sprintf( &cmdErrorBuffer[a], "%s", cmdBuildingName[ cmd[2] & 0xFFF ] );
       else
-        sprintf( &cmdErrorBuffer[a], cmdUnitName[ cmd[2] & 0xFFF ] );
+        sprintf( &cmdErrorBuffer[a], "%s", cmdUnitName[ cmd[2] & 0xFFF ] );
       cmdErrorString = cmdErrorBuffer;
       return -1;
     }
@@ -1716,149 +1604,6 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
   }
   else if( cmd[0] == CMD_FIND_SYSTEM )
     return dbMapFindSystem( cmd[1], cmd[2] );
-/*
-  else if( cmd[0] == CMD_SEND_FLEET_INFO )
-  {
-    ibuffer = buffer;
-    if( dbMapRetrievePlanet( cmd[2], &planetd ) < 0 )
-      return -2;
-    b = cmdFindDistPortal( cmd[1], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, &a, 0 );
-    if( b == -1 )
-    {
-      cmdErrorString = "You don't have any portal to send a fleet from!";
-      return -3;
-    }
-    else if( b < 0 )
-      return -3;
-    ibuffer[0] = ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8;
-    if( dbUserMainRetrieve( cmd[1], &maind ) < 0 )
-      return -3;
-    if( dbUserMainRetrieve( planetd.owner, &main2d ) < 0 )
-    {
-      cmdErrorString = "It seems no one explored this planet, yet.";
-      return -3;
-    }
-    ibuffer[1] = battleReadinessLoss( &maind, &main2d );
-    return 1;
-  }
-  else if( cmd[0] == CMD_CHANGE_FLEET )
-  {
-    // id, x, y, z, order, fltid
-    if( dbUserFleetRetrieve( cmd[1], cmd[6], &fleetd ) < 0 )
-    {
-      cmdErrorString = "This fleet doesn't exist!";
-      return -3;
-    }
-    cmdFleetGetPosition( &fleetd, &a, &b );
-    fleetd.source = ( b << 20 ) + ( a << 8 );
-    fleetd.order = cmd[5];
-
-    if( cmd[5] == CMD_FLEET_ORDER_RECALL )
-    {
-      fleetd.sysid = dbMapFindSystem( cmd[2], cmd[3] );
-      fleetd.destid = cmdFindDistPortal( cmd[1], a, b, &a, &fleetd.destination );
-      if( fleetd.destid == -1 )
-      {
-        cmdErrorString = "You don't have any portal to recall this fleet to!";
-        return -3;
-      }
-      else if( fleetd.destid < 0 )
-        return -3;
-      fleetd.basetime = fleetd.time = ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8;
-      if( !( dbUserFleetSet( cmd[1], cmd[6], &fleetd ) ) )
-        return -3;
-      if( fleetd.basetime == 0 )
-      {
-        cmdFleetAction( &fleetd, cmd[1], cmd[6], 0 );
-        cmdErrorString = "Fleet recalled to main fleet";
-        return -1;
-      }
-      return fleetd.basetime;
-    }
-    else if( cmd[5] == CMD_FLEET_ORDER_MOVE )
-    {
-      cmdFindDistCurrent( a, b, cmd[2], cmd[3], &a );
-      fleetd.time = 0;
-      if( a )
-        fleetd.time = ( ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8 ) + ( fleetd.flags & CMD_FLEET_FLAGS_MOVED );
-      fleetd.basetime = fleetd.time;
-      fleetd.sysid = dbMapFindSystem( cmd[2], cmd[3] );
-      if( fleetd.sysid < 0 )
-        fleetd.sysid = -1;
-      if( !( dbMapFindValid( cmd[2], cmd[3] ) ) )
-      {
-        cmdErrorString = "Coordinates aren't valid";
-        return -3;
-      }
-      fleetd.destid = -1;
-      fleetd.destination = ( cmd[2] << 8 ) + ( cmd[3] << 20 ) + ( cmd[4] );
-      fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
-      if( !( dbUserFleetSet( cmd[1], cmd[6], &fleetd ) ) )
-        return -3;
-      if( fleetd.basetime == 0 )
-      {
-        cmdFleetAction( &fleetd, cmd[1], cmd[6], 0 );
-        return 1;
-      }
-      return fleetd.basetime;
-    }
-    else if( cmd[5] == CMD_FLEET_ORDER_EXPLORE )
-    {
-      if( !( fleetd.unit[CMD_UNIT_EXPLORATION] ) )
-        return -3;
-      cmdFindDistCurrent( a, b, cmd[2], cmd[3], &a );
-      fleetd.time = ( ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8 ) + 1;
-      fleetd.basetime = fleetd.time;
-      fleetd.sysid = dbMapFindSystem( cmd[2], cmd[3] );
-      if( ( fleetd.sysid < 0 ) || ( (unsigned int)cmd[4] >= dbMapSystems[ fleetd.sysid ].numplanets ) )
-      {
-        cmdErrorString = "This planet doesn't exist";
-        return -3;
-      }
-      fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + cmd[4];
-      fleetd.destination = ( cmd[2] << 8 ) + ( cmd[3] << 20 ) + ( cmd[4] );
-      fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
-      if( !( dbUserFleetSet( cmd[1], cmd[6], &fleetd ) ) )
-        return -3;
-      if( fleetd.basetime == 0 )
-      {
-        cmdFleetAction( &fleetd, cmd[1], cmd[6], 0 );
-        cmdErrorString = "Planet explored";
-        return 1;
-      }
-      return fleetd.basetime;
-    }
-    else if( ( cmd[5] == CMD_FLEET_ORDER_ATTACK ) || ( cmd[5] == CMD_FLEET_ORDER_STATION ) )
-    {
-      if( fleetd.unit[CMD_UNIT_EXPLORATION] )
-        return -3;
-      cmdFindDistCurrent( a, b, cmd[2], cmd[3], &a );
-      fleetd.time = 0;
-      if( a )
-        fleetd.time = ( ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8 ) + 1;
-      fleetd.basetime = fleetd.time;
-      fleetd.sysid = dbMapFindSystem( cmd[2], cmd[3] );
-      if( ( fleetd.sysid < 0 ) || ( (unsigned int)cmd[4] >= dbMapSystems[ fleetd.sysid ].numplanets ) )
-      {
-        cmdErrorString = "This planet doesn't exist";
-        return -3;
-      }
-      fleetd.destid = dbMapSystems[ fleetd.sysid ].indexplanet + cmd[4];
-      fleetd.destination = ( cmd[2] << 8 ) + ( cmd[3] << 20 ) + ( cmd[4] );
-      fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
-      if( !( dbUserFleetSet( cmd[1], cmd[6], &fleetd ) ) )
-        return -3;
-      if( fleetd.basetime == 0 )
-      {
-        cmdFleetAction( &fleetd, cmd[1], cmd[6], 0 );
-        return 1;
-      }
-      return fleetd.basetime;
-    }
-    else
-      return -3;
-  }
-*/
   else if( cmd[0] == CMD_UNSTATION_PLANET )
   {
     if( !( dbMapRetrievePlanet( cmd[2], &planetd ) ) )
@@ -2266,10 +2011,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 
 int cmdInit() {
-	int a, id;
+	int id;
 	dbUserPtr user;
 	dbUserMainDef maind;
-	dbMainEmpireDef empired;
 
 if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;

@@ -29,7 +29,6 @@ typedef struct
   int createtime;
   int lasttime;
   int tagpoints;
-  int session[4];
   char name[64];
   char password[128];
   char email[128];
@@ -235,26 +234,26 @@ int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd );
 
 typedef struct
 {
-  char name[64];
-  char password[128];
-  char vote[32];
+  int rank;
   int numplayers;
-  int player[32];
+  int polotics[4];
+  int player[128];
+  int vote[128];
+  int leader;
   int homeid;
   int homepos; // ( y << 16 ) + x
-  int leader;
-  int polotics[4];
   int picmime;
   int pictime;
   int planets;
   int networth;
   int artefacts;
-  int rank;
   int construction;
-  float taxation;
   int building[8];
+  float taxation;
   long long int fund[CMD_RESSOURCE_NUMUSED];
   long long int infos[CMD_RESSOURCE_NUMUSED];
+  char name[64];
+  char password[128];
   char message[2][4096];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
@@ -281,15 +280,6 @@ int dbEmpireRelsRemove( int id, int relid );
 int dbEmpireRelsList( int id, int **rel );
 int dbEmpireRelsGet( int id, int relid, int *rel );
 
-
-
-extern dbMainSystemPtr dbMapSystems;
-extern int dbMapSystemsNum;
-
-
-extern dbMainSystemDef dbSystemDefault;
-extern dbMainPlanetDef dbPlanetDefault;
-extern dbMainEmpireDef dbEmpireDefault;
 
 ////////
 
@@ -501,7 +491,7 @@ int dbUserRecordList( int id, dbUserRecordPtr *records );
 
 /////////////////////////////////////////////////////////////////////////////////
 
-
+extern char *dbImageDirs[HTTP_DIR_TOTAL];
 
 extern int dbArtefactPos[ARTEFACT_NUMUSED];
 

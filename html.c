@@ -59,14 +59,15 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
  	 fDesc = fopen(szFileName, "r");
  		if(fDesc)
  		{
- 			fscanf(fDesc, "%s", szName);
- 			fscanf(fDesc, "%s", szPass);
- 			fscanf(fDesc, "%s", szFileName);
- 			
+ 			if( ( fscanf(fDesc, "%s", szName) || fscanf(fDesc, "%s", szPass) || fscanf(fDesc, "%s", szFileName) ) != 1 ) {
+				fclose(fDesc);
+				return;
+			}
+			
  			//In both case we must check if the user exist and what is his id
 	 		nAllow = -1;
 	 		//this if is for formating the user and pass put ' ' instead of +
-	 		if( ( szName ) && ( szPass ) )
+	 		if( strlen( szName ) && strlen( szPass ) )
 			 {
 			  for( a = 0 ; szName[a] ; a++ )
 			  {

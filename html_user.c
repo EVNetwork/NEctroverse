@@ -105,7 +105,7 @@ void iohttpFunc_changepass( svConnectionPtr cnt )
 {
   int a, b, id;
   dbUserMainDef maind;
-  char oldpass[33], checkmd5[33];
+  char oldpass[128];
   char *newpass[3];
 
 

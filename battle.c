@@ -995,7 +995,7 @@ int battle( int id, int fltid, int *results )
 
   if( stationleft )
   {
-    memcpy( fleet2d.unit, planetd.unit, 16*sizeof(int) );
+    memcpy( fleet2d.unit, planetd.unit, CMD_UNIT_NUMUSED*sizeof(int) );
     fleet2d.order = CMD_FLEET_ORDER_CANCELED;
     fleet2d.destination = planetd.position;
     fleet2d.destid = fleetd.destid;
@@ -1021,7 +1021,7 @@ int battle( int id, int fltid, int *results )
     dbUserMainSet( id, &maind );
     dbUserMainSet( defid, &main2d );
     if( !( main2d.planets ) )
-      cmdExecUserDeactivate( defid, CMD_USER_FLAGS_KILLED );
+      cmdExecUserDeactivate( defid, cmdUserFlags[CMD_FLAGS_KILLED] );
     return 1;
   }
   planetd.owner = id;

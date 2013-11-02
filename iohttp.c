@@ -87,56 +87,76 @@ iohttpFilePtr iohttpFileFind( char *path )
 
 
 
-void InitHTTP()
-{
+void InitHTTP() {
 	char COREDIR[1024];
-  int a;
-  DIR *dirdata;
-  struct dirent *direntry;
-  struct stat stdata;
-  iohttpFilePtr file;
-  FILE *fd;
-  dbMainEmpireDef empired;
+	int a;
+	struct dirent *direntry;
+	struct stat stdata;
+	dbMainEmpireDef empired;
+	iohttpFilePtr file;
+	FILE *fd;
+	DIR *dirdata;
 
-
-if( chdir( sysconfig.httpimages ) == -1 ) {
-	printf( "Error %d, chdir, Dir : %s\n", errno, sysconfig.httpimages );
-	return;
-}
-if( !( dirdata = opendir( sysconfig.httpimages ) ) ) {
-	printf( "Error %03d, opendir\n", errno );
-	return;
-}
-while( ( direntry = readdir( dirdata ) ) ) {
-	if( stat( direntry->d_name, &stdata ) == -1 )
-		continue;
-	if( !( S_ISREG( stdata.st_mode ) ) )
-		continue;
-	if( strlen(direntry->d_name) >= SERVER_PATH_BUFSIZE-1 )
-		continue;
-	if( !( fd = fopen( direntry->d_name, "rb" ) ) )
-		continue;
-	if( !( file = iohttpFileAdd( stdata.st_size ) ) ) {
-		printf( "Error %03d, malloc\n", errno );
-		fclose( fd );
+for(a = 0; a < HTTP_DIR_TOTAL; a++) {
+	sprintf( COREDIR, dbImageDirs[a], sysconfig.httpimages );
+	if( chdir( COREDIR ) == -1 ) {
+		if( options.verbose )
+			printf("HTTP Error %d, chdir, Dir : %s\n", errno, COREDIR );
+		syslog(LOG_ERR, "HTTP Error %d, chdir, Dir : %s\n", errno, COREDIR );
 		continue;
 	}
-	file->type = FILE_IMAGEDIR;
-	file->path[0] = '/';
-	file->mime = iohttpMimeFind( direntry->d_name );
-	memcpy( &file->scurtime, &stdata.st_mtime, sizeof(time_t) );
-	sprintf( &file->path[1], "images/%s", direntry->d_name );
-	fread( file->data, 1, file->size, fd );
-	fclose( fd );
+	if( !( dirdata = opendir( COREDIR ) ) ) {
+		if( options.verbose )
+			printf("HTTP Error %03d, opendir: %s\n", errno, COREDIR );
+		syslog(LOG_ERR, "HTTP Error %03d, opendir: %s\n", errno, COREDIR );
+		continue;
+	}
+	while( ( direntry = readdir( dirdata ) ) ) {
+		if( stat( direntry->d_name, &stdata ) == -1 )
+			continue;
+		if( !( S_ISREG( stdata.st_mode ) ) )
+			continue;
+		if( strlen(direntry->d_name) >= SERVER_PATH_BUFSIZE-1 )
+			continue;
+		if( !( fd = fopen( direntry->d_name, "rb" ) ) )
+			continue;
+		if( !( file = iohttpFileAdd( stdata.st_size ) ) ) {
+			if( options.verbose )
+				printf("HTTP Error %03d, malloc for: %s\n", errno, direntry->d_name );
+			syslog(LOG_ERR, "HTTP Error %03d, malloc for: %s\n", errno, direntry->d_name );
+			fclose( fd );
+			continue;
+		}
+		file->type = FILE_IMAGEDIR;
+		file->path[0] = '/';
+		file->mime = iohttpMimeFind( direntry->d_name );
+		memcpy( &file->scurtime, &stdata.st_mtime, sizeof(time_t) );
+		sprintf( COREDIR, dbImageDirs[a], sysconfig.httpimages );
+		sprintf( &file->path[1], dbImageDirs[a], "images" );
+		strcat( &file->path[1], "/" );
+		strcat( &file->path[1], direntry->d_name );
+		if( fread( file->data, 1, file->size, fd ) < 1 ) {
+			if( options.verbose )
+				printf("Error reading file for http: %s\n", file->path);
+			syslog(LOG_ERR, "Error reading file for http: %s\n", file->path);
+		}
+		fclose( fd );
+	}
+	closedir( dirdata );
 }
-closedir( dirdata );
+
 
 if( chdir( sysconfig.httpfiles ) == -1 ) {
-	printf( "Error %d, chdir, Dir : %s\n", errno, sysconfig.httpfiles );
+	if( options.verbose )
+		printf("HTTP Error %d, chdir, Dir : %s\n", errno, sysconfig.httpfiles );
+	syslog(LOG_ERR, "HTTP Error %d, chdir, Dir : %s\n", errno, sysconfig.httpfiles );
 	return;
 }
 if( !( dirdata = opendir( sysconfig.httpfiles ) ) ) {
-	printf( "Error %03d, opendir\n", errno );
+	if( options.verbose )
+		printf("HTTP Error %d, opendir : %s\n", errno, sysconfig.httpfiles );
+	syslog(LOG_ERR, "HTTP Error %d, opendir : %s\n", errno, sysconfig.httpfiles );
+
 	return;
 }
 
@@ -270,8 +290,8 @@ if( chdir( COREDIR ) != -1 ) {
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_famvote;
-  sprintf( file->path, "/famvote" );
+  file->function = iohttpFunc_vote;
+  sprintf( file->path, "/vote" );
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
@@ -726,7 +746,12 @@ void outSendReplyHTTP( svConnectionPtr cnt )
       goto outSendReplyHTTPL0;
     }
     data[stdata.st_size] = 0;
-    fread( data, 1, stdata.st_size, fd );
+    if( ( fread( data, 1, stdata.st_size, fd ) < 1 ) && (stdata.st_size) ) {
+		 if( options.verbose )
+	printf("Error reading file for http: %s\n", path);
+	syslog(LOG_ERR, "Error reading file for http: %s\n", path);
+    }
+
 
     strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &stdata.st_mtime ) );
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
