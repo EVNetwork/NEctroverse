@@ -1455,151 +1455,151 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 }
 
 
-void iohttpFunc_council( svConnectionPtr cnt )
-{
- int a, b, c, id, numbuild;
- dbMainEmpireDef empired;
- dbUserBuildPtr build;
- dbUserMainDef maind;
- int bsums[CMD_BLDG_NUMUSED+1];
- int usums[CMD_UNIT_NUMUSED];
+void iohttpFunc_council( svConnectionPtr cnt ) {
+	int a, b, c, id, numbuild;
+	int bsums[CMD_BLDG_NUMUSED+1];
+	int usums[CMD_UNIT_NUMUSED];
+	dbMainEmpireDef empired;
+	dbUserBuildPtr build;
+	dbUserMainDef maind;
+
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
-  return;
+	return;
 
- iohttpBase( cnt, 1 );
+iohttpBase( cnt, 1 );
 
- if( !( iohttpHeader( cnt, id, &maind ) ) )
-  return;
+if( !( iohttpHeader( cnt, id, &maind ) ) )
+	return;
 
 if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
         svSendString( cnt, "Error retriving Empire details!" );
-                return;
+	return;
 }
 
- iohttpBodyInit( cnt, "Council" );
+iohttpBodyInit( cnt, "Council" );
 
- if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 )
- {
-  svSendString( cnt, "Error while retriving user build list</body></html>" );
-  return;
- }
+if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 ) {
+	svSendString( cnt, "Error while retriving user build list</body></html>" );
+	return;
+}
 
 if(empired.taxation)
- svSendPrintf( cnt, "<i>Empire leaders have set a taxation level of %.02f%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
- svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
+	svSendPrintf( cnt, "<i>Empire leaders have set a taxation level of <span id=\"counciltax\">%.02f</span>%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
 
- svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
- svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_ENERGY_PRODUCTION] );
- if( maind.infos[INFOS_ENERGY_TAX] )
- svSendPrintf( cnt, "<tr><td>Taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_TAX] );
- svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_DECAY] );
- svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_BUILDING_UPKEEP] );
- svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_POPULATION_REDUCTION] );
- svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_UNITS_UPKEEP] );
- svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_PORTALS_UPKEEP] );
- svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_ENERGY] );
+svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
+svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
+svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\" id=\"energyproduction\">+%lld</td></tr>", maind.infos[INFOS_ENERGY_PRODUCTION] );
 
- svSendString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
+if( maind.infos[INFOS_ENERGY_TAX] )
+	svSendPrintf( cnt, "<tr><td>Taxation</td><td align=\"right\" id=\"energytax\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_TAX] );
 
- svSendString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
+svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\" id=\"energydecay\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_DECAY] );
+svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\" id=\"buildingupkeep\">-%lld</td></tr>", maind.infos[INFOS_BUILDING_UPKEEP] );
+svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\" id=\"populationreduction\">+%lld</td></tr>", maind.infos[INFOS_POPULATION_REDUCTION] );
+svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\" id=\"unitupkeep\">-%lld</td></tr>", maind.infos[INFOS_UNITS_UPKEEP] );
+svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\" id=\"portalsupkeep\">-%lld</td></tr>", maind.infos[INFOS_PORTALS_UPKEEP] );
+svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\" id=\"energyincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "<span class=\"genred\">" : "" ), maind.infos[CMD_RESSOURCE_ENERGY], ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "</span>" : "" ) );
+svSendString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
+svSendString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
 
- if( maind.infos[INFOS_MINERAL_TAX] ) {
- svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_MINERAL_PRODUCTION] );
- svSendPrintf( cnt, "<tr><td>Mineral taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_MINERAL_TAX] );
+if( maind.infos[INFOS_MINERAL_TAX] ) {
+	svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\" id=\"mineralproduction\">+%lld</td></tr>", maind.infos[INFOS_MINERAL_PRODUCTION] );
+	svSendPrintf( cnt, "<tr><td>Mineral taxation</td><td align=\"right\" id=\"mineraltax\">-%lld</td></tr>", maind.infos[INFOS_MINERAL_TAX] );
 }
- svSendPrintf( cnt, "<tr><td>Mineral income</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
 
- svSendPrintf( cnt, "<tr><td>Crystal production</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_CRYSTAL_PRODUCTION] );
- if( maind.infos[INFOS_CRYSTAL_TAX] )
- svSendPrintf( cnt, "<tr><td>Crystal taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_TAX] );
+svSendPrintf( cnt, "<tr><td>Mineral income</td><td align=\"right\" id=\"mineralincome\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
+svSendPrintf( cnt, "<tr><td>Crystal production</td><td align=\"right\" id=\"crystalproduction\">+%lld</td></tr>", maind.infos[INFOS_CRYSTAL_PRODUCTION] );
 
- svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_DECAY] );
- svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\"%s>%+lld</td></tr>", ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? " class=\"genred\"" : "" ), maind.infos[CMD_RESSOURCE_CRYSTAL] );
- if( maind.infos[INFOS_ECTROLIUM_TAX] ) {
- svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\">+%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_PRODUCTION] );
- svSendPrintf( cnt, "<tr><td>Ectrolium taxation</td><td align=\"right\">-%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_TAX] );
+if( maind.infos[INFOS_CRYSTAL_TAX] )
+	svSendPrintf( cnt, "<tr><td>Crystal taxation</td><td align=\"right\" id=\"crystaltax\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_TAX] );
+
+svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\" id=\"crystaldecay\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_DECAY] );
+svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\" id=\"crystalincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? "<span class=\"genred\">" : "" ), maind.infos[CMD_RESSOURCE_CRYSTAL], ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? "</span>" : "" ) );
+
+if( maind.infos[INFOS_ECTROLIUM_TAX] ) {
+	svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\" id=\"ectroliumproduction\">+%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_PRODUCTION] );
+	svSendPrintf( cnt, "<tr><td>Ectrolium taxation</td><td align=\"right\" id=\"ectroliumtax\">-%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_TAX] );
 }
- svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
 
- svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
+svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\" id=\"ectroliumincome\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
+svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
- svSendString( cnt, "<b>Buildings</b><br><table>" );
- for( a = b = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
- {
-  svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\">%lld</td></tr>", cmdBuildingName[a], maind.totalbuilding[a] );
-  b += (int)maind.totalbuilding[a];
- }
- svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
- svSendString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
- memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
+svSendString( cnt, "<b>Buildings</b><br><table>" );
+for( a = b = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
+	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, maind.totalbuilding[a] );
+	b += (int)maind.totalbuilding[a];
+}
 
- for( a = c = 0 ; a < numbuild ; a++ )
- {
-  if( build[a].type >> 16 )
-   continue;
-  svSendPrintf( cnt, "<tr><td>%d %s in %d weeks at <a href=\"planet?id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
-  bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
-  c++;
- }
- if( !( c ) )
-  svSendString( cnt, "</form></table>None<br>" );
- else
- {
- 	svSendString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
+svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%d</td></tr></table><br><br>", b );
+svSendString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
+memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
+
+for( a = c = 0 ; a < numbuild ; a++ ) {
+	if( build[a].type >> 16 )
+		continue;
+	svSendPrintf( cnt, "<tr><td>%d %s in %d weeks at <a href=\"planet?id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
+	bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
+	c++;
+}
+
+if( !( c ) ) {
+	svSendString( cnt, "</form></table>None<br>" );
+} else {
+	svSendString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
  	svSendString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
-  svSendString( cnt, "<br><i>Summary</i><br>" );
-  for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ )
-  {
-   if( !( bsums[a] ) )
-    continue;
-   svSendPrintf( cnt, "%d %s<br>", bsums[a], cmdBuildingName[a] );
-   b += bsums[a];
-  }
-  svSendPrintf( cnt, "<i>Total of %d buildings under construction</i><br>", b );
- }
+	svSendString( cnt, "<br><i>Summary</i><br>" );
 
- svSendString( cnt, "</td><td align=\"center\" valign=\"top\">" );
+	for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
+		if( !( bsums[a] ) )
+			continue;
+		svSendPrintf( cnt, "%d %s<br>", bsums[a], cmdBuildingName[a] );
+		b += bsums[a];
+	}
+	svSendPrintf( cnt, "<i>Total of %d buildings under construction</i><br>", b );
+}
 
- svSendString( cnt, "<b>Units</b><br><table>" );
- for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
- {
-  svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\">%lld</td></tr>", cmdUnitName[a], maind.totalunit[a] );
-  b += (int)maind.totalunit[a];
- }
- svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
- svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
+svSendString( cnt, "</td><td align=\"center\" valign=\"top\">" );
+
+svSendString( cnt, "<b>Units</b><br><table>" );
+
+for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\">%lld</td></tr>", cmdUnitName[a], maind.totalunit[a] );
+	b += (int)maind.totalunit[a];
+}
+
+svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
+svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
  
- memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
- for( a = c = 0 ; a < numbuild ; a++ )
- {
-  if( !( build[a].type >> 16 ) )
-   continue;
-  svSendPrintf( cnt, "<tr><td>%d %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
-  usums[ build[a].type & 0xFFFF ] += build[a].quantity;
-  c++;
- }
- if( !( c ) )
+memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+for( a = c = 0 ; a < numbuild ; a++ ) {
+	if( !( build[a].type >> 16 ) )
+		continue;
+	svSendPrintf( cnt, "<tr><td>%d %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
+	usums[ build[a].type & 0xFFFF ] += build[a].quantity;
+	c++;
+}
+
+if( !( c ) ) {
   svSendString( cnt, "</form></table>None<br>" );
- else
- {
-  svSendString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
-  svSendString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
-  for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
-  {
-   if( !( usums[a] ) )
-    continue;
-   svSendPrintf( cnt, "%d %s<br>", usums[a], cmdUnitName[a] );
-   b += usums[a];
-  }
-  svSendPrintf( cnt, "<i>Total of %d units under construction</i><br>", b );
- }
+} else {
+	svSendString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
+	svSendString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
+for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+	if( !( usums[a] ) )
+		continue;
+	svSendPrintf( cnt, "%d %s<br>", usums[a], cmdUnitName[a] );
+	b += usums[a];
+  	}
+	svSendPrintf( cnt, "<i>Total of %d units under construction</i><br>", b );
+}
 
- svSendString( cnt, "</td></tr></table>" );
+svSendString( cnt, "</td></tr></table>" );
 
- free( build );
- iohttpBodyEnd( cnt );
- return;
+free( build );
+iohttpBodyEnd( cnt );
+
+return;
 }
 
 

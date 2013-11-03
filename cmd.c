@@ -20,6 +20,35 @@ char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2] =
 "Population"
 };
 
+//These aren't used in-game, they are just to simplify the AJAX.
+char *cmdMainInfoNames[INFOS_TOTAL_NUMUSED] =
+{
+"energyincome",
+"mineralincome",
+"crystalincome",
+"ectroliumincome",
+
+"energyproduction",
+"energydecay",
+
+"buildingupkeep",
+"populationreduction",
+"portalsupkeep",
+"unitupkeep",
+
+"mineralproduction",
+
+"crystalproduction",
+"crystaldecay",
+
+"ectroliumproduction",
+
+"energytax",
+"mineraltax",
+"crystaltax",
+"ectroliumtax",
+};
+
 char *cmdBonusName[CMD_BONUS_NUMUSED] =
 {
 "Solar",
