@@ -14,10 +14,9 @@ if (sec == -01) {
 }
 
 time = (min < 0 ? min + " minute and " : "" ) + sec + " seconds";
-
-if( document.getElementById('headerTime') ) { document.getElementById('headerTime').innerHTML = "<b>Next Tick: " + time + "</b>"; }
-if( document.getElementById('hqTime') ) { document.getElementById('hqTime').innerHTML = time; }
-if( document.getElementById('sstatsTime') ) { document.getElementById('sstatsTime').innerHTML = time; }
+updatehtml('headerTime',"<b>Next Tick: " + time + "</b>");
+updatehtml('hqTime',time);
+updatehtml('sstatsTime',time);
 
 SD=window.setTimeout("countDown();", 1000);
 
@@ -26,9 +25,9 @@ if (min == '00' && sec == '00') {
 	if( login ) {
 		getInfo("basic");
 	}
-	if( document.getElementById('headerTime') ) { document.getElementById('headerTime').innerHTML = "<b>" + tickmsg + "</b>"; }
-	if( document.getElementById('hqTime') ) { document.getElementById('hqTime').innerHTML = tickmsg; }
-	if( document.getElementById('sstatsTime') ) { document.getElementById('sstatsTime').innerHTML = tickmsg; }
+	updatehtml('headerTime',"<b>" + tickmsg + "</b>");
+	updatehtml('hqTime',tickmsg);
+	updatehtml('sstatsTime',tickmsg);
 }
 
 }
@@ -65,94 +64,67 @@ if (window.XMLHttpRequest) {
 xmlhttp.onreadystatechange=function() {
 	if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 		if(str == "tick") {
+			var week;
+			var year;
 			//Fetch basic tick data, and check if user is loged in... this controls weither we will call more data.
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("pass")[0].childNodes[0].nodeValue > 0 ) { 
+			if( getnodevar(xmlhttp.responseXML,"pass") > 0 ) { 
 				if(login == false) { 
 					login = true; 
 					getInfo("basic"); 
 				} 
 			} else { login = false; }
-			sec=xmlhttp.responseXML.documentElement.getElementsByTagName("next")[0].childNodes[0].nodeValue;
+			sec=getnodevar(xmlhttp.responseXML,"next");
 			SD=window.setTimeout("countDown();", 1000);
-			if( document.getElementById('hqweeks') ) { 
-				document.getElementById("hqweeks").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("week")[0].childNodes[0].nodeValue;
-			}
-			if( document.getElementById('hqyears') ) { 
-				document.getElementById("hqyears").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("year")[0].childNodes[0].nodeValue;
-			}
-			if( document.getElementById('sstatweeks') ) { 
-				document.getElementById("sstatweeks").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("week")[0].childNodes[0].nodeValue;
-			}
-			if( document.getElementById('sstatyears') ) { 
-				document.getElementById("sstatyears").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("year")[0].childNodes[0].nodeValue;
-			}
+			week = getnodevar(xmlhttp.responseXML,"week");
+			year = getnodevar(xmlhttp.responseXML,"year");
+			updatehtml("hqweeks",week);
+			updatehtml("hqyears",year);
+			updatehtml("sstatweeks",week);
+			updatehtml("sstatyears",year);
+
 		}
 		if(str == "basic") {
 			//Okie, Update basic user infos...
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("population")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('headerpopulation') ) { 
-				document.getElementById("headerpopulation").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("population")[0].childNodes[0].nodeValue;
-			}
-			if( document.getElementById('hqpopulation') ) { 
-				document.getElementById("hqpopulation").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("population")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("networth")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('headernetworth') ) { 
-				document.getElementById("headernetworth").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("networth")[0].childNodes[0].nodeValue;
-			}
-			if( document.getElementById('hqnetworth') ) { 
-				document.getElementById("hqnetworth").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("networth")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("energy")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('headerenergy') ) { 
-				document.getElementById("headerenergy").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("energy")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("mineral")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('headermineral') ) { 
-				document.getElementById("headermineral").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("mineral")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("crystal")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('headercrystal') ) { 
-				document.getElementById("headercrystal").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("crystal")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("ectrolium")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('headerectrolium') ) { 
-				document.getElementById("headerectrolium").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("ectrolium")[0].childNodes[0].nodeValue;
-			}
-			}
+			var population;
+			var networth; var planets;
+			var energy; var mineral; var crystal; var ectrolium;
+			var fready; var pready; var aready;
 
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("planets")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('hqplanets') ) { 
-				document.getElementById("hqplanets").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("planets")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("fleetready")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('hqfleetready') ) { 
-				document.getElementById("hqfleetready").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("fleetready")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("psychicsready")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('hqpsychready') ) { 
-				document.getElementById("hqpsychready").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("psychicsready")[0].childNodes[0].nodeValue;
-			}
-			}
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("agentsready")[0].childNodes[0].nodeValue > 1 ) { 
-			if( document.getElementById('hqagentready') ) { 
-				document.getElementById("hqagentready").innerHTML=xmlhttp.responseXML.documentElement.getElementsByTagName("agentsready")[0].childNodes[0].nodeValue;
-			}
-			}
+			population = getnodevar(xmlhttp.responseXML,"population");
+			networth = getnodevar(xmlhttp.responseXML,"networth");
+			planets = getnodevar(xmlhttp.responseXML,"planets");
 
+			energy = getnodevar(xmlhttp.responseXML,"energy");
+			mineral = getnodevar(xmlhttp.responseXML,"mineral");
+			crystal = getnodevar(xmlhttp.responseXML,"crystal");
+			ectrolium = getnodevar(xmlhttp.responseXML,"ectrolium");
+
+			fready = getnodevar(xmlhttp.responseXML,"fleetready");
+			pready = getnodevar(xmlhttp.responseXML,"psychicsready");
+			aready = getnodevar(xmlhttp.responseXML,"agentsready");
+
+			updatehtml("headerpopulation",population);
+			updatehtml("hqpopulation",population);
+			updatehtml("headernetworth",networth);
+			updatehtml("hqnetworth",networth);
+			updatehtml("hqplanets",planets);
+
+
+			updatehtml("headerenergy",energy);
+			updatehtml("headermineral",mineral);
+			updatehtml("headercrystal",crystal);
+			updatehtml("headerectrolium",ectrolium);
+
+			updatehtml("hqfleetready",fready);
+			updatehtml("hqpsychready",pready);
+			updatehtml("hqagentready",aready);
+			
 			// Here we set images for mail, build etc... we shouldn't need the double check here since these images are unique enough
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("mail")[0].childNodes[0].nodeValue == 1 ) { changeImage("headermail", "images/i09a.jpg"); }
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("build")[0].childNodes[0].nodeValue == 1 ) { changeImage("headerbuild", "images/i10a.jpg"); }
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("aid")[0].childNodes[0].nodeValue == 1 ) { changeImage("headeraid", "images/i11a.jpg"); }
-			if( xmlhttp.responseXML.documentElement.getElementsByTagName("fleet")[0].childNodes[0].nodeValue == 1 ) { changeImage("headerfleet", "images/i12a.jpg"); }
-			else if( xmlhttp.responseXML.documentElement.getElementsByTagName("fleet")[0].childNodes[0].nodeValue == 2 ) { changeImage("headerfleet", "images/i12b.jpg"); }
+			if( getnodevar(xmlhttp.responseXML,"mail") == 1 ) { changeimage("headermail", "images/i09a.jpg"); }
+			if( getnodevar(xmlhttp.responseXML,"build") == 1 ) { changeimage("headerbuild", "images/i10a.jpg"); }
+			if( getnodevar(xmlhttp.responseXML,"aid") == 1 ) { changeimage("headeraid", "images/i11a.jpg"); }
+			if( getnodevar(xmlhttp.responseXML,"fleet") == 1 ) { changeimage("headerfleet", "images/i12a.jpg"); }
+			else if( getnodevar(xmlhttp.responseXML,"fleet") == 2 ) { changeimage("headerfleet", "images/i12b.jpg"); }
 		}
 
 	} else {
@@ -164,11 +136,21 @@ xmlhttp.open("GET","ajax?typ="+str,true);
 xmlhttp.send();
 }
 
+function getnodevar(xmlin,tagvar) {
+	var node;
+	var input;
 
-function changeImage(img, a) {
-    document.getElementById(img).src=a;
+node = xmlin.documentElement.getElementsByTagName(tagvar)[0].childNodes[0];
+
+if( ( node ) && ( node.nodeValue != "undefined" ) ) { input = node.nodeValue; } else { input = ""; }
+
+return input;
 }
 
+
+function changeimage(img, a) { if( document.getElementById(img) ) { document.getElementById(img).src=a; } else { return; } }
+
+function updatehtml(id, i) { if((i == "")||(i == "undefined")){ return; } if( document.getElementById(id) ) { document.getElementById(id).innerHTML=i; } else { return; } }
 
 function togglemb(num) { for(i=0;i<document.forms[num].length;i++) if(document.forms[num].elements[i].type == "checkbox") document.forms[num].elements[i].click(); }
 

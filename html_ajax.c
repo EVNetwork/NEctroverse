@@ -7,7 +7,6 @@
 void iohttpFunc_ajax( svConnectionPtr cnt ) {
 	int id, a, b;
 	char *typestring, *idstring;
-	char USERSTR[64];
 	char CHECKER[256];
 	dbUserMainDef maind;
 
@@ -24,19 +23,16 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 
 if( typestring ) {
 	svSendString( cnt, "Content-Type: text/xml\n\n" );
-	svSendString( cnt, "<?xml version=\"1.0\"?>\n" );
-
+	svSendString( cnt, "<?xml version=\"1.0\"?>" );
+	svSendPrintf( cnt, "<xml%s>", typestring  );
+	
 if( !( strcmp(typestring,"tick") ) ) {
-	svSendPrintf( cnt, "<basic><pass>%d</pass><time><next>%d</next><week>%d</week><year>%d</year></time></basic>\n\n", ( id != -1 ) ? ( ( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) ? true : false ) : false, (int)( ticks.next - time(0) ), ticks.number % 52, ticks.number / 52 );
+	svSendPrintf( cnt, "<pass>%d</pass>", ( id != -1 ) ? ( ( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) ? true : false ) : false );
+	svSendPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", ( ticks.next - time(0) ), ticks.number % 52, ticks.number / 52 );
 } else if( !( strcmp(typestring,"basic") ) ) {
 	if( id < 0 )
 		goto BAILAJAX;
 	a = dbUserNewsGetFlags( id );
-	sprintf(USERSTR,"%s",maind.faction);
-	for(b = 0; USERSTR[b]; b++){
-		USERSTR[b] = tolower(USERSTR[b]);
-	}
-	svSendPrintf( cnt, "<%s>", USERSTR );
 	svSendPrintf( cnt, "<planets>%d</planets>", maind.planets );
 	svSendPrintf( cnt, "<networth>%lld</networth>", maind.networth );
 	svSendString( cnt, "<header>" );
@@ -64,9 +60,8 @@ if( !( strcmp(typestring,"tick") ) ) {
 		svSendPrintf( cnt, "<%sready>%d</%sready>", CHECKER, maind.readiness[a] >> 16, CHECKER );
 	}
 	svSendString( cnt, "</readiness>" );
-	svSendPrintf( cnt, "</%s>", USERSTR );
 }
-
+svSendPrintf( cnt, "</xml%s>", typestring  );
 
 } else {
 	iohttpFunc_front( cnt, "Bad page request." );
