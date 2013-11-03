@@ -1,5 +1,4 @@
 //Yer, better make a timer... this can contol the call's to update info too --- min and sec will be defined on output of html
-var havealerted = false;
 
 function countDown() {
 
@@ -11,15 +10,9 @@ if (sec == -01) {
 		min = min - 1;
 	} else {
 		sec = 00;
-		updatehtml('headerTime',"Unknown!");
-		updatehtml('hqTime',"Unknown!");
-		updatehtml('sstatsTime',"Unknown!");
 		getInfo("ticker");
 		SD=window.setTimeout("countDown();", 15000);
-		if( ( havealerted == false ) && ( login == true ) ) {
-			havealerted = true; login = false;
-			alert("\tThe connection with the server has been lost, going to sleep for 15 seconds!\t\n\t\tThis is most likely because the server was restart or updated.\t");
-		}
+		login = false;
 		return;
 	}
 } else {
