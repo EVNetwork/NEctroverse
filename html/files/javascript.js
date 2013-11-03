@@ -1,35 +1,41 @@
 // Yer, better make a timer... this can contol the call's to update info too --- min and sec will be defined on output of html
 var page;
 var login = false;
-var tickmsg = "Game is ticking!";
+var havealerted = false;
 
 function countDown() {
 
 sec--;
 
 if (sec == -01) {
-	sec = 59;
-	min = min - 1;
+	if ( min > 0 ) {
+		sec = 59;
+		min = min - 1;
+	} else {
+		sec = 00;
+		updatehtml('headerTime',"Unknown!");
+		updatehtml('hqTime',"Unknown!");
+		updatehtml('sstatsTime',"Unknown!");
+		getInfo("ticker");
+		SD=window.setTimeout("countDown();", 15000);
+		if( ( havealerted == false ) && ( login == true ) ) {
+			alert("The connection with the server has been lost, going to sleep for 15 seconds!\nThis is most likely because of a server restart.");
+			havealerted = true; login = false;
+		}
+		return;
+	}
 } else {
 	min = min;
 }
 
 time = (min < 0 ? min + " minute and " : "" ) + sec + " seconds";
-updatehtml('headerTime',"<b>Next tick: " + time + "</b>");
+updatehtml('headerTime',time);
 updatehtml('hqTime',time);
 updatehtml('sstatsTime',time);
 
-SD=window.setTimeout("countDown();", 1000);
+if (min == '00' && sec == '00') { getInfo("ticker"); } 
 
-if (min == '00' && sec == '00') { 
-	getInfo("ticker");
-	updatehtml('headerTime',"<b>" + tickmsg + "</b>");
-	if( page == "hq" ) {
-		updatehtml('hqTime',tickmsg);
-	} else if ( page == "status" ) {
-		updatehtml('sstatsTime',tickmsg);
-	}
-}
+SD=window.setTimeout("countDown();", 1000);
 
 }
 
@@ -203,9 +209,7 @@ xmlhttp.onreadystatechange=function() {
 			if( getnodevar(xmlhttp.responseXML,"fleet") == 1 ) { changeimage("headerfleet", "images/i12a.jpg"); }
 			else if( getnodevar(xmlhttp.responseXML,"fleet") == 2 ) { changeimage("headerfleet", "images/i12b.jpg"); }
 		}
-	SD = window.setTimeout("countDown();", 1000);
-	} else {
-		window.clearTimeout(SD);
+
 	}
 }
 xmlhttp.open("GET","ajax?typ="+str,true);
