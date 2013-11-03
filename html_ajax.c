@@ -262,9 +262,11 @@ svSendString( cnt, "\n" );
 	svSendString( cnt, "\n" );
 }
 
-svSendString( cnt, "\t\tSD = window.setTimeout(\"countDown();\", 1000);\n" );
 svSendString( cnt, "\t\t}\n" );
-svSendString( cnt, "\t} else { window.clearTimeout(SD); }\n" );
+svSendString( cnt, "\t\tSD=window.setTimeout(\"countDown();\", 1000);\n" );
+svSendString( cnt, "\t} else {\n" );
+svSendString( cnt, "\twindow.clearTimeout(SD);\n" );
+svSendString( cnt, "\t}\n" );
 svSendString( cnt, "}\n" );
 svSendString( cnt, "xmlhttp.open(\"GET\",\"ajax?typ=\"+str,true);\n" );
 svSendString( cnt, "xmlhttp.send();\n" );

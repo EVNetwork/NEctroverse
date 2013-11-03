@@ -24,9 +24,9 @@ updatehtml('headerTime',time);
 updatehtml('hqTime',time);
 updatehtml('sstatsTime',time);
 
-if (min == '00' && sec == '00') { getInfo("ticker"); } 
+SD = window.setTimeout("countDown();", 1000);
 
-SD=window.setTimeout("countDown();", 1000);
+if (min == '00' && sec == '00') { getInfo("ticker"); } 
 
 }
 
