@@ -1526,7 +1526,7 @@ svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\" id=\"ectrol
 svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
 svSendString( cnt, "<b>Buildings</b><br><table>" );
-for( a = b = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
+for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, maind.totalbuilding[a] );
 	b += (int)maind.totalbuilding[a];
 }
@@ -1564,11 +1564,11 @@ svSendString( cnt, "</td><td align=\"center\" valign=\"top\">" );
 svSendString( cnt, "<b>Units</b><br><table>" );
 
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\">%lld</td></tr>", cmdUnitName[a], maind.totalunit[a] );
+	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"unt%d\">%lld</td></tr>", cmdUnitName[a], a, maind.totalunit[a] );
 	b += (int)maind.totalunit[a];
 }
 
-svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td>%d</td></tr></table><br><br>", b );
+svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br><br>", b );
 svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
  
 memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );

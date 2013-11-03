@@ -15,7 +15,7 @@ if (sec == -01) {
 }
 
 time = (min < 0 ? min + " minute and " : "" ) + sec + " seconds";
-updatehtml('headerTime',"<b>Next Tick: " + time + "</b>");
+updatehtml('headerTime',"<b>Next tick: " + time + "</b>");
 updatehtml('hqTime',time);
 updatehtml('sstatsTime',time);
 
@@ -49,16 +49,14 @@ if (window.XMLHttpRequest) {
 xmlhttp.onreadystatechange=function() {
 	if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 		//Fetch uinfos tick data, and check if user is loged in... this controls weither we will call more data.
-		if( getnodevar(xmlhttp.responseXML,"pass") > 0 ) { 
-			if(login == false) { 
-				login = true; 
-			} 
-		} else { login = false; }
+		if( getnodevar(xmlhttp.responseXML,"pass") > 0 ) { login = true; } else { login = false; }
+
 		sec = getnodevar(xmlhttp.responseXML,"next");
-		SD = window.setTimeout("countDown();", 1000);
 		page = getnodevar(xmlhttp.responseXML,"page");
+
 		var week = getnodevar(xmlhttp.responseXML,"week");
 		var year = getnodevar(xmlhttp.responseXML,"year");
+
 		if( page == "hq" ) {
 			updatehtml("hqweeks",week);
 			updatehtml("hqyears",year);
@@ -149,6 +147,7 @@ xmlhttp.onreadystatechange=function() {
 				var bld6 = getnodevar(xmlhttp.responseXML,"bld6");
 				var bld7 = getnodevar(xmlhttp.responseXML,"bld7");
 				var bld8 = getnodevar(xmlhttp.responseXML,"bld8");
+				var bld9 = getnodevar(xmlhttp.responseXML,"bld9");
 				var bldnum = getnodevar(xmlhttp.responseXML,"bldnum");
 
 				updatehtml("bld0",bld0);
@@ -160,7 +159,39 @@ xmlhttp.onreadystatechange=function() {
 				updatehtml("bld6",bld6);
 				updatehtml("bld7",bld7);
 				updatehtml("bld8",bld8);
+				updatehtml("bld9",bld9);
 				updatehtml("bldnum",bldnum);
+
+				var unt0 = getnodevar(xmlhttp.responseXML,"unt0");
+				var unt1 = getnodevar(xmlhttp.responseXML,"unt1");
+				var unt2 = getnodevar(xmlhttp.responseXML,"unt2");
+				var unt3 = getnodevar(xmlhttp.responseXML,"unt3");
+				var unt4 = getnodevar(xmlhttp.responseXML,"unt4");
+				var unt5 = getnodevar(xmlhttp.responseXML,"unt5");
+				var unt6 = getnodevar(xmlhttp.responseXML,"unt6");
+				var unt7 = getnodevar(xmlhttp.responseXML,"unt7");
+				var unt8 = getnodevar(xmlhttp.responseXML,"unt8");
+				var unt9 = getnodevar(xmlhttp.responseXML,"unt9");
+				var unt10 = getnodevar(xmlhttp.responseXML,"unt10");
+				var unt11 = getnodevar(xmlhttp.responseXML,"unt11");
+				var unt12 = getnodevar(xmlhttp.responseXML,"unt12");
+				var untnum = getnodevar(xmlhttp.responseXML,"untnum");
+
+				updatehtml("unt0",unt0);
+				updatehtml("unt1",unt1);
+				updatehtml("unt2",unt2);
+				updatehtml("unt3",unt3);
+				updatehtml("unt4",unt4);
+				updatehtml("unt5",unt5);
+				updatehtml("unt6",unt6);
+				updatehtml("unt7",unt7);
+				updatehtml("unt8",unt8);
+				updatehtml("unt9",unt9);
+				updatehtml("unt10",unt10);
+				updatehtml("unt11",unt11);
+				updatehtml("unt12",unt12);
+				updatehtml("untnum",untnum);
+
 
 			}
 
@@ -172,7 +203,7 @@ xmlhttp.onreadystatechange=function() {
 			if( getnodevar(xmlhttp.responseXML,"fleet") == 1 ) { changeimage("headerfleet", "images/i12a.jpg"); }
 			else if( getnodevar(xmlhttp.responseXML,"fleet") == 2 ) { changeimage("headerfleet", "images/i12b.jpg"); }
 		}
-
+	SD = window.setTimeout("countDown();", 1000);
 	} else {
 		window.clearTimeout(SD);
 	}
