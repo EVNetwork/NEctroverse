@@ -4672,15 +4672,16 @@ void iohttpFunc_fleets( svConnectionPtr cnt )
  }
 
  svSendString( cnt, "<table width=\"100%\"><tr><td width=\"50%\" align=\"center\" valign=\"top\">" );
- svSendString( cnt, "<b>Main fleet</b><br><br>" );
- for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
- {
-  if( fleetd[0].unit[a] )
-  {
-   svSendPrintf( cnt, "%d %s<br>", fleetd[0].unit[a], cmdUnitName[a] );
-   b = 1;
-  }
- }
+ svSendString( cnt, "<b>Main fleet</b><br>" );
+ svSendString( cnt, "<table>" );
+ 
+for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+	if( fleetd[0].unit[a] ) {
+		svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"funt%d\">%d</td></tr>", cmdUnitName[a], a, fleetd[0].unit[a] );
+		b = 1;
+	}
+}
+ svSendString( cnt, "</table><br>" );
  svSendString( cnt, "<a href=\"fleetdisband?id=0\">Disband units</a>" );
 
  svSendString( cnt, "</td><td width=\"50%\" align=\"center\" valign=\"top\">" );
@@ -4785,7 +4786,7 @@ void iohttpFunc_fleets( svConnectionPtr cnt )
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
  {
   if( fleetd[0].unit[a] )
-   svSendPrintf( cnt, "<tr><td align=\"right\">%d %s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", fleetd[0].unit[a], cmdUnitName[a], a );
+   svSendPrintf( cnt, "<tr><td align=\"right\" id=\"dunt%d\">%d</td><td align=\"right\">%s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", a, fleetd[0].unit[a], cmdUnitName[a], a );
  }
  svSendString( cnt, "</table>X:<input type=\"text\" name=\"X\" size=\"4\"> Y:<input type=\"text\" name=\"Y\" size=\"4\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\"><br><br><input type=\"submit\" value=\"Send\"></form>" );
 

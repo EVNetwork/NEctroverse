@@ -1,6 +1,4 @@
-// Yer, better make a timer... this can contol the call's to update info too --- min and sec will be defined on output of html
-var page;
-var login = false;
+//Yer, better make a timer... this can contol the call's to update info too --- min and sec will be defined on output of html
 var havealerted = false;
 
 function countDown() {
@@ -19,8 +17,8 @@ if (sec == -01) {
 		getInfo("ticker");
 		SD=window.setTimeout("countDown();", 15000);
 		if( ( havealerted == false ) && ( login == true ) ) {
-			alert("The connection with the server has been lost, going to sleep for 15 seconds!\nThis is most likely because of a server restart.");
 			havealerted = true; login = false;
+			alert("\tThe connection with the server has been lost, going to sleep for 15 seconds!\t\n\t\tThis is most likely because the server was restart or updated.\t");
 		}
 		return;
 	}
@@ -37,183 +35,6 @@ if (min == '00' && sec == '00') { getInfo("ticker"); }
 
 SD=window.setTimeout("countDown();", 1000);
 
-}
-
-// OK, Time for some AJAX! =/ ... 
-// It's been a while, forgive me if its messy lol! =P
-function getInfo(str) {
-	var xmlhttp;
-if (str=="") {
-	return;
-}
-if (window.XMLHttpRequest) { 
-	xmlhttp=new XMLHttpRequest(); 
-} else { 
-	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); 
-}
-
-xmlhttp.onreadystatechange=function() {
-	if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-		//Fetch uinfos tick data, and check if user is loged in... this controls weither we will call more data.
-		if( getnodevar(xmlhttp.responseXML,"pass") > 0 ) { login = true; } else { login = false; }
-
-		sec = getnodevar(xmlhttp.responseXML,"next");
-		page = getnodevar(xmlhttp.responseXML,"page");
-
-		var week = getnodevar(xmlhttp.responseXML,"week");
-		var year = getnodevar(xmlhttp.responseXML,"year");
-
-		if( page == "hq" ) {
-			updatehtml("hqweeks",week);
-			updatehtml("hqyears",year);
-		} else if ( page == "status" ) {
-			updatehtml("sstatweeks",week);
-			updatehtml("sstatyears",year);
-		}
-
-		if( login ) {
-			//Okie, Update uinfos user infos...
-			var population = getnodevar(xmlhttp.responseXML,"population");
-			var networth = getnodevar(xmlhttp.responseXML,"networth");
-			var planets = getnodevar(xmlhttp.responseXML,"planets");
-
-			var energy = getnodevar(xmlhttp.responseXML,"energy");
-			var mineral = getnodevar(xmlhttp.responseXML,"mineral");
-			var crystal = getnodevar(xmlhttp.responseXML,"crystal");
-			var ectrolium = getnodevar(xmlhttp.responseXML,"ectrolium");
-
-			updatehtml("headerenergy",energy);
-			updatehtml("headermineral",mineral);
-			updatehtml("headercrystal",crystal);
-			updatehtml("headerectrolium",ectrolium);
-
-			if( page == "hq" ) {
-				var fready = getnodevar(xmlhttp.responseXML,"fleetready");
-				var pready = getnodevar(xmlhttp.responseXML,"psychicsready");
-				var aready = getnodevar(xmlhttp.responseXML,"agentsready");
-				updatehtml("headerpopulation",population);
-				updatehtml("hqpopulation",population);
-				updatehtml("headernetworth",networth);
-				updatehtml("hqnetworth",networth);
-				updatehtml("hqplanets",planets);
-				updatehtml("hqfleetready",fready);
-				updatehtml("hqpsychready",pready);
-				updatehtml("hqagentready",aready);
-			} else if ( page == "council" ) {
-				var energyincome = getnodevar(xmlhttp.responseXML,"energyincome");
-				var mineralincome = getnodevar(xmlhttp.responseXML,"mineralincome");
-				var crystalincome = getnodevar(xmlhttp.responseXML,"crystalincome");
-				var ectroliumincome = getnodevar(xmlhttp.responseXML,"ectroliumincome");
-				var energyproduction = getnodevar(xmlhttp.responseXML,"energyproduction");
-				var energydecay = getnodevar(xmlhttp.responseXML,"energydecay");
-				var buildingupkeep = getnodevar(xmlhttp.responseXML,"buildingupkeep");
-				var populationreduction = getnodevar(xmlhttp.responseXML,"populationreduction");
-				var portalsupkeep = getnodevar(xmlhttp.responseXML,"portalsupkeep");
-				var unitupkeep = getnodevar(xmlhttp.responseXML,"unitupkeep");
-				var mineralproduction = getnodevar(xmlhttp.responseXML,"mineralproduction");
-				var crystalproduction = getnodevar(xmlhttp.responseXML,"crystalproduction");
-				var crystaldecay = getnodevar(xmlhttp.responseXML,"crystaldecay");
-				var ectroliumproduction = getnodevar(xmlhttp.responseXML,"ectroliumproduction");
-
-
-				updatehtml("energyincome",( energyincome >= 0 ? "+" : "<span class=\"genred\">" ) + energyincome + ( energyincome >= 0 ? "" : "</span>" ));
-				updatehtml("mineralincome",( mineralincome >= 0 ? "+" : "" ) + mineralincome);
-				updatehtml("crystalincome",( crystalincome >= 0 ? "+" : "<span class=\"genred\">" ) + crystalincome + ( crystalincome >= 0 ? "" : "</span>" ));
-				updatehtml("ectroliumincome",( ectroliumincome >= 0 ? "+" : "" ) + ectroliumincome);
-				updatehtml("energyproduction","+" + energyproduction);
-				updatehtml("energydecay","-" + energydecay);
-				updatehtml("buildingupkeep","-" + buildingupkeep);
-				updatehtml("populationreduction","+" + populationreduction);
-				updatehtml("portalsupkeep","-" + portalsupkeep);
-				updatehtml("unitupkeep","-" + unitupkeep);
-				updatehtml("mineralproduction","+" + mineralproduction);
-				updatehtml("crystalproduction","+" + crystalproduction);
-				updatehtml("crystaldecay","-" + crystaldecay);
-				updatehtml("ectroliumproduction","+" + ectroliumproduction);
-
-				var empiretax = getnodevar(xmlhttp.responseXML,"taxlevel");
-				var energytax = getnodevar(xmlhttp.responseXML,"energytax");
-				var mineraltax = getnodevar(xmlhttp.responseXML,"mineraltax");
-				var crystaltax = getnodevar(xmlhttp.responseXML,"crystaltax");
-				var ectroliumtax = getnodevar(xmlhttp.responseXML,"ectroliumtax");
-
-				updatehtml("counciltax",empiretax);
-				updatehtml("energytax","-" + energytax);
-				updatehtml("mineraltax","-" + mineraltax);
-				updatehtml("crystaltax","-" + crystaltax);
-				updatehtml("ectroliumtax","-" + ectroliumtax);
-
-
-				var bld0 = getnodevar(xmlhttp.responseXML,"bld0");
-				var bld1 = getnodevar(xmlhttp.responseXML,"bld1");
-				var bld2 = getnodevar(xmlhttp.responseXML,"bld2");
-				var bld3 = getnodevar(xmlhttp.responseXML,"bld3");
-				var bld4 = getnodevar(xmlhttp.responseXML,"bld4");
-				var bld5 = getnodevar(xmlhttp.responseXML,"bld5");
-				var bld6 = getnodevar(xmlhttp.responseXML,"bld6");
-				var bld7 = getnodevar(xmlhttp.responseXML,"bld7");
-				var bld8 = getnodevar(xmlhttp.responseXML,"bld8");
-				var bld9 = getnodevar(xmlhttp.responseXML,"bld9");
-				var bldnum = getnodevar(xmlhttp.responseXML,"bldnum");
-
-				updatehtml("bld0",bld0);
-				updatehtml("bld1",bld1);
-				updatehtml("bld2",bld2);
-				updatehtml("bld3",bld3);
-				updatehtml("bld4",bld4);
-				updatehtml("bld5",bld5);
-				updatehtml("bld6",bld6);
-				updatehtml("bld7",bld7);
-				updatehtml("bld8",bld8);
-				updatehtml("bld9",bld9);
-				updatehtml("bldnum",bldnum);
-
-				var unt0 = getnodevar(xmlhttp.responseXML,"unt0");
-				var unt1 = getnodevar(xmlhttp.responseXML,"unt1");
-				var unt2 = getnodevar(xmlhttp.responseXML,"unt2");
-				var unt3 = getnodevar(xmlhttp.responseXML,"unt3");
-				var unt4 = getnodevar(xmlhttp.responseXML,"unt4");
-				var unt5 = getnodevar(xmlhttp.responseXML,"unt5");
-				var unt6 = getnodevar(xmlhttp.responseXML,"unt6");
-				var unt7 = getnodevar(xmlhttp.responseXML,"unt7");
-				var unt8 = getnodevar(xmlhttp.responseXML,"unt8");
-				var unt9 = getnodevar(xmlhttp.responseXML,"unt9");
-				var unt10 = getnodevar(xmlhttp.responseXML,"unt10");
-				var unt11 = getnodevar(xmlhttp.responseXML,"unt11");
-				var unt12 = getnodevar(xmlhttp.responseXML,"unt12");
-				var untnum = getnodevar(xmlhttp.responseXML,"untnum");
-
-				updatehtml("unt0",unt0);
-				updatehtml("unt1",unt1);
-				updatehtml("unt2",unt2);
-				updatehtml("unt3",unt3);
-				updatehtml("unt4",unt4);
-				updatehtml("unt5",unt5);
-				updatehtml("unt6",unt6);
-				updatehtml("unt7",unt7);
-				updatehtml("unt8",unt8);
-				updatehtml("unt9",unt9);
-				updatehtml("unt10",unt10);
-				updatehtml("unt11",unt11);
-				updatehtml("unt12",unt12);
-				updatehtml("untnum",untnum);
-
-
-			}
-
-		
-			// Here we set images for mail, build etc... we shouldn't need the double check here since these images are unique enough
-			if( getnodevar(xmlhttp.responseXML,"mail") == 1 ) { changeimage("headermail", "images/i09a.jpg"); }
-			if( getnodevar(xmlhttp.responseXML,"build") == 1 ) { changeimage("headerbuild", "images/i10a.jpg"); }
-			if( getnodevar(xmlhttp.responseXML,"aid") == 1 ) { changeimage("headeraid", "images/i11a.jpg"); }
-			if( getnodevar(xmlhttp.responseXML,"fleet") == 1 ) { changeimage("headerfleet", "images/i12a.jpg"); }
-			else if( getnodevar(xmlhttp.responseXML,"fleet") == 2 ) { changeimage("headerfleet", "images/i12b.jpg"); }
-		}
-
-	}
-}
-xmlhttp.open("GET","ajax?typ="+str,true);
-xmlhttp.send();
 }
 
 function getnodevar(xmlin,tagvar) {

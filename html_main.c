@@ -93,7 +93,7 @@ svSendString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
 svSendString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
 svSendString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
-svSendPrintf( cnt, "<script type=\"text/javascript\">var sec = %d;var min = %d;</script>", (int)( ticks.next - time(0) ) % 60, (int)( ticks.next - time(0) ) / 60 );
+svSendString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
 svSendString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
 
 
