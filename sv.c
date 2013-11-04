@@ -737,6 +737,18 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 	if( !(strcmp(buffer,"stop") ) ) {
 		sysconfig.shutdown = true;
 		stop = 1;
+	} else if( !(strcmp(buffer,"bot announce") ) ) {
+		if( irccfg.bot == false ) {
+			svPipeSend(0,"Bot is not enabled, can't announce tick!");
+		} else if( irccfg.announcetick ) {
+			irccfg.announcetick = false;
+			svPipeSend(0,"Bot announce tick is now OFF!");
+			ircbotsend("NOTICE %s :Administration has disabled channel notice of game tick!", irccfg.channel);
+		} else {
+			irccfg.announcetick = true;
+			svPipeSend(0,"Bot announce tick is now ON!");
+			ircbotsend("NOTICE %s :Administration has enabled channel notice of game tick!", irccfg.channel);
+		}
 	} else {
 		if( options.verbose )
 		printf("Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
