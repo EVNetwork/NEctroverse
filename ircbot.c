@@ -140,7 +140,7 @@ return 1;
 int ircbot_command( char *command ) {
 	char *sub = {0}, *chop = {0};
 
-if( strlen(command) > 3 )
+if( ( strlen(command) > 3 ) && ( strchr( command, ' ' ) ) )
 sub = ( strchr( command, ' ' ) + 1 );
 
 if( !( sub ) )
