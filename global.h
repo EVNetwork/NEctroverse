@@ -24,6 +24,7 @@
 #include <libgen.h>
 #include <math.h>
 #include <mysql.h>
+#include <netdb.h>
 #include <png.h>
 #include <pwd.h>
 #include <stdbool.h>
@@ -34,6 +35,7 @@
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
+
 
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT
@@ -171,6 +173,10 @@ static const double megabyte = (1024 * 1024);
 
 #ifndef INIINCLUDES
 #include "ini.h"
+#endif
+
+#ifndef IRCINCLUDES
+#include "ircbot.h"
 #endif
 
 #ifndef AJAXINCLUDED

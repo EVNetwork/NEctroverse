@@ -87,8 +87,7 @@ if( sysinfo(&sysinfod) != 0 ) {
  	if( options.verbose )
 		printf("Failure getting system infomation... Critical failure.\n");
 	syslog(LOG_ERR, "Failure getting system infomation... Critical failure." );
-	cleanUp(-1,-1);
-	exit(EXIT_FAILURE);
+	sysconfig.shutdown = true; return;
 }
 
 runtime = sysinfod.uptime - CT_TO_SECS( ( (float)ststarttime ) );

@@ -3,6 +3,7 @@
 #endif
 
 #include "ini.c"
+#include "ircbot.c"
 
 svConnectionPtr svConnectionList = 0;
 fd_set svSelectRead;
@@ -15,6 +16,7 @@ mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24, 0 };
 adminDef admincfg;
 tickDef ticks;
+ircDef irccfg;
 
 
 
@@ -101,23 +103,23 @@ if ( c == 0 ) {
 return 1;
 }
 
-void cleanUp(int pipefileid, int type) {
+void cleanUp(int type) {
 	char DIRCHECKER[256];
-
-close(pipefileid);
 
 
 if( type ) {
-sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
-unlink(DIRCHECKER);
-syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
-syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
-closelog();
+	close(options.serverpipe);
+	sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+	unlink(DIRCHECKER);
+	syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
+	syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
+	closelog();
 if( options.verbose )
-printf("Server has been Completly shutdown!\n");
+	printf("Server has been Completly shutdown!\n");
 } else {
-sprintf( DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
-unlink(DIRCHECKER);
+	close(options.clientpipe);
+	sprintf( DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+	unlink(DIRCHECKER);
 }
 
 return;
@@ -126,9 +128,11 @@ return;
 void svEnd() {
 	int a;
 	svConnectionPtr cnt, next;
+
 if( options.verbose )
-printf("Shutdown called, begin deamon breakdown...\n" );
+	printf("Shutdown called, begin deamon breakdown...\n" );
 syslog(LOG_INFO, "Shutdown called, begin deamon breakdown...\n" );
+
 for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	next = cnt->next;
 	svFree( cnt );
@@ -136,24 +140,24 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 for( a = 0 ; a < options.interfaces ; a++ ) {
 	if( svListenSocket[a] == -1 )
 		continue;
-
-   	if( shutdown( options.port[a], 2 ) == -1 )
+	//Error 009 means not connected, so we ignore that "error" now... afterall we are closing connections here.
+   	if( ( shutdown( options.port[a], 2 ) == -1 ) && ( errno != 9 ) ) {
 		if( options.verbose )
-		printf("Error %03d, unable to shutdown listening socket\n", errno );
-		syslog(LOG_ERR, "Error %03d, unable to shutdown listening socket\n", errno );
- 		if( close( svListenSocket[a] ) == -1 ) {
-			if( options.verbose )
-			printf("Error %03d, closing socket\n", errno );
-			syslog(LOG_ERR, "Error %03d, closing socket\n", errno );
-		} else {
-			if( options.verbose )
+			printf("Error %03d, unable to shutdown listening socket: %d\n", errno, options.port[a] );
+		syslog(LOG_ERR, "Error %03d, unable to shutdown listening socket: %d\n", errno, options.port[a] );
+	}
+ 	if( close( svListenSocket[a] ) == -1 ) {
+		if( options.verbose )
+			printf("Error %03d, closing socket: %d\n", errno, options.port[a] );
+		syslog(LOG_ERR, "Error %03d, closing socket: %d\n", errno, options.port[a] );
+	} else {
+		if( options.verbose )
 			printf("Server released port: %d\n", options.port[a] );
-			syslog(LOG_INFO, "Server released port: %d\n", options.port[a] );
+		syslog(LOG_INFO, "Server released port: %d\n", options.port[a] );
 		}
 
    	}
 
-cleanUp(-1,1);
 return;
 }
 
@@ -273,6 +277,7 @@ void svSelect() {
 	FD_ZERO( &svSelectRead );
 	FD_ZERO( &svSelectWrite );
 	FD_ZERO( &svSelectError );
+
 rmax = 0;
 for( a = 0 ; a < options.interfaces ; a++ ) {
 	if( svListenSocket[a] == -1 )
@@ -295,7 +300,7 @@ for( cnt = svConnectionList ; cnt ; cnt = cnt->next ) {
 to.tv_usec = ( SERVER_SELECT_MSEC % 1000 ) * 1000;
 to.tv_sec = SERVER_SELECT_MSEC / 1000;
 
-if( select( rmax+1, &svSelectRead, &svSelectWrite, &svSelectError, &to ) < 0 ) {
+if( ( select( rmax+1, &svSelectRead, &svSelectWrite, &svSelectError, &to ) < 0 ) && (sysconfig.shutdown == false) ) {
 	if( options.verbose )
 	printf("Error %03d, select()\n", errno );
 	syslog(LOG_ERR, "Error %03d, select()\n", errno );
@@ -691,8 +696,10 @@ if( svDebugConnection ) {
 }
 
 
-cleanUp(-1,1);
-exit(1);
+
+sysconfig.shutdown = true;
+
+return;
 }
 
 char *trimwhitespace(char *str) {
@@ -728,6 +735,7 @@ buffer[num] = '\0';
 stop = 0;
 if ( ( num > 0 ) && strlen(buffer) ) {
 	if( !(strcmp(buffer,"stop") ) ) {
+		sysconfig.shutdown = true;
 		stop = 1;
 	} else {
 		if( options.verbose )
@@ -748,12 +756,6 @@ if( stop ) {
 if ( num > 0 ) {
 	svPipeSend(0,"Yep, thats all flokes...");
 	svPipeSend(0,"<<<END>>>");
-}
-
-//FIXME Lets move this latter.
-if( stop ) {
-	cleanUp(pipefileid,1);
-	exit(1);
 }
 
 return;
@@ -800,40 +802,45 @@ void daemonloop() {
 	int a, curtime;
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
-	while (1) {
-		svPipeScan( options.serverpipe );
-		loadconfig(options.sysini,CONFIG_BANNED);
-		svSelect();
-		svListen();
-		svRecv();
-		svDebugConnection = 0;
-		curtime = time( 0 );
-		if( curtime < ticks.next )
-			continue;
+while( sysconfig.shutdown == false ) {
+	if( irccfg.bot ) {
+		scanirc();
+	}
+	svPipeScan( options.serverpipe );
+	loadconfig(options.sysini,CONFIG_BANNED);
+	svSelect();
+	svListen();
+	svRecv();
+	svDebugConnection = 0;
+	curtime = time( 0 );
 
-		ticks.next += sysconfig.ticktime;
-		
-		for( a = 0 ; a < options.interfaces ; a++ ) {
+	if( curtime < ticks.next )
+		continue;
+
+	ticks.next += sysconfig.ticktime;
+	
+	for( a = 0 ; a < options.interfaces ; a++ ) {
 		io = &ioInterface[a];
 		io->TickStart();
-		}
-		
-		cmdTickInit();
-		if( ticks.status ) {
-			cmdTick();
-			ticks.number++;
-		}
-		cmdTickEnd();
-
-		for( a = 0 ; a < options.interfaces ; a++ ) {
-			io = &ioInterface[a];
-			io->TickEnd();
-		}
-
-
-		cmdExecuteFlush();
-		
 	}
+
+	cmdTickInit();
+	if( ticks.status ) {
+		cmdTick();
+		ticks.number++;
+	}
+	cmdTickEnd();
+
+	for( a = 0 ; a < options.interfaces ; a++ ) {
+		io = &ioInterface[a];
+		io->TickEnd();
+	}
+
+	cmdExecuteFlush();
+	if( irccfg.bot ) {
+		scanirc();
+	}
+}
 
 return;
 }
@@ -958,7 +965,19 @@ if( options.verbose ) {
 }
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
+if( irccfg.bot ) {
+	ircbotconnect();
+}
+
 daemonloop();
+
+if( irccfg.bot ) {
+	ircbotsend("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
+	ircbotsend("QUIT");
+	if( close( botconn ) == -1 )
+		syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);
+
+}
 
 cmdEnd();
 dbEnd();
@@ -1161,6 +1180,29 @@ if (MATCH("mysql", "enabled")) {
 return 1;
 }
 
+static int ircconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
+	ircPtr pconfig = (ircPtr)fconfig;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+if (MATCH("irc", "botenable")) {
+        pconfig->bot = strcmp(value,"false") ? true : false;
+} else if (MATCH("irc", "host")) {
+        pconfig->host = strdup(value);
+} else if (MATCH("irc", "channel")) {
+        pconfig->channel = strdup(value);
+} else if (MATCH("irc", "botnick")) {
+        pconfig->botnick = strdup(value);
+} else if (MATCH("irc", "botpass")) {
+        pconfig->botpass = strdup(value);
+} else if (MATCH("irc", "port")) {
+        pconfig->port = strdup(value);
+} else {
+        return 0;
+}
+
+return 1;
+}
+
 static int tickconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
 	tickPtr pconfig = (tickPtr)fconfig;
 
@@ -1323,6 +1365,10 @@ if( type == CONFIG_SYSTEM ) {
 	if (ini_parse(file, tickconfig_handler, &ticks ) < 0) {
 		return 0;
 	}
+} else if( type == CONFIG_IRC ) {
+	if (ini_parse(file, ircconfig_handler, &irccfg ) < 0) {
+		return 0;
+	}
 }
 
 
@@ -1453,6 +1499,9 @@ memset( &ticks, 0, sizeof(tickDef) );
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,CONFIG_TICKS);
 
+memset( &irccfg, 0, sizeof(ircDef) );
+loadconfig(options.sysini,CONFIG_IRC);
+
 loadconfig(options.sysini,CONFIG_BANNED);
 
 dirstructurecheck(TMPDIR);
@@ -1565,6 +1614,7 @@ if( options.mode == MODE_FORKED ) {
 	printf("%s\n", "Returning to shell, daemon has loaded in the background.");
 	printf("\n");
 }
+cleanUp(1);
 return 0;
 
 //OK, so we made it down here... that means we are a client and the pipe is active.
@@ -1596,7 +1646,7 @@ while( file_exist(DIRCHECKER) ) {
 }
 
 
-cleanUp(options.clientpipe,0);
+cleanUp(0);
 printf("\n");
 
 

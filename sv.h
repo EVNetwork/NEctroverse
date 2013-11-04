@@ -24,6 +24,8 @@ typedef struct {
 	//syslog
 	char* syslog_tagname;
 	char* syslog_facility;
+	//emergency breaker
+	bool shutdown;
 } configDef, *configPtr;
 
 extern configDef sysconfig;
@@ -44,25 +46,18 @@ typedef struct {
 
 extern adminDef admincfg;
 
-enum 
-{
-PORT_HTTP,
-PORT_EVMP,
-PORT_TOTAL
-};
+typedef struct {
+	//admin
+	bool bot;
+	char* host;
+	char* port;
+	char* botnick;
+	char* botpass;
+	char* channel;
+	bool announcetick;
+} ircDef, *ircPtr;
 
-enum 
-{
-MODE_DAEMON,
-MODE_FORKED
-};
-
-enum 
-{
-CONFIG_TICKS,
-CONFIG_SYSTEM,
-CONFIG_BANNED
-};
+extern ircDef irccfg;
 
 typedef struct {
 	//startup options
@@ -170,7 +165,7 @@ void svShutdown( svConnectionPtr cnt );
 void svClose( svConnectionPtr cnt );
 int svFree( svConnectionPtr cnt );
 
-void cleanUp(int pipefileid, int type);
+void cleanUp(int type);
 
 void svPipeScan(int pipefileid);
 int svPipeSend(int pipedirection, char *message);

@@ -354,16 +354,28 @@ dbArtefactMax = artmax;
 
 void cmdTickInit(){
 
+if( irccfg.bot ) {
+	scanirc();
+}
+
 return;
 }
 
 
 void cmdTickEnd() {
 
+if( irccfg.bot ) {
+	scanirc();
+}
 
 cmdTickGenRanks();
 
 savetickconfig();
+
+if( irccfg.bot ) {
+	if( irccfg.announcetick )
+		ircbotsend("NOTICE %s :Game has Ticked -- Week %d, Year %d (Tick #%d)", irccfg.channel, ticks.number % 52, ticks.number / 52, ticks.number);
+}
 
 return;
 }

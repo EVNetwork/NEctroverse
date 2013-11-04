@@ -1110,8 +1110,9 @@ if( action[0] ) {
 
   if( action[2] )
   {
+    svSendString( cnt, "<i>Server Shutdown has been Iniated!!</i><br><br>" );
     printf( "Admin: Shutting down!\n" );
-    cmdExecuteFlush();
+   /* cmdExecuteFlush();
     dbFlush();
 
     cmdEnd();
@@ -1127,7 +1128,8 @@ if( action[0] ) {
 //    zmalloc_check();
     fflush( stdout );
 
-    exit( 1 );
+    exit( 1 );*/
+sysconfig.shutdown = true;
   }
 
   if( action[3] )
