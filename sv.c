@@ -11,7 +11,7 @@ fd_set svSelectWrite;
 fd_set svSelectError;
 
 configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
-optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, true, "", "", "", "status" };
+optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24, 0 };
 adminDef admincfg;
@@ -742,7 +742,7 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 		sysconfig.shutdown = true;
 		stop = 1;
 	} else if( !( strncmp(buffer, "bot", 3) ) ) {
-		if( !ircbotcommand(buffer) ) {
+		if( !ircbot_command(buffer) ) {
 			if( options.verbose )
 				printf("Bot subfunction reported error with command: \"%s\"\n", buffer);
 			syslog(LOG_ERR, "Bot subfunction reported error with command: \"%s\"\n", buffer);
@@ -818,7 +818,7 @@ void daemonloop() {
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
 	if( irccfg.bot ) {
-		scanirc();
+		ircbot_scan();
 	}
 	svPipeScan( options.serverpipe );
 	loadconfig(options.sysini,CONFIG_BANNED);
@@ -851,9 +851,7 @@ while( sysconfig.shutdown == false ) {
 	}
 
 	cmdExecuteFlush();
-	if( irccfg.bot ) {
-		scanirc();
-	}
+
 	if( options.verbose )
 		fflush(stdout);
 }
@@ -982,15 +980,15 @@ if( options.verbose ) {
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 if( irccfg.bot ) {
-	ircbotconnect();
+	ircbot_connect();
 }
 
 daemonloop();
 
 if( irccfg.bot ) {
-	ircbotsend("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
-	ircbotsend("QUIT");
-	if( close( botconn ) == -1 )
+	ircbot_send("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
+	ircbot_send("QUIT");
+	if( close( options.botconn ) == -1 )
 		syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);
 
 }

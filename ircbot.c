@@ -2,12 +2,10 @@
 #include "global.h"
 #endif
 
-
-int botconn;
-char sbuf[SERVER_RECV_BUFSIZE];
-
-void ircbotsend(char *fmt, ...) {
+ 
+void ircbot_send(char *fmt, ...) {
 	va_list ap;
+	char sbuf[SERVER_RECV_BUFSIZE];
 	char *ender = "\r\n";
 
 va_start(ap, fmt);
@@ -16,21 +14,23 @@ va_end(ap);
 strcat(sbuf,ender);
 if( options.verbose )
 	printf("<< %s", sbuf);
-send(botconn, sbuf, strlen(sbuf), 0);
+send(options.botconn, sbuf, strlen(sbuf), 0);
 
 return;
 }
 
 
-void scanirc() {
-	char *user, *command, *where, *message, *sep, *target;
+void ircbot_scan() {
+	char sbuf[SERVER_RECV_BUFSIZE];
+	char *command, *where, *sep;
 	int i, j, l, sl, o = -1, start = 0, wordcount;
 	char buf[SERVER_RECV_BUFSIZE+1];
 	char bottrigger[32];
+	ircmessageDef ircmsg;
 
 sprintf(bottrigger, "!%s ", irccfg.botnick);
-
-if( (sl = read(botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
+memset(&sbuf, 0, SERVER_RECV_BUFSIZE );
+if( (sl = read(options.botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
 	for (i = 0; i < sl; i++) {
 		o++;
 		buf[o] = sbuf[i];
@@ -43,23 +43,23 @@ if( (sl = read(botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
                 
                 	if (!strncmp(buf, "PING", 4)) {
 				buf[1] = 'O';
-				ircbotsend(buf);
+				ircbot_send(buf);
 			} else if (buf[0] == ':') {
 				wordcount = 0;
-				user = command = where = message = NULL;
+				ircmsg.nick = command = where = ircmsg.input = ircmsg.host = NULL;
 				for (j = 1; j < l; j++) {
 					if (buf[j] == ' ') {
 						buf[j] = '\0';
 						wordcount++;
 						switch(wordcount) {
-							case 1: user = buf + 1; break;
+							case 1: ircmsg.nick = buf + 1; ircmsg.host = ( strrchr( buf, '@' ) ? strrchr( buf, '@' )+1 : "local" ); break;
 							case 2: command = buf + start; break;
 							case 3: where = buf + start; break;
 						}
 						if (j == l - 1) continue;
 						start = j + 1;
 					} else if (buf[j] == ':' && wordcount == 3) {
-						if (j < l - 1) message = buf + j + 1;
+						if (j < l - 1) ircmsg.input = buf + j + 1;
 						break;
 					}
 				}
@@ -67,20 +67,22 @@ if( (sl = read(botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
 				if (wordcount < 2) continue;
                     
 				if (!strncmp(command, "001", 3) && irccfg.channel != NULL) {
-					ircbotsend("JOIN %s", irccfg.channel);
+					ircbot_send("JOIN %s", irccfg.channel);
 					if( irccfg.botpass ){
-						ircbotsend("PRIVMSG ChanServ :op %s %s", irccfg.channel, irccfg.botnick);
+						ircbot_send("PRIVMSG ChanServ :op %s %s", irccfg.channel, irccfg.botnick);
 					}
 				} else if (!strncmp(command, "PRIVMSG", 7) || !strncmp(command, "NOTICE", 6)) {
-					if (where == NULL || message == NULL) continue;
-					if ((sep = strchr(user, '!')) != NULL) user[sep - user] = '\0';
-					if (where[0] == '#' || where[0] == '&' || where[0] == '+' || where[0] == '!') target = where; else target = user;
-					if( options.verbose )
-						printf("[from: %s] [reply-with: %s] [where: %s] [reply-to: %s] %s", user, command, where, target, message);
-					if( !strncmp(message, bottrigger, strlen(bottrigger)) ) {
-						memmove(message, message+strlen(bottrigger), strlen(message));
-						message = trimwhitespace(message);
-		        	                ircbotsend("%s %s :%s said %s", command, target, user, message); // Test responce, just echo what whoever says...
+					if (where == NULL || ircmsg.input == NULL) continue;
+					if ((sep = strchr(ircmsg.nick, '!')) != NULL) ircmsg.nick[sep - ircmsg.nick] = '\0';
+					if( !strcmp(ircmsg.nick,"NickServ") || !strcmp(ircmsg.nick,"ChanServ") ) continue;
+					if (where[0] == '#' || where[0] == '&' || where[0] == '+' || where[0] == '!') ircmsg.target = where; else ircmsg.target = ircmsg.nick;
+					if( !strncmp(where, irccfg.botnick, strlen(irccfg.botnick)) ) {
+						ircmsg.input = trimwhitespace(ircmsg.input);
+						ircbot_messagephrase(&ircmsg);
+					} else if( !strncmp(ircmsg.input, bottrigger, strlen(bottrigger)) ) {
+						memmove(ircmsg.input, ircmsg.input+strlen(bottrigger), strlen(ircmsg.input));
+						ircmsg.input = trimwhitespace(ircmsg.input);
+						ircbot_messagephrase(&ircmsg);
 					}
 				}
 			}
@@ -92,7 +94,7 @@ if( (sl = read(botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
 return;
 }
 
-int ircbotconnect(){
+int ircbot_connect(){
 	int a;
 	struct addrinfo hints, *res;
     
@@ -100,36 +102,42 @@ memset(&hints, 0, sizeof hints);
 hints.ai_family = AF_INET;
 hints.ai_socktype = SOCK_STREAM;
 getaddrinfo(irccfg.host, irccfg.port, &hints, &res);
-botconn = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-connect(botconn, res->ai_addr, res->ai_addrlen);
-
-a = 1;
-if( setsockopt( botconn, SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
+options.botconn = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+if( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1) {
 	if( options.verbose )
-	printf("Error %03d, set bot sockopt\n", errno );
-	syslog(LOG_ERR, "Error %03d, set bot sockopt\n", errno );
-	close( botconn );
-	botconn = -1; irccfg.bot = false;
+		printf("Error %03d, ircbot unable to connect\n", errno );
+	syslog(LOG_ERR, "Error %03d, ircbot unable to connect\n", errno );
+	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
-if( fcntl( botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
+
+a = 1;
+if( setsockopt( options.botconn, SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
 	if( options.verbose )
-	printf("Error %03d, setting non-blocking on port:\n", errno );
+		printf("Error %03d, set bot sockopt\n", errno );
+	syslog(LOG_ERR, "Error %03d, set bot sockopt\n", errno );
+	close( options.botconn );
+	options.botconn = -1; irccfg.bot = false;
+	return 0;
+}
+if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
+	if( options.verbose )
+		printf("Error %03d, setting non-blocking on port:\n", errno );
 	syslog(LOG_ERR, "Error %03d, setting non-blocking on port:\n", errno );
-	close( botconn );
-	botconn = -1; irccfg.bot = false;
+	close( options.botconn );
+	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }    
-ircbotsend("USER %s 0 0 :%s", irccfg.botnick, irccfg.botnick);
-ircbotsend("NICK %s", irccfg.botnick);
+ircbot_send("USER %s 0 0 :%sBot", irccfg.botnick, irccfg.botnick);
+ircbot_send("NICK %s", irccfg.botnick);
 if( irccfg.botpass ){
-	ircbotsend("PRIVMSG NickServ :identify %s", irccfg.botpass);
+	ircbot_send("PRIVMSG NickServ :identify %s", irccfg.botpass);
 }
 
 return 1;  
 }
 
-int ircbotcommand( char *command ) {
+int ircbot_command( char *command ) {
 	char *sub = {0}, *chop = {0};
 
 if( strlen(command) > 3 )
@@ -146,22 +154,22 @@ if( !( strcmp(sub,"announce") ) ){
 	if( irccfg.announcetick ){
 		irccfg.announcetick = false;
 		svPipeSend(0,"Bot announce tick is now OFF!");
-		ircbotsend("NOTICE %s :Administration has disabled channel notice of game tick!", irccfg.channel);
+		ircbot_send("NOTICE %s :Administration has disabled channel notice of game tick!", irccfg.channel);
 	} else {
 		irccfg.announcetick = true;
 		svPipeSend(0,"Bot announce tick is now ON!");
-		ircbotsend("NOTICE %s :Administration has enabled channel notice of game tick!", irccfg.channel);
+		ircbot_send("NOTICE %s :Administration has enabled channel notice of game tick!", irccfg.channel);
 	}
 	return 1;
 } else if( !( strcmp(sub,"toggle") ) ){
 	if( irccfg.bot == false ) {
 		irccfg.bot = true;
-		ircbotconnect();
+		ircbot_connect();
 	} else {
-		ircbotsend("NOTICE %s :Administration has requested IRC Bot shutdown!", irccfg.channel);
-		ircbotsend("PRIVMSG %s :Good bye all, untill next time! =)", irccfg.channel);
-		ircbotsend("QUIT");
-		if( close( botconn ) == -1 )
+		ircbot_send("NOTICE %s :Administration has requested IRC Bot shutdown!", irccfg.channel);
+		ircbot_send("PRIVMSG %s :Good bye all, untill next time! =)", irccfg.channel);
+		ircbot_send("QUIT");
+		if( close( options.botconn ) == -1 )
 			syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);
 		irccfg.bot = false;
 	}
@@ -177,11 +185,14 @@ if( !( strcmp(sub,"announce") ) ){
 	if( !( chop ) )
 		chop = irccfg.channel;
 	irccfg.bot = false;
-	ircbotsend("NOTICE %s :Administration has requested IRC Bot channel hop to %s!", irccfg.channel, chop);
-	ircbotsend("PART %s", irccfg.channel);
+	ircbot_send("NOTICE %s :Administration has requested IRC Bot channel hop to %s!", irccfg.channel, chop);
+	ircbot_send("PART %s", irccfg.channel);
 	svPipeSend(0,"IRC Bot Left channel %s.", irccfg.channel );
-	ircbotsend("JOIN %s", chop);
+	ircbot_send("JOIN %s", chop);
 	strcpy(irccfg.channel,chop);
+	if( irccfg.botpass ){
+		ircbot_send("PRIVMSG ChanServ :op %s %s", irccfg.channel, irccfg.botnick);
+	}
 	svPipeSend(0,"IRC Bot joined channel %s.", chop );
 	irccfg.bot = true;
 	return 1;
@@ -190,6 +201,55 @@ if( !( strcmp(sub,"announce") ) ){
 
 return 0;
 }
+ 
+#define IS_CTRL  (1 << 0)
+#define IS_EXT	 (1 << 1)
+#define IS_ALPHA (1 << 2)
+#define IS_DIGIT (1 << 3)
+ 
+unsigned int char_tbl[256] = {0};
+ 
 
+void init_table() {
+	int i;
+ 
+	for (i = 0; i < 32; i++) char_tbl[i] |= IS_CTRL;
+	char_tbl[127] |= IS_CTRL;
+ 
+	for (i = 'A'; i <= 'Z'; i++) {
+		char_tbl[i] |= IS_ALPHA;
+		char_tbl[i + 0x20] |= IS_ALPHA; /* lower case */
+	}
+ 
+	for (i = 128; i < 256; i++) char_tbl[i] |= IS_EXT;
+}
+ 
+void strip(char * str, int what) {
+	unsigned char *ptr, *s = (void*)str;
+	ptr = s;
+	while (*s != '\0') {
+		if ((char_tbl[(int)*s] & what) == 0)
+			*(ptr++) = *s;
+		s++;
+	}
+	*ptr = '\0';
+}
+
+void ircbot_messagephrase(ircmessageDef *irc) {
+
+
+init_table();
+strip(irc->input, IS_CTRL | IS_EXT);
+
+
+if( options.verbose )
+	printf("[from:%s] [host:%s] [reply-to:%s] %s\n", irc->nick, irc->host, irc->target, irc->input);
+
+
+// Test responce, we just deny all ability for now... untill something's actually added.
+ircbot_send("NOTICE %s :<%s> is not currently an input I recognize!", irc->target, irc->input); 
+
+return;
+}
 
 

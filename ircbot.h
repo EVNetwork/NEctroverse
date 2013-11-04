@@ -1,10 +1,19 @@
 #define IRCINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
 
-int ircbotconnect();
+//OK, ... time to covert it to a struct for proper phrasing.
+typedef struct {
+	char *nick;
+	char *host;
+	char *input;
+	char *target;
+	char *how;
+} ircmessageDef;
 
-void ircbotsend(char *fmt, ...);
-void scanirc();
+int ircbot_connect();
 
+void ircbot_send(char *fmt, ...);
 
-extern int botconn;
+void ircbot_messagephrase(ircmessageDef *irc);
+
+void ircbot_scan();

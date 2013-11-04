@@ -66,6 +66,7 @@ typedef struct {
 	int interfaces;
 	int serverpipe;
 	int clientpipe;
+	int botconn;
 	bool verbose;
 	char sysini[512];
 	char mapini[512];
