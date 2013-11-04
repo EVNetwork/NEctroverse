@@ -698,8 +698,10 @@ if( svDebugConnection ) {
 
 
 sysconfig.shutdown = true;
+cleanUp(1);
+cleanUp(0);
 
-return;
+exit(1);
 }
 
 char *trimwhitespace(char *str) {
@@ -724,8 +726,7 @@ return str;
 //Read from pipe file... command execution latter to come...
 void svPipeScan(int pipefileid){
 	int num, stop;
-	char DIRCHECKER[256];
-	char buffer[128] = {0};
+	char buffer[128] = {0}, bufferstrip[128] = {0};
 
 if(pipefileid < 0 )
 return;
@@ -733,29 +734,25 @@ return;
 num = read(pipefileid, buffer, sizeof(buffer));
 buffer[num] = '\0';
 stop = 0;
+sprintf(bufferstrip,"%s",trimwhitespace(buffer));
+sprintf(buffer,"%s",bufferstrip);
+
 if ( ( num > 0 ) && strlen(buffer) ) {
 	if( !(strcmp(buffer,"stop") ) ) {
 		sysconfig.shutdown = true;
 		stop = 1;
-	} else if( !(strcmp(buffer,"bot announce") ) ) {
-		if( irccfg.bot == false ) {
-			svPipeSend(0,"Bot is not enabled, can't announce tick!");
-		} else if( irccfg.announcetick ) {
-			irccfg.announcetick = false;
-			svPipeSend(0,"Bot announce tick is now OFF!");
-			ircbotsend("NOTICE %s :Administration has disabled channel notice of game tick!", irccfg.channel);
-		} else {
-			irccfg.announcetick = true;
-			svPipeSend(0,"Bot announce tick is now ON!");
-			ircbotsend("NOTICE %s :Administration has enabled channel notice of game tick!", irccfg.channel);
+	} else if( !( strncmp(buffer, "bot", 3) ) ) {
+		if( !ircbotcommand(buffer) ) {
+			if( options.verbose )
+				printf("Bot subfunction reported error with command: \"%s\"\n", buffer);
+			syslog(LOG_ERR, "Bot subfunction reported error with command: \"%s\"\n", buffer);
+			svPipeSend(0, "Bot subfunction reported error with command: \"%s\"\n",buffer );
 		}
 	} else {
 		if( options.verbose )
 		printf("Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
 		syslog(LOG_ERR, "Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
 	}
-	sprintf(DIRCHECKER, "Recived command \"%s\", I will now process.", buffer );
-	svPipeSend(0,DIRCHECKER);
 }
 
 if( stop ) {
@@ -766,7 +763,6 @@ if( stop ) {
 }
 
 if ( num > 0 ) {
-	svPipeSend(0,"Yep, thats all flokes...");
 	svPipeSend(0,"<<<END>>>");
 }
 
@@ -774,22 +770,28 @@ return;
 }
 
 //Respond to client, let them know we have the command.
-int svPipeSend(int pipedirection, char *message){
+int svPipeSend(int pipedirection, char *message, ...){
 	int num;
+	va_list ap;
 	FILE *pipefile;
 	char DIRCHECKER[256];
+	char formatuffer[SERVER_RECV_BUFSIZE] = {0};
+
+va_start(ap, message);
+vsnprintf(formatuffer, SERVER_RECV_BUFSIZE, message, ap);
+va_end(ap);
 
 sprintf( DIRCHECKER, "%s/%s.%d.%s", TMPDIR, options.pipefile, options.port[PORT_HTTP], ( pipedirection ? "pipe" : "client.pipe" ) );
-if( file_exist(DIRCHECKER) && strlen(message) ) {
+if( file_exist(DIRCHECKER) && strlen(formatuffer) ) {
 	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
 		if( options.verbose )
-		printf( "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
+			printf( "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		syslog(LOG_ERR, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		return 0;
 	}
-	if( ( num = fprintf(pipefile, "%s", message) ) < 0) {
+	if( ( num = fprintf(pipefile, "%s\r\n", formatuffer) ) < 0) {
 		if( options.verbose )
-		printf( "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
+			printf( "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		syslog(LOG_ERR, "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		return 0;
 	}
@@ -797,7 +799,7 @@ if( file_exist(DIRCHECKER) && strlen(message) ) {
 	fclose(pipefile);
 } else {
 	if( options.verbose )
-	printf( "Piping Error: message to send but no pipe avaliable" );
+		printf( "Piping Error: message to send but no pipe avaliable" );
 	syslog(LOG_ERR, "Piping Error: message to send but no pipe avaliable" );
 	return 0;
 }
@@ -852,6 +854,8 @@ while( sysconfig.shutdown == false ) {
 	if( irccfg.bot ) {
 		scanirc();
 	}
+	if( options.verbose )
+		fflush(stdout);
 }
 
 return;
@@ -923,14 +927,14 @@ srand( time(NULL) ); //Random Init
 	
 if( !( svInit() ) ) {
 	if( options.verbose )
-	printf("Server initialisation failed, exiting\n");
+		printf("Server initialisation failed, exiting\n");
 	syslog(LOG_ERR, "Server initialisation failed, exiting\n");
 	return 0;
 }
 
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
 	if( options.verbose )
-	printf("Database initialisation failed, exiting\n");
+		printf("Database initialisation failed, exiting\n");
 	syslog(LOG_ERR, "Database initialisation failed, exiting\n");
 	return 0;
 }
@@ -941,14 +945,14 @@ for( a = 0 ; a < options.interfaces ; a++ ) {
 
 if( !( cmdInit() ) )  {
 	if( options.verbose )
-	printf("Basic Iniation failed, exiting\n");
+		printf("Basic Iniation failed, exiting\n");
 	syslog(LOG_ERR, "Basic Iniation failed, exiting\n");
 	return 0;
 }
 sprintf( DIRCHECKER, "%s/data", sysconfig.directory );  
 if( chdir( DIRCHECKER ) == -1 ) {
 	if( options.verbose )
-	printf("Change into Database Dir Failed, exiting\n");
+		printf("Change into Database Dir Failed, exiting\n");
 	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
 	return 0;
 }
@@ -1647,9 +1651,12 @@ if( strlen(options.pipestring) ) {
 options.clientpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 printf("\n");
 while( file_exist(DIRCHECKER) ) {
-	char buffer[1024] = {0};
+	char buffer[1024] = {0}, bufferstrip[1024] = {0};
 	num = read(options.clientpipe, buffer, sizeof(buffer) );
-	if( strcmp(buffer,"<<<END>>>") == false )
+	sprintf(bufferstrip,"%s",trimwhitespace(buffer));
+	sprintf(buffer,"%s",bufferstrip);
+
+	if( strncmp(buffer,"<<<END>>>",9) == false )
 		break;
 	if ( num > 0 ) {
                 puts( buffer );

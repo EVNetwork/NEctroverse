@@ -168,7 +168,7 @@ int svFree( svConnectionPtr cnt );
 void cleanUp(int type);
 
 void svPipeScan(int pipefileid);
-int svPipeSend(int pipedirection, char *message);
+int svPipeSend(int pipedirection, char *message, ...);
 
 void svSendEnd( svConnectionPtr cnt );
 void svSendInit( svConnectionPtr cnt, int size );

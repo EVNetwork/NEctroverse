@@ -373,7 +373,7 @@ cmdTickGenRanks();
 savetickconfig();
 
 if( irccfg.bot ) {
-	if( irccfg.announcetick )
+	if( ( irccfg.announcetick ) && ( ticks.status ) )
 		ircbotsend("NOTICE %s :Game has Ticked -- Week %d, Year %d (Tick #%d)", irccfg.channel, ticks.number % 52, ticks.number / 52, ticks.number);
 }
 

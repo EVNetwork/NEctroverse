@@ -999,7 +999,6 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   dbMainPlanetDef planetd;
   dbUserPtr user;
   dbUserDescDef descd;
-  ioInterfacePtr io;
   int curtime;
 	
   iohttpBase( cnt, 1 );

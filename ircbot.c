@@ -129,3 +129,67 @@ if( irccfg.botpass ){
 return 1;  
 }
 
+int ircbotcommand( char *command ) {
+	char *sub = {0}, *chop = {0};
+
+if( strlen(command) > 3 )
+sub = ( strchr( command, ' ' ) + 1 );
+
+if( !( sub ) )
+	sub = "status";
+
+if( !( strcmp(sub,"announce") ) ){
+	if( irccfg.bot == false ) {
+		svPipeSend(0,"Bot is not enabled, can't announce tick!");
+		return 0;
+	} 
+	if( irccfg.announcetick ){
+		irccfg.announcetick = false;
+		svPipeSend(0,"Bot announce tick is now OFF!");
+		ircbotsend("NOTICE %s :Administration has disabled channel notice of game tick!", irccfg.channel);
+	} else {
+		irccfg.announcetick = true;
+		svPipeSend(0,"Bot announce tick is now ON!");
+		ircbotsend("NOTICE %s :Administration has enabled channel notice of game tick!", irccfg.channel);
+	}
+	return 1;
+} else if( !( strcmp(sub,"toggle") ) ){
+	if( irccfg.bot == false ) {
+		irccfg.bot = true;
+		ircbotconnect();
+	} else {
+		ircbotsend("NOTICE %s :Administration has requested IRC Bot shutdown!", irccfg.channel);
+		ircbotsend("PRIVMSG %s :Good bye all, untill next time! =)", irccfg.channel);
+		ircbotsend("QUIT");
+		if( close( botconn ) == -1 )
+			syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);
+		irccfg.bot = false;
+	}
+	svPipeSend(0,"%s IRC Bot.", irccfg.bot ? "Starting" : "Stoping" );
+	return 1;
+} else if( !( strncmp(sub, "hop", 3) ) ){
+	if( irccfg.bot == false ) {
+		svPipeSend(0,"Bot is not enabled, can't channel hop!");
+		return 0;
+	}
+	if( strlen(sub) > 3 )
+		chop = ( strrchr( sub, ' ' ) + 1 );
+	if( !( chop ) )
+		chop = irccfg.channel;
+	irccfg.bot = false;
+	ircbotsend("NOTICE %s :Administration has requested IRC Bot channel hop to %s!", irccfg.channel, chop);
+	ircbotsend("PART %s", irccfg.channel);
+	svPipeSend(0,"IRC Bot Left channel %s.", irccfg.channel );
+	ircbotsend("JOIN %s", chop);
+	strcpy(irccfg.channel,chop);
+	svPipeSend(0,"IRC Bot joined channel %s.", chop );
+	irccfg.bot = true;
+	return 1;
+}
+
+
+return 0;
+}
+
+
+
