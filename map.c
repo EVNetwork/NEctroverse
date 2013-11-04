@@ -168,7 +168,7 @@ for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
 		goto mainL2;
 	mapstore.arti[a] = mapstore.pbase[b] + ( rand() % mapstore.planets[b] );
 	if( options.verbose )
-	printf("( %d,%d ) ID:%d Holds: %s\n", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
+		printf("( %d,%d ) ID:%d Holds: %s\n", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
 	syslog(LOG_INFO,  "( %d,%d ) ID:%d Holds: %s\n", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
 }
 
@@ -284,7 +284,7 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 		if( strlen(admincfg.epassword) )
 			strcpy(empired.password, hashencrypt(admincfg.epassword) );
 		if( options.verbose )
-		printf("Empire %d Claimed for Administration.\n", a);
+			printf("Empire %d Claimed for Administration.\n", a);
 		syslog(LOG_INFO, "Empire %d Claimed for Administration.\n", a);
 	}
 	empired.homeid = mapstore.system[a];

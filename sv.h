@@ -1,6 +1,8 @@
 #define SERVERINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+extern char *cmdSignalNames[SIGNALS_NUMUSED];
+
 //config struct
 typedef struct {
 	//server

@@ -255,9 +255,12 @@ FILE *dbFileGenOpen( int num ) {
 		return dbFilePtr[num];
     
 	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
-		if( options.verbose )
-		printf("DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
+		if( options.verbose ) {
+			printf("DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "DBGen: %02d, Can't open \"%s\"\n", errno, szSource );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return 0;
 	}
 
@@ -305,9 +308,12 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 	}
 
 	if( num < 0x10000 ) {
-		if( options.verbose )
-		printf("Error %02d, fopen %s\n", errno, fname );
+		if( options.verbose ) {
+			printf("Error %02d, fopen %s\n", errno, fname );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	}
 
 	return 0;
@@ -342,9 +348,12 @@ FILE *dbFileFamOpen( int id, int num )
       return file;
     }
 	if( num < 0x10000 ) {
-		if( options.verbose )
-		printf("Error %02d, fopen %s\n", errno, fname );
+		if( options.verbose ) {
+			printf("Error %02d, fopen %s\n", errno, fname );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "Error %02d, fopen %s\n", errno, fname );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	}
     return 0;
   }
@@ -363,10 +372,13 @@ dbUserPtr dbUserAllocate( int id )
 {
   char pass[128];
   dbUserPtr user;
-  if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
-	if( options.verbose )
-	printf("Error, malloc dbuser failed\n" );
+if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
+	if( options.verbose ) {
+		printf("Error, malloc dbuser failed\n" );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error, malloc dbuser failed\n" );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
     return 0;
   }
   memset( user, 0, sizeof(dbUserDef) );
@@ -463,9 +475,12 @@ int dbInit() {
 	
 sprintf( COREDIR, "%s/data", sysconfig.directory );  
 if( chdir( COREDIR ) == -1 ) {
-	if( options.verbose )
-	printf("Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
+	if( options.verbose ) {
+		printf("Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return 0;
 }
 
@@ -478,9 +493,12 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	syslog(LOG_INFO, "Market database not found, creating...\n" );
 
 	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
-		if( options.verbose )
-		printf("Error, could not create market database!\n" );
+		if( options.verbose ) {
+			printf("Error, could not create market database!\n" );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "Error, could not create market database!\n" );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return 0;
 	}
 
@@ -504,9 +522,12 @@ if( !( file = fopen( "forums", "rb+" ) ) ) {
 	printf("Forum database not found, creating...\n" );
 	syslog(LOG_INFO, "Forum database not found, creating...\n" );
 	if( !( file = fopen( "forums", "wb+" ) ) ) {
-		if( options.verbose )
-		printf("Error, could not create forum database!\n" );
+		if( options.verbose ) {
+			printf("Error, could not create forum database!\n" );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "Error, could not create forum database!\n" );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return 0;
 	}
 	a = 0;
@@ -539,9 +560,12 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
 	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
 	if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) ) {
-		if( options.verbose )
-		printf("Error, could not create user database!\n" );
+		if( options.verbose ) {
+			printf("Error, could not create user database!\n" );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "Error, could not create user database!\n" );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return 0;
 	}
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
@@ -767,9 +791,12 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		if( options.verbose )
+		if( options.verbose ) {
 			printf("Data: %02d, fopen dbuseradd\n", errno );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return -3;
 	}
 	if( a == 0 )
@@ -799,9 +826,12 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		if( options.verbose )
-		printf("User: %02d, fopen dbuseradd\n", errno );
+		if( options.verbose ) {
+			printf("User: %02d, fopen dbuseradd\n", errno );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
 		syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return -3;
 	}
 	if( a == 0 )
@@ -930,9 +960,12 @@ int dbUserSave( int id, dbUserPtr user ) {
 	FILE *file;
   
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	if( options.verbose )
+	if( options.verbose ) {
 		printf("Error %02d, fopen dbsetname\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -944,9 +977,12 @@ fwrite( user->name, 1, 64, file );
 fclose( file );
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLAGS ) ) ) {
-	if( options.verbose )
+	if( options.verbose ) {
 		printf("Error %02d, fopen dbuserflags\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbuserflags\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -962,9 +998,12 @@ int dbUserSetPassword( int id, char *pass ) {
 	FILE *file;
   
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	if( options.verbose )
+	if( options.verbose ) {
 		printf("Error %02d, fopen dbsetpassword\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbsetpassword\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -981,9 +1020,12 @@ int dbUserRetrievePassword( int id, char *pass ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	if( options.verbose )
+	if( options.verbose ) {
 		printf("Error %02d, fopen dbretrievepassword\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbretrievepassword\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -2065,9 +2107,12 @@ int dbUserNewsAdd( int id, long long int *data, long long int flags )
   FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernewsadd\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernewsadd\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
   
@@ -2150,9 +2195,12 @@ long long int dbUserNewsGetFlags( int id ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernewsflags\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernewsflags\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsflags\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -2175,9 +2223,12 @@ int dbUserNewsList( int id, long long int **data )
   *data = 0;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernewslist\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernewslist\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 if( fread( &num, 1, sizeof(long long int), file ) < 1 ) {
@@ -2229,8 +2280,10 @@ long long int dbUserNewsListUpdate( int id, long long int **data, long long int 
   long long int *datap;
   *data = 0;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernews\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernews\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernews\n", errno );
 	return -3;
 }
@@ -2330,9 +2383,12 @@ int dbUserNewsEmpty( int id ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernewsempty\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernewsempty\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsempty\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -2355,9 +2411,12 @@ int dbFamNewsAdd( int id, long long int *data )
   char fname[32];
   sprintf( fname, "fam%dnews", id );
 if( !( file = fopen( fname, "rb+" ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernewsadd\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernewsadd\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
   	return -3;
 }
   
@@ -2436,9 +2495,12 @@ int dbFamNewsList( int id, long long int **data, int time )
   sprintf( fname, "fam%dnews", id );
 
 if( !( file = fopen( fname, "rb+" ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, fopen dbusernewslist\n", errno );
+	if( options.verbose ) {
+		printf("Error %02d, fopen dbusernewslist\n", errno );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
 
@@ -3553,11 +3615,15 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
   	sprintf( fname, "forum%d", num );
   else
   	sprintf( fname, "%s/forum%d", sysconfig.pubforum, num );
-  if( mkdir( fname, S_IRWXU ) == -1 )
-  {
+if( mkdir( fname, S_IRWXU ) == -1 ) {
+	if( options.verbose ){
+		printf("Error %02d, mkdir(%s)\n", errno, fname );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, mkdir(%s)\n", errno, fname );
-    return -3;
-  }
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	return -3;
+}
 	
 	if(num > 100)
   	sprintf( fname, "forum%d/threads", num );
@@ -3593,9 +3659,12 @@ int dbForumRemoveForum( int forum )
   else
   	a = sprintf( fname,  "%s/forum%d", sysconfig.pubforum, forum );
   if( !( dirdata = opendir( fname ) ) ) {
-	if( options.verbose )
-	printf("Error %02d, opendir(%s)\n", errno, fname );
+	if( options.verbose ) {
+		printf("Error %02d, opendir(%s)\n", errno, fname );
+		printf("Error description is : %s\n",strerror(errno) );
+	}
 	syslog(LOG_ERR, "Error %02d, opendir(%s)\n", errno, fname );
+	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
   }
   fname[a] = '/';
