@@ -1894,7 +1894,7 @@ void iohttpFunc_planets( svConnectionPtr cnt )
  char szColor[10];
  float fa;
  int *buffer;
- dbUserMainDef maind;
+ dbUserMainDef maind, main2d;
  dbMainPlanetDef planetd;
  int totals[7];
  float totalob;
@@ -1963,9 +1963,19 @@ else
   for( c = d = 0 ; c < CMD_BLDG_NUMUSED ; c++ )
    d += planetd.building[c];
   if(planetd.flags & CMD_PLANET_FLAGS_BEACON)
-  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a><img src=\"images/beacon.jpg\"></td><td>%d</td><td>%d", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF, planetd.size, d );
+  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>&nbsp;<img src=\"images/beacon.jpg\">", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   else
-  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a></td><td>%d</td><td>%d", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF, planetd.size, d );
+  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+
+if( planetd.surrender != -1 ) {
+    if( dbUserMainRetrieve( planetd.surrender, &main2d ) < 0 )
+	return;
+	svSendPrintf( cnt, "&nbsp;offered to <a href=\"player?id=%d\">%s</a>", planetd.surrender, main2d.faction );
+}
+
+
+svSendPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
+
   if( planetd.construction )
    svSendPrintf( cnt, " ( %d )", planetd.construction );
   for( c = CMD_BLDG_OVERBUILD ; c < CMD_BLDG_NUMUSED ; c++ )
@@ -3845,7 +3855,7 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
   
   if( ( dbMapRetrieveEmpire( maind.empire, &empired ) >= 0 ) && ( empired.numplayers >= 2 ) && !( planetd.flags & CMD_PLANET_FLAGS_HOME ) )
   {
-   svSendString( cnt, "<form action=\"planet\" method=\"POST\">Offer this planet to :" );
+   svSendString( cnt, "<br><form action=\"planet\" method=\"POST\">Offer this planet to :" );
    svSendPrintf( cnt, "<input type=\"hidden\" value=\"%d\" name=\"id\">", plnid );
    svSendString( cnt, "<select name=\"plgive\">" );
    svSendPrintf( cnt, "<option value=\"%d\">%s", -1, "No one" );
@@ -3900,6 +3910,9 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
    svSendPrintf( cnt, "This planet is owned by : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a>, networth %lld.<br><br><a href=\"attack?id=%d\">Attack this planet</a><br><br><a href=\"spec?id=%d\">Special operation</a>", planetd.owner, main2d.faction, main2d.empire, main2d.empire, (long long)main2d.networth, plnid, plnid );
  }
  svSendPrintf( cnt, "<br><br><a href=\"system?id=%d\">View system</a>", planetd.system );
+
+if( planetd.surrender == id )
+	svSendPrintf( cnt, "<br><br>%s offered you this planet <a href=\"pltake?id=%d\">accept offer?</a>", main2d.faction, plnid );
 
  svSendString( cnt, "</center></body></html>" );
 
@@ -4602,7 +4615,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( !( planetd.building[a] ) )
    continue;
   svSendPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdBuildingName[a] );
-  svSendPrintf( cnt, "<input type=\"text\" name=\"bldg%d\" size=\"10\"><br><br>There are %d on this planet<br>( %lld total )</td></tr>", a, planetd.building[a], (long long)maind.totalbuilding[a] );
+ svSendPrintf( cnt, "<input id=\"disbandrange%d\" type=\"text\" name=\"bldg%d\" size=\"10\" value=\"0\" onchange=\"changeslider(this.value,\'disbandslider%d\')\"><br>", a, a, a );
+svSendPrintf( cnt, "<input id=\"disbandslider%d\" type=\"range\" min=\"0\" max=\"%d\" value=\"0\" onchange=\"changeslider(this.value,\'disbandrange%d\')\" />", a, planetd.building[a], a );
+svSendPrintf( cnt, "<br>There are %d on this planet<br>( %lld total )</td></tr>", planetd.building[a], (long long)maind.totalbuilding[a] );
+
   b = 1;
  }
  if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
@@ -5133,7 +5149,9 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( !( fleetd.unit[a] ) )
    continue;
   svSendPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdUnitName[a] );
-  svSendPrintf( cnt, "<input type=\"text\" name=\"dis%d\" size=\"10\"><br><br>There are %d in this fleet<br>( %lld total )</td></tr>", a, fleetd.unit[a], (long long)maind.totalunit[a] );
+ svSendPrintf( cnt, "<input id=\"disbandrange%d\" type=\"text\" name=\"dis%d\" size=\"10\" value=\"0\" onchange=\"changeslider(this.value,\'disbandslider%d\')\"><br>", a, a, a );
+svSendPrintf( cnt, "<input id=\"disbandslider%d\" type=\"range\" min=\"0\" max=\"%d\" value=\"0\" onchange=\"changeslider(this.value,\'disbandrange%d\')\" />", a, fleetd.unit[a], a );
+svSendPrintf( cnt, "<br>There are %d in this fleet<br>( %lld total )</td></tr>", fleetd.unit[a], (long long)maind.totalunit[a] );
  }
  svSendString( cnt, "</table><br><input type=\"submit\" value=\"Disband\"></form>" );
 

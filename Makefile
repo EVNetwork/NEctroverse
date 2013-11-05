@@ -27,7 +27,7 @@ io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c
 db.o: *.h db.c
 	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)
 
-cmd.o: *.h cmd.c cmdexec.c cmdtick.c battle.c specop.c
+cmd.o: *.h cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
 
 map.o: *.h map.c imgpng.c

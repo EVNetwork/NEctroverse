@@ -88,3 +88,7 @@ addLoadEvent(function(){countDown();});
 function togglemb(num) { for(i=0;i<document.forms[num].length;i++) if(document.forms[num].elements[i].type == "checkbox") document.forms[num].elements[i].click(); }
 
 
+function changeslider(newValue,field) {
+	document.getElementById(field).value=newValue;
+}
+
