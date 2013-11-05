@@ -638,31 +638,40 @@ if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
 }
     opvirus = 0;
     
-    //WAR  ILLUSION we recalcul each tick 
-  	for(i=0;i<specopnum;i++)
-  	{
-  		if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000))
-			{
-				fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
-				nChicks = maind.totalunit[CMD_UNIT_WIZARD];
-				nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_WARILLUSIONS] );
-		 		penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_WARILLUSIONS] );
-		 		if( penalty )
+ //WAR  ILLUSION we recalcul each tick 
+for(i=0;i<specopnum;i++) {
+	if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000)) {
+		fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
+		nChicks = maind.totalunit[CMD_UNIT_WIZARD];
+		nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_WARILLUSIONS] );
+		penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_WARILLUSIONS] );
+		if( penalty )
 		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
-				fa = 100.0 * (float)nIllusion / (float)maind.networth;
+		fa = 100.0 * (float)nIllusion / (float)maind.networth;
     		a = (int)( fa * 4.5 );		
     		a += a * rand()%20;
     		if (a<0)
     			a = 0;
     		specopd[i].vars[0] = a;
-			}
-  	}
+	} else if (specopd[i].type == (CMD_SPELL_DARKWEB | 0x1000)) {
+		fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
+		nChicks = maind.totalunit[CMD_UNIT_WIZARD];
+		nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_DARKWEB] );
+		penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_DARKWEB] );
+		if( penalty )
+		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
+		fa = 100.0 * (float)nIllusion / (float)maind.networth;
+		a = (int)( fa * 3.5 );
+    		if (a<0)
+    			a = 0;
+    		specopd[i].vars[0] = a;
+	}
+}
   	
-    for( a = specopnum-1 ; a >= 0 ; a-- )
-    {
-      if( specopd[a].type == ( CMD_OPER_NETWORKVIRUS | 0x10000 ) )
-        opvirus++;
-    }
+for( a = specopnum-1 ; a >= 0 ; a-- ) {
+	if( specopd[a].type == ( CMD_OPER_NETWORKVIRUS | 0x10000 ) )
+		opvirus++;
+}
 
 
 ticks.debug_pass = 3;
