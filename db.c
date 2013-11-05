@@ -633,6 +633,8 @@ for( a = 0 ; a < b ; a++ ) {
 	}
 	fclose(file);
 	dbUserInfoRetrieve( a, &infod );
+//printf("%d\n",infod.id);
+//printf("%d\n",infod.rank);
 	sprintf( user->faction, "%s", infod.faction );
 	sprintf( user->forumtag, "%s", infod.forumtag );
 	user->lasttime = infod.lasttime;
@@ -1107,8 +1109,8 @@ fclose( file );
 
 if( !( user = dbUserLinkID( id ) ) )
 	return -3;
-sprintf( user->faction, "%s", maind->faction );
-sprintf( user->forumtag, "%s", maind->forumtag );
+sprintf( user->faction, "%s", maind->faction ); //FIXME: Move to infod
+sprintf( user->forumtag, "%s", maind->forumtag ); //FIXME: Move to infod
 
 return 1;
 }
@@ -1388,8 +1390,7 @@ int dbUserPlanetAdd( int id, int plnid, int sysid, int plnloc, int flags )
   dbMainPlanetDef Planetd;
   FILE *file;
   
-  
-  //Arti Code so if someone get it, it reset all their count return to 0
+
 	dbMapRetrievePlanet(plnid, &Planetd);
 	if(artefactPrecense(&Planetd) == 6)
   {
@@ -1398,7 +1399,6 @@ int dbUserPlanetAdd( int id, int plnid, int sysid, int plnloc, int flags )
     {
   		if( dbUserMainRetrieve( empired.player[a], &maind ) < 0 )
         continue;
-      maind.articount = 0; //Reset their count to zero so it become inefective
       dbUserMainSet( empired.player[a], &maind );
     }
 	}
@@ -1432,8 +1432,7 @@ int dbUserPlanetRemove( int id, int plnid )
   dbMainPlanetDef Planetd;
   FILE *file;
   
-  
-  //Arti Code so if someone lose it all their count return to 0
+
 	dbMapRetrievePlanet(plnid, &Planetd);
 	if(artefactPrecense(&Planetd) == 6)
   {
@@ -1442,7 +1441,6 @@ int dbUserPlanetRemove( int id, int plnid )
     {
   		if( dbUserMainRetrieve( empired.player[a], &maind ) < 0 )
         continue;
-      maind.articount = 0; //Reset their count to zero so it become inefective
       dbUserMainSet( empired.player[a], &maind );
     }
 	}

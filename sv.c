@@ -763,7 +763,7 @@ if( svDebugConnection ) {
 
 
 if( irccfg.bot ) {
-	ircbot_send("NOTICE %s :Server recived signal \'%s\' -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
+	ircbot_send("NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
 	ircbot_send("QUIT");
 	if( close( options.botconn ) == -1 ) {
 		syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);

@@ -13,7 +13,7 @@ vsnprintf(sbuf, SERVER_RECV_BUFSIZE, fmt, ap);
 va_end(ap);
 strcat(sbuf,ender);
 if( options.verbose )
-	printf("<< %s", sbuf);
+	printf("Sending to IRC: %s", sbuf);
 send(options.botconn, sbuf, strlen(sbuf), 0);
 
 return;
@@ -66,9 +66,9 @@ if( (sl = read(options.botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
                     
 				if (wordcount < 2) continue;
                     
-				if (!strncmp(command, "001", 3) && irccfg.channel != NULL) {
+				if (!strncmp(command, "001", 3) && ( irccfg.channel != NULL ) ) {
 					ircbot_send("JOIN %s", irccfg.channel);
-					if( irccfg.botpass ){
+					if( irccfg.botpass ){ //We always request OP, we don't care what channel it is... we just request it anyways.
 						ircbot_send("PRIVMSG ChanServ :op %s %s", irccfg.channel, irccfg.botnick);
 					}
 				} else if (!strncmp(command, "PRIVMSG", 7) || !strncmp(command, "NOTICE", 6)) {
@@ -84,6 +84,11 @@ if( (sl = read(options.botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
 						ircmsg.input = trimwhitespace(ircmsg.input);
 						ircbot_messagephrase(&ircmsg);
 					}
+				} else if( !strncmp(command, "PART", 4) || !strncmp(command, "JOIN", 4) ) {
+					if ((sep = strchr(ircmsg.nick, '!')) != NULL) ircmsg.nick[sep - ircmsg.nick] = '\0';
+					if( !strcmp(ircmsg.nick,"NickServ") || !strcmp(ircmsg.nick,"ChanServ") || !strcmp(ircmsg.nick,irccfg.botnick) ) continue;
+					//Trigger for when someone leaves/joins the channel -- We only use the one channel, so we won't bother checking where they are.
+					printf("%s from host \'%s\' %s channel.\n", ircmsg.nick, ircmsg.host, ( !strncmp(command, "JOIN", 4) ? "Joined" : "Left" ) );
 				}
 			}
 		}
@@ -146,7 +151,15 @@ sub = ( strchr( command, ' ' ) + 1 );
 if( !( sub ) )
 	sub = "status";
 
-if( !( strcmp(sub,"announce") ) ){
+if( !( strcmp(sub,"status") ) ){
+	if( irccfg.bot == false ) {
+		svPipeSend(0,"IRC Bot is not curently enabled!");
+		return 0;
+	} else {
+		svPipeSend(0,"IRC Bot is curently enabled with host \'%s\' for channel \'%s\'", irccfg.host, irccfg.channel);
+	}
+	return 1;
+} else if( !( strcmp(sub,"announce") ) ){
 	if( irccfg.bot == false ) {
 		svPipeSend(0,"Bot is not enabled, can't announce tick!");
 		return 0;
@@ -177,7 +190,7 @@ if( !( strcmp(sub,"announce") ) ){
 	return 1;
 } else if( !( strncmp(sub, "hop", 3) ) ){
 	if( irccfg.bot == false ) {
-		svPipeSend(0,"Bot is not enabled, can't channel hop!");
+		svPipeSend(0,"IRC Bot is not enabled, can't channel hop!");
 		return 0;
 	}
 	if( strlen(sub) > 3 )
@@ -205,7 +218,6 @@ return 0;
 #define IS_CTRL  (1 << 0)
 #define IS_EXT	 (1 << 1)
 #define IS_ALPHA (1 << 2)
-#define IS_DIGIT (1 << 3)
  
 unsigned int char_tbl[256] = {0};
  
@@ -240,14 +252,38 @@ void ircbot_messagephrase(ircmessageDef *irc) {
 
 init_table();
 strip(irc->input, IS_CTRL | IS_EXT);
+/* Experimental, got the idea from a forum page... not sure how it's going to work. But this will be used in Login.
+char *token, *string;
 
-
+string = strdup(irc->input);
+if(string != NULL)
+while( (token = strsep(&string, " ") ) != NULL ) {
+          printf("%s\n", token);
+}
+free(string);
+*/
 if( options.verbose )
 	printf("[from:%s] [host:%s] [reply-to:%s] %s\n", irc->nick, irc->host, irc->target, irc->input);
 
-
-// Test responce, we just deny all ability for now... untill something's actually added.
-ircbot_send("NOTICE %s :<%s> is not currently an input I recognize!", irc->target, irc->input); 
+if( !strcmp(irc->input,"tick") ){
+	if( ticks.status ) {
+		ircbot_send("NOTICE %s :Week %d, Year %d (Tick #%d)", irc->target, ticks.number % 52, ticks.number / 52, ticks.number );
+	} else {
+		ircbot_send("NOTICE %s :Game time is frozen!", irc->target );
+	}
+} else if( !strncmp(irc->input,"login", 5) ) {
+	printf("%s of host:%s attempted to login via IRC bot.\n", irc->nick, irc->host);
+	if(irc->target != irc->nick) {
+		ircbot_send("NOTICE %s :Login via public is so unsafe... I'm going to deny login.", irc->nick);
+		ircbot_send("NOTICE %s :Please only use Private Message or Notice to login.", irc->nick);
+		ircbot_send("NOTICE %s :Sorry %s, your login attempt is invalid!", irc->target, irc->nick);
+		return;
+	}
+	ircbot_send("NOTICE %s :Sorry, %s is currently in construction!", irc->target, irc->input);
+} else {
+	//Deny ability for any input not listed above.
+	ircbot_send("NOTICE %s :<%s> is not currently a command I recognize!", irc->target, irc->input);
+}
 
 return;
 }

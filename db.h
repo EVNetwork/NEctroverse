@@ -10,12 +10,12 @@ typedef struct
   int reserved;
   char name[64];
 
-  // fast access informations
+  //fast access informations -- copied from maind for now. FIXME
   char faction[32];
   char forumtag[32];
   int session[4];
   int lasttime;
-
+  //Pointers for next/last user in list.
   void *next;
   void **prev;
 } dbUserDef, *dbUserPtr;
@@ -94,7 +94,7 @@ typedef struct
   int artefacts;
   int rank;
   int aidaccess;
-  long long int articount;   		//Can be use to count thing for artefact (ex: delay)
+  int flags;
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );
@@ -256,11 +256,6 @@ typedef struct
   char password[128];
   char message[2][4096];
 } dbMainEmpireDef, *dbMainEmpirePtr;
-
-typedef struct
-{
-  char desc[4096];
-} dbEmpireDescDef, *dbEmpireDescPtr;
 
 typedef struct
 {
