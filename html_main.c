@@ -111,7 +111,7 @@ svSendString( cnt, "</head>" );
 svSendString( cnt, "<body" );
 
 if( flags & 8 )
-	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
+	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown(); gametimer(); hosttimer();\" " );
 
 
 svSendString( cnt, "><center>" );

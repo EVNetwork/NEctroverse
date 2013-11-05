@@ -3919,7 +3919,7 @@ if( planetd.surrender == id )
  return;
 }
 
-
+//FIXME : Merge into _planet
 void iohttpFunc_pltake( svConnectionPtr cnt )
 {
  int id, plnid;

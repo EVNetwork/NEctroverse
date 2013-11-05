@@ -637,7 +637,7 @@ if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
 	continue;
 }
     opvirus = 0;
-    
+ /*   
  //WAR  ILLUSION we recalcul each tick 
 for(i=0;i<specopnum;i++) {
 	if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000)) {
@@ -667,7 +667,7 @@ for(i=0;i<specopnum;i++) {
     		specopd[i].vars[0] = a;
 	}
 }
-  	
+*/  	
 for( a = specopnum-1 ; a >= 0 ; a-- ) {
 	if( specopd[a].type == ( CMD_OPER_NETWORKVIRUS | 0x10000 ) )
 		opvirus++;

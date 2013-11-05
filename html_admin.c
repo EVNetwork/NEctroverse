@@ -178,7 +178,7 @@ iohttpBodyInit( cnt, "Forums Administration" );
       svSendString( cnt, "<i>Forum deleted</i><br><br>" );
   }
 
-
+iohttpVarsCut();
 
   meat:
 
