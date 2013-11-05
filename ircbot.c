@@ -10,7 +10,7 @@ void ircbot_send(char *fmt, ...) {
 va_start(ap, fmt);
 vsnprintf(sbuf, 512, fmt, ap);
 va_end(ap);
-strcat(sbuf,ender);
+strncat(sbuf, ender, 512 - strlen(sbuf) - 1);
 if( options.verbose )
 	printf("Sending to IRC: %s\n", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines. 
 send(options.botconn, sbuf, strlen(sbuf), 0);
