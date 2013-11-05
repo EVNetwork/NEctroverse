@@ -962,8 +962,8 @@ if((sid = setsid()) < 0) {
 	return 0;
 }
 
-// Next, make / the current directory.
-if((chdir("/")) < 0) {
+// Next, make /tmp/evcore the current directory. -- I do this, just because I can. (It doesn't matter it changes a lot latter, I need to fix that still).
+if((chdir("/tmp/evcore")) < 0) {
 	syslog(LOG_ERR, "%s\n", "chdir has failed, unable to fork into daemon");
 	return 0;
 }

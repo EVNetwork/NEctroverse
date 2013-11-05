@@ -1,7 +1,7 @@
 #define COMMANDINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
-int cmdUserNewsAdd( int id, long long int *data, long long int flags );
+int cmdUserNewsAdd( int id, int64_t *data, int64_t flags );
 
 int cmdFindDistPortal( int id, int tx, int ty, int *distptr, int *portalpos );
 
@@ -59,9 +59,9 @@ int cmdExecTakePlanet( int id, int plnid );
 
 int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size );
 
-void cmdGetBuildCosts( dbUserMainPtr maind, int type, long long int *buffer );
+void cmdGetBuildCosts( dbUserMainPtr maind, int type, int64_t *buffer );
 float cmdGetBuildOvercost( int size, int total );
-void cmdGetBuildOverbuild( int size, int total, long long int *buffer );
+void cmdGetBuildOverbuild( int size, int total, int64_t *buffer );
 
 int cmdGetOpPenalty( int research, int requirement );
 
@@ -74,11 +74,11 @@ int specopGhostsAllowed( int specop, int raceid );
 
 
 int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d );
-void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long int *newd );
+void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *newd );
 int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d );
-void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, long long int *newd );
+void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, int64_t *newd );
 int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d );
-void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long int *newd );
+void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *newd );
 
 
 float specopDarkWebCalc( int id );
@@ -108,7 +108,7 @@ int cmdInit();
 void cmdEnd();
 
 
-extern long long int cmdFleetActionNewd[DB_USER_NEWS_BASE];
+extern int64_t cmdFleetActionNewd[DB_USER_NEWS_BASE];
 
 
 

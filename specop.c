@@ -179,7 +179,7 @@ void specopReduceEctroliumBids( int id, float loss )
 8: defender agents losses
 9: operation ID
 */
-void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long int *newd )
+void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *newd )
 {
   int a, b, c, d, x, y, plnx, plny, specop, penalty, attack, defense, stealth, postnew;
   int i, nCancel = 0;
@@ -319,8 +319,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	      newd[15+CMD_BLDG_NUMUSED] = artefactPrecense( &planetd );
 	    if( success >= 0.9 )
 	    {
-	      newd[15+1+CMD_BLDG_NUMUSED] = (long long int)planetd.special[0];
-	      newd[15+2+CMD_BLDG_NUMUSED] = (long long int)planetd.special[1];
+	      newd[15+1+CMD_BLDG_NUMUSED] = (int64_t)planetd.special[0];
+	      newd[15+2+CMD_BLDG_NUMUSED] = (int64_t)planetd.special[1];
 	    }
 	    if( planetd.owner == -1 )
 	    {
@@ -470,11 +470,11 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 	    {
 	      specopCalcMarketBids( planetd.owner, resources );
 	      fa = 0.01 * (float)a;
-	      newd[10] = (long long int)( fa * (float)( main2d.ressource[0] + resources[0] ) );
+	      newd[10] = (int64_t)( fa * (float)( main2d.ressource[0] + resources[0] ) );
 	      specopReduceEnergyBids( planetd.owner, fa );
-	      main2d.ressource[0] = (long long int)( (float)(main2d.ressource[0]) * ( 1.0 - fa ) );
+	      main2d.ressource[0] = (int64_t)( (float)(main2d.ressource[0]) * ( 1.0 - fa ) );
 	      fb = 0.3 + (0.7/255.0) * (float)( rand() & 255 );
-	      newd[11] = (long long int)( fb * (float)newd[10] );
+	      newd[11] = (int64_t)( fb * (float)newd[10] );
 	      maind.ressource[0] += newd[11];
 	      dbUserMainSet( id, &maind );
 	      dbUserMainSet( planetd.owner, &main2d );
@@ -746,10 +746,10 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
 6: defender psychics losses
 7: spell ID
 */
-void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, long long int *newd )
+void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, int64_t *newd )
 {
   int a, penalty, defense, stealth, i;
-  long long int j, attack;
+  int64_t j, attack;
   float fa, success, refatt, refdef, tlosses;
   dbUserFleetDef fleetd, fleet2d;
   dbUserMainDef maind, main2d;
@@ -786,7 +786,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
     return;
   fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
 
-	attack = (long long int)( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)psychics * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[specop] );
+	attack = (int64_t)( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)psychics * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[specop] );
 /* //ARTI CODE
 	  if(maind.artefacts & ARTEFACT_ANTI_BIT)
 	  	attack *= 0.8;*/
@@ -826,12 +826,12 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
       tlosses = 1.0 - pow( ( 0.5 * success ), 0.2 );
       assault:
 
-      newd[5] = (long long int)( refatt * tlosses * (float)psychics );
+      newd[5] = (int64_t)( refatt * tlosses * (float)psychics );
    	  if( ( refdef * tlosses ) > 1.0 ) 
              psychics = (newd[5] * 0.8);
       fleetd.unit[CMD_UNIT_WIZARD]  -= (int)newd[5];
 		
-      newd[6] = (long long int)( refdef * tlosses * (float)(fleet2d.unit[CMD_UNIT_WIZARD]) );
+      newd[6] = (int64_t)( refdef * tlosses * (float)(fleet2d.unit[CMD_UNIT_WIZARD]) );
 	  if( ( refdef * tlosses ) > 1.0 ) newd[6] = fleet2d.unit[CMD_UNIT_WIZARD];
       fleet2d.unit[CMD_UNIT_WIZARD] -= (int)newd[6];
 
@@ -918,7 +918,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, lo
     maind.ressource[CMD_RESSOURCE_CRYSTAL] -= j;
   
     newd[8] = j;
-    newd[9] = (long long int)( (float)j * 24.0 * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) );
+    newd[9] = (int64_t)( (float)j * 24.0 * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) );
     
     maind.ressource[CMD_RESSOURCE_ENERGY] += newd[9];
     
@@ -1127,7 +1127,7 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 9: defender ghosts losses
 10: operation ID
 */
-void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long int *newd )
+void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *newd )
 {
   int a, b, c, d, x, y, dx, dy, specop, penalty, attack, defense, defenseghosts, stealth, postnew, plntarget;
   double fb, success, successghosts, refatt, refdef, tlosses;//, dist;
@@ -1200,7 +1200,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, long long 
 if( maind.artefacts & ARTEFACT_16_BIT )
   attack = (int)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (float)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (float)cmdGhostopDifficulty[specop] *1.2);
 else //code arti
-	attack = (long long int)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] ); 
+	attack = (int64_t)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] ); 
   
 	if( penalty )
     attack = (double)attack / ( 1.0 + 0.01*(double)penalty );
@@ -1224,7 +1224,7 @@ else //code arti
     {
       refdef = 0.5 * pow( ( 0.5 * success ), 1.1 );
       tlosses = 1.0 - pow( ( 0.5 * success ), 0.2 );
-      newd[8] = (long long int)( refdef * tlosses * (double)(fleet2d.unit[CMD_UNIT_WIZARD]) );
+      newd[8] = (int64_t)( refdef * tlosses * (double)(fleet2d.unit[CMD_UNIT_WIZARD]) );
       if( newd[8] >= fleet2d.unit[CMD_UNIT_WIZARD] )
         newd[8] = fleet2d.unit[CMD_UNIT_WIZARD];
       fleet2d.unit[CMD_UNIT_WIZARD] -= (int)newd[8];
@@ -1241,12 +1241,12 @@ else //code arti
         tlosses = 1.0 - pow( ( 0.5 * successghosts ), 0.2 );
         
         //This is where attacker losse their ghost ship
-        newd[7] = (long long int)( refatt * tlosses * (double)(fleetd->unit[CMD_UNIT_GHOST]) );
+        newd[7] = (int64_t)( refatt * tlosses * (double)(fleetd->unit[CMD_UNIT_GHOST]) );
         if( newd[7] >= fleetd->unit[CMD_UNIT_GHOST] )
           newd[7] = fleetd->unit[CMD_UNIT_GHOST];
         fleetd->unit[CMD_UNIT_GHOST] -= (int)newd[7];
 
-        newd[9] = (long long int)( refdef * tlosses * (double)(fleet2d.unit[CMD_UNIT_GHOST]) );
+        newd[9] = (int64_t)( refdef * tlosses * (double)(fleet2d.unit[CMD_UNIT_GHOST]) );
 
         if( newd[9] >= fleet2d.unit[CMD_UNIT_GHOST] )
           newd[9] = fleet2d.unit[CMD_UNIT_GHOST];

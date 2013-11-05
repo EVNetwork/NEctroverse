@@ -47,7 +47,7 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 		a = dbUserNewsGetFlags( id );
 		//OK, so they are loged in... time to send some info. Lets start with the header. =)
 		svSendString( cnt, "<header>" );
-		svSendPrintf( cnt, "<networth>%lld</networth>", maind.networth );
+		svSendPrintf( cnt, "<networth>%lld</networth>", (long long)maind.networth );
 		svSendString( cnt, "<notification>" );
 		svSendPrintf( cnt, "<mail>%d</mail>",  ( a & CMD_NEWS_FLAGS_MAIL ) ? true : false );
 		svSendPrintf( cnt, "<build>%d</build>",  ( a & CMD_NEWS_FLAGS_BUILD ) ? true : false );
@@ -60,9 +60,9 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 			for(b = 0; CHECKER[b]; b++){
 				CHECKER[b] = tolower(CHECKER[b]);
 			}
-			svSendPrintf( cnt, "<%s>%lld</%s>", CHECKER, maind.ressource[a], CHECKER );
+			svSendPrintf( cnt, "<%s>%lld</%s>", CHECKER, (long long)maind.ressource[a], CHECKER );
 		}
-		svSendPrintf( cnt, "<population>%lld</population>", maind.ressource[CMD_RESSOURCE_POPULATION] );
+		svSendPrintf( cnt, "<population>%lld</population>", (long long)maind.ressource[CMD_RESSOURCE_POPULATION] );
 		svSendString( cnt, "</ressources>" );
 		svSendString( cnt, "</header>" );
 		svSendPrintf( cnt, "<%s>", refer );
@@ -83,19 +83,19 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 			svSendString( cnt, "<incomes>" );
 			svSendPrintf( cnt, "<taxlevel>%.02f</taxlevel>", ( empired.taxation * 100 ) );
 			for( a = 0 ; a < INFOS_TOTAL_NUMUSED ; a++ ) {
-				svSendPrintf( cnt, "<%s>%lld</%s>", cmdMainInfoNames[a], maind.infos[a], cmdMainInfoNames[a] );
+				svSendPrintf( cnt, "<%s>%lld</%s>", cmdMainInfoNames[a], (long long)maind.infos[a], cmdMainInfoNames[a] );
 			}
 			svSendString( cnt, "</incomes>" );
 			svSendString( cnt, "<bldings>" );
 			for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
-				svSendPrintf( cnt, "<bld%d>%lld</bld%d>", a, maind.totalbuilding[a], a );
+				svSendPrintf( cnt, "<bld%d>%lld</bld%d>", a, (long long)maind.totalbuilding[a], a );
 				b += (int)maind.totalbuilding[a];
 			}
 			svSendPrintf( cnt, "<bldnum>%d</bldnum>", b );
 			svSendString( cnt, "</bldings>" );
 			svSendString( cnt, "<allunits>" );
 			for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-				svSendPrintf( cnt, "<unt%d>%lld</unt%d>", a, maind.totalunit[a], a );
+				svSendPrintf( cnt, "<unt%d>%lld</unt%d>", a, (long long)maind.totalunit[a], a );
 				b += (int)maind.totalunit[a];
 			}
 			svSendPrintf( cnt, "<untnum>%d</untnum>", b );

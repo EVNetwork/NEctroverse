@@ -219,7 +219,7 @@ iohttpBodyEnd( cnt );
 void iohttpFunc_moderator( svConnectionPtr cnt )
 {
   int id, a, b, c, x, y, num, actionid, i0, numbuild, curtime, cmd[2];
-  long long int i1;
+  int64_t i1;
   float fa;
   dbUserBuildPtr build;
   dbUserMainDef maind, main2d;
@@ -232,7 +232,7 @@ void iohttpFunc_moderator( svConnectionPtr cnt )
   char *actionstring, *str0, *str1;
   char COREDIR[256];
   dbUserPtr user;
-  long long int *newsp, *newsd;
+  int64_t *newsp, *newsd;
   int *buffer;
   int *plist;
   dbMainEmpireDef empired;
@@ -437,14 +437,14 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     svSendPrintf( cnt, "Tag points : %d<br>", maind.tagpoints );
     svSendPrintf( cnt, "User level : %d<br><br>", user->level );
     svSendPrintf( cnt, "Planets : %d<br>", maind.planets );
-    svSendPrintf( cnt, "Networth : %lld<br>", maind.networth );
+    svSendPrintf( cnt, "Networth : %lld<br>", (long long)maind.networth );
     svSendPrintf( cnt, "Empire : #%d<br>", maind.empire );
     svSendPrintf( cnt, "Artefacts : 0x%x<br>", maind.artefacts );
 	
     for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
-      svSendPrintf( cnt, "%s : %lld<br>", cmdRessourceName[a], maind.ressource[a] );
+      svSendPrintf( cnt, "%s : %lld<br>", cmdRessourceName[a], (long long)maind.ressource[a] );
     for( a = 0; a < CMD_RESEARCH_NUMUSED ; a++ )
-      svSendPrintf( cnt, "%s : %lld %%<br>", cmdResearchName[a], maind.totalresearch[a] );
+      svSendPrintf( cnt, "%s : %lld %%<br>", cmdResearchName[a], (long long)maind.totalresearch[a] );
     svSendPrintf( cnt, "Fleet readiness : %d %%<br>", maind.readiness[0] >> 16 );
     svSendPrintf( cnt, "Psychics readiness : %d %%<br>", maind.readiness[1] >> 16 );
     svSendPrintf( cnt, "Agents readiness : %d %%<br>", maind.readiness[2] >> 16 );
@@ -530,7 +530,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( sscanf( str0, "%d", &i0 ) != 1 )
       goto iohttpFunc_moderatorL0;
-    if( sscanf( str1, "%lld", &i1 ) != 1 )
+    if( sscanf( str1, "%" SCNd64, &i1 ) != 1 )
       goto iohttpFunc_moderatorL0;
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
@@ -538,8 +538,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     maind.ressource[i0] = i1;
     dbUserMainSet( actionid, &maind );
-    svSendPrintf( cnt, "Resource %d of %d changed to %lld.<br><br>", i0, actionid, i1 );
-    fprintf( file, "%s > Resource %d of player %s changed to %lld \n",main2d.faction,i0, maind.faction, i1);
+    svSendPrintf( cnt, "Resource %d of %d changed to %lld.<br><br>", i0, actionid, (long long)i1 );
+    fprintf( file, "%s > Resource %d of player %s changed to %lld \n",main2d.faction,i0, maind.faction, (long long)i1);
   }
 
   if( ( actionstring = iohttpVarsFind( "seemarket" ) ) )
@@ -631,10 +631,10 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
-    svSendPrintf( cnt, "Funding : %lld<br>", maind.fundresearch );
+    svSendPrintf( cnt, "Funding : %lld<br>", (long long)maind.fundresearch );
     svSendString( cnt, "<table width=\"90%%\" cellspacing=\"8\">" );
     for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
-      svSendPrintf( cnt, "<tr><td nowrap><b>%s</b></td><td nowrap>%lld Points</td><td nowrap>%lld%%</td></tr>", cmdResearchName[a], maind.research[a], maind.totalresearch[a] );
+      svSendPrintf( cnt, "<tr><td nowrap><b>%s</b></td><td nowrap>%lld Points</td><td nowrap>%lld%%</td></tr>", cmdResearchName[a], (long long)maind.research[a], (long long)maind.totalresearch[a] );
     svSendString( cnt, "</table>" );
     fprintf( file, "%s >research of player %s viewed \n",main2d.faction, maind.faction);
   }
@@ -652,8 +652,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     maind.fundresearch = i0;
     dbUserMainSet( actionid, &maind );
-    svSendPrintf( cnt, "Research funding of %d set to %lld.", actionid, maind.fundresearch );
-    fprintf( file, "%s >research funding of player %s set to %lld\n",main2d.faction, maind.faction , maind.fundresearch);
+    svSendPrintf( cnt, "Research funding of %d set to %lld.", actionid, (long long)maind.fundresearch );
+    fprintf( file, "%s >research funding of player %s set to %lld\n",main2d.faction, maind.faction, (long long)maind.fundresearch);
 
   }
 
@@ -668,7 +668,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( sscanf( str0, "%d", &i0 ) != 1 )
       goto iohttpFunc_moderatorL0;
-    if( sscanf( str1, "%lld", &i1 ) != 1 )
+    if( sscanf( str1, "%" SCNd64, &i1 ) != 1 )
       goto iohttpFunc_moderatorL0;
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
@@ -683,8 +683,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     }
 
     dbUserMainSet( actionid, &maind );
-    svSendPrintf( cnt, "Research points of player %d in research field %d set to %lld.", actionid, i0, i1 );
-    fprintf( file, "%s >research points of player %s in research field %d set to %lld \n",main2d.faction, maind.faction , i0, i1);
+    svSendPrintf( cnt, "Research points of player %d in research field %d set to %lld.", actionid, i0, (long long)i1 );
+    fprintf( file, "%s >research points of player %s in research field %d set to %lld \n",main2d.faction, maind.faction , i0, (long long)i1);
   }
 
   if( ( actionstring = iohttpVarsFind( "setreadiness" ) ) )
@@ -698,7 +698,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( sscanf( str0, "%d", &i0 ) != 1 )
       goto iohttpFunc_moderatorL0;
-    if( sscanf( str1, "%lld", &i1 ) != 1 )
+    if( sscanf( str1, "%" SCNd64, &i1 ) != 1 )
       goto iohttpFunc_moderatorL0;
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
@@ -706,8 +706,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     maind.readiness[i0] = i1 << 16;
     dbUserMainSet( actionid, &maind );
-    svSendPrintf( cnt, "Readiness %d of player %d set to %lld.", i0, actionid, i1 );
-    fprintf( file, "%s >Readiness %d of player %s set to %lld \n",main2d.faction, i0,maind.faction,i1);
+    svSendPrintf( cnt, "Readiness %d of player %d set to %lld.", i0, actionid, (long long)i1 );
+    fprintf( file, "%s >Readiness %d of player %s set to %lld \n",main2d.faction, i0, maind.faction, (long long)i1);
   }
 
   if( ( actionstring = iohttpVarsFind( "seefleets" ) ) )
@@ -759,7 +759,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( sscanf( str0, "%d", &i0 ) != 1 )
       goto iohttpFunc_moderatorL0;
-    if( sscanf( str1, "%lld", &i1 ) != 1 )
+    if( sscanf( str1, "%" SCNd64, &i1 ) != 1 )
       goto iohttpFunc_moderatorL0;
     if( dbUserFleetRetrieve( actionid, 0, &fleetd ) < 0 )
       goto iohttpFunc_moderatorL0;
@@ -767,8 +767,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     fleetd.unit[i0] = i1;
     dbUserFleetSet( actionid, 0, &fleetd );
-    svSendPrintf( cnt, "Unit %d of player %d set to %lld.", i0, actionid, i1 );
-    fprintf( file, "%s >unit %d of player %s set to %lld \n",main2d.faction, i0, maind.faction, i1);
+    svSendPrintf( cnt, "Unit %d of player %d set to %lld.", i0, actionid, (long long)i1 );
+    fprintf( file, "%s >unit %d of player %s set to %lld \n",main2d.faction, i0, maind.faction, (long long)i1);
   }
 
   if( ( actionstring = iohttpVarsFind( "clearops" ) ) )
@@ -861,7 +861,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( sscanf( str0, "%d", &i0 ) != 1 )
       goto iohttpFunc_moderatorL0;
-    if( sscanf( str1, "%lld", &i1 ) != 1 )
+    if( sscanf( str1, "%" SCNd64, &i1 ) != 1 )
       goto iohttpFunc_moderatorL0;
     if( (unsigned int)i0 >= CMD_BLDG_NUMUSED )
       goto iohttpFunc_moderatorL0;
@@ -869,8 +869,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     planetd.building[i0] = i1;
     dbMapSetPlanet( actionid, &planetd );
-    svSendPrintf( cnt, "Number of %s on %d set to %lld", cmdBuildingName[i0], actionid, i1 );
-    fprintf( file, "%s >Number of building %s on %d set to %lld \n",main2d.faction, cmdBuildingName[i0], actionid, i1);
+    svSendPrintf( cnt, "Number of %s on %d set to %lld", cmdBuildingName[i0], actionid, (long long)i1 );
+    fprintf( file, "%s >Number of building %s on %d set to %lld \n",main2d.faction, cmdBuildingName[i0], actionid, (long long)i1);
   }
 
   if( ( actionstring = iohttpVarsFind( "givepop" ) ) )
@@ -1245,9 +1245,9 @@ sysconfig.shutdown = true;
     if( sscanf( action[9], "%d", &a ) == 1 )
     {
       dbUserMainRetrieve( a, &maind );
-      maind.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(200000);
+      maind.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(200000);
       dbUserMainSet( a, &maind );
-      svSendPrintf( cnt, "User %d now got %lld energy<br><br>", a, maind.ressource[CMD_RESSOURCE_ENERGY] );
+      svSendPrintf( cnt, "User %d now got %lld energy<br><br>", a, (long long)maind.ressource[CMD_RESSOURCE_ENERGY] );
     }
   }
 
@@ -1268,9 +1268,9 @@ sysconfig.shutdown = true;
 
 
         if( !( buffer[c+DB_MARKETBID_ACTION] ) )
-          maind.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(buffer[c+DB_MARKETBID_QUANTITY] * buffer[c+DB_MARKETBID_PRICE]);
+          maind.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(buffer[c+DB_MARKETBID_QUANTITY] * buffer[c+DB_MARKETBID_PRICE]);
         else
-          maind.ressource[buffer[c+DB_MARKETBID_RESSOURCE]+1] += (long long int)(buffer[c+DB_MARKETBID_QUANTITY]);
+          maind.ressource[buffer[c+DB_MARKETBID_RESSOURCE]+1] += (int64_t)(buffer[c+DB_MARKETBID_QUANTITY]);
       }
       if( buffer )
         free( buffer );

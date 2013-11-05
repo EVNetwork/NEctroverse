@@ -177,14 +177,14 @@ int battle( int id, int fltid, int *results )
   dbUserFleetDef fleetd, fleet2d;
   dbMainPlanetDef planetd;
   dbUserBuildPtr buildd;
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
   dbUserPtr user;
   double attstats[CMD_UNIT_FLEET][CMD_UNIT_STATS_BATTLE];
   double defstats[CMD_UNIT_FLEET][CMD_UNIT_STATS_BATTLE];
 
   int shields;
   int defsats, defsatsbase;
-  long long int hpcarrier, hptransport, hpcruiser, hpbomber, hpfighter, hpsoldier, hpdroid, hpgoliath, hpphantom, hptotal, hpsats;
+  int64_t hpcarrier, hptransport, hpcruiser, hpbomber, hpfighter, hpsoldier, hpdroid, hpgoliath, hpphantom, hptotal, hpsats;
   double damcarrier, damtransport, damcruiser, dambomber, damfighter, damsoldier, damdroid, damgoliath, damphantom, damsats;
 
   // get attacking fleet

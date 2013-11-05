@@ -6,11 +6,11 @@ void iohttpFunc_main( svConnectionPtr cnt );
 
 void iohttpFunc_menu( svConnectionPtr cnt );
 
-void iohttpNewsString( svConnectionPtr cnt, long long int *newsd );
+void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd );
 
-void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, long long int *newsd );
+void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd );
 
-void iohttpFamNews( svConnectionPtr cnt, int num, long long int *newsd, dbMainEmpirePtr empired );
+void iohttpFamNews( svConnectionPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired );
 
 void iohttpFunc_hq( svConnectionPtr cnt );
 

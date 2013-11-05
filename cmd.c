@@ -115,7 +115,7 @@ char *cmdResearchDesc[CMD_RESEARCH_NUMUSED] =
 };
 
 
-long long int cmdBuildingCost[CMD_BLDG_NUMUSED+1][CMD_RESSOURCE_NUMUSED+1] =
+int64_t cmdBuildingCost[CMD_BLDG_NUMUSED+1][CMD_RESSOURCE_NUMUSED+1] =
 {
 // energy, mineral, crystal, endurium, time
 { 120, 10,  0,  1,  4 },
@@ -143,7 +143,7 @@ int cmdBuildingFlags[CMD_BLDG_NUMUSED] =
 };
 
 
-long long int cmdUnitCost[CMD_UNIT_NUMUSED][CMD_RESSOURCE_NUMUSED+1] =
+int64_t cmdUnitCost[CMD_UNIT_NUMUSED][CMD_RESSOURCE_NUMUSED+1] =
 {
 // energy, mineral, crystal, endurium, time
 { 250, 15,  0,  5,  6 },
@@ -503,7 +503,7 @@ dbUserFleetDef cmdUserFleetDefault =
 
 
 
-void cmdEmpireNewsAdd( int famid, int id, long long int *data )
+void cmdEmpireNewsAdd( int famid, int id, int64_t *data )
 {
   if( data[2] == CMD_NEWS_BUILDING )
     return;
@@ -538,7 +538,7 @@ void cmdEmpireNewsAdd( int famid, int id, long long int *data )
   return;
 }
 
-int cmdUserNewsAdd( int id, long long int *data, long long int flags )
+int cmdUserNewsAdd( int id, int64_t *data, int64_t flags )
 {
   int a;
   dbUserMainDef maind;
@@ -657,8 +657,8 @@ int cmdTotalsCalculate( int usrid, dbUserMainPtr mainp )
   dbMainEmpireDef empired;
   dbUserFleetPtr fleetd;
 
-  memset( mainp->totalbuilding, 0, CMD_BLDG_NUMUSED*sizeof(long long int) );
-  memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(long long int) );
+  memset( mainp->totalbuilding, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+  memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )
     return 0;
 
@@ -684,7 +684,7 @@ int cmdTotalsCalculate( int usrid, dbUserMainPtr mainp )
 
   }
   mainp->planets = num;
-  mainp->ressource[CMD_RESSOURCE_POPULATION] = (long long int)population;
+  mainp->ressource[CMD_RESSOURCE_POPULATION] = (int64_t)population;
   free( buffer );
   if( ( num = dbUserFleetList( usrid, &fleetd ) ) < 0 )
     return 0;
@@ -710,7 +710,7 @@ void cmdExecuteFlush()
 
 
 /* |0x10000 for unit */
-void cmdGetBuildCosts( dbUserMainPtr maind, int type, long long int *buffer )
+void cmdGetBuildCosts( dbUserMainPtr maind, int type, int64_t *buffer )
 {
   int a;
   int b = 0;
@@ -730,7 +730,7 @@ void cmdGetBuildCosts( dbUserMainPtr maind, int type, long long int *buffer )
         buffer[0] = -1;
         return;
       }
-      buffer[CMD_RESSOURCE_NUMUSED+1] = (long long int)da;
+      buffer[CMD_RESSOURCE_NUMUSED+1] = (int64_t)da;
       cost *= 1.0 + 0.01*da;
     }
     for( a = 0 ; a < CMD_RESSOURCE_NUMUSED+1 ; a++ )
@@ -757,7 +757,7 @@ void cmdGetBuildCosts( dbUserMainPtr maind, int type, long long int *buffer )
         buffer[0] = -1;
         return;
       }
-      buffer[CMD_RESSOURCE_NUMUSED+1] = (long long int)da;
+      buffer[CMD_RESSOURCE_NUMUSED+1] = (int64_t)da;
       cost *= 1.0 + 0.01*da;
     }
     for( a = 0 ; a < CMD_RESSOURCE_NUMUSED+1 ; a++ )
@@ -784,7 +784,7 @@ float cmdGetBuildOvercost( int size, int total )
   return ( cost * cost );
 }
 
-void cmdGetBuildOverbuild( int size, int total, long long int *buffer )
+void cmdGetBuildOverbuild( int size, int total, int64_t *buffer )
 {
   int a;
   float cost;
@@ -885,14 +885,14 @@ char *cmdTagFind( int points )
 
 
 
-long long int cmdFleetActionNewd[DB_USER_NEWS_BASE];
+int64_t cmdFleetActionNewd[DB_USER_NEWS_BASE];
 
 void specopFleetPerform( dbUserFleetPtr fleetd, int *newd );
 
 int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
 {
   int a, andl, i, nFltid;
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
   dbMainPlanetDef planetd;
   dbMainSystemDef systemd;
   dbUserFleetDef fleet2d;
@@ -906,7 +906,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
     andl = 0xFFFFFFFF;
   }
   newd[0] = ticks.number;
-  memcpy( cmdFleetActionNewd, newd, 2*sizeof(long long int) );
+  memcpy( cmdFleetActionNewd, newd, 2*sizeof(int64_t) );
 
   if( fleetd->order == CMD_FLEET_ORDER_EXPLORE )
   {
@@ -1149,12 +1149,12 @@ void cmdFleetGetPosition( dbUserFleetPtr fleetd, int *x, int *y )
 int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 {
   int a, b, c, d; 
-  long long int cost[4];
+  int64_t cost[4];
   float fa, fb, fc;
   char *cbuffer;
   int *ibuffer;
-  long long int newd[DB_USER_NEWS_BASE];
-  long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
+  int64_t newd[DB_USER_NEWS_BASE];
+  int64_t resbuild[CMD_RESSOURCE_NUMUSED+2];
   int marketbid[DB_MARKETBID_NUMUSED];
   int bidresult[2];
   int marketfull[6*DB_MARKET_RANGE];
@@ -1365,7 +1365,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
         	break;
         for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
         {
-          costbuild[a] += (long long int)(resbuild[a] * fa);
+          costbuild[a] += (int64_t)(resbuild[a] * fa);
           if( maind.ressource[a] < costbuild[a] )
           {
             if( (b<<2) < cmd[3] )
@@ -1377,7 +1377,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       }
       for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
       {
-        maind.ressource[a] -= (long long int)(ceil( costbuild[a] ));
+        maind.ressource[a] -= (int64_t)(ceil( costbuild[a] ));
         cost[a] = ceil(costbuild[a]);
       }
     }
@@ -1385,7 +1385,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
     {
       for( a = c = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
       {
-        maind.ressource[a] -= (long long int)resbuild[a] * cmd[3];
+        maind.ressource[a] -= (int64_t)resbuild[a] * cmd[3];
         cost[a] = resbuild[a] * cmd[3];
         if( maind.ressource[a] < 0 )
           c = 1;
@@ -1400,7 +1400,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
       {
         if( maind.ressource[a] < 0 )
-          d += sprintf( &cmdErrorBuffer[d], "%lld %s ", -maind.ressource[a], cmdRessourceName[a] );
+          d += sprintf( &cmdErrorBuffer[d], "%+lld %s ", (long long)maind.ressource[a], cmdRessourceName[a] );
       }
       if( !( cmd[2] >> 16 ) )
         sprintf( &cmdErrorBuffer[d], "to build %d %s", b, cmdBuildingName[ cmd[2] & 0xFFF ] );
@@ -1745,11 +1745,11 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       a = cmd[4] * cmd[5];
       if( maind.ressource[CMD_RESSOURCE_ENERGY] < a )
       {
-        sprintf( cmdErrorBuffer, "You lack %lld energy to place a bid for %d %s at %d.", a - maind.ressource[CMD_RESSOURCE_ENERGY], cmd[5], cmdRessourceName[cmd[3]+1], cmd[4] );
+        sprintf( cmdErrorBuffer, "You lack %lld energy to place a bid for %d %s at %d.", (long long)a - maind.ressource[CMD_RESSOURCE_ENERGY], cmd[5], cmdRessourceName[cmd[3]+1], cmd[4] );
         cmdErrorString = cmdErrorBuffer;
         return -3;
       }
-      maind.ressource[CMD_RESSOURCE_ENERGY] -= (long long int)a;
+      maind.ressource[CMD_RESSOURCE_ENERGY] -= (int64_t)a;
       newd[2] = CMD_NEWS_MARKET_SOLD;
 
       marketbid[DB_MARKETBID_ACTION] = 1;
@@ -1775,15 +1775,15 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
             c -= bidresult[0];
           }
 
-          maind.ressource[marketbid[DB_MARKETBID_RESSOURCE]+1] += (long long int)newd[4];
+          maind.ressource[marketbid[DB_MARKETBID_RESSOURCE]+1] += (int64_t)newd[4];
           if( bidresult[1] != cmd[1] )
           {
             dbUserMainRetrieve( bidresult[1], &main2d );
-            main2d.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(a*newd[4]);
+            main2d.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(a*newd[4]);
             dbUserMainSet( bidresult[1], &main2d );
           }
           else
-            maind.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(a*newd[4]);
+            maind.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(a*newd[4]);
           cmdUserNewsAdd( bidresult[1], newd, CMD_NEWS_FLAGS_AID );
 
           if( !( c ) )
@@ -1801,7 +1801,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
         cmdErrorString = cmdErrorBuffer;
         return -3;
       }
-      maind.ressource[a] -= (long long int)cmd[5];
+      maind.ressource[a] -= (int64_t)cmd[5];
       newd[2] = CMD_NEWS_MARKET_BOUGHT;
 
       marketbid[DB_MARKETBID_ACTION] = 0;
@@ -1827,15 +1827,15 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
             c -= bidresult[0];
           }
 
-          maind.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(a*newd[4]);
+          maind.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(a*newd[4]);
           if( bidresult[1] != cmd[1] )
           {
             dbUserMainRetrieve( bidresult[1], &main2d );
-            main2d.ressource[marketbid[DB_MARKETBID_RESSOURCE]+1] += (long long int)(newd[4]);
+            main2d.ressource[marketbid[DB_MARKETBID_RESSOURCE]+1] += (int64_t)(newd[4]);
             dbUserMainSet( bidresult[1], &main2d );
           }
           else
-            maind.ressource[marketbid[DB_MARKETBID_RESSOURCE]+1] += (long long int)(newd[4]);
+            maind.ressource[marketbid[DB_MARKETBID_RESSOURCE]+1] += (int64_t)(newd[4]);
           cmdUserNewsAdd( bidresult[1], newd, CMD_NEWS_FLAGS_AID );
 
           if( !( c ) )
@@ -1881,9 +1881,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       if( dbUserMainRetrieve( cmd[1], &maind ) < 0 )
         return -3;
       if( !( ibuffer[c+DB_MARKETBID_ACTION] ) )
-        maind.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(ibuffer[c+DB_MARKETBID_QUANTITY] * ibuffer[c+DB_MARKETBID_PRICE]);
+        maind.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(ibuffer[c+DB_MARKETBID_QUANTITY] * ibuffer[c+DB_MARKETBID_PRICE]);
       else
-        maind.ressource[ibuffer[c+DB_MARKETBID_RESSOURCE]+1] += (long long int)(ibuffer[c+DB_MARKETBID_QUANTITY]);
+        maind.ressource[ibuffer[c+DB_MARKETBID_RESSOURCE]+1] += (int64_t)(ibuffer[c+DB_MARKETBID_QUANTITY]);
       dbUserMainSet( cmd[1], &maind );
       dbMarketRemove( &ibuffer[c], cmd[2] );
       dbUserMarketRemove( cmd[1], cmd[2] );
@@ -1925,7 +1925,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       return -3;
     for( a = 0 ; a < 4 ; a++ )
     {
-      maind.ressource[a] -= (long long int)cmd[4+a];
+      maind.ressource[a] -= (int64_t)cmd[4+a];
       if( maind.ressource[a] >= 0 )
         continue;
       sprintf( cmdErrorBuffer, "You do not have %d %s.", cmd[4+a], cmdRessourceName[a] );
@@ -1938,7 +1938,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       return -3;
     for( a = 0 ; a < 4 ; a++ )
     {
-      main2d.ressource[a] += (long long int)cmd[4+a];
+      main2d.ressource[a] += (int64_t)cmd[4+a];
       newd[4+a] = cmd[4+a];
     }
     dbUserMainSet( cmd[2], &main2d );

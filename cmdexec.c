@@ -487,14 +487,14 @@ int cmdExecChangePassword( int id, char *pass )
 int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild )
 {
   int a, b, c, d, ctype;
-  long long int cost[CMD_RESSOURCE_NUMUSED];
+  int64_t cost[CMD_RESSOURCE_NUMUSED];
   float fa, fb;
   float costbuild[CMD_RESSOURCE_NUMUSED];
-  long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
+  int64_t resbuild[CMD_RESSOURCE_NUMUSED+2];
   dbMainPlanetDef planetd;
   dbUserMainDef maind;
 
-	memset(&cost, 0, CMD_RESSOURCE_NUMUSED*sizeof(long long int));
+	memset(&cost, 0, CMD_RESSOURCE_NUMUSED*sizeof(int64_t));
   cmdErrorString = 0;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
@@ -522,7 +522,7 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild )
     }
     for( a = c = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
     {
-      maind.ressource[a] -= (long long int)resbuild[a];
+      maind.ressource[a] -= (int64_t)resbuild[a];
       if( maind.ressource[a] < 0 )
         c = 1;
       cost[a] = resbuild[a];
@@ -588,7 +588,7 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild )
       maind.ressource[a] -= (resbuild[a] * quantity);
       if( maind.ressource[a] < 0 )
         c = 1;
-      cost[a] = (long long int)resbuild[a] * quantity;
+      cost[a] = (int64_t)resbuild[a] * quantity;
     }
     plnid = -1;
     planetd.position = -1;
@@ -600,7 +600,7 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild )
     for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
     {
       if( maind.ressource[a] < 0 )
-        d += sprintf( &cmdErrorBuffer[d], "%lld %s ", -maind.ressource[a], cmdRessourceName[a] );
+        d += sprintf( &cmdErrorBuffer[d], "%+lld %s ", (long long)maind.ressource[a], cmdRessourceName[a] );
     }
     if( !( type >> 16 ) )
       sprintf( &cmdErrorBuffer[d], "to build %d %s", b, cmdBuildingName[ ctype ] );
@@ -634,7 +634,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
   int marketbid[DB_MARKETBID_NUMUSED];
   int bidresult[2];
   dbUserMainDef maind, main2d;
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
 
   cmdErrorString = 0;
   if( resource >= 3 )
@@ -676,7 +676,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     a = price * quantity;
     if( maind.ressource[CMD_RESSOURCE_ENERGY] < a )
     {
-      sprintf( cmdErrorBuffer, "You lack %lld energy to place a bid for %d %s at %d.", a - maind.ressource[CMD_RESSOURCE_ENERGY], quantity, cmdRessourceName[resource+1], price );
+      sprintf( cmdErrorBuffer, "You lack %lld energy to place a bid for %d %s at %d.", (long long)a - maind.ressource[CMD_RESSOURCE_ENERGY], quantity, cmdRessourceName[resource+1], price );
       cmdErrorString = cmdErrorBuffer;
       return -3;
     }
@@ -732,7 +732,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
       cmdErrorString = cmdErrorBuffer;
       return -3;
     }
-    maind.ressource[a] -= (long long int)quantity;
+    maind.ressource[a] -= (int64_t)quantity;
     newd[2] = CMD_NEWS_MARKET_BOUGHT;
 
     marketbid[DB_MARKETBID_ACTION] = 0;
@@ -813,9 +813,9 @@ int cmdExecRemoveBid( int id, int bidid )
     if( dbUserMainRetrieve( id, &maind ) < 0 )
       return -3;
     if( !( ibuffer[c+DB_MARKETBID_ACTION] ) )
-      maind.ressource[CMD_RESSOURCE_ENERGY] += (long long int)(ibuffer[c+DB_MARKETBID_QUANTITY] * ibuffer[c+DB_MARKETBID_PRICE]);
+      maind.ressource[CMD_RESSOURCE_ENERGY] += (int64_t)(ibuffer[c+DB_MARKETBID_QUANTITY] * ibuffer[c+DB_MARKETBID_PRICE]);
     else
-      maind.ressource[ibuffer[c+DB_MARKETBID_RESSOURCE]+1] += (long long int)(ibuffer[c+DB_MARKETBID_QUANTITY]);
+      maind.ressource[ibuffer[c+DB_MARKETBID_RESSOURCE]+1] += (int64_t)(ibuffer[c+DB_MARKETBID_QUANTITY]);
     dbUserMainSet( id, &maind );
     dbMarketRemove( &ibuffer[c], bidid );
     dbUserMarketRemove( id, bidid );
@@ -868,7 +868,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
   int a, b;
   dbMainEmpireDef empired;
   dbUserMainDef maind, main2d;
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
 
   if( !( ticks.status ) )
   {
@@ -909,7 +909,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
     return -3;
   for( a = 0 ; a < 4 ; a++ )
   {
-    maind.ressource[a] -= (long long int)res[a];
+    maind.ressource[a] -= (int64_t)res[a];
     if( maind.ressource[a] >= 0 )
       continue;
     sprintf( cmdErrorBuffer, "You don't have %d %s.", res[a], cmdRessourceName[a] );
@@ -920,7 +920,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
 
   for( a = 0 ; a < 4 ; a++ )
   {
-    main2d.ressource[a] += (long long int)res[a];
+    main2d.ressource[a] += (int64_t)res[a];
     newd[4+a] = res[a];
   }
   dbUserMainSet( destid, &main2d );
@@ -953,7 +953,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   dbMainEmpireDef empired;
   dbUserMainDef maind, main2d;
   dbUserPtr user2;
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
 
   if( !( ticks.status ) )
   {
@@ -1008,7 +1008,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
 
   for( a = 0 ; a < 4 ; a++ )
   {
-    maind.ressource[a] -= (long long int)res[a];
+    maind.ressource[a] -= (int64_t)res[a];
     if( maind.ressource[a] >= 0 )
       continue;
     sprintf( cmdErrorBuffer, "There isn't %d %s available.", res[a], cmdRessourceName[a] );
@@ -1019,7 +1019,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
 
   for( a = 0 ; a < 4 ; a++ )
   {
-    main2d.ressource[a] += (long long int)res[a];
+    main2d.ressource[a] += (int64_t)res[a];
     newd[4+a] = res[a];
   }
   dbUserMainSet( destid, &main2d );
@@ -1895,7 +1895,7 @@ if( fleetd.unit[CMD_UNIT_EXPLORATION] )
 
 int cmdExecOfferPlanet( int id, int destid, int plnid )
 {
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
   dbMainPlanetDef planetd;
 
   if( dbMapRetrievePlanet( plnid, &planetd ) < 0 )
@@ -1926,7 +1926,7 @@ int cmdExecOfferPlanet( int id, int destid, int plnid )
 int cmdExecTakePlanet( int id, int plnid )
 {
   int a, b;
-  long long int newd[DB_USER_NEWS_BASE];
+  int64_t newd[DB_USER_NEWS_BASE];
   dbMainPlanetDef planetd;
   dbUserMainDef maind, main2d ;
   dbUserBuildPtr buildd;

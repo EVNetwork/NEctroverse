@@ -70,18 +70,18 @@ typedef struct
 {
   char faction[32]; //FIXME: Needs to be moved! -- or does it, maybe we should leave it here and just wipe it each round and force a re-pick?
   char forumtag[32]; //FIXME: Needs to be moved!
-  long long int ressource[CMD_RESSOURCE_NUMUSED+2];
+  int64_t ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
-  long long int infos[INFOS_TOTAL_NUMUSED];
-  long long int research[CMD_RESEARCH_NUMUSED];
+  int64_t infos[INFOS_TOTAL_NUMUSED];
+  int64_t research[CMD_RESEARCH_NUMUSED];
   int readiness[3];
   int home; // ( y << 20 ) + ( x << 8 ) + planet
-  long long int totalbuilding[CMD_BLDG_NUMUSED+1];
-  long long int totalunit[CMD_UNIT_NUMUSED];
-  long long int totalresearch[CMD_RESEARCH_NUMUSED];
-  long long int networth;
+  int64_t totalbuilding[CMD_BLDG_NUMUSED+1];
+  int64_t totalunit[CMD_UNIT_NUMUSED];
+  int64_t totalresearch[CMD_RESEARCH_NUMUSED];
+  int64_t networth;
   int allocresearch[CMD_RESEARCH_NUMUSED];
-  long long int fundresearch;
+  int64_t fundresearch;
   int planets;
   int config_fleet;
   int config_flee[4];
@@ -110,10 +110,10 @@ typedef struct
   int time;
   int plnid;
   int plnpos;
-  long long int cost[CMD_RESSOURCE_NUMUSED];
+  int64_t cost[CMD_RESSOURCE_NUMUSED];
 } dbUserBuildDef, *dbUserBuildPtr;
 
-int dbUserBuildAdd( int id, int type, long long int *cost, int quantity, int time, int plnid, int plnloc );
+int dbUserBuildAdd( int id, int type, int64_t *cost, int quantity, int time, int plnid, int plnloc );
 int dbUserBuildRemove( int id, int bldid );
 int dbUserBuildList( int id, dbUserBuildPtr *build );
 int dbUserBuildListReduceTime( int id, dbUserBuildPtr *build );
@@ -159,16 +159,16 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd );
 
 
 
-int dbUserNewsAdd( int id, long long int *data, long long int flags );
-long long int dbUserNewsGetFlags( int id );
-int dbUserNewsList( int id, long long int **data );
-long long int dbUserNewsListUpdate( int id, long long int **data, long long int time );
+int dbUserNewsAdd( int id, int64_t *data, int64_t flags );
+int64_t dbUserNewsGetFlags( int id );
+int dbUserNewsList( int id, int64_t **data );
+int64_t dbUserNewsListUpdate( int id, int64_t **data, int64_t time );
 int dbUserNewsEmpty( int id );
 
 
 
-int dbFamNewsAdd( int id, long long int *data );
-int dbFamNewsList( int id, long long int **data, int time );
+int dbFamNewsAdd( int id, int64_t *data );
+int dbFamNewsList( int id, int64_t **data, int time );
 
 
 
@@ -250,8 +250,8 @@ typedef struct
   int construction;
   int building[8];
   float taxation;
-  long long int fund[CMD_RESSOURCE_NUMUSED];
-  long long int infos[CMD_RESSOURCE_NUMUSED];
+  int64_t fund[CMD_RESSOURCE_NUMUSED];
+  int64_t infos[CMD_RESSOURCE_NUMUSED];
   char name[64];
   char password[128];
   char message[2][4096];

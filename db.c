@@ -62,11 +62,11 @@ char dbFileUserGameFlags[] = "%s/user%d/flags";
 
 char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserGameFlags };
 
-long long int dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
+int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
 int dbFileUserListDat1[] = { 0, 8 };
 
 int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
-long long int *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
+int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
 
 
 int dbMapBInfoStatic[MAP_TOTAL_INFO];
@@ -242,7 +242,7 @@ And Mal forgot the mail file
 
 FILE *dbFileGenOpen( int num ) {
 	char szSource[500];
-	char COREDIR[256];
+	char COREDIR[512];
 	
 	if(num == DB_FILE_USERS) {
 		sprintf( COREDIR, "%s/users", sysconfig.directory );
@@ -251,8 +251,9 @@ FILE *dbFileGenOpen( int num ) {
 		sprintf( COREDIR, "%s/data", sysconfig.directory );
 		sprintf(szSource, dbFileList[num], COREDIR);
 	}
-	if( dbFilePtr[num] )
+	if( dbFilePtr[num] ) {
 		return dbFilePtr[num];
+	}
     
 	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
 		if( options.verbose ) {
@@ -287,8 +288,8 @@ void dbFlush()
 
 
 FILE *dbFileUserOpen( int id, int num ) {
-	char fname[1024];
-	char COREDIR[256];
+	char fname[512];
+	char COREDIR[512];
 	FILE *file;
 
 if((num&0xFFFF) == DB_FILE_USER_INFO) {
@@ -471,9 +472,9 @@ int dbInit() {
 	dbForumForumDef forumd;
 	FILE *file;
 	char szUsersFile[500];
-	char COREDIR[256];
+	char COREDIR[512];
 	
-sprintf( COREDIR, "%s/data", sysconfig.directory );  
+sprintf( COREDIR, "%s/data", sysconfig.directory );
 if( chdir( COREDIR ) == -1 ) {
 	if( options.verbose ) {
 		printf("Error %02d, db chdir, Dir: %s\n", errno, COREDIR );
@@ -516,12 +517,12 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	dbFileGenClose( DB_FILE_MARKET );
 }
 
-
-if( !( file = fopen( "forums", "rb+" ) ) ) {
+sprintf( COREDIR, "%s/forums", sysconfig.directory );
+if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	if( options.verbose )
 	printf("Forum database not found, creating...\n" );
 	syslog(LOG_INFO, "Forum database not found, creating...\n" );
-	if( !( file = fopen( "forums", "wb+" ) ) ) {
+	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
 		if( options.verbose ) {
 			printf("Error, could not create forum database!\n" );
 			printf("Error description is : %s\n",strerror(errno) );
@@ -547,6 +548,25 @@ if( !( file = fopen( "forums", "rb+" ) ) ) {
 	printf("Created Forums for %d Empires.\n", a-1 );
 	syslog(LOG_INFO, "Created Forums for %d Empires.\n", a-1 );
 
+}
+fclose( file );
+
+sprintf( COREDIR, "%s/forums", sysconfig.pubforum );
+if( !( file = fopen( COREDIR, "rb+" ) ) ) {
+	if( options.verbose )
+	printf("Public Forum database not found, creating...\n" );
+	syslog(LOG_INFO, "Public Forum database not found, creating...\n" );
+	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
+		if( options.verbose ) {
+			printf("Error, could not create public forum database!\n" );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
+		syslog(LOG_ERR, "Error, could not create public forum database!\n" );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		return 0;
+	}
+	a = 0;
+	fwrite( &a, 1, sizeof(int), file );
 }
 fclose( file );
 
@@ -1139,7 +1159,7 @@ return 1;
 
 // user build functions -- Need to change the calling of this function.
 
-int dbUserBuildAdd( int id, int type, long long int *cost, int quantity, int time, int plnid, int plnloc ) {
+int dbUserBuildAdd( int id, int type, int64_t *cost, int quantity, int time, int plnid, int plnloc ) {
 	int pos, i;
 	FILE *file;
 	dbUserBuildDef buildp;
@@ -2099,9 +2119,9 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd )
 
 // user news functions
 
-int dbUserNewsAdd( int id, long long int *data, long long int flags )
+int dbUserNewsAdd( int id, int64_t *data, int64_t flags )
 {
-  long long int a, num, lused, lfree, numnext, lcur, lnext, cflags;
+  int64_t a, num, lused, lfree, numnext, lcur, lnext, cflags;
   FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
@@ -2114,32 +2134,32 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 	return -3;
 }
   
-if( fread( &num, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x27.0\n" );
 	syslog(LOG_ERR, "Failure reading file x27.0\n" );
 }
-if( fread( &lused, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x27.1\n" );
 	syslog(LOG_ERR, "Failure reading file x27.1\n" );
 }
-if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x27.2\n" );
 	syslog(LOG_ERR, "Failure reading file x27.2\n" );
 }
 
-if( fread( &cflags, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &cflags, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x27.3\n" );
 	syslog(LOG_ERR, "Failure reading file x27.3\n" );
 }
   cflags |= flags;
   fseek( file, 24, SEEK_SET );
-  fwrite( &cflags, 1, sizeof(long long int), file );
+  fwrite( &cflags, 1, sizeof(int64_t), file );
 
-if( fread( &numnext, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x27.4\n" );
 	syslog(LOG_ERR, "Failure reading file x27.4\n" );
@@ -2148,13 +2168,13 @@ if( fread( &numnext, 1, sizeof(long long int), file ) < 1 ) {
   if( lfree != -1 )
   {
     fseek( file, 40+lfree*DB_USER_NEWS_SIZE+8, SEEK_SET );
-    if( fread( &lnext, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x27.5\n" );
 	syslog(LOG_ERR, "Failure reading file x27.5\n" );
 }
     fseek( file, 16, SEEK_SET );
-    fwrite( &lnext, 1, sizeof(long long int), file );
+    fwrite( &lnext, 1, sizeof(int64_t), file );
     lcur = lfree;
   }
   else
@@ -2162,34 +2182,34 @@ if( fread( &numnext, 1, sizeof(long long int), file ) < 1 ) {
     lcur = numnext;
     numnext++;
     fseek( file, 32, SEEK_SET );
-    fwrite( &numnext, 1, sizeof(long long int), file );
+    fwrite( &numnext, 1, sizeof(int64_t), file );
   }
 
   fseek( file, 40+lcur*DB_USER_NEWS_SIZE, SEEK_SET );
   a = -1;
-  fwrite( &a, 1, sizeof(long long int), file );
+  fwrite( &a, 1, sizeof(int64_t), file );
 
-  fwrite( &lused, 1, sizeof(long long int), file );
+  fwrite( &lused, 1, sizeof(int64_t), file );
 
-  fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(long long int), file );
+  fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(int64_t), file );
   if( lused != -1 )
   {
     fseek( file, 40+lused*DB_USER_NEWS_SIZE, SEEK_SET );
-    fwrite( &lcur, 1, sizeof(long long int), file );
+    fwrite( &lcur, 1, sizeof(int64_t), file );
   }
   fseek( file, 8, SEEK_SET );
-  fwrite( &lcur, 1, sizeof(long long int), file );
+  fwrite( &lcur, 1, sizeof(int64_t), file );
 
   num++;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(long long int), file );
+  fwrite( &num, 1, sizeof(int64_t), file );
 
   fclose( file );
   return 1;
 }
 
-long long int dbUserNewsGetFlags( int id ) {
-	long long int flags;
+int64_t dbUserNewsGetFlags( int id ) {
+	int64_t flags;
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
@@ -2203,7 +2223,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 }
 
 fseek( file, 24, SEEK_SET );
-if( fread( &flags, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &flags, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x28.0\n" );
 	syslog(LOG_ERR, "Failure reading file x28.0\n" );
@@ -2213,11 +2233,11 @@ fclose( file );
 return flags;
 }
 
-int dbUserNewsList( int id, long long int **data )
+int dbUserNewsList( int id, int64_t **data )
 {
-  long long int a, b, c, num, lused, lfree;
+  int64_t a, b, c, num, lused, lfree;
   FILE *file;
-  long long int *datap;
+  int64_t *datap;
   *data = 0;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
@@ -2229,23 +2249,23 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 	return -3;
 }
-if( fread( &num, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x29.0\n" );
 	syslog(LOG_ERR, "Failure reading file x29.0\n" );
 }
-if( fread( &lused, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x29.1\n" );
 	syslog(LOG_ERR, "Failure reading file x29.1\n" );
 }
-if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x29.2\n" );
 	syslog(LOG_ERR, "Failure reading file x29.2\n" );
 }
 
-  if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(long long int) ) ) )
+  if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(int64_t) ) ) )
   {
     fclose( file );
     return -3;
@@ -2253,12 +2273,12 @@ if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
   for( a = lused, b = 0, c = num ; c ; c--, b += (DB_USER_NEWS_BASE) )
   {
     fseek( file, 40+a*DB_USER_NEWS_SIZE+8, SEEK_SET );
-    if( fread( &a, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &a, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x29.3\n" );
 	syslog(LOG_ERR, "Failure reading file x29.3\n" );
 }
-    if( fread( &datap[b], 1, DB_USER_NEWS_BASE*sizeof(long long int), file ) < 1 ) {
+    if( fread( &datap[b], 1, DB_USER_NEWS_BASE*sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x29.4\n" );
 	syslog(LOG_ERR, "Failure reading file x29.4\n" );
@@ -2271,11 +2291,11 @@ if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
 }
 
 // I hate doing linked lists with files!! The one who fully understand this function on the first read gets a cookie.
-long long int dbUserNewsListUpdate( int id, long long int **data, long long int time )
+int64_t dbUserNewsListUpdate( int id, int64_t **data, int64_t time )
 {
-  long long int a, b, c, d, num, numnew, lused, lfree, lprev, lnext;
+  int64_t a, b, c, d, num, numnew, lused, lfree, lprev, lnext;
   FILE *file;
-  long long int *datap;
+  int64_t *datap;
   *data = 0;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 	if( options.verbose ) {
@@ -2285,26 +2305,26 @@ long long int dbUserNewsListUpdate( int id, long long int **data, long long int 
 	syslog(LOG_ERR, "Error %02d, fopen dbusernews\n", errno );
 	return -3;
 }
-if( fread( &num, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.0\n" );
 	syslog(LOG_ERR, "Failure reading file x30.0\n" );
 }
-if( fread( &lused, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.1\n" );
 	syslog(LOG_ERR, "Failure reading file x30.1\n" );
 }
-if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.2\n" );
 	syslog(LOG_ERR, "Failure reading file x30.2\n" );
 }
   a = 0;
-  fwrite( &a, 1, sizeof(long long int), file );
+  fwrite( &a, 1, sizeof(int64_t), file );
   numnew = num;
 
-  if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(long long int) ) ) )
+  if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(int64_t) ) ) )
   {
     fclose( file );
     return -3;
@@ -2312,17 +2332,17 @@ if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
   for( a = lused, b = 0, c = num ; c ; c--, a = lnext )
   {
     fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
-    if( fread( &lprev, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &lprev, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.3\n" );
 	syslog(LOG_ERR, "Failure reading file x30.3\n" );
 }
-    if( fread( &lnext, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.4\n" );
 	syslog(LOG_ERR, "Failure reading file x30.4\n" );
 }
-    if( fread( &datap[b], 1, 2*sizeof(long long int), file ) < 1 ) {
+    if( fread( &datap[b], 1, 2*sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.5\n" );
 	syslog(LOG_ERR, "Failure reading file x30.5\n" );
@@ -2338,33 +2358,33 @@ if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
         fseek( file, 40+lprev*DB_USER_NEWS_SIZE+8, SEEK_SET );
       else
         fseek( file, 8, SEEK_SET );
-      fwrite( &lnext, 1, sizeof(long long int), file );
+      fwrite( &lnext, 1, sizeof(int64_t), file );
       if( lnext != -1 )
       {
         fseek( file, 40+lnext*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &lprev, 1, sizeof(long long int), file );
+        fwrite( &lprev, 1, sizeof(int64_t), file );
       }
 
       fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
       d = -1;
-      fwrite( &d, 1, sizeof(long long int), file );
-      fwrite( &lfree, 1, sizeof(long long int), file );
+      fwrite( &d, 1, sizeof(int64_t), file );
+      fwrite( &lfree, 1, sizeof(int64_t), file );
       if( lfree != -1 )
       {
         fseek( file, 40+lfree*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &a, 1, sizeof(long long int), file );
+        fwrite( &a, 1, sizeof(int64_t), file );
       }
       fseek( file, 16, SEEK_SET );
       lfree = a;
-      fwrite( &lfree, 1, sizeof(long long int), file );
+      fwrite( &lfree, 1, sizeof(int64_t), file );
 
       fseek( file, 0, SEEK_SET );
-      fwrite( &num, 1, sizeof(long long int), file );
+      fwrite( &num, 1, sizeof(int64_t), file );
     }
     fseek( file, 40+a*DB_USER_NEWS_SIZE+16+8, SEEK_SET );
     datap[b+1] &= 0xFFFFFFFF - CMD_NEWS_FLAGS_NEW;
-    fwrite( &datap[b+1], 1, sizeof(long long int), file );
-    if( fread( &datap[b+2], 1, (DB_USER_NEWS_BASE-2)*sizeof(long long int), file ) < 1 ) {
+    fwrite( &datap[b+1], 1, sizeof(int64_t), file );
+    if( fread( &datap[b+2], 1, (DB_USER_NEWS_BASE-2)*sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.6\n" );
 	syslog(LOG_ERR, "Failure reading file x30.6\n" );
@@ -2402,9 +2422,9 @@ return 1;
 
 // fam news functions
 
-int dbFamNewsAdd( int id, long long int *data )
+int dbFamNewsAdd( int id, int64_t *data )
 {
-  long long int a, num, lused, lfree, numnext, lcur, lnext;
+  int64_t a, num, lused, lfree, numnext, lcur, lnext;
   FILE *file;
   char fname[32];
   sprintf( fname, "fam%dnews", id );
@@ -2418,23 +2438,23 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
   	return -3;
 }
   
-if( fread( &num, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x31.0\n" );
 	syslog(LOG_ERR, "Failure reading file x31.0\n" );
 }
-if( fread( &lused, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x31.1\n" );
 	syslog(LOG_ERR, "Failure reading file x31.1\n" );
 }
-if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x31.2\n" );
 	syslog(LOG_ERR, "Failure reading file x31.2\n" );
 }
   fseek( file, 32, SEEK_SET );
-if( fread( &numnext, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x31.3\n" );
 	syslog(LOG_ERR, "Failure reading file x31.3\n" );
@@ -2443,13 +2463,13 @@ if( fread( &numnext, 1, sizeof(long long int), file ) < 1 ) {
   if( lfree != -1 )
   {
     fseek( file, 40+lfree*DB_USER_NEWS_SIZE+8, SEEK_SET );
-    if( fread( &lnext, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x31.4\n" );
 	syslog(LOG_ERR, "Failure reading file x31.4\n" );
 }
     fseek( file, 16, SEEK_SET );
-    fwrite( &lnext, 1, sizeof(long long int), file );
+    fwrite( &lnext, 1, sizeof(int64_t), file );
     lcur = lfree;
   }
   else
@@ -2457,37 +2477,37 @@ if( fread( &numnext, 1, sizeof(long long int), file ) < 1 ) {
     lcur = numnext;
     numnext++;
     fseek( file, 32, SEEK_SET );
-    fwrite( &numnext, 1, sizeof(long long int), file );
+    fwrite( &numnext, 1, sizeof(int64_t), file );
   }
 
   fseek( file, 40+lcur*DB_USER_NEWS_SIZE, SEEK_SET );
   a = -1;
-  fwrite( &a, 1, sizeof(long long int), file );
+  fwrite( &a, 1, sizeof(int64_t), file );
 
-  fwrite( &lused, 1, sizeof(long long int), file );
+  fwrite( &lused, 1, sizeof(int64_t), file );
 
-  fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(long long int), file );
+  fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(int64_t), file );
   if( lused != -1 )
   {
     fseek( file, 40+lused*DB_USER_NEWS_SIZE, SEEK_SET );
-    fwrite( &lcur, 1, sizeof(long long int), file );
+    fwrite( &lcur, 1, sizeof(int64_t), file );
   }
   fseek( file, 8, SEEK_SET );
-  fwrite( &lcur, 1, sizeof(long long int), file );
+  fwrite( &lcur, 1, sizeof(int64_t), file );
 
   num++;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(long long int), file );
+  fwrite( &num, 1, sizeof(int64_t), file );
 
   fclose( file );
   return 1;
 }
 
-int dbFamNewsList( int id, long long int **data, int time )
+int dbFamNewsList( int id, int64_t **data, int time )
 {
-  long long int a, b, c, d, num, lused, lfree, lprev, lnext;
+  int64_t a, b, c, d, num, lused, lfree, lprev, lnext;
   FILE *file;
-  long long int *datap;
+  int64_t *datap;
   char fname[32];
   *data = 0;
   sprintf( fname, "fam%dnews", id );
@@ -2502,24 +2522,24 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 	return -3;
 }
 
-if( fread( &num, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.0\n" );
 	syslog(LOG_ERR, "Failure reading file x35.0\n" );
 }
-if( fread( &lused, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.1\n" );
 	syslog(LOG_ERR, "Failure reading file x35.1\n" );
 }
-if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
+if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.2\n" );
 	syslog(LOG_ERR, "Failure reading file x35.2\n" );
 }
   a = 0;
   fwrite( &a, 1, sizeof(int), file );
-  if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(long long int) ) ) )
+  if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(int64_t) ) ) )
   {
     fclose( file );
     return -3;
@@ -2527,17 +2547,17 @@ if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
   for( a = lused, b = 0, c = num ; c ; c--, a = lnext )
   {
     fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
-    if( fread( &lprev, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &lprev, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.3\n" );
 	syslog(LOG_ERR, "Failure reading file x35.3\n" );
 }
-    if( fread( &lnext, 1, sizeof(long long int), file ) < 1 ) {
+    if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.4\n" );
 	syslog(LOG_ERR, "Failure reading file x35.4\n" );
 }
-    if( fread( &datap[b], 1, 1*sizeof(long long int), file ) < 1 ) {
+    if( fread( &datap[b], 1, 1*sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.5\n" );
 	syslog(LOG_ERR, "Failure reading file x35.5\n" );
@@ -2549,31 +2569,31 @@ if( fread( &lfree, 1, sizeof(long long int), file ) < 1 ) {
         fseek( file, 40+lprev*DB_USER_NEWS_SIZE+8, SEEK_SET );
       else
         fseek( file, 8, SEEK_SET );
-      fwrite( &lnext, 1, sizeof(long long int), file );
+      fwrite( &lnext, 1, sizeof(int64_t), file );
       if( lnext != -1 )
       {
         fseek( file, 40+lnext*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &lprev, 1, sizeof(long long int), file );
+        fwrite( &lprev, 1, sizeof(int64_t), file );
       }
 
       fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
       d = -1;
-      fwrite( &d, 1, sizeof(long long int), file );
-      fwrite( &lfree, 1, sizeof(long long int), file );
+      fwrite( &d, 1, sizeof(int64_t), file );
+      fwrite( &lfree, 1, sizeof(int64_t), file );
       if( lfree != -1 )
       {
         fseek( file, 40+lfree*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &a, 1, sizeof(long long int), file );
+        fwrite( &a, 1, sizeof(int64_t), file );
       }
       fseek( file, 16, SEEK_SET );
       lfree = a;
-      fwrite( &lfree, 1, sizeof(long long int), file );
+      fwrite( &lfree, 1, sizeof(int64_t), file );
 
       fseek( file, 0, SEEK_SET );
-      fwrite( &num, 1, sizeof(long long int), file );
+      fwrite( &num, 1, sizeof(int64_t), file );
     }
     fseek( file, 40+a*DB_USER_NEWS_SIZE+16+8, SEEK_SET );
-    if( fread( &datap[b+1], 1, (DB_USER_NEWS_BASE-1)*sizeof(long long int), file ) < 1 ) {
+    if( fread( &datap[b+1], 1, (DB_USER_NEWS_BASE-1)*sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x35.6\n" );
 	syslog(LOG_ERR, "Failure reading file x35.6\n" );

@@ -9,7 +9,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  iohttpDataPtr iohttp;
  char timebuf[256];
  char COREDIR[256];
- long long int *newsp, *newsd;
+ int64_t *newsp, *newsd;
  dbUserMainDef maind;
 
  iohttpVarsInit( cnt );
@@ -231,61 +231,61 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 }
 
 
-void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
+void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd )
 {
  int a, b;
  dbUserMainDef maind;
  dbUserPtr user;
 	
- svSendPrintf( cnt, "<br><br><i>Week %lld, year %lld</i><br>", newsd[0] % 52, newsd[0] / 52 );
- if( newsd[2] == CMD_NEWS_BUILDING )
-  svSendPrintf( cnt, "You built %lld %s on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", newsd[4], cmdBuildingName[ newsd[3] & 0xFFF ], newsd[5], ( newsd[6] >> 8 ) & 0xFFF, newsd[6] >> 20, newsd[6] & 0xFF );
- else if( newsd[2] == CMD_NEWS_UNIT )
-  svSendPrintf( cnt, "You built %lld %s", newsd[4], cmdUnitName[ newsd[3] & 0xFFF ] );
- else if( newsd[2] == CMD_NEWS_EXPLORE )
+ svSendPrintf( cnt, "<br><br><i>Week %lld, year %lld</i><br>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
+ if( (long long)newsd[2] == CMD_NEWS_BUILDING )
+  svSendPrintf( cnt, "You built %lld %s on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[4], cmdBuildingName[ (long long)newsd[3] & 0xFFF ], (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF );
+ else if( (long long)newsd[2] == CMD_NEWS_UNIT )
+  svSendPrintf( cnt, "You built %lld %s", (long long)newsd[4], cmdUnitName[ (long long)newsd[3] & 0xFFF ] );
+ else if( (long long)newsd[2] == CMD_NEWS_EXPLORE )
  {
-  svSendPrintf( cnt, "Your exploration ship reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-  if( ( newsd[5] >= 0 ) && ( newsd[5] < ARTEFACT_NUMUSED ) )
-   svSendPrintf( cnt, "<br>We discovered an ancient artefact on this planet! <b>%s</b>", artefactName[ newsd[5] ] );
+  svSendPrintf( cnt, "Your exploration ship reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+  if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ARTEFACT_NUMUSED ) )
+   svSendPrintf( cnt, "<br>We discovered an ancient artefact on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
  }
- else if( newsd[2] == CMD_NEWS_EXPLORE_FAILED )
-  svSendPrintf( cnt, "Your exploration ship reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>, but the planet was already habited. The ship is now awaiting your orders in this solar system.", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
- else if(newsd[2] == CMD_NEWS_FLEETS_MERGE)
- 	svSendPrintf(cnt, "Two of your fleets have merge at position %lld,%lld after travelling %lld weeks", (newsd[3] >> 8 ) & 0xFFF, newsd[3] >> 20, newsd[6]);
- else if( newsd[2] == CMD_NEWS_STATION )
-  svSendPrintf( cnt, "Your fleet reached the planet <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> and stationned.", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
- else if( newsd[2] == CMD_NEWS_STATION_FAILED )
-  svSendPrintf( cnt, "Your fleet heading for the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> could not station as you do not own this planet. Your forces is now awaiting your orders in this solar system.", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
- else if( newsd[2] == CMD_NEWS_RECALL )
-  svSendPrintf( cnt, "A fleet travelling for %lld weeks rejoined our main forces", newsd[3] );
- else if( newsd[2] == CMD_NEWS_ATTACK )
+ else if( (long long)newsd[2] == CMD_NEWS_EXPLORE_FAILED )
+  svSendPrintf( cnt, "Your exploration ship reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>, but the planet was already habited. The ship is now awaiting your orders in this solar system.", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+ else if((long long)newsd[2] == CMD_NEWS_FLEETS_MERGE)
+ 	svSendPrintf(cnt, "Two of your fleets have merge at position %lld,%lld after travelling %lld weeks", ((long long)newsd[3] >> 8 ) & 0xFFF, (long long)newsd[3] >> 20, (long long)newsd[6]);
+ else if( (long long)newsd[2] == CMD_NEWS_STATION )
+  svSendPrintf( cnt, "Your fleet reached the planet <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> and stationned.", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+ else if( (long long)newsd[2] == CMD_NEWS_STATION_FAILED )
+  svSendPrintf( cnt, "Your fleet heading for the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> could not station as you do not own this planet. Your forces is now awaiting your orders in this solar system.", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+ else if( (long long)newsd[2] == CMD_NEWS_RECALL )
+  svSendPrintf( cnt, "A fleet travelling for %lld weeks rejoined our main forces", (long long)newsd[3] );
+ else if( (long long)newsd[2] == CMD_NEWS_ATTACK )
  {
-  if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+  if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
    return;
-  svSendPrintf( cnt, "You lost the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> to <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], ( newsd[6] >> 8 ) & 0xFF, newsd[6] >> 20, newsd[6] & 0xFF, newsd[3], maind.faction, newsd[4], newsd[4] );
+  svSendPrintf( cnt, "You lost the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> to <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF, (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
   goto iohttpNewsStringL0;
  }
- else if( newsd[2] == CMD_NEWS_ATTACK_FAILED )
+ else if( (long long)newsd[2] == CMD_NEWS_ATTACK_FAILED )
  {
-  if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+  if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
    return;
-  svSendPrintf( cnt, "Your <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> was unsuccessfully attacked by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], ( newsd[6] >> 8 ) & 0xFF, newsd[6] >> 20, newsd[6] & 0xFF, newsd[3], maind.faction, newsd[4], newsd[4] );
+  svSendPrintf( cnt, "Your <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> was unsuccessfully attacked by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF, (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
   iohttpNewsStringL0:
   svSendString( cnt, "<br>You lost : " );
   for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
   {
-   if( !( newsd[8+a] ) )
+   if( !( (long long)newsd[8+a] ) )
     continue;
    if( b )
     svSendString( cnt, ", " );
-   svSendPrintf( cnt, "%lld %s", newsd[8+a], cmdUnitName[a] );
+   svSendPrintf( cnt, "%lld %s", (long long)newsd[8+a], cmdUnitName[a] );
    b = 1;
   }
-  if( newsd[8+2*CMD_UNIT_FLEET] )
+  if( (long long)newsd[8+2*CMD_UNIT_FLEET] )
   {
    if( b )
     svSendString( cnt, ", " );
-   svSendPrintf( cnt, "%lld %s", newsd[8+2*CMD_UNIT_FLEET], cmdBuildingName[CMD_BUILDING_SATS] );
+   svSendPrintf( cnt, "%lld %s", (long long)newsd[8+2*CMD_UNIT_FLEET], cmdBuildingName[CMD_BUILDING_SATS] );
    b = 1;
   }
   if( !( b ) )
@@ -293,18 +293,18 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
   svSendString( cnt, "<br>You destroyed : " );
   for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
   {
-   if( !( newsd[8+CMD_UNIT_FLEET+a] ) )
+   if( !( (long long)newsd[8+CMD_UNIT_FLEET+a] ) )
     continue;
    if( b )
     svSendString( cnt, ", " );
-   svSendPrintf( cnt, "%lld %s", newsd[8+CMD_UNIT_FLEET+a], cmdUnitName[a] );
+   svSendPrintf( cnt, "%lld %s", (long long)newsd[8+CMD_UNIT_FLEET+a], cmdUnitName[a] );
    b = 1;
   }
   if( !( b ) )
    svSendString( cnt, "Nothing" );
-  if( ( newsd[7] & 0xF00 ) )
+  if( ( (long long)newsd[7] & 0xF00 ) )
   {
-   b = newsd[7] & 0xF00;
+   b = (long long)newsd[7] & 0xF00;
    svSendString( cnt, "<br>Your forces preferred to avoid directly engaging enemy units in " );
    if( b == 0x100 )
     svSendString( cnt, "the first phase" );
@@ -338,270 +338,270 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
     svSendString( cnt, "all phases" );
    svSendString( cnt, " of the battle" );
   }
-  if( ( newsd[7] & 0xFF ) )
+  if( ( (long long)newsd[7] & 0xFF ) )
   {
    svSendString( cnt, "<br>Overwhelmed by defending enemy forces, the attacking fleet hastidly retreated to minimize losses in the " );
-   if( ( newsd[7] & 0x10 ) )
+   if( ( (long long)newsd[7] & 0x10 ) )
     svSendString( cnt, "first phase of the battle" );
-   if( ( newsd[7] & 0x20 ) )
+   if( ( (long long)newsd[7] & 0x20 ) )
     svSendString( cnt, "second phase of the battle" );
-   if( ( newsd[7] & 0x40 ) )
+   if( ( (long long)newsd[7] & 0x40 ) )
     svSendString( cnt, "third phase of the battle" );
-   if( ( newsd[7] & 0x80 ) )
+   if( ( (long long)newsd[7] & 0x80 ) )
     svSendString( cnt, "fourth phase of the battle" );
   }
  }
- else if( newsd[2] == CMD_NEWS_MARKET_BOUGHT )
-  svSendPrintf( cnt, "You bought %lld %s on the market.", newsd[4], cmdRessourceName[newsd[3]+1] );
- else if( newsd[2] == CMD_NEWS_MARKET_SOLD )
-  svSendPrintf( cnt, "You sold %lld %s on the market.", newsd[4], cmdRessourceName[newsd[3]+1] );
- else if( newsd[2] == CMD_NEWS_AID )
+ else if( (long long)newsd[2] == CMD_NEWS_MARKET_BOUGHT )
+  svSendPrintf( cnt, "You bought %lld %s on the market.", (long long)newsd[4], cmdRessourceName[(long long)newsd[3]+1] );
+ else if( (long long)newsd[2] == CMD_NEWS_MARKET_SOLD )
+  svSendPrintf( cnt, "You sold %lld %s on the market.", (long long)newsd[4], cmdRessourceName[(long long)newsd[3]+1] );
+ else if( (long long)newsd[2] == CMD_NEWS_AID )
  {
-  if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+  if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
    return;
   svSendPrintf( cnt, "You received an aid shipment from %s!<br>", maind.faction );
   for( a = b = 0 ; a < 4 ; a++ )
   {
-   if( !( newsd[4+a] ) )
+   if( !( (long long)newsd[4+a] ) )
     continue;
    if( b )
     svSendString( cnt, ", " );
-   svSendPrintf( cnt, "%lld %s", newsd[4+a], cmdRessourceName[a] );
+   svSendPrintf( cnt, "%lld %s", (long long)newsd[4+a], cmdRessourceName[a] );
    b = 1;
   }
   svSendString( cnt, " has been added to the reserves." );
  }
- else if( newsd[2] == CMD_NEWS_GETAID )
+ else if( (long long)newsd[2] == CMD_NEWS_GETAID )
  {
-  if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+  if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
    return;
   svSendPrintf( cnt, "%s requested an aid shipment!<br>", maind.faction );
   for( a = b = 0 ; a < 4 ; a++ )
   {
-   if( !( newsd[4+a] ) )
+   if( !( (long long)newsd[4+a] ) )
     continue;
    if( b )
     svSendString( cnt, ", " );
-   svSendPrintf( cnt, "%lld %s", newsd[4+a], cmdRessourceName[a] );
+   svSendPrintf( cnt, "%lld %s", (long long)newsd[4+a], cmdRessourceName[a] );
    b = 1;
   }
   svSendString( cnt, " has been taken from the faction reserves." );
  }
- else if( newsd[2] == CMD_NEWS_MAIL )
-  svSendPrintf( cnt, "You received a <a href=\"mail?type=0\">message</a> from <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.", newsd[4], (char *)&newsd[6], newsd[5], newsd[5] );
+ else if( (long long)newsd[2] == CMD_NEWS_MAIL )
+  svSendPrintf( cnt, "You received a <a href=\"mail?type=0\">message</a> from <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.", (long long)newsd[4], (char *)&newsd[6], (long long)newsd[5], (long long)newsd[5] );
 
- else if( ( newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMOPEND ) )
+ else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
  {
-  svSendPrintf( cnt, "Your agents reached their destination, the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-  if( ( user = dbUserLinkID( newsd[5] ) ) )
-   svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], user->faction, newsd[6], newsd[6] );
-  svSendPrintf( cnt, " to perform <b>%s</b>.<br>", cmdAgentopName[newsd[9]] );
+  svSendPrintf( cnt, "Your agents reached their destination, the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+  if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+   svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+  svSendPrintf( cnt, " to perform <b>%s</b>.<br>", cmdAgentopName[(long long)newsd[9]] );
   if( user )
   {
-   if( newsd[7] == -1 )
+   if( (long long)newsd[7] == -1 )
     svSendPrintf( cnt, "<i>Your agents successfully stayed undiscovered during the operation.</i><br>" );
    else
-    svSendPrintf( cnt, "<i>%lld of your agents were caught, but your forces still managed to kill %lld defending agents.</i><br>", newsd[7], newsd[8] );
+    svSendPrintf( cnt, "<i>%lld of your agents were caught, but your forces still managed to kill %lld defending agents.</i><br>", (long long)newsd[7], (long long)newsd[8] );
   }
 
-  if( newsd[2] == CMD_NEWS_OPSPYTARGET )
+  if( (long long)newsd[2] == CMD_NEWS_OPSPYTARGET )
   {
    svSendPrintf( cnt, "Your agents gathered the following information.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Fleet readiness : unknown<br>" );
    else
-    svSendPrintf( cnt, "Fleet readiness : %lld%%<br>", newsd[10] >> 16 );
-   if( newsd[11] == -1 )
+    svSendPrintf( cnt, "Fleet readiness : %lld%%<br>", (long long)newsd[10] >> 16 );
+   if( (long long)newsd[11] == -1 )
     svSendString( cnt, "Psychics readiness : unknown<br>" );
    else
-    svSendPrintf( cnt, "Psychics readiness : %lld%%<br>", newsd[11] >> 16 );
-   if( newsd[12] == -1 )
+    svSendPrintf( cnt, "Psychics readiness : %lld%%<br>", (long long)newsd[11] >> 16 );
+   if( (long long)newsd[12] == -1 )
     svSendString( cnt, "Agents readiness : unknown<br>" );
    else
-    svSendPrintf( cnt, "Agents readiness : %lld%%<br>", newsd[12] >> 16 );
+    svSendPrintf( cnt, "Agents readiness : %lld%%<br>", (long long)newsd[12] >> 16 );
    for( a = 13 ; a < 13+CMD_RESSOURCE_NUMUSED ; a++ )
    {
     svSendString( cnt, cmdRessourceName[a-13] );
-    if( newsd[a] == -1 )
+    if( (long long)newsd[a] == -1 )
      svSendString( cnt, " : unknown<br>" );
     else
-     svSendPrintf( cnt, " : %lld<br>", newsd[a] );
+     svSendPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
    }
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPOBSERVEPLANET )
+  else if( (long long)newsd[2] == CMD_NEWS_OPOBSERVEPLANET )
   {
    svSendPrintf( cnt, "Your agents gathered the following information.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Planet size : unknown<br>" );
    else
-    svSendPrintf( cnt, "Planet size : %lld<br>", newsd[10] );
-   if( newsd[11] )
+    svSendPrintf( cnt, "Planet size : %lld<br>", (long long)newsd[10] );
+   if( (long long)newsd[11] )
    {
-    if( newsd[11] == -1 )
+    if( (long long)newsd[11] == -1 )
      svSendString( cnt, "Population : unknown<br>" );
     else
-     svSendPrintf( cnt, "Population : %lld0<br>", newsd[11] );
+     svSendPrintf( cnt, "Population : %lld0<br>", (long long)newsd[11] );
    }
-   if( newsd[12] )
+   if( (long long)newsd[12] )
    {
-    if( newsd[12] == -1 )
+    if( (long long)newsd[12] == -1 )
      svSendString( cnt, "Maximum population : unknown<br>" );
     else
-     svSendPrintf( cnt, "Maximum population : %lld0<br>", newsd[12] );
+     svSendPrintf( cnt, "Maximum population : %lld0<br>", (long long)newsd[12] );
    }
-   if( newsd[13] == -1 )
+   if( (long long)newsd[13] == -1 )
     svSendString( cnt, "Portals coverage : unknown<br>" );
    else
-    svSendPrintf( cnt, "Portals coverage : %lld%%<br>", newsd[13] );
-   if( newsd[14] == -1 )
+    svSendPrintf( cnt, "Portals coverage : %lld%%<br>", (long long)newsd[13] );
+   if( (long long)newsd[14] == -1 )
     svSendString( cnt, "Portal : unknown<br>" );
    else
    {
-    if( newsd[14] == CMD_PLANET_FLAGS_PORTAL )
+    if( (long long)newsd[14] == CMD_PLANET_FLAGS_PORTAL )
      svSendPrintf( cnt, "Portal : Present<br>" );
-    else if( newsd[14] == CMD_PLANET_FLAGS_PORTAL_BUILD )
+    else if( (long long)newsd[14] == CMD_PLANET_FLAGS_PORTAL_BUILD )
      svSendPrintf( cnt, "Portal : Under construction<br>" );
-    else if( newsd[14] == CMD_PLANET_FLAGS_PORTAL_BUILD )
+    else if( (long long)newsd[14] == CMD_PLANET_FLAGS_PORTAL_BUILD )
      svSendPrintf( cnt, "Portal : None<br>" );
    }
    for( a = 15 ; a < 15+CMD_BLDG_NUMUSED ; a++ )
    {
     svSendString( cnt, cmdBuildingName[a-15] );
-    if( newsd[a] == -1 )
+    if( (long long)newsd[a] == -1 )
      svSendString( cnt, " : unknown<br>" );
     else
-     svSendPrintf( cnt, " : %lld<br>", newsd[a] );
+     svSendPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
    }
-   if( newsd[15+CMD_BLDG_NUMUSED] >= 0 )
-    svSendPrintf( cnt, "We discovered an ancient artefact on this planet! <b>%s</b><br>", artefactName[ newsd[15+CMD_BLDG_NUMUSED] ] );
-   if( newsd[15+2+CMD_BLDG_NUMUSED] > 0 )
-    svSendPrintf( cnt, "%s production : +%lld%%<br>", cmdRessourceName[ newsd[15+1+CMD_BLDG_NUMUSED] ], newsd[15+2+CMD_BLDG_NUMUSED] );
+   if( (long long)newsd[15+CMD_BLDG_NUMUSED] >= 0 )
+    svSendPrintf( cnt, "We discovered an ancient artefact on this planet! <b>%s</b><br>", artefactName[ (long long)newsd[15+CMD_BLDG_NUMUSED] ] );
+   if( (long long)newsd[15+2+CMD_BLDG_NUMUSED] > 0 )
+    svSendPrintf( cnt, "%s production : +%lld%%<br>", cmdRessourceName[ (long long)newsd[15+1+CMD_BLDG_NUMUSED] ], (long long)newsd[15+2+CMD_BLDG_NUMUSED] );
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPNETWORKVIRUS )
+  else if( (long long)newsd[2] == CMD_NEWS_OPNETWORKVIRUS )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Destroying research : failed<br>" );
    else
-    svSendPrintf( cnt, "Destroying research : %lld %% lost<br>", newsd[10] );
-   if( newsd[11] == -1 )
+    svSendPrintf( cnt, "Destroying research : %lld %% lost<br>", (long long)newsd[10] );
+   if( (long long)newsd[11] == -1 )
     svSendString( cnt, "Increasing upkeep : failed<br>" );
    else
-    svSendPrintf( cnt, "Increasing upkeep : %lld weeks<br>", newsd[11] );
+    svSendPrintf( cnt, "Increasing upkeep : %lld weeks<br>", (long long)newsd[11] );
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPINFILTRATION )
+  else if( (long long)newsd[2] == CMD_NEWS_OPINFILTRATION )
   {
    svSendPrintf( cnt, "Your agents gathered the following information.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    for( a = 10 ; a < 10+CMD_RESSOURCE_NUMUSED ; a++ )
    {
     svSendString( cnt, cmdRessourceName[a-10] );
-    if( newsd[a] == -1 )
+    if( (long long)newsd[a] == -1 )
      svSendString( cnt, " : unknown<br>" );
     else
-     svSendPrintf( cnt, " : %lld<br>", newsd[a] );
+     svSendPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
    }
    for( a = 14 ; a < 14+CMD_RESEARCH_NUMUSED ; a++ )
    {
     svSendPrintf( cnt, "%s research", cmdResearchName[a-14] );
-    if( newsd[a] == -1 )
+    if( (long long)newsd[a] == -1 )
      svSendString( cnt, " : unknown<br>" );
     else
-     svSendPrintf( cnt, " : %lld %%<br>", newsd[a] );
+     svSendPrintf( cnt, " : %lld %%<br>", (long long)newsd[a] );
    }
    for( a = 14+CMD_RESEARCH_NUMUSED ; a < 14+CMD_RESEARCH_NUMUSED+CMD_BLDG_NUMUSED ; a++ )
    {
     svSendString( cnt, cmdBuildingName[a-14-CMD_RESEARCH_NUMUSED] );
-    if( newsd[a] == -1 )
+    if( (long long)newsd[a] == -1 )
      svSendString( cnt, " : unknown<br>" );
     else
-     svSendPrintf( cnt, " : %lld<br>", newsd[a] );
+     svSendPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
    }
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPBIOINFECTION )
+  else if( (long long)newsd[2] == CMD_NEWS_OPBIOINFECTION )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Kill population : failed<br>" );
    else
-    svSendPrintf( cnt, "Kill population : %lld0<br>", newsd[10] );
+    svSendPrintf( cnt, "Kill population : %lld0<br>", (long long)newsd[10] );
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPENERGYTRANSFER )
+  else if( (long long)newsd[2] == CMD_NEWS_OPENERGYTRANSFER )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Target's loss of energy : failed<br>" );
    else
-    svSendPrintf( cnt, "Target's loss of energy : %lld<br>", newsd[10] );
-   if( newsd[11] == -1 )
+    svSendPrintf( cnt, "Target's loss of energy : %lld<br>", (long long)newsd[10] );
+   if( (long long)newsd[11] == -1 )
     svSendString( cnt, "Energy successfully acquired : failed<br>" );
    else
-    svSendPrintf( cnt, "Energy successfully acquired : %lld<br>", newsd[11] );
+    svSendPrintf( cnt, "Energy successfully acquired : %lld<br>", (long long)newsd[11] );
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPMILITARYSAB )
+  else if( (long long)newsd[2] == CMD_NEWS_OPMILITARYSAB )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Destroy units : failed<br>" );
-   else if( newsd[10] == -2 )
+   else if( (long long)newsd[10] == -2 )
     svSendString( cnt, "Destroy units : failed<br>It appears there is no portal on the planet to reach the main fleet from!<br>" );
    else
    {
     for( a = 10 ; a < 10+CMD_UNIT_FLEET ; a++ )
     {
-     if( newsd[a] > 0 )
-      svSendPrintf( cnt, "%s : %lld destroyed<br>", cmdUnitName[a-10], newsd[a] );
+     if( (long long)newsd[a] > 0 )
+      svSendPrintf( cnt, "%s : %lld destroyed<br>", cmdUnitName[a-10], (long long)newsd[a] );
     }
    }
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPNUKEPLANET )
+  else if( (long long)newsd[2] == CMD_NEWS_OPNUKEPLANET )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Place nuclear devices : failed<br>" );
    else
     svSendString( cnt, "Place nuclear devices : succeeded, planet now uninhabited<br>" );
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPHIGHINFIL )
+  else if( (long long)newsd[2] == CMD_NEWS_OPHIGHINFIL )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] == -1 )
+   if( (long long)newsd[10] == -1 )
     svSendString( cnt, "Infiltration : failed<br>" );
    else
    {
     svSendString( cnt, "Faction infiltration : success<br>" );
-    if( newsd[10] & 1 )
+    if( (long long)newsd[10] & 1 )
      svSendString( cnt, "Planets network infiltration : success<br>" );
     else
      svSendString( cnt, "Planets network infiltration : failed<br>" );
-    if( newsd[10] & 2 )
+    if( (long long)newsd[10] & 2 )
      svSendString( cnt, "Fleets infiltration : success<br>" );
     else
      svSendString( cnt, "Fleets infiltration : failed<br>" );
     svSendString( cnt, "You can access the faction information in the <a href=\"spec\">list of current operations</a> for the next two years.<br>" );
    }
   }
-	 else if( newsd[2] == CMD_NEWS_OPPLANETBEACON )
+	 else if( (long long)newsd[2] == CMD_NEWS_OPPLANETBEACON )
   {
    svSendPrintf( cnt, "These are the results of the operation.<br>" );
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] >= 1 )
+   if( (long long)newsd[10] >= 1 )
    {
     svSendString( cnt, "Planeteray beacon : success<br>" );
     svSendString( cnt, "The planet have 0 dark web effect but 110% of protection by the owner fleet, all this for 24 ticks<br>" );
@@ -613,177 +613,177 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
    svSendString( cnt, "</td></tr></table>" );
   }
  }
- else if( ( newsd[2] >= CMD_NEWS_NUMOPTARGETBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMOPTARGETEND ) )
+ else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPTARGETEND ) )
  {
-  if( newsd[7] != -1 )
+  if( (long long)newsd[7] != -1 )
   {
    svSendString( cnt, "Your forces intercepted some agents from " );
-   if( ( user = dbUserLinkID( newsd[5] ) ) )
-    svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], user->faction, newsd[6], newsd[6] );
+   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+    svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
    else
     svSendString( cnt, "an unknown faction" );
   }
   else
    svSendString( cnt, "Your forces found traces of agents from an unknown faction" );
 
-  svSendPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>.<br>", cmdAgentopName[newsd[9]], newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-  if( newsd[7] != -1 )
-   svSendPrintf( cnt, "<i>%lld enemy agents have been arrested, %lld of your agents have been killed.</i><br>", newsd[7], newsd[8] );
+  svSendPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>.<br>", cmdAgentopName[(long long)newsd[9]], (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+  if( (long long)newsd[7] != -1 )
+   svSendPrintf( cnt, "<i>%lld enemy agents have been arrested, %lld of your agents have been killed.</i><br>", (long long)newsd[7], (long long)newsd[8] );
 
-  if( newsd[2] == CMD_NEWS_OPNETWORKVIRUS_TARGET )
+  if( (long long)newsd[2] == CMD_NEWS_OPNETWORKVIRUS_TARGET )
   {
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] != -1 )
-    svSendPrintf( cnt, "%lld %% of your research has been lost!<br>", newsd[10] );
-   if( newsd[11] != -1 )
-    svSendPrintf( cnt, "Your net building upkeep will be 15%% for higher for %lld weeks.<br>", newsd[11] );
+   if( (long long)newsd[10] != -1 )
+    svSendPrintf( cnt, "%lld %% of your research has been lost!<br>", (long long)newsd[10] );
+   if( (long long)newsd[11] != -1 )
+    svSendPrintf( cnt, "Your net building upkeep will be 15%% for higher for %lld weeks.<br>", (long long)newsd[11] );
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPBIOINFECTION_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_OPBIOINFECTION_TARGET )
   {
-   if( newsd[10] != -1 )
-    svSendPrintf( cnt, "%lld0 citizens of your faction died as the disease rapidly spreads.<br>", newsd[10] );
+   if( (long long)newsd[10] != -1 )
+    svSendPrintf( cnt, "%lld0 citizens of your faction died as the disease rapidly spreads.<br>", (long long)newsd[10] );
   }
-  else if( newsd[2] == CMD_NEWS_OPENERGYTRANSFER_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_OPENERGYTRANSFER_TARGET )
   {
-   if( newsd[10] != -1 )
-    svSendPrintf( cnt, "%lld energy has been reported missing from your reserves.<br>", newsd[10] );
+   if( (long long)newsd[10] != -1 )
+    svSendPrintf( cnt, "%lld energy has been reported missing from your reserves.<br>", (long long)newsd[10] );
   }
-  else if( newsd[2] == CMD_NEWS_OPMILITARYSAB_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_OPMILITARYSAB_TARGET )
   {
    svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   if( newsd[10] >= 0 )
+   if( (long long)newsd[10] >= 0 )
    {
     for( a = 10 ; a < 10+CMD_UNIT_FLEET ; a++ )
     {
-     if( newsd[a] > 0 )
-      svSendPrintf( cnt, "%s : %lld destroyed<br>", cmdUnitName[a-10], newsd[a] );
+     if( (long long)newsd[a] > 0 )
+      svSendPrintf( cnt, "%s : %lld destroyed<br>", cmdUnitName[a-10], (long long)newsd[a] );
     }
    }
    svSendString( cnt, "</td></tr></table>" );
   }
-  else if( newsd[2] == CMD_NEWS_OPNUKEPLANET_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_OPNUKEPLANET_TARGET )
   {
-   if( newsd[10] != -1 )
+   if( (long long)newsd[10] != -1 )
     svSendString( cnt, "Nuclear devices exploded everywhere on the surface of the planet! All buildings have been destroyed and the planet is now unhabited.<br>" );
   }
  }
 
- else if( ( newsd[2] >= CMD_NEWS_NUMSPBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMSPEND ) )
+ else if( ( (long long)newsd[2] >= CMD_NEWS_NUMSPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMSPEND ) )
  {
-  svSendPrintf( cnt, "Your psychics are casting <b>%s</b> on ", cmdPsychicopName[newsd[7]] );
-  if( newsd[3] == (cnt->dbuser)->id )
+  svSendPrintf( cnt, "Your psychics are casting <b>%s</b> on ", cmdPsychicopName[(long long)newsd[7]] );
+  if( (long long)newsd[3] == (cnt->dbuser)->id )
    svSendPrintf( cnt, "your faction.<br>" );
   else
   {
-   if( ( user = dbUserLinkID( newsd[3] ) ) )
-    svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.<br>", newsd[3], user->faction, newsd[4], newsd[4] );
+   if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+    svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.<br>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
    else
     svSendPrintf( cnt, "an unknown faction.<br>" );
-   if( ( newsd[3] != (cnt->dbuser)->id ) && ( user ) )
+   if( ( (long long)newsd[3] != (cnt->dbuser)->id ) && ( user ) )
    {
-    if( newsd[5] == -1 )
+    if( (long long)newsd[5] == -1 )
      svSendPrintf( cnt, "<i>Your psychics successfully stayed undiscovered while performing the spell.</i><br>" );
     else
-     svSendPrintf( cnt, "<i>%lld of your psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i><br>", newsd[5], newsd[6] );
+     svSendPrintf( cnt, "<i>%lld of your psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i><br>", (long long)newsd[5], (long long)newsd[6] );
    }
   }
 
-  if( newsd[2] == CMD_NEWS_SPIRRAECTRO )
+  if( (long long)newsd[2] == CMD_NEWS_SPIRRAECTRO )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br>", newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br>", (long long)newsd[8] );
   }
-  else if( newsd[2] == CMD_NEWS_SPDARKWEB )
+  else if( (long long)newsd[2] == CMD_NEWS_SPDARKWEB )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "Your faction is now more difficult to attack by %lld %%.<br>", newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "Your faction is now more difficult to attack by %lld %%.<br>", (long long)newsd[8] );
   }
-  else if( newsd[2] == CMD_NEWS_SPINCANDESCENCE )
+  else if( (long long)newsd[2] == CMD_NEWS_SPINCANDESCENCE )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "%lld crystal has been converted in %lld energy.<br>", newsd[8], newsd[9] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "%lld crystal has been converted in %lld energy.<br>", (long long)newsd[8], (long long)newsd[9] );
   }
-  else if( newsd[2] == CMD_NEWS_SPBLACKMIST )
+  else if( (long long)newsd[2] == CMD_NEWS_SPBLACKMIST )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "A dense mist is spreading around the target's planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br>", newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "A dense mist is spreading around the target's planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br>", (long long)newsd[8] );
   }
-  else if( newsd[2] == CMD_NEWS_SPWARILLUSIONS )
+  else if( (long long)newsd[2] == CMD_NEWS_SPWARILLUSIONS )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "Various illusions will accompany your fleets for %lld weeks, keeping around %lld %% of enemy fire away from friendly units.<br>", newsd[9], newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "Various illusions will accompany your fleets for %lld weeks, keeping around %lld %% of enemy fire away from friendly units.<br>", (long long)newsd[9], (long long)newsd[8] );
   }
-  else if( newsd[2] == CMD_NEWS_SPPHANTOMS )
+  else if( (long long)newsd[2] == CMD_NEWS_SPPHANTOMS )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "%lld Phantoms have been conjured to fight for your faction!<br>", newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "%lld Phantoms have been conjured to fight for your faction!<br>", (long long)newsd[8] );
   }
 
  }
 
- else if( ( newsd[2] >= CMD_NEWS_NUMSPTARGETBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMSPTARGETEND ) )
+ else if( ( (long long)newsd[2] >= CMD_NEWS_NUMSPTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMSPTARGETEND ) )
  {
-  if( newsd[5] != -1 )
+  if( (long long)newsd[5] != -1 )
   {
    svSendString( cnt, "Your forces felt the influence of psychics from " );
-   if( ( user = dbUserLinkID( newsd[3] ) ) )
-    svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[3], user->faction, newsd[4], newsd[4] );
+   if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+    svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
    else
     svSendString( cnt, "an unknown faction" );
   }
   else
    svSendString( cnt, "Your forces felt the influence of psychics from an unknown faction" );
-  svSendPrintf( cnt, " performing a <b>%s</b> spell.<br>", cmdPsychicopName[newsd[7]] );
-  if( newsd[5] != -1 )
-   svSendPrintf( cnt, "<i>%lld enemy psychics have went mad, %lld of your psychics also suffered critical brain damages.</i><br>", newsd[5], newsd[6] );
+  svSendPrintf( cnt, " performing a <b>%s</b> spell.<br>", cmdPsychicopName[(long long)newsd[7]] );
+  if( (long long)newsd[5] != -1 )
+   svSendPrintf( cnt, "<i>%lld enemy psychics have went mad, %lld of your psychics also suffered critical brain damages.</i><br>", (long long)newsd[5], (long long)newsd[6] );
 
-  if( newsd[2] == CMD_NEWS_SPIRRAECTRO_TARGET )
+  if( (long long)newsd[2] == CMD_NEWS_SPIRRAECTRO_TARGET )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br>", newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br>", (long long)newsd[8] );
   }
-  else if( newsd[2] == CMD_NEWS_SPBLACKMIST_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_SPBLACKMIST_TARGET )
   {
-   if( newsd[8] != -1 )
-    svSendPrintf( cnt, "A dense mist is spreading around your planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br>", newsd[8] );
+   if( (long long)newsd[8] != -1 )
+    svSendPrintf( cnt, "A dense mist is spreading around your planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br>", (long long)newsd[8] );
   }
  }
 
 
 
 
- else if( ( newsd[2] >= CMD_NEWS_NUMINBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMINEND ) )
+ else if( ( (long long)newsd[2] >= CMD_NEWS_NUMINBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMINEND ) )
  {
-  svSendPrintf( cnt, "Your ghost ships casted <b>%s</b> ", cmdGhostopName[newsd[10]] );
-  if( cmdGhostopFlags[ newsd[10] ] & 4 )
-   svSendPrintf( cnt, "in the system %lld,%lld<br>", ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20 );
+  svSendPrintf( cnt, "Your ghost ships casted <b>%s</b> ", cmdGhostopName[(long long)newsd[10]] );
+  if( cmdGhostopFlags[ (long long)newsd[10] ] & 4 )
+   svSendPrintf( cnt, "in the system %lld,%lld<br>", ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20 );
   else
   {
-   svSendPrintf( cnt, "on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-   if( ( user = dbUserLinkID( newsd[5] ) ) )
+   svSendPrintf( cnt, "on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
    {
-    svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", newsd[5], user->faction, newsd[6], newsd[6] );
-    if( newsd[7] <= 0 )
+    svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+    if( (long long)newsd[7] <= 0 )
      svSendPrintf( cnt, "<i>Your ghost ships successfully stayed undiscovered during the incantation.</i><br>" );
     else
-     svSendPrintf( cnt, "<i>%lld of your ghost ships were oblitered by defending forces.</i><br>", newsd[7] );
-    if( newsd[8] > 0 )
-     svSendPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", newsd[8] );
-    if( newsd[9] > 0 )
-     svSendPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", newsd[9] );
+     svSendPrintf( cnt, "<i>%lld of your ghost ships were oblitered by defending forces.</i><br>", (long long)newsd[7] );
+    if( (long long)newsd[8] > 0 )
+     svSendPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", (long long)newsd[8] );
+    if( (long long)newsd[9] > 0 )
+     svSendPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
    }
   }
 
-  if( newsd[2] == CMD_NEWS_INSENSE )
+  if( (long long)newsd[2] == CMD_NEWS_INSENSE )
   {
-   if( newsd[11] & 0x10000 )
+   if( (long long)newsd[11] & 0x10000 )
    {
-    a = newsd[11] & 0xFFFF;
+    a = (long long)newsd[11] & 0xFFFF;
     if( a >= 4 )
-     svSendPrintf( cnt, "<i>An artefact has been discovered, at the coordinates %lld,%lld:%lld!</i><br>", ( newsd[12] >> 8 ) & 0xFF, (newsd[12] >> 20) & 0xFF, newsd[12] & 0xFF );
+     svSendPrintf( cnt, "<i>An artefact has been discovered, at the coordinates %lld,%lld:%lld!</i><br>", ( (long long)newsd[12] >> 8 ) & 0xFF, ((long long)newsd[12] >> 20) & 0xFF, (long long)newsd[12] & 0xFF );
     else if( a == 3 )
-     svSendPrintf( cnt, "<i>An artefact has been found in a nearby system, at the coordinates %lld,%lld!</i><br>", ( newsd[12] >> 8 ) & 0xFF, (newsd[12] >> 20) & 0xFF );
+     svSendPrintf( cnt, "<i>An artefact has been found in a nearby system, at the coordinates %lld,%lld!</i><br>", ( (long long)newsd[12] >> 8 ) & 0xFF, ((long long)newsd[12] >> 20) & 0xFF );
     else if( a == 2 )
      svSendPrintf( cnt, "<i>An artefact was detected in the area, but its precise location remains unknown.</i><br>" );
     else
@@ -796,131 +796,131 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
    if( dbUserMainRetrieve( (cnt->dbuser)->id, &maind ) < 0 )
    	return;			   
   }
-  else if( newsd[2] == CMD_NEWS_INSURVEY )
+  else if( (long long)newsd[2] == CMD_NEWS_INSURVEY )
   {
-   if( newsd[11] )
+   if( (long long)newsd[11] )
    {
-    svSendPrintf( cnt, "Planets surveyed : %lld<br>", newsd[11] );
-    svSendPrintf( cnt, "Incantation duration : %lld<br>", newsd[12] );
+    svSendPrintf( cnt, "Planets surveyed : %lld<br>", (long long)newsd[11] );
+    svSendPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
     svSendPrintf( cnt, "You can access the system information in the <a href=\"spec\">list of current operations</a> for the duration of the incantation.<br>" );
    }
    else
     svSendString( cnt, "Planets surveyed : none<br>" );
   }
-  else if( newsd[2] == CMD_NEWS_INSHIELDING )
+  else if( (long long)newsd[2] == CMD_NEWS_INSHIELDING )
   {
-   svSendPrintf( cnt, "Planetary shield strength : %lld<br>", newsd[11] );
-   svSendPrintf( cnt, "Incantation duration : %lld<br>", newsd[12] );
+   svSendPrintf( cnt, "Planetary shield strength : %lld<br>", (long long)newsd[11] );
+   svSendPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
   }
-  else if( newsd[2] == CMD_NEWS_INFORCEFIELD )
+  else if( (long long)newsd[2] == CMD_NEWS_INFORCEFIELD )
   {
-   svSendPrintf( cnt, "Force field strength : %lld%%<br>", newsd[11] );
-   svSendPrintf( cnt, "Incantation duration : %lld<br>", newsd[12] );
+   svSendPrintf( cnt, "Force field strength : %lld%%<br>", (long long)newsd[11] );
+   svSendPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
   }
-  else if( newsd[2] == CMD_NEWS_INVORTEX )
+  else if( (long long)newsd[2] == CMD_NEWS_INVORTEX )
   {
    svSendString( cnt, "Vortex portal duration : " );
-   if( newsd[11] != -1 )
-    svSendPrintf( cnt, "%lld<br>", newsd[11] );
+   if( (long long)newsd[11] != -1 )
+    svSendPrintf( cnt, "%lld<br>", (long long)newsd[11] );
    else
     svSendString( cnt, "failed<br>" );
   }
-  else if( newsd[2] == CMD_NEWS_INMINDCONTROL )
+  else if( (long long)newsd[2] == CMD_NEWS_INMINDCONTROL )
   {
    svSendString( cnt, "Mind control incantation : " );
-   if( newsd[11] == -1 )
+   if( (long long)newsd[11] == -1 )
     svSendString( cnt, "failed<br>" );
    else
     svSendString( cnt, "success<br>" );
   }
-  else if( newsd[2] == CMD_NEWS_INENERGYSURGE )
+  else if( (long long)newsd[2] == CMD_NEWS_INENERGYSURGE )
   {
-   if( newsd[17] == -1 )
+   if( (long long)newsd[17] == -1 )
     svSendString( cnt, "Energy surge : failed<br>" );
    else
    {
-    if( newsd[17] > 0 )
-     svSendPrintf( cnt, "Energy wasted : %lld<br>", newsd[17] );
-    if( newsd[11] > 0 )
-     svSendPrintf( cnt, "Mineral lost : %lld<br>", newsd[11] );
-    if( newsd[12] > 0 )
-     svSendPrintf( cnt, "Crystal lost : %lld<br>", newsd[12] );
-    if( newsd[13] > 0 )
-     svSendPrintf( cnt, "Ectrolium lost : %lld<br>", newsd[13] );
-    if( newsd[14] > 0 )
-     svSendPrintf( cnt, "Solar collectors destroyed : %lld<br>", newsd[14] );
-    if( newsd[15] > 0 )
-     svSendPrintf( cnt, "Fission reactors destroyed : %lld<br>", newsd[15] );
-    if( newsd[16] > 0 )
-     svSendPrintf( cnt, "Research points eliminated : %lld<br>", newsd[16] );
+    if( (long long)newsd[17] > 0 )
+     svSendPrintf( cnt, "Energy wasted : %lld<br>", (long long)newsd[17] );
+    if( (long long)newsd[11] > 0 )
+     svSendPrintf( cnt, "Mineral lost : %lld<br>", (long long)newsd[11] );
+    if( (long long)newsd[12] > 0 )
+     svSendPrintf( cnt, "Crystal lost : %lld<br>", (long long)newsd[12] );
+    if( (long long)newsd[13] > 0 )
+     svSendPrintf( cnt, "Ectrolium lost : %lld<br>", (long long)newsd[13] );
+    if( (long long)newsd[14] > 0 )
+     svSendPrintf( cnt, "Solar collectors destroyed : %lld<br>", (long long)newsd[14] );
+    if( (long long)newsd[15] > 0 )
+     svSendPrintf( cnt, "Fission reactors destroyed : %lld<br>", (long long)newsd[15] );
+    if( (long long)newsd[16] > 0 )
+     svSendPrintf( cnt, "Research points eliminated : %lld<br>", (long long)newsd[16] );
    }
   }
 
 
 
  }
- else if( ( newsd[2] >= CMD_NEWS_NUMINTARGETBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMINTARGETEND ) )
+ else if( ( (long long)newsd[2] >= CMD_NEWS_NUMINTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMINTARGETEND ) )
  {
-  if( newsd[7] != -1 )
+  if( (long long)newsd[7] != -1 )
   {
    svSendString( cnt, "Your forces were the target of ghost ships from" );
-   if( ( user = dbUserLinkID( newsd[5] ) ) )
-    svSendPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], user->faction, newsd[6], newsd[6] );
+   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+    svSendPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
    else
     svSendString( cnt, " an unknown faction" );
   }
   else
    svSendString( cnt, "Your forces were the target of ghost ships from an unknown faction" );
-  svSendPrintf( cnt, " performing a <b>%s</b> incantation", cmdGhostopName[newsd[10]] );
-  if( newsd[3] != -1 )
-   svSendPrintf( cnt, " on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
+  svSendPrintf( cnt, " performing a <b>%s</b> incantation", cmdGhostopName[(long long)newsd[10]] );
+  if( (long long)newsd[3] != -1 )
+   svSendPrintf( cnt, " on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
   svSendString( cnt, ".<br>" );
-  if( newsd[7] > 0 )
-   svSendPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br>", newsd[7] );
-  if( newsd[8] > 0 )
-   svSendPrintf( cnt, "<i>%lld of your psychics were killed.</i><br>", newsd[8] );
-  if( newsd[9] > 0 )
-   svSendPrintf( cnt, "<i>%lld of your ghost ships were destroyed.</i><br>", newsd[9] );
+  if( (long long)newsd[7] > 0 )
+   svSendPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br>", (long long)newsd[7] );
+  if( (long long)newsd[8] > 0 )
+   svSendPrintf( cnt, "<i>%lld of your psychics were killed.</i><br>", (long long)newsd[8] );
+  if( (long long)newsd[9] > 0 )
+   svSendPrintf( cnt, "<i>%lld of your ghost ships were destroyed.</i><br>", (long long)newsd[9] );
 
-  if( newsd[2] == CMD_NEWS_INSHIELDING_TARGET )
+  if( (long long)newsd[2] == CMD_NEWS_INSHIELDING_TARGET )
   {
-   svSendPrintf( cnt, "Planetary shield strength : %lld<br>", newsd[11] );
-   svSendPrintf( cnt, "Incantation duration : %lld<br>", newsd[12] );
+   svSendPrintf( cnt, "Planetary shield strength : %lld<br>", (long long)newsd[11] );
+   svSendPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
   }
-  else if( newsd[2] == CMD_NEWS_INFORCEFIELD_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_INFORCEFIELD_TARGET )
   {
-   svSendPrintf( cnt, "Force field strength : %lld%%<br>", newsd[11] );
-   svSendPrintf( cnt, "Incantation duration : %lld<br>", newsd[12] );
+   svSendPrintf( cnt, "Force field strength : %lld%%<br>", (long long)newsd[11] );
+   svSendPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
   }
-  else if( newsd[2] == CMD_NEWS_INMINDCONTROL_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_INMINDCONTROL_TARGET )
   {
    svSendString( cnt, "Mind control incantation : " );
-   if( newsd[11] == -1 )
+   if( (long long)newsd[11] == -1 )
     svSendString( cnt, "failed<br>" );
    else
     svSendString( cnt, "success<br>" );
   }
 
-  else if( newsd[2] == CMD_NEWS_INENERGYSURGE_TARGET )
+  else if( (long long)newsd[2] == CMD_NEWS_INENERGYSURGE_TARGET )
   {
-   if( newsd[17] == -1 )
+   if( (long long)newsd[17] == -1 )
     svSendString( cnt, "Energy surge : failed<br>" );
    else
    {
-    if( newsd[17] > 0 )
-     svSendPrintf( cnt, "Energy wasted : %lld<br>", newsd[17] );
-    if( newsd[11] > 0 )
-     svSendPrintf( cnt, "Mineral lost : %lld<br>", newsd[11] );
-    if( newsd[12] > 0 )
-     svSendPrintf( cnt, "Crystal lost : %lld<br>", newsd[12] );
-    if( newsd[13] > 0 )
-     svSendPrintf( cnt, "Ectrolium lost : %lld<br>", newsd[13] );
-    if( newsd[14] > 0 )
-     svSendPrintf( cnt, "Solar collectors destroyed : %lld<br>", newsd[14] );
-    if( newsd[15] > 0 )
-     svSendPrintf( cnt, "Fission reactors destroyed : %lld<br>", newsd[15] );
-    if( newsd[16] > 0 )
-     svSendPrintf( cnt, "Research points eliminated : %lld<br>", newsd[16] );
+    if( (long long)newsd[17] > 0 )
+     svSendPrintf( cnt, "Energy wasted : %lld<br>", (long long)newsd[17] );
+    if( (long long)newsd[11] > 0 )
+     svSendPrintf( cnt, "Mineral lost : %lld<br>", (long long)newsd[11] );
+    if( (long long)newsd[12] > 0 )
+     svSendPrintf( cnt, "Crystal lost : %lld<br>", (long long)newsd[12] );
+    if( (long long)newsd[13] > 0 )
+     svSendPrintf( cnt, "Ectrolium lost : %lld<br>", (long long)newsd[13] );
+    if( (long long)newsd[14] > 0 )
+     svSendPrintf( cnt, "Solar collectors destroyed : %lld<br>", (long long)newsd[14] );
+    if( (long long)newsd[15] > 0 )
+     svSendPrintf( cnt, "Fission reactors destroyed : %lld<br>", (long long)newsd[15] );
+    if( (long long)newsd[16] > 0 )
+     svSendPrintf( cnt, "Research points eliminated : %lld<br>", (long long)newsd[16] );
    }
   }
 
@@ -929,33 +929,33 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
 
 
 
- else if( newsd[2] == CMD_NEWS_PLANET_OFFER )
+ else if( (long long)newsd[2] == CMD_NEWS_PLANET_OFFER )
  {
-  if( ( user = dbUserLinkID( newsd[3] ) ) )
-   svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> offered a <a href=\"planet?id=%lld\">planet</a> to your faction. <a href=\"pltake?id=%lld\">Take it</a><br>", newsd[3], user->faction, newsd[4], newsd[4] );
+  if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+   svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> offered a <a href=\"planet?id=%lld\">planet</a> to your faction. <a href=\"pltake?id=%lld\">Take it</a><br>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
  }
- else if( newsd[2] == CMD_NEWS_PLANET_GIVEN )
+ else if( (long long)newsd[2] == CMD_NEWS_PLANET_GIVEN )
  {
-  if( ( user = dbUserLinkID( newsd[3] ) ) )
-   svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> took control of a <a href=\"planet?id=%lld\">planet</a> previously offered.<br>", newsd[3], user->faction, newsd[4] );
+  if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+   svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> took control of a <a href=\"planet?id=%lld\">planet</a> previously offered.<br>", (long long)newsd[3], user->faction, (long long)newsd[4] );
  }
- else if( newsd[2] == CMD_NEWS_PLANET_TAKEN )
+ else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
  {
-  if( ( user = dbUserLinkID( newsd[3] ) ) )
-   svSendPrintf( cnt, "You took control of a <a href=\"planet?id=%lld\">planet</a> offered by <a href=\"player?id=%lld\">%s</a>.<br>", newsd[4], newsd[3], user->faction );
+  if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+   svSendPrintf( cnt, "You took control of a <a href=\"planet?id=%lld\">planet</a> offered by <a href=\"player?id=%lld\">%s</a>.<br>", (long long)newsd[4], (long long)newsd[3], user->faction );
  }
 
 
 
- else if( newsd[2] == CMD_NEWS_OPCANCEL )
+ else if( (long long)newsd[2] == CMD_NEWS_OPCANCEL )
   svSendPrintf( cnt, "An agents operation has been cancelled." );
- else if( newsd[2] == CMD_NEWS_SPCANCEL )
+ else if( (long long)newsd[2] == CMD_NEWS_SPCANCEL )
   svSendPrintf( cnt, "A psychics spell has been cancelled." );
- else if( newsd[2] == CMD_NEWS_INCANCEL )
+ else if( (long long)newsd[2] == CMD_NEWS_INCANCEL )
   svSendPrintf( cnt, "A ghost ships incantation has been cancelled." );
 
- else if( newsd[2] != -1 )
-  svSendPrintf( cnt, "Unknown report code : %lld ( tell the admin, thanks ;) )", newsd[2] );
+ else if( (long long)newsd[2] != -1 )
+  svSendPrintf( cnt, "Unknown report code : %lld ( tell the admin, thanks ;) )", (long long)newsd[2] );
 
  return;
 }
@@ -963,7 +963,7 @@ void iohttpNewsString( svConnectionPtr cnt, long long int *newsd )
 
 int iohttpFamNewsEntryCount;
 
-void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, long long int *newsd )
+void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd )
 {
  svSendPrintf( cnt, "<tr><td" );
  if( !( iohttpFamNewsEntryCount ) )
@@ -977,11 +977,11 @@ void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, long long int *newsd 
   svSendPrintf( cnt, " width=\"95%%\"" );
   iohttpFamNewsEntryCount = 1;
  }
- svSendPrintf( cnt, "><i>Week %lld, year %lld</i><br>", newsd[0] % 52, newsd[0] / 52 );
+ svSendPrintf( cnt, "><i>Week %lld, year %lld</i><br>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
  return;
 }
 
-void iohttpFamNews( svConnectionPtr cnt, int num, long long int *newsd, dbMainEmpirePtr empired )
+void iohttpFamNews( svConnectionPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired )
 {
  int a, b, c;
  dbUserMainDef maind;
@@ -1014,67 +1014,67 @@ void iohttpFamNews( svConnectionPtr cnt, int num, long long int *newsd, dbMainEm
   {
    if( b == empired->numplayers )
     goto iohttpFamNewsL0;
-   if( newsd[1] == empired->player[b] )
+   if( (long long)newsd[1] == empired->player[b] )
     break;
   }
-  if( newsd[2] == CMD_NEWS_EXPLORE )
+  if( (long long)newsd[2] == CMD_NEWS_EXPLORE )
   {
    iohttpFamNewsEntry( cnt, 0, newsd );
-   svSendPrintf( cnt, "An exploration ship of %s reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", mfamd[b].faction, newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-   if( ( newsd[5] >= 0 ) && ( newsd[5] < ARTEFACT_NUMUSED ) )
-    svSendPrintf( cnt, "<br>An ancient artefact has been discovered on this planet! <b>%s</b>", artefactName[ newsd[5] ] );
+   svSendPrintf( cnt, "An exploration ship of %s reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", mfamd[b].faction, (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+   if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ARTEFACT_NUMUSED ) )
+    svSendPrintf( cnt, "<br>An ancient artefact has been discovered on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
   }
-  else if( newsd[2] == CMD_NEWS_EXPLORE_FAILED )
+  else if( (long long)newsd[2] == CMD_NEWS_EXPLORE_FAILED )
   {
    iohttpFamNewsEntry( cnt, 1, newsd );
-   svSendPrintf( cnt, "An exploration ship of %s reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>, but the planet was already habited.", mfamd[b].faction, newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
+   svSendPrintf( cnt, "An exploration ship of %s reached the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>, but the planet was already habited.", mfamd[b].faction, (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
   }
-  else if( newsd[2] == CMD_NEWS_FAMATTACK )
+  else if( (long long)newsd[2] == CMD_NEWS_FAMATTACK )
   {
    iohttpFamNewsEntry( cnt, 2, newsd );
-   if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohttpFamNewsL0;
-   svSendPrintf( cnt, "%s attacked and took control of the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> previously owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", mfamd[b].faction, newsd[5], ( newsd[6] >> 8 ) & 0xFF, newsd[6] >> 20, newsd[6] & 0xFF, newsd[3], maind.faction, newsd[4], newsd[4] );
+   svSendPrintf( cnt, "%s attacked and took control of the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> previously owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", mfamd[b].faction, (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF, (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
    goto iohttpFamNewsL1;
   }
-  else if( newsd[2] == CMD_NEWS_FAMATTACK_FAILED )
+  else if( (long long)newsd[2] == CMD_NEWS_FAMATTACK_FAILED )
   {
    iohttpFamNewsEntry( cnt, 3, newsd );
-   if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohttpFamNewsL0;
-   svSendPrintf( cnt, "%s attacked and failed to capture the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", mfamd[b].faction, newsd[5], ( newsd[6] >> 8 ) & 0xFF, newsd[6] >> 20, newsd[6] & 0xFF, newsd[3], maind.faction, newsd[4], newsd[4] );
+   svSendPrintf( cnt, "%s attacked and failed to capture the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", mfamd[b].faction, (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF, (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
    goto iohttpFamNewsL1;
   }
-  else if( newsd[2] == CMD_NEWS_ATTACK )
+  else if( (long long)newsd[2] == CMD_NEWS_ATTACK )
   {
    iohttpFamNewsEntry( cnt, 5, newsd );
-   if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohttpFamNewsL0;
-   svSendPrintf( cnt, "%s lost the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> to <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", mfamd[b].faction, newsd[5], ( newsd[6] >> 8 ) & 0xFF, newsd[6] >> 20, newsd[6] & 0xFF, newsd[3], maind.faction, newsd[4], newsd[4] );
+   svSendPrintf( cnt, "%s lost the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a> to <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", mfamd[b].faction, (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF, (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
    goto iohttpFamNewsL1;
   }
-  else if( newsd[2] == CMD_NEWS_ATTACK_FAILED )
+  else if( (long long)newsd[2] == CMD_NEWS_ATTACK_FAILED )
   {
    iohttpFamNewsEntry( cnt, 4, newsd );
-   if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohttpFamNewsL0;
-   svSendPrintf( cnt, "The <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>, owned by %s, was unsuccessfully attacked by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], ( newsd[6] >> 8 ) & 0xFF, newsd[6] >> 20, newsd[6] & 0xFF, mfamd[b].faction, newsd[3], maind.faction, newsd[4], newsd[4] );
+   svSendPrintf( cnt, "The <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>, owned by %s, was unsuccessfully attacked by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF, mfamd[b].faction, (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
    iohttpFamNewsL1:
    svSendString( cnt, "<br>Defender losses : " );
    for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
    {
-    if( !( newsd[8+a] ) )
+    if( !( (long long)newsd[8+a] ) )
      continue;
     if( b )
      svSendString( cnt, ", " );
-    svSendPrintf( cnt, "%lld %s", newsd[8+a], cmdUnitName[a] );
+    svSendPrintf( cnt, "%lld %s", (long long)newsd[8+a], cmdUnitName[a] );
     b = 1;
    }
-   if( newsd[8+2*CMD_UNIT_FLEET] )
+   if( (long long)newsd[8+2*CMD_UNIT_FLEET] )
    {
     if( b )
      svSendString( cnt, ", " );
-    svSendPrintf( cnt, "%lld %s", newsd[8+2*CMD_UNIT_FLEET], cmdBuildingName[CMD_BUILDING_SATS] );
+    svSendPrintf( cnt, "%lld %s", (long long)newsd[8+2*CMD_UNIT_FLEET], cmdBuildingName[CMD_BUILDING_SATS] );
     b = 1;
    }
    if( !( b ) )
@@ -1082,18 +1082,18 @@ void iohttpFamNews( svConnectionPtr cnt, int num, long long int *newsd, dbMainEm
    svSendString( cnt, "<br>Attacker losses : " );
    for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
    {
-    if( !( newsd[8+CMD_UNIT_FLEET+a] ) )
+    if( !( (long long)newsd[8+CMD_UNIT_FLEET+a] ) )
      continue;
     if( b )
      svSendString( cnt, ", " );
-    svSendPrintf( cnt, "%lld %s", newsd[8+CMD_UNIT_FLEET+a], cmdUnitName[a] );
+    svSendPrintf( cnt, "%lld %s", (long long)newsd[8+CMD_UNIT_FLEET+a], cmdUnitName[a] );
     b = 1;
    }
    if( !( b ) )
     svSendString( cnt, "Nothing" );
-   if( ( newsd[7] & 0xF00 ) )
+   if( ( (long long)newsd[7] & 0xF00 ) )
    {
-    b = newsd[7] & 0xF00;
+    b = (long long)newsd[7] & 0xF00;
     svSendString( cnt, "<br>Defending forces preferred to avoid directly engaging enemy units in " );
     if( b == 0x100 )
      svSendString( cnt, "the first phase" );
@@ -1127,187 +1127,187 @@ void iohttpFamNews( svConnectionPtr cnt, int num, long long int *newsd, dbMainEm
      svSendString( cnt, "all phases" );
     svSendString( cnt, " of the battle" );
    }
-   if( ( newsd[7] & 0xFF ) )
+   if( ( (long long)newsd[7] & 0xFF ) )
    {
     svSendString( cnt, "<br>Overwhelmed by defending enemy forces, the attacking fleet hastidly retreated to minimize losses in the " );
-    if( ( newsd[7] & 0x10 ) )
+    if( ( (long long)newsd[7] & 0x10 ) )
      svSendString( cnt, "first phase of the battle" );
-    if( ( newsd[7] & 0x20 ) )
+    if( ( (long long)newsd[7] & 0x20 ) )
      svSendString( cnt, "second phase of the battle" );
-    if( ( newsd[7] & 0x40 ) )
+    if( ( (long long)newsd[7] & 0x40 ) )
      svSendString( cnt, "third phase of the battle" );
-    if( ( newsd[7] & 0x80 ) )
+    if( ( (long long)newsd[7] & 0x80 ) )
      svSendString( cnt, "fourth phase of the battle" );
    }
   }
-  else if( newsd[2] == CMD_NEWS_AID )
+  else if( (long long)newsd[2] == CMD_NEWS_AID )
   {
    iohttpFamNewsEntry( cnt, 6, newsd );
-   if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohttpFamNewsL0;
    svSendPrintf( cnt, "%s received an aid shipment from %s!<br>", mfamd[b].faction, maind.faction );
    for( a = b = 0 ; a < 4 ; a++ )
    {
-    if( !( newsd[4+a] ) )
+    if( !( (long long)newsd[4+a] ) )
      continue;
     if( b )
      svSendString( cnt, ", " );
-    svSendPrintf( cnt, "%lld %s", newsd[4+a], cmdRessourceName[a] );
+    svSendPrintf( cnt, "%lld %s", (long long)newsd[4+a], cmdRessourceName[a] );
     b = 1;
    }
    svSendString( cnt, " has been added to the faction reserves." );
   }
-  else if( newsd[2] == CMD_NEWS_GETAID )
+  else if( (long long)newsd[2] == CMD_NEWS_GETAID )
   {
    iohttpFamNewsEntry( cnt, 7, newsd );
-   if( dbUserMainRetrieve( newsd[3], &maind ) < 0 )
+   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohttpFamNewsL0;
    svSendPrintf( cnt, "%s requested an aid shipment from %s!<br>", maind.faction, mfamd[b].faction );
    for( a = b = 0 ; a < 4 ; a++ )
    {
-    if( !( newsd[4+a] ) )
+    if( !( (long long)newsd[4+a] ) )
      continue;
     if( b )
      svSendString( cnt, ", " );
-    svSendPrintf( cnt, "%lld %s", newsd[4+a], cmdRessourceName[a] );
+    svSendPrintf( cnt, "%lld %s", (long long)newsd[4+a], cmdRessourceName[a] );
     b = 1;
    }
    svSendString( cnt, " has been added to the faction reserves." );
   }
-  else if( ( newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMOPEND ) )
+  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   svSendPrintf( cnt, "Agents sent by %s reached their destination, the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", mfamd[b].faction, newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-   if( ( user = dbUserLinkID( newsd[5] ) ) )
-    svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], user->faction, newsd[6], newsd[6] );
-   svSendPrintf( cnt, " to perform <b>%s</b>.", cmdAgentopName[newsd[9]] );
+   svSendPrintf( cnt, "Agents sent by %s reached their destination, the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", mfamd[b].faction, (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+    svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+   svSendPrintf( cnt, " to perform <b>%s</b>.", cmdAgentopName[(long long)newsd[9]] );
    if( user )
    {
-    if( newsd[7] == -1 )
+    if( (long long)newsd[7] == -1 )
      svSendPrintf( cnt, "<br><i>The agents successfully stayed undiscovered during the operation.</i>" );
     else
-     svSendPrintf( cnt, "<br><i>%lld of the agents were caught, but still managed to kill %lld defending agents.</i>", newsd[7], newsd[8] );
+     svSendPrintf( cnt, "<br><i>%lld of the agents were caught, but still managed to kill %lld defending agents.</i>", (long long)newsd[7], (long long)newsd[8] );
    }
   }
-  else if( ( newsd[2] >= CMD_NEWS_NUMOPTARGETBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMOPTARGETEND ) )
+  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPTARGETEND ) )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   if( newsd[7] != -1 )
+   if( (long long)newsd[7] != -1 )
    {
     svSendPrintf( cnt, "The forces of %s intercepted some agents from ", mfamd[b].faction );
-    if( ( user = dbUserLinkID( newsd[5] ) ) )
-     svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], user->faction, newsd[6], newsd[6] );
+    if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+     svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
     else
      svSendString( cnt, "an unknown faction" );
    }
    else
     svSendPrintf( cnt, "The forces of %s found traces of agents from an unknown faction", mfamd[b].faction );
-   svSendPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>.", cmdAgentopName[newsd[9]], newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-   if( newsd[7] != -1 )
-    svSendPrintf( cnt, "<br><i>%lld enemy agents have been arrested, %lld defending agents have been killed.</i>", newsd[7], newsd[8] );
+   svSendPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>.", cmdAgentopName[(long long)newsd[9]], (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+   if( (long long)newsd[7] != -1 )
+    svSendPrintf( cnt, "<br><i>%lld enemy agents have been arrested, %lld defending agents have been killed.</i>", (long long)newsd[7], (long long)newsd[8] );
   }
-  else if( ( newsd[2] >= CMD_NEWS_NUMSPBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMSPEND ) )
+  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMSPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMSPEND ) )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   svSendPrintf( cnt, "Psychics of %s casted <b>%s</b> on ", mfamd[b].faction, cmdPsychicopName[newsd[7]] );
-   if( newsd[3] == newsd[1] )
+   svSendPrintf( cnt, "Psychics of %s casted <b>%s</b> on ", mfamd[b].faction, cmdPsychicopName[(long long)newsd[7]] );
+   if( (long long)newsd[3] == (long long)newsd[1] )
     svSendPrintf( cnt, "their faction." );
    else
    {
-    if( ( user = dbUserLinkID( newsd[3] ) ) )
-     svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.", newsd[3], user->faction, newsd[4], newsd[4] );
+    if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+     svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
     else
      svSendPrintf( cnt, "an unknown faction." );
     if( user )
     {
-     if( newsd[5] == -1 )
+     if( (long long)newsd[5] == -1 )
       svSendPrintf( cnt, "<br><i>The psychics successfully stayed undiscovered while performing the spell.</i>" );
      else
-      svSendPrintf( cnt, "<br><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", newsd[5], newsd[6] );
+      svSendPrintf( cnt, "<br><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", (long long)newsd[5], (long long)newsd[6] );
     }
    }
   }
-  else if( ( newsd[2] >= CMD_NEWS_NUMSPTARGETBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMSPTARGETEND ) )
+  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMSPTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMSPTARGETEND ) )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   if( newsd[5] != -1 )
+   if( (long long)newsd[5] != -1 )
    {
     svSendPrintf( cnt, "The forces of %s felt the influence of psychics from ", mfamd[b].faction );
-    if( ( user = dbUserLinkID( newsd[3] ) ) )
-     svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[3], user->faction, newsd[4], newsd[4] );
+    if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+     svSendPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
     else
      svSendString( cnt, "an unknown faction" );
    }
    else
     svSendPrintf( cnt, "The forces of %s felt the influence of psychics from an unknown faction", mfamd[b].faction );
-   svSendPrintf( cnt, " casting <b>%s</b>.", cmdPsychicopName[newsd[7]] );
-   if( newsd[5] != -1 )
-    svSendPrintf( cnt, "<br><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", newsd[5], newsd[6] );
+   svSendPrintf( cnt, " casting <b>%s</b>.", cmdPsychicopName[(long long)newsd[7]] );
+   if( (long long)newsd[5] != -1 )
+    svSendPrintf( cnt, "<br><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", (long long)newsd[5], (long long)newsd[6] );
   }
-  else if( ( newsd[2] >= CMD_NEWS_NUMINBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMINEND ) )
+  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMINBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMINEND ) )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   svSendPrintf( cnt, "Ghost ships of %s casted <b>%s</b> ", mfamd[b].faction, cmdGhostopName[newsd[10]] );
-   if( cmdGhostopFlags[ newsd[10] ] & 4 )
-    svSendPrintf( cnt, "in the system %lld,%lld<br>", ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20 );
+   svSendPrintf( cnt, "Ghost ships of %s casted <b>%s</b> ", mfamd[b].faction, cmdGhostopName[(long long)newsd[10]] );
+   if( cmdGhostopFlags[ (long long)newsd[10] ] & 4 )
+    svSendPrintf( cnt, "in the system %lld,%lld<br>", ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20 );
    else
    {
-    svSendPrintf( cnt, "on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
-    if( ( user = dbUserLinkID( newsd[5] ) ) )
+    svSendPrintf( cnt, "on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+    if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
     {
-     svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", newsd[5], user->faction, newsd[6], newsd[6] );
-     if( newsd[7] <= 0 )
+     svSendPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+     if( (long long)newsd[7] <= 0 )
       svSendPrintf( cnt, "<i>The ghost ships successfully stayed undiscovered during the incantation.</i><br>" );
      else
-      svSendPrintf( cnt, "<i>%lld ghost ships were oblitered by defending forces.</i><br>", newsd[7] );
-     if( newsd[8] > 0 )
-      svSendPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", newsd[8] );
-     if( newsd[9] > 0 )
-      svSendPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", newsd[9] );
+      svSendPrintf( cnt, "<i>%lld ghost ships were oblitered by defending forces.</i><br>", (long long)newsd[7] );
+     if( (long long)newsd[8] > 0 )
+      svSendPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", (long long)newsd[8] );
+     if( (long long)newsd[9] > 0 )
+      svSendPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
     }
    }
   }
-  else if( ( newsd[2] >= CMD_NEWS_NUMINTARGETBEGIN ) && ( newsd[2] <= CMD_NEWS_NUMINTARGETEND ) )
+  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMINTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMINTARGETEND ) )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   if( newsd[7] != -1 )
+   if( (long long)newsd[7] != -1 )
    {
     svSendPrintf( cnt, "The forces of %s were the target of ghost ships from", mfamd[b].faction );
-    if( ( user = dbUserLinkID( newsd[5] ) ) )
-     svSendPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", newsd[5], user->faction, newsd[6], newsd[6] );
+    if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+     svSendPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
     else
      svSendString( cnt, " an unknown faction" );
    }
    else
     svSendPrintf( cnt, "The forces of %s were the target of ghost ships from an unknown faction", mfamd[b].faction );
-   svSendPrintf( cnt, " performing a <b>%s</b> incantation", cmdGhostopName[newsd[10]] );
-   if( newsd[3] != -1 )
-    svSendPrintf( cnt, " on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", newsd[3], ( newsd[4] >> 8 ) & 0xFFF, newsd[4] >> 20, newsd[4] & 0xFF );
+   svSendPrintf( cnt, " performing a <b>%s</b> incantation", cmdGhostopName[(long long)newsd[10]] );
+   if( (long long)newsd[3] != -1 )
+    svSendPrintf( cnt, " on <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
    svSendString( cnt, ".<br>" );
-   if( newsd[7] > 0 )
-    svSendPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br>", newsd[7] );
-   if( newsd[8] > 0 )
-    svSendPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", newsd[8] );
-   if( newsd[9] > 0 )
-    svSendPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", newsd[9] );
+   if( (long long)newsd[7] > 0 )
+    svSendPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br>", (long long)newsd[7] );
+   if( (long long)newsd[8] > 0 )
+    svSendPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", (long long)newsd[8] );
+   if( (long long)newsd[9] > 0 )
+    svSendPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
   }
 
 
 
-  else if( newsd[2] == CMD_NEWS_PLANET_TAKEN )
+  else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   if( ( user = dbUserLinkID( newsd[3] ) ) )
-    svSendPrintf( cnt, "The forces of %s took control of a <a href=\"planet?id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, newsd[4], user->faction );
+   if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
+    svSendPrintf( cnt, "The forces of %s took control of a <a href=\"planet?id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, (long long)newsd[4], user->faction );
   }
 
 
 
 
-  else if( newsd[2] != -1 )
+  else if( (long long)newsd[2] != -1 )
   {
    iohttpFamNewsEntry( cnt, -1, newsd );
-   svSendPrintf( cnt, "Unknown report code : %lld ( tell the admin, thanks ;) )", newsd[2] );
+   svSendPrintf( cnt, "Unknown report code : %lld ( tell the admin, thanks ;) )", (long long)newsd[2] );
   }
   iohttpFamNewsL0:
   svSendString( cnt, "</td></tr>" );
@@ -1323,7 +1323,7 @@ void iohttpFunc_hq( svConnectionPtr cnt )
  int id, a, num;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- long long int *newsp, *newsd;
+ int64_t *newsp, *newsd;
  FILE *file;
  struct stat stdata;
  char *data;
@@ -1360,7 +1360,7 @@ if( ticks.status ) {
 
  svSendPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
 	
- svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, maind.ressource[CMD_RESSOURCE_POPULATION], maind.networth );
+ svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
  svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : <span id=\"hqfleetready\">%d</span>%%<br>Psychics readiness : <span id=\"hqpsychready\">%d</span>%%<br>Agents readiness : <span id=\"hqagentready\">%d</span>%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[CMD_READY_FLEET] >> 16, maind.readiness[CMD_READY_PSYCH] >> 16, maind.readiness[CMD_READY_AGENT] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
 //read hq message from hq.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
@@ -1419,7 +1419,7 @@ void iohttpFunc_news( svConnectionPtr cnt )
 {
  volatile int id, a, num;
  dbUserMainDef maind;
- long long int *newsp, *newsd;
+ int64_t *newsp, *newsd;
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1489,45 +1489,45 @@ if(empired.taxation)
 
 svSendString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 svSendString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
-svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\" id=\"energyproduction\">+%lld</td></tr>", maind.infos[INFOS_ENERGY_PRODUCTION] );
+svSendPrintf( cnt, "<tr><td>Production</td><td align=\"right\" id=\"energyproduction\">+%lld</td></tr>", (long long)maind.infos[INFOS_ENERGY_PRODUCTION] );
 
 if( maind.infos[INFOS_ENERGY_TAX] )
-	svSendPrintf( cnt, "<tr><td>Taxation</td><td align=\"right\" id=\"energytax\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_TAX] );
+	svSendPrintf( cnt, "<tr><td>Taxation</td><td align=\"right\" id=\"energytax\">-%lld</td></tr>", (long long)maind.infos[INFOS_ENERGY_TAX] );
 
-svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\" id=\"energydecay\">-%lld</td></tr>", maind.infos[INFOS_ENERGY_DECAY] );
-svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\" id=\"buildingupkeep\">-%lld</td></tr>", maind.infos[INFOS_BUILDING_UPKEEP] );
-svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\" id=\"populationreduction\">+%lld</td></tr>", maind.infos[INFOS_POPULATION_REDUCTION] );
-svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\" id=\"unitupkeep\">-%lld</td></tr>", maind.infos[INFOS_UNITS_UPKEEP] );
-svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\" id=\"portalsupkeep\">-%lld</td></tr>", maind.infos[INFOS_PORTALS_UPKEEP] );
-svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\" id=\"energyincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "<span class=\"genred\">" : "" ), maind.infos[CMD_RESSOURCE_ENERGY], ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "</span>" : "" ) );
+svSendPrintf( cnt, "<tr><td>Decay</td><td align=\"right\" id=\"energydecay\">-%lld</td></tr>", (long long)maind.infos[INFOS_ENERGY_DECAY] );
+svSendPrintf( cnt, "<tr><td>Buildings upkeep</td><td align=\"right\" id=\"buildingupkeep\">-%lld</td></tr>", (long long)maind.infos[INFOS_BUILDING_UPKEEP] );
+svSendPrintf( cnt, "<tr><td>Population upkeep reduction</td><td align=\"right\" id=\"populationreduction\">+%lld</td></tr>", (long long)maind.infos[INFOS_POPULATION_REDUCTION] );
+svSendPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\" id=\"unitupkeep\">-%lld</td></tr>", (long long)maind.infos[INFOS_UNITS_UPKEEP] );
+svSendPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\" id=\"portalsupkeep\">-%lld</td></tr>", (long long)maind.infos[INFOS_PORTALS_UPKEEP] );
+svSendPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\" id=\"energyincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "<span class=\"genred\">" : "" ), (long long)maind.infos[CMD_RESSOURCE_ENERGY], ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "</span>" : "" ) );
 svSendString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
 svSendString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
 
 if( maind.infos[INFOS_MINERAL_TAX] ) {
-	svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\" id=\"mineralproduction\">+%lld</td></tr>", maind.infos[INFOS_MINERAL_PRODUCTION] );
-	svSendPrintf( cnt, "<tr><td>Mineral taxation</td><td align=\"right\" id=\"mineraltax\">-%lld</td></tr>", maind.infos[INFOS_MINERAL_TAX] );
+	svSendPrintf( cnt, "<tr><td>Mineral produced</td><td align=\"right\" id=\"mineralproduction\">+%lld</td></tr>", (long long)maind.infos[INFOS_MINERAL_PRODUCTION] );
+	svSendPrintf( cnt, "<tr><td>Mineral taxation</td><td align=\"right\" id=\"mineraltax\">-%lld</td></tr>", (long long)maind.infos[INFOS_MINERAL_TAX] );
 }
 
-svSendPrintf( cnt, "<tr><td>Mineral income</td><td align=\"right\" id=\"mineralincome\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_MINERAL] );
-svSendPrintf( cnt, "<tr><td>Crystal production</td><td align=\"right\" id=\"crystalproduction\">+%lld</td></tr>", maind.infos[INFOS_CRYSTAL_PRODUCTION] );
+svSendPrintf( cnt, "<tr><td>Mineral income</td><td align=\"right\" id=\"mineralincome\">+%lld</td></tr>", (long long)maind.infos[CMD_RESSOURCE_MINERAL] );
+svSendPrintf( cnt, "<tr><td>Crystal production</td><td align=\"right\" id=\"crystalproduction\">+%lld</td></tr>", (long long)maind.infos[INFOS_CRYSTAL_PRODUCTION] );
 
 if( maind.infos[INFOS_CRYSTAL_TAX] )
-	svSendPrintf( cnt, "<tr><td>Crystal taxation</td><td align=\"right\" id=\"crystaltax\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_TAX] );
+	svSendPrintf( cnt, "<tr><td>Crystal taxation</td><td align=\"right\" id=\"crystaltax\">-%lld</td></tr>", (long long)maind.infos[INFOS_CRYSTAL_TAX] );
 
-svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\" id=\"crystaldecay\">-%lld</td></tr>", maind.infos[INFOS_CRYSTAL_DECAY] );
-svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\" id=\"crystalincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? "<span class=\"genred\">" : "" ), maind.infos[CMD_RESSOURCE_CRYSTAL], ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? "</span>" : "" ) );
+svSendPrintf( cnt, "<tr><td>Crystal decay</td><td align=\"right\" id=\"crystaldecay\">-%lld</td></tr>", (long long)maind.infos[INFOS_CRYSTAL_DECAY] );
+svSendPrintf( cnt, "<tr><td>Crystal income</td><td align=\"right\" id=\"crystalincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? "<span class=\"genred\">" : "" ), (long long)maind.infos[CMD_RESSOURCE_CRYSTAL], ( ( maind.infos[CMD_RESSOURCE_CRYSTAL] < 0 ) ? "</span>" : "" ) );
 
 if( maind.infos[INFOS_ECTROLIUM_TAX] ) {
-	svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\" id=\"ectroliumproduction\">+%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_PRODUCTION] );
-	svSendPrintf( cnt, "<tr><td>Ectrolium taxation</td><td align=\"right\" id=\"ectroliumtax\">-%lld</td></tr>", maind.infos[INFOS_ECTROLIUM_TAX] );
+	svSendPrintf( cnt, "<tr><td>Ectrolium produced</td><td align=\"right\" id=\"ectroliumproduction\">+%lld</td></tr>", (long long)maind.infos[INFOS_ECTROLIUM_PRODUCTION] );
+	svSendPrintf( cnt, "<tr><td>Ectrolium taxation</td><td align=\"right\" id=\"ectroliumtax\">-%lld</td></tr>", (long long)maind.infos[INFOS_ECTROLIUM_TAX] );
 }
 
-svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\" id=\"ectroliumincome\">+%lld</td></tr>", maind.infos[CMD_RESSOURCE_ECTROLIUM] );
+svSendPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\" id=\"ectroliumincome\">+%lld</td></tr>", (long long)maind.infos[CMD_RESSOURCE_ECTROLIUM] );
 svSendString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
 svSendString( cnt, "<b>Buildings</b><br><table>" );
 for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
-	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, maind.totalbuilding[a] );
+	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, (long long)maind.totalbuilding[a] );
 	b += (int)maind.totalbuilding[a];
 }
 
@@ -1564,7 +1564,7 @@ svSendString( cnt, "</td><td align=\"center\" valign=\"top\">" );
 svSendString( cnt, "<b>Units</b><br><table>" );
 
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"unt%d\">%lld</td></tr>", cmdUnitName[a], a, maind.totalunit[a] );
+	svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"unt%d\">%lld</td></tr>", cmdUnitName[a], a, (long long)maind.totalunit[a] );
 	b += (int)maind.totalunit[a];
 }
 
@@ -1607,7 +1607,7 @@ return;
 void iohttpFunc_units( svConnectionPtr cnt )
 {
  int a, b, c, id;
- long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
+ int64_t resbuild[CMD_RESSOURCE_NUMUSED+2];
  dbUserMainDef maind;
  char *buildunit[CMD_UNIT_NUMUSED];
  char buildname[16];
@@ -1670,19 +1670,19 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( resbuild[0] < 0 )
   {
    if( resbuild[0] == -1 )
-    svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", maind.totalunit[a] );
+    svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalunit[a] );
    else if( resbuild[0] == -2 )
-    svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Can not be built</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", maind.totalunit[a] );
+    svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Can not be built</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalunit[a] );
    continue;
   }
   for( b = 0 ; b < CMD_RESSOURCE_NUMUSED+1 ; b++ )
   {
    if( resbuild[b] )
-    svSendPrintf( cnt, "%lld %s<br>", resbuild[b], cmdRessourceName[b] );
+    svSendPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
   }
   if( resbuild[b] )
-   svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", resbuild[b] );
-  svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"unit%d\" size=\"10\"></td></tr>", maind.totalunit[a], a );
+   svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+  svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"unit%d\" size=\"10\"></td></tr>", (long long)maind.totalunit[a], a );
  }
  svSendString( cnt, "</table><input type=\"submit\" value=\"Build\"></form>" );
 
@@ -2187,7 +2187,7 @@ if ( curfam == maind.empire ) {
    svSendPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", mainp[b].faction );
   else
    svSendString( cnt, mainp[b].faction );
-  svSendPrintf( cnt, "</a></td><td><a href=\"races\">%s</a></td><td>%d</td><td>%lld</td><td>", cmdRaceName[mainp[b].raceid], mainp[b].planets, mainp[b].networth );
+  svSendPrintf( cnt, "</a></td><td><a href=\"races\">%s</a></td><td>%d</td><td>%lld</td><td>", cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
   nAlly = cmdExecFindRelation(maind.empire, curfam, 0, 0);
   
   if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || (nAlly == CMD_RELATION_ALLY) || ( ( cnt->dbuser ) && ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) ) )
@@ -2228,11 +2228,11 @@ if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_F
 	}
 	svSendString( cnt, "<table>" );
 	svSendString( cnt, "<tr>" );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], empired.fund[CMD_RESSOURCE_ENERGY] );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_CRYSTAL], empired.fund[CMD_RESSOURCE_CRYSTAL] );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], (long long)empired.fund[CMD_RESSOURCE_ENERGY] );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_CRYSTAL], (long long)empired.fund[CMD_RESSOURCE_CRYSTAL] );
 	svSendString( cnt, "</tr><tr>" );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_MINERAL], empired.fund[CMD_RESSOURCE_MINERAL] );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ECTROLIUM], empired.fund[CMD_RESSOURCE_ECTROLIUM] );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_MINERAL], (long long)empired.fund[CMD_RESSOURCE_MINERAL] );
+	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ECTROLIUM], (long long)empired.fund[CMD_RESSOURCE_ECTROLIUM] );
 	svSendString( cnt, "</tr>" );
 	svSendString( cnt, "</table>" );
 }
@@ -2355,7 +2355,7 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
 
  svSendString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
-  svSendPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", maind.ressource[a], cmdRessourceName[a], a );
+  svSendPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", (long long)maind.ressource[a], cmdRessourceName[a], a );
  svSendString( cnt, "</table><br>" );
  svSendString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 
@@ -2446,7 +2446,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
   svSendPrintf( cnt, "<b>%s</b> - ", user->faction );
-  svSendPrintf( cnt, "Energy: %lld&nbsp;&nbsp;Mineral: %lld&nbsp;&nbsp;Crystal: %lld&nbsp;&nbsp;Ectrolium: %lld", main2d.ressource[0], main2d.ressource[1], main2d.ressource[2], main2d.ressource[3] );
+  svSendPrintf( cnt, "Energy: %lld&nbsp;&nbsp;Mineral: %lld&nbsp;&nbsp;Crystal: %lld&nbsp;&nbsp;Ectrolium: %lld", (long long)main2d.ressource[0], (long long)main2d.ressource[1], (long long)main2d.ressource[2], (long long)main2d.ressource[3] );
   svSendPrintf( cnt, "<br><br>" );
  }
 
@@ -2600,7 +2600,7 @@ if( evote ) {
 		} else {
 			svSendString( cnt, main2d.faction );
 		}
-		svSendPrintf( cnt, "</a></td><td>%lld</td><td>%d</td><td align=\"center\"><input type=\"radio\" value=\"%d\" name=\"id\"", main2d.networth, main2d.planets, empired.player[a] );
+		svSendPrintf( cnt, "</a></td><td>%lld</td><td>%d</td><td align=\"center\"><input type=\"radio\" value=\"%d\" name=\"id\"", (long long)main2d.networth, main2d.planets, empired.player[a] );
 		if( empired.vote[fampos] == a ) {
 			svSendString( cnt, " checked" );
 			b = 1;
@@ -2631,7 +2631,7 @@ void iohttpFunc_famnews( svConnectionPtr cnt )
  dbMainEmpireDef empired;
  char *empirestring;
  char COREDIR[256];
- long long int *newsp, *newsd;
+ int64_t *newsp, *newsd;
 	FILE *fFile;
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
@@ -3655,7 +3655,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   return;
  }
  iohttpBodyInit( cnt, main2d.faction );
- svSendPrintf( cnt, "<table border=\"0\"><tr><td><a href=\"empire?id=%d\">Empire : #%d</a><br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>Home planet : %d,%d:%d<br><br>Faction ID : %d<br><a href=\"mail?to=%d\">Send a message</a><br><a href=\"map?e0=4&u0=%d&c0=5\">Display planets on map</a><br><a href=\"map?e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br><a href=\"playerlist?id=%d\">See planets list</a><br><br></td></tr></table>", main2d.empire, main2d.empire, main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], main2d.forumtag, main2d.ressource[CMD_RESSOURCE_POPULATION], ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid, playerid, playerid, playerid, playerid );
+ svSendPrintf( cnt, "<table border=\"0\"><tr><td><a href=\"empire?id=%d\">Empire : #%d</a><br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>Home planet : %d,%d:%d<br><br>Faction ID : %d<br><a href=\"mail?to=%d\">Send a message</a><br><a href=\"map?e0=4&u0=%d&c0=5\">Display planets on map</a><br><a href=\"map?e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br><a href=\"playerlist?id=%d\">See planets list</a><br><br></td></tr></table>", main2d.empire, main2d.empire, (long long)main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], main2d.forumtag, (long long)main2d.ressource[CMD_RESSOURCE_POPULATION], ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid, playerid, playerid, playerid, playerid );
 
  if( dbUserDescRetrieve( playerid, &descd ) >= 0 )
  {
@@ -3897,7 +3897,7 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
   if( cmdExecute( cnt, cmd2, &main2d, 0 ) < 0 )
    svSendString( cnt, "Error while retriving user's main data" );
   else
-   svSendPrintf( cnt, "This planet is owned by : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a>, networth %lld.<br><br><a href=\"attack?id=%d\">Attack this planet</a><br><br><a href=\"spec?id=%d\">Special operation</a>", planetd.owner, main2d.faction, main2d.empire, main2d.empire, main2d.networth, plnid, plnid );
+   svSendPrintf( cnt, "This planet is owned by : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a>, networth %lld.<br><br><a href=\"attack?id=%d\">Attack this planet</a><br><br><a href=\"spec?id=%d\">Special operation</a>", planetd.owner, main2d.faction, main2d.empire, main2d.empire, (long long)main2d.networth, plnid, plnid );
  }
  svSendPrintf( cnt, "<br><br><a href=\"system?id=%d\">View system</a>", planetd.system );
 
@@ -3956,7 +3956,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 void iohttpFunc_build( svConnectionPtr cnt )
 {
  int a, b, c, id, cmd[6], plnid, totalb;
- long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
+ int64_t resbuild[CMD_RESSOURCE_NUMUSED+2];
  float fa;
  dbUserMainDef maind;
  dbMainPlanetDef planetd;
@@ -4091,17 +4091,17 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
   if( resbuild[0] < 0 )
   {
-   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", maind.totalbuilding[a] );
+   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[a] );
    continue;
   }
   for( b = 0 ; b < CMD_RESSOURCE_NUMUSED+1 ; b++ )
   {
    if( resbuild[b] )
-    svSendPrintf( cnt, "%lld %s<br>", resbuild[b], cmdRessourceName[b] );
+    svSendPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
   }
   if( resbuild[b] )
-   svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", resbuild[b] );
-  svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"bldg%d\" size=\"10\"></td></tr>", maind.totalbuilding[a], a );
+   svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+  svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"bldg%d\" size=\"10\"></td></tr>", (long long)maind.totalbuilding[a], a );
  }
 
  if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
@@ -4113,19 +4113,19 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   cmdGetBuildCosts( &maind, CMD_BLDG_NUMUSED, resbuild );
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">Portal</font></td><td valign=\"top\" nowrap>" );
   if( resbuild[0] < 0 )
-   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", maind.totalbuilding[CMD_BLDG_NUMUSED] );
+   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
   else
   {
    for( b = 0 ; b < CMD_RESSOURCE_NUMUSED+1 ; b++ )
    {
     if( resbuild[b] )
-     svSendPrintf( cnt, "%lld %s<br>", resbuild[b], cmdRessourceName[b] );
+     svSendPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
    }
    if( resbuild[b] )
-    svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", resbuild[b] );
+    svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
   }
  }
- svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\">", maind.totalbuilding[CMD_BLDG_NUMUSED] );
+ svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\">", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
  if( !( planetd.flags & ( CMD_PLANET_FLAGS_PORTAL | CMD_PLANET_FLAGS_PORTAL_BUILD ) ) )
   svSendString( cnt, "<input type=\"checkbox\" name=\"portal\"> Build a portal" );
  else
@@ -4243,7 +4243,7 @@ void iohttpFunc_cancelbuild(svConnectionPtr cnt)
 void iohttpFunc_massbuild( svConnectionPtr cnt )
 {
  int a, b, c, d, e, id, cmd[7], numpl, totalpl, totalportal, buildoff, oblimit, oblimitlow;
- long long int resbuild[CMD_RESSOURCE_NUMUSED+2];
+ int64_t resbuild[CMD_RESSOURCE_NUMUSED+2];
  float fa, cost;
  int *buffer;
  dbUserMainDef maind;
@@ -4398,19 +4398,19 @@ cmdExecAddBuild !!!
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
   if( resbuild[0] < 0 )
   {
-   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", maind.totalbuilding[a] );
+   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[a] );
    continue;
   }
   for( b = 0 ; b < CMD_RESSOURCE_NUMUSED ; b++ )
   {
    if( resbuild[b] )
-    svSendPrintf( cnt, "%lld %s<br>", (long long int)( (double)resbuild[b] * cost ), cmdRessourceName[b] );
+    svSendPrintf( cnt, "%lld %s<br>", (long long)( resbuild[b] * cost ), cmdRessourceName[b] );
   }
-  svSendPrintf( cnt, "%lld %s<br>", resbuild[b], cmdRessourceName[b] );
+  svSendPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
   b++;
   if( resbuild[b] )
-   svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", resbuild[b] );
-  svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"bldg%d\" size=\"10\"></td></tr>", maind.totalbuilding[a], a );
+   svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+  svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"bldg%d\" size=\"10\"></td></tr>", (long long)maind.totalbuilding[a], a );
  }
 
  a = ( totalportal & 0xFFFF ) + ( totalportal >> 16 );
@@ -4425,21 +4425,21 @@ cmdExecAddBuild !!!
   cmdGetBuildCosts( &maind, CMD_BLDG_NUMUSED, resbuild );
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">Portal ( %d )</font></td><td valign=\"top\" nowrap>", b );
   if( resbuild[0] < 0 )
-   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", maind.totalbuilding[CMD_BLDG_NUMUSED] );
+   svSendPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
   else
   {
    for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
    {
     if( resbuild[a] )
-     svSendPrintf( cnt, "%lld %s<br>", b*resbuild[a], cmdRessourceName[a] );
+     svSendPrintf( cnt, "%lld %s<br>", (long long)b*resbuild[a], cmdRessourceName[a] );
    }
-   svSendPrintf( cnt, "%lld %s<br>", resbuild[a], cmdRessourceName[a] );
+   svSendPrintf( cnt, "%lld %s<br>", (long long)resbuild[a], cmdRessourceName[a] );
    a++;
    if( resbuild[a] )
-    svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", resbuild[a] );
+    svSendPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[a] );
   }
  }
- svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\">", maind.totalbuilding[CMD_BLDG_NUMUSED] );
+ svSendPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\">", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
  if( b )
   svSendString( cnt, "<input type=\"checkbox\" name=\"portal\"> Build portals" );
  else
@@ -4602,7 +4602,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( !( planetd.building[a] ) )
    continue;
   svSendPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdBuildingName[a] );
-  svSendPrintf( cnt, "<input type=\"text\" name=\"bldg%d\" size=\"10\"><br><br>There are %d on this planet<br>( %lld total )</td></tr>", a, planetd.building[a], maind.totalbuilding[a] );
+  svSendPrintf( cnt, "<input type=\"text\" name=\"bldg%d\" size=\"10\"><br><br>There are %d on this planet<br>( %lld total )</td></tr>", a, planetd.building[a], (long long)maind.totalbuilding[a] );
   b = 1;
  }
  if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
@@ -4800,7 +4800,7 @@ void iohttpFunc_fleetssplit( svConnectionPtr cnt )
 	int id, i, nId, nError;
 	dbUserMainDef maind;
 	dbUserFleetDef fleetd, fleet2d;
-	long long int disunit[CMD_UNIT_NUMUSED];
+	int64_t disunit[CMD_UNIT_NUMUSED];
 	char disname[10];
 	char *varstring;
 	
@@ -5062,7 +5062,7 @@ void iohttpFunc_fleetdisband( svConnectionPtr cnt )
  int a, b, c, id, cmd[6], fltid;
  dbUserFleetDef fleetd;
  dbUserMainDef maind;
- long long int disunit[CMD_UNIT_NUMUSED];
+ int64_t disunit[CMD_UNIT_NUMUSED];
  char disname[8];
  char *sptr, *fleetstring;
 
@@ -5075,12 +5075,12 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  iohttpBodyInit( cnt, "Disband units" );
 
  iohttpVarsInit( cnt );
- memset( disunit, 0, CMD_UNIT_NUMUSED*sizeof(long long int) );
+ memset( disunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
   sprintf( disname, "dis%d", a );
   sptr = iohttpVarsFind( disname );
-  if( !( sptr ) || ( sscanf( sptr, "%lld", &disunit[a] ) != 1 ) )
+  if( !( sptr ) || ( sscanf( sptr, "%" SCNd64, &disunit[a] ) != 1 ) )
    disunit[a] = 0;
  }
  fleetstring = iohttpVarsFind( "id" );
@@ -5133,7 +5133,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( !( fleetd.unit[a] ) )
    continue;
   svSendPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdUnitName[a] );
-  svSendPrintf( cnt, "<input type=\"text\" name=\"dis%d\" size=\"10\"><br><br>There are %d in this fleet<br>( %lld total )</td></tr>", a, fleetd.unit[a], maind.totalunit[a] );
+  svSendPrintf( cnt, "<input type=\"text\" name=\"dis%d\" size=\"10\"><br><br>There are %d in this fleet<br>( %lld total )</td></tr>", a, fleetd.unit[a], (long long)maind.totalunit[a] );
  }
  svSendString( cnt, "</table><br><input type=\"submit\" value=\"Disband\"></form>" );
 
@@ -6057,17 +6057,17 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
    }
    svSendPrintf( cnt, "<br><table><tr><td valign=\"top\"><i>Faction</i><br>" );
    svSendPrintf( cnt, "Planets : <b>%d</b><br>", main2d.planets );
-   svSendPrintf( cnt, "Networth : <b>%lld</b><br>", main2d.networth );
+   svSendPrintf( cnt, "Networth : <b>%lld</b><br>", (long long)main2d.networth );
    svSendPrintf( cnt, "Empire : <b>#%d</b><br>", main2d.empire );
    svSendPrintf( cnt, "Fleet readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_FLEET] >> 16 );
    svSendPrintf( cnt, "Psychics readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_PSYCH] >> 16 );
    svSendPrintf( cnt, "Agents readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_AGENT] >> 16 );
    svSendPrintf( cnt, "</td><td valign=\"top\"><i>Resources</i><br>" );
    for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
-    svSendPrintf( cnt, "%s : <b>%lld</b><br>", cmdRessourceName[a], main2d.ressource[a] );
+    svSendPrintf( cnt, "%s : <b>%lld</b><br>", cmdRessourceName[a], (long long)main2d.ressource[a] );
    svSendPrintf( cnt, "</td><td valign=\"top\"><i>Research fields</i><br>" );
    for( a = 0; a < CMD_RESEARCH_NUMUSED ; a++ )
-    svSendPrintf( cnt, "%s : <b>%lld %%</b><br>", cmdResearchName[a], main2d.totalresearch[a] );
+    svSendPrintf( cnt, "%s : <b>%lld %%</b><br>", cmdResearchName[a], (long long)main2d.totalresearch[a] );
    svSendPrintf( cnt, "</td></tr></table><br><br>" );
    if( specopd.vars[0] & 1 )
    {
@@ -6747,7 +6747,7 @@ void iohttpFunc_spellsend( svConnectionPtr cnt )
  int id, order, psychics, targetid;
  dbUserMainDef maind;
  char *orderstring, *psychicstring, *targetstring;
- long long int newd[DB_USER_NEWS_BASE];
+ int64_t newd[DB_USER_NEWS_BASE];
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -6923,11 +6923,11 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( fundstring )
   svSendString( cnt, fundstring );
 
- svSendPrintf( cnt, "Increase fundings<br><form action=\"research\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\"></form><br>Current research fundings : %lld<br><br>", maind.fundresearch );
+ svSendPrintf( cnt, "Increase fundings<br><form action=\"research\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\"></form><br>Current research fundings : %lld<br><br>", (long long)maind.fundresearch );
 
  svSendString( cnt, "<form action=\"research\" method=\"POST\"><table width=\"90%%\" cellspacing=\"8\">" );
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
-  svSendPrintf( cnt, "<tr><td nowrap><b>%s</b></td><td nowrap>%lld Points</td><td nowrap>%lld%%</td><td>%s</td><td><input type=\"text\" name=\"rsch%d\" value=\"%d\" size=\"6\">%%</td></tr>", cmdResearchName[a], maind.research[a], maind.totalresearch[a], cmdResearchDesc[a], a, maind.allocresearch[a] );
+  svSendPrintf( cnt, "<tr><td nowrap><b>%s</b></td><td nowrap>%lld Points</td><td nowrap>%lld%%</td><td>%s</td><td><input type=\"text\" name=\"rsch%d\" value=\"%d\" size=\"6\">%%</td></tr>", cmdResearchName[a], (long long)maind.research[a], (long long)maind.totalresearch[a], cmdResearchDesc[a], a, maind.allocresearch[a] );
  svSendString( cnt, "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td><input type=\"submit\" value=\"Change\"></td></tr></table></form>" );
 
  iohttpBodyEnd( cnt );
@@ -6949,7 +6949,7 @@ void iohttpFunc_mail( svConnectionPtr cnt )
  char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
  char timebuf[256];
  char *text;
- long long int newd[DB_USER_NEWS_BASE];
+ int64_t newd[DB_USER_NEWS_BASE];
 
 if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;

@@ -323,9 +323,9 @@ dbArtefactMax = artmax;
   fprintf( file, "<table cellspacing=\"4\"><tr><td>Rank</td><td>Faction</td><td>Empire</td><td>Planets</td><td>Networth</td></tr>" );
   for( a = first, b = 1 ; a != -1 ; b++ )
   {
-    fprintf( file, "<tr><td align=\"right\">%d</td><td><a href=\"player?id=%d\">%s</a></td><td><a href=\"empire?id=%d\">empire #%d</a></td><td align=\"center\">%d</td><td align=\"center\">%lld</td></tr>", b, stats[a+0], mainp[stats[a+3]].faction, mainp[stats[a+3]].empire, mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, mainp[stats[a+3]].networth );
+    fprintf( file, "<tr><td align=\"right\">%d</td><td><a href=\"player?id=%d\">%s</a></td><td><a href=\"empire?id=%d\">empire #%d</a></td><td align=\"center\">%d</td><td align=\"center\">%lld</td></tr>", b, stats[a+0], mainp[stats[a+3]].faction, mainp[stats[a+3]].empire, mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, (long long)mainp[stats[a+3]].networth );
 
-    fprintf( filep, "%d:%d:%d:%d:%lld:%s\n", b, stats[a+0], mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, mainp[stats[a+3]].networth, mainp[stats[a+3]].faction );
+    fprintf( filep, "%d:%d:%d:%d:%lld:%s\n", b, stats[a+0], mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, (long long)mainp[stats[a+3]].networth, mainp[stats[a+3]].faction );
 
 
 
@@ -392,8 +392,8 @@ int cmdTickPlanets( int usrid, dbUserMainPtr mainp )
 ticks.debug_pass = 0 + 10000;
 
 
-  memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(long long int) );
-  memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(long long int) );
+  memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
+  memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int) );
   
   
@@ -522,7 +522,7 @@ ticks.debug_pass = 7 + 10000;
 
   }
   mainp->planets = num;
-  mainp->ressource[CMD_RESSOURCE_POPULATION] = (long long int)population;
+  mainp->ressource[CMD_RESSOURCE_POPULATION] = (int64_t)population;
 
 
 ticks.debug_pass = 8 + 10000;
@@ -566,7 +566,7 @@ int cmdTick()
   int a, c, d, e, num, specopnum, opvirus /*,cmd[3]*/, i;
   float fb, phdecay;
   double fa, fc;
-  long long int newd[DB_USER_NEWS_BASE], nIllusion, b;
+  int64_t newd[DB_USER_NEWS_BASE], nIllusion, b;
   int nChicks = 0, penalty;
   int marketbid[DB_MARKETBID_NUMUSED];
   int bidresult[2];
@@ -585,7 +585,7 @@ ticks.debug_pass = 0;
 ticks.debug_id = 0;
 
 	//Maybe useless but can t cause trouble only set the news buffer to 0
-	memset(&newd, 0, sizeof(long long int)*DB_USER_NEWS_BASE);
+	memset(&newd, 0, sizeof(int64_t)*DB_USER_NEWS_BASE);
 
 for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 	if( dbMapRetrieveEmpire( a, &empired ) < 0 )
@@ -741,7 +741,7 @@ ticks.debug_pass = 5;
      	if( maind.research[a] < 0 )
         	maind.research[a] = 0x7FFFFFFF;			
     }
-    maind.fundresearch = (long long int)( 0.9 * (double)maind.fundresearch );
+    maind.fundresearch = (int64_t)( 0.9 * (double)maind.fundresearch );
     
 ticks.debug_pass = 6;
 
@@ -829,7 +829,7 @@ ticks.debug_pass = 7;
 	fb = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ENERGY] * ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_ENERGY] );
 
 	
-  maind.infos[INFOS_ENERGY_PRODUCTION] = (long long int)( fa * fb );
+  maind.infos[INFOS_ENERGY_PRODUCTION] = (int64_t)( fa * fb );
 
    
     /* This block is for the automated funding from energy production if used add the funding into the council with maind.infos
@@ -885,7 +885,7 @@ ticks.debug_pass = 8;
     
     //virus network mean more upkeep Based on the upkeep of a building with after pop reduction
     for( a = 0 ; a < opvirus ; a++ )
-      maind.infos[INFOS_BUILDING_UPKEEP] += (long long int)( (float)(maind.infos[INFOS_BUILDING_UPKEEP]-maind.infos[INFOS_POPULATION_REDUCTION]) * 0.15 );
+      maind.infos[INFOS_BUILDING_UPKEEP] += (int64_t)( (float)(maind.infos[INFOS_BUILDING_UPKEEP]-maind.infos[INFOS_POPULATION_REDUCTION]) * 0.15 );
       
     maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
@@ -1122,7 +1122,7 @@ ticks.debug_pass = 12;
      	maind.networth += 8 * maind.totalbuilding[a];
     }
 
-    maind.networth += (long long int)(0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
+    maind.networth += (int64_t)(0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
 
     for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
       maind.networth += (0.001 * maind.research[a]);

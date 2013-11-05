@@ -59,7 +59,7 @@ return;
 
 int spawn_map() {
 	int a, b, c, d, e, i, p, x, y, x2, y2;
-	long long int j;
+	int64_t j;
 	float dist, distmax;
 	char fname[256];
 	char imgsizer[2048];
@@ -294,13 +294,13 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	sprintf( fname, "%s/data/fam%dnews", sysconfig.directory, a );
 	file2 = fopen( fname, "wb" );
 	j = 0;
-	fwrite( &j, 1, sizeof(long long int), file2 );
+	fwrite( &j, 1, sizeof(int64_t), file2 );
 	j = -1;
-	fwrite( &j, 1, sizeof(long long int), file2 );
-	fwrite( &j, 1, sizeof(long long int), file2 );
+	fwrite( &j, 1, sizeof(int64_t), file2 );
+	fwrite( &j, 1, sizeof(int64_t), file2 );
 	j = 0;
-	fwrite( &j, 1, sizeof(long long int), file2 );
-	fwrite( &j, 1, sizeof(long long int), file2 );
+	fwrite( &j, 1, sizeof(int64_t), file2 );
+	fwrite( &j, 1, sizeof(int64_t), file2 );
 	fclose( file2 );
 }
 fclose( file );
