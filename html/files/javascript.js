@@ -46,7 +46,7 @@ ghour='00';
 gday++;
 }
 
-stime =  (gday > 0 ? gday + " days" : "" ) + (gday > 1 ? "s " : ( gday > 0 ? " " : "" ));
+stime =  (gday > 0 ? gday + " day" : "" ) + (gday > 1 ? "s " : ( gday > 0 ? " " : "" ));
 
 stime += (ghour > 0 ? ghour + " hour" : "" ) + (ghour > 1 ? "s " : ( ghour > 0 ? " " : "" ) );
 
@@ -77,7 +77,7 @@ hhour='00';
 hday++;
 }
 
-htime =  (hday > 0 ? hday + " days" : "" ) + (hday > 1 ? "s " : ( hday > 0 ? " " : "" ) );
+htime =  (hday > 0 ? hday + " day" : "" ) + (hday > 1 ? "s " : ( hday > 0 ? " " : "" ) );
 
 htime += (hhour > 0 ? hhour + " hour" : "" ) + (hhour > 1 ? "s " : ( hhour > 0 ? " " : "" ) );
 
