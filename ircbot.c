@@ -2,18 +2,17 @@
 #include "global.h"
 #endif
 
- 
 void ircbot_send(char *fmt, ...) {
 	va_list ap;
-	char sbuf[SERVER_RECV_BUFSIZE];
+	char sbuf[512];
 	char *ender = "\r\n";
 
 va_start(ap, fmt);
-vsnprintf(sbuf, SERVER_RECV_BUFSIZE, fmt, ap);
+vsnprintf(sbuf, 512, fmt, ap);
 va_end(ap);
 strcat(sbuf,ender);
 if( options.verbose )
-	printf("Sending to IRC: %s", sbuf);
+	printf("Sending to IRC: %s\n", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines. 
 send(options.botconn, sbuf, strlen(sbuf), 0);
 
 return;
@@ -21,25 +20,25 @@ return;
 
 
 void ircbot_scan() {
-	char sbuf[SERVER_RECV_BUFSIZE];
+	char sbuf[512];
 	char *command, *where, *sep;
 	int i, j, l, sl, o = -1, start = 0, wordcount;
-	char buf[SERVER_RECV_BUFSIZE+1];
+	char buf[512+1];
 	char bottrigger[32];
 	ircmessageDef ircmsg;
 
 sprintf(bottrigger, "!%s ", irccfg.botnick);
-memset(&sbuf, 0, SERVER_RECV_BUFSIZE );
-if( (sl = read(options.botconn, sbuf, SERVER_RECV_BUFSIZE)) ) {
+memset(&sbuf, 0, 512 );
+if( (sl = read(options.botconn, sbuf, 512)) ) {
 	for (i = 0; i < sl; i++) {
 		o++;
 		buf[o] = sbuf[i];
-		if ((i > 0 && sbuf[i] == '\n' && sbuf[i - 1] == '\r') || o == SERVER_RECV_BUFSIZE) {
+		if ((i > 0 && sbuf[i] == '\n' && sbuf[i - 1] == '\r') || o == 512) {
 			buf[o + 1] = '\0';
 			l = o;
 			o = -1;
-			if( options.verbose )
-				printf(">> %s", buf);
+			//if( options.verbose )
+			//	printf(">> %s", buf); //Purely optional, and not really suggested... since it will output EVERYTHING from the IRC network.
                 
                 	if (!strncmp(buf, "PING", 4)) {
 				buf[1] = 'O';
@@ -279,7 +278,7 @@ if( !strcmp(irc->input,"tick") ){
 		ircbot_send("NOTICE %s :Sorry %s, your login attempt is invalid!", irc->target, irc->nick);
 		return;
 	}
-	ircbot_send("NOTICE %s :Sorry, %s is currently in construction!", irc->target, irc->input);
+	ircbot_send("NOTICE %s :Sorry, %s is currently still under construction!", irc->target, irc->input);
 } else {
 	//Deny ability for any input not listed above.
 	ircbot_send("NOTICE %s :<%s> is not currently a command I recognize!", irc->target, irc->input);

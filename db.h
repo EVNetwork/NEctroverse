@@ -68,7 +68,7 @@ int dbSessionRetrieve( dbUserPtr user, int *session );
 
 typedef struct
 {
-  char faction[32]; //FIXME: Needs to be moved!
+  char faction[32]; //FIXME: Needs to be moved! -- or does it, maybe we should leave it here and just wipe it each round and force a re-pick?
   char forumtag[32]; //FIXME: Needs to be moved!
   long long int ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
