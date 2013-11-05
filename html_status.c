@@ -117,12 +117,13 @@ svSendString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" ali
 sprintf(addstring, "%s status", sysconfig.servername );
 iohttpFunc_boxstart( cnt, addstring);
 svSendString( cnt, "<table border=\"0\"><tr><td>" );
+svSendString( cnt, "<b>Overall Game Stats</b><br>" );
 svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 svSendPrintf( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
 if( irccfg.bot ) {
-	svSendPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td>Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
+	svSendPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
 } else {
-	svSendString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td>Disabled</td></tr>" );
+	svSendString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Disabled</td></tr>" );
 }
 
 iohttpFuncConvertTime((char *)&stringuptime,pinfod.runtime);

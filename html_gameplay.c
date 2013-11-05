@@ -2268,7 +2268,7 @@ if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_F
    {
    	if( empired.artefacts & b )
    	{
-   		svSendPrintf( cnt, "<img src=\"images/%s\"> %s<br>", artefactImage[a], artefactDescription[a] );
+   		svSendPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
    	}
    }
    svSendString( cnt, "</td></tr></table>" );
@@ -6019,7 +6019,6 @@ void iohttpFunc_specinfos( svConnectionPtr cnt )
 {
  int a, b, c, d, x, y, id, optype, opid, specopid, num;
  int totals[7];
- char szChaine[20];
  int *buffer;
  float fa, totalob;
  char *specopstring;
@@ -6137,7 +6136,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
-      svSendPrintf( cnt, " <img src=\"images/%s\">", artefactImage[d] );
+      svSendPrintf( cnt, "  <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
      
      if(planetd.special[1])
      	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
@@ -6249,24 +6248,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
     svSendPrintf( cnt, "Size : %d<br>", planetd.size );
     d = (int)artefactPrecense( &planetd );
     if( d >= 0 )
-     svSendPrintf( cnt, "Artefact : <img src=\"images/%s\"><br>", artefactImage[d] );
+     svSendPrintf( cnt, "Artefact :  <img src=\"images/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
     if( planetd.special[1] )
     {
-     switch(planetd.special[0])
-     {
-     	case 0:
-     		strcpy(szChaine, "Energy");
-     		break;
-     	case 1:
-     		strcpy(szChaine, "Mineral");
-     		break;
-     	case 2:
-     		strcpy(szChaine, "Crystal");
-     		break;
-     	case 3:
-     		strcpy(szChaine, "Ectrolium");
-     }
-     svSendPrintf( cnt, "%s : <img src=\"images/pr%d.gif\">+%d%%<br>", szChaine, planetd.special[0], planetd.special[1] );
+     svSendPrintf( cnt, "%s : <img src=\"images/pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
     }
     svSendPrintf( cnt, "Portal : %s<br><br>", ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ? "yes" : "no" );
    }

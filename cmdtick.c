@@ -494,14 +494,17 @@ ticks.debug_pass = 5 + 10000;
       if( planetd.special[0] == 0 )
         cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * planetd.building[CMD_BUILDING_SOLAR] ) / 100;
       
-      else if( planetd.special[0] == 1 )
+      else if( planetd.special[0] == CMD_BONUS_ENERGY )
         cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * planetd.building[CMD_BUILDING_MINING] ) / 100;
 
-      else if( planetd.special[0] == 2 )
+      else if( planetd.special[0] == CMD_BONUS_CRYSTAL )
         cmdTickProduction[CMD_BUILDING_CRYSTAL] += ( planetd.special[1] * planetd.building[CMD_BUILDING_CRYSTAL] ) / 100;
 
-      else if( planetd.special[0] == 3 )
+      else if( planetd.special[0] == CMD_BONUS_ECTROLIUM )
         cmdTickProduction[CMD_BUILDING_REFINEMENT] += ( planetd.special[1] * planetd.building[CMD_BUILDING_REFINEMENT] ) / 100;
+
+      else if( planetd.special[0] == CMD_BONUS_FISSION )
+        cmdTickProduction[CMD_BUILDING_FISSION] += ( planetd.special[1] * planetd.building[CMD_BUILDING_FISSION] ) / 100;
 
     }
 

@@ -87,6 +87,13 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 			svSendPrintf( cnt, "<cpukernel>%.3f %%</cpukernel>", pinfod.kernelload );
 			svSendPrintf( cnt, "<cpuuser>%.3f %%</cpuuser>", pinfod.userload );
 			svSendString( cnt, "</cpu>" );
+
+			if( irccfg.bot ) {
+				sprintf(CHECKER,"Enabled (Host:%s, Channel:%s)",irccfg.host, irccfg.channel );
+			} else {
+				sprintf(CHECKER,"%s", "Disabled");
+			}
+			svSendPrintf( cnt, "<botstatus>%s</botstatus>", CHECKER );
 		//End Status block -- Start user block
 		}
 		if( id < 0 )
@@ -288,6 +295,8 @@ svSendString( cnt, "\t\t\tupdatehtml(\"sharedbytes\",sharedbytes);\n" );
 svSendString( cnt, "\t\tvar sharedmeg = getnodevar(xmlhttp.responseXML,\"sharedmeg\");\n" );
 svSendString( cnt, "\t\t\tupdatehtml(\"sharedmeg\",sharedmeg);\n" );
 
+svSendString( cnt, "\t\tvar botstatus = getnodevar(xmlhttp.responseXML,\"botstatus\");\n" );
+svSendString( cnt, "\t\t\tupdatehtml(\"botstatus\",botstatus);\n" );
 
 svSendString( cnt, "\t\t\tupdatehtml(\"sstatweeks\",week);\n" );
 svSendString( cnt, "\t\t\tupdatehtml(\"sstatyears\",year);\n" );

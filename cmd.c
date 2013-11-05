@@ -54,7 +54,8 @@ char *cmdBonusName[CMD_BONUS_NUMUSED] =
 "Solar",
 "Mineral",
 "Crystal",
-"Ectrolium"/*,
+"Ectrolium",
+"Fission",/*,
 "Research",
 "Population",
 "Disease",*/
