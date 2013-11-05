@@ -362,7 +362,7 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
 svSendString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
 
-//svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 iohttpFunc_endhtml( cnt );
 
@@ -385,9 +385,9 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  
  name = pass = faction = 0;
  iohttpVarsInit( cnt );
-/* name = iohttpVarsFind( "name" );
+ name = iohttpVarsFind( "name" );
  pass = iohttpVarsFind( "pass" );
- faction = iohttpVarsFind( "faction" );*/
+ faction = iohttpVarsFind( "faction" );
  iohttpVarsCut();
  if( ( name ) && ( pass ) && ( faction ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
