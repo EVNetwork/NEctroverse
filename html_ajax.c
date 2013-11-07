@@ -334,7 +334,7 @@ if( !strcmp(refer,"hq") ) {
 			CHECKER[b] = tolower(CHECKER[b]);
 		}
 		svSendPrintf( cnt, "\t\t\tvar %sready = getnodevar(xmlhttp.responseXML,\"%sready\");\n", CHECKER, CHECKER );
-		svSendPrintf( cnt, "\t\t\tupdatehtml(\"hq%s\",%sready);\n", CHECKER, CHECKER );
+		svSendPrintf( cnt, "\t\t\tupdatehtml(\"hq%sready\",%sready);\n", CHECKER, CHECKER );
 	}
 	svSendString( cnt, "\t\t\tvar planets = getnodevar(xmlhttp.responseXML,\"planets\");\n" );
 	svSendString( cnt, "\t\t\tupdatehtml(\"hqpopulation\",population);\n" );

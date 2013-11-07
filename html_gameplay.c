@@ -1361,7 +1361,17 @@ if( ticks.status ) {
  svSendPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
 	
  svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
- svSendPrintf( cnt, "<td align=\"center\">Fleet readiness : <span id=\"hqfleetready\">%d</span>%%<br>Psychics readiness : <span id=\"hqpsychready\">%d</span>%%<br>Agents readiness : <span id=\"hqagentready\">%d</span>%%<br>Home planet : %d,%d:%d</td></tr></table><br>", maind.readiness[CMD_READY_FLEET] >> 16, maind.readiness[CMD_READY_PSYCH] >> 16, maind.readiness[CMD_READY_AGENT] >> 16, ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
+ svSendString( cnt, "<td align=\"center\">" );
+
+
+for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
+	svSendPrintf( cnt, "%s readiness : <span id=\"hq%sready\">%d</span>%%<br>", cmdReadyName[a], cmdReadyName[a], maind.readiness[a] >> 16 );
+}
+
+
+
+
+ svSendPrintf( cnt, "Home planet : %d,%d:%d</td></tr></table><br>", ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
 //read hq message from hq.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
  if( stat( DIRCHECKER, &stdata ) != -1 ) {
