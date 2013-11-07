@@ -105,7 +105,7 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 		svSendString( cnt, "<notification>" );
 		svSendPrintf( cnt, "<mail>%d</mail>",  ( a & CMD_NEWS_FLAGS_MAIL ) ? true : false );
 		svSendPrintf( cnt, "<build>%d</build>",  ( a & CMD_NEWS_FLAGS_BUILD ) ? true : false );
-		svSendPrintf( cnt, "<aid>%d</aid>", ( a & CMD_NEWS_FLAGS_AID ) ? true : false ); 
+		svSendPrintf( cnt, "<aid>%d</aid>", ( a & CMD_NEWS_FLAGS_AID ) ? true : false );
 		svSendPrintf( cnt, "<fleet>%d</fleet>", ( a & CMD_NEWS_FLAGS_ATTACK ) ? 1 : ( ( a & CMD_NEWS_FLAGS_FLEET ) ? 2 : false ) );
 		svSendString( cnt, "</notification>" );
 		svSendString( cnt, "<ressources>" );
@@ -233,7 +233,7 @@ svSendPrintf( cnt, "var hmin = %02d;\n", javatime.minutes );
 svSendPrintf( cnt, "var hhour = %02d;\n", javatime.hours );
 svSendPrintf( cnt, "var hday = %02d;\n", javatime.days );
 }
-//OK, Time for some AJAX! =/ ... 
+//OK, Time for some AJAX! =/ ...
 //It's been a while, forgive me if its messy lol! =P
 svSendString( cnt, "function getInfo(str) {\n" );
 svSendString( cnt, "\tvar xmlhttp;\n" );

@@ -24,7 +24,7 @@ if( deftime.days ) {
 	sprintf( timeline, "%d %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
 	strcat(buffer, timeline);
 	bdays = true;
-} 
+}
 
 if ( deftime.hours ) {
 	if( bdays )
@@ -32,7 +32,7 @@ if ( deftime.hours ) {
 	sprintf( timeline, "%d %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
 	strcat(buffer, timeline);
 	bhours = true;
-} 
+}
 
 if ( deftime.minutes ) {
 	if( ( bdays ) || ( bhours ) )
@@ -40,7 +40,7 @@ if ( deftime.minutes ) {
 	sprintf( timeline, "%d %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
 	strcat(buffer, timeline);
 	bmins = true;
-} 
+}
 
 if ( deftime.seconds ) {
 	if( ( bdays ) || ( bhours ) || ( bmins ) )
@@ -144,7 +144,7 @@ svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 svSendPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%d bytes ( %d mb )</td></tr>", pinfod.stvsize, pinfod.stvsize >> 20 );
 svSendPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%d pages</td></tr>", pinfod.strss );
 svSendPrintf( cnt, "<tr><td>Total CPU usage</td><td>&nbsp;:&nbsp;</td><td id=\"cputotal\">%.3f %%</td></tr>", pinfod.userload + pinfod.kernelload );
-svSendPrintf( cnt, "<tr><td>In kernel mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpukernel\">%.3f %%</td></tr>", pinfod.kernelload ); 
+svSendPrintf( cnt, "<tr><td>In kernel mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpukernel\">%.3f %%</td></tr>", pinfod.kernelload );
 svSendPrintf( cnt, "<tr><td>In user mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpuuser\">%.3f %%</td></tr>", pinfod.userload );
 svSendString( cnt, "</table>" );
 

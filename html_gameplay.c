@@ -90,7 +90,7 @@ iohttpFunc_frontmenu( cnt, FMENU_MAIN );
    if( !( num ) )
     svSendString( cnt, "<b>No reports</b>" );
    for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE )
-   { 
+   {
     iohttpNewsString( cnt, newsd );
    }
    if( newsp )
@@ -196,9 +196,9 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
  svSendString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
- 
+
  svSendString( cnt, "<form action=\"search\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form><br>" );
- 
+
  strcpy(szFaction, maind.faction);
  for(i=0;i<strlen(szFaction);i++)
 	{
@@ -236,7 +236,7 @@ void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd )
  int a, b;
  dbUserMainDef maind;
  dbUserPtr user;
-	
+
  svSendPrintf( cnt, "<br><br><i>Week %lld, year %lld</i><br>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
  if( (long long)newsd[2] == CMD_NEWS_BUILDING )
   svSendPrintf( cnt, "You built %lld %s on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[4], cmdBuildingName[ (long long)newsd[3] & 0xFFF ], (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF );
@@ -791,10 +791,10 @@ void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd )
    }
    else
     svSendPrintf( cnt, "<i>No artefact was felt in the area.</i><br>" );
-   
-   
+
+
    if( dbUserMainRetrieve( (cnt->dbuser)->id, &maind ) < 0 )
-   	return;			   
+   	return;
   }
   else if( (long long)newsd[2] == CMD_NEWS_INSURVEY )
   {
@@ -1359,7 +1359,7 @@ if( ticks.status ) {
 }
 
  svSendPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
-	
+
  svSendPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
  svSendString( cnt, "<td align=\"center\">" );
 
@@ -1580,7 +1580,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 
 svSendPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br><br>", b );
 svSendString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
- 
+
 memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( !( build[a].type >> 16 ) )
@@ -1725,13 +1725,13 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  fullstring = iohttpVarsFind( "full" );
  rmbidstring = iohttpVarsFind( "rmbid" );
  iohttpVarsCut();
-	
+
 	/*
 	svSendString(cnt, "Market is close<br>But you can have ally");
 	iohttpBodyEnd( cnt );
 	return;
 	*/
-	
+
  marketstring = 0;
  if( resstring )
  {
@@ -2209,10 +2209,10 @@ if ( curfam == maind.empire ) {
    svSendString( cnt, mainp[b].faction );
   svSendPrintf( cnt, "</a></td><td><a href=\"races\">%s</a></td><td>%d</td><td>%lld</td><td>", cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
   nAlly = cmdExecFindRelation(maind.empire, curfam, 0, 0);
-  
+
   if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || (nAlly == CMD_RELATION_ALLY) || ( ( cnt->dbuser ) && ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) ) )
   {
-  	
+
    b = curtime - user->lasttime;
    if( b < 5*60 )
     svSendString( cnt, "[online]" );
@@ -2235,12 +2235,12 @@ if ( curfam == maind.empire ) {
   }
   svSendString( cnt, "</td></tr>" );
   a = stats[a+1];
- 
+
 }
  svSendString( cnt, "</table><br>" );
 
 if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
-	svSendString( cnt, "Empire Fund: " );	
+	svSendString( cnt, "Empire Fund: " );
 	if( empired.taxation ) {
 		svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
 	} else {
@@ -2285,7 +2285,7 @@ if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_F
   }
  }
  if( curfam == maind.empire )
-  svSendString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );	
+  svSendString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );
 
 
  iohttpBodyEnd( cnt );
@@ -2319,20 +2319,20 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
 	if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Send Aid" );
-	
+
  reportstring = 0;
  if( playerstring )
  {
   if( sscanf( playerstring, "%d", &b ) != 1 )
    goto iohttpFunc_famaidL0;
-    
+
   memset( res, 0, 4*sizeof(int) );
   for( a = 0 ; a < 4 ; a++ )
   {
    if( resstring[a] )
     sscanf( resstring[a], "%d", &res[a] );
   }
-  
+
   if( cmdExecSendAid( id, b, maind.empire, res ) < 0 )
   {
    if( cmdErrorString )
@@ -2345,7 +2345,7 @@ void iohttpFunc_famaid( svConnectionPtr cnt )
  }
  iohttpFunc_famaidL0:
 
- 
+
 
  if( reportstring )
   svSendPrintf( cnt, "<i>%s</i><br><br>", reportstring );
@@ -2881,7 +2881,7 @@ if( taxstring ){
  if( fampassstring )
  {
   iohttpForumFilter( fname, fampassstring, 32, 0 );
-  
+
 
   if(cmdExecSetFamPass( curfam, fname) != 1)
 			svSendString( cnt, "<i>Empire password did not changed</i><br><br>" );
@@ -2962,7 +2962,7 @@ if( taxstring ){
   }
   if( sscanf( relfamstring, "%d", &relfam ) != 1 )
    goto iohttpFunc_famleaderL0;
-   
+
   if( cmdExecAddRelation( curfam, reltype, relfam ) < 0 )
   {
    if( cmdErrorString )
@@ -3719,7 +3719,7 @@ void iohttpFunc_playerlist( svConnectionPtr cnt )
  char *playerstring;
 
  iohttpBase( cnt, 1 );
- 
+
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) >= 0 )
  {
   if( !( iohttpHeader( cnt, id, &maind ) ) )
@@ -3847,7 +3847,7 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
    svSendPrintf( cnt, "<br><img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
 
- 
+
   svSendPrintf( cnt, "<SCRIPT type=\"text/JavaScript\">\n ");
   sprintf(szString, " function Areyousure(plnid)\n{if(confirm(\"Are you sure you want to raze eveything on this planet??\"))open(\"raze?id=\"+plnid+\"");
   for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ )
@@ -3857,12 +3857,12 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
 	 }
   strcat(szString, "\",\"_self\");\n}");
   svSendString( cnt, szString);
-		
-  svSendPrintf( cnt,"</SCRIPT>\n"); 
+
+  svSendPrintf( cnt,"</SCRIPT>\n");
 
   svSendPrintf( cnt, "<br><a href=\"build?id=%d\">Build on this planet</a><br><br><a href=\"station?id=%d\">Station on this planet</a><br><br><a href=\"raze?id=%d\">Raze buildings</a><br><br><a href=# onClick=\"Areyousure(%d)\">Raze all buildings</a><br>", plnid, plnid, plnid, plnid );
 
-  
+
   if( ( dbMapRetrieveEmpire( maind.empire, &empired ) >= 0 ) && ( empired.numplayers >= 2 ) && !( planetd.flags & CMD_PLANET_FLAGS_HOME ) )
   {
    svSendString( cnt, "<br><form action=\"planet\" method=\"POST\">Offer this planet to :" );
@@ -4108,7 +4108,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   cmdGetBuildCosts( &maind, a, resbuild );
   if( !( cmdBuildingFlags[a] ) )
    cmdGetBuildOverbuild( planetd.size, totalb, resbuild );
-		
+
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
   if( resbuild[0] < 0 )
   {
@@ -4170,13 +4170,13 @@ void iohttpFunc_cancelbuild(svConnectionPtr cnt)
 	dbMainPlanetDef planetd;
 	char buildid[10];
 	char *cBuild;
-	
+
 	iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
 	memset(&nTotal, 0, 4*sizeof(int));
 	nTotalBuild = dbUserBuildList(id, &buildp);
-	
+
  iohttpVarsInit( cnt );
  nBuildp = NULL;
  for( i=0; i<nTotalBuild; i++)
@@ -4204,9 +4204,9 @@ void iohttpFunc_cancelbuild(svConnectionPtr cnt)
   }
  }
  iohttpVarsCut();
-	
+
 	dbUserMainRetrieve(id, &maind);
-	
+
 	for(i=nNbr-1;i>=0;i--)
  {
  	for(j=0;j<4;j++)
@@ -4231,13 +4231,13 @@ void iohttpFunc_cancelbuild(svConnectionPtr cnt)
     dbMapSetPlanet( buildp[nBuildp[i]].plnid, &planetd );
    }
  }
- 
+
  for(i=0;i<4;i++)
  	maind.ressource[i] += (nTotal[i]);
- 
+
  dbUserMainSet(id, &maind);
- 
-		
+
+
 	 if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Cancelling %d buildings or units", nNbr);
@@ -4480,7 +4480,7 @@ void iohttpFunc_chat( svConnectionPtr cnt )
 	int id;
 	char *szFaction;
 	char szTemp[32];
-	
+
 	iohttpBase( cnt, 1 );
 	if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -4489,13 +4489,13 @@ void iohttpFunc_chat( svConnectionPtr cnt )
  iohttpVarsInit( cnt );
 	szFaction = iohttpVarsFind("faction");
 	iohttpVarsCut();
-	
+
 	if(!szFaction)
 	{
 		sprintf(szTemp,"User%d", id);
 		szFaction = szTemp;
 	}
-	
+
 	iohttpBodyInit( cnt, "Chat %s", szFaction);
 	svSendPrintf( cnt, "<b>Have fun chatting %s</b><br>", szFaction);
 	svSendString( cnt, "<applet code=IRCApplet.class archive=\"irc.jar,pixx.jar\" width=800 height=600>" );
@@ -4692,7 +4692,7 @@ void iohttpFunc_fleets( svConnectionPtr cnt )
  svSendString( cnt, "<table width=\"100%\"><tr><td width=\"50%\" align=\"center\" valign=\"top\">" );
  svSendString( cnt, "<b>Main fleet</b><br>" );
  svSendString( cnt, "<table>" );
- 
+
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	if( fleetd[0].unit[a] ) {
 		svSendPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"funt%d\">%d</td></tr>", cmdUnitName[a], a, fleetd[0].unit[a] );
@@ -4744,7 +4744,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
     if( fleetd[a].unit[b] )
     {
      svSendPrintf( cnt, "%d %s<br>", fleetd[a].unit[b], cmdUnitName[b] );
-     szTotal[b] += fleetd[a].unit[b];     
+     szTotal[b] += fleetd[a].unit[b];
     }
    }
    svSendString( cnt, "</td><td>" );
@@ -4786,8 +4786,8 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
    	svSendPrintf( cnt, "<td><a href=\"fleetchange?id=%d\">Details</a></td><td><a href=\"fleetssplit?fleetid=%d\">Split</a></a></td><td><a href=\"fleetsmerge?fltid=%d\">Merge</a></td></tr>", a, a, a);
 			else
 				svSendPrintf( cnt, "<td><a href=\"fleetchange?id=%d\">Details</a></td></tr>", a);
-  } 
-  
+  }
+
   svSendString( cnt, "</table>" );
  }
   if( num > 1 )
@@ -4821,7 +4821,7 @@ void iohttpFunc_fleetssplit( svConnectionPtr cnt )
 	int64_t disunit[CMD_UNIT_NUMUSED];
 	char disname[10];
 	char *varstring;
-	
+
 	iohttpBase( cnt, 1 );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -4876,7 +4876,7 @@ void iohttpFunc_fleetssplit( svConnectionPtr cnt )
  			nError = 6;  //In fact its not an error its just split fleet but no fleet is selected
  		else if((fleetd.unit[0]-disunit[0] == 0)&&(fleetd.unit[1]-disunit[1] == 0)&&(fleetd.unit[2]-disunit[2] == 0)&&(fleetd.unit[3]-disunit[3] == 0)&&(fleetd.unit[4]-disunit[4] == 0)&&(fleetd.unit[5]-disunit[5] == 0)&&(fleetd.unit[6]-disunit[6] == 0)&&(fleetd.unit[7]-disunit[7] == 0)&&(fleetd.unit[8]-disunit[8] == 0))
  			nError = 6;  //In fact its not an error its just split fleet but no fleet is selected
- 		
+
  		if(nError == 1)
  			svSendString( cnt, "<i>Error while splitting fleet</i><br>You can split more than what you have!" );
  		else if(nError == 2)
@@ -4884,9 +4884,9 @@ void iohttpFunc_fleetssplit( svConnectionPtr cnt )
  		else if(nError == 3)
  			svSendString( cnt, "<i>Error while splitting fleet</i><br>You don't have enough transports in your split fleet<br>Each transport can hold 100 soldiers or droids, or 25 goliaths." );
  		else if(nError == 4)
- 			svSendString( cnt, "<i>Error while splitting fleet</i><br>You don't leave enough carriers in your Main Fleet<br>Each carrier can hold 100 fighters, bombers or transports." ); 		
+ 			svSendString( cnt, "<i>Error while splitting fleet</i><br>You don't leave enough carriers in your Main Fleet<br>Each carrier can hold 100 fighters, bombers or transports." );
  		else if(nError == 5)
- 			svSendString( cnt, "<i>Error while splitting fleet</i><br>You don't have enough carriers in your split fleet<br>Each carrier can hold 100 fighters, bombers or transports." ); 		
+ 			svSendString( cnt, "<i>Error while splitting fleet</i><br>You don't have enough carriers in your split fleet<br>Each carrier can hold 100 fighters, bombers or transports." );
  		else if(nError == 0) //time to split some fleet
  		{
  			//make the same fleet (same order and dest) but not the same unit amount
@@ -4911,9 +4911,9 @@ void iohttpFunc_fleetssplit( svConnectionPtr cnt )
  				svSendPrintf(cnt, "document.forms[\"fleet\"].unit%d.value = document.forms[\"fleet\"].uh%d.value-document.forms[\"fleet\"].u%d.value\n", i, i, i);
  		}
  		svSendString(cnt, "}");
- 		
+
  		svSendString(cnt, "\nfunction check()\n{\nif(document.forms[\"fleet\"].cpct.checked==true){document.forms[\"fleet\"].pct.readOnly=false\n}\nelse{document.forms[\"fleet\"].pct.readOnly=true}\ndocument.forms[\"fleet\"].pct.value=\"\" \n}");
- 		
+
  		svSendString(cnt, "\nfunction pctchange()\n{\nif(document.forms[\"fleet\"].pct.value > 100){document.forms[\"fleet\"].pct.value = 100}\n");
  		for(i=0;i<CMD_UNIT_NUMUSED;i++)
  		{
@@ -4951,7 +4951,7 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
 	dbUserMainDef maind;
 	int nfltid[2];
 	dbUserFleetPtr pFleet;
-	
+
 	nError = nX0 = 0;
 	iohttpBase(cnt, 1);
 
@@ -5041,10 +5041,10 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
  			svSendPrintf(cnt, "<tr><td>%s</td><td>%d</td></tr>", cmdUnitName[i], pFleet[fltid].unit[i]);
  	}
  	svSendString(cnt, "</table><br><br>");
- 	
+
  	svSendString(cnt, "<form action=\"fleetsmerge\"><table>");
  	svSendPrintf(cnt, "<input name=\"fltid\" type=\"hidden\" value=\"%d\"><input name=\"f0\" type=\"hidden\" value=\"%d\"><tr>", fltid, fltid);
- 	
+
  	for(i=1;i<nMax;i++)
  	{
  		if(i == fltid)		//Skip it if the same
@@ -5057,7 +5057,7 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
  			if(pFleet[i].unit[j] != 0)
  				svSendPrintf(cnt, "<tr><td>%s</td><td>%d</td></tr>", cmdUnitName[j], pFleet[i].unit[j]);
  		}
- 		
+
  		svSendString(cnt, "</table></td>");
  	}
  	svSendPrintf(cnt, "</tr><tr>");
@@ -5069,7 +5069,7 @@ void iohttpFunc_fleetsmerge( svConnectionPtr cnt)
 } else if (nMax < 3) {
 	svSendString(cnt, "<i>Not enough fleets to merge!</i><br><br>You only have the one fleet, you can't exactly merge!<br>Perhaps you want to recall it instead?<br>");
 }
- 
+
  svSendString(cnt, "<br><a href=\"fleets\">Return to fleets</a><br>");
  free(pFleet);
  iohttpBodyEnd( cnt );
@@ -5347,7 +5347,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<br><br>X:<input type=\"text\" name=\"X\" size=\"4\" value=\"%d\"> Y:<input type=\"text\" name=\"Y\" size=\"4\" value=\"%d\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\" value=\"%d\"><br><br><input type=\"submit\" value=\"Change order\"></form>", ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, fleetd.destination & 0xFF );
 	if((fleetd.unit[2]>0)||(fleetd.unit[3]>0)||(fleetd.unit[4]>0)||(fleetd.unit[8]>0))
 		svSendPrintf(cnt, "<br><a href=\"fleetssplit?fleetid=%d\">Split</a><br><a href=\"fleetsmerge?fltid=%d\">Merge</a>", fltid, fltid);
- 
+
  iohttpBodyEnd( cnt );
  return;
 }
@@ -5538,7 +5538,7 @@ if( systemstring ) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
 					svSendString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
-			} 
+			}
 			if ( planetd.owner == -1 ) {
 				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
 					if( cmdErrorString ) {
@@ -5558,7 +5558,7 @@ if( systemstring ) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
 					svSendString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
-			} 
+			}
 			if ( planetd.owner == -1 ) {
 				break;
 			}
@@ -5676,10 +5676,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   else
    svSendPrintf( cnt, "A fleet would require %d weeks to reach this planet.", a );
   fa = specopDarkWebCalc( planetd.owner );
-  
+
   if(cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_IDW)
   	fa = 1;
-  
+
   svSendPrintf( cnt, " The loss of fleet readiness for an attack is estimated to %d%%.<br>", ( (int)( fa * (float)fr ) ) >> 16 );
   if( fa > 1.05 )
    svSendPrintf( cnt, "<br><i>The area seems filled with a thick <b>Dark Mist</b>, making it more difficult to attack.<br></i>" );
@@ -6043,7 +6043,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  specopstring = iohttpVarsFind( "id" );
  iohttpVarsCut();
 
- iohttpBodyInit( cnt, "Operation information" ); 
+ iohttpBodyInit( cnt, "Operation information" );
  if( !( specopstring ) || ( sscanf( specopstring, "%d", &specopid ) != 1 ) || ( dbUserSpecOpRetrieve( id, specopid, &specopd ) < 0 ) || ( specopd.type & 0x10000 ) )
  {
   svSendString( cnt, "<i>Invalid operation</i><br>" );
@@ -6139,7 +6139,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
       svSendPrintf( cnt, "  <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
-     
+
      if(planetd.special[1])
      	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
 
@@ -6194,7 +6194,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
       }
       cmdFleetGetPosition( &fleetd[a], &x, &y );
       svSendPrintf( cnt, "<td>%d,%d</td></tr>", x, y );
-     } 
+     }
      svSendString( cnt, "</table>" );
     }
    }
@@ -6275,7 +6275,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 
 void iohttpFunc_operation( svConnectionPtr cnt )
-{ 
+{
  int a, id, plnid, x, y, z, sysid;
  int agents, specop, arl;
  char *agentstring, *orderstring, *xstring, *ystring, *zstring;
@@ -6311,13 +6311,13 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( !( agentstring ) || ( sscanf( agentstring, "%d", &agents ) != 1 ) )
  {
   iohttpFunc_operationL0:
-  iohttpBodyInit( cnt, "Agents operation", x, y, z ); 
+  iohttpBodyInit( cnt, "Agents operation", x, y, z );
   svSendString( cnt, "<i>Invalid order or coordinates</i><br>" );
   iohttpBodyEnd( cnt );
   return;
  }
 
- iohttpBodyInit( cnt, "Agents operation on planet %d,%d:%d", x, y, z ); 
+ iohttpBodyInit( cnt, "Agents operation on planet %d,%d:%d", x, y, z );
 
  if( ( sysid = dbMapFindSystem( x, y ) ) < 0 )
  {
@@ -6348,7 +6348,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   iohttpBodyEnd( cnt );
   return;
  }
-	
+
  // only with observe planets you can cast ops on an uninhabited planet.
  if( ( planetd.owner == -1 ) && ( specop != CMD_OPER_OBSERVEPLANET ) )
  {
@@ -6399,7 +6399,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   iohttpBodyEnd( cnt );
   return;
  }
- 
+
  if( !( a ) )
   svSendPrintf( cnt, "Your %d %s could reach this planet instantaneously", agents, cmdUnitName[CMD_UNIT_AGENT] );
  else
@@ -6452,7 +6452,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( !( psychicstring ) || ( sscanf( psychicstring, "%d", &psychics ) != 1 ) )
  {
   iohttpFunc_spellL0:
-  iohttpBodyInit( cnt, "Psychics operation" ); 
+  iohttpBodyInit( cnt, "Psychics operation" );
   svSendString( cnt, "<i>Invalid order or coordinates</i><br>" );
   iohttpBodyEnd( cnt );
   return;
@@ -6483,14 +6483,14 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   }
   if( ( targetid < 0 ) || ( dbUserMainRetrieve( targetid, &main2d ) < 0 ) )
   {
-   iohttpBodyInit( cnt, "Psychics operation" ); 
+   iohttpBodyInit( cnt, "Psychics operation" );
    svSendPrintf( cnt, "<i>The faction %s does not seem to exist, the syntax must be exact or use the user ID.</i>", targetstring );
    iohttpBodyEnd( cnt );
    return;
   }
  }
 
- iohttpBodyInit( cnt, "Psychics operation on %s", main2d.faction ); 
+ iohttpBodyInit( cnt, "Psychics operation on %s", main2d.faction );
 
  svSendPrintf( cnt, "Casting %s on <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a>.<br><br>", cmdPsychicopName[specop], targetid, main2d.faction, main2d.empire, main2d.empire );
 
@@ -6532,7 +6532,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
 
 void iohttpFunc_incant( svConnectionPtr cnt )
-{ 
+{
  int a, id, plnid, x, y, z, sysid;
  int ghosts, specop, grl;
  char *ghoststring, *orderstring, *xstring, *ystring, *zstring;
@@ -6568,7 +6568,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  if( !( ghoststring ) || ( sscanf( ghoststring, "%d", &ghosts ) != 1 ) )
  {
   iohttpFunc_operationL0:
-  iohttpBodyInit( cnt, "Ghost ships incantation", x, y, z ); 
+  iohttpBodyInit( cnt, "Ghost ships incantation", x, y, z );
   svSendString( cnt, "<i>Invalid order or coordinates</i><br>" );
   iohttpBodyEnd( cnt );
   return;
@@ -6577,9 +6577,9 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   z = -1;
 
  if( z != -1 )
-  iohttpBodyInit( cnt, "Ghost ships operation on planet %d,%d:%d", x, y, z ); 
+  iohttpBodyInit( cnt, "Ghost ships operation on planet %d,%d:%d", x, y, z );
  else
-  iohttpBodyInit( cnt, "Ghost ships operation on system %d,%d", x, y, z ); 
+  iohttpBodyInit( cnt, "Ghost ships operation on system %d,%d", x, y, z );
 
  planetd.owner = -1;
  if( !( cmdGhostopFlags[specop] & 4 ) )
@@ -6886,21 +6886,19 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  iohttpVarsCut();
 
  fundstring = 0;
- if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) )
- {
-  cmd[0] = CMD_FUND_RESEARCH;
-  cmd[1] = id;
-  cmd[2] = a;
-  if( ( b = cmdExecute( cnt, cmd, 0, 0 ) ) < 0 )
-  {
-   if( cmdErrorString )
-    sprintf( fundstring, "<i>%s</i><br><br>", cmdErrorString );
-   else
-    sprintf( fundstring, "<i>Error while funding research</i><br><br>" );
-  }
-  else
-   sprintf( fundstring, "<i>Research funding increased by %d</i><br><br>", cmd[2] );
- }
+if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
+	if( a > maind.ressource[CMD_RESSOURCE_ENERGY] ) {
+		sprintf( fundstring, "<i>%s</i><br><br>", "You don't have so much energy" );
+	} else {
+		maind.fundresearch += a;
+		maind.ressource[CMD_RESSOURCE_ENERGY] -= a;
+		if( dbUserMainSet( id, &maind ) < 0 ) {
+			sprintf( fundstring, "%s", "<i>Error while funding research</i><br><br>" );
+		} else {
+			sprintf( fundstring, "<i>Research funding increased by %d</i><br><br>", a );
+		}
+	}
+}
  if( !( iohttpHeader( cnt, id, &maind ) ) )
   return;
  iohttpBodyInit( cnt, "Research" );
@@ -7004,7 +7002,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 	  }
 	  iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
 	  (maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
-	
+
 	  a = -1;
 	  if( ( tostring[0] >= '0' ) && ( tostring[0] <= '9' ) )
 	   sscanf( tostring, "%d", &a );
@@ -7047,7 +7045,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  }
 			  else
 			  svSendPrintf( cnt, "<i>Message sent to <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></i><br><br>", a, main2d.faction, main2d.empire, main2d.empire );
-			
+
 			  newd[0] = ticks.number;
 			  newd[1] = CMD_NEWS_FLAGS_NEW;
 			  newd[2] = CMD_NEWS_MAIL;
@@ -7056,12 +7054,12 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  newd[5] = maind.empire;
 			  memcpy( &newd[6], maind.faction, 64 );
 			  cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
-			
+
 			  (maild.mail).authorid = a;
 			  sprintf( (maild.mail).authorname, "%s", main2d.faction );
 			  (maild.mail).authorempire = main2d.empire;
 			  dbMailAdd( id, 1, &maild );
-			
+
 			  msent = 1;
 			 }
 			}
@@ -7069,7 +7067,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  }
  if( maild.text )
   free( maild.text );
- 
+
  if( typestring )
  {
  	if( deleteallstring )
@@ -7086,7 +7084,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
     else
      svSendString( cnt, "<i>Error while deleting message</i><br><br>" );
    }
-   
+
    b = dbMailList( id, 0, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
    if( a > IOHTTP_MAIL_MAXMESSAGES )
     svSendPrintf( cnt, "<i>Your mailbox seems crowded! You have %d messages waiting that won't be displayed until you delete some old messages.</i><br><br>", a - b );
@@ -7160,7 +7158,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
      tostring[a] = 0;
   //    else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
    //        tostring[a] = 0;
-           
+
    }
    tostring[a] = 0;
    svSendPrintf( cnt, "<input type=\"text\" name=\"to\" size=\"32\" value=\"%s\">", tostring );

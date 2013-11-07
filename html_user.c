@@ -202,7 +202,7 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
     iohttpBodyEnd( cnt );
     return;
   }
-  
+
 
   //cant delete for 24hrs after round start
  // if(((ticks.number < 144)&&(ticks.number > 0))||(ticks.number))
@@ -248,7 +248,7 @@ void iohttpFunc_logout( svConnectionPtr cnt ) {
 svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", 0, 0, 0, 0, 0 );
 
 iohttpFunc_front( cnt, "You have safley loged out!" );
-  
+
 
 return;
 }

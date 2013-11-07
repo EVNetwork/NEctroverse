@@ -52,7 +52,7 @@ if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 ) {
 		if( rels[wa+1] == CMD_RELATION_WAR ) {
 			if( (rels[wa] + sysconfig.warend) <= ticks.number ) {
 				cmdExecDelRelation( b, wa / 4 );
-			} 
+			}
 		}
 	}
 	free( rels );
@@ -147,7 +147,7 @@ if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 ) {
       }
     }
 
-if( artsnum > artmax ) 
+if( artsnum > artmax )
 	artmax = artsnum;
 
 if( artsnum == ARTEFACT_NUMUSED ) {
@@ -162,7 +162,7 @@ if( artsnum == ARTEFACT_NUMUSED ) {
         dbMapBInfoStatic[MAP_ARTITIMER] = -1;
         dbMapBInfoStatic[MAP_TIMEMPIRE] = -1;
         dbMapSetMain( dbMapBInfoStatic );
-} 
+}
 
     if( ( 3*artsnum >= ARTEFACT_NUMUSED ) || ( (3*dbArtefactMax)/2 >= ARTEFACT_NUMUSED ) )
     {
@@ -172,14 +172,14 @@ if( artsnum == ARTEFACT_NUMUSED ) {
           fprintf( file, "<img src=\"images/%s\">", artefactImage[c] );
       }
     }
-			
+
 	fprintf( file, " %d</td><td><a href=\"empire?id=%d\">", b, stats[a+0] );
   	if( empirep[stats[a+0]].name[0] )
       fprintf( file, "%s #%d", empirep[stats[a+0]].name, stats[a+0] );
     else
       fprintf( file, "Empire #%d", stats[a+0] );
     fprintf( file, "</a></td><td align=\"center\">%d</td><td align=\"center\">%d</td><td align=\"center\">%d</td></tr>\n", stats[a+1], stats[a+2], stats[a+3] );
-		
+
     /* Plain Text */
     fprintf( filep, "%d:%d:%d:%d:%d:", b, stats[a+0], stats[a+1], stats[a+2], stats[a+3] );
     if( empirep[stats[a+0]].name[0] )
@@ -268,7 +268,7 @@ dbArtefactMax = artmax;
       continue;
 	}
     if( dbUserMainRetrieve( user->id, &mainp[b] ) < 0 ) {
-	syslog(LOG_ERR, "Error retreiving maind id: %d\n", user->id );	 
+	syslog(LOG_ERR, "Error retreiving maind id: %d\n", user->id );
       continue;
 	}
 	if( (mainp[b].empire == admincfg.empire) && (admincfg.rankommit) )
@@ -395,8 +395,8 @@ ticks.debug_pass = 0 + 10000;
   memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
   memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-  
-  
+
+
   nInfection = 0;
   if( ( b = dbUserSpecOpList( usrid, &specopd ) ) >= 0 )
   {
@@ -408,7 +408,7 @@ ticks.debug_pass = 0 + 10000;
   			}
   	}
   }
-  
+
   if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )
     return 0;
   portals = 0;
@@ -425,19 +425,19 @@ ticks.debug_pass = 1 + 10000;
   for( a = 0 ; a < num ; a++ )
   {
     dbMapRetrievePlanet( buffer[a], &planetd );
-    
+
 		planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * CMD_POPULATION_CITIES ) );
-		
+
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
 			planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * (CMD_POPULATION_CITIES+1000) ) );
-	*/	
+	*/
 ticks.debug_pass = 2 + 10000;
-		
+
 		//No more pop grow bonus it will count as upkeep reducer multiplier
 		//Planet grow pop is 2% each tick
 		planetd.population += ceil(planetd.maxpopulation * 0.02 * pow(0.75, (float)nInfection));
-	
+
 
     if( planetd.population > planetd.maxpopulation )
       planetd.population = planetd.maxpopulation;
@@ -447,10 +447,10 @@ ticks.debug_pass = 2 + 10000;
       planetd.protection = 100;
     else
     {
-      planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_PORTALS] ) );      
-      
+      planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_PORTALS] ) );
+
     }
-    
+
   	if( planetd.construction < 0 ) {
 	syslog(LOG_ERR, "Warning : negative construction count : %d\n", planetd.construction );
       planetd.construction = 0;
@@ -493,7 +493,7 @@ ticks.debug_pass = 5 + 10000;
     {
       if( planetd.special[0] == 0 )
         cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * planetd.building[CMD_BUILDING_SOLAR] ) / 100;
-      
+
       else if( planetd.special[0] == CMD_BONUS_ENERGY )
         cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * planetd.building[CMD_BUILDING_MINING] ) / 100;
 
@@ -606,17 +606,17 @@ for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 
 ticks.debug_pass = 1;
 
-	
+
 if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 	if( options.verbose )
 	printf( "Tick error: Retriving Map Info!\n" );
 	syslog(LOG_ERR, "Tick error: Retriving Map Info!\n" );
 }
-    
+
   for( user = dbUserList ; user ; user = user->next )
   {
-  		
-				
+
+
     if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
       continue;
 
@@ -628,8 +628,8 @@ if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
 	syslog(LOG_ERR, "Tick error: Retriving User %d\n", user->id );
 	continue;
 }
-    
-			
+
+
 ticks.debug_pass = 2;
 
 
@@ -640,8 +640,8 @@ if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
 	continue;
 }
     opvirus = 0;
- /*   
- //WAR  ILLUSION we recalcul each tick 
+ /*
+ //WAR  ILLUSION we recalcul each tick
 for(i=0;i<specopnum;i++) {
 	if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000)) {
 		fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
@@ -651,7 +651,7 @@ for(i=0;i<specopnum;i++) {
 		if( penalty )
 		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
 		fa = 100.0 * (float)nIllusion / (float)maind.networth;
-    		a = (int)( fa * 4.5 );		
+    		a = (int)( fa * 4.5 );
     		a += a * rand()%20;
     		if (a<0)
     			a = 0;
@@ -670,7 +670,7 @@ for(i=0;i<specopnum;i++) {
     		specopd[i].vars[0] = a;
 	}
 }
-*/  	
+*/
 for( a = specopnum-1 ; a >= 0 ; a-- ) {
 	if( specopd[a].type == ( CMD_OPER_NETWORKVIRUS | 0x10000 ) )
 		opvirus++;
@@ -726,76 +726,76 @@ ticks.debug_pass = 3;
 
 
 ticks.debug_pass = 4;
-		
+
 // calc total of buildings, units, artefacts
     cmdTickPlanets( user->id, &maind );
-		
+
 ticks.debug_pass = 5;
-	
+
 
 // add research
 
     for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
     {
-    	
+
     	fa = ( (double)(maind.allocresearch[a]) * (double)( 500*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
     	if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_POPRESEARCH )
         	fa += ( (double)(maind.allocresearch[a]) * (double)maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
-		
+
 	/*		//ARTI CODE Foohon Ancestry
 			if(maind.artefacts & ARTEFACT_*_BIT)
 				fa += ( (double)(maind.allocresearch[a]) * (double)maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
-	*/							
-			
-			
+	*/
+
+
 		maind.research[a] += cmdRace[maind.raceid].researchpoints[a] * fa;
-		  
+
      	if( maind.research[a] < 0 )
-        	maind.research[a] = 0x7FFFFFFF;			
+        	maind.research[a] = 0x7FFFFFFF;
     }
     maind.fundresearch = (int64_t)( 0.9 * (double)maind.fundresearch );
-    
+
 ticks.debug_pass = 6;
 
    // SK: because of the network backbone arti, we need to calculate Tech research first
 //    int addedFromTech = 0;
-     
+
     // calculate total research for tech
-     
+
           //research maximum
           fa = cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH];
-     
+
       /*      //      ARTI CODE Divine Stone
                     if(maind.artefacts & ARTEFACT_*_BIT)
                             fa -= 25;
      */
-     
+
           b = fa * ( 1.0 - exp( (double)maind.research[CMD_RESEARCH_TECH] / ( -10.0 * (double)maind.networth ) ) );
-     
-     
+
+
           if( b > maind.totalresearch[CMD_RESEARCH_TECH] )
             maind.totalresearch[CMD_RESEARCH_TECH]++;
           else if( b < maind.totalresearch[CMD_RESEARCH_TECH] )
             maind.totalresearch[CMD_RESEARCH_TECH]--;
-     
+
               //addedFromTech = b/10;
-     
-     
+
+
     // calculate total research
         for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
         {
                     if(a == CMD_RESEARCH_TECH)
                             continue;
-     
+
           //research maximum
           fa = cmdRace[maind.raceid].researchmax[a];
 
 	// CODE_ARTI
       if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( a == CMD_RESEARCH_MILITARY ) )
-        fa += 25.0;		
-     
+        fa += 25.0;
+
         // put this arti last, you need the other ones calculated before this one.
-         /*   //ARTI CODE network backbone    
+         /*   //ARTI CODE network backbone
         if(maind.artefacts & ARTEFACT_*_BIT)
         {
            // exclude tech research from having this bonus (otherwise there is no cap)
@@ -819,31 +819,31 @@ ticks.debug_pass = 7;
     fa = ( 12.0 * (double)(cmdTickProduction[CMD_BUILDING_SOLAR]) / specopSolarCalc( user->id ) );
     if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_SOLARP15 )
       fa *= 1.15;
-      
+
       //ARTI CODE Ether Palace
 	if(maind.artefacts & ARTEFACT_32_BIT)
 		fa *= 1.30;
-		
+
     fb = ( 40.0 * (double)(cmdTickProduction[CMD_BUILDING_FISSION]) );
-   	
-   	 	
+
+
 	fa += fb;
-	
+
 	//ARTI CODE Ether Garden
-	
+
 	if(maind.artefacts & ARTEFACT_ETHER_BIT)
-		fa *= 1.10;	
+		fa *= 1.10;
 
 	//ARTI CODE Ether Palace
 	if(maind.artefacts & ARTEFACT_8_BIT)
-		fa *= 1.25;	
-			
+		fa *= 1.25;
+
 	fb = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ENERGY] * ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_ENERGY] );
 
-	
+
   maind.infos[INFOS_ENERGY_PRODUCTION] = (int64_t)( fa * fb );
 
-   
+
     /* This block is for the automated funding from energy production if used add the funding into the council with maind.infos
     	dbUserMainSet(user->id, &maind);
 			cmd[0] = CMD_FUND_RESEARCH;
@@ -853,7 +853,7 @@ ticks.debug_pass = 7;
 			dbUserMainRetrieve( cmd[1], &maind );
 			//maind.infos[INFOS_ENERGY_PRODUCTION] -= maind.infos[INFOS_ENERGY_PRODUCTION]*0.08;  //This line remove the actual funding from the production
   */
-    
+
   fa = CMD_ENERGY_DECAY;
 
 fc = sysconfig.stockpile * maind.infos[INFOS_ENERGY_PRODUCTION];
@@ -868,10 +868,10 @@ maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RE
    	  maind.infos[INFOS_BUILDING_UPKEEP] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a] * fb;
         else
           maind.infos[INFOS_BUILDING_UPKEEP] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a];
-  
+
   }
-    
-    
+
+
 ticks.debug_pass = 8;
 
     for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
@@ -888,40 +888,40 @@ ticks.debug_pass = 8;
 		}
 		//ARTI CODE Romulan Military Outpost
 		if(maind.artefacts & ARTEFACT_16_BIT)
-		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;	
+		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;
 		maind.infos[INFOS_POPULATION_REDUCTION] = (1.0/35.0) * (float)maind.ressource[CMD_RESSOURCE_POPULATION]* ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_WELFARE] ) * (cmdRace[maind.raceid].growth);
-    
-    
+
+
     if( maind.infos[INFOS_POPULATION_REDUCTION] >= maind.infos[INFOS_BUILDING_UPKEEP] )
       maind.infos[INFOS_POPULATION_REDUCTION] = maind.infos[INFOS_BUILDING_UPKEEP];
-    
+
     //virus network mean more upkeep Based on the upkeep of a building with after pop reduction
     for( a = 0 ; a < opvirus ; a++ )
       maind.infos[INFOS_BUILDING_UPKEEP] += (int64_t)( (float)(maind.infos[INFOS_BUILDING_UPKEEP]-maind.infos[INFOS_POPULATION_REDUCTION]) * 0.15 );
-      
+
     maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
 		fa = CMD_CRYSTAL_DECAY;
-		
+
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
-    	
+
 fc = sysconfig.stockpile * maind.infos[INFOS_CRYSTAL_PRODUCTION];
 maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
 
 
     maind.infos[INFOS_PORTALS_UPKEEP] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
-    
+
     //ARTI CODE Mana Gate
 		//if(maind.artefacts & ARTEFACT_MANA_BIT)
 		//	maind.infos[INFOS_PORTALS_UPKEEP] /= 2;
-        
+
     if( maind.infos[INFOS_PORTALS_UPKEEP] < 0 )
       maind.infos[INFOS_PORTALS_UPKEEP] = 0;
 
 maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
-maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);      
+maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
 
 if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
 	if( options.verbose )
@@ -939,7 +939,7 @@ maind.infos[CMD_RESSOURCE_ENERGY] = maind.infos[INFOS_ENERGY_PRODUCTION] - maind
 maind.infos[CMD_RESSOURCE_MINERAL] = (maind.infos[INFOS_MINERAL_PRODUCTION] - maind.infos[INFOS_MINERAL_TAX]);
 
 maind.infos[CMD_RESSOURCE_CRYSTAL] = ( (maind.infos[INFOS_CRYSTAL_PRODUCTION] - maind.infos[INFOS_CRYSTAL_TAX] ) - maind.infos[INFOS_CRYSTAL_DECAY]);
-	
+
 maind.infos[CMD_RESSOURCE_ECTROLIUM] = (maind.infos[INFOS_ECTROLIUM_PRODUCTION] - maind.infos[INFOS_ECTROLIUM_TAX]);
 
 empired.fund[CMD_RESSOURCE_ENERGY] += maind.infos[INFOS_ENERGY_TAX];
@@ -953,7 +953,7 @@ if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
 	syslog(LOG_ERR, "Tick error: Setting Empire #%d Fund!\n", maind.empire );
 }
 
-		
+
 	//ARTI CODE Mineral enhancement
 		if(maind.artefacts & ARTEFACT_64_BIT)
 	{
@@ -991,8 +991,8 @@ ticks.debug_pass = 9;
       else
         maind.readiness[c] += a;
 
-			
-/* CODE_ARTEFACT 
+
+/* CODE_ARTEFACT
     if( ( maind.artefacts & ARTEFACT_*_BIT ) && ( c != 0 ) )
     {
       if( maind.readiness[c] > 65536*75 ) //alter this to increase or decrease the readiness, currently decreased to 75%
@@ -1033,7 +1033,7 @@ ticks.debug_pass = 10;
           phdecay = 0.20;
       }
     }
-    
+
 // fleets
     dbUserMainSet( user->id, &maind );
     fleetp = 0;
@@ -1108,7 +1108,7 @@ ticks.debug_pass = 11;
       }
       if( e )
         dbMapSetPlanet( plist[a], &planetd );
-    }	
+    }
     if( plist )
       free( plist );
 
@@ -1122,7 +1122,7 @@ ticks.debug_pass = 12;
       maind.ressource[a] += maind.infos[a];
       if( maind.ressource[a] < 0 )
         maind.ressource[a] = 0;
-    }    
+    }
 
 // networth
     a = dbUserPlanetNumber( user->id );
@@ -1152,7 +1152,7 @@ ticks.debug_pass = 12;
     			planetd.flags ^= CMD_PLANET_FLAGS_BEACON;
     			dbMapSetPlanet(specopd[a].plnid, &planetd);
       	}
-      	
+
         dbUserSpecOpRemove( user->id, a );
         continue;
       }
@@ -1212,7 +1212,7 @@ ticks.debug_pass = 15;
     {
       c = dbMarketListNext( b, bidresult );
       a = (int)ceil( CMD_CRYSTAL_DECAY * (float)bidresult[0] );
-      
+
       if( (bidresult[0]-a) > 0 )
       {
         dbUserMarketQuantity( bidresult[1], b, bidresult[0] - a );

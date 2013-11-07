@@ -6,3 +6,5 @@ int checkencrypt( char *passentered, char *passcheck );
 char *str2md5(const char *str);
 
 char *md5file( char *filename );
+
+

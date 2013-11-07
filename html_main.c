@@ -83,7 +83,7 @@ return -1;
 }
 
 void iohttpBase( svConnectionPtr cnt, int flags ) {
-	
+
 svSendString( cnt, "Content-Type: text/html\n\n" );
 svSendString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
 svSendString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
@@ -99,7 +99,7 @@ svSendString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></scr
 
 if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
-if( flags & 1 ) { 
+if( flags & 1 ) {
 svSendString( cnt, "<style type=\"text/css\">" );
 	svSendString( cnt, "body{background-image:url(images/mbg.gif);" );
 	if( !( flags & 2 ) )
@@ -382,7 +382,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
  int64_t newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
- 
+
  name = pass = faction = NULL;
  iohttpVarsInit( cnt );
  /*name = iohttpVarsFind( "name" );
@@ -410,8 +410,8 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
   newd[5] = 0; //From the admin team
   memcpy( &newd[6], "Admin", 6 );
   cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
-  	
-  	
+
+
 		(maild.mail).length = strlen(Message);
 		maild.text = Message;
 		(maild.mail).authorid = 0;
@@ -423,7 +423,7 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
   if( dbMailAdd( id, 0, &maild ) < 0 )
 	syslog(LOG_ERR, "Error sending registration email\n" );
 
-  
+
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
   {
    iohttpBase( cnt, 8 );
@@ -511,15 +511,15 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
    if( ( fampass[a] == 10 ) || ( fampass[a] == 13 ) )
     break;
   }
-		
+
 		if( empire[0] == 0 )
   	a = -1;
-  else if( empire[0] == '#' ) 
+  else if( empire[0] == '#' )
    sscanf( &empire[1], "%d", &a );
   else
    sscanf( empire, "%d", &a );
   sscanf( race, "%d", &raceid );
-  
+
   if( cmdExecNewUserEmpire( id, a, fampass, raceid, (cnt->dbuser)->level ) < 0 )
   {
    if( cmdErrorString )
@@ -628,7 +628,7 @@ iohttpBase( cnt, 8 );
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
 	return;
-} 
+}
 
 iohttpFunc_frontmenu( cnt, FMENU_MAIN );
 
@@ -726,7 +726,7 @@ svSendString( cnt, "\n" );
 svSendString( cnt, "  var _gaq = _gaq || [];\n" );
 svSendString( cnt, "    _gaq.push(['_setAccount', 'UA-38148306-1']);\n" );
 svSendString( cnt, "      _gaq.push(['_trackPageview']);\n" );
-svSendString( cnt, "\n" );      
+svSendString( cnt, "\n" );
 svSendString( cnt, "        (function() {\n" );
 svSendString( cnt, "            var ga = document.createElement('script'); ga.type =\n" );
 svSendString( cnt, "            'text/javascript'; ga.async = true;\n" );

@@ -761,8 +761,8 @@ void cmdGetBuildCosts( dbUserMainPtr maind, int type, int64_t *buffer )
     for( a = 0 ; a < CMD_RESSOURCE_NUMUSED+1 ; a++ )
     {
       buffer[a] = ceil( cost * cmdUnitCost[type][a] );
-    }	
-    
+    }
+
   }
   return;
 }
@@ -895,7 +895,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
   dbMainSystemDef systemd;
   dbUserFleetDef fleet2d;
   dbUserFleetPtr fleetp;
-  
+
   newd[1] = 0;
   andl = 0;
   if( postnews )
@@ -921,7 +921,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
       return 1;
     }
     if( dbUserPlanetAdd( id, fleetd->destid, fleetd->sysid, fleetd->destination, 0 ) < 0 )
-      return 1;		
+      return 1;
     dbMapRetrieveSystem( planetd.system, &systemd );
     systemd.unexplored--;
     dbMapSetSystem( planetd.system, &systemd );
@@ -940,7 +940,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
     newd[3] = fleetd->destid;
     newd[4] = planetd.position;
     newd[5] = artefactPrecense( &planetd );
-    
+
     cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_FLEET & andl );
   }
   else if( fleetd->order == CMD_FLEET_ORDER_STATION )
@@ -990,7 +990,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
   		fleetd->flags = 0;
   		dbUserFleetSet( id, fltid, fleetd );
   		dbUserFleetRemove(id, nFltid);
-  		//put some news on the hq when they merge 
+  		//put some news on the hq when they merge
   		newd[2] = CMD_NEWS_FLEETS_MERGE;
       newd[3] = fleetd->destination;
       newd[4] = nFltid;
@@ -1146,7 +1146,7 @@ void cmdFleetGetPosition( dbUserFleetPtr fleetd, int *x, int *y )
 
 int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 {
-  int a, b, c, d; 
+  int a, b, c, d;
   int64_t cost[4];
   float fa, fb, fc;
   int *ibuffer;
@@ -1155,7 +1155,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
   dbUserMainDef maind;
   dbUserFleetDef fleetd, fleet2d;
   dbMainPlanetDef planetd;
- 
+
   cmdErrorString = 0;
 
   if( cmd[0] == CMD_SEARCH_EMPIRE )
@@ -1275,7 +1275,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       if( fb < 1.001 )
         fb = 1.001;
       fc = ( (float)cmd[6] / 100.0 ) + 1.0;
-      
+
       memset( costbuild, 0, CMD_RESSOURCE_NUMUSED*sizeof(float) );
       for( b = c = 0 ; b < cmd[3] ; b++ )
       {
@@ -1414,45 +1414,9 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
       return -3;
     return 1;
   }
-  else if( cmd[0] == CMD_ADD_FLEET )
-  {
-    return dbUserFleetAdd( cmd[1], buffer );
-  }
-  else if( cmd[0] == CMD_REMOVE_FLEET )
-  {
-    return dbUserFleetRemove( cmd[1], cmd[2] );
-  }
-  else if( cmd[0] == CMD_LIST_FLEET )
-  {
-    return dbUserFleetList( cmd[1], buffer );
-  }
-  else if( cmd[0] == CMD_SET_FLEET )
-  {
-    return dbUserFleetSet( cmd[1], cmd[2], buffer );
-  }
   else if( cmd[0] == CMD_RETRIEVE_FLEET )
   {
     return dbUserFleetRetrieve( cmd[1], cmd[2], buffer );
-  }
-  else if( cmd[0] == CMD_FUND_RESEARCH )
-  {
-    if( cmd[2] < 0 )
-    {
-      cmdErrorString = "You don't have so much energy";
-      return -2;
-    }
-    if( dbUserMainRetrieve( cmd[1], &maind ) < 0 )
-      return -3;
-    if( cmd[2] > maind.ressource[CMD_RESSOURCE_ENERGY] )
-    {
-      cmdErrorString = "You don't have so much energy";
-      return -3;
-    }
-    maind.fundresearch += cmd[2];
-    maind.ressource[CMD_RESSOURCE_ENERGY] -= cmd[2];
-    if( dbUserMainSet( cmd[1], &maind ) < 0 )
-      return -3;
-    return 1;
   }
   else if( cmd[0] == CMD_SET_RESEARCH )
   {
@@ -1540,7 +1504,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
     maind.readiness[CMD_READY_FLEET] -= ( (maind.planets<<16) >> 2 ) + 10*65536;
 
     ibuffer[0] = ( ( a / cmdUnitStats[CMD_UNIT_EXPLORATION][CMD_UNIT_STATS_SPEED] ) >> 8 ) + 1;
-		
+
 
     fleetd.time = ibuffer[0];
     fleetd.basetime = ibuffer[0];
@@ -1632,7 +1596,7 @@ if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race
 		printf("Failure Placing Administrator account: \"%s\"\n", admincfg.name );
 	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );
 }
-	
+
 dbFlush();
 
 return 1;

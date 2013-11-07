@@ -11,11 +11,11 @@ char *hashencrypt( char *passhash ) {
 	char salted[128];
 	char urandom[9];
 	char random[33];
-	FILE *fh;     
+	FILE *fh;
 
 strcpy(salted,"$1$");
-srand((unsigned int) time(0));  
-   
+srand((unsigned int) time(0));
+
 for(i = 0; i < 6; ++i) {
 	urandom[i] = rand() % (126 - 33 + 1) + 33;
 }
@@ -34,7 +34,7 @@ if( (fh = fopen("/dev/urandom", "rb")) ) {
 
 seed[0] = (long)random;
 seed[1] = getpid() ^ (seed[0] >> 14 & 0x30000);
-    
+
 for (i = 0; i < 6; i++)
 	salted[3+i] = seedchars[(seed[i/5] >> (i%5)*6) & 0x3f];
 //Well, we have "spare" MD5... lets use it.

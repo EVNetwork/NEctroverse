@@ -239,7 +239,7 @@ int iohttpForumPerms( int id, int forum, svConnectionPtr cnt, dbUserMainPtr main
   {
   	return 1;
   }
-  
+
   if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] )
    return 0;
   if( maind->empire+100 == forum )
@@ -356,7 +356,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	iohttpBase( cnt, 8 );
 	iohttpFunc_frontmenu( cnt, FMENU_FORUM );
 }
-	
+
  iohttpVarsInit( cnt );
  forumstring = iohttpVarsFind( "forum" );
  threadstring = iohttpVarsFind( "thread" );
@@ -431,7 +431,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  else if( action == 1 )
  {
   iohttpForumL2:
-	
+
   b = dbForumListThreads( forum, skip, skip+IOHTTP_FORUM_THREADSNUM, &forumd, &threads );
   if( b < 0 )
   {
@@ -492,7 +492,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   	strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(threads[a].time) ) );
    sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
    strcat( timebuf, timetemp);
-   
+
    svSendPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&thread=%d&last=%d\">%s</a>", forum, threads[a].id, threads[a].time, threads[a].topic );
    if( threads[a].posts > IOHTTP_FORUM_POSTSNUM )
    {
@@ -530,7 +530,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    svSendPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum );
    if( id == -1 )
 //    svSendPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
-   return; 
+   return;
    else
     svSendPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", (cnt->dbuser)->faction, (cnt->dbuser)->faction );
    svSendString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
@@ -689,9 +689,9 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    svSendString( cnt, "You are not authorized to post in this forum</center></body></html>" );
    return;
   }
-		
+
 	/*	b = dbForumListThreads( forum, thread, thread+1, &forumd, &threads );
-  
+
   if(b)
   {
   	if(threads[thread].flags == DB_FORUM_FLAGS_THREAD_LOCK)
@@ -700,7 +700,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    	return;
   	}
   }*/
-		
+
   iohttpForumL0:
 
   if( !( postd.text = malloc( 3 * IOHTTP_FORUM_BUFFER ) ) )

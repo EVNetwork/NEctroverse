@@ -85,7 +85,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
  svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
  svSendString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
- 
+
    svSendString( cnt, "<br><a href=\"admin\" target=\"main\">Old Admin</a>" );
    svSendString( cnt, "<br><a href=\"main\" target=\"_top\">Back to Game</a>" );
    svSendString( cnt, "<br><a href=\"/\" target=\"_top\">Mainpage</a>" );
@@ -379,7 +379,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
   svSendString( cnt, "<input type=\"text\" name=\"forumlid\" value=\"Forum ID\"><br>" );
   svSendString( cnt, "<input type=\"text\" name=\"threadlid\" value=\"Thread ID\"><br>" );
   svSendString( cnt, "<input type=\"submit\" value=\"Lock Thread\"></form><br><br>" );
-  
+
   svSendString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   svSendString( cnt, "<input type=\"text\" name=\"forumuid\" value=\"Forum ID\"><br>" );
   svSendString( cnt, "<input type=\"text\" name=\"threaduid\" value=\"Thread ID\"><br>" );
@@ -387,7 +387,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
 */
 
   svSendString( cnt, "</td><td width=\"60%\" align=\"left\" valign=\"top\">" );
-	
+
 	id = iohttpIdentify( cnt, 0 );
   if( id != -1 )
   {
@@ -411,7 +411,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     svSendPrintf( cnt, "<b>Player ID %d</b><br><br>", actionid );
     svSendPrintf( cnt, "Faction name : %s<br>", maind.faction );
-	
+
 	//routine to show how long it has been since a player was online
 	curtime = time( 0 );
 	b = curtime - infod.lasttime;
@@ -433,9 +433,9 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
 		if( b >= 60 )
 		  svSendPrintf( cnt, "%dm <br>", b/60 );
 	}
-	
-	
-	
+
+
+
     svSendPrintf( cnt, "Forum tag : %s<br>", infod.forumtag );
     svSendPrintf( cnt, "Tag points : %d<br>", infod.tagpoints );
     svSendPrintf( cnt, "User level : %d<br><br>", user->level );
@@ -443,7 +443,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     svSendPrintf( cnt, "Networth : %lld<br>", (long long)maind.networth );
     svSendPrintf( cnt, "Empire : #%d<br>", maind.empire );
     svSendPrintf( cnt, "Artefacts : 0x%x<br>", maind.artefacts );
-	
+
     for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
       svSendPrintf( cnt, "%s : %lld<br>", cmdRessourceName[a], (long long)maind.ressource[a] );
     for( a = 0; a < CMD_RESEARCH_NUMUSED ; a++ )
@@ -451,7 +451,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     svSendPrintf( cnt, "Fleet readiness : %d %%<br>", maind.readiness[0] >> 16 );
     svSendPrintf( cnt, "Psychics readiness : %d %%<br>", maind.readiness[1] >> 16 );
     svSendPrintf( cnt, "Agents readiness : %d %%<br>", maind.readiness[2] >> 16 );
-    
+
     fprintf( file, "%s > view player info of player %s\n", main2d.faction, maind.faction);
   }
 
@@ -749,7 +749,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
         }
         cmdFleetGetPosition( &fleetp[a], &x, &y );
         svSendPrintf( cnt, "<td>%d,%d</td></tr>", x, y );
-      } 
+      }
       svSendString( cnt, "</table>" );
     }
     fprintf( file, "%s >fleet of player %s viewed \n",main2d.faction, maind.faction);
@@ -941,19 +941,19 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
   if( ( actionstring = iohttpVarsFind( "forumlid" ) ) )
   {
   	if( !( str0 = iohttpVarsFind( "threadlid" ) ) )
-    {  
+    {
      	svSendString(cnt, "No thread specified<br>");
       goto iohttpFunc_moderatorL0;
     }
 		iohttpVarsCut();
-		
-		//b = forum id 
+
+		//b = forum id
 		//c = thread id
 		if( sscanf( actionstring, "%d", &b ) != 1 )
       goto iohttpFunc_moderatorL0;
     if( sscanf( str0, "%d", &c ) != 1 )
       goto iohttpFunc_moderatorL0;
-		
+
 		a = dbForumListThreads(b, c, c+1, &forumd, &pThread);
 		if(a)
 		{
@@ -963,20 +963,20 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
 			dbForumRemoveThread( b, c );
 			dbForumAddThread( b, pThread);
 		}
-		
+
   }
-  
+
   if( ( actionstring = iohttpVarsFind( "forumuid" ) ) )
   {
   	if( !( str0 = iohttpVarsFind( "threaduid" ) ) )
-    {  
+    {
      	svSendString(cnt, "No thread specified<br>");
       goto iohttpFunc_moderatorL0;
     }
 		iohttpVarsCut();
-		
-		
-		
+
+
+
   }
 	*/
 
@@ -1007,7 +1007,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   dbMainPlanetDef planetd;
   dbUserPtr user;
   int curtime;
-	
+
   iohttpBase( cnt, 1 );
 
   if( ( id = iohttpIdentify( cnt, 0 ) ) < 0 )
@@ -1079,7 +1079,7 @@ if( action[0] ) {
     forumd.rperms = 0xFFF;
     forumd.wperms = 0;
     dbForumAddForum( &forumd, 0, 0 );
-    
+
     sprintf( forumd.title, "Ideas" );
     forumd.rperms = 0xFFF;
     forumd.wperms = 0xFFF;
@@ -1207,7 +1207,7 @@ sysconfig.shutdown = true;
       svSendPrintf( cnt, "Player %d set to player<br><br>", a );
     }
   }
-  
+
   //Remove all building in construction on that plnid
 	if( action[29] )
   {
@@ -1220,7 +1220,7 @@ sysconfig.shutdown = true;
   		}
   	}
   }
-  
+
   if( action[6] )
   {
     if( sscanf( action[6], "%d", &a ) == 1 )
@@ -1480,7 +1480,7 @@ sysconfig.shutdown = true;
 			svSendString( cnt, "Executed command \"kill -n 10 $(pidof svt)\"<br><br>" );
 
   }
-	
+
 	//Send some text to OS via system command
 	if( action[31] )
   {

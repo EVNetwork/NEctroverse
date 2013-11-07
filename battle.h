@@ -11,3 +11,6 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d );
 void battlePhaseUpdate( int *unit, int *results );
 
 int battle( int id, int fltid, int *results );
+
+
+

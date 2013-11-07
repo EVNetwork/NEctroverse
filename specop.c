@@ -32,17 +32,17 @@ int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 	dbMainEmpireDef empired;
 	dbMainEmpireDef empire2d;
 	dbUserInfoDef infod;
-	
+
 	fFactor1 = 1;
 	fFactor2 = 1;
 	curtime = time( 0 );
-	
+
 	penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_OPERATIONS], cmdAgentopTech[specop] );
 	if( penalty == -1 )
 	return -1;
 	if( !( main2d ) )
 		return (int)( cmdAgentopReadiness[specop] * 65536.0 );
-	
+
 	if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
 		return -1;
 
@@ -60,7 +60,7 @@ for(i=0;i<empired.numplayers;i++)
   	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive2++;
   }
-  
+
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
   //so 1 active in a emp of one do (7*2-1)/7 = 1.85
   //2 active in a emp of 3 do (7*2-2)/7 = 1.7
@@ -69,13 +69,13 @@ for(i=0;i<empired.numplayers;i++)
   nMax = Info[5];
   fFactor1 = (float)(nMax*2-nActive)/(float)nMax;
   fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;
-  
-  
+
+
   fa = (float)(1+maind->planets) / (float)(1+main2d->planets);
   fb = (float)(1+empired.planets * fFactor1) / (float)(1+empire2d.planets * fFactor2);
   fa = pow( fa, 1.8 );
   fb = pow( fb, 1.2 );
-  
+
   fa = 0.5 * ( fa + fb );
 
   if( fa < 0.75 )
@@ -198,7 +198,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
   {
 	  if( newd[1] == CMD_NEWS_FLAGS_NEW )
 	    postnew = CMD_NEWS_FLAGS_ATTACK;
-	
+
 		memset(&newd[10], -1, 11);
 	  specop = fleetd->order - CMD_FLEET_ORDER_FIRSTOP;
 	  newd[2] = CMD_NEWS_OPCANCEL;
@@ -214,7 +214,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	  	cmdUserNewsAdd( id, newd, postnew );
 	    return;
 	  }
-	  
+
 	  //ARTI CODE grant operation all races
 	  if(!((maind.artefacts & ARTEFACT_1_BIT)&&(specop == CMD_OPER_OBSERVEPLANET )))
 	  {
@@ -228,29 +228,29 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	  if( penalty == -1 )
 	    return;
 	  fa = 0.6 + (0.8/255.0) * (float)( rand() & 255 );
-	
+
 	  attack = (int)( fa * cmdRace[maind.raceid].unit[CMD_UNIT_AGENT] * (float)(fleetd->unit[CMD_UNIT_AGENT]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_OPERATIONS] ) );
-	
+
 	  if( penalty )
 	    attack = (float)attack / ( 1.0 + 0.01*(float)penalty );
 	  stealth = cmdAgentopStealth[specop];
 	  newd[7] = -1;
 	  newd[8] = -1;
-	
-	
-	
+
+
+
 	  if( planetd.owner != -1 )
 	  {
 	  	if( dbUserMainRetrieve( planetd.owner, &main2d ) < 0 )
 	      return;
 	    if( !( dbUserFleetRetrieve( planetd.owner, 0, &fleet2d ) ) )
 	      return;
-	
+
 /*				//ARTI CODE
 		  if(maind.artefacts & ARTEFACT_ANTI_BIT)
-		  	defense = (int)( cmdAgentopDifficulty[specop]*0.7 * cmdRace[main2d.raceid].unit[CMD_UNIT_AGENT] * (float)(fleet2d.unit[CMD_UNIT_AGENT]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_OPERATIONS] ) );	
+		  	defense = (int)( cmdAgentopDifficulty[specop]*0.7 * cmdRace[main2d.raceid].unit[CMD_UNIT_AGENT] * (float)(fleet2d.unit[CMD_UNIT_AGENT]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_OPERATIONS] ) );
 		  else*/
-		  	defense = (int)( cmdAgentopDifficulty[specop] * cmdRace[main2d.raceid].unit[CMD_UNIT_AGENT] * (float)(fleet2d.unit[CMD_UNIT_AGENT]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_OPERATIONS] ) );	
+		  	defense = (int)( cmdAgentopDifficulty[specop] * cmdRace[main2d.raceid].unit[CMD_UNIT_AGENT] * (float)(fleet2d.unit[CMD_UNIT_AGENT]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_OPERATIONS] ) );
 	  }
 	  else
 	  {
@@ -261,21 +261,21 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	      return;
 	    }
 	  }
-		
+
 		success = (float)attack / (float)( defense + 1 );
-	
+
 	  // calculate losses
 	  if( ( success < 2.0 ) && ( planetd.owner != -1 ) )
 	  {
 	    refdef = 0.5 * pow( ( 0.5 * success ), 1.1 );
 	    refatt = 1.0 - refdef;
 	    tlosses = 1.0 - pow( ( 0.5 * success ), 0.2 );
-	    
+
 	    newd[7] = (int)( refatt * tlosses * (float)(fleetd->unit[CMD_UNIT_AGENT]) );
 	    if( newd[7] >= fleetd->unit[CMD_UNIT_AGENT] )
 	      newd[7] = fleetd->unit[CMD_UNIT_AGENT];
 	    fleetd->unit[CMD_UNIT_AGENT] -= newd[7];
-	    
+
 	    newd[8] = (int)( refdef * tlosses * (float)(fleet2d.unit[CMD_UNIT_AGENT]) );
 	    if( newd[8] >= fleet2d.unit[CMD_UNIT_AGENT] )
 	      newd[8] = fleet2d.unit[CMD_UNIT_AGENT];
@@ -290,9 +290,9 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	  newd[9] = specop;
 	  for( a = 10 ; a < DB_USER_NEWS_BASE ; a++ )
 	    newd[a] = -1;
-	
+
 	  if( fleetd->order == CMD_FLEET_ORDER_SPYTARGET )
-	  {  	
+	  {
 	    newd[2] = CMD_NEWS_OPSPYTARGET;
 	    if( success >= 0.5 )
 	      newd[10] = main2d.readiness[CMD_READY_FLEET];
@@ -441,11 +441,11 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	    }
 	    if( plnlist )
 	      free( plnlist );
-	    
+
 	    newd[11] = rand()%42;
 	    if(newd[11] < 5)
 	    	newd[11] = 5;
-	      
+
 	    specopd.type = CMD_OPER_BIOINFECTION;
 	    specopd.plnid = fleetd->destid;
 	    specopd.plnpos = planetd.position;
@@ -556,7 +556,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	  {
 	    a = 0;
 	    newd[2] = CMD_NEWS_OPHIGHINFIL;
-	    
+
 	    if( success >= 0.6 )
 	    {
 	      if( success >= 0.8 )
@@ -592,7 +592,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 		    {
 		    	//Set the flags of planetary on this planet
 		    	planetd.flags |= CMD_PLANET_FLAGS_BEACON;
-		    	
+
 		      newd[10] = success;
 		      specopd.vars[0] = a;
 		      specopd.type = CMD_OPER_PLANETBEACON;
@@ -608,12 +608,12 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 		      specopd.type |= 0x10000;
 		  		if(id != planetd.owner)
 		   			dbUserSpecOpAdd( planetd.owner, &specopd );
-		  
+
 		  	}
 				dbMapSetPlanet(fleetd->destid, &planetd);
 			}
 			else
-				nCancel++;	
+				nCancel++;
 		}
 		if( !( stealth ) && ( planetd.owner != -1 ) )
 		{
@@ -622,7 +622,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 		  newd[2] += CMD_NEWS_OPSPYTARGET_TARGET - CMD_NEWS_OPSPYTARGET;
 		  newd[5] = id;
 		  newd[6] = maind.empire;
-			
+
 		  if(id != planetd.owner)
 		  	cmdUserNewsAdd( planetd.owner, newd, CMD_NEWS_FLAGS_ATTACK );
 		  newd[1] = a;
@@ -631,7 +631,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	  newd[5] = planetd.owner;
 	  newd[6] = main2d.empire;
 	  cmdUserNewsAdd( id, newd, postnew );
-		
+
 		if(!nCancel)
 	  {
 	  	a = specopAgentsReadiness( specop, &maind, ( planetd.owner != -1 ) ? ( &main2d ) : ( 0 ) );
@@ -642,7 +642,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	else
 	{
 		if( dbMapRetrievePlanet( fleetd->destid, &planetd ) < 0 )
-	   	return;	
+	   	return;
 	  if(planetd.owner != -1)
 	  {
 	    if( !( dbUserPlanetRemove( planetd.owner, fleetd->destid ) ) )
@@ -671,7 +671,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	    dbMapSetSystem( planetd.system, &systemd );
 	  }
 	}
-	
+
 	return;
 }
 
@@ -690,7 +690,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   dbUserInfoDef infod;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
-  
+
   fFactor1 = 1;
   fFactor2 = 1;
   curtime = time( 0 );
@@ -702,7 +702,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
 
   if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
     return -1;
-   
+
   for(i=0;i<empired.numplayers;i++)
   {
   	dbUserInfoRetrieve(empired.player[i], &infod);
@@ -716,7 +716,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   	//										1080 mean 18 hours this can be change the time is in min
   	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive2++;
-  }  
+  }
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
   //so 1 active in a emp of one do (7*2-1)/7 = 1.85
   //2 active in a emp of 3 do (7*2-2)/7 = 1.7
@@ -724,9 +724,9 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   dbMapRetrieveMain(Info);
   nMax = Info[5];
   fFactor1 = (float)(nMax*2-nActive)/(float)nMax;
-  fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;  
-    
-    
+  fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;
+
+
   fa = (float)(1+maind->planets) / (float)(1+main2d->planets);
   fb = (float)(1+empired.planets * fFactor1) / (float)(1+empire2d.planets * fFactor2);
   fa = pow( fa, 1.8 );
@@ -739,7 +739,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
   if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) || ( rel == CMD_RELATION_ALLY ) )
     fa /= 3.0;
-  
+
 	if( fa >= 300.0 )
     return (int)( 300.0 * 65536.0 );
   return (int)( fa * 65536.0 );
@@ -812,11 +812,11 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
   if( id != targetid )
   {
     defense = (int)( cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (float)(fleet2d.unit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.005*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
-    
+
 /*    //ARTI CODE
 	  if(main2d.artefacts & ARTEFACT_ANTI_BIT)
 	  	defense *= 0.8;
-  */  
+  */
     success = (float)attack / (float)( defense + 1 );
 
     if( specop == CMD_SPELL_ASSAULT )
@@ -831,16 +831,16 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
     if( success < 2.0 )
     {
       refdef = 0.5 * pow( ( 0.5 * success ), 1.1 );
-      
+
       refatt = 1.0 - refdef;
       tlosses = 1.0 - pow( ( 0.5 * success ), 0.2 );
       assault:
 
       newd[5] = (int64_t)( refatt * tlosses * (float)psychics );
-   	  if( ( refdef * tlosses ) > 1.0 ) 
+   	  if( ( refdef * tlosses ) > 1.0 )
              psychics = (newd[5] * 0.8);
       fleetd.unit[CMD_UNIT_WIZARD]  -= (int)newd[5];
-		
+
       newd[6] = (int64_t)( refdef * tlosses * (float)(fleet2d.unit[CMD_UNIT_WIZARD]) );
 	  if( ( refdef * tlosses ) > 1.0 ) newd[6] = fleet2d.unit[CMD_UNIT_WIZARD];
       fleet2d.unit[CMD_UNIT_WIZARD] -= (int)newd[6];
@@ -926,12 +926,12 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
     if( j > maind.ressource[CMD_RESSOURCE_CRYSTAL] )
       j = maind.ressource[CMD_RESSOURCE_CRYSTAL];
     maind.ressource[CMD_RESSOURCE_CRYSTAL] -= j;
-  
+
     newd[8] = j;
     newd[9] = (int64_t)( (float)j * 24.0 * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) );
-    
+
     maind.ressource[CMD_RESSOURCE_ENERGY] += newd[9];
-    
+
     dbUserMainSet( id, &maind );
   }
   else if( specop == CMD_SPELL_BLACKMIST )
@@ -961,7 +961,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
   }
   else if( specop == CMD_SPELL_WARILLUSIONS )
   {
-    
+
     newd[2] = CMD_NEWS_SPWARILLUSIONS;
     fa = 100.0 * (float)attack / (float)maind.networth;
     a = (int)( fa * 4.5 );
@@ -986,7 +986,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
       specopd.time = (int)newd[9];
       specopd.factionid = id;
       dbUserSpecOpAdd( id, &specopd );
-	    
+
     }
   }
 
@@ -1007,11 +1007,11 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
 //CODE_ARTEFACT for double phantom strength
   if( maind.artefacts & ARTEFACT_16_BIT )
     attack *= 2.0;
- //CODE_ARTEFACT 
+ //CODE_ARTEFACT
 
 
     j = attack / 2;
-    
+
     newd[8] = j;
     fleetd.unit[CMD_UNIT_PHANTOM] += j;
     dbUserFleetSet( id, 0, &fleetd );
@@ -1064,19 +1064,19 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   dbUserInfoDef infod;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
-  
+
   curtime = time( 0 );
-  
+
   penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_WELFARE], cmdGhostopTech[specop] );
   if( penalty == -1 )
     return -1;
    if( !( main2d ) )
   	return (int)( cmdGhostopReadiness[specop] * 65536.0 );
-  
+
 
   if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
     return -1;
-  
+
   for(i=0;i<empired.numplayers;i++)
   {
   	dbUserInfoRetrieve(empired.player[i], &infod);
@@ -1090,7 +1090,7 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   	//										1080 mean 18 hours this can be change the time is in min
   	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive2++;
-  }  
+  }
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
   //so 1 active in a emp of one do (7*2-1)/7 = 1.85
   //2 active in a emp of 3 do (7*2-2)/7 = 1.7
@@ -1098,8 +1098,8 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   dbMapRetrieveMain(Info);
   nMax = Info[MAP_EMEMBERS];
   fFactor1 = (float)(nMax*2-nActive)/(float)nMax;
-  fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;  
-  
+  fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;
+
   fa = (float)(1+maind->planets) / (float)(1+main2d->planets);
   fb = (float)(1+empired.planets * fFactor1) / (float)(1+empire2d.planets * fFactor2);
   fa = pow( fa, 1.8 );
@@ -1113,12 +1113,12 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) || ( rel == CMD_RELATION_ALLY ) )
     fa /= 3.0;
 
-	
+
 // CODE_ARTEFACT
   if( ( maind->artefacts & ARTEFACT_128_BIT ) && ( specop == CMD_INCANT_ENERGYSURGE ) )
     fa *= 0.5;
-// CODE_ARTEFACT	
-	
+// CODE_ARTEFACT
+
   if( fa >= 300.0 )
     return (int)( 300.0 * 65536.0 );
   return (int)( fa * 65536.0 );
@@ -1204,14 +1204,14 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
   if( penalty == -1 )
     return;
   fa = 0.6 + (0.8/255.0) * (double)( rand() & 255 );
- 
+
  // CODE_ARTI ARTEFACT_16_BIT
 
 if( maind.artefacts & ARTEFACT_16_BIT )
   attack = (int)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (float)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (float)cmdGhostopDifficulty[specop] *1.2);
 else //code arti
-	attack = (int64_t)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] ); 
-  
+	attack = (int64_t)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] );
+
 	if( penalty )
     attack = (double)attack / ( 1.0 + 0.01*(double)penalty );
   stealth = cmdGhostopFlags[specop] & 1;
@@ -1226,9 +1226,9 @@ else //code arti
     if( !( dbUserFleetRetrieve( planetd.owner, 0, &fleet2d ) ) )
       return;
     defense = (int)( (1.0/7.0) * cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (double)(fleet2d.unit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
-    
+
     defenseghosts = (int)( cmdRace[main2d.raceid].unit[CMD_UNIT_GHOST] * (double)(fleet2d.unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
-    
+
     success = (double)attack / (double)( defense + 1 );
     if( success < 2.0 )
     {
@@ -1249,7 +1249,7 @@ else //code arti
         refdef = 0.5 * pow( ( 0.5 * successghosts ), 1.1 );
         refatt = 1.0 - refdef;
         tlosses = 1.0 - pow( ( 0.5 * successghosts ), 0.2 );
-        
+
         //This is where attacker losse their ghost ship
         newd[7] = (int64_t)( refatt * tlosses * (double)(fleetd->unit[CMD_UNIT_GHOST]) );
         if( newd[7] >= fleetd->unit[CMD_UNIT_GHOST] )
@@ -1293,7 +1293,7 @@ else //code arti
       dx = ( ( dbArtefactPos[a] >> 8 ) & 0xFFF ) - x;
       dy = ( dbArtefactPos[a] >> 20 ) - y;
       fb = sqrt( (double)( 1 + dx*dx + dy*dy ) );
-      if( fb > fa )     
+      if( fb > fa )
         continue;
       newd[11] = 0x10000 | (int)( fa / fb );
       if( fa >= 4 )
@@ -1327,7 +1327,7 @@ else //code arti
             continue;
           defense = (int)( (1.0/7.0) * cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (double)(main2d.totalunit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
         }
-        
+
         success = (double)attack / (double)( defense + 1 );
         if( success < 1.0 )
           continue;
@@ -1590,7 +1590,7 @@ Energy Surge - Spreads a destructive wave in an faction network, feeding on the 
   cmdUserNewsAdd( id, newd, postnew );
 
   a = specopGhostsReadiness( specop, &maind, ( plntarget ) ? ( &main2d ) : ( 0 ) );
-  	
+
   maind.readiness[CMD_READY_PSYCH] -= a;
   dbUserMainSet( id, &maind );
 

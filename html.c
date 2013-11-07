@@ -33,23 +33,23 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 	char szFileName[50];
 	char szTemp[50];
 	FILE *fDesc;
-	
+
 	if((( id = iohttpIdentify( cnt, 0 ) ) >= 0 ) && (cnt != NULL))
  {
  	if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
  		nAllow ++;
  }
- 
+
  iohttpVarsInit( cnt );
  //Look for variable here
- 
+
  szAction = iohttpVarsFind( "action" );
  szID = iohttpVarsFind( "id" );
- 
+
  iohttpVarsCut();
  iohttpBase( cnt, 1 ); //Init of the html code for the player
  iohttpBodyInit( cnt, "Approving" );
- 
+
  if(nAllow)
  {
  	//Read all the input given by Post then show link to the file to download it before approving it.
@@ -65,7 +65,7 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 				fclose(fDesc);
 				return;
 			}
-			
+
  			//In both case we must check if the user exist and what is his id
 	 		nAllow = -1;
 	 		//this if is for formating the user and pass put ' ' instead of +
@@ -85,19 +85,19 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 			   else if( ( szPass[a] == 10 ) || ( szPass[a] == 13 ) )
 			    szPass[a] = 0;
 			  }
-			  
+
 			  if( ( id = dbUserSearch( szName ) ) >= 0 )
 			  {
 				  if( dbUserRetrievePassword( id, szTemp ) >= 0 )
 				  {
-				  	if( ioCompareExact( szPass, szTemp) ) 
+				  	if( ioCompareExact( szPass, szTemp) )
 				   	nAllow = id;
 				   }
 				 }
 				 //nAllow will be equal to the id of the user if the good password was supplied
-				 
+
 	 		}
-	 		
+
 	 		if(nAction == 1)			//Approve
 	 		{
 	 			svSendPrintf(cnt, "The file %s is approved<br>", szID);
@@ -109,9 +109,9 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 				fclose(fDesc);
 			}
  	}
- 	
+
  	//List all the file "pending" here
- 	
+
  }
  else
  {

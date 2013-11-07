@@ -12,7 +12,7 @@ vsnprintf(sbuf, 512, fmt, ap);
 va_end(ap);
 strncat(sbuf, ender, 512 - strlen(sbuf) - 1);
 if( options.verbose )
-	printf("Sending to IRC: %s\n", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines. 
+	printf("Sending to IRC: %s\n", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines.
 send(options.botconn, sbuf, strlen(sbuf), 0);
 
 return;
@@ -39,7 +39,7 @@ if( (sl = read(options.botconn, sbuf, 512)) ) {
 			o = -1;
 			//if( options.verbose )
 			//	printf(">> %s", buf); //Purely optional, and not really suggested... since it will output EVERYTHING from the IRC network.
-                
+
                 	if (!strncmp(buf, "PING", 4)) {
 				buf[1] = 'O';
 				ircbot_send(buf);
@@ -62,9 +62,9 @@ if( (sl = read(options.botconn, sbuf, 512)) ) {
 						break;
 					}
 				}
-                    
+
 				if (wordcount < 2) continue;
-                    
+
 				if (!strncmp(command, "001", 3) && ( irccfg.channel != NULL ) ) {
 					ircbot_send("JOIN %s", irccfg.channel);
 					if( irccfg.botpass ){ //We always request OP, we don't care what channel it is... we just request it anyways.
@@ -92,7 +92,7 @@ if( (sl = read(options.botconn, sbuf, 512)) ) {
 			}
 		}
 	}
-        
+
 }
 
 return;
@@ -101,7 +101,7 @@ return;
 int ircbot_connect(){
 	int a;
 	struct addrinfo hints, *res;
-    
+
 memset(&hints, 0, sizeof hints);
 hints.ai_family = AF_INET;
 hints.ai_socktype = SOCK_STREAM;
@@ -131,14 +131,14 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	close( options.botconn );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
-}    
+}
 ircbot_send("USER %s 0 0 :%sBot", irccfg.botnick, irccfg.botnick);
 ircbot_send("NICK %s", irccfg.botnick);
 if( irccfg.botpass ){
 	ircbot_send("PRIVMSG NickServ :identify %s", irccfg.botpass);
 }
 
-return 1;  
+return 1;
 }
 
 int ircbot_command( char *command ) {
@@ -162,7 +162,7 @@ if( !( strcmp(sub,"status") ) ){
 	if( irccfg.bot == false ) {
 		svPipeSend(0,"Bot is not enabled, can't announce tick!");
 		return 0;
-	} 
+	}
 	if( irccfg.announcetick ){
 		irccfg.announcetick = false;
 		svPipeSend(0,"Bot announce tick is now OFF!");
@@ -213,28 +213,28 @@ if( !( strcmp(sub,"status") ) ){
 
 return 0;
 }
- 
+
 #define IS_CTRL  (1 << 0)
 #define IS_EXT	 (1 << 1)
 #define IS_ALPHA (1 << 2)
- 
+
 unsigned int char_tbl[256] = {0};
- 
+
 
 void init_table() {
 	int i;
- 
+
 	for (i = 0; i < 32; i++) char_tbl[i] |= IS_CTRL;
 	char_tbl[127] |= IS_CTRL;
- 
+
 	for (i = 'A'; i <= 'Z'; i++) {
 		char_tbl[i] |= IS_ALPHA;
 		char_tbl[i + 0x20] |= IS_ALPHA; /* lower case */
 	}
- 
+
 	for (i = 128; i < 256; i++) char_tbl[i] |= IS_EXT;
 }
- 
+
 void strip(char * str, int what) {
 	unsigned char *ptr, *s = (void*)str;
 	ptr = s;
