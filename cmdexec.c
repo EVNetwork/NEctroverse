@@ -459,6 +459,7 @@ int cmdUserDelete( int id )
 int cmdExecChangeName( int id, char *faction )
 {
   dbUserMainDef maind;
+  dbUserInfoDef infod;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -1;
   cmdErrorString = 0;
@@ -473,7 +474,9 @@ int cmdExecChangeName( int id, char *faction )
     return -2;
   }
   sprintf( maind.faction, "%s", faction );
+  sprintf( infod.faction, "%s", faction );
   dbUserMainSet( id, &maind );
+  dbUserInfoSet( id, &infod );
   return 1;
 }
 
@@ -609,7 +612,7 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild )
     for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
     {
       if( maind.ressource[a] < 0 )
-        d += sprintf( &cmdErrorBuffer[d], "%lld %s ", -(long long)maind.ressource[a], cmdRessourceName[a] );
+        d += sprintf( &cmdErrorBuffer[d], "%lld %s ", (long long)(-maind.ressource[a]), cmdRessourceName[a] );
     }
     if( !( type >> 16 ) )
       sprintf( &cmdErrorBuffer[d], "to build %d %s", b, cmdBuildingName[ ctype ] );
@@ -637,6 +640,7 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild )
   return b;
 }
 
+
 int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
 {
   int a, b, c, d;
@@ -646,9 +650,9 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
   int64_t newd[DB_USER_NEWS_BASE];
 
   cmdErrorString = 0;
-  if( resource >= 3 )
+  if( (unsigned int)resource >= 3 )
     return -3;
-  if( action >= 2 )
+  if( (unsigned int)action >= 2 )
    return -3;
 
   if( !( ticks.status ) )
@@ -657,12 +661,12 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     return -3;
   }
 
-  if( !( price ) || ( price >= DB_MARKET_RANGE ) )
+  if( !( price ) || ( (unsigned int)price >= DB_MARKET_RANGE ) )
   {
     cmdErrorString = "The price must be between 1 and 250";
     return -3;
   }
-  if( quantity > (2000000000/price) )
+  if( (unsigned int)quantity > (2000000000/price) )
   {
     cmdErrorString = "Your bid is too large";
     return -3;
@@ -685,7 +689,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     a = price * quantity;
     if( maind.ressource[CMD_RESSOURCE_ENERGY] < a )
     {
-      sprintf( cmdErrorBuffer, "You lack %lld energy to place a bid for %d %s at %d.", (long long)a - maind.ressource[CMD_RESSOURCE_ENERGY], quantity, cmdRessourceName[resource+1], price );
+      sprintf( cmdErrorBuffer, "You lack %lld energy to place a bid for %d %s at %d.", (long long)(a - maind.ressource[CMD_RESSOURCE_ENERGY]), quantity, cmdRessourceName[resource+1], price );
       cmdErrorString = cmdErrorBuffer;
       return -3;
     }
@@ -697,7 +701,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     {
       marketbid[DB_MARKETBID_PRICE] = a;
       b = dbMarketListStart( marketbid );
-      while( b < 0x1000000 )
+      while( (unsigned int)b < 0x1000000 )
       {
         d = dbMarketListNext( b, bidresult );
         if( c < bidresult[0] )
@@ -749,7 +753,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     {
       marketbid[DB_MARKETBID_PRICE] = a;
       b = dbMarketListStart( marketbid );
-      while( b < 0x1000000 )
+      while( (unsigned int)b < 0x1000000 )
       {
         d = dbMarketListNext( b, bidresult );
         if( c < bidresult[0] )
@@ -804,6 +808,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
 
   return 1;
 }
+
 
 
 int cmdExecRemoveBid( int id, int bidid )

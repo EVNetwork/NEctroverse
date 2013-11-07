@@ -116,6 +116,10 @@ static const double megabyte = (1024 * 1024);
 #include "db.h"
 #endif
 
+#ifndef BATTLETINCLUDES
+#include "battle.h"
+#endif
+
 #ifndef SERVERINCLUDES
 #include "sv.h"
 #endif

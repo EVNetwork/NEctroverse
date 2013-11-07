@@ -566,11 +566,11 @@ ticks.debug_pass = 13 + 10000;
 
 int cmdTick()
 {
-  int a, c, d, e, num, specopnum, opvirus /*,cmd[3]*/, i;
+  int a, c, d, e, num, specopnum, opvirus /*,cmd[3], i*/;
   float fb, phdecay;
   double fa, fc;
-  int64_t newd[DB_USER_NEWS_BASE], nIllusion, b;
-  int nChicks = 0, penalty;
+  int64_t newd[DB_USER_NEWS_BASE],/* nIllusion,*/ b;
+  //int nChicks = 0, penalty;
   int marketbid[DB_MARKETBID_NUMUSED];
   int bidresult[2];
   int *plist;

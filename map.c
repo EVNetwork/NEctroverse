@@ -356,7 +356,7 @@ free(pixels);
 
 //FIXME: Such a dirty fix, but well... it works. =/
 if( mapgen.width == mapcfg.sizex ) {
-	sprintf(imgsizer, "convert \"%s\" -resize 300% \"%s\"", fname, fname );
+	sprintf(imgsizer, "convert \"%s\" -resize 300%% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
 		if( options.verbose )
 			printf( "Map Error: unable to convert map size\n" );

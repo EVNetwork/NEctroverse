@@ -66,7 +66,7 @@ int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
 int dbFileUserListDat1[] = { 0, 8 };
 
 int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
-int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
+int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
 
 
 int dbMapBInfoStatic[MAP_TOTAL_INFO];

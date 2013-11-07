@@ -4004,8 +4004,8 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  portalstring = iohttpVarsFind( "portal" );
  iohttpVarsCut();
 
- cmd[0] = CMD_RETRIEVE_PLANET;
- if( !( buildplnid ) || ( sscanf( buildplnid, "%d", &cmd[1] ) <= 0 ) || ( cmdExecute( cnt, cmd, &planetd, 0 ) < 0 ) )
+ //cmd[0] = CMD_RETRIEVE_PLANET;
+ if( !( buildplnid ) || ( sscanf( buildplnid, "%d", &cmd[1] ) <= 0 ) || ( dbMapRetrievePlanet( cmd[1], &planetd ) < 0 ) )
  {
   svSendString( cnt, "This planet doesn't seem to exist!</body></html>" );
   return;
@@ -4068,9 +4068,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  if( c )
  {
-  cmd[0] = CMD_RETRIEVE_PLANET;
-  cmd[1] = plnid;
-  cmdExecute( cnt, cmd, &planetd, 0 );
+  dbMapRetrievePlanet( plnid, &planetd );
  }
 
  if( !( iohttpHeader( cnt, id, &maind ) ) )
@@ -4324,9 +4322,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   if( !( iohttpVarsFind( buildname ) ) )
    continue;
 
-  cmd[0] = CMD_RETRIEVE_PLANET;
-  cmd[1] = buffer[a];
-  if( ( cmdExecute( cnt, cmd, &planetd, 0 ) < 0 ) )
+  if( (   dbMapRetrievePlanet( buffer[a], &planetd ) < 0 ) )
    continue;
   totalpl++;
 
@@ -4538,8 +4534,8 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  portalstring = iohttpVarsFind( "portal" );
  iohttpVarsCut();
 
- cmd[0] = CMD_RETRIEVE_PLANET;
- if( !( razeplnid ) || ( sscanf( razeplnid, "%d", &cmd[1] ) <= 0 ) || ( cmdExecute( cnt, cmd, &planetd, 0 ) < 0 ) )
+ //cmd[0] = CMD_RETRIEVE_PLANET;
+ if( !( razeplnid ) || ( sscanf( razeplnid, "%d", &cmd[1] ) <= 0 ) || (   dbMapRetrievePlanet( cmd[1], &planetd ) < 0 ) )
  {
   svSendString( cnt, "This planet doesn't seem to exist!</body></html>" );
   return;
@@ -4595,12 +4591,8 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  }
  if( c )
  {
-  cmd[0] = CMD_RETRIEVE_PLANET;
-  cmd[1] = plnid;
-  cmdExecute( cnt, cmd, &planetd, 0 );
-  cmd[0] = CMD_RETRIEVE_USERMAIN;
-  cmd[1] = id;
-  cmdExecute( cnt, cmd, &maind, 0 );
+  dbMapRetrievePlanet( plnid, &planetd );
+  dbUserMainRetrieve( id, &maind );
  }
  svSendPrintf( cnt, "<form action=\"raze\" method=\"POST\"><input type=\"hidden\" value=\"%d\" name=\"id\">", plnid );
  totalb = planetd.construction;
@@ -5417,7 +5409,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
  cmd[0] = CMD_ATTACK_PLANET;
  cmd[1] = id;
- if( !( fleetstring ) || ( sscanf( fleetstring, "%d", &cmd[2] ) <= 0 ) || ( cmdExecute( cnt, cmd, results, 0 ) < 0 ) )
+ if( !( fleetstring ) || ( sscanf( fleetstring, "%d", &cmd[2] ) <= 0 ) || ( battle( cmd[1], cmd[2], results ) < 0 ) )
  {
   if( cmdErrorString )
    svSendPrintf( cnt, "<i>%s</i>", cmdErrorString );
@@ -5744,8 +5736,8 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   svSendString( cnt, "Error encountered while getting main fleet stats</body></html>" );
   return;
  }
- cmd[0] = CMD_RETRIEVE_PLANET;
- if( !( planetstring ) || ( sscanf( planetstring, "%d", &cmd[1] ) <= 0 ) || ( cmdExecute( cnt, cmd, &planetd, 0 ) < 0 ) )
+ //cmd[0] = CMD_RETRIEVE_PLANET;
+ if( !( planetstring ) || ( sscanf( planetstring, "%d", &cmd[1] ) <= 0 ) || ( dbMapRetrievePlanet( cmd[1], &planetd ) < 0 ) )
  {
   svSendString( cnt, "This planet doesn't seem to exist!</body></html>" );
   return;

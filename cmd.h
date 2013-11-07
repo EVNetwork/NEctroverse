@@ -90,12 +90,6 @@ int specopVortexListCalc( int id, int num, int **buffer );
 
 
 
-float battlePortalCalc( int tx, int ty, int *portals, int num, int research );
-float battlePortalCoverage( int id, int tx, int ty, int research );
-
-
-
-
 int artefactPrecense( dbMainPlanetPtr planetd );
 
 
