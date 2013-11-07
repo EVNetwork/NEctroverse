@@ -66,7 +66,7 @@ int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
 int dbFileUserListDat1[] = { 0, 8 };
 
 int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
-int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
+int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
 
 
 int dbMapBInfoStatic[MAP_TOTAL_INFO];
@@ -732,7 +732,6 @@ int dbUserAdd( dbUserInfoPtr adduser ) {
 	int *user_ptr;
 	char dname[532], fname[532], uname[532];
 	char COREDIR[512];
-	dbUserDescDef descd;
 	dbUserPtr h_user;
 	dbUserPtr user;
 	FILE *file;
@@ -842,9 +841,6 @@ if( !( freenum ) ) {
 	fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
 	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 }
-
-memset( &descd, 0, sizeof(dbUserDescDef) );
-dbUserDescSet( id, &descd );
 
 //preserve user hashes so they are not logged out
 for(h_user=dbUserList;h_user;h_user=h_user->next) {
@@ -2848,7 +2844,6 @@ bid :
 4:user ID
 */
 
-#define DB_MARKET_BIDSOFF ( 8 + 3*2*DB_MARKET_RANGE*12 )
 
 int dbMarketReset()
 {
@@ -4667,55 +4662,20 @@ fclose( file );
 return 1;
 }
 
-
-int dbUserDescSet( int id, dbUserDescPtr descd ) {
-	FILE *file;
-
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
-	return -3;
-
-fseek( file, 0, SEEK_SET );
-fwrite( descd, 1, sizeof(dbUserDescDef), file );
-fclose( file );
-
-return 1;
-}
-
-int dbUserDescRetrieve( int id, dbUserDescPtr descd ) {
-	FILE *file;
-
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
-	return -3;
-
-fseek( file, 0, SEEK_SET );
-if( fread( descd, 1, sizeof(dbUserDescDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x74.0\n" );
-	syslog(LOG_ERR, "Failure reading file x74.0\n" );
-}
-fclose( file );
-
-return 1;
-}
-
-
-
 int dbUserRecordAdd( int id, dbUserRecordPtr recordd )
 {
   int num = 0;
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
     return -3;
-  fseek( file, sizeof(dbUserDescDef), SEEK_SET );
 if( fread( &num, 1, 4, file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x75.0\n" );
 	syslog(LOG_ERR, "Failure reading file x75.0\n" );
 }
   num++;
-  fseek( file, sizeof(dbUserDescDef), SEEK_SET );
   fwrite( &num, 1, 4, file );
-  fseek( file, sizeof(dbUserDescDef)+4 + ( num - 1 ) * sizeof(dbUserRecordDef), SEEK_SET );
+  fseek( file, 4 + ( num - 1 ) * sizeof(dbUserRecordDef), SEEK_SET );
   fwrite( recordd, 1, sizeof(dbUserRecordDef), file );
   fclose( file );
   return num;
@@ -4728,7 +4688,6 @@ int dbUserRecordList( int id, dbUserRecordPtr *records )
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
     return -3;
-  fseek( file, sizeof(dbUserDescDef), SEEK_SET );
 if( fread( &num, 1, 4, file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x76.0\n" );

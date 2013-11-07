@@ -31,20 +31,7 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
     cmdErrorString = "This faction name is already in use!";
     return -2;
   }
-/*	
-  a = dbUserAdd( name, faction, "Player" );
-if( options.verbose )
-printf("Created User: #%d Name: \"%s\"\n", a, name );
-syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
 
-  sprintf( cmdUserMainDefault.faction, "%s", faction );
-  sprintf( cmdUserMainDefault.forumtag, "%s", "Player" );
-  cmdUserMainDefault.empire = -1;
-  b = time( 0 );
-  cmdUserMainDefault.createtime = b;
-  cmdUserMainDefault.lasttime = b;
-*/
-//Begin new user creation mode.
 memset( &newuser, 0, sizeof(dbUserInfoDef) );
 snprintf(newuser.name, sizeof(newuser.name), "%s", name );
 snprintf(newuser.faction, sizeof(newuser.faction), "%s", faction );
@@ -61,7 +48,7 @@ a = dbUserAdd( &newuser );
 
 
  	//This create the main file in the server db not in User one
-  if( ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) /*|| ( dbUserSetPassword( a, pass ) < 0 )*/ )
+  if( ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) )
   {
     cmdUserDelete( a );
     return -2;

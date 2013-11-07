@@ -1006,7 +1006,6 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   dbMainSystemDef systemd;
   dbMainPlanetDef planetd;
   dbUserPtr user;
-  dbUserDescDef descd;
   int curtime;
 	
   iohttpBase( cnt, 1 );
@@ -1437,13 +1436,13 @@ sysconfig.shutdown = true;
   {
     for( user = dbUserList ; user ; user = user->next )
     {
-      dbUserDescRetrieve( user->id, &descd );
-      for( a = 0 ; ( a < 4096 ) && ( descd.desc[a] ) ; a++ )
+      dbUserInfoRetrieve( user->id, &infod );
+      for( a = 0 ; ( a < 4096 ) && ( infod.desc[a] ) ; a++ )
       {
-        if( descd.desc[a] >= 128 )
+        if( infod.desc[a] >= 128 )
         {
-          descd.desc[0] = 0;
-          dbUserDescSet( user->id, &descd );
+          infod.desc[0] = 0;
+          dbUserInfoSet( user->id, &infod );
           break;
         }
       }

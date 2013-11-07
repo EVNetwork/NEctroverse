@@ -277,6 +277,33 @@ int dbEmpireRelsGet( int id, int relid, int *rel );
 ////////
 
 
+typedef struct
+{
+   int nummaxbids;
+   int listfree;
+   int totalofbids;
+   int firstid;
+   int lastid;
+} dbMarketIndexDef, *dbMarketIndexPtr;
+
+typedef struct
+{
+   int user;
+   int next;
+   int previous;
+   int64_t quantity;
+} dbMarketBidDef, *dbMarketBidPtr;
+
+typedef struct
+{  
+  int id;
+  int price;
+  int action;
+  int resource;
+  int quantity;
+//  int64_t quantity;
+} dbMarketUserDef, *dbMarketUserPtr;
+
 int dbMarketReset();
 int dbMarketFull( int *list );
 int dbMarketAdd( int *bid );
@@ -436,23 +463,6 @@ int dbUserSpecOpEmpty( int id );
 
 
 
-
-
-
-
-
-
-
-
-typedef struct
-{
-  int flags;
-  char desc[4096];
-  int reserved[32];
-} dbUserDescDef, *dbUserDescPtr;
-
-int dbUserDescSet( int id, dbUserDescPtr descd );
-int dbUserDescRetrieve( int id, dbUserDescPtr descd );
 
 
 typedef struct
