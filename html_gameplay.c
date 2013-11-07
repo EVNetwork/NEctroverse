@@ -1973,7 +1973,7 @@ else
   for( c = d = 0 ; c < CMD_BLDG_NUMUSED ; c++ )
    d += planetd.building[c];
   if(planetd.flags & CMD_PLANET_FLAGS_BEACON)
-  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>&nbsp;<img src=\"images/beacon.jpg\">", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>&nbsp;<img src=\"images/beacon.gif\">", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   else
   	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
 
