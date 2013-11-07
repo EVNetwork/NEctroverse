@@ -3,7 +3,7 @@ void iohttpFunc_account( svConnectionPtr cnt )
 {
   int a, id;
   dbUserMainDef maind;
-  dbUserDescDef descd;
+  dbUserInfoDef infod;
   char *faction, *race, *desc;
   char description[4096];
 
@@ -19,6 +19,13 @@ void iohttpFunc_account( svConnectionPtr cnt )
   if( !( iohttpHeader( cnt, id, &maind ) ) )
     return;
 
+if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
+	if( options.verbose ) {
+		printf("Error in user html info, getting real info\n" );
+	}
+	syslog(LOG_ERR, "Error in user html info, getting real info\n" );
+	return;
+}
   iohttpBodyInit( cnt, "Account Options" );
 
   if( !( ticks.status | ticks.number ) )
@@ -51,20 +58,17 @@ void iohttpFunc_account( svConnectionPtr cnt )
 
   if( desc )
   {
-    if( dbUserDescRetrieve( id, &descd ) >= 0 )
-    {
       iohttpForumFilter( description, desc, 4096, 0 );
-      iohttpForumFilter2( descd.desc, description, 4096 );
-      dbUserDescSet( id, &descd );
-    }
+      iohttpForumFilter2( infod.desc, description, 4096 );
+      dbUserInfoSet( id, &infod );
   }
 
   svSendString( cnt, "<table border=\"0\"><tr><td>" );
   svSendPrintf( cnt, "User name : <b>%s</b><br>", (cnt->dbuser)->name );
   svSendPrintf( cnt, "Faction name : <b>%s</b><br>", maind.faction );
   svSendPrintf( cnt, "Faction race : <b>%s</b><br>", cmdRaceName[maind.raceid] );
-  svSendPrintf( cnt, "Forum tag : <b>%s</b><br>", maind.forumtag );
-  svSendPrintf( cnt, "Tag points : <b>%d</b><br>", maind.tagpoints );
+  svSendPrintf( cnt, "Forum tag : <b>%s</b><br>", infod.forumtag );
+  svSendPrintf( cnt, "Tag points : <b>%d</b><br>", infod.tagpoints );
   svSendPrintf( cnt, "Account ID : <b>%d</b><br>", id );
 
   if( !( ticks.status | ticks.number ) )
@@ -82,9 +86,7 @@ void iohttpFunc_account( svConnectionPtr cnt )
     svSendString( cnt, "</select><input type=\"submit\" value=\"Change\"></form>" );
   }
 
-  description[0] = 0;
-  if( dbUserDescRetrieve( id, &descd ) >= 0 )
-    iohttpForumFilter3( description, descd.desc, 4096 );
+  iohttpForumFilter3( description, infod.desc, 4096 );
 
   svSendString( cnt, "<form action=\"account\" method=\"POST\"><i>Faction description</i><br>" );
   svSendString( cnt, "<textarea name=\"desc\" wrap=\"soft\" rows=\"4\" cols=\"64\">" );
@@ -166,6 +168,7 @@ void iohttpFunc_delete( svConnectionPtr cnt )
 {
   int a, b, c, id;
   dbUserMainDef maind;
+  dbUserInfoDef infod;
   char *deletestring, *deathstring;
 
   iohttpVarsInit( cnt );
@@ -178,16 +181,22 @@ void iohttpFunc_delete( svConnectionPtr cnt )
     return;
   if( !( iohttpHeader( cnt, id, &maind ) ) )
     return;
-
+if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
+	if( options.verbose ) {
+		printf("Error in user html delete, getting real info\n" );
+	}
+	syslog(LOG_ERR, "Error in user html delete, getting real info\n" );
+	return;
+}
   iohttpBodyInit( cnt, "Delete faction" );
 
   c = 3600*48;
   if( !( ticks.status | ticks.number ) )
     c = 120;
   a = time( 0 );
-  if( maind.createtime+c > a )
+  if( infod.createtime+c > a )
   {
-    b = maind.createtime+c - a;
+    b = infod.createtime+c - a;
     svSendString( cnt, "You must wait 48 hours after the creation of an account to delete it, or 2 minutes if time has not started yet.<br>" );
     svSendPrintf( cnt, "<b>There are %d hours and %d minutes left!</b><br><br>", b/3600, (b/60)%60 );
     iohttpBodyEnd( cnt );

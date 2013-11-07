@@ -10,7 +10,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
  char timebuf[256];
  char COREDIR[256];
  int64_t *newsp, *newsd;
- dbUserMainDef maind;
+ dbUserInfoDef infod;
 
  iohttpVarsInit( cnt );
  name = iohttpVarsFind( "name" );
@@ -69,9 +69,9 @@ void iohttpFunc_main( svConnectionPtr cnt )
 
   svSendPrintf( cnt, "Set-Cookie: USRID=%04x%04x%04x%04x%04x; path=/\n", id, session[0], session[1], session[2], session[3] );
 
-  dbUserMainRetrieve( id, &maind );
-  maind.lasttime = time( 0 );
-  dbUserMainSet( id, &maind );
+  dbUserInfoRetrieve( id, &infod );
+  infod.lasttime = time( 0 );
+  dbUserInfoSet( id, &infod );
 
   if( ( file ) && ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
   {
@@ -3653,7 +3653,7 @@ void iohttpFunc_player( svConnectionPtr cnt )
  int a, b, id, playerid;
  dbUserMainDef maind, main2d;
  char *playerstring;
- dbUserDescDef descd;
+ dbUserInfoDef infod;
  dbUserRecordPtr recordd;
 
 if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
@@ -3669,18 +3669,18 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  playerstring = iohttpVarsFind( "id" );
  iohttpVarsCut();
 
- if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) )
+ if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) || ( dbUserInfoRetrieve( playerid, &infod ) < 0 ) )
  {
   svSendString( cnt, "Are you sure this user exists?</body></html>" );
   return;
  }
  iohttpBodyInit( cnt, main2d.faction );
- svSendPrintf( cnt, "<table border=\"0\"><tr><td><a href=\"empire?id=%d\">Empire : #%d</a><br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>Home planet : %d,%d:%d<br><br>Faction ID : %d<br><a href=\"mail?to=%d\">Send a message</a><br><a href=\"map?e0=4&u0=%d&c0=5\">Display planets on map</a><br><a href=\"map?e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br><a href=\"playerlist?id=%d\">See planets list</a><br><br></td></tr></table>", main2d.empire, main2d.empire, (long long)main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], main2d.forumtag, (long long)main2d.ressource[CMD_RESSOURCE_POPULATION], ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid, playerid, playerid, playerid, playerid );
+ svSendPrintf( cnt, "<table border=\"0\"><tr><td><a href=\"empire?id=%d\">Empire : #%d</a><br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>Home planet : %d,%d:%d<br><br>Faction ID : %d<br><a href=\"mail?to=%d\">Send a message</a><br><a href=\"map?e0=4&u0=%d&c0=5\">Display planets on map</a><br><a href=\"map?e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br><a href=\"playerlist?id=%d\">See planets list</a><br><br></td></tr></table>", main2d.empire, main2d.empire, (long long)main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], infod.forumtag, (long long)main2d.ressource[CMD_RESSOURCE_POPULATION], ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid, playerid, playerid, playerid, playerid );
 
- if( dbUserDescRetrieve( playerid, &descd ) >= 0 )
+ if( strlen(infod.desc) )
  {
   svSendString( cnt, "<i>Faction description</i><br><table border=\"0\"><tr><td>" );
-  svSendString( cnt, descd.desc );
+  svSendString( cnt, infod.desc );
   svSendString( cnt, "</td></tr></table>" );
  }
 

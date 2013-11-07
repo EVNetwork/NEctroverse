@@ -223,6 +223,7 @@ void iohttpFunc_moderator( svConnectionPtr cnt )
   float fa;
   dbUserBuildPtr build;
   dbUserMainDef maind, main2d;
+  dbUserInfoDef infod;
   dbUserFleetDef fleetd;
   dbUserFleetPtr fleetp;
   dbMainPlanetDef planetd;
@@ -406,12 +407,14 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
+    if( dbUserInfoRetrieve( actionid, &infod ) < 0 )
+      goto iohttpFunc_moderatorL0;
     svSendPrintf( cnt, "<b>Player ID %d</b><br><br>", actionid );
     svSendPrintf( cnt, "Faction name : %s<br>", maind.faction );
 	
 	//routine to show how long it has been since a player was online
 	curtime = time( 0 );
-	b = curtime - maind.lasttime;
+	b = curtime - infod.lasttime;
 	if( b < 5*60 ){
 		svSendString( cnt, "[online]<br>" );
 	}
@@ -433,8 +436,8 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
 	
 	
 	
-    svSendPrintf( cnt, "Forum tag : %s<br>", maind.forumtag );
-    svSendPrintf( cnt, "Tag points : %d<br>", maind.tagpoints );
+    svSendPrintf( cnt, "Forum tag : %s<br>", infod.forumtag );
+    svSendPrintf( cnt, "Tag points : %d<br>", infod.tagpoints );
     svSendPrintf( cnt, "User level : %d<br><br>", user->level );
     svSendPrintf( cnt, "Planets : %d<br>", maind.planets );
     svSendPrintf( cnt, "Networth : %lld<br>", (long long)maind.networth );
@@ -489,11 +492,13 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohttpFunc_moderatorL0;
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
-    maind.tagpoints += a;
-    sprintf( maind.forumtag, "%s", cmdTagFind( maind.tagpoints ) );
-    dbUserMainSet( actionid, &maind );
-    svSendPrintf( cnt, "The tag points of <b>%s</b> have been increased by <b>%d</b> for a total of <b>%d</b>, tag set to <b>%s</b><br><br>", maind.faction, a, maind.tagpoints, maind.forumtag );
-    fprintf( file, "%s > Tag points of player %s have been increased by %d tot a total of %d \n",main2d.faction, maind.faction,a, maind.tagpoints);
+    if( dbUserInfoRetrieve( actionid, &infod ) < 0 )
+      goto iohttpFunc_moderatorL0;
+    infod.tagpoints += a;
+    sprintf( infod.forumtag, "%s", cmdTagFind( infod.tagpoints ) );
+    dbUserInfoSet( actionid, &infod );
+    svSendPrintf( cnt, "The tag points of <b>%s</b> have been increased by <b>%d</b> for a total of <b>%d</b>, tag set to <b>%s</b><br><br>", maind.faction, a, infod.tagpoints, infod.forumtag );
+    fprintf( file, "%s > Tag points of player %s have been increased by %d tot a total of %d \n",main2d.faction, maind.faction,a, infod.tagpoints);
   }
 
   if( ( actionstring = iohttpVarsFind( "playertag" ) ) )
@@ -512,11 +517,13 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     }
     if( dbUserMainRetrieve( actionid, &maind ) < 0 )
       goto iohttpFunc_moderatorL0;
-    maind.forumtag[31] = 0;
-    iohttpForumFilter( maind.forumtag, str0, 31, 1 );
-    dbUserMainSet( actionid, &maind );
-    svSendPrintf( cnt, "Tag of <b>%s</b> changed to <b>%s</b><br><br>", maind.faction, maind.forumtag );
-    fprintf( file, "%s > Tag of player %s changed to %s \n",main2d.faction, maind.faction, maind.forumtag);
+    if( dbUserInfoRetrieve( actionid, &infod ) < 0 )
+      goto iohttpFunc_moderatorL0;
+    infod.forumtag[31] = 0;
+    iohttpForumFilter( infod.forumtag, str0, 31, 1 );
+    dbUserInfoSet( actionid, &infod );
+    svSendPrintf( cnt, "Tag of <b>%s</b> changed to <b>%s</b><br><br>", maind.faction, infod.forumtag );
+    fprintf( file, "%s > Tag of player %s changed to %s \n",main2d.faction, maind.faction, infod.forumtag);
   }
 
   if( ( actionstring = iohttpVarsFind( "playerres" ) ) )
@@ -995,6 +1002,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   dbForumForumDef forumd;
   dbUserFleetDef fleetd;
   dbUserMainDef maind;
+  dbUserInfoDef infod;
   dbMainSystemDef systemd;
   dbMainPlanetDef planetd;
   dbUserPtr user;
@@ -1157,14 +1165,14 @@ sysconfig.shutdown = true;
   {
     if( sscanf( action[5], "%d", &a ) == 1 )
     {
-      dbUserMainRetrieve( a, &maind );
-      sprintf( maind.forumtag, "Moderator" );
+      dbUserInfoRetrieve( a, &infod );
+      sprintf( infod.forumtag, "Moderator" );
       if( ( user = dbUserLinkID( a ) ) )
       {
         user->level = LEVEL_MODERATOR;
         dbUserSave( a, user );
       }
-      dbUserMainSet( a, &maind );
+      dbUserInfoSet( a, &infod );
       svSendPrintf( cnt, "Player %d set to moderator<br><br>", a );
     }
   }
@@ -1173,14 +1181,14 @@ sysconfig.shutdown = true;
   {
     if( sscanf( action[27], "%d", &a ) == 1 )
     {
-      dbUserMainRetrieve( a, &maind );
-      sprintf( maind.forumtag, "Forum Moderator" );
+      dbUserInfoRetrieve( a, &infod );
+      sprintf( infod.forumtag, "Forum Moderator" );
       if( ( user = dbUserLinkID( a ) ) )
       {
         user->level = LEVEL_FORUMMOD;
         dbUserSave( a, user );
       }
-      dbUserMainSet( a, &maind );
+      dbUserInfoSet( a, &infod );
       svSendPrintf( cnt, "Player %d set to forum moderator<br><br>", a );
     }
   }
@@ -1189,14 +1197,14 @@ sysconfig.shutdown = true;
   {
     if( sscanf( action[28], "%d", &a ) == 1 )
     {
-      dbUserMainRetrieve( a, &maind );
-      sprintf( maind.forumtag, "Player" );
+      dbUserInfoRetrieve( a, &infod );
+      sprintf( infod.forumtag, "Player" );
       if( ( user = dbUserLinkID( a ) ) )
       {
         user->level = LEVEL_USER;
         dbUserSave( a, user );
       }
-      dbUserMainSet( a, &maind );
+      dbUserInfoSet( a, &infod );
       svSendPrintf( cnt, "Player %d set to player<br><br>", a );
     }
   }
@@ -1318,15 +1326,15 @@ sysconfig.shutdown = true;
   {
     for( user = dbUserList ; user ; user = user->next )
     {
-      if( !( dbUserMainRetrieve( user->id, &maind ) ) )
+      if( !( dbUserInfoRetrieve( user->id, &infod ) ) )
         continue;
       if( user->level == LEVEL_USER )
-        sprintf( maind.forumtag, "Player" );
+        sprintf( infod.forumtag, "Player" );
       else if( user->level == LEVEL_MODERATOR )
-        sprintf( maind.forumtag, "Moderator" );
+        sprintf( infod.forumtag, "Moderator" );
       else
-        sprintf( maind.forumtag, "Administrator" );
-      dbUserMainSet( user->id, &maind );
+        sprintf( infod.forumtag, "Administrator" );
+      dbUserInfoSet( user->id, &infod );
     }
     svSendPrintf( cnt, "All forum tags reseted<br><br>" );
   }
@@ -1340,7 +1348,6 @@ sysconfig.shutdown = true;
       if( !( action[15] ) )
         return;
       iohttpForumFilter( maind.faction, action[15], 32, 0 );
-      sprintf( maind.forumtag, "Player" );
       dbUserMainSet( a, &maind );
       svSendPrintf( cnt, "Player %d name changed for %s<br><br>", a, maind.faction );
     }
@@ -1399,9 +1406,9 @@ sysconfig.shutdown = true;
     {
       if( user->level != LEVEL_USER )
         continue;
-      dbUserMainRetrieve( user->id, &maind );
-      sprintf( maind.forumtag, "%s", cmdTagFind( maind.tagpoints ) );
-      dbUserMainSet( user->id, &maind );
+      dbUserInfoRetrieve( user->id, &infod );
+      sprintf( infod.forumtag, "%s", cmdTagFind( infod.tagpoints ) );
+      dbUserInfoSet( user->id, &infod );
     }
     dbMarketReset();
     svSendPrintf( cnt, "Tags set<br><br>" );

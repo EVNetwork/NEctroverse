@@ -31,7 +31,7 @@ int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 	int Info[10];
 	dbMainEmpireDef empired;
 	dbMainEmpireDef empire2d;
-	dbUserMainDef User;
+	dbUserInfoDef infod;
 	
 	fFactor1 = 1;
 	fFactor2 = 1;
@@ -48,16 +48,16 @@ int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 
 for(i=0;i<empired.numplayers;i++)
 {
-  	dbUserMainRetrieve(empired.player[i], &User);
+  	dbUserInfoRetrieve(empired.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - User.lasttime)/60) <= 1080)
+  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive++;
   }
   for(i=0;i<empire2d.numplayers;i++)
   {
-  	dbUserMainRetrieve(empire2d.player[i], &User);
+  	dbUserInfoRetrieve(empire2d.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - User.lasttime)/60) <= 1080)
+  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive2++;
   }
   
@@ -685,9 +685,9 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   int nActive = 0;
   int nActive2 = 0;
   int i, curtime;
-  int Info[10];
+  int Info[MAP_TOTAL_INFO];
   int nMax;
-  dbUserMainDef User;
+  dbUserInfoDef infod;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
   
@@ -705,16 +705,16 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
    
   for(i=0;i<empired.numplayers;i++)
   {
-  	dbUserMainRetrieve(empired.player[i], &User);
+  	dbUserInfoRetrieve(empired.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - User.lasttime)/60) <= 1080)
+  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive++;
   }
   for(i=0;i<empire2d.numplayers;i++)
   {
-  	dbUserMainRetrieve(empire2d.player[i], &User);
+  	dbUserInfoRetrieve(empire2d.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - User.lasttime)/60) <= 1080)
+  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive2++;
   }  
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
@@ -1059,9 +1059,9 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   int nActive = 0;
   int nActive2 = 0;
   int i, curtime;
-  int Info[10];
+  int Info[MAP_TOTAL_INFO];
   int nMax;
-  dbUserMainDef User;
+  dbUserInfoDef infod;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
   
@@ -1079,16 +1079,16 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   
   for(i=0;i<empired.numplayers;i++)
   {
-  	dbUserMainRetrieve(empired.player[i], &User);
+  	dbUserInfoRetrieve(empired.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - User.lasttime)/60) <= 1080)
+  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive++;
   }
   for(i=0;i<empire2d.numplayers;i++)
   {
-  	dbUserMainRetrieve(empire2d.player[i], &User);
+  	dbUserInfoRetrieve(empire2d.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - User.lasttime)/60) <= 1080)
+  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
   		nActive2++;
   }  
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
@@ -1096,7 +1096,7 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   //2 active in a emp of 3 do (7*2-2)/7 = 1.7
   //7 active in a emp of 7(max) do (7*2-7)/7 = 1
   dbMapRetrieveMain(Info);
-  nMax = Info[5];
+  nMax = Info[MAP_EMEMBERS];
   fFactor1 = (float)(nMax*2-nActive)/(float)nMax;
   fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;  
   

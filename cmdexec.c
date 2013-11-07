@@ -2,6 +2,7 @@
 int cmdExecNewUser( char *name, char *pass, char *faction )
 {
   int a, b;
+  dbUserInfoDef newuser;
 
 	cmdErrorString = 0;
 	if( !( cmdCheckName( name ) ) )
@@ -30,7 +31,7 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
     cmdErrorString = "This faction name is already in use!";
     return -2;
   }
-	
+/*	
   a = dbUserAdd( name, faction, "Player" );
 if( options.verbose )
 printf("Created User: #%d Name: \"%s\"\n", a, name );
@@ -42,9 +43,25 @@ syslog(LOG_ERR, "Created User: %d Name: \"%s\"\n", a, name );
   b = time( 0 );
   cmdUserMainDefault.createtime = b;
   cmdUserMainDefault.lasttime = b;
+*/
+//Begin new user creation mode.
+memset( &newuser, 0, sizeof(dbUserInfoDef) );
+snprintf(newuser.name, sizeof(newuser.name), "%s", name );
+snprintf(newuser.faction, sizeof(newuser.faction), "%s", faction );
+snprintf(newuser.password, sizeof(newuser.password), "%s", hashencrypt(pass) );
+snprintf(newuser.forumtag, sizeof(newuser.forumtag), "%s", "Player" );
+b = time( 0 );
+newuser.createtime = b;
+newuser.lasttime = b;
+a = dbUserAdd( &newuser );
+
+  sprintf( cmdUserMainDefault.faction, "%s", faction );
+  cmdUserMainDefault.empire = -1;
+  b = time( 0 );
+
 
  	//This create the main file in the server db not in User one
-  if( ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) || ( dbUserSetPassword( a, pass ) < 0 ) )
+  if( ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) /*|| ( dbUserSetPassword( a, pass ) < 0 )*/ )
   {
     cmdUserDelete( a );
     return -2;
@@ -197,6 +214,7 @@ int cmdExecUserDeactivate( int id, int flags )
   int a, b, c, num;
   int *buffer;
   dbUserMainDef maind, main2d;
+  dbUserInfoDef infod;
   dbMainPlanetDef planetd;
   dbMainSystemDef systemd;
   dbMainEmpireDef empired, empire2d;
@@ -211,6 +229,8 @@ int cmdExecUserDeactivate( int id, int flags )
     return -1;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -1;
+  if( dbUserInfoRetrieve( id, &infod ) < 0 )
+    return -1;
   if( maind.empire != -1 )
     dbMapRetrieveEmpire( maind.empire, &empired );
 
@@ -220,7 +240,7 @@ int cmdExecUserDeactivate( int id, int flags )
     recordd.planets = maind.planets;
     recordd.networth = maind.networth;
     memcpy( recordd.faction, maind.faction, 32 );
-    memcpy( recordd.forumtag, maind.forumtag, 32 );
+    memcpy( recordd.forumtag, infod.forumtag, 32 );
     recordd.empire = maind.empire;
     recordd.famplanets = empired.planets;
     recordd.famnetworth = empired.networth;
@@ -252,7 +272,7 @@ int cmdExecUserDeactivate( int id, int flags )
 	        dbMapRetrieveEmpire( rel[i+2], &empire2d );
 	        j = pow(2, ARTEFACT_NUMUSED)-1;
 	        if(empire2d.artefacts == j)
-	        	maind.tagpoints += maind.planets;
+	        	infod.tagpoints += maind.planets;
 	   		}
 	    }
 	    free( rel );
@@ -260,9 +280,9 @@ int cmdExecUserDeactivate( int id, int flags )
     //Find ally end
     
     if( c == ARTEFACT_NUMUSED )
-      maind.tagpoints += 3 * maind.planets;
+      infod.tagpoints += 3 * maind.planets;
     else
-      maind.tagpoints += maind.planets;
+      infod.tagpoints += maind.planets;
     dbUserRecordAdd( id, &recordd );
   }
 
@@ -355,13 +375,15 @@ int cmdExecUserDeactivate( int id, int flags )
 
   memcpy( &main2d, &cmdUserMainDefault, sizeof(dbUserMainDef) );
   if( user->level == 0 )
-    sprintf( main2d.forumtag, "%s", cmdTagFind( maind.tagpoints ) );
+    sprintf( infod.forumtag, "%s", cmdTagFind( infod.tagpoints ) );
   else
-    sprintf( main2d.forumtag, "%s", maind.forumtag );
+    sprintf( infod.forumtag, "%s", infod.forumtag );
   sprintf( main2d.faction, "%s", maind.faction );
   main2d.empire = -1;
-  main2d.tagpoints = maind.tagpoints;
+
   if( !( dbUserMainSet( id, &main2d ) ) )
+    return -1;
+  if( !( dbUserInfoSet( id, &infod ) ) )
     return -1;
 
   user->flags = flags;

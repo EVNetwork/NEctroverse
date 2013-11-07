@@ -464,7 +464,7 @@ int dbInitUsersReset()
 
 
 int dbInit() {
-	int a, b, c;
+	int a, b;
 	int array[4];
 	dbUserPtr user;
 	dbUserInfoDef infod;
@@ -609,50 +609,21 @@ if( fread( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
 for( a = 0 ; a < b ; a++ ) {
 	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) )
 		continue;
-	if( fread( &c, 1, sizeof(int), file ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.0\n" );
-		syslog(LOG_ERR, "Failure reading file x02.0\n"  );
-	}
 
 	if( !( user = dbUserAllocate( a ) ) ) {
 		fclose( file );
 		continue;
 	}
+
+	if( !(	dbUserInfoRetrieve( a, &infod ) ) ) {
+	 	if( options.verbose )
+			printf("Failure reading file x02.0 for user; %d\n", a );
+		syslog(LOG_ERR, "Failure reading file x02.0 for user; %d\n", a );
+	}
+	user->level = infod.level;
+	user->flags = infod.flags;
+	sprintf(user->name, "%s", infod.name );
     
-	if( fread( &user->level, 1, sizeof(int), file ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.1\n" );
-		syslog(LOG_ERR, "Failure reading file x02.1\n"  );
-	}
-	if( fread( &user->flags, 1, sizeof(int), file ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.2\n" );
-		syslog(LOG_ERR, "Failure reading file x02.2\n" );
-	}
-	if( fread( &user->reserved, 1, sizeof(int), file ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.3\n" );
-		syslog(LOG_ERR, "Failure reading file x02.3\n" );
-	}
-	if( fread( &user->name, 1, 64, file ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.4\n" );
-		syslog(LOG_ERR, "Failure reading file x02.4\n" );
-	}
-	fclose( file );
-    
-	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_FLAGS ) ) )
-		continue;
-    
-	fseek( file, sizeof(int)*2, SEEK_SET );
-	if( fread( &user->flags, 1, sizeof(int), file ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.5\n" );
-		syslog(LOG_ERR, "Failure reading file x02.5\n" );
-	}
-	fclose(file);
-	dbUserInfoRetrieve( a, &infod );
 //printf("%d\n",infod.id);
 //printf("%d\n",infod.rank);
 	sprintf( user->faction, "%s", infod.faction );
@@ -754,7 +725,7 @@ return dbUserTable[id];
 }
 
 
-int dbUserAdd( char *name, char *faction, char *forumtag ) {
+int dbUserAdd( dbUserInfoPtr adduser ) {
 	int a, id, freenum;
 	int *user_hashes;
 	int num_users=0;
@@ -795,7 +766,9 @@ if( !( freenum ) ) {
 	}
 }
 	
-user = dbUserAllocate( id );
+if( !( user = dbUserAllocate( id ) ) ) {
+	return -3;
+}
   
 //create both folder for player
 sprintf( dname, "%s/data/user%d", sysconfig.directory, id );
@@ -805,7 +778,7 @@ mkdir( dname, S_IRWXU );
 mkdir( uname, S_IRWXU );
   
 //Create a db Database in the db other server
-for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
+for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 	sprintf( COREDIR, "%s/data", sysconfig.directory );
   	sprintf( fname, dbFileUserList[a], COREDIR, id );
     
@@ -827,20 +800,12 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
 	fclose( file );
 }
-
-fwrite( &id, 1, sizeof(int), file );
-a = 0;
-fwrite( &a, 1, sizeof(int), file );
-fwrite( &a, 1, sizeof(int), file );
-fwrite( &a, 1, sizeof(int), file );
-memset( fname, 0, 64 );
-sprintf( fname, "%s", name );
-fwrite( fname, 1, 64, file );
+adduser->id = id;
+fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
- 
   
 //Create a user Database in the db 10Min server
-for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
+for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
   	sprintf( fname, dbFileUserList[a], COREDIR, id );
 
@@ -864,15 +829,8 @@ for( a = DB_FILE_USER_TOTAL-2 ;  ; a-- ) {
 	}
 	fclose( file );
 }
-	
-fwrite( &id, 1, sizeof(int), file );
-a = 0;
-fwrite( &a, 1, sizeof(int), file );
-fwrite( &a, 1, sizeof(int), file );
-fwrite( &a, 1, sizeof(int), file );
-memset( fname, 0, 64 );
-sprintf( fname, "%s", name );
-fwrite( fname, 1, 64, file );
+adduser->id = id;
+fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
 	
 if( !( freenum ) ) {
@@ -885,7 +843,7 @@ if( !( freenum ) ) {
 	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 }
 
-descd.desc[0] = 0;
+memset( &descd, 0, sizeof(dbUserDescDef) );
 dbUserDescSet( id, &descd );
 
 //preserve user hashes so they are not logged out
@@ -956,13 +914,13 @@ fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 fseek( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2, SEEK_SET );
 fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
-for( a = 0 ; a < DB_FILE_USER_TOTAL-1 ; a++ ) {
+for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
 	sprintf( fname, dbFileUserList[a], COREDIR, id );
 	unlink( fname );
 }
 
-for( a = 0 ; a < DB_FILE_USER_TOTAL-1 ; a++ ) {
+for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
 	sprintf( COREDIR, "%s/data", sysconfig.directory );
 	sprintf( fname, dbFileUserList[a], COREDIR, id );
 	unlink( fname );
@@ -979,86 +937,62 @@ return 1;
 
 
 int dbUserSave( int id, dbUserPtr user ) {
-	FILE *file;
-  
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
+//	FILE *file;
+	dbUserInfoDef uinfo;
+
+if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
 	if( options.verbose ) {
-		printf("Error %02d, fopen dbsetname\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
+		printf("Error in user save, getting real info\n" );
 	}
-	syslog(LOG_ERR, "Error %02d, fopen dbsetname\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	syslog(LOG_ERR, "Error in user save, getting real info\n" );
 	return -3;
 }
 
-fwrite( &user->id, 1, sizeof(int), file );
-fwrite( &user->level, 1, sizeof(int), file );
-fseek(file, sizeof(int), SEEK_CUR);
-fwrite( &user->reserved, 1, sizeof(int), file );
-fwrite( user->name, 1, 64, file );
-fclose( file );
+uinfo.id = user->id;
+uinfo.level = user->level;
+strcpy(uinfo.name,user->name);
+uinfo.flags = user->flags;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLAGS ) ) ) {
+if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	if( options.verbose ) {
-		printf("Error %02d, fopen dbuserflags\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
+		printf("Error in user save, getting setting info\n" );
 	}
-	syslog(LOG_ERR, "Error %02d, fopen dbuserflags\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	syslog(LOG_ERR, "Error in user save, getting setting info\n" );
 	return -3;
 }
-
-fseek(file, 2*sizeof(int), SEEK_CUR);
-fwrite( &user->flags, 1, sizeof(int), file );
-fclose(file);
 
 return 1;
 }
 
 int dbUserSetPassword( int id, char *pass ) {
-	char fname[128];
-	FILE *file;
-  
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
+	dbUserInfoDef uinfo;
+
+if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
 	if( options.verbose ) {
-		printf("Error %02d, fopen dbsetpassword\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
+		printf("Error in user save, getting real info\n" );
 	}
-	syslog(LOG_ERR, "Error %02d, fopen dbsetpassword\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	syslog(LOG_ERR, "Error in user save, getting real info\n" );
 	return -3;
 }
 
-fseek( file, 16+65, SEEK_SET );
-memset( fname, 0, 128 );
-sprintf( fname, "%s", hashencrypt(pass) );
-fwrite( fname, 1, 128, file );
-fclose( file );
+sprintf( uinfo.password, "%s", hashencrypt(pass) );
+
+if( !( dbUserInfoSet( id, &uinfo ) ) ) {
+	if( options.verbose ) {
+		printf("Error in user save, getting setting info\n" );
+	}
+	syslog(LOG_ERR, "Error in user save, getting setting info\n" );
+	return -3;
+}
 
 return 1;
 }
 
 int dbUserRetrievePassword( int id, char *pass ) {
-	FILE *file;
+	dbUserInfoDef uinfo;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbretrievepassword\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbretrievepassword\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
-	return -3;
-}
-
-fseek( file, 16+65, SEEK_SET );
-if( fread( pass, 1, 128, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x05\n" );
-	syslog(LOG_ERR, "Failure reading file x05\n" );
-}
-
-fclose( file );
+dbUserInfoRetrieve( id, &uinfo );
+sprintf(pass, "%s", uinfo.password);
 
 return 1;
 }
@@ -1129,8 +1063,8 @@ fclose( file );
 
 if( !( user = dbUserLinkID( id ) ) )
 	return -3;
-sprintf( user->faction, "%s", maind->faction ); //FIXME: Move to infod
-sprintf( user->forumtag, "%s", maind->forumtag ); //FIXME: Move to infod
+
+sprintf( user->faction, "%s", maind->faction );
 
 return 1;
 }

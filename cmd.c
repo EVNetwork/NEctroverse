@@ -466,7 +466,6 @@ char cmdErrorBuffer[1024];
 dbUserMainDef cmdUserMainDefault =
 {
   { },
-  { },
   { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ },
   0,
   { },
@@ -482,8 +481,6 @@ dbUserMainDef cmdUserMainDefault =
   0,
   1,
   { 200, 200, 250, 250 },
-  0,
-  0,
   15|0x10000, { 0x1|(0x1<<4), 0x2|(0x0<<4), -1, -1, -1, -1, -1, -1 }
 };
 
@@ -2050,7 +2047,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 int cmdInit() {
 	int id;
 	dbUserPtr user;
-	dbUserMainDef maind;
+	dbUserInfoDef infod;
 
 if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;
@@ -2067,9 +2064,9 @@ user = dbUserLinkID( id );
 user->flags = 0;
 user->level = admincfg.level;
 dbUserSave( id, user );
-dbUserMainRetrieve(id, &maind);
-sprintf( maind.forumtag, "%s", admincfg.forumtag );
-dbUserMainSet(id, &maind);
+dbUserInfoRetrieve(id, &infod);
+sprintf( infod.forumtag, "%s", admincfg.forumtag );
+dbUserInfoSet(id, &infod);
 
 if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race, admincfg.level ) < 0 ) {
 	if( options.verbose )

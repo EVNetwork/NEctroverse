@@ -1,7 +1,6 @@
 #define DATABASEINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
-
 typedef struct
 {
   int id;
@@ -15,6 +14,7 @@ typedef struct
   char forumtag[32];
   int session[4];
   int lasttime;
+  struct in_addr sin_addr;
   //Pointers for next/last user in list.
   void *next;
   void **prev;
@@ -29,11 +29,14 @@ typedef struct
   int createtime;
   int lasttime;
   int tagpoints;
+  int reserved;
   char name[64];
   char password[128];
   char email[128];
   char faction[32];
   char forumtag[32];
+  struct in_addr sin_addr;
+  char desc[4096];
 } dbUserInfoDef, *dbUserInfoPtr;
 
 int dbUserInfoSet( int id, dbUserInfoPtr info );
@@ -52,7 +55,7 @@ int dbMapFindValid( int x, int y );
 
 int dbUserSearch( char *name );
 int dbUserSearchFaction( char *name );
-int dbUserAdd( char *name, char *faction, char *forumtag );
+int dbUserAdd( dbUserInfoPtr adduser );
 int dbUserRemove( int id );
 dbUserPtr dbUserLinkID( int id );
 
@@ -68,8 +71,7 @@ int dbSessionRetrieve( dbUserPtr user, int *session );
 
 typedef struct
 {
-  char faction[32]; //FIXME: Needs to be moved! -- or does it, maybe we should leave it here and just wipe it each round and force a re-pick?
-  char forumtag[32]; //FIXME: Needs to be moved!
+  char faction[32];
   int64_t ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
   int64_t infos[INFOS_TOTAL_NUMUSED];
@@ -85,11 +87,8 @@ typedef struct
   int planets;
   int config_fleet;
   int config_flee[4];
-  int createtime; //FIXME: Needs to be moved!
-  int lasttime; //FIXME: Needs to be moved!
   int config_mapsize;
   int config_map[8];
-  int tagpoints; //FIXME: Needs to be moved!
   int raceid;
   int artefacts;
   int rank;
@@ -148,7 +147,6 @@ typedef struct
   int flags;
   int time;
   int basetime;
-
 } dbUserFleetDef, *dbUserFleetPtr;
 
 int dbUserFleetAdd( int id, dbUserFleetPtr fleetd );
@@ -225,7 +223,7 @@ typedef struct
   int construction;
   int protection;
   int surrender;
-  int reserved;
+  int nuked;
 } dbMainPlanetDef, *dbMainPlanetPtr;
 
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd );

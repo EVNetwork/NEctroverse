@@ -45,11 +45,11 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
   int nActive = 0;
   int nActive2 = 0;
   int i, curtime;
-  int Info[10];
+  int Info[MAP_TOTAL_INFO];
   int nMax;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
-  dbUserMainDef User;
+  dbUserInfoDef infod;
   
   fFactor1 = 1;
   fFactor2 = 1;
@@ -67,16 +67,16 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
       return -1;
     for(i=0;i<empired.numplayers;i++)
     {
-    	dbUserMainRetrieve(empired.player[i], &User);
+    	dbUserInfoRetrieve(empired.player[i], &infod);
     	//										1080 mean 18 hours this can be change the time is in min
-    	if(((float)(curtime - User.lasttime)/60) <= 1080)
+    	if(((float)(curtime - infod.lasttime)/60) <= 1080)
     		nActive++;
     }
     for(i=0;i<empire2d.numplayers;i++)
     {
-    	dbUserMainRetrieve(empire2d.player[i], &User);
+    	dbUserInfoRetrieve(empire2d.player[i], &infod);
     	//										1080 mean 18 hours this can be change the time is in min
-    	if(((float)(curtime - User.lasttime)/60) <= 1080)
+    	if(((float)(curtime - infod.lasttime)/60) <= 1080)
     		nActive2++;
     }
     
@@ -84,7 +84,7 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
     //so 1 active in a emp of one do (7*2-1)/7 = 1.85
     //2 active in a emp of 3 do (7*2-2)/7 = 1.7
     dbMapRetrieveMain(Info);
-    nMax = Info[5];
+    nMax = Info[MAP_EMEMBERS];
     fFactor1 = (float)(nMax*2-nActive)/(float)nMax;
     fFactor2 = (float)(nMax*2-nActive2)/(float)nMax;
     
@@ -174,6 +174,7 @@ int battle( int id, int fltid, int *results )
   int defunit[CMD_UNIT_NUMUSED];
   int defunitbase[CMD_UNIT_NUMUSED];
   dbUserMainDef maind, main2d;
+  dbUserInfoDef infod;
   dbUserFleetDef fleetd, fleet2d;
   dbMainPlanetDef planetd;
   dbUserBuildPtr buildd;
@@ -228,12 +229,14 @@ int battle( int id, int fltid, int *results )
     return -3;
   if( dbUserMainRetrieve( defid, &main2d ) < 0 )
     return -3;
+  if( dbUserInfoRetrieve( defid, &infod ) < 0 )
+    return -3;
 
 	if( planetd.flags & CMD_PLANET_FLAGS_HOME )
   {
     if( !( user = dbUserLinkID( defid ) ) )
       return -3;
-    if( !( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) || ( main2d.planets > 1 ) || ( main2d.createtime+3600*24 > time( 0 ) ) )
+    if( !( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) || ( main2d.planets > 1 ) || ( infod.createtime+3600*24 > time( 0 ) ) )
     {
       cmdErrorString = "You can attack a home planet only if the faction is declared independent, does not own any other planet and the account has been created since more than 24 hours.";
       return -3;
