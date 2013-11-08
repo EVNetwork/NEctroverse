@@ -68,10 +68,6 @@
 #define SERVER_NAGLE_BUFFERING 0
 #endif
 
-#ifndef SERVER_TIME_ZONE
-#define SERVER_TIME_ZONE 0
-#endif
-
 #ifndef CT_TO_SECS
 #define CT_TO_SECS(x) ((x)/HZ)
 #endif

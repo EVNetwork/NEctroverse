@@ -33,3 +33,7 @@ void iohttpFunc_status( svConnectionPtr cnt );
 void connverttime_todef( timeDef *statime, int stime );
 
 void getsys_infos( proginfoDef *proginfo, struct sysinfo sinfo );
+
+struct tm *gettime( int t_in, bool gmt );
+
+int timediff( struct tm t_in  );

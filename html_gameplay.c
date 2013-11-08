@@ -20,12 +20,12 @@ void iohttpFunc_main( svConnectionPtr cnt )
  sprintf( COREDIR, "%s/logs/login", sysconfig.directory );
  if( ( file = fopen( COREDIR, "ab" ) ) )
  {
-  a = time( 0 )-(3600*SERVER_TIME_ZONE);
+  a = time( 0 );
   strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&a ) );
-  fprintf( file, "%s;", timebuf );
-  fprintf( file, "%s;", name );
-  fprintf( file, "%s;", pass );
-  fprintf( file, "%s;", inet_ntoa( cnt->sockaddr.sin_addr ) );
+  fprintf( file, "Time: %s;\n", timebuf );
+  fprintf( file, "Name: %s;\n", name );
+  fprintf( file, "Password: %s;\n", pass );
+  fprintf( file, "IP Address: %s;\n", inet_ntoa( cnt->sockaddr.sin_addr ) );
   iohttp = cnt->iodata;
   strcpy(timebuf, iohttp->user_agent);
   for(i=0;i<strlen(timebuf);i++)
@@ -33,8 +33,8 @@ void iohttpFunc_main( svConnectionPtr cnt )
   	if(timebuf[i] == ';')
   		timebuf[i] = ',';
   }
-  fprintf( file, "%s;", timebuf );
-  fprintf( file, "%s;", iohttp->cookie );
+  fprintf( file, "User Agent: %s;\n", timebuf );
+  fprintf( file, "Cookie: %s;\n", iohttp->cookie );
  }
 
  if( ( name ) && ( pass ) )
@@ -81,7 +81,7 @@ void iohttpFunc_main( svConnectionPtr cnt )
 
   if( ( file ) && ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
   {
-   fprintf( file, "ID : %d ( %x ) deactivated\n", id, id );
+   fprintf( file, "ID : %d ( %x ) deactivated\n\n\n", id, id );
    fclose( file );
    file = 0;
   }
@@ -145,7 +145,7 @@ iohttpFunc_frontmenu( cnt, FMENU_MAIN );
 
  if( file )
  {
-  fprintf( file, "ID : %d ( %x )\n", id, id );
+  fprintf( file, "ID : %d ( %x )\n\n\n", id, id );
   fclose( file );
   file = 0;
  }
@@ -162,7 +162,7 @@ iohttpFunc_frontmenu( cnt, FMENU_MAIN );
 
  if( file )
  {
-  fprintf( file, "Failed\n" );
+  fprintf( file, "Failed!\n\n\n" );
   fclose( file );
   file = 0;
  }
@@ -7043,7 +7043,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 			  (maild.mail).authorid = id;
 			  sprintf( (maild.mail).authorname, "%s", (cnt->dbuser)->faction );
 			  (maild.mail).authorempire = maind.empire;
-			  (maild.mail).time = time( 0 )-(3600*SERVER_TIME_ZONE);
+			  (maild.mail).time = time( 0 );
 			  (maild.mail).tick = ticks.number;
 			  (maild.mail).flags = 0;
 			  if( dbMailAdd( a, 0, &maild ) < 0 )

@@ -156,6 +156,10 @@ svSendString( cnt, "<table border=\"0\"><tr><td>" );
 svSendString( cnt, "<b>System OS</b><br>" );
 uname( &stustname );
 svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
+
+svSendPrintf( cnt, "<tr><td>Server Time</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", asctime( gettime( time(0),false ) ) );
+svSendPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", asctime( gettime( time(0),true ) ) );
+
 svSendPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", stustname.sysname, stustname.release );
 svSendPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );
 iohttpFuncConvertTime((char *)&stringuptime,sysinfod.uptime);
@@ -212,6 +216,71 @@ iohttpFunc_boxend( cnt );
 iohttpFunc_endhtml( cnt );
 
   return;
+}
+
+struct tm *gettime( int t_in, bool gmt ) {
+	time_t result;
+
+result = t_in;
+
+if( gmt ) {
+	return gmtime( &result );
+} else {
+	return localtime( &result );
+}
+
+}
+
+
+int timediff( struct tm t_in  ) {
+	int seconds;
+	struct tm variable;
+	time_t now;
+
+
+time(&now);
+/*
+printf("sec: %d\n",t_in.tm_sec);
+printf("min: %d\n",t_in.tm_min);
+printf("hor: %d\n",t_in.tm_hour);
+printf("day: %d\n",t_in.tm_mday);
+printf("mon: %d\n",t_in.tm_mon);
+printf("yer: %d\n\n",t_in.tm_year);
+*/
+variable = *localtime(&now);
+
+/*
+printf("sec: %d\n",variable.tm_sec);
+printf("min: %d\n",variable.tm_min);
+printf("hor: %d\n",variable.tm_hour);
+printf("day: %d\n",variable.tm_mday);
+printf("mon: %d\n",variable.tm_mon);
+printf("yer: %d\n\n",variable.tm_year);
+*/
+if( t_in.tm_sec != -1 ) {
+	variable.tm_sec = t_in.tm_sec;
+}
+if( t_in.tm_min != -1 ) {
+	variable.tm_min = t_in.tm_min;
+}
+if( t_in.tm_hour != -1 ) {
+	variable.tm_hour = t_in.tm_hour;
+}
+if( t_in.tm_mday != -1 ) {
+	variable.tm_mday = t_in.tm_mday;
+}
+if( t_in.tm_mon != -1 ) {
+	variable.tm_mon = t_in.tm_mon;
+}
+if( t_in.tm_year != -1 ) {
+	variable.tm_year = t_in.tm_year;
+}
+
+seconds = (int)difftime(mktime(&variable),now);
+
+//printf("dif: %d\n",seconds);
+
+return ( (seconds < 0) ? 0 : seconds );
 }
 
 

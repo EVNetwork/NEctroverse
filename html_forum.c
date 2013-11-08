@@ -411,9 +411,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    svSendString( cnt, "Error while retrieving list of forums</center></body></html>" );
    return;
   }
-  a = time( 0 )-(3600*SERVER_TIME_ZONE);
-  strftime( timebuf, 256, "%T, %b %d", localtime( (time_t *)&a ) );
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", sysconfig.servername, sysconfig.servername, timebuf );
+  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", sysconfig.servername, sysconfig.servername, asctime( gettime(time(0), true) ) );
   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
    svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
   svSendString( cnt, "</td></tr></table>" );
@@ -421,8 +419,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   svSendString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
-   strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(forums[a].time) ) );
-   svSendPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, timebuf, forums[a].tick % 52, forums[a].tick / 52 );
+   svSendPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, asctime( gettime(forums[a].time, true) ), forums[a].tick % 52, forums[a].tick / 52 );
   }
   svSendString( cnt, "</table>" );
 
@@ -464,9 +461,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forumd.title );
   if( forum < 100 )
   {
-   a = time( 0 )-(3600*SERVER_TIME_ZONE);
-   strftime( timebuf, 256, "%T, %b %d", localtime( (time_t *)&a ) );
-   svSendString( cnt, timebuf );
+   svSendString( cnt, asctime( gettime( time(0), true) ) );
    if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
     svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
    svSendString( cnt, "</td></tr></table>" );
@@ -489,7 +484,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   svSendString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
-  	strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(threads[a].time) ) );
+  	sprintf( timebuf, "%s", asctime( gettime( time(0), true) ) );
    sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
    strcat( timebuf, timetemp);
 
@@ -571,9 +566,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forum, forumd.title, threadd.topic );
   if( forum < 100 )
   {
-   a = time( 0 )-(3600*SERVER_TIME_ZONE);
-   strftime( timebuf, 256, "%T, %b %d", localtime( (time_t *)&a ) );
-   svSendString( cnt, timebuf );
+   svSendString( cnt, asctime( gettime( time(0), true) ) );
    if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
     svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
    svSendString( cnt, "</td></tr></table>" );
@@ -599,12 +592,11 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    if( !( posts[a].text ) )
     continue;
    c = a + skip;
-   if( forum < 100 )
-    strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(posts[a].post.time) ) );
-   else
-    sprintf( timebuf, "Week %d, Year %d", (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
-   svSendPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, timebuf );
-
+   if( forum < 100 ) {
+      svSendPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, asctime( gettime( posts[a].post.time, true) ) );
+   } else {
+   svSendPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
+   }
    if( iohttpForumPerms( id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, (cnt->dbuser)->faction ) ))
     svSendPrintf( cnt, "<br><a href=\"forum?forum=%d&thread=%d&editpost=%d\">Edit</a> - <a href=\"forum?forum=%d&thread=%d&delpost=%d\">Delete</a>", forum, thread, c, forum, thread, c );
    if(cnt->dbuser)
@@ -670,7 +662,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    iohttpForumFilter( threadd.authorname, namestring, 32, 0 );
   else
    sprintf( threadd.authorname, "Anonymous" );
-  threadd.time = time( 0 )-(3600*SERVER_TIME_ZONE);
+  threadd.time = time( 0 );
   threadd.tick = ticks.number;
   threadd.flags = 0;
   memcpy( &(threadd.sin_addr), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
@@ -730,7 +722,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
     sprintf( postd.post.authorname, "Anonymous" );
    postd.post.authortag[0] = 0;
   }
-  postd.post.time = time( 0 )-(3600*SERVER_TIME_ZONE);  //to be in GMT with the server running anywhere worldwide
+  postd.post.time = time( 0 );  //to be in GMT with the server running anywhere worldwide
   postd.post.tick = ticks.number;
   postd.post.flags = 0;
   memcpy( &(postd.post.sin_addr), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
@@ -863,9 +855,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 	 }
   iohttpForumFilter( &postd.text[2*IOHTTP_FORUM_BUFFER], poststring, IOHTTP_FORUM_BUFFER, a );
   postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*IOHTTP_FORUM_BUFFER], 2*IOHTTP_FORUM_BUFFER - 512 );
-  a = time( 0 )-(3600*SERVER_TIME_ZONE);
-  strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&a ) );
-  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, timebuf );
+  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, asctime( gettime(time(0), true)) );
 
   a = dbForumEditPost( forum, thread, post, &postd );
   if( a >= 0 )

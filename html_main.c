@@ -362,7 +362,7 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 svSendString ( cnt, "<br><br><h3>Register</h3><br>" );
 svSendString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
 
-svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+//svSendString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 iohttpFunc_endhtml( cnt );
 
@@ -385,14 +385,14 @@ void iohttpFunc_register2( svConnectionPtr cnt )
 
  name = pass = faction = NULL;
  iohttpVarsInit( cnt );
-name = iohttpVarsFind( "name" );
+ /*name = iohttpVarsFind( "name" );
  pass = iohttpVarsFind( "pass" );
- faction = iohttpVarsFind( "faction" );
+ faction = iohttpVarsFind( "faction" );*/
  iohttpVarsCut();
  if( ( name ) && ( pass ) && ( faction ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
 		iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
+		iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 
 		if( cmdErrorString )
 			svSendString( cnt, cmdErrorString );
@@ -403,13 +403,13 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 		goto iohttpFunc_register2L0;
 	}
   	newd[0] = ticks.number;
-	 	newd[1] = CMD_NEWS_FLAGS_NEW;
-  newd[2] = CMD_NEWS_MAIL;
-  newd[3] = 0;
-  newd[4] = 0; //From the admin
-  newd[5] = 0; //From the admin team
-  memcpy( &newd[6], "Admin", 6 );
-  cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
+	newd[1] = CMD_NEWS_FLAGS_NEW;
+	newd[2] = CMD_NEWS_MAIL;
+	newd[3] = 0;
+	newd[4] = 0; //From the admin
+	newd[5] = 0; //From the admin team
+	memcpy( &newd[6], "Admin", 6 );
+	cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
 
 
 		(maild.mail).length = strlen(Message);
@@ -417,7 +417,7 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 		(maild.mail).authorid = 0;
   sprintf( (maild.mail).authorname, "Admin" );
   (maild.mail).authorempire = 0;
-  (maild.mail).time = time( 0 )-(3600*SERVER_TIME_ZONE);
+  (maild.mail).time = time( 0 );
   (maild.mail).tick = ticks.number;
   (maild.mail).flags = 0;
   if( dbMailAdd( id, 0, &maild ) < 0 )
@@ -443,11 +443,11 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
    //fprintf( file, "Register ID %d ( %x )\n", id, id );
    a = time(0);
    strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
-   fprintf( file, "Time %s", timebuf );
-   fprintf( file, "Name %s;", name );
-   fprintf( file, "Password %s;", pass );
-   fprintf( file, "Faction %s;", faction );
-   fprintf( file, "IP %s;", inet_ntoa( cnt->sockaddr.sin_addr ) );
+   fprintf( file, "Time %s\n", timebuf );
+   fprintf( file, "Name %s;\n", name );
+   fprintf( file, "Password %s;\n", pass );
+   fprintf( file, "Faction %s;\n", faction );
+   fprintf( file, "IP %s;\n", inet_ntoa( cnt->sockaddr.sin_addr ) );
    iohttp = cnt->iodata;
    strcpy(timebuf, iohttp->user_agent);
 	  for(i=0;i<strlen(timebuf);i++)
@@ -455,9 +455,9 @@ iohttpFunc_frontmenu( cnt, FMENU_REGISTER );
 	  	if(timebuf[i] == ';')
 	  		timebuf[i] = ',';
 	  }
-	  fprintf( file, "%s;", timebuf );
-   fprintf( file, "Cookie %s;;", iohttp->cookie );
-   fprintf(file, "ID : %d ( %X );\n", id, id);
+	  fprintf( file, "User Agent: %s;\n", timebuf );
+   fprintf( file, "Cookie %s;;\n", iohttp->cookie );
+   fprintf(file, "ID : %d ( %X );\n\n\n", id, id);
    fclose( file );
   }
 } else {

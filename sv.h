@@ -18,7 +18,6 @@ typedef struct {
 	int warend;
 	int victory;
 	int ticktime;
-	int autoresume;
 	int round;
 	//evmap
 	bool evmpactv;
@@ -28,6 +27,11 @@ typedef struct {
 	char* syslog_facility;
 	//emergency breaker
 	bool shutdown;
+	//Auto Toggles
+	bool autostart;
+	bool autostop;
+	struct tm start;
+	struct tm stop;
 } configDef, *configPtr;
 
 extern configDef sysconfig;

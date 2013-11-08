@@ -10,10 +10,12 @@ fd_set svSelectRead;
 fd_set svSelectWrite;
 fd_set svSelectError;
 
-configDef sysconfig = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, true, 0, false, 0, "", "LOG_SYSLOG" };
+configDef sysconfig_default = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, 0, false, 0, "", "LOG_SYSLOG" };
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
 mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
 mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24, 0 };
+
+configDef sysconfig;
 adminDef admincfg;
 tickDef ticks;
 ircDef irccfg;
@@ -680,7 +682,19 @@ return;
 void svSignal( int signal ) {
 	int a, size;
  
-
+  if(signal == SIGUSR1)
+  {
+  	return;
+  }
+  if(signal == SIGUSR2)
+  {
+  	//Free memory db and reload it to have a new member in :P
+  	printf("Ask a dbinit\n");
+  	dbEnd();
+  	dbInit();
+  	return;
+  }
+  
 iohttpDataPtr iohttp;
 syslog(LOG_ERR, "ERROR, signal \'%s\'\n", cmdSignalNames[signal]);
 syslog(LOG_ERR, "cnt : %d\n", (int)(intptr_t)svDebugConnection);
@@ -905,9 +919,15 @@ while( sysconfig.shutdown == false ) {
 
 	if( curtime < ticks.next )
 		continue;
-
 	ticks.next += sysconfig.ticktime;
 	
+	if( ( sysconfig.autostop ) && ( timediff(sysconfig.stop) < 1 ) ) {
+		ticks.status = false;
+	} else if( ( sysconfig.autostart ) && ( timediff(sysconfig.start) < 1 ) ) {
+		ticks.status = true;
+	}
+
+
 	for( a = 0 ; a < options.interfaces ; a++ ) {
 		io = &ioInterface[a];
 		io->TickStart();
@@ -996,6 +1016,8 @@ signal( SIGSYS, &svSignal );
 signal( SIGTERM, &svSignal );
 signal( SIGTRAP, &svSignal );
 signal( SIGABRT, &svSignal );
+signal( SIGUSR1, &svSignal);
+signal( SIGUSR2, &svSignal);
 	
 srand( time(NULL) ); //Random Init
 	
@@ -1033,7 +1055,7 @@ if( chdir( DIRCHECKER ) == -1 ) {
 
 dbMapRetrieveMain( binfo );
 if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <= 0 ) ) {
-	if( ( sysconfig.autoresume == 1 ) && ( !ticks.status ) && (ticks.number) )
+	if( ( sysconfig.autostart == 1 ) && ( !ticks.status ) && (ticks.number) )
 		ticks.status = 1;
 }
 
@@ -1200,8 +1222,6 @@ if (MATCH("system", "port")) {
 	pconfig->round = atoi(value);
 } else if (MATCH("system", "tick_time")) {
 	pconfig->ticktime = atoi(value);
-} else if (MATCH("system", "autoresume")) {
-	pconfig->autoresume = strcmp(value,"false") ? true : false;
 } else if (MATCH("system", "stockpile")) {
 	pconfig->stockpile = atoi(value);
 } else if (MATCH("system", "auto_endwar_afterticks")) {
@@ -1216,9 +1236,50 @@ if (MATCH("system", "port")) {
         pconfig->syslog_tagname = strdup(value);
 } else if (MATCH("syslog", "facility")) {
         pconfig->syslog_facility = strdup(value);
+} else if (MATCH("auto_start", "enable")) {
+        pconfig->autostart = strcmp(value,"false") ? true : false;
+} else if (MATCH("auto_start", "year")) {
+        pconfig->start.tm_year = ( 100 + atoi(value) );
+} else if (MATCH("auto_start", "month")) {
+        pconfig->start.tm_mon = atoi(value);
+} else if (MATCH("auto_start", "day")) {
+        pconfig->start.tm_mday = atoi(value);
+} else if (MATCH("auto_start", "hour")) {
+        pconfig->start.tm_hour = atoi(value);
+} else if (MATCH("auto_start", "minute")) {
+        pconfig->start.tm_min = atoi(value);
+} else if (MATCH("auto_start", "second")) {
+        pconfig->start.tm_sec = atoi(value);
+} else if (MATCH("auto_stop", "enable")) {
+        pconfig->autostop = strcmp(value,"false") ? true : false;
+} else if (MATCH("auto_stop", "year")) {
+        pconfig->stop.tm_year = ( 100 + atoi(value) );
+} else if (MATCH("auto_stop", "month")) {
+        pconfig->stop.tm_mon = atoi(value);
+} else if (MATCH("auto_stop", "day")) {
+        pconfig->stop.tm_mday = atoi(value);
+} else if (MATCH("auto_stop", "hour")) {
+        pconfig->stop.tm_hour = atoi(value);
+} else if (MATCH("auto_stop", "minute")) {
+        pconfig->stop.tm_min = atoi(value);
+} else if (MATCH("auto_stop", "second")) {
+        pconfig->stop.tm_sec = atoi(value);
 } else {
         return 0;
 }
+
+
+/*
+struct tm beg;
+beg.tm_sec = 0;
+beg.tm_min = 0;
+beg.tm_hour = 0;
+beg.tm_mday = 10; //But here, from 1 ... lolz
+beg.tm_mon = 10; //Yet again, from 0
+beg.tm_year = 113; //(millenuim/year)
+timediff( beg  );
+*/
+
 
 return 1;
 }
@@ -1575,6 +1636,9 @@ if( file_exist(options.sysini) == 0 ) {
 	printf("Loading config from file: \'%s\'\n",options.sysini);
 	fflush(stdout);
 }
+
+memset( &sysconfig, 0, sizeof(configDef) );
+memcpy(&sysconfig, &sysconfig_default, sizeof(configDef) );
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
