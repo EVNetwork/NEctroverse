@@ -2245,25 +2245,25 @@ if ( curfam == maind.empire ) {
 
 }
  svSendString( cnt, "</table><br>" );
-
-if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) {
-	svSendString( cnt, "Empire Fund: " );
-	if( empired.taxation ) {
-		svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
-	} else {
-		svSendString( cnt, "<i>No tax set</i>" );
+if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( cnt->dbuser ) && ( (cnt->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
+	if( ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( (cnt->dbuser)->level >= LEVEL_MODERATOR ) ) {
+		svSendString( cnt, "Empire Fund: " );
+		if( empired.taxation ) {
+			svSendPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
+		} else {
+			svSendString( cnt, "<i>No tax set</i>" );
+		}
+		svSendString( cnt, "<table>" );
+		svSendString( cnt, "<tr>" );
+		svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], (long long)empired.fund[CMD_RESSOURCE_ENERGY] );
+		svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_CRYSTAL], (long long)empired.fund[CMD_RESSOURCE_CRYSTAL] );
+		svSendString( cnt, "</tr><tr>" );
+		svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_MINERAL], (long long)empired.fund[CMD_RESSOURCE_MINERAL] );
+		svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ECTROLIUM], (long long)empired.fund[CMD_RESSOURCE_ECTROLIUM] );
+		svSendString( cnt, "</tr>" );
+		svSendString( cnt, "</table>" );
 	}
-	svSendString( cnt, "<table>" );
-	svSendString( cnt, "<tr>" );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ENERGY], (long long)empired.fund[CMD_RESSOURCE_ENERGY] );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_CRYSTAL], (long long)empired.fund[CMD_RESSOURCE_CRYSTAL] );
-	svSendString( cnt, "</tr><tr>" );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_MINERAL], (long long)empired.fund[CMD_RESSOURCE_MINERAL] );
-	svSendPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ECTROLIUM], (long long)empired.fund[CMD_RESSOURCE_ECTROLIUM] );
-	svSendString( cnt, "</tr>" );
-	svSendString( cnt, "</table>" );
 }
-
 
  if( empired.artefacts )
  {

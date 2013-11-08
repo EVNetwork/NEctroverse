@@ -997,7 +997,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   int a, b, c, cmd[2], id;
   int *buffer;
   char *action[33];
-  char fname[200];
+  //char fname[200];
   char curdir[1024];
   dbForumForumDef forumd;
   dbUserFleetDef fleetd;
@@ -1474,25 +1474,15 @@ sysconfig.shutdown = true;
     svSendPrintf( cnt, "Deleted ip %s ; %d threads<br><br>", action[26], a );
   }
 
-	//Round is done we send a signal to the server so he know it (its a signal so we can do a script with that)
 	if( action[30] )
   {
-  	//Signal to round end
-		if( system("kill -n 10 $(pidof svt)") )
-			svSendString( cnt, "Executed command \"kill -n 10 $(pidof svt)\"<br><br>" );
-		else
-			svSendString( cnt, "Executed command \"kill -n 10 $(pidof svt)\"<br><br>" );
+	svSendString( cnt, "Action disabled by Necro...!!<br><br>" );
 
   }
 
-	//Send some text to OS via system command
 	if( action[31] )
   {
-		iohttpForumFilter( fname, action[31], 200, 0 );
-		if( system(fname) )
-			svSendPrintf( cnt, "Executed command %s<br><br>", fname );
-		else
-			svSendPrintf( cnt, "Error with command %s<br><br>", fname );
+	svSendString( cnt, "Action disabled by Necro...!!<br><br>" );
   }
 
 

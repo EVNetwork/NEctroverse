@@ -1241,7 +1241,7 @@ if (MATCH("system", "port")) {
 } else if (MATCH("auto_start", "year")) {
         pconfig->start.tm_year = ( 100 + atoi(value) );
 } else if (MATCH("auto_start", "month")) {
-        pconfig->start.tm_mon = atoi(value);
+        pconfig->start.tm_mon = ( atoi(value) - 1 );
 } else if (MATCH("auto_start", "day")) {
         pconfig->start.tm_mday = atoi(value);
 } else if (MATCH("auto_start", "hour")) {
@@ -1255,7 +1255,7 @@ if (MATCH("system", "port")) {
 } else if (MATCH("auto_stop", "year")) {
         pconfig->stop.tm_year = ( 100 + atoi(value) );
 } else if (MATCH("auto_stop", "month")) {
-        pconfig->stop.tm_mon = atoi(value);
+        pconfig->stop.tm_mon = ( atoi(value) - 1 );
 } else if (MATCH("auto_stop", "day")) {
         pconfig->stop.tm_mday = atoi(value);
 } else if (MATCH("auto_stop", "hour")) {
