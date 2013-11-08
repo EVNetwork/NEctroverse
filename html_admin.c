@@ -1052,12 +1052,11 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
 
 if( action[0] ) {
 	if( getcwd( curdir, 1024 ) ) {
-		loghandle(LOG_INFO, "%s", "Admin is Reloading files" );
+		loghandle(LOG_INFO, false, "%s", "Admin is Reloading files" );
 		EndHTTP();
 		InitHTTP();
 		if( chdir( curdir ) != 1 ) {
-			loghandle(LOG_INFO, "Error %03d, changing DIR in Admin to: \'%s\'", errno, curdir );
-			loghandle(LOG_INFO, "Error description is : %s",strerror(errno) );
+			loghandle(LOG_INFO, errno, "Error %03d, changing DIR in Admin to: \'%s\'", errno, curdir );
 
 		}
 	}

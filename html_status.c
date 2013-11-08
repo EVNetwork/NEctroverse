@@ -68,7 +68,7 @@ pid = getpid();
 sprintf( fname, "/proc/%d/stat", pid );
 if( ( file = fopen( fname, "r" ) ) ) {
 	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %u %u %u %u %d %d %*d %*d %d %*d %*u %*u %u %u %u", &proginfo->stcminflt, &proginfo->stminflt, &proginfo->stmajflt, &proginfo->stcmajflt, &proginfo->stutime, &proginfo->ststime, &proginfo->stpriority, &proginfo->ststarttime, &proginfo->stvsize, &proginfo->strss ) != 10 ) {
-	loghandle(LOG_ERR, "Error getting process stat Info...");
+	loghandle(LOG_ERR, errno, "%s", "Error getting process stat Info...");
 	}
 	fclose( file );
 }
@@ -96,7 +96,7 @@ void iohttpFunc_status( svConnectionPtr cnt ) {
 cpuGetInfo( &cpuinfo );
 
 if( sysinfo(&sysinfod) != 0 ) {
-	loghandle(LOG_ERR, "Failure getting system infomation... Critical failure." );
+	loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
 

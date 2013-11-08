@@ -12,7 +12,7 @@ vsnprintf(sbuf, 512, fmt, ap);
 va_end(ap);
 strncat(sbuf, ender, 512 - strlen(sbuf) - 1);
 if( options.verbose )
-	loghandle(LOG_INFO, "Sending to IRC: %s", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines.
+	loghandle(LOG_INFO, false, "Sending to IRC: %s", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines.
 send(options.botconn, sbuf, strlen(sbuf), 0);
 
 return;
@@ -38,7 +38,7 @@ if( (sl = read(options.botconn, sbuf, 512)) ) {
 			l = o;
 			o = -1;
 			//if( options.verbose )
-			//	loghandle(LOG_INFO, ">> %s", buf); //Purely optional, and not really suggested... since it will output EVERYTHING from the IRC network.
+			//	loghandle(LOG_INFO, false, ">> %s", buf); //Purely optional, and not really suggested... since it will output EVERYTHING from the IRC network.
 
                 	if (!strncmp(buf, "PING", 4)) {
 				buf[1] = 'O';
@@ -108,23 +108,20 @@ hints.ai_socktype = SOCK_STREAM;
 getaddrinfo(irccfg.host, irccfg.port, &hints, &res);
 options.botconn = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 if( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1) {
-	loghandle(LOG_ERR, "Error %03d, ircbot unable to connect", errno );
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
 
 a = 1;
 if( setsockopt( options.botconn, SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
-	loghandle(LOG_ERR, "Error %03d, set bot sockopt", errno );
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "Error %03d, set bot sockopt", errno );
 	close( options.botconn );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
 if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
-	loghandle(LOG_ERR, "Error %03d, setting non-blocking on port:", errno );
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "Error %03d, setting non-blocking on port:", errno );
 	close( options.botconn );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
@@ -179,8 +176,7 @@ if( !( strcmp(sub,"status") ) ){
 		ircbot_send("PRIVMSG %s :Good bye all, untill next time! =)", irccfg.channel);
 		ircbot_send("QUIT");
 		if( close( options.botconn ) == -1 ) {
-			loghandle(LOG_ERR, "Error %03d, closing ircbot socket", errno);
-			loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+			loghandle(LOG_ERR, errno, "Error %03d, closing ircbot socket", errno);
 		}
 		irccfg.bot = false;
 	}

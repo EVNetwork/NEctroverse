@@ -25,7 +25,7 @@ strcat(salted, str2md5(urandom) );
 
 if( (fh = fopen("/dev/urandom", "rb")) ) {
 	if( fread( &random, 1, 32, fh ) < 1 ) {
-		loghandle(LOG_ERR, "Error Getting random for MD5... Critical failure." );
+		loghandle(LOG_ERR, errno, "Error Getting random for MD5... Critical failure." );
 	}
 	fclose(fh);
 }
@@ -95,7 +95,7 @@ char *md5file( char *filename ) {
 	MD5_CTX mdContext;
 
 if (inFile == NULL) {
-	loghandle(LOG_ERR, "Error opening file for md5 hash: \"%s\"", filename );
+	loghandle(LOG_ERR, errno, "Error opening file for md5 hash: \"%s\"", filename );
         return 0;
 }
 

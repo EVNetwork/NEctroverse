@@ -256,8 +256,7 @@ FILE *dbFileGenOpen( int num ) {
 	}
     
 	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
-		loghandle(LOG_ERR, "DBGen: %02d, Can't open \"%s\"", errno, szSource );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		loghandle(LOG_ERR, errno, "DBGen: %02d, Can't open \"%s\"", errno, szSource );
 		return 0;
 	}
 
@@ -305,8 +304,7 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 	}
 
 	if( num < 0x10000 ) {
-		loghandle(LOG_ERR, "Error %02d, fopen %s", errno, fname );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		loghandle(LOG_ERR, errno, "Error %02d, fopen %s", errno, fname );
 	}
 
 	return 0;
@@ -341,8 +339,7 @@ FILE *dbFileFamOpen( int id, int num )
       return file;
     }
 	if( num < 0x10000 ) {
-		loghandle(LOG_ERR, "Error %02d, fopen %s", errno, fname );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		loghandle(LOG_ERR, errno, "Error %02d, fopen %s", errno, fname );
 	}
     return 0;
   }
@@ -362,10 +359,9 @@ dbUserPtr dbUserAllocate( int id )
   char pass[128];
   dbUserPtr user;
 if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
-	syslog(LOG_ERR, "Error, malloc dbuser failed" );
-	syslog(LOG_ERR, "Error description is : %s",strerror(errno) );
-    return 0;
-  }
+	loghandle(LOG_ERR, errno, "%s", "Error, malloc dbuser failed" );
+	return 0;
+}
   memset( user, 0, sizeof(dbUserDef) );
   user->prev = (void **)&(dbUserList);
   user->next = dbUserList;
@@ -460,8 +456,7 @@ int dbInit() {
 	
 sprintf( COREDIR, "%s/data", sysconfig.directory );
 if( chdir( COREDIR ) == -1 ) {
-	loghandle(LOG_ERR, "Error %02d, db chdir, Dir: %s", errno, COREDIR );
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "Error %02d, db chdir, Dir: %s", errno, COREDIR );
 	return 0;
 }
 
@@ -469,11 +464,10 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
 	return 0;
 
 if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
-	loghandle(LOG_INFO, "Market database not found, creating..." );
+	loghandle(LOG_INFO, false, "%s", "Market database not found, creating..." );
 
 	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
-		loghandle(LOG_ERR, "%s", "Error, could not create market database!" );
-		loghandle(LOG_ERR, "Error description is : %s", strerror(errno) );
+		loghandle(LOG_ERR, errno, "%s", "Error, could not create market database!" );
 		return 0;
 	}
 
@@ -493,10 +487,11 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 
 sprintf( COREDIR, "%s/forums", sysconfig.directory );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
-	loghandle(LOG_INFO, "Forum database not found, creating..." );
+	if( options.verbose )
+	printf("Forum database not found, creating...\n" );
+	syslog(LOG_INFO, "Forum database not found, creating...\n" );
 	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
-		loghandle(LOG_ERR, "%s", "Error, could not create forum database!" );
-		loghandle(LOG_ERR, "Error description is : %s", strerror(errno) );
+		loghandle(LOG_ERR, errno, "%s", "Error, could not create forum database!" );
 		return 0;
 	}
 	a = 0;
@@ -512,17 +507,20 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( &forumd, 1, 100+a );
 	}
-	loghandle(LOG_INFO, "Created Forums for %d Empires.", a-1 );
+	if( options.verbose )
+	printf("Created Forums for %d Empires.\n", a-1 );
+	syslog(LOG_INFO, "Created Forums for %d Empires.\n", a-1 );
 
 }
 fclose( file );
 
 sprintf( COREDIR, "%s/forums", sysconfig.pubforum );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
-	loghandle(LOG_INFO, "%s", "Public Forum database not found, creating..." );
+	if( options.verbose )
+	printf("Public Forum database not found, creating...\n" );
+	syslog(LOG_INFO, "Public Forum database not found, creating...\n" );
 	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
-		loghandle(LOG_ERR, "%s", "Error, could not create public forum database!" );
-		loghandle(LOG_ERR, "Error description is : %s", strerror(errno) );
+		loghandle(LOG_ERR, errno, "%s", "Error, could not create public forum database!" );
 		return 0;
 	}
 	a = 0;
@@ -532,14 +530,15 @@ fclose( file );
 
 
 if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
-	loghandle(LOG_INFO, "%s", "User database not found, creating..." );
+	if( options.verbose )
+	printf("User database not found, creating...\n" );
+	syslog(LOG_INFO, "User database not found, creating...\n" );
 
     // Create a path to the users file in the same way as dbFileGenOpen
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
 	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
 	if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) ) {
-		loghandle(LOG_ERR, "%s", "Error, could not create user database!" );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		loghandle(LOG_ERR, errno, "%s", "Error, could not create user database!" );
 		return 0;
 	}
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
@@ -555,7 +554,9 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 
 fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
 if( fread( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
-	loghandle(LOG_ERR, "%s", "Failure reading file x01: Userbase"  );
+ 	if( options.verbose )
+		printf("Failure reading file x01: Userbase\n" );
+	syslog(LOG_ERR, "Failure reading file x01: Userbase\n"  );
 }
 
 for( a = 0 ; a < b ; a++ ) {
@@ -568,7 +569,9 @@ for( a = 0 ; a < b ; a++ ) {
 	}
 
 	if( !(	dbUserInfoRetrieve( a, &infod ) ) ) {
-		loghandle(LOG_ERR, "Failure reading file x02.0 for user; %d", a );
+	 	if( options.verbose )
+			printf("Failure reading file x02.0 for user; %d\n", a );
+		syslog(LOG_ERR, "Failure reading file x02.0 for user; %d\n", a );
 	}
 	user->level = infod.level;
 	user->flags = infod.flags;
@@ -735,12 +738,7 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		if( options.verbose ) {
-			printf("Data: %02d, fopen dbuseradd\n", errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Data: %02d, fopen dbuseradd\n", errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, errno, "Data: %02d, fopen dbuseradd", errno );
 		return -3;
 	}
 	if( a == 0 )
@@ -762,8 +760,12 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		loghandle(LOG_ERR, "User: %02d, fopen dbuseradd", errno );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		if( options.verbose ) {
+			printf("User: %02d, fopen dbuseradd\n", errno );
+			printf("Error description is : %s\n",strerror(errno) );
+		}
+		syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
+		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
 		return -3;
 	}
 	if( a == 0 )

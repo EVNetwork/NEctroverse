@@ -40,8 +40,7 @@ iohttpFilePtr iohttpFileAdd( int size )
   char *mem;
   if( !( mem = malloc( sizeof(iohttpFileDef) + size ) ) )
   {
-    loghandle(LOG_ERR, "Error %03d, malloc", errno );
-    loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+    loghandle(LOG_ERR, errno, "Error %03d, malloc", errno );
     return 0;
   }
   file = (iohttpFilePtr)mem;
@@ -101,13 +100,11 @@ void InitHTTP() {
 for(a = 0; a < HTTP_DIR_TOTAL; a++) {
 	sprintf( COREDIR, dbImageDirs[a], sysconfig.httpimages );
 	if( chdir( COREDIR ) == -1 ) {
-		loghandle(LOG_ERR, "HTTP Error %d, chdir, Dir : %s", errno, COREDIR );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		loghandle(LOG_ERR, errno, "HTTP Error %d, chdir, Dir : %s", errno, COREDIR );
 		continue;
 	}
 	if( !( dirdata = opendir( COREDIR ) ) ) {
-		loghandle(LOG_ERR, "HTTP Error %03d, opendir: %s", errno, COREDIR );
-		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+		loghandle(LOG_ERR, errno, "HTTP Error %03d, opendir: %s", errno, COREDIR );
 		continue;
 	}
 	while( ( direntry = readdir( dirdata ) ) ) {
@@ -120,8 +117,7 @@ for(a = 0; a < HTTP_DIR_TOTAL; a++) {
 		if( !( fd = fopen( direntry->d_name, "rb" ) ) )
 			continue;
 		if( !( file = iohttpFileAdd( stdata.st_size ) ) ) {
-			loghandle(LOG_ERR, "HTTP Error %03d, malloc for: %s", errno, direntry->d_name );
-			loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+			loghandle(LOG_ERR, errno, "HTTP Error %03d, malloc for: %s", errno, direntry->d_name );
 			fclose( fd );
 			continue;
 		}
@@ -134,8 +130,7 @@ for(a = 0; a < HTTP_DIR_TOTAL; a++) {
 		strcat( &file->path[1], "/" );
 		strcat( &file->path[1], direntry->d_name );
 		if( fread( file->data, 1, file->size, fd ) < 1 ) {
-			loghandle(LOG_ERR, "Error %03d, reading file for http: %s", errno, file->path);
-			loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+			loghandle(LOG_ERR, errno, "Error %03d, reading file for http: %s", errno, file->path);
 		}
 		fclose( fd );
 	}
@@ -144,13 +139,11 @@ for(a = 0; a < HTTP_DIR_TOTAL; a++) {
 
 
 if( chdir( sysconfig.httpfiles ) == -1 ) {
-	loghandle(LOG_ERR, "HTTP Error %d, chdir, Dir : %s", errno, sysconfig.httpfiles );
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "HTTP Error %d, chdir, Dir : %s", errno, sysconfig.httpfiles );
 	return;
 }
 if( !( dirdata = opendir( sysconfig.httpfiles ) ) ) {
-	loghandle(LOG_ERR, "HTTP Error %d, opendir : %s", errno, sysconfig.httpfiles );
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "HTTP Error %d, opendir : %s", errno, sysconfig.httpfiles );
 
 	return;
 }
@@ -752,8 +745,7 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     }
     data[stdata.st_size] = 0;
     if( ( fread( data, 1, stdata.st_size, fd ) < 1 ) && (stdata.st_size) ) {
-	loghandle(LOG_ERR, "Error %03d; reading file for http: %s", errno, path);
-	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
+	loghandle(LOG_ERR, errno, "Error %03d; reading file for http: %s", errno, path);
     }
 
 

@@ -1575,9 +1575,9 @@ int cmdInit() {
 if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;
 
-loghandle(LOG_INFO, "Creating Administrator account named: \"%s\"", admincfg.name );
+loghandle(LOG_INFO, false, "Creating Administrator account named: \"%s\"", admincfg.name );
 if( ( id = cmdExecNewUser( admincfg.name, admincfg.password, admincfg.faction ) ) < 0 ) {
-	loghandle(LOG_INFO, "Failure Creating Administrator account: \"%s\"", admincfg.name );
+	loghandle(LOG_INFO, false, "Failure Creating Administrator account: \"%s\"", admincfg.name );
 	return 0;
 }
 user = dbUserLinkID( id );
@@ -1589,7 +1589,7 @@ sprintf( infod.forumtag, "%s", admincfg.forumtag );
 dbUserInfoSet(id, &infod);
 
 if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race, admincfg.level ) < 0 ) {
-	loghandle(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );
+	loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name );
 	return 0;
 }
 
