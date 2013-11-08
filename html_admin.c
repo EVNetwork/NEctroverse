@@ -1058,9 +1058,13 @@ if( action[0] ) {
 		EndHTTP();
 		InitHTTP();
 		if( chdir( curdir ) != 1 ) {
-			if( options.verbose )
-				printf("Error changing DIR in Admin!\n" );
-			syslog(LOG_INFO, "Error changing DIR in Admin!\n" );
+			if( options.verbose ) {
+					printf("Error %03d, changing DIR in Admin to: \'%s\'\n", errno, curdir );
+					printf("Error description is : %s\n",strerror(errno) );
+				}
+			syslog(LOG_INFO, "Error %03d, changing DIR in Admin to: \'%s\'\n", errno, curdir );
+			syslog(LOG_INFO, "Error description is : %s\n",strerror(errno) );
+
 		}
 	}
 	svSendString( cnt, "<i>HTTP files reloaded</i><br><br>" );

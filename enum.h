@@ -625,6 +625,7 @@ CONFIG_SYSTEM,
 CONFIG_BANNED,
 };
 
+#define MAXIPRECORD (6) //It's really 5.
 
 enum
 {

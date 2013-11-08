@@ -14,7 +14,7 @@ typedef struct
   char forumtag[32];
   int session[4];
   int lasttime;
-  struct in_addr sin_addr;
+
   //Pointers for next/last user in list.
   void *next;
   void **prev;
@@ -35,8 +35,8 @@ typedef struct
   char email[128];
   char faction[32];
   char forumtag[32];
-  struct in_addr sin_addr;
   char desc[4096];
+  struct in_addr sin_addr[MAXIPRECORD];
 } dbUserInfoDef, *dbUserInfoPtr;
 
 int dbUserInfoSet( int id, dbUserInfoPtr info );

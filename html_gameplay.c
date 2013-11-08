@@ -71,6 +71,12 @@ void iohttpFunc_main( svConnectionPtr cnt )
 
   dbUserInfoRetrieve( id, &infod );
   infod.lasttime = time( 0 );
+  for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
+	if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
+		memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+	}
+  }
+  memcpy( &(infod.sin_addr[0]), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
   dbUserInfoSet( id, &infod );
 
   if( ( file ) && ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
@@ -1672,8 +1678,9 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
    continue;
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br>", cmdUnitName[a] );
 
-   if( a < 5 )
+   if( ( a < CMD_UNIT_SOLDIER ) || ( a == CMD_UNIT_EXPLORATION ) )
       svSendPrintf( cnt, "<img src=\"images/u%d.jpg\">", a );
+
 
   svSendString( cnt, "</td><td valign=\"top\" nowrap>" );
 
