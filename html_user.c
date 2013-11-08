@@ -20,10 +20,7 @@ void iohttpFunc_account( svConnectionPtr cnt )
     return;
 
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user html info, getting real info\n" );
-	}
-	syslog(LOG_ERR, "Error in user html info, getting real info\n" );
+	loghandle(LOG_ERR, "%s", "Error in user html info, getting real info" );
 	return;
 }
   iohttpBodyInit( cnt, "Account Options" );
@@ -182,10 +179,7 @@ void iohttpFunc_delete( svConnectionPtr cnt )
   if( !( iohttpHeader( cnt, id, &maind ) ) )
     return;
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user html delete, getting real info\n" );
-	}
-	syslog(LOG_ERR, "Error in user html delete, getting real info\n" );
+	loghandle(LOG_ERR, "%s", "Error in user html delete, getting real info" );
 	return;
 }
   iohttpBodyInit( cnt, "Delete faction" );

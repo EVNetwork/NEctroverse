@@ -21,9 +21,7 @@ void iohttpFunc_ajax( svConnectionPtr cnt ) {
 cpuGetInfo( &cpuinfo );
 
 if( sysinfo(&sysinfod) != 0 ) {
- 	if( options.verbose )
-		printf("Failure getting system infomation... Critical failure.\n");
-	syslog(LOG_ERR, "Failure getting system infomation... Critical failure." );
+	loghandle(LOG_ERR, "%s", "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
 
@@ -213,9 +211,7 @@ svSendPrintf( cnt, "var sec = %d;\n", javatime.seconds );
 svSendPrintf( cnt, "var min = %d;\n", javatime.minutes );
 if( !strcmp(refer,"status") ) {
 if( sysinfo(&sysajaxd) != 0 ) {
- 	if( options.verbose )
-		printf("Failure getting system infomation... Critical failure.\n");
-	syslog(LOG_ERR, "Failure getting system infomation... Critical failure." );
+	loghandle(LOG_ERR, "%s", "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
 

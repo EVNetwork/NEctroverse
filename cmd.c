@@ -1575,13 +1575,10 @@ int cmdInit() {
 if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
 	return 1;
 
-if( options.verbose )
-	printf("Creating Administrator account named: \"%s\"\n", admincfg.name );
-syslog(LOG_INFO, "Creating Administrator account named: \"%s\"", admincfg.name );
+loghandle(LOG_INFO, "Creating Administrator account named: \"%s\"", admincfg.name );
 if( ( id = cmdExecNewUser( admincfg.name, admincfg.password, admincfg.faction ) ) < 0 ) {
-	if( options.verbose )
-		printf("Failure Creating Administrator account: \"%s\"\n", admincfg.name );
-	syslog(LOG_INFO, "Failure Creating Administrator account: \"%s\"", admincfg.name );
+	loghandle(LOG_INFO, "Failure Creating Administrator account: \"%s\"", admincfg.name );
+	return 0;
 }
 user = dbUserLinkID( id );
 user->flags = 0;
@@ -1592,9 +1589,8 @@ sprintf( infod.forumtag, "%s", admincfg.forumtag );
 dbUserInfoSet(id, &infod);
 
 if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race, admincfg.level ) < 0 ) {
-	if( options.verbose )
-		printf("Failure Placing Administrator account: \"%s\"\n", admincfg.name );
-	syslog(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );
+	loghandle(LOG_INFO, "Failure Placing Administrator account: \"%s\"", admincfg.name );
+	return 0;
 }
 
 dbFlush();

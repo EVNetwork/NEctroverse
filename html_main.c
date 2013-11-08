@@ -421,7 +421,7 @@ void iohttpFunc_register2( svConnectionPtr cnt )
   (maild.mail).tick = ticks.number;
   (maild.mail).flags = 0;
   if( dbMailAdd( id, 0, &maild ) < 0 )
-	syslog(LOG_ERR, "Error sending registration email\n" );
+	loghandle(LOG_ERR, "Error sending registration email" );
 
 
   if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
@@ -764,9 +764,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
-				if( options.verbose )
-					printf("Failure reading faq file.\n");
-				syslog(LOG_INFO, "Failure reading faq file." );
+				loghandle(LOG_ERR, "%s", "Failure reading faq file." );
 			} else {
 				svSendString( cnt, trimwhitespace(data) );
 			}

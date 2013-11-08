@@ -46,22 +46,14 @@ c=0;
 for( b = 0 ; b < options.interfaces ; b++ ) {
 	svListenSocket[b] = socket( AF_INET, SOCK_STREAM, 0 );
 	if( svListenSocket[b] == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, creating listening socket\n", errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, creating listening socket\n", errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, creating listening socket", errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		continue;
 	}
 	a = 1;
 	if( setsockopt( svListenSocket[b], SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, setsockopt\n", errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, setsockopt\n", errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, setsockopt", errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
@@ -70,47 +62,31 @@ for( b = 0 ; b < options.interfaces ; b++ ) {
 	sinInterface.sin_addr.s_addr = htonl(INADDR_ANY);
 	sinInterface.sin_port = htons( options.port[b] );
 	if( bind( svListenSocket[b], (struct sockaddr *)&sinInterface, sizeof(struct sockaddr_in) ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, binding listening socket to port: %d\n", errno, options.port[b] );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, binding listening socket to port: %d\n", errno, options.port[b] );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, binding listening socket to port: %d", errno, options.port[b] );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	}
 	if( listen( svListenSocket[b], SOMAXCONN ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, listen on port: %d\n", errno, options.port[b] );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, listen on port: %d\n", errno, options.port[b] );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, listen on port: %d", errno, options.port[b] );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} 
 	if( fcntl( svListenSocket[b], F_SETFL, O_NONBLOCK ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, setting non-blocking on port: %d\n", errno, options.port[b] );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, setting non-blocking on port: %d\n", errno, options.port[b] );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, setting non-blocking on port: %d", errno, options.port[b] );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		close( svListenSocket[b] );
 		svListenSocket[b] = -1;
 		continue;
 	} else { c++; }
-	if( options.verbose )
-		printf("Server awaiting connections on port: %d\n", options.port[b] );
-	syslog(LOG_ERR, "Server awaiting connections on port: %d\n", options.port[b] );
+	loghandle(LOG_ERR, "Server awaiting connections on port: %d", options.port[b] );
 }
 
 if ( c == 0 ) {
-	if( options.verbose )
-		printf("Server Binding failed, ports are not avalible/allowed!!\n" );
-	syslog(LOG_CRIT, "Server Binding failed, ports are not avalible/allowed!!\n" );
+	loghandle(LOG_CRIT, "Server Binding failed, ports are not avalible/allowed!!" );
 //Empty Return to indicate no ports avaliable, and server can not iniate.
 	return 0;
 }
@@ -128,11 +104,9 @@ if( type ) {
 	close(options.serverpipe);
 	sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
-	syslog(LOG_INFO, "Server has been Completly shutdown!\n" );
-	syslog(LOG_INFO, "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>\n" );
+	loghandle(LOG_INFO, "%s", "Server has been Completly shutdown!" );
+	syslog(LOG_INFO, "%s", "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>" ); //Don't really need this, but meh... why not!
 	closelog();
-if( options.verbose )
-	printf("Server has been Completly shutdown!\n");
 } else {
 	close(options.clientpipe);
 	sprintf( DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
@@ -146,9 +120,7 @@ void svEnd() {
 	int a;
 	svConnectionPtr cnt, next;
 
-if( options.verbose )
-	printf("Shutdown called, begin deamon breakdown...\n" );
-syslog(LOG_INFO, "Shutdown called, begin deamon breakdown...\n" );
+loghandle(LOG_INFO, "Shutdown called, begin deamon breakdown..." );
 
 for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	next = cnt->next;
@@ -159,24 +131,14 @@ for( a = 0 ; a < options.interfaces ; a++ ) {
 		continue;
 	//Error 009 means not connected, so we ignore that "error" now... afterall we are closing connections here.
    	if( ( shutdown( options.port[a], 2 ) == -1 ) && ( errno != 9 ) ) {
-		if( options.verbose ) {
-			printf("Error %03d, unable to shutdown listening socket: %d\n", errno, options.port[a] );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, unable to shutdown listening socket: %d\n", errno, options.port[a] );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, unable to shutdown listening socket: %d", errno, options.port[a] );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	}
  	if( close( svListenSocket[a] ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, closing socket: %d\n", errno, options.port[a] );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, closing socket: %d\n", errno, options.port[a] );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, closing socket: %d", errno, options.port[a] );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	} else {
-		if( options.verbose )
-			printf("Server released port: %d\n", options.port[a] );
-		syslog(LOG_INFO, "Server released port: %d\n", options.port[a] );
+		loghandle(LOG_INFO, "Server released port: %d", options.port[a] );
 		}
 
    	}
@@ -198,50 +160,29 @@ for( b = 0 ; b < options.interfaces ; b++ ) {
 	if( socket == -1 ) {
 		if( errno == EWOULDBLOCK )
 			continue;
-		if( options.verbose ) {
-			printf("Error %03d, failed to accept a connection %s\n", errno, inet_ntoa(sockaddr.sin_addr) );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, failed to accept a connection %s\n", errno, inet_ntoa(sockaddr.sin_addr) );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, failed to accept a connection %s", errno, inet_ntoa(sockaddr.sin_addr) );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		continue;
-		if( options.verbose ) {
-			printf("This is a critical problem... should we really keep going past this?? - We do anways.\n" );
-		}
-		syslog(LOG_CRIT, "This is a critical problem... should we really keep going past this?? - We do anways.\n" );
+		loghandle(LOG_CRIT, "This is a critical problem... should we really keep going past this?? - We do anways." );
 	}
 	if( socket >= FD_SETSIZE ) {
-		if( options.verbose )
-		printf("Error, socket >= FD_SETSIZE, %d\n", socket );
-		syslog(LOG_ERR, "Error, socket >= FD_SETSIZE, %d\n", socket );
+		loghandle(LOG_ERR, "Error, socket >= FD_SETSIZE, %d", socket );
 		if( close( socket ) == -1 ) {
-			if( options.verbose ) {
-				printf("Error %03d, unable to close socket\n", errno );
-				printf("Error description is : %s\n",strerror(errno) );
-			}
-			syslog(LOG_ERR, "Error %03d, unable to close socket\n", errno );
-			syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+			loghandle(LOG_ERR, "Error %03d, unable to close socket", errno );
+			loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		}
 	continue;
 }
 #if SERVER_REPORT_CONNECT == 1
 else
-if( options.verbose )
-printf("Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
-syslog(LOG_INFO, "Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
+loghandle(LOG_INFO, "Accepting connection from %s:%d>%d", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
 #endif
 
 	if( !( cnt = malloc( sizeof(svConnectionDef) ) ) ) {
-		if( options.verbose )
-			printf("ERROR, not enough memory to create a connection structure\n");	
-		syslog(LOG_ERR, "ERROR, not enough memory to create a connection structure\n" );
+		loghandle(LOG_ERR, "ERROR, not enough memory to create a connection structure" );
 		if( close( socket ) == -1 ) {
-			if( options.verbose ) {
-				printf("Error %03d, unable to close socket\n", errno );	
-				printf("Error description is : %s\n",strerror(errno) );
-			}
-			syslog(LOG_ERR, "Error %03d, unable to close socket\n", errno );
-			syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+			loghandle(LOG_ERR, "Error %03d, unable to close socket", errno );
+			loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		}
 		continue;
 	}
@@ -271,22 +212,14 @@ syslog(LOG_INFO, "Accepting connection from %s:%d>%d\n", inet_ntoa( sockaddr.sin
 #if SERVER_NAGLE_BUFFERING == 0
 	a = 1;
 	if( setsockopt( socket, IPPROTO_TCP, TCP_NODELAY, (char *)&a, sizeof(int) ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, setsockopt\n", errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, setsockopt\n", errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, setsockopt", errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	}
 #endif
 
 	if( fcntl( socket, F_SETFL, O_NONBLOCK ) == -1 ) {
-		if( options.verbose ) {
-			printf("Error %03d, setting a socket to non-blocking\n", errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %03d, setting a socket to non-blocking\n", errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, setting a socket to non-blocking", errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	}
 
 	cnt->socket = socket;
@@ -340,12 +273,8 @@ to.tv_usec = ( SERVER_SELECT_MSEC % 1000 ) * 1000;
 to.tv_sec = SERVER_SELECT_MSEC / 1000;
 
 if( ( select( rmax+1, &svSelectRead, &svSelectWrite, &svSelectError, &to ) < 0 ) && (sysconfig.shutdown == false) ) {
-	if( options.verbose ) {
-		printf("Error %03d, select()\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %03d, select()\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	loghandle(LOG_ERR, "Error %03d, select()", errno );
+	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	return;
 }
 
@@ -367,24 +296,16 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 	io = cnt->io;
 	if( ( time - cnt->time >= io->timeout ) && !( cnt->flags & SV_FLAGS_TIMEOUT ) ) {
 		#if SERVER_REPORT_ERROR == 1
-		if( options.verbose ) {
-			printf("%s>%d Timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "%s>%d Timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "%s>%d Timeout : %d", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		#endif
 		io->inError( cnt, 0 );
 		cnt->flags |= SV_FLAGS_TIMEOUT;
 	}
 	if( time - cnt->time >= io->hardtimeout ) {
 		#if SERVER_REPORT_ERROR == 1
-		if( options.verbose ) {
-			printf("%s>%d Hard timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "%s>%d Hard timeout : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "%s>%d Hard timeout : %d", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		#endif
 		svFree( cnt );
 		continue;
@@ -437,12 +358,8 @@ for( cnt = svConnectionList ; cnt ; cnt = next ) {
 		if( ( a == -1 ) && ( errno == EWOULDBLOCK ) )
 			continue;
 		#if SERVER_REPORT_ERROR == 1
-		if( options.verbose ) {
-			printf("Connection to %s>%d died : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_INFO, "Connection to %s>%d died : %d\n", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_INFO, "Connection to %s>%d died : %d", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		#endif
 		io->inClosed( cnt );
 		svFree( cnt );
@@ -465,9 +382,7 @@ return;
 void svShutdown( svConnectionPtr cnt ) {
 
 #if SERVER_REPORT_CLOSE == 1
-if( options.verbose )
-	printf("Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket );
-syslog(LOG_INFO, "Shuting down connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
+loghandle(LOG_INFO, "Shuting down connection to %s:%d>%d", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 #endif
 shutdown( cnt->socket, 1 );
 
@@ -477,17 +392,11 @@ return;
 void svClose( svConnectionPtr cnt ) {
 
 #if SERVER_REPORT_CLOSE == 1
-if( options.verbose )
-	printf("Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
-syslog(LOG_INFO, "Closed connection to %s:%d>%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
+loghandle(LOG_INFO, "Closed connection to %s:%d>%d", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
 #endif
 if( close( cnt->socket ) == -1 ) {
-	if( options.verbose ) {
-		printf("Error %03d, closing socket\n", errno);
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %03d, closing socket\n", errno);
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	loghandle(LOG_ERR, "Error %03d, closing socket", errno);
+	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 }
 cnt->socket = -1;
 
@@ -501,9 +410,7 @@ svConnectionPtr next;
 if( cnt->socket != -1 )
 	svClose( cnt );
 #if SERVER_REPORT_CLOSE == 1
-if( options.verbose )
-	printf("Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
-syslog(LOG_INFO, "Freed connection to %s:%d\n", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
+loghandle(LOG_INFO, "Freed connection to %s:%d", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
 #endif
 svSendEnd( cnt );
 next = cnt->next;
@@ -529,12 +436,8 @@ int svSendAddBuffer( svBufferPtr *bufferp, int size ) {
 	char *mem;
 
 if( !( mem = malloc( sizeof(svBufferDef) + size ) ) ) {
-	if( options.verbose ) {
-		printf("Error %03d, add buffer malloc\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %03d, add buffer malloc\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	loghandle(LOG_ERR, "Error %03d, add buffer malloc", errno );
+	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	return 0;
 }
 
@@ -586,12 +489,8 @@ for( ; cnt->sendflushbuf ; cnt->sendflushbuf = (cnt->sendflushbuf)->next ) {
 	if( a == -1 ) {
 		if( errno == EWOULDBLOCK )
 			return 0;
-		if( options.verbose ) {
-			printf("Error %d, send flush\n", errno);
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "Error %d, send flush\n", errno);
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %d, send flush", errno);
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 		return 1;
 	}
 	if( a != size ) {
@@ -689,64 +588,30 @@ void svSignal( int signal ) {
   if(signal == SIGUSR2)
   {
   	//Free memory db and reload it to have a new member in :P
-  	printf("Ask a dbinit\n");
+  	loghandle(LOG_INFO, "%s", "Ask a dbinit");
   	dbEnd();
   	dbInit();
   	return;
   }
-  
+
 iohttpDataPtr iohttp;
-syslog(LOG_ERR, "ERROR, signal \'%s\'\n", cmdSignalNames[signal]);
-syslog(LOG_ERR, "cnt : %d\n", (int)(intptr_t)svDebugConnection);
-syslog(LOG_ERR, "tick pass : %d\n", ticks.debug_pass);
-syslog(LOG_ERR, "tick id : %d\n", ticks.debug_id);
-if( options.verbose ) {
-	printf( "ERROR\n" );
-	fflush( stdout );
-	printf( "ERROR, signal: \'%s\'\n", cmdSignalNames[signal] );
-	fflush( stdout );
-	printf( "cnt : %d\n", (int)(intptr_t)svDebugConnection);
-	fflush( stdout );
-	printf( "tick pass : %d\n", ticks.debug_pass );
-	fflush( stdout );
-	printf( "tick id : %d\n", ticks.debug_id );
-	fflush( stdout );
-}
+loghandle(LOG_ERR, "ERROR, signal \'%s\'", cmdSignalNames[signal]);
+loghandle(LOG_ERR, "cnt : %d", (int)(intptr_t)svDebugConnection);
+loghandle(LOG_ERR, "tick pass : %d", ticks.debug_pass);
+loghandle(LOG_ERR, "tick id : %d", ticks.debug_id);
+
 if( svDebugConnection ) {
-	if( options.verbose ) {
-		printf( "ERROR\n" );
-		fflush( stdout );
-	}
+
 	iohttp = svDebugConnection->iodata;
-	if( options.verbose ) {
-		printf( "ERROR\n" );
-		fflush( stdout );
-		printf( "iohttp : %d\n", (int)(intptr_t)iohttp );
-		fflush( stdout );
-		printf( "iohttp->path : %s\n", iohttp->path );
-		fflush( stdout );
-		printf("iottp content lenth: %d\n", iohttp->content_length);
-		fflush(stdout);
-		printf( "iohttp->content : " );
-		printf( "iohttp->query_string : %s\n", iohttp->query_string );
-		fflush( stdout );
-		printf( "iohttp->cookie : %s\n", iohttp->cookie );
-		fflush( stdout );
-		printf( "iohttp->referer : %s\n", iohttp->referer );
-		fflush( stdout );
-		printf( "iohttp->user_agent : %s\n", iohttp->user_agent );
-		fflush( stdout );
-		fwrite( iohttp->content, 1, iohttp->content_length, stdout );
-		fflush( stdout );
-	}
-	syslog(LOG_ERR, "iohttp : %d\n", (int)(intptr_t)iohttp );
-	syslog(LOG_ERR, "iohttp->path : %s\n", iohttp->path );
-	syslog(LOG_ERR, "iottp content lenth: %d\n", iohttp->content_length );
-	syslog(LOG_ERR, "iohttp->query_string : %s\n", iohttp->query_string );
-	syslog(LOG_ERR, "iohttp->cookie : %s\n", iohttp->cookie );
-	syslog(LOG_ERR, "iohttp->referer : %s\n", iohttp->referer );
-	syslog(LOG_ERR, "iohttp->user_agent : %s\n", iohttp->user_agent );
-	syslog(LOG_ERR, "iohttp->content <<START>> %s <<END>>\n", iohttp->content );
+
+	loghandle(LOG_ERR, "iohttp : %d", (int)(intptr_t)iohttp );
+	loghandle(LOG_ERR, "iohttp->path : %s", iohttp->path );
+	loghandle(LOG_ERR, "iottp content lenth: %d", iohttp->content_length );
+	loghandle(LOG_ERR, "iohttp->query_string : %s", iohttp->query_string );
+	loghandle(LOG_ERR, "iohttp->cookie : %s", iohttp->cookie );
+	loghandle(LOG_ERR, "iohttp->referer : %s", iohttp->referer );
+	loghandle(LOG_ERR, "iohttp->user_agent : %s", iohttp->user_agent );
+	loghandle(LOG_ERR, "iohttp->content : <<START>> %s <<END>>", iohttp->content );
 
 	for( ; svDebugConnection->sendflushbuf ; svDebugConnection->sendflushbuf = (svDebugConnection->sendflushbuf)->next ) {
 		if( (svDebugConnection->sendflushbuf)->next )
@@ -759,12 +624,8 @@ if( svDebugConnection ) {
 		if( a == -1 ) {
 			if( errno == EWOULDBLOCK )
 				return;
-			if( options.verbose ) {
-				printf("Error %d, send\n", errno);
-				printf("Error description is : %s\n",strerror(errno));
-			}
-			syslog(LOG_ERR, "Error %d, send\n", errno);
-			syslog(LOG_ERR, "Error description is : %s\n",strerror(errno));
+			loghandle(LOG_ERR, "Error %d, send", errno);
+			loghandle(LOG_ERR, "Error description is : %s",strerror(errno));
 			return;
 		}
 		if( a != size ) {
@@ -780,8 +641,8 @@ if( irccfg.bot ) {
 	ircbot_send("NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
 	ircbot_send("QUIT");
 	if( close( options.botconn ) == -1 ) {
-		syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno));
+		loghandle(LOG_ERR, "Error %03d, closing ircbot socket", errno);
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno));
 	}
 
 }
@@ -832,23 +693,18 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 		stop = 1;
 	} else if( !( strncmp(buffer, "bot", 3) ) ) {
 		if( !ircbot_command(buffer) ) {
-			if( options.verbose )
-				printf("Bot subfunction reported error with command: \"%s\"\n", buffer);
-			syslog(LOG_ERR, "Bot subfunction reported error with command: \"%s\"\n", buffer);
+			loghandle(LOG_INFO, "Bot subfunction reported error with command: \"%s\"", buffer);
 			svPipeSend(0, "Bot subfunction reported error with command: \"%s\"\n",buffer );
 		}
 	} else {
-		if( options.verbose )
-		printf("Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
-		syslog(LOG_ERR, "Piping Error Unrecognized command size \"%d\" line \"%s\"\n", num, buffer);
+		loghandle(LOG_INFO, "Piping Error Unrecognized command size \"%d\" line \"%s\"", num, buffer);
 	}
 }
 
 if( stop ) {
 	svPipeSend(0,"Server is shutting down as requested..");
 	if( options.verbose )
-	printf("%s\n", "Shutdown command recived from Pipe.");
-	syslog(LOG_INFO, "%s\n", "Shutdown command recived from Pipe.");
+	loghandle(LOG_INFO, "%s", "Shutdown command recived from Pipe."); 
 }
 
 if ( num > 0 ) {
@@ -873,23 +729,17 @@ va_end(ap);
 sprintf( DIRCHECKER, "%s/%s.%d.%s", TMPDIR, options.pipefile, options.port[PORT_HTTP], ( pipedirection ? "pipe" : "client.pipe" ) );
 if( file_exist(DIRCHECKER) && strlen(formatuffer) ) {
 	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
-		if( options.verbose )
-			printf( "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
-		syslog(LOG_ERR, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
+		loghandle(LOG_ERR, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
 		return 0;
 	}
 	if( ( num = fprintf(pipefile, "%s\r\n", formatuffer) ) < 0) {
-		if( options.verbose )
-			printf( "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
-		syslog(LOG_ERR, "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
+		loghandle(LOG_ERR, "Piping Responce Error: unable to write to pipe: %s", DIRCHECKER );
 		return 0;
 	}
 	fflush(pipefile);
 	fclose(pipefile);
 } else {
-	if( options.verbose )
-		printf( "Piping Error: message to send but no pipe avaliable" );
-	syslog(LOG_ERR, "Piping Error: message to send but no pipe avaliable" );
+	loghandle(LOG_ERR, "%s", "Piping Error: message to send but no pipe avaliable" );
 	return 0;
 }
 
@@ -962,29 +812,29 @@ int daemon_init() {
 	ioInterfacePtr io;
 	pid_t pid, sid;
 
-printf("%s\n", "Server process iniating...");
+loghandle(LOG_INFO, "%s", "Server process iniating...");
 
 if( options.mode == MODE_FORKED ) {
 pid = fork();
 if(pid < 0) {
-	syslog(LOG_ERR, "Forking Error: %d\n", errno);
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	loghandle(LOG_ERR, "Forking Error: %d", errno);
+	loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	return 0;
 } else if(pid > 0) {
 	return 1; // So we forked it, time to return and wait for results on a client pipe.
 }
 
-syslog(LOG_INFO, "Begining initiation of %s daemon...", sysconfig.servername);
+loghandle(LOG_INFO, "Begining initiation of %s daemon...", sysconfig.servername);
 
 // First, start a new session
 if((sid = setsid()) < 0) {
-	syslog(LOG_ERR, "%s\n", "setsid has failed, unable to fork into daemon");
+	loghandle(LOG_ERR, "%s", "setsid has failed, unable to fork into daemon");
 	return 0;
 }
 
 // Next, make /tmp/evcore the current directory. -- I do this, just because I can. (It doesn't matter it changes a lot latter, I need to fix that still).
 if((chdir("/tmp/evcore")) < 0) {
-	syslog(LOG_ERR, "%s\n", "chdir has failed, unable to fork into daemon");
+	loghandle(LOG_ERR, "%s", "chdir has failed, unable to fork into daemon");
 	return 0;
 }
 
@@ -1022,16 +872,12 @@ signal( SIGUSR2, &svSignal);
 srand( time(NULL) ); //Random Init
 	
 if( !( svInit() ) ) {
-	if( options.verbose )
-		printf("Server initialisation failed, exiting\n");
-	syslog(LOG_ERR, "Server initialisation failed, exiting\n");
+	loghandle(LOG_CRIT, "%s", "Server Core Initation Failed, now exiting..." );
 	return 0;
 }
 
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
-	if( options.verbose )
-		printf("Database initialisation failed, exiting\n");
-	syslog(LOG_ERR, "Database initialisation failed, exiting\n");
+	loghandle(LOG_CRIT, "%s", "Server Database Initation Failed, now exiting..." );
 	return 0;
 }
 for( a = 0 ; a < options.interfaces ; a++ ) {
@@ -1040,16 +886,13 @@ for( a = 0 ; a < options.interfaces ; a++ ) {
 }
 
 if( !( cmdInit() ) )  {
-	if( options.verbose )
-		printf("Basic Iniation failed, exiting\n");
-	syslog(LOG_ERR, "Basic Iniation failed, exiting\n");
+	loghandle(LOG_CRIT, "%s", "Server Command Initation Failed, now exiting..." );
 	return 0;
 }
 sprintf( DIRCHECKER, "%s/data", sysconfig.directory );  
 if( chdir( DIRCHECKER ) == -1 ) {
 	if( options.verbose )
-		printf("Change into Database Dir Failed, exiting\n");
-	syslog(LOG_ERR, "Change into Database Dir Failed, exiting\n");
+	loghandle(LOG_ERR, "Change into Database Dir \"%s\" Failed, exiting", DIRCHECKER );
 	return 0;
 }
 
@@ -1063,18 +906,13 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <
 
 sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 	if( mkfifo(DIRCHECKER, 0666) < 0 ) {
-	syslog(LOG_INFO, "Error creating pipe: %s\n", DIRCHECKER );
-	if( options.verbose )
-	printf("Error creating pipe: %s\n", DIRCHECKER );
+	loghandle(LOG_ERR, "Error creating pipe: %sn", DIRCHECKER );
 	options.serverpipe = -1;
 } else {
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
-syslog(LOG_INFO, "Completed initiation of %s daemon.\n", sysconfig.servername );
-if( options.verbose ) {
-	printf("All checks passed, begining server loop...\n");
-	fflush(stdout);
-}
+
+loghandle(LOG_INFO, "%s", "All Checks passed, begining server loop..." ); 
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 if( irccfg.bot ) {
@@ -1087,8 +925,8 @@ if( irccfg.bot ) {
 	ircbot_send("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
 	ircbot_send("QUIT");
 	if( close( options.botconn ) == -1 ) {
-		syslog(LOG_ERR, "Error %03d, closing ircbot socket\n", errno);
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		loghandle(LOG_ERR, "Error %03d, closing ircbot socket", errno);
+		loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 	}
 
 }
@@ -1176,16 +1014,10 @@ if ( split == NULL ) {
 			strcat(mkthisdir, split[i]);
 			check = mkdir(mkthisdir,0755);
 			if (!check) {
-				if( options.verbose )
-				printf("Directory \"%s\" created.\n", mkthisdir );
-				syslog(LOG_INFO, "Directory \"%s\" created.\n", mkthisdir );
+				loghandle(LOG_INFO, "Directory \"%s\" created.", mkthisdir );
 			} else if ( errno != 17 ) {
-				if( options.verbose ) {
-					printf("Error creating directory: \"%s\"\n", mkthisdir );
-					printf("Error description is : %s\n",strerror(errno) );
-				}
-				syslog(LOG_ERR, "Error creating directory: \"%s\"\n", mkthisdir );
-				syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+				loghandle(LOG_ERR, "Error creating directory: \"%s\"", mkthisdir );
+				loghandle(LOG_ERR, "Error description is : %s",strerror(errno) );
 			}
 		}
 	}
@@ -1459,23 +1291,19 @@ int loadconfig( char *file, int type ) {
 
 if( type == CONFIG_SYSTEM ) {
 	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
-		syslog(LOG_ERR, "System Config Error: can not load \"%s\"\n", file );
-        	printf("System Config Error: can not load \"%s\"\n", file);
+		loghandle(LOG_ERR, "System Config Error: can not load \"%s\"", file );
 		return 0;
 	}
 	if (ini_parse(file, mapconfig_handler, &mapcfg) < 0) {
-		syslog(LOG_ERR, "Map Config Error: can not load \"%s\"\n", file );
-        	printf("Map Config Error: can not load \"%s\"\n", file);
+		loghandle(LOG_ERR, "Map Config Error: can not load \"%s\"", file );
 		return 0;
 	}
 	if (ini_parse(file, adminconfig_handler, &admincfg) < 0) {
-		syslog(LOG_ERR, "Admin Config Error: can not load \"%s\"\n", file );
-        	printf("Admin Config Error: can not load \"%s\"\n", file);
+		loghandle(LOG_ERR, "Admin Config Error: can not load \"%s\"", file );
 		return 0;
 	}
 	if (ini_parse(file, mysqlconfig_handler, &mysqlcfg) < 0) {
-		syslog(LOG_ERR, "mySql Config Error: can not load \"%s\"\n", file );
-        	printf("mySql Config Error: can not load \"%s\"\n", file);
+		loghandle(LOG_ERR, "mySql Config Error: can not load \"%s\"", file );
 		return 0;
 	}
 	if( sysconfig.evmpactv ) {
@@ -1644,13 +1472,13 @@ openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
 memset( &admincfg, 0, sizeof(adminDef) );
 if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
-	printf("Error loading system config. Unable to start.\n");
+	loghandle(LOG_CRIT, "%s", "Unable to load system config, unable to continue.");
 	exit(true);
 }
 
 sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
-	printf("%s\n","Pipe file detected, auto switching to client mode");
+	loghandle(LOG_INFO, "%s", "Pipe file detected, auto switching to client mode");
 	goto CLIENT;
 }
 
@@ -1682,7 +1510,7 @@ dirstructurecheck(DIRCHECKER);
 if( !( file_exist(sysconfig.httpread) ) ) {
 	dirstructurecheck(sysconfig.httpread);
 	if( !(file_exist(sysconfig.httpread) ) ) {
-		printf("Directory creation failed... can not continue! =(\n");
+		loghandle(LOG_INFO, "%s", "Directory creation failed, unable to continue.");
 		return 1;
 	}
 	printf("Doc base not found, fetching \"%s/read.tar.gz\" with wget ...", sysconfig.downfrom );
@@ -1707,7 +1535,7 @@ if( !( file_exist(sysconfig.httpread) ) ) {
 if( !( file_exist(sysconfig.httpfiles) ) ) {
 	dirstructurecheck(sysconfig.httpfiles);
 	if( !(file_exist(sysconfig.httpfiles) ) ) {
-		printf("Directory creation failed... can not continue! =(\n");
+		loghandle(LOG_INFO, "%s", "Directory creation failed, unable to continue.");
 		return 1;
 	}
 	printf("Doc base not found, fetching \"%s/files.tar.gz\" with wget ...", sysconfig.downfrom );
@@ -1732,7 +1560,7 @@ if( !( file_exist(sysconfig.httpfiles) ) ) {
 if( !( file_exist(sysconfig.httpimages) ) ) {
 	dirstructurecheck(sysconfig.httpimages);
 	if( !(file_exist(sysconfig.httpimages) ) ) {
-		printf("Directory creation failed... can not continue! =(\n");
+		loghandle(LOG_INFO, "%s", "Directory creation failed, unable to continue.");
 		return 1;
 	}
 	printf("Image base not found, fetching \"%s/images.tar.gz\" with wget ...", sysconfig.downfrom );
@@ -1758,15 +1586,12 @@ if( !( file_exist(sysconfig.httpimages) ) ) {
 printf("\n");
 sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 if( !( file_exist(DIRCHECKER) ) ) {
-	if( options.verbose )
-	printf("No map detected... now generating...\n");
-	syslog(LOG_INFO, "No map detected... now generating...\n");
+	loghandle(LOG_INFO, "%s", "No map detected now generating...");
 	spawn_map();
 }
 //Begin deamonization and initate server loop.
 if( !( daemon_init( ) ) ) {
-	printf( "Can not load, oh this is bad...\n" );
-	syslog(LOG_CRIT, "<<< !!!! CRITICAL ERROR !!!! >>>\n");
+	loghandle(LOG_CRIT, "%s", "<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
 	return 1;
 }
 if( options.mode == MODE_FORKED ) {
@@ -1851,4 +1676,19 @@ char *cmdSignalNames[SIGNALS_NUMUSED] =
 "Bad system call"
 };
 
+
+void loghandle( int flag, char *fmt, ... ) {
+	va_list ap;
+	char ebuffer[MAXLOGSTRING];
+
+va_start(ap, fmt);
+vsnprintf(ebuffer, MAXLOGSTRING, fmt, ap);
+va_end(ap);
+
+if( options.verbose )
+	printf("%s\n", ebuffer);
+syslog(flag, "%s\n", ebuffer);
+	
+return;
+}
 

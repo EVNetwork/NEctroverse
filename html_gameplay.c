@@ -7259,9 +7259,7 @@ if( stat( COREDIR, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( COREDIR, "rb" ) ) ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
-			if( options.verbose )
-				printf("Failure reading round rankings infomation: %s\n", COREDIR);
-			syslog(LOG_INFO, "Failure reading round rankings infomation: %s\n", COREDIR );
+				loghandle(LOG_INFO, "Failure reading round rankings infomation: %s", COREDIR );
 			} else {
 				svSendString( cnt, data );
 			}

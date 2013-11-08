@@ -208,3 +208,7 @@ typedef struct {
 
 extern svbanDef banlist;
 
+#define MAXLOGSTRING 1024
+void loghandle( int flag, char *fmt, ... );
+
+
