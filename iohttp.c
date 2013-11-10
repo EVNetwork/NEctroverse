@@ -7,7 +7,7 @@ int iohttpEndSize[2] = { 4, 2 };
 
 #include "iohttpvars.c"
 #include "iohttpmime.c"
-
+#include "url_parser.c"
 
 int iohttpMimeFind( char *name )
 {
@@ -680,7 +680,9 @@ void outSendReplyHTTP( svConnectionPtr cnt )
   else
     svSendString( cnt, "HTTP/1.0 500 Internal Error\n" );
 
-  svSendPrintf( cnt, "Server: %s\nConnection: close\n", sysconfig.servername );
+  svSendPrintf( cnt, "Server: %s\n", sysconfig.servername );
+  svSendString( cnt, "Connection: close\n" );
+
   curtime = time( (time_t*) 0 );
   strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &curtime ) );
   svSendPrintf( cnt, "Date: %s\n", scurtime );
@@ -953,7 +955,9 @@ int iohttpParseHeader( svConnectionPtr cnt, iohttpDataPtr iohttp, char *cmd )
     iohttp->referer = cmd2;
   else if( ( cmd2 = ioCompareWords( cmd, "User-Agent: " ) ) )
     iohttp->user_agent = cmd2;
-
+/*  else if( ( cmd2 = ioCompareWords( cmd, "Accept-Encoding: " ) ) )
+    iohttp->accept_encoding = cmd2;
+*/
 #if SERVER_REPORT_IGNOREDHEADER == 1
   else
     printf( "Ignored http header : %s\n", cmd );

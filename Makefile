@@ -21,7 +21,7 @@ server: sv.o io.o db.o cmd.o html.o map.o md5.o
 sv.o: *.h sv.c ini.c ircbot.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
-io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c
+io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
 db.o: *.h db.c

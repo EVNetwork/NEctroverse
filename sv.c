@@ -1691,8 +1691,10 @@ if( error ) {
 	syslog(flag, "%s", ebuffer );
 }
 
-if( options.verbose )
+if( options.verbose ) {
+	printf(RESET);
 	fflush(stdout);
+}
 
 return;
 }

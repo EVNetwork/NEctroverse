@@ -185,4 +185,9 @@ static const double megabyte = (1024 * 1024);
 #include "html_ajax.h"
 #endif
 
+#ifndef URLPINCLUDED
+#include "url_parser.h"
+#endif
+
+
 
