@@ -10,9 +10,9 @@ statime->seconds = (stime-(statime->days*day)-(statime->hours*hour)-(statime->mi
 return;
 }
 
-void iohttpFuncConvertTime( char *buffer, int eltime ) {
+char *TimeToString( int eltime ) {
 	bool bdays, bhours, bmins;
-	char timeline[32];
+	char timeline[32], buffer[1024];
 	timeDef deftime;
 
 converttime_todef(&deftime, eltime);
@@ -53,10 +53,8 @@ if( !( strlen( buffer ) ) ) {
 	strcpy(buffer, "Never, or bad time input!" );
 }
 
-
-return;
+return strdup(buffer);
 }
-
 
 void getsys_infos( proginfoDef *proginfo, struct sysinfo sinfo ) {
 	int pid;
@@ -87,7 +85,6 @@ return;
 
 void iohttpFunc_status( svConnectionPtr cnt ) {
 	char addstring[32];
-	char stringuptime[128];
 	struct sysinfo sysinfod;
 	struct utsname stustname;
 	proginfoDef pinfod;
@@ -122,8 +119,7 @@ if( irccfg.bot ) {
 	svSendString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Disabled</td></tr>" );
 }
 
-iohttpFuncConvertTime((char *)&stringuptime,pinfod.runtime);
-svSendPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"gameuptime\">%s</td></tr>", stringuptime );
+svSendPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"gameuptime\">%s</td></tr>", TimeToString(pinfod.runtime) );
 svSendPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span id=\"sstatweeks\">%d</span>, year <span id=\"sstatyears\">%d</span></td></tr>", ticks.number % 52, ticks.number / 52 );
 svSendPrintf( cnt, "<tr><td>Tick time</td><td>&nbsp;:&nbsp;</td><td>%d seconds</td></tr>", sysconfig.ticktime );
 
@@ -158,8 +154,7 @@ svSendPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td>%s</td></
 
 svSendPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", stustname.sysname, stustname.release );
 svSendPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );
-iohttpFuncConvertTime((char *)&stringuptime,sysinfod.uptime);
-svSendPrintf( cnt, "<tr><td>Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"hostuptime\">%s</td></tr>", stringuptime );
+svSendPrintf( cnt, "<tr><td>Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"hostuptime\">%s</td></tr>", TimeToString(sysinfod.uptime) );
 svSendString( cnt, "</table><br>" );
 
 
@@ -235,24 +230,9 @@ int timediff( struct tm t_in  ) {
 
 
 time(&now);
-/*
-printf("sec: %d\n",t_in.tm_sec);
-printf("min: %d\n",t_in.tm_min);
-printf("hor: %d\n",t_in.tm_hour);
-printf("day: %d\n",t_in.tm_mday);
-printf("mon: %d\n",t_in.tm_mon);
-printf("yer: %d\n\n",t_in.tm_year);
-*/
+
 variable = *localtime(&now);
 
-/*
-printf("sec: %d\n",variable.tm_sec);
-printf("min: %d\n",variable.tm_min);
-printf("hor: %d\n",variable.tm_hour);
-printf("day: %d\n",variable.tm_mday);
-printf("mon: %d\n",variable.tm_mon);
-printf("yer: %d\n\n",variable.tm_year);
-*/
 if( t_in.tm_sec != -1 ) {
 	variable.tm_sec = t_in.tm_sec;
 }

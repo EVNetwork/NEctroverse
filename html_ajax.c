@@ -163,7 +163,6 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 } else {
 	iohttpFunc_front( cnt, "Bad page request." );
 }
-
 return;
 
 BAILAJAX:

@@ -25,7 +25,7 @@ typedef struct {
 	float loadavg[0];
 } proginfoDef, *proginfoPtr;
 
-void iohttpFuncConvertTime( char *buffer, int eltime );
+char *TimeToString( int eltime );
 
 void iohttpFunc_status( svConnectionPtr cnt );
 

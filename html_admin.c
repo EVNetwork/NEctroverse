@@ -17,45 +17,6 @@ void iohttpFunc_adminframe( svConnectionPtr cnt )
   svSendString( cnt, "You do not have administrator privileges." );
   return;
 }
-/*
-void iohttpFunc_adminmenu( svConnectionPtr cnt )
-{
-  int id;
-  if( ( id = iohttpIdentify( cnt, 0 ) ) < 0 )
-    goto denied;
-  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
-    goto denied;
-  svSendString( cnt, "Content-Type: text/html\n\n" );
-  svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000080\" text=\"#00bb00\" link=\"#00bb00\" alink=\"#00bb00\" vlink=\"#00bb00\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
-  svSendString( cnt, "<b><font face=\"Tahoma\" size=\"2\">" );
-
-  svSendString( cnt, "<a href=\"adminforum\" target=\"main\">Forums</a><br>" );
-  svSendString( cnt, "<a href=\"admintags\" target=\"main\">Player Tags</a><br>" );
-
-
-  svSendString( cnt, "<a href=\"adminmarket\" target=\"main\">Market</a><br>" );
-  svSendString( cnt, "<a href=\"adminplanet\" target=\"main\">Planets</a><br>" );
-  svSendString( cnt, "<a href=\"adminempire\" target=\"main\">Empire</a><br>" );
-  svSendString( cnt, "<a href=\"adminviewacc\" target=\"main\">View Account</a><br>" );
-  svSendString( cnt, "<a href=\"adminaccount\" target=\"main\">Change Account</a><br>" );
-  svSendString( cnt, "<a href=\"adminplayer\" target=\"main\">Player Resources</a><br>" );
-  svSendString( cnt, "<a href=\"adminresearch\" target=\"main\">Player Research</a><br>" );
-  svSendString( cnt, "<a href=\"adminbuild\" target=\"main\">Player Build List</a><br>" );
-  svSendString( cnt, "<a href=\"adminfleet\" target=\"main\">Player Fleets&Ops</a><br>" );
-  svSendString( cnt, "<a href=\"adminmap\" target=\"main\">Map</a><br>" );
-  svSendString( cnt, "<a href=\"adminip\" target=\"main\">IP-Check</a><br>" );
-  svSendString( cnt, "<a href=\"adminmods\" target=\"main\">Mods & Admins</a><br><br>" );
-  svSendString( cnt, "<a href=\"main\" target=\"_top\">Back to Game</a><br>" );
-  svSendString( cnt, "<a href=\"/\" target=\"_top\">Back to Mainpage</a><br>" );
-  svSendString( cnt, "</font></b>" );
-  svSendString( cnt, "</body></html>" );
-  return;
-  denied:
-  svSendString( cnt, "You do not have administrator privileges." );
-  svSendString( cnt, "</body></html>" );
-  return;
-}
-*/
 
 
 void iohttpFunc_adminmenu( svConnectionPtr cnt )
@@ -87,6 +48,7 @@ void iohttpFunc_adminmenu( svConnectionPtr cnt )
  svSendString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
 
    svSendString( cnt, "<br><a href=\"admin\" target=\"main\">Old Admin</a>" );
+      svSendString( cnt, "<br><a href=\"moderator\" target=\"main\">Old Mod</a>" );
    svSendString( cnt, "<br><a href=\"main\" target=\"_top\">Back to Game</a>" );
    svSendString( cnt, "<br><a href=\"/\" target=\"_top\">Mainpage</a>" );
 
@@ -107,10 +69,18 @@ void iohttpAdminForm( svConnectionPtr cnt, char *target )
 
 void iohttpAdminSubmit( svConnectionPtr cnt, char *name )
 {
-  svSendPrintf( cnt, "<input type=\"submit\" value=\"%s\"></form><br><br>", name );
+  svSendPrintf( cnt, "<input type=\"submit\" value=\"%s\"></form>", name );
   return;
 }
 
+void iohttpAdminInput( svConnectionPtr cnt, adminFormInputPtr inputs )
+{
+if( inputs->size )
+  svSendPrintf( cnt, "<input type=\"%s\" name=\"%s\" id=\"%s\" value=\"%s\" size=\"%d\">", inputs->type, inputs->name, inputs->name, inputs->value, inputs->size );
+else
+  svSendPrintf( cnt, "<input type=\"%s\" name=\"%s\" id=\"%s\" value=\"%s\">", inputs->type, inputs->name, inputs->name, inputs->value );
+  return;
+}
 
 
 void iohttpFunc_adminforum( svConnectionPtr cnt ) {
@@ -391,9 +361,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
 	id = iohttpIdentify( cnt, 0 );
   if( id != -1 )
   {
-    cmd[0] = CMD_RETRIEVE_USERMAIN;
-    cmd[1] = id;
-    cmdExecute( cnt, cmd, &main2d, 0 );
+    dbUserMainRetrieve( id, &main2d );
   }
 
   iohttpVarsInit( cnt );
@@ -410,28 +378,27 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
     if( dbUserInfoRetrieve( actionid, &infod ) < 0 )
       goto iohttpFunc_moderatorL0;
     svSendPrintf( cnt, "<b>Player ID %d</b><br><br>", actionid );
-    svSendPrintf( cnt, "Faction name : %s<br>", maind.faction );
-
+    svSendPrintf( cnt, "Faction name : %s <br>", maind.faction );
+    svSendString( cnt, "Last Login : " );
 	//routine to show how long it has been since a player was online
 	curtime = time( 0 );
 	b = curtime - infod.lasttime;
-	if( b < 5*60 ){
-		svSendString( cnt, "[online]<br>" );
+	if( b < 5*minute ){
+		svSendString( cnt, " [online]<br>" );
 	}
 	else{
-		svSendString( cnt, "<i>Last : " );
-		if( b >= 24*60*60 )
+		if( b >= day )
 		{
-		  svSendPrintf( cnt, "%dd ", b/(24*60*60) );
-		  b %= 24*60*60;
+		  svSendPrintf( cnt, "%ldd ", b/day );
+		  b %= day;
 		}
-		if( b >= 60*60 )
+		if( b >= hour )
 		{
-		  svSendPrintf( cnt, "%dh ", b/(60*60) );
-		  b %= 60*60;
+		  svSendPrintf( cnt, "%ldh ", b/hour );
+		  b %= hour;
 		}
-		if( b >= 60 )
-		  svSendPrintf( cnt, "%dm <br>", b/60 );
+		if( b >= minute )
+		  svSendPrintf( cnt, "%ldm<br>", b/minute );
 	}
 
 
@@ -1005,6 +972,7 @@ void iohttpFunc_oldadmin( svConnectionPtr cnt )
   dbUserInfoDef infod;
   dbMainSystemDef systemd;
   dbMainPlanetDef planetd;
+  adminFormInput ivalues;
   dbUserPtr user;
   int curtime;
 
@@ -1477,10 +1445,16 @@ sysconfig.shutdown = true;
   {
 	svSendString( cnt, "Action disabled by Necro...!!<br><br>" );
   }
-
-
+  
   svSendString( cnt, "Administrator interface under construction<br><br><br>" );
-  svSendString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"reloadfiles\" value=\"1\"><input type=\"submit\" value=\"Reload HTTP files\"></form><br><br>" );
+  iohttpAdminForm( cnt, "admin" );
+  ivalues.type = "hidden";
+  ivalues.name = "reloadfiles";
+  ivalues.value = "1";
+  iohttpAdminInput( cnt, &ivalues );
+  iohttpAdminSubmit( cnt, "Reload HTTP files" );
+  
+  svSendString( cnt, "<br><br>" );
   svSendString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"forums\" value=\"1\"><input type=\"submit\" value=\"Create empire forums\"></form><br><br>" );
   svSendString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"shutdown\" value=\"1\"><input type=\"submit\" value=\"Shutdown\"></form><br><br>" );
   svSendString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"EndOfRound\" value=\"1\"><input type=\"submit\" value=\"End Of Round\"></form><br><br>" );
