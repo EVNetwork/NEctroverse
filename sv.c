@@ -1177,18 +1177,18 @@ if( type == CONFIG_SYSTEM ) {
 	if( ( banlist.ip ) && ( banlist.number ) ) {
 		free( banlist.ip );
 	}
-	banlist.number = iniparser_getint(banlist.ini, "banned_ips:number", 0);
+	banlist.number = iniparser_getint(/*banlist.*/ini, "banned_ips:number", 0);
 	if( banlist.number > 0 ) {
 		banlist.ip = malloc( banlist.number * sizeof(*banlist.ip));
 	}
 	for(a = 0; a < banlist.number; a++) {
 		sprintf(DIRCHECKER,"banned_ips:ip%d",(a+1));
-		banlist.ip[a] = strdup(iniparser_getstring(banlist.ini, DIRCHECKER, "0.0.0.0"));
+		banlist.ip[a] = strdup(iniparser_getstring(/*banlist.*/ini, DIRCHECKER, "0.0.0.0"));
 	}
 } else if( type == CONFIG_TICKS ) {
-	/*if( ticks.ini )
+	if( ticks.ini )
 		iniparser_freedict(ticks.ini);
-	ticks.ini = iniparser_load(file);*/
+	ticks.ini = iniparser_load(file);
 	ticks.status = iniparser_getboolean(ticks.ini, "ticks:status", false);
 	ticks.number = iniparser_getint(ticks.ini, "ticks:number", 0);
 	ticks.round = iniparser_getint(ticks.ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
@@ -1198,15 +1198,15 @@ if( type == CONFIG_SYSTEM ) {
 	/*if( irccfg.ini )
 		iniparser_freedict(irccfg.ini);
 	irccfg.ini = iniparser_load(file);*/
-	irccfg.host = strdup( iniparser_getstring(irccfg.ini, "irc:host", "irc.freenode.net") );
-	irccfg.port = strdup( iniparser_getstring(irccfg.ini, "irc:port", "6667") );
+	irccfg.host = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:host", "irc.freenode.net") );
+	irccfg.port = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:port", "6667") );
 	strcpy(DIRCHECKER,"#");
-	strcat(DIRCHECKER,strdup( iniparser_getstring(irccfg.ini, "irc:channel", "ectroverse") ) );
+	strcat(DIRCHECKER,strdup( iniparser_getstring(/*irccfg.*/ini, "irc:channel", "ectroverse") ) );
 	irccfg.channel = strdup(DIRCHECKER);
-	irccfg.botnick = strdup( iniparser_getstring(irccfg.ini, "irc:bot_nick", "EVBot") );
-	irccfg.botpass = strdup( iniparser_getstring(irccfg.ini, "irc:bot_pass", "botpass") );
-	irccfg.bot = iniparser_getboolean(irccfg.ini, "irc:bot_enable", false);
-	irccfg.announcetick = iniparser_getboolean(irccfg.ini, "irc:bot_announcetick", false);
+	irccfg.botnick = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:bot_nick", "EVBot") );
+	irccfg.botpass = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:bot_pass", "botpass") );
+	irccfg.bot = iniparser_getboolean(/*irccfg.*/ini, "irc:bot_enable", false);
+	irccfg.announcetick = iniparser_getboolean(/*irccfg.*/ini, "irc:bot_announcetick", false);
 }
 
 if( firstload ) {
