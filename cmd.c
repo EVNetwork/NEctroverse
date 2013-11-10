@@ -1571,7 +1571,7 @@ int cmdInit() {
 	int id, a;
 	dbUserPtr user;
 	dbUserInfoDef infod;
-	
+
 for( a = 0; a < admincfg.numadmins; a++ ) {
 
 	if( !( admincfg.name[a] ) || !( admincfg.password[a] ) || !( admincfg.faction[a] ) || ( ( id = dbUserSearch( admincfg.name[a] ) ) >= 0 ) )
@@ -1594,8 +1594,17 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name[a] );
 		continue;
 	}
-}	
-
+}
+if( admincfg.numadmins < 0 ) {
+	free(admincfg.name);
+	free(admincfg.password);
+	free(admincfg.faction);
+	free(admincfg.forumtag);
+	free(admincfg.level);
+	free(admincfg.race);
+	free(admincfg.ename);
+	free(admincfg.epassword);
+}
 dbFlush();
 
 return 1;

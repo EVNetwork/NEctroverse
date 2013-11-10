@@ -105,7 +105,6 @@ int ircbot_connect(){
 memset(&hints, 0, sizeof hints);
 hints.ai_family = AF_INET;
 hints.ai_socktype = SOCK_STREAM;
-printf("%s - %s\n", irccfg.host, irccfg.port);
 getaddrinfo(irccfg.host, irccfg.port, &hints, &res);
 options.botconn = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 if( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1) {
@@ -127,7 +126,7 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
-ircbot_send("USER %s 0 0 :%sBot", irccfg.botnick, irccfg.botnick);
+ircbot_send("USER %s 0 0 :%s", irccfg.botnick, sysconfig.servername);
 ircbot_send("NICK %s", irccfg.botnick);
 if( irccfg.botpass ){
 	ircbot_send("PRIVMSG NickServ :identify %s", irccfg.botpass);

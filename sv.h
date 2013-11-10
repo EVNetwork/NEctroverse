@@ -56,11 +56,11 @@ extern adminDef admincfg;
 typedef struct {
 	//admin
 	bool bot;
-	char* host;
-	char* port;
-	char* botnick;
-	char* botpass;
-	char* channel;
+	char *host;
+	char *port;
+	char *botnick;
+	char *botpass;
+	char *channel;
 	bool announcetick;
 } ircDef, *ircPtr;
 

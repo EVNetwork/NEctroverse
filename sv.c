@@ -1033,21 +1033,21 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.httpport = iniparser_getint(ini, "system:port", 9990);
 	sysconfig.evmpactv = iniparser_getboolean(ini, "evmap:enable", false);
 	sysconfig.evmpport = iniparser_getint(ini, "evmap:port", 9991);
-	
+
 	sysconfig.stockpile = iniparser_getint(ini, "system:stockpile", 0);
 	sysconfig.warend = iniparser_getint(ini, "system:auto_victory_afterticks", 0);
 	sysconfig.victory = iniparser_getint(ini, "system:auto_endwar_afterticks", 0);
 	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 0);
-	
+
 	sysconfig.round = iniparser_getint(ini, "system:round", 0); //FIXME -- Needs moving to a different function set.
-	
+
 	sysconfig.autostart = iniparser_getboolean(ini, "auto_start:enable", false);
 	sysconfig.start.tm_sec = iniparser_getint(ini, "auto_start:second", -1);
 	sysconfig.start.tm_min = iniparser_getint(ini, "auto_start:minute", -1);
 	sysconfig.start.tm_mday = iniparser_getint(ini, "auto_start:day", -1);
 	sysconfig.start.tm_mon = (( iniparser_getint(ini, "auto_start:month", -1) ) - 1);
 	sysconfig.start.tm_year = (( iniparser_getint(ini, "auto_start:year", -1) ) + 100);
-	
+
 	sysconfig.autostop = iniparser_getboolean(ini, "auto_stop:enable", false);
 	sysconfig.stop.tm_sec = iniparser_getint(ini, "auto_stop:second", -1);
 	sysconfig.stop.tm_min = iniparser_getint(ini, "auto_stop:minute", -1);
@@ -1061,7 +1061,7 @@ if( type == CONFIG_SYSTEM ) {
 	mysqlcfg.user = strdup( iniparser_getstring(ini, "mysql:user", "localhost") );
 	mysqlcfg.password = strdup( iniparser_getstring(ini, "mysql:password", NULL) );
 	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
-	
+
 
 	admincfg.numadmins = iniparser_getint(ini, "admin:number", 0);
 	if( admincfg.numadmins > 0 ) {
@@ -1091,11 +1091,11 @@ if( type == CONFIG_SYSTEM ) {
 
 	mapcfg.sizex = iniparser_getint(ini, "map:sizex", 100);
 	mapcfg.sizey = iniparser_getint(ini, "map:sizey", mapcfg.sizex);
-	
+
 	mapcfg.systems = iniparser_getint(ini, "map:systems", 250);
 	mapcfg.families = iniparser_getint(ini, "map:families", 10);
 	mapcfg.fmembers = iniparser_getint(ini, "map:members_perfamily", 10);
-	
+
 	mapcfg.border = iniparser_getint(ini, "map:border", 20);
 	mapcfg.anglevar = iniparser_getdouble(ini, "map:anglevar", 1024.0);
 
@@ -1103,7 +1103,7 @@ if( type == CONFIG_SYSTEM ) {
 	mapcfg.linkradius = iniparser_getdouble(ini, "map:linkradius", 8.0);
 	mapcfg.lenghtbase = iniparser_getint(ini, "map:lenghtbase", 2);
 	mapcfg.lenghtvar = iniparser_getint(ini, "map:lenghtvar", 24);
-	
+
 	mapcfg.bonusnum = 0;
 	for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
 		sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);

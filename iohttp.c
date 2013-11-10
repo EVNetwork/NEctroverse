@@ -304,7 +304,6 @@ if( chdir( COREDIR ) != -1 ) {
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famleader;
-
   sprintf( file->path, "/famleader" );
 
   file = iohttpFileAdd( 0 );
