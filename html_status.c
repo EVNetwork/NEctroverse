@@ -149,8 +149,8 @@ svSendString( cnt, "<b>System OS</b><br>" );
 uname( &stustname );
 svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 
-svSendPrintf( cnt, "<tr><td>Server Time</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", asctime( gettime( time(0),false ) ) );
-svSendPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", asctime( gettime( time(0),true ) ) );
+svSendPrintf( cnt, "<tr><td>Server Time</td><td>&nbsp;:&nbsp;</td><td id=\"timeserver\">%s</td></tr>", asctime( gettime( time(0),false ) ) );
+svSendPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td id=\"timegmt\">%s</td></tr>", asctime( gettime( time(0),true ) ) );
 
 svSendPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", stustname.sysname, stustname.release );
 svSendPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );

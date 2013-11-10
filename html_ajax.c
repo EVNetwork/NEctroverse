@@ -75,7 +75,9 @@ if( ( typestring ) && ( iohttp->referer ) ) {
 			svSendPrintf( cnt, "<sharedbytes>%ld bytes</sharedbytes>", sysinfod.sharedram );
 			svSendPrintf( cnt, "<sharedmeg>( %ld mb )</sharedmeg>", (sysinfod.sharedram >> 20) );
 
-
+			svSendPrintf( cnt, "<timeserver>%s</timeserver>", trimwhitespace( asctime( gettime( time(0),false ) ) ) );
+			svSendPrintf( cnt, "<timegmt>%s</timegmt>", trimwhitespace( asctime( gettime( time(0),true ) ) ) );
+			
 			svSendPrintf( cnt, "<strss>%d pages</strss>", pinfod.strss );
 			svSendString( cnt, "</memory>" );
 			svSendString( cnt, "<cpu>" );
@@ -279,6 +281,12 @@ if( iohttp->referer ) {
 		svSendString( cnt, "\t\t\tupdatehtml(\"sharedbytes\",sharedbytes);\n" );
 		svSendString( cnt, "\t\tvar sharedmeg = getnodevar(xmlhttp.responseXML,\"sharedmeg\");\n" );
 		svSendString( cnt, "\t\t\tupdatehtml(\"sharedmeg\",sharedmeg);\n" );
+
+		svSendString( cnt, "\t\tvar timeserver = getnodevar(xmlhttp.responseXML,\"timeserver\");\n" );
+		svSendString( cnt, "\t\t\tupdatehtml(\"timeserver\",timeserver);\n" );
+		svSendString( cnt, "\t\tvar timegmt = getnodevar(xmlhttp.responseXML,\"timegmt\");\n" );
+		svSendString( cnt, "\t\t\tupdatehtml(\"timegmt\",timegmt);\n" );
+
 		svSendString( cnt, "\t\tvar botstatus = getnodevar(xmlhttp.responseXML,\"botstatus\");\n" );
 		svSendString( cnt, "\t\t\tupdatehtml(\"botstatus\",botstatus);\n" );
 		svSendString( cnt, "\t\t\tupdatehtml(\"sstatweeks\",week);\n" );
