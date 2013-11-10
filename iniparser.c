@@ -2,7 +2,7 @@
 /*-------------------------------------------------------------------------*/
 /**
    @file    iniparser.c
-   @author  N. Devillard
+   @author  N. Devillard -- Adapted by Necrolgan for NEctroverse.
    @brief   Parser for ini files.
 */
 /*--------------------------------------------------------------------------*/
@@ -27,7 +27,7 @@ typedef enum _line_status_ {
     LINE_COMMENT,
     LINE_SECTION,
     LINE_VALUE
-} line_status ;
+} line_status;
 
 /*-------------------------------------------------------------------------*/
 /**
@@ -644,7 +644,7 @@ dictionary * iniparser_load(const char * ininame)
     dictionary * dict ;
 
     if ((in=fopen(ininame, "r"))==NULL) {
-        fprintf(stderr, "iniparser: cannot open %s\n", ininame);
+        //loghandle(LOG_ERR, errno, "iniparser: cannot open %s", ininame);
         return NULL ;
     }
 
@@ -667,10 +667,7 @@ dictionary * iniparser_load(const char * ininame)
             continue;
         /* Safety check against buffer overflows */
         if (line[len]!='\n' && !feof(in)) {
-            fprintf(stderr,
-                    "iniparser: input line too long in %s (%d)\n",
-                    ininame,
-                    lineno);
+            loghandle(LOG_ERR, false, "iniparser: input line too long in %s (%d)",ininame,lineno);
             dictionary_del(dict);
             fclose(in);
             return NULL ;
@@ -704,10 +701,8 @@ dictionary * iniparser_load(const char * ininame)
             break ;
 
             case LINE_ERROR:
-            fprintf(stderr, "iniparser: syntax error in %s (%d):\n",
-                    ininame,
-                    lineno);
-            fprintf(stderr, "-> %s\n", line);
+            loghandle(LOG_ERR, false, "iniparser: syntax error in %s (%d):",ininame,lineno);
+            loghandle(LOG_ERR, false, "-> %s", line);
             errs++ ;
             break;
 
@@ -717,7 +712,7 @@ dictionary * iniparser_load(const char * ininame)
         memset(line, 0, ASCIILINESZ);
         last=0;
         if (errs<0) {
-            fprintf(stderr, "iniparser: memory allocation failure\n");
+            loghandle(LOG_ERR, errno, "%s", "iniparser: memory allocation failure");
             break ;
         }
     }

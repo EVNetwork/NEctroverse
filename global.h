@@ -101,6 +101,11 @@ static const double megabyte = (1024 * 1024);
 #include "enum.h"
 #endif
 
+#ifndef INIINCLUDES
+#include "dictionary.h"
+#include "iniparser.h"
+#endif
+
 #ifndef HASHINCLUDES
 #include "md5.h"
 #endif
@@ -171,11 +176,6 @@ static const double megabyte = (1024 * 1024);
 
 #ifndef MAPINCLUDES
 #include "map.h"
-#endif
-
-#ifndef INIINCLUDES
-#include "dictionary.h"
-#include "iniparser.h"
 #endif
 
 #ifndef IRCINCLUDES

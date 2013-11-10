@@ -19,7 +19,7 @@ mapcfgDef mapcfg;
 tickDef ticks;
 ircDef irccfg;
 
-
+bool firstload = false;
 
 int svListenSocket[PORT_TOTAL];
 
@@ -562,11 +562,11 @@ void svSignal( int signal ) {
 	int a, size;
  
 if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
-	printf("\n");
-	fflush(stdout);
-	loghandle(LOG_INFO, false, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);  
 	if( options.verbose ) {
+		printf("\n");
+		fflush(stdout);
 	}
+	loghandle(LOG_INFO, false, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);  
   	sysconfig.shutdown = true;
 	return;
 }
@@ -1013,14 +1013,27 @@ int loadconfig( char *file, int type ) {
 	int a, i;
 	int logfac = LOG_SYSLOG;
 	char DIRCHECKER[256];
-	dictionary * ini ;
+	inikey ini;
 
-ini = iniparser_load(file);
-if( ini == NULL ) {
-	fprintf(stderr, "cannot parse file: %s\n", file);
+if( firstload ) {
+	ini = dictionary_new(0);
+} else {
+	ini = iniparser_load(file);
+	if( ini == NULL ) {
+		fprintf(stderr, "cannot parse file: %s\n", file);
+		return -1;
+	}
+}
+
+if( iniparser_find_entry(ini,"NEED_TO_DELETE_ME") ) {
+	loghandle(LOG_CRIT, false, "A default, non-usable version of the evconfig.ini has been detected: \'%s\'",file);
+	loghandle(LOG_CRIT, false, "%s", "You must edit this file before the game server is able to run correctly!");
+	sysconfig.shutdown = true;
 	return -1;
 }
 
+if( sysconfig.shutdown )
+	return -1;
 
 if( type == CONFIG_SYSTEM ) {
 //Enter new scaner.
@@ -1158,36 +1171,177 @@ if( type == CONFIG_SYSTEM ) {
 		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
 	}
 } else if( type == CONFIG_BANNED ){
+	/*if( banlist.ini )
+		iniparser_freedict(banlist.ini);
+	banlist.ini = iniparser_load(file);*/
 	if( ( banlist.ip ) && ( banlist.number ) ) {
 		free( banlist.ip );
 	}
-	banlist.number = iniparser_getint(ini, "banned_ips:number", 0);
+	banlist.number = iniparser_getint(banlist.ini, "banned_ips:number", 0);
 	if( banlist.number > 0 ) {
 		banlist.ip = malloc( banlist.number * sizeof(*banlist.ip));
 	}
 	for(a = 0; a < banlist.number; a++) {
 		sprintf(DIRCHECKER,"banned_ips:ip%d",(a+1));
-		banlist.ip[a] = strdup(iniparser_getstring(ini, DIRCHECKER, "0.0.0.0"));
+		banlist.ip[a] = strdup(iniparser_getstring(banlist.ini, DIRCHECKER, "0.0.0.0"));
 	}
 } else if( type == CONFIG_TICKS ) {
-	ticks.status = iniparser_getboolean(ini, "ticks:status", false);
-	ticks.number = iniparser_getint(ini, "ticks:number", 0);
-	ticks.next = iniparser_getint(ini, "ticks:next", 0);
+	/*if( ticks.ini )
+		iniparser_freedict(ticks.ini);
+	ticks.ini = iniparser_load(file);*/
+	ticks.status = iniparser_getboolean(ticks.ini, "ticks:status", false);
+	ticks.number = iniparser_getint(ticks.ini, "ticks:number", 0);
+	ticks.round = iniparser_getint(ticks.ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
+	ticks.speed = iniparser_getint(ticks.ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
+	ticks.next = iniparser_getint(ticks.ini, "ticks:next", 0);
 } else if( type == CONFIG_IRC ) {
-	irccfg.host = strdup( iniparser_getstring(ini, "irc:host", "irc.freenode.net") );
-	irccfg.port = strdup( iniparser_getstring(ini, "irc:port", "6667") );
+	/*if( irccfg.ini )
+		iniparser_freedict(irccfg.ini);
+	irccfg.ini = iniparser_load(file);*/
+	irccfg.host = strdup( iniparser_getstring(irccfg.ini, "irc:host", "irc.freenode.net") );
+	irccfg.port = strdup( iniparser_getstring(irccfg.ini, "irc:port", "6667") );
 	strcpy(DIRCHECKER,"#");
-	strcat(DIRCHECKER,strdup( iniparser_getstring(ini, "irc:channel", "ectroverse") ) );
+	strcat(DIRCHECKER,strdup( iniparser_getstring(irccfg.ini, "irc:channel", "ectroverse") ) );
 	irccfg.channel = strdup(DIRCHECKER);
-	irccfg.botnick = strdup( iniparser_getstring(ini, "irc:bot_nick", "EVBot") );
-	irccfg.botpass = strdup( iniparser_getstring(ini, "irc:bot_pass", "botpass") );
-	irccfg.bot = iniparser_getboolean(ini, "irc:bot_enable", false);
-	irccfg.announcetick = iniparser_getboolean(ini, "irc:bot_announcetick", false);
+	irccfg.botnick = strdup( iniparser_getstring(irccfg.ini, "irc:bot_nick", "EVBot") );
+	irccfg.botpass = strdup( iniparser_getstring(irccfg.ini, "irc:bot_pass", "botpass") );
+	irccfg.bot = iniparser_getboolean(irccfg.ini, "irc:bot_enable", false);
+	irccfg.announcetick = iniparser_getboolean(irccfg.ini, "irc:bot_announcetick", false);
+}
+
+if( firstload ) {
+	FILE *dumpfile;
+	if( !( iniparser_find_entry(ini,"system") ) ){
+		iniparser_set(ini,"system",NULL);
+		iniparser_set(ini,"system:name",sysconfig.servername);
+		iniparser_set(ini,"system:directory",sysconfig.directory);
+		iniparser_set(ini,"system:downfrom",sysconfig.downfrom);
+		iniparser_set(ini,"system:httpimages",sysconfig.httpimages);
+		iniparser_set(ini,"system:httpfiles",sysconfig.httpfiles);
+		iniparser_set(ini,"system:httpread",sysconfig.httpread);
+		iniparser_set(ini,"system:pubforum",sysconfig.pubforum);
+		iniparser_set(ini,"system:port",itoa(sysconfig.httpport));
+		iniparser_set(ini,"system:stockpile","14");
+		iniparser_set(ini,"system:auto_victory_afterticks","52");
+		iniparser_set(ini,"system:auto_endwar_afterticks","26");
+		iniparser_set(ini,"system:tick_time","3600");
+		iniparser_set(ini,"system:round","0");
+	}
+	if( !( iniparser_find_entry(ini,"evmap") ) ){
+		iniparser_set(ini,"evmap",NULL);
+		iniparser_set(ini,"evmap:enable", sysconfig.evmpactv ? "true" : "false" );
+		iniparser_set(ini,"evmap:port", itoa(sysconfig.evmpport) );
+	}
+	if( !( iniparser_find_entry(ini,"syslog") ) ){
+		iniparser_set(ini,"syslog",NULL);
+		iniparser_set(ini,"syslog:tag", sysconfig.syslog_tagname);
+		iniparser_set(ini,"syslog:facility", sysconfig.syslog_facility);
+	}
+	if( !( iniparser_find_entry(ini,"irc") ) ){
+		iniparser_set(ini,"irc",NULL);
+		iniparser_set(ini,"irc:host", "irc.freenode.net" );
+		iniparser_set(ini,"irc:port", "6667" );
+		iniparser_set(ini,"irc:channel","ectroverse");
+		iniparser_set(ini,"irc:bot_nick", "EVBot" );
+		iniparser_set(ini,"irc:bot_pass", "botpass" );
+		iniparser_set(ini,"irc:bot_enable", "false" );
+		iniparser_set(ini,"irc:bot_announcetick", "false" );
+	}
+	if( !( iniparser_find_entry(ini,"admin") ) ){
+		iniparser_set(ini,"admin",NULL);
+		iniparser_set(ini,"admin:number", "2" );
+		iniparser_set(ini,"admin:name1", "admin" );
+		iniparser_set(ini,"admin:password1","password");
+		iniparser_set(ini,"admin:faction1", "Admins Faction" );
+		iniparser_set(ini,"admin:forumtag1", "<img src=\"images/admin.gif\">" );
+		iniparser_set(ini,"admin:level1", "3" );
+		iniparser_set(ini,"admin:race1", "2" );
+		iniparser_set(ini,"admin:name2", "help" );
+		iniparser_set(ini,"admin:password2","password");
+		iniparser_set(ini,"admin:faction2", "Admins Helper" );
+		iniparser_set(ini,"admin:forumtag2", "Helper" );
+	}
+	if( !( iniparser_find_entry(ini,"admin_empire") ) ){
+		iniparser_set(ini,"admin_empire",NULL);
+		iniparser_set(ini,"admin_empire:number", itoa(admincfg.empire) );
+		iniparser_set(ini,"admin_empire:name", admincfg.ename );
+		iniparser_set(ini,"admin_empire:password", admincfg.epassword );
+		iniparser_set(ini,"admin_empire:ommit_from_rank", admincfg.rankommit ? "true" : "false" );
+	}
+	if( !( iniparser_find_entry(ini,"map") ) ){
+		iniparser_set(ini,"map",NULL);
+		iniparser_set(ini,"map:sizex", itoa(mapcfg.sizex) );
+		iniparser_set(ini,"map:systems", itoa(mapcfg.systems) );
+		iniparser_set(ini,"map:families", itoa(mapcfg.families) );
+		iniparser_set(ini,"map:members_perfamily", itoa(mapcfg.fmembers) );
+		iniparser_set(ini,"map:border", itoa(mapcfg.border) );
+		iniparser_set(ini,"map:anglevar", itoa(mapcfg.anglevar) );
+		iniparser_set(ini,"map:linknum", itoa(mapcfg.linknum) );
+		iniparser_set(ini,"map:linkradius", itoa(mapcfg.linkradius) );
+		iniparser_set(ini,"map:lenghtbase", itoa(mapcfg.lenghtbase) );
+		iniparser_set(ini,"map:lenghtvar", itoa(mapcfg.lenghtvar) );
+		for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
+			sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);
+			for(i = 0; DIRCHECKER[i]; i++){
+				DIRCHECKER[i] = tolower(DIRCHECKER[i]);
+			}
+			iniparser_set(ini,DIRCHECKER, itoa( (rand() % 35) ) );
+		}
+	}
+	if( !( iniparser_find_entry(ini,"banned_ips") ) ){
+		iniparser_set(ini,"banned_ips",NULL);
+		iniparser_set(ini,"banned_ips:number", "3" );
+		iniparser_set(ini,"banned_ips:ip1", "10.0.0.*" );
+		iniparser_set(ini,"banned_ips:ip2","192.168.0.*");
+		iniparser_set(ini,"banned_ips:ip3", "127.0.0.1" );
+	}
+	iniparser_set(ini,"NEED_TO_DELETE_ME",NULL);
+	dumpfile = fopen(file, "w");
+	if(file) {
+		fprintf( dumpfile, "%s\n", "; NEctroverse Alpha Config file" );
+		fprintf( dumpfile, "%s\n", "; Why did I change from config.h to config.ini ??" );
+		fprintf( dumpfile, "%s\n", "; Simple, changes here can be implemented without a rebuild!" );
+		fprintf( dumpfile, "%s\n", "; Just change and restart. Simple =D" );
+		fprintf( dumpfile, "%s\n", "; -- Necro" );
+		fprintf( dumpfile, "\n" );
+		iniparser_dump_ini(ini,dumpfile);
+		fprintf( dumpfile, "%s\n", ";Auto generated, You will need to delete the DELETE settings before this file will load.!" );
+		fprintf( dumpfile, "%s\n", ";This file was automaticly generated as no ini file was present!" );
+		fflush( dumpfile );
+		fclose( dumpfile );
+		loghandle(LOG_CRIT, false, "A default, non-usable version of the evconfig.ini has been dumped to: \'%s\'",file);
+		loghandle(LOG_CRIT, false, "%s", "You must edit this file according to your needs before you run the game server!");
+	}
+	sysconfig.shutdown = true;
 }
 
 iniparser_freedict(ini);
 
 return 1;
+}
+
+char *itoa(int i){
+    char const digit[] = "0123456789";
+    char buffer[1024];
+    char *p = buffer;
+
+if(i<0){
+	*p++ = '-';
+	i = -1;
+}
+
+int shifter = i;
+do{
+	++p;
+	shifter = shifter/10;
+}while(shifter);
+*p = '\0';
+do{
+	*--p = digit[i%10];
+	i = i/10;
+}while(i);
+    
+return strdup(p);
 }
 
 int savetickconfig() {
@@ -1200,12 +1354,14 @@ if(!file)
 	file = fopen( DIRCHECKER, "w" );
 if(file) {
 	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
-	fprintf( file, "%s\n", "[ticks]" );
-	fprintf( file, "status=%s\n", ( ticks.status ? "true" : "false" ) );
-	fprintf( file, "number=%d\n", ticks.number );
-	fprintf( file, "next=%d\n", ticks.next );
-	fprintf( file, "debug_id=%d\n", ticks.debug_id );
-	fprintf( file, "debug_pass=%d\n", ticks.debug_pass );
+	iniparser_set(ticks.ini,"ticks:status",ticks.status ? "true" : "false");
+	iniparser_set(ticks.ini,"ticks:number",itoa(ticks.number));
+	iniparser_set(ticks.ini,"ticks:round",itoa(ticks.round));
+	iniparser_set(ticks.ini,"ticks:speed",itoa(ticks.speed));
+	iniparser_set(ticks.ini,"ticks:next",itoa(ticks.next));
+	iniparser_set(ticks.ini,"ticks:debug_id",itoa(ticks.debug_id));
+	iniparser_set(ticks.ini,"ticks:debug_pass",itoa(ticks.debug_pass));
+	iniparser_dump_ini(ticks.ini,file);
 	fflush( file );
 	fclose( file );
 }
@@ -1300,9 +1456,11 @@ if( checkops(argc,argv) ) {
 
 if( file_exist(options.sysini) == 0 ) {
 	printf("File does not exist: \'%s\'\n",options.sysini);
+	//printf("The above file will be created with a default set, please review the file and reload.\n");
 	printf("Use \'-c /path/to/evconfig.ini\' to specify ini file to load (including the file name)\n");
 	fflush(stdout);
-	exit(true);
+	firstload = true;
+	//exit(true);
 } else if( options.verbose ) {
 	printf("Loading config from file: \'%s\'\n",options.sysini);
 	fflush(stdout);
@@ -1318,6 +1476,9 @@ if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
 	exit(true);
 }
 
+if( ( firstload ) || ( sysconfig.shutdown ) )
+	goto BAILOUT;
+	
 sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
 	loghandle(LOG_INFO, false, "%s", "Pipe file detected, auto switching to client mode");
@@ -1474,7 +1635,7 @@ while( file_exist(DIRCHECKER) ) {
 	}
 }
 
-
+BAILOUT:
 cleanUp(0);
 printf("\n");
 

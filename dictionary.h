@@ -2,7 +2,7 @@
 /*-------------------------------------------------------------------------*/
 /**
    @file    dictionary.h
-   @author  N. Devillard
+   @author  N. Devillard -- Adapted by Necrolgan for NEctroverse.
    @brief   Implements a dictionary for string variables.
 
    This module implements a simple dictionary object, i.e. a list
@@ -10,22 +10,6 @@
    informations retrieved from a configuration file (ini files).
 */
 /*--------------------------------------------------------------------------*/
-
-#ifndef _DICTIONARY_H_
-#define _DICTIONARY_H_
-
-/*---------------------------------------------------------------------------
-                                Includes
- ---------------------------------------------------------------------------*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*---------------------------------------------------------------------------
-                                New types
- ---------------------------------------------------------------------------*/
-
 
 /*-------------------------------------------------------------------------*/
 /**
@@ -43,7 +27,7 @@ typedef struct _dictionary_ {
     char        **  val ;   /** List of string values */
     char        **  key ;   /** List of string keys */
     unsigned     *  hash ;  /** List of hash values for keys */
-} dictionary ;
+} dictionary, *inikey;
 
 
 /*---------------------------------------------------------------------------
@@ -161,8 +145,3 @@ void dictionary_unset(dictionary * d, const char * key);
 /*--------------------------------------------------------------------------*/
 void dictionary_dump(dictionary * d, FILE * out);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif

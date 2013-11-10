@@ -32,6 +32,7 @@ typedef struct {
 	bool autostop;
 	struct tm start;
 	struct tm stop;
+	inikey ini;
 } configDef, *configPtr;
 
 extern configDef sysconfig;
@@ -49,6 +50,7 @@ typedef struct {
 	char **faction;
 	char **password;
 	char **forumtag;
+	inikey ini;
 } adminDef, *adminPtr;
 
 extern adminDef admincfg;
@@ -62,6 +64,7 @@ typedef struct {
 	char *botpass;
 	char *channel;
 	bool announcetick;
+	inikey ini;
 } ircDef, *ircPtr;
 
 extern ircDef irccfg;
@@ -91,6 +94,7 @@ typedef struct {
 	char *user;
 	char *password;
 	char *database;
+	inikey ini;
 } mySqlDef, *mySqlPtr;
 
 extern mySqlDef mysqlcfg;
@@ -99,9 +103,12 @@ extern mySqlDef mysqlcfg;
 typedef struct {
 	bool status;
 	int number;
+	int round;
+	int speed;
 	int next;
 	int debug_id;
 	int debug_pass;
+	inikey ini;
 } tickDef, *tickPtr;
 
 extern tickDef ticks;
@@ -205,6 +212,7 @@ typedef struct {
 	//new ban listing
 	int number;
 	char **ip;
+	inikey ini;
 } svbanDef, *svbanPtr;
 
 extern svbanDef banlist;
@@ -212,8 +220,8 @@ extern svbanDef banlist;
 #define MAXLOGSTRING 1024
 void loghandle( int flag, int error, char *fmt, ... );
 
-
-
+extern bool firstload;
+char *itoa(int i);
 
 
 
