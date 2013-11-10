@@ -1568,30 +1568,33 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
 
 
 int cmdInit() {
-	int id;
+	int id, a;
 	dbUserPtr user;
 	dbUserInfoDef infod;
+	
+for( a = 0; a < admincfg.numadmins; a++ ) {
 
-if( ( id = dbUserSearch( admincfg.name ) ) >= 0 )
-	return 1;
+	if( !( admincfg.name[a] ) || !( admincfg.password[a] ) || !( admincfg.faction[a] ) || ( ( id = dbUserSearch( admincfg.name[a] ) ) >= 0 ) )
+		continue;
 
-loghandle(LOG_INFO, false, "Creating Administrator account named: \"%s\"", admincfg.name );
-if( ( id = cmdExecNewUser( admincfg.name, admincfg.password, admincfg.faction ) ) < 0 ) {
-	loghandle(LOG_INFO, false, "Failure Creating Administrator account: \"%s\"", admincfg.name );
-	return 0;
-}
-user = dbUserLinkID( id );
-user->flags = 0;
-user->level = admincfg.level;
-dbUserSave( id, user );
-dbUserInfoRetrieve(id, &infod);
-sprintf( infod.forumtag, "%s", admincfg.forumtag );
-dbUserInfoSet(id, &infod);
+	loghandle(LOG_INFO, false, "Creating Administrator account named: \"%s\"", admincfg.name[a] );
+	if( ( id = cmdExecNewUser( admincfg.name[a], admincfg.password[a], admincfg.faction[a] ) ) < 0 ) {
+		loghandle(LOG_INFO, false, "Failure Creating Administrator account: \"%s\"", admincfg.name[a] );
+		continue;
+	}
+	user = dbUserLinkID( id );
+	user->flags = 0;
+	user->level = admincfg.level[a];
+	dbUserSave( id, user );
+	dbUserInfoRetrieve(id, &infod);
+	sprintf( infod.forumtag, "%s", admincfg.forumtag[a] );
+	dbUserInfoSet(id, &infod);
 
-if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race, admincfg.level ) < 0 ) {
-	loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name );
-	return 0;
-}
+	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race[a], admincfg.level[a] ) < 0 ) {
+		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name[a] );
+		continue;
+	}
+}	
 
 dbFlush();
 

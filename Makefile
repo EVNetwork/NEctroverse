@@ -18,7 +18,7 @@ DEFS = -ggdb -rdynamic
 server: sv.o io.o db.o cmd.o html.o map.o md5.o
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
-sv.o: *.h sv.c ini.c ircbot.c
+sv.o: *.h sv.c iniparser.c ircbot.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
 io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c url_parser.c

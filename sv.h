@@ -38,16 +38,17 @@ extern configDef sysconfig;
 
 typedef struct {
 	//admin
-	int race;
-	int level;
 	int empire;
+	int numadmins;
 	bool rankommit;
-	char* name;
-	char* faction;
-	char* password;
-	char* forumtag;
-	char* ename;
-	char* epassword;
+	int *race;
+	int *level;
+	char *ename;
+	char *epassword;
+	char **name;
+	char **faction;
+	char **password;
+	char **forumtag;
 } adminDef, *adminPtr;
 
 extern adminDef admincfg;
@@ -84,12 +85,12 @@ extern optionsDef options;
 
 typedef struct {
 	//mysql
-	bool active;
-	char* host;
+	bool enable;
+	char *host;
 	int port;
-	char* user;
-	char* password;
-	char* database;
+	char *user;
+	char *password;
+	char *database;
 } mySqlDef, *mySqlPtr;
 
 extern mySqlDef mysqlcfg;
@@ -203,7 +204,7 @@ void svSendStatic( svConnectionPtr cnt, void *data, int size );
 typedef struct {
 	//new ban listing
 	int number;
-	char (*ip)[32];
+	char **ip;
 } svbanDef, *svbanPtr;
 
 extern svbanDef banlist;

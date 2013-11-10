@@ -16,7 +16,7 @@ void mapCalcFactors(mapstoreDef *mapstore) {
 
 ptsnum = 0;
 
-for( a = 0 ; a < mapcfg.num ; a++ ) {
+for( a = 0 ; a < mapcfg.linknum ; a++ ) {
 	fpos[0] = (float)( mapcfg.border + ( rand() % ( mapcfg.sizex-2*mapcfg.border ) ) );
 	fpos[1] = (float)( mapcfg.border + ( rand() % ( mapcfg.sizey-2*mapcfg.border ) ) );
 	angle = rand() % 360;
@@ -42,9 +42,9 @@ for( y = index = 0 ; y < mapcfg.sizey ; y++ ) {
 			fx = (float)x - pts[a][0];
 			fy = (float)y - pts[a][1];
 			dist = sqrt( fx*fx + fy*fy );
-			if( dist >= mapcfg.radius )
+			if( dist >= mapcfg.linkradius )
 			continue;
-			mindist += mapcfg.radius - dist;
+			mindist += mapcfg.linkradius - dist;
 		}
 		mapstore->factor[index] += (int)floor( mindist );
 	}

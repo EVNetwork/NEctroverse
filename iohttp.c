@@ -304,6 +304,7 @@ if( chdir( COREDIR ) != -1 ) {
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famleader;
+
   sprintf( file->path, "/famleader" );
 
   file = iohttpFileAdd( 0 );
@@ -582,6 +583,7 @@ void inNewHTTP( svConnectionPtr cnt )
   {
     if( !( ioCompareFindWords( inet_ntoa( cnt->sockaddr.sin_addr ), banlist.ip[i] ) ) )
       continue;
+    loghandle(LOG_INFO, false, "Banned connection from: \'%s\'  matching \'%s\'",inet_ntoa( cnt->sockaddr.sin_addr ),banlist.ip[i] );
     cnt->flags |= SV_FLAGS_NEED_WRITE;
     iohttp->flags = 8 | 16;
     iohttp->code = 200;

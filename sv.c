@@ -2,7 +2,7 @@
 #include "global.h"
 #endif
 
-#include "ini.c"
+#include "iniparser.c"
 #include "ircbot.c"
 
 svConnectionPtr svConnectionList = 0;
@@ -10,13 +10,12 @@ fd_set svSelectRead;
 fd_set svSelectWrite;
 fd_set svSelectError;
 
-configDef sysconfig_default = { "NEctroverse", "", "", "", "", "", "", -1, false, false, false, 3306, 0, false, 0, "", "LOG_SYSLOG" };
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
-mySqlDef mysqlcfg = { false, "localhost", 3306, "", "", "evcore_database" };
-mapcfgDef mapcfg = { 0, 0, 0, 0, 0, 20, 1024.0, 60, 8.0, 2, 24, 0 };
 
 configDef sysconfig;
+mySqlDef mysqlcfg;
 adminDef admincfg;
+mapcfgDef mapcfg;
 tickDef ticks;
 ircDef irccfg;
 
@@ -562,7 +561,7 @@ return;
 void svSignal( int signal ) {
 	int a, size;
  
-  if(signal == SIGUSR1)
+/*  if(signal == SIGUSR1)
   {
   	return;
   }
@@ -573,7 +572,7 @@ void svSignal( int signal ) {
   	dbEnd();
   	dbInit();
   	return;
-  }
+  }*/
 
 iohttpDataPtr iohttp;
 loghandle(LOG_CRIT, false, "ERROR, signal \'%s\'", cmdSignalNames[signal]);
@@ -1005,284 +1004,118 @@ free( strCpy );
 return;
 }
 
-
-static int sysconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	configPtr pconfig = (configPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-if (MATCH("system", "port")) {
-	pconfig->httpport = atoi(value);
-} else if (MATCH("system", "name")) {
-	pconfig->servername = strdup(value);
-} else if (MATCH("system", "downfrom")) {
-	pconfig->downfrom = strdup(value);
-} else if (MATCH("system", "directory")) {
-	pconfig->directory = strdup(value);
-} else if (MATCH("system", "httpimages")) {
-	pconfig->httpimages = strdup(value);
-} else if (MATCH("system", "httpfiles")) {
-	pconfig->httpfiles = strdup(value);
-} else if (MATCH("system", "httpread")) {
-	pconfig->httpread = strdup(value);
-} else if (MATCH("system", "publicforum")) {
-	pconfig->pubforum = strdup(value);
-} else if (MATCH("system", "round")) {
-	pconfig->round = atoi(value);
-} else if (MATCH("system", "tick_time")) {
-	pconfig->ticktime = atoi(value);
-} else if (MATCH("system", "stockpile")) {
-	pconfig->stockpile = atoi(value);
-} else if (MATCH("system", "auto_endwar_afterticks")) {
-	pconfig->warend = atoi(value);
-} else if (MATCH("system", "auto_victory_afterticks")) {
-	pconfig->victory = atoi(value);
-} else if (MATCH("evmap", "port")) {
-	pconfig->evmpport = atoi(value);
-} else if (MATCH("evmap", "enabled")) {
-        pconfig->evmpactv = strcmp(value,"false") ? true : false;
-} else if (MATCH("syslog", "tag")) {
-        pconfig->syslog_tagname = strdup(value);
-} else if (MATCH("syslog", "facility")) {
-        pconfig->syslog_facility = strdup(value);
-} else if (MATCH("auto_start", "enable")) {
-        pconfig->autostart = strcmp(value,"false") ? true : false;
-} else if (MATCH("auto_start", "year")) {
-        pconfig->start.tm_year = ( 100 + atoi(value) );
-} else if (MATCH("auto_start", "month")) {
-        pconfig->start.tm_mon = ( atoi(value) - 1 );
-} else if (MATCH("auto_start", "day")) {
-        pconfig->start.tm_mday = atoi(value);
-} else if (MATCH("auto_start", "hour")) {
-        pconfig->start.tm_hour = atoi(value);
-} else if (MATCH("auto_start", "minute")) {
-        pconfig->start.tm_min = atoi(value);
-} else if (MATCH("auto_start", "second")) {
-        pconfig->start.tm_sec = atoi(value);
-} else if (MATCH("auto_stop", "enable")) {
-        pconfig->autostop = strcmp(value,"false") ? true : false;
-} else if (MATCH("auto_stop", "year")) {
-        pconfig->stop.tm_year = ( 100 + atoi(value) );
-} else if (MATCH("auto_stop", "month")) {
-        pconfig->stop.tm_mon = ( atoi(value) - 1 );
-} else if (MATCH("auto_stop", "day")) {
-        pconfig->stop.tm_mday = atoi(value);
-} else if (MATCH("auto_stop", "hour")) {
-        pconfig->stop.tm_hour = atoi(value);
-} else if (MATCH("auto_stop", "minute")) {
-        pconfig->stop.tm_min = atoi(value);
-} else if (MATCH("auto_stop", "second")) {
-        pconfig->stop.tm_sec = atoi(value);
-} else {
-        return 0;
-}
-
-
-/*
-struct tm beg;
-beg.tm_sec = 0;
-beg.tm_min = 0;
-beg.tm_hour = 0;
-beg.tm_mday = 10; //But here, from 1 ... lolz
-beg.tm_mon = 10; //Yet again, from 0
-beg.tm_year = 113; //(millenuim/year)
-timediff( beg  );
-*/
-
-
-return 1;
-}
-
-static int adminconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	adminPtr pconfig = (adminPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-if (MATCH("admin", "name")) {
-        pconfig->name = strdup(value);
-} else if (MATCH("admin", "faction")) {
-        pconfig->faction = strdup(value);
-} else if (MATCH("admin", "forumtag")) {
-        pconfig->forumtag = strdup(value);
-} else if (MATCH("admin", "password")) {
-        pconfig->password = strdup(value);
-} else if (MATCH("admin", "level")) {
-        pconfig->level = atoi(value);
-} else if (MATCH("admin", "race")) {
-        pconfig->race = atoi(value);
-} else if (MATCH("admin_empire", "number")) {
-        pconfig->empire = atoi(value);
-} else if (MATCH("admin_empire", "name")) {
-        pconfig->ename = strdup(value);
-} else if (MATCH("admin_empire", "password")) {
-        pconfig->epassword = strdup(value);
-} else if (MATCH("admin_empire", "ommit_from_ranks")) {
-	pconfig->rankommit = strcmp(value,"false") ? true : false;
-} else {
-        return 0;
-}
-
-return 1;
-}
-
-static int mysqlconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	mySqlPtr pconfig = (mySqlPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-if (MATCH("mysql", "enabled")) {
-        pconfig->active = strcmp(value,"false") ? true : false;
-} else if (MATCH("mysql", "host")) {
-        pconfig->host = strdup(value);
-} else if (MATCH("mysql", "user")) {
-        pconfig->user = strdup(value);
-} else if (MATCH("mysql", "password")) {
-        pconfig->password = strdup(value);
-} else if (MATCH("mysql", "database")) {
-        pconfig->database = strdup(value);
-} else {
-        return 0;
-}
-
-return 1;
-}
-
-static int ircconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	ircPtr pconfig = (ircPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-if (MATCH("irc", "botenable")) {
-        pconfig->bot = strcmp(value,"false") ? true : false;
-
-} else if (MATCH("irc", "host")) {
-        pconfig->host = strdup(value);
-} else if (MATCH("irc", "channel")) {
-        pconfig->channel = strdup(value);
-} else if (MATCH("irc", "botnick")) {
-        pconfig->botnick = strdup(value);
-} else if (MATCH("irc", "botpass")) {
-        pconfig->botpass = strdup(value);
-} else if (MATCH("irc", "port")) {
-        pconfig->port = strdup(value);
-} else {
-        return 0;
-}
-
-return 1;
-}
-
-static int tickconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	tickPtr pconfig = (tickPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-if (MATCH("ticks", "status")) {
-	pconfig->status = strcmp(value,"false") ? true : false;
-} else if (MATCH("ticks", "number")) {
-	pconfig->number = atoi(value);
-} else if (MATCH("ticks", "next")) {
-	pconfig->next = atoi(value);
-} else if (MATCH("ticks", "debug_id")) {
-	pconfig->debug_id = atoi(value);
-} else if (MATCH("ticks", "debug_pass")) {
-	pconfig->debug_pass = atoi(value);
-} else {
-        return 0;
-}
-
-return 1;
-}
-
-static int mapconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	int a, i;
-	char DIRCHECKER[256];
-	mapcfgPtr pconfig = (mapcfgPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-
-for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
-	sprintf(DIRCHECKER,"%s",cmdBonusName[a]);
-	for(i = 0; DIRCHECKER[i]; i++){
-		DIRCHECKER[i] = tolower(DIRCHECKER[i]);
-	}
-	if (MATCH("mapgen", DIRCHECKER)) {
-		pconfig->bonusnum += atoi(value);
-		pconfig->bonusvar[a] = atoi(value);
-	} else {
-		continue;
-	}
-}
-
-if (MATCH("mapgen", "size")) {
-	pconfig->sizex = atoi(value);
-//} else if (MATCH("mapgen", "height")) {
-	pconfig->sizey = atoi(value); 
-} else if (MATCH("mapgen", "systems")) {
-	pconfig->systems = atoi(value);
-} else if (MATCH("mapgen", "families")) {
-	pconfig->families = atoi(value);
-} else if (MATCH("mapgen", "members_perfamily")) {
-	pconfig->fmembers = atoi(value);
-} else if (MATCH("mapgen", "border")) {
-	pconfig->border = atoi(value);
-} else if (MATCH("mapgen", "anglevar")) {
-	pconfig->anglevar = atoi(value);
-} else if (MATCH("mapgen", "linknum")) {
-	pconfig->num = atoi(value);
-} else if (MATCH("mapgen", "radius")) {
-	pconfig->radius = atoi(value);
-} else if (MATCH("mapgen", "lenghtbase")) {
-	pconfig->lenghtbase = atoi(value);
-} else if (MATCH("mapgen", "lenghtvar")) {
-	pconfig->lenghtvar = atoi(value);
-} else {
-        return 0;
-}
-
-
-
-return 1;
-}
-
-static int banconfig_handler(void* fconfig, const char* section, const char* name, const char* value) {
-	int a;
-	char DIRCHECKER[256];
-	svbanPtr pconfig = (svbanPtr)fconfig;
-
-#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-if (MATCH("banned_ips", "number")) {
-	pconfig->number = atoi(value);
-}
-pconfig->ip = malloc(pconfig->number * sizeof(*pconfig->ip)); //Not really sure if this is needed, but I figger it's safer.
-for(a = 0; a < banlist.number; a++) {
-	sprintf(DIRCHECKER,"ip%d",(a+1));
-	if (MATCH("banned_ips", DIRCHECKER)) {
-		sprintf(pconfig->ip[a],"%s",value);
-	} else {
-		continue;
-	}
-}
-free(pconfig->ip); //Not really sure if this is needed, but I figger it's safer.
-
-return 1;
-}
-
 int loadconfig( char *file, int type ) {
+	int a, i;
 	int logfac = LOG_SYSLOG;
+	char DIRCHECKER[256];
+	dictionary * ini ;
+
+ini = iniparser_load(file);
+if( ini == NULL ) {
+	fprintf(stderr, "cannot parse file: %s\n", file);
+	return -1;
+}
+
 
 if( type == CONFIG_SYSTEM ) {
-	if (ini_parse(file, sysconfig_handler, &sysconfig) < 0) {
-		loghandle(LOG_ERR, false, "System Config Error: can not load \"%s\"", file );
-		return 0;
+//Enter new scaner.
+	sysconfig.syslog_tagname = strdup( iniparser_getstring(ini, "syslog:tag", "EVServer" ) );
+	sysconfig.syslog_facility = strdup( iniparser_getstring(ini, "syslog:facility", "LOG_LOCAL6" ) );
+
+	sysconfig.servername = strdup( iniparser_getstring(ini, "system:name", "NEctroverse") );
+	sysconfig.directory = strdup( iniparser_getstring(ini, "system:directory", "/tmp/evcore/data") );
+	sysconfig.downfrom = strdup( iniparser_getstring(ini, "system:downfrom", "http://www.sknill.com/evbasic") );
+	sysconfig.httpimages = strdup( iniparser_getstring(ini, "system:httpimages", "/tmp/evcore/html/images") );
+	sysconfig.httpfiles = strdup( iniparser_getstring(ini, "system:httpfiles", "/tmp/evcore/html/files") );
+	sysconfig.httpread = strdup( iniparser_getstring(ini, "system:httpread", "/tmp/evcore/html/read") );
+	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:pubforum", sysconfig.directory ) );
+
+	sysconfig.httpport = iniparser_getint(ini, "system:port", 9990);
+	sysconfig.evmpactv = iniparser_getboolean(ini, "evmap:enable", false);
+	sysconfig.evmpport = iniparser_getint(ini, "evmap:port", 9991);
+	
+	sysconfig.stockpile = iniparser_getint(ini, "system:stockpile", 0);
+	sysconfig.warend = iniparser_getint(ini, "system:auto_victory_afterticks", 0);
+	sysconfig.victory = iniparser_getint(ini, "system:auto_endwar_afterticks", 0);
+	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 0);
+	
+	sysconfig.round = iniparser_getint(ini, "system:round", 0); //FIXME -- Needs moving to a different function set.
+	
+	sysconfig.autostart = iniparser_getboolean(ini, "auto_start:enable", false);
+	sysconfig.start.tm_sec = iniparser_getint(ini, "auto_start:second", -1);
+	sysconfig.start.tm_min = iniparser_getint(ini, "auto_start:minute", -1);
+	sysconfig.start.tm_mday = iniparser_getint(ini, "auto_start:day", -1);
+	sysconfig.start.tm_mon = (( iniparser_getint(ini, "auto_start:month", -1) ) - 1);
+	sysconfig.start.tm_year = (( iniparser_getint(ini, "auto_start:year", -1) ) + 100);
+	
+	sysconfig.autostop = iniparser_getboolean(ini, "auto_stop:enable", false);
+	sysconfig.stop.tm_sec = iniparser_getint(ini, "auto_stop:second", -1);
+	sysconfig.stop.tm_min = iniparser_getint(ini, "auto_stop:minute", -1);
+	sysconfig.stop.tm_mday = iniparser_getint(ini, "auto_stop:day", -1);
+	sysconfig.stop.tm_mon = (( iniparser_getint(ini, "auto_stop:month", -1) ) - 1);
+	sysconfig.stop.tm_year = (( iniparser_getint(ini, "auto_stop:year", -1) ) + 100);
+
+	mysqlcfg.enable = iniparser_getboolean(ini, "mysql:enable", false);
+	mysqlcfg.host = strdup( iniparser_getstring(ini, "mysql:host", "localhost") );
+	mysqlcfg.port = iniparser_getint(ini, "mysql:port", 3306);
+	mysqlcfg.user = strdup( iniparser_getstring(ini, "mysql:user", "localhost") );
+	mysqlcfg.password = strdup( iniparser_getstring(ini, "mysql:password", NULL) );
+	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
+	
+
+	admincfg.numadmins = iniparser_getint(ini, "admin:number", 0);
+	if( admincfg.numadmins > 0 ) {
+		admincfg.race = malloc( admincfg.numadmins * sizeof(*admincfg.race) );
+		admincfg.level = malloc( admincfg.numadmins * sizeof(*admincfg.level) );
+		admincfg.name = malloc( admincfg.numadmins * sizeof(*admincfg.name) );
+		admincfg.password = malloc( admincfg.numadmins * sizeof(*admincfg.password) );
+		admincfg.faction = malloc( admincfg.numadmins * sizeof(*admincfg.faction) );
+		admincfg.forumtag = malloc( admincfg.numadmins * sizeof(*admincfg.forumtag) );
 	}
-	if (ini_parse(file, mapconfig_handler, &mapcfg) < 0) {
-		loghandle(LOG_ERR, false, "Map Config Error: can not load \"%s\"", file );
-		return 0;
+	for( a = 0; a < admincfg.numadmins ; a++ ){
+		sprintf(DIRCHECKER,"admin:race%d",(a+1));
+		admincfg.race[a] = iniparser_getint(ini, DIRCHECKER, 0);
+		sprintf(DIRCHECKER,"admin:level%d",(a+1));
+		admincfg.level[a] = iniparser_getint(ini, DIRCHECKER, 0);
+		sprintf(DIRCHECKER,"admin:name%d",(a+1));
+		admincfg.name[a] = strdup( iniparser_getstring(ini, DIRCHECKER, NULL) );
+		sprintf(DIRCHECKER,"admin:faction%d",(a+1));
+		admincfg.faction[a] = strdup( iniparser_getstring(ini, DIRCHECKER, NULL) );
+		sprintf(DIRCHECKER,"admin:password%d",(a+1));
+		admincfg.password[a] = strdup( iniparser_getstring(ini, DIRCHECKER, NULL) );
 	}
-	if (ini_parse(file, adminconfig_handler, &admincfg) < 0) {
-		loghandle(LOG_ERR, false, "Admin Config Error: can not load \"%s\"", file );
-		return 0;
+	admincfg.empire = iniparser_getint(ini, "admin_empire:number", 0);
+	admincfg.ename = strdup( iniparser_getstring(ini, "admin_empire:name", "Administration") );
+	admincfg.epassword = strdup( iniparser_getstring(ini, "admin_empire:password", "Administration") );
+	admincfg.rankommit = iniparser_getboolean(ini, "admin_empire:ommit_from_ranks", false);
+
+	mapcfg.sizex = iniparser_getint(ini, "map:sizex", 100);
+	mapcfg.sizey = iniparser_getint(ini, "map:sizey", mapcfg.sizex);
+	
+	mapcfg.systems = iniparser_getint(ini, "map:systems", 250);
+	mapcfg.families = iniparser_getint(ini, "map:families", 10);
+	mapcfg.fmembers = iniparser_getint(ini, "map:members_perfamily", 10);
+	
+	mapcfg.border = iniparser_getint(ini, "map:border", 20);
+	mapcfg.anglevar = iniparser_getdouble(ini, "map:anglevar", 1024.0);
+
+	mapcfg.linknum = iniparser_getdouble(ini, "map:linknum", 60);
+	mapcfg.linkradius = iniparser_getdouble(ini, "map:linkradius", 8.0);
+	mapcfg.lenghtbase = iniparser_getint(ini, "map:lenghtbase", 2);
+	mapcfg.lenghtvar = iniparser_getint(ini, "map:lenghtvar", 24);
+	
+	mapcfg.bonusnum = 0;
+	for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
+		sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);
+		for(i = 0; DIRCHECKER[i]; i++){
+			DIRCHECKER[i] = tolower(DIRCHECKER[i]);
+		}
+		mapcfg.bonusvar[a] = iniparser_getint(ini, DIRCHECKER, 0);
+		mapcfg.bonusnum += mapcfg.bonusvar[a];
 	}
-	if (ini_parse(file, mysqlconfig_handler, &mysqlcfg) < 0) {
-		loghandle(LOG_ERR, false, "mySql Config Error: can not load \"%s\"", file );
-		return 0;
-	}
+
+
+//End config scanning... handle variables.
 	if( sysconfig.evmpactv ) {
 		options.interfaces = 2;
 		options.port[PORT_EVMP] = sysconfig.evmpport;
@@ -1318,20 +1151,34 @@ if( type == CONFIG_SYSTEM ) {
 		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
 	}
 } else if( type == CONFIG_BANNED ){
-	banlist.number = 0;
-	if (ini_parse(file, banconfig_handler, &banlist ) < 0) {
-		return 0;
+	if( ( banlist.ip ) && ( banlist.number ) ) {
+		free( banlist.ip );
+	}
+	banlist.number = iniparser_getint(ini, "banned_ips:number", 0);
+	if( banlist.number > 0 ) {
+		banlist.ip = malloc( banlist.number * sizeof(*banlist.ip));
+	}
+	for(a = 0; a < banlist.number; a++) {
+		sprintf(DIRCHECKER,"banned_ips:ip%d",(a+1));
+		banlist.ip[a] = strdup(iniparser_getstring(ini, DIRCHECKER, "0.0.0.0"));
 	}
 } else if( type == CONFIG_TICKS ) {
-	if (ini_parse(file, tickconfig_handler, &ticks ) < 0) {
-		return 0;
-	}
+	ticks.status = iniparser_getboolean(ini, "ticks:status", false);
+	ticks.number = iniparser_getint(ini, "ticks:number", 0);
+	ticks.next = iniparser_getint(ini, "ticks:next", 0);
 } else if( type == CONFIG_IRC ) {
-	if (ini_parse(file, ircconfig_handler, &irccfg ) < 0) {
-		return 0;
-	}
+	irccfg.host = strdup( iniparser_getstring(ini, "irc:host", "irc.freenode.net") );
+	irccfg.port = strdup( iniparser_getstring(ini, "irc:port", "6667") );
+	strcpy(DIRCHECKER,"#");
+	strcat(DIRCHECKER,strdup( iniparser_getstring(ini, "irc:channel", "ectroverse") ) );
+	irccfg.channel = strdup(DIRCHECKER);
+	irccfg.botnick = strdup( iniparser_getstring(ini, "irc:bot_nick", "EVBot") );
+	irccfg.botpass = strdup( iniparser_getstring(ini, "irc:bot_pass", "botpass") );
+	irccfg.bot = iniparser_getboolean(ini, "irc:bot_enable", false);
+	irccfg.announcetick = iniparser_getboolean(ini, "irc:bot_announcetick", false);
 }
 
+iniparser_freedict(ini);
 
 return 1;
 }
@@ -1413,6 +1260,18 @@ if( !( strlen(options.sysini) > 0 ) ) {
 		perror("getcwd() error");
 		result = true;
 	}
+} else {
+	char *pointer = NULL;
+	pointer = strrchr( strdup(options.sysini), '/' );
+	if( !( pointer ) ) {
+		char *file = strdup(options.sysini);
+		if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
+			sprintf(options.sysini, "%s/%s" ,DIRCHECKER, file);
+		} else {
+			perror("getcwd() error");
+			result = true;
+		}
+	}
 }
 
 for( index = optind; index < argc; index++ ) {
@@ -1443,7 +1302,6 @@ if( file_exist(options.sysini) == 0 ) {
 }
 
 memset( &sysconfig, 0, sizeof(configDef) );
-memcpy(&sysconfig, &sysconfig_default, sizeof(configDef) );
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 

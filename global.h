@@ -174,7 +174,8 @@ static const double megabyte = (1024 * 1024);
 #endif
 
 #ifndef INIINCLUDES
-#include "ini.h"
+#include "dictionary.h"
+#include "iniparser.h"
 #endif
 
 #ifndef IRCINCLUDES

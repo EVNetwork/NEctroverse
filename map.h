@@ -11,10 +11,10 @@ typedef struct {
 	int fmembers;
 
 	int border;
-	float anglevar;
+	double anglevar;
 
-	int num;
-	float radius;
+	int linknum;
+	double linkradius;
 	int lenghtbase;
 	int lenghtvar;
 	
