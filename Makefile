@@ -22,7 +22,9 @@ run:	server
 	sudo service evserver start
 
 stop:	
-	sudo service evserver stop
+	sudo service evserver stop & 2>&1
+	
+restart: stop run
 	
 sv.o: *.h sv.c extras/iniparser.c ircbot.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
