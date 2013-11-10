@@ -22,7 +22,7 @@ run:	server
 	sudo service evserver start
 
 stop:	
-	sudo service evserver stop & 2>&1
+	sudo service evserver stop
 	
 restart: stop run
 	

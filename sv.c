@@ -1366,6 +1366,7 @@ if(!file)
 	file = fopen( DIRCHECKER, "w" );
 if(file) {
 	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
+	iniparser_set(ticks.ini,"ticks",NULL);
 	iniparser_set(ticks.ini,"ticks:status",ticks.status ? "true" : "false");
 	iniparser_set(ticks.ini,"ticks:number",itoa(ticks.number));
 	iniparser_set(ticks.ini,"ticks:round",itoa(ticks.round));
