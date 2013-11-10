@@ -19,10 +19,10 @@ server: sv.o io.o db.o cmd.o html.o map.o md5.o
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
-	./evserver -c config/system.nogit.ini -f
+	sudo service evserver start
 
 stop:	
-	./evserver -c config/system.nogit.ini -s stop
+	sudo service evserver stop
 	
 sv.o: *.h sv.c extras/iniparser.c ircbot.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
