@@ -1584,17 +1584,27 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	}
 	user = dbUserLinkID( id );
 	user->flags = 0;
-	user->level = admincfg.level[a];
+	user->level = (( admincfg.level[a] >= 0 ) ? admincfg.level[a] : 0);
 	dbUserSave( id, user );
 	dbUserInfoRetrieve(id, &infod);
 	sprintf( infod.forumtag, "%s", admincfg.forumtag[a] );
 	dbUserInfoSet(id, &infod);
 
-	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, admincfg.race[a], admincfg.level[a] ) < 0 ) {
+	if( user->level >= LEVEL_MODERATOR ) { 
+	loghandle(LOG_INFO, false, "Placing Administrator account: \"%s\"", admincfg.name[a] );
+	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), admincfg.level[a] ) < 0 ) {
 		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name[a] );
 		continue;
 	}
+	} else {
+	loghandle(LOG_INFO, false, "Placing Non Administrator account: \"%s\"", admincfg.name[a] );
+	if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), admincfg.level[a] ) < 0 ) {
+		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name[a] );
+		continue;
+	}
+	}
 }
+//exit(0);
 if( admincfg.numadmins < 0 ) {
 	free(admincfg.name);
 	free(admincfg.password);
@@ -1602,9 +1612,9 @@ if( admincfg.numadmins < 0 ) {
 	free(admincfg.forumtag);
 	free(admincfg.level);
 	free(admincfg.race);
-	free(admincfg.ename);
-	free(admincfg.epassword);
 }
+free(admincfg.ename);
+free(admincfg.epassword);
 dbFlush();
 
 return 1;

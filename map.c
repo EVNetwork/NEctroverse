@@ -274,13 +274,9 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	memset( empired.vote, -1, mapcfg.fmembers*sizeof(int) );
 	empired.leader = empired.rank = -1;
 	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
-	if( ( admincfg.empire == a ) && ( strlen(admincfg.epassword) ) ) {
-		if( strlen(admincfg.ename) )
+	if( ( admincfg.empire == a ) ) {
 		strcpy( empired.name, admincfg.ename);
-		else
-		strcpy( empired.name, "Administration");
-		if( strlen(admincfg.epassword) )
-			strcpy(empired.password, hashencrypt(admincfg.epassword) );
+		strcpy( empired.password, hashencrypt(admincfg.epassword) );
 		loghandle(LOG_INFO, false, "Empire %d Claimed for Administration.", a);
 	}
 	empired.homeid = mapstore.system[a];

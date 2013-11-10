@@ -1059,7 +1059,7 @@ if( type == CONFIG_SYSTEM ) {
 	mysqlcfg.host = strdup( iniparser_getstring(ini, "mysql:host", "localhost") );
 	mysqlcfg.port = iniparser_getint(ini, "mysql:port", 3306);
 	mysqlcfg.user = strdup( iniparser_getstring(ini, "mysql:user", "localhost") );
-	mysqlcfg.password = strdup( iniparser_getstring(ini, "mysql:password", NULL) );
+	mysqlcfg.password = iniparser_getstring(ini, "mysql:password", NULL) ? strdup( iniparser_getstring(ini, "mysql:password", "") ) : NULL;
 	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
 
 
@@ -1078,15 +1078,17 @@ if( type == CONFIG_SYSTEM ) {
 		sprintf(DIRCHECKER,"admin:level%d",(a+1));
 		admincfg.level[a] = iniparser_getint(ini, DIRCHECKER, 0);
 		sprintf(DIRCHECKER,"admin:name%d",(a+1));
-		admincfg.name[a] = strdup( iniparser_getstring(ini, DIRCHECKER, NULL) );
-		sprintf(DIRCHECKER,"admin:faction%d",(a+1));
-		admincfg.faction[a] = strdup( iniparser_getstring(ini, DIRCHECKER, NULL) );
+		admincfg.name[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
 		sprintf(DIRCHECKER,"admin:password%d",(a+1));
-		admincfg.password[a] = strdup( iniparser_getstring(ini, DIRCHECKER, NULL) );
+		admincfg.password[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
+		sprintf(DIRCHECKER,"admin:faction%d",(a+1));
+		admincfg.faction[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
+		sprintf(DIRCHECKER,"admin:forumtag%d",(a+1));
+		admincfg.forumtag[a] = strdup( iniparser_getstring(ini, DIRCHECKER, "Helper") );
 	}
 	admincfg.empire = iniparser_getint(ini, "admin_empire:number", 0);
 	admincfg.ename = strdup( iniparser_getstring(ini, "admin_empire:name", "Administration") );
-	admincfg.epassword = strdup( iniparser_getstring(ini, "admin_empire:password", "Administration") );
+	admincfg.epassword = strdup( iniparser_getstring(ini, "admin_empire:password", "password") );
 	admincfg.rankommit = iniparser_getboolean(ini, "admin_empire:ommit_from_ranks", false);
 
 	mapcfg.sizex = iniparser_getint(ini, "map:sizex", 100);
