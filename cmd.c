@@ -1591,15 +1591,15 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	dbUserInfoSet(id, &infod);
 
 	if( user->level >= LEVEL_MODERATOR ) { 
-	loghandle(LOG_INFO, false, "Placing Administrator account: \"%s\"", admincfg.name[a] );
-	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), admincfg.level[a] ) < 0 ) {
-		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name[a] );
+	loghandle(LOG_INFO, false, "Placing Administrator account: \"%s\"", infod.name );
+	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
+		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", infod.name );
 		continue;
 	}
 	} else {
-	loghandle(LOG_INFO, false, "Placing Non Administrator account: \"%s\"", admincfg.name[a] );
-	if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), admincfg.level[a] ) < 0 ) {
-		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", admincfg.name[a] );
+	loghandle(LOG_INFO, false, "Placing Non Administrator account: \"%s\"", infod.name );
+	if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
+		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", infod.name );
 		continue;
 	}
 	}

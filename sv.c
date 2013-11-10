@@ -561,11 +561,16 @@ return;
 void svSignal( int signal ) {
 	int a, size;
  
-/*  if(signal == SIGUSR1)
-  {
-  	return;
-  }
-  if(signal == SIGUSR2)
+if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
+	printf("\n");
+	fflush(stdout);
+	loghandle(LOG_INFO, false, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);  
+	if( options.verbose ) {
+	}
+  	sysconfig.shutdown = true;
+	return;
+}
+ /* if(signal == SIGUSR2)
   {
   	//Free memory db and reload it to have a new member in :P
   	loghandle(LOG_INFO, false, "%s", "Ask a dbinit");
@@ -1480,6 +1485,7 @@ return 0;
 
 char *cmdSignalNames[SIGNALS_NUMUSED] =
 {
+"MISSING",
 "Hangup",
 "Interrupt",
 "Quit",

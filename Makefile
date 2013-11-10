@@ -18,6 +18,12 @@ DEFS = -ggdb -rdynamic
 server: sv.o io.o db.o cmd.o html.o map.o md5.o
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
+run:	server
+	./evserver -c evconfig.nogit.ini -f
+
+stop:	
+	./evserver -c evconfig.nogit.ini -s stop
+	
 sv.o: *.h sv.c iniparser.c ircbot.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
