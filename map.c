@@ -2,7 +2,7 @@
 #include "global.h"
 #endif
 
-#include "imgpng.c"
+#include "extras/imgpng.c"
 
 
 void mapCalcFactors(mapstoreDef *mapstore) {

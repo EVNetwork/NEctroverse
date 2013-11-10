@@ -1,5 +1,5 @@
 #ifndef GLOBALINCLUDED
-#include "global.h"
+#include "../global.h"
 #endif
 
 //Time to add some hash protection to our passwords.

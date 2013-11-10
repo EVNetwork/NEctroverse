@@ -7,7 +7,7 @@ int iohttpEndSize[2] = { 4, 2 };
 
 #include "iohttpvars.c"
 #include "iohttpmime.c"
-#include "url_parser.c"
+#include "extras/url_parser.c"
 
 int iohttpMimeFind( char *name )
 {
@@ -304,6 +304,7 @@ if( chdir( COREDIR ) != -1 ) {
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famleader;
+
   sprintf( file->path, "/famleader" );
 
   file = iohttpFileAdd( 0 );

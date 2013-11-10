@@ -2,7 +2,7 @@
 #include "global.h"
 #endif
 
-#include "iniparser.c"
+#include "extras/iniparser.c"
 #include "ircbot.c"
 
 svConnectionPtr svConnectionList = 0;
@@ -1026,7 +1026,7 @@ if( firstload ) {
 }
 
 if( iniparser_find_entry(ini,"NEED_TO_DELETE_ME") ) {
-	loghandle(LOG_CRIT, false, "A default, non-usable version of the evconfig.ini has been detected: \'%s\'",file);
+	loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been detected: \'%s\'",file);
 	loghandle(LOG_CRIT, false, "%s", "You must edit this file before the game server is able to run correctly!");
 	sysconfig.shutdown = true;
 	return -1;
@@ -1297,7 +1297,17 @@ if( firstload ) {
 	}
 	iniparser_set(ini,"NEED_TO_DELETE_ME",NULL);
 	dumpfile = fopen(file, "w");
-	if(file) {
+	if( !( dumpfile ) ) {
+		loghandle(LOG_CRIT, false, "Unable to load config file, and unable to spawn in specified location: \'%s\'", file);
+		file = "/tmp/evcore/evsystem.ini";
+		dumpfile = fopen(file, "w");
+		loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'",file);
+		loghandle(LOG_CRIT, false, "%s", "You will need to edit and move this file before you can run the server, its best if you use the config directory!");
+	} else {
+		loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'",file);
+		loghandle(LOG_CRIT, false, "%s", "You must edit this file according to your needs before you run the game server!");
+	}
+	if( dumpfile ) {
 		fprintf( dumpfile, "%s\n", "; NEctroverse Alpha Config file" );
 		fprintf( dumpfile, "%s\n", "; Why did I change from config.h to config.ini ??" );
 		fprintf( dumpfile, "%s\n", "; Simple, changes here can be implemented without a rebuild!" );
@@ -1309,8 +1319,10 @@ if( firstload ) {
 		fprintf( dumpfile, "%s\n", ";This file was automaticly generated as no ini file was present!" );
 		fflush( dumpfile );
 		fclose( dumpfile );
-		loghandle(LOG_CRIT, false, "A default, non-usable version of the evconfig.ini has been dumped to: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You must edit this file according to your needs before you run the game server!");
+
+	} else {
+		loghandle(LOG_CRIT, errno, "Unable to spawn defaul config file into: \'%s\'",file);
+		loghandle(LOG_CRIT, false, "%s", "You may have specified an invalid path...");	
 	}
 	sysconfig.shutdown = true;
 }
@@ -1418,7 +1430,7 @@ while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
 
 if( !( strlen(options.sysini) > 0 ) ) {
 	if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
-		sprintf(options.sysini, "%s/evconfig.ini" ,DIRCHECKER);
+		sprintf(options.sysini, "%s/config/evsystem.ini" ,DIRCHECKER);
 	} else {
 		perror("getcwd() error");
 		result = true;
@@ -1426,6 +1438,8 @@ if( !( strlen(options.sysini) > 0 ) ) {
 } else {
 	char *pointer = NULL;
 	pointer = strrchr( strdup(options.sysini), '/' );
+	if( ( options.sysini[0] != '/' ) )
+		pointer = NULL;
 	if( !( pointer ) ) {
 		char *file = strdup(options.sysini);
 		if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
@@ -1457,7 +1471,7 @@ if( checkops(argc,argv) ) {
 if( file_exist(options.sysini) == 0 ) {
 	printf("File does not exist: \'%s\'\n",options.sysini);
 	//printf("The above file will be created with a default set, please review the file and reload.\n");
-	printf("Use \'-c /path/to/evconfig.ini\' to specify ini file to load (including the file name)\n");
+	printf("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
 	fflush(stdout);
 	firstload = true;
 	//exit(true);
@@ -1465,6 +1479,8 @@ if( file_exist(options.sysini) == 0 ) {
 	printf("Loading config from file: \'%s\'\n",options.sysini);
 	fflush(stdout);
 }
+
+dirstructurecheck(TMPDIR);
 
 memset( &sysconfig, 0, sizeof(configDef) );
 
@@ -1493,8 +1509,6 @@ memset( &irccfg, 0, sizeof(ircDef) );
 loadconfig(options.sysini,CONFIG_IRC);
 
 loadconfig(options.sysini,CONFIG_BANNED);
-
-dirstructurecheck(TMPDIR);
 
 //check basic dir structure and create as needed.	
 sprintf( DIRCHECKER, "%s/data", sysconfig.directory );

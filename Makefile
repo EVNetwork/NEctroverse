@@ -19,15 +19,15 @@ server: sv.o io.o db.o cmd.o html.o map.o md5.o
 	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
-	./evserver -c evconfig.nogit.ini -f
+	./evserver -c config/system.nogit.ini -f
 
 stop:	
-	./evserver -c evconfig.nogit.ini -s stop
+	./evserver -c config/system.nogit.ini -s stop
 	
-sv.o: *.h sv.c iniparser.c ircbot.c
+sv.o: *.h sv.c extras/iniparser.c ircbot.c
 	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
 
-io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c url_parser.c
+io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
 db.o: *.h db.c
@@ -36,14 +36,14 @@ db.o: *.h db.c
 cmd.o: *.h cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
 
-map.o: *.h map.c imgpng.c
+map.o: *.h map.c extras/imgpng.c
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: *.h html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c cpuinfo.c
+html.o: *.h html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c extras/cpuinfo.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-md5.o: *.h md5.c
-	$(CC) md5.c $(DEFS) -o md5.o -c $(FLAGS)
+md5.o: *.h extras/md5.c
+	$(CC) extras/md5.c $(DEFS) -o md5.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
 clean:

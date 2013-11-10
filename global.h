@@ -102,12 +102,12 @@ static const double megabyte = (1024 * 1024);
 #endif
 
 #ifndef INIINCLUDES
-#include "dictionary.h"
-#include "iniparser.h"
+#include "extras/dictionary.h"
+#include "extras/iniparser.h"
 #endif
 
 #ifndef HASHINCLUDES
-#include "md5.h"
+#include "extras/md5.h"
 #endif
 
 #ifndef ARTEFACTINCLUDES
@@ -187,7 +187,7 @@ static const double megabyte = (1024 * 1024);
 #endif
 
 #ifndef URLPINCLUDED
-#include "url_parser.h"
+#include "extras/url_parser.h"
 #endif
 
 
