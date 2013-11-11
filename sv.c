@@ -740,6 +740,9 @@ void daemonloop() {
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
+	#if PRODUCTION
+	expire_sessions ();
+	#endif
 	if( irccfg.bot ) {
 		ircbot_scan();
 	}
@@ -895,7 +898,7 @@ sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[POR
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 
-//main_clone();
+main_clone();
 
 loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
 

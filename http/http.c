@@ -84,6 +84,10 @@ char httpbuffer[ 256 * 1024 ];
  */
 #define COOKIE_NAME "session"
 
+/**
+ * Mutex used when we update the cached directory response object.
+ */
+static pthread_mutex_t mutex;
 
 /**
  * State we keep for each user/session/browser.
@@ -712,7 +716,7 @@ expire_sessions ()
  */
 int
 main_clone ()
-{
+{/*
   struct timeval tv;
   struct timeval *tvp;
   fd_set rs;
@@ -722,7 +726,7 @@ main_clone ()
   unsigned MHD_LONG_LONG mhd_timeout;
 
 
-  /* initialize PRNG */
+
   srandom ((unsigned int) time (NULL));
   server = MHD_start_daemon (MHD_USE_DEBUG,
                         8080,
@@ -733,6 +737,7 @@ main_clone ()
 			MHD_OPTION_END);
   if (NULL == server)
     return 1;
+    
   while ( sysconfig.shutdown == false )
     {
       expire_sessions ();
@@ -741,7 +746,7 @@ main_clone ()
       FD_ZERO (&ws);
       FD_ZERO (&es);
       if (MHD_YES != MHD_get_fdset (server, &rs, &ws, &es, &max))
-	break; /* fatal internal error */
+	break;
       if (MHD_get_timeout (server, &mhd_timeout) == MHD_YES)	
 	{
 	  tv.tv_sec = mhd_timeout / 1000;
@@ -753,7 +758,53 @@ main_clone ()
       select (max + 1, &rs, &ws, &es, tvp);
       MHD_run (server);
     }
-  MHD_stop_daemon (server);
+  MHD_stop_daemon (server);*/
+  int THREADS;
+  cpuInfo cpuinfo;
+  unsigned int port = 8080;
+  cpuGetInfo( &cpuinfo );
+
+  THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
+#if HAVE_MAGIC_H
+  magic = magic_open (MAGIC_MIME_TYPE);
+  (void) magic_load (magic, NULL);
+#endif
+  (void) pthread_mutex_init (&mutex, NULL);
+    
+  server = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG
+#if EPOLL_SUPPORT 
+			| MHD_USE_EPOLL_LINUX_ONLY
+#endif
+			,
+                        port,
+                        NULL, NULL, 
+			&create_response, NULL, 
+			MHD_OPTION_CONNECTION_MEMORY_LIMIT, (size_t) (256 * 1024), 
+#if PRODUCTION
+			MHD_OPTION_PER_IP_CONNECTION_LIMIT, (unsigned int) (64),
+#endif
+			MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int) (120 /* seconds */),
+			MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
+			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,
+			MHD_OPTION_END);
+
+if (NULL == server)
+    return 1;
+  loghandle(LOG_INFO, false, "HTTP 1.1 Server live with %d threads on port: %d", THREADS, port);
+
   return 0;
 }
+
+
+void call_clean(){
+
+  MHD_stop_daemon (server);
+  //update_cached_response (NULL);
+  (void) pthread_mutex_destroy (&mutex);
+  #if HAVE_MAGIC_H
+  magic_close (magic);
+  #endif
+
+}
+
 
