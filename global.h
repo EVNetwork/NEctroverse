@@ -1,5 +1,7 @@
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
+#include "http/MHD_config.h"
+#include "http/platform.h"
 #include <arpa/inet.h>
 #include <asm/param.h>
 #include <linux/limits.h>
@@ -37,7 +39,6 @@
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
-
 
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT

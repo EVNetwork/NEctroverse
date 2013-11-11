@@ -76,7 +76,7 @@ for( b = 0 ; b < options.interfaces ; b++ ) {
 		svListenSocket[b] = -1;
 		continue;
 	} else { c++; }
-	loghandle(LOG_INFO, false, "Server awaiting connections on port: %d", options.port[b] );
+	loghandle(LOG_INFO, false, "HTTP 1.0 Server awaiting connections on port: %d", options.port[b] );
 }
 
 if ( c == 0 ) {
@@ -92,6 +92,7 @@ return 1;
 
 void cleanUp(int type) {
 	char DIRCHECKER[256];
+
 
 
 if( type ) {
@@ -894,6 +895,8 @@ sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[POR
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 
+main_clone();
+
 loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
@@ -1046,7 +1049,7 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.httpimages = strdup( iniparser_getstring(ini, "system:httpimages", "/tmp/evcore/html/images") );
 	sysconfig.httpfiles = strdup( iniparser_getstring(ini, "system:httpfiles", "/tmp/evcore/html/files") );
 	sysconfig.httpread = strdup( iniparser_getstring(ini, "system:httpread", "/tmp/evcore/html/read") );
-	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:pubforum", sysconfig.directory ) );
+	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:publicforum", sysconfig.directory ) );
 
 	sysconfig.httpport = iniparser_getint(ini, "system:port", 9990);
 	sysconfig.evmpactv = iniparser_getboolean(ini, "evmap:enable", false);
@@ -1568,6 +1571,7 @@ if( !( file_exist(sysconfig.httpfiles) ) ) {
 	printf("Extracting files to: \"%s\" ...", sysconfig.httpfiles);
 	fflush(stdout);
 	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpfiles);
+
 	sprintf(DIRCHECKER,"tar -xzf %s/files.tar.gz -C %s", TMPDIR, sysconfig.httpfiles);
 	test = system(DIRCHECKER);
 	printf(" %s!\n", test ? "Fail" : "Done");
@@ -1608,10 +1612,12 @@ if( !( file_exist(DIRCHECKER) ) ) {
 	spawn_map();
 }
 //Begin deamonization and initate server loop.
+
 if( !( daemon_init( ) ) ) {
 	loghandle(LOG_CRIT, false, "%s", "<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
 	return 1;
 }
+
 if( options.mode == MODE_FORKED ) {
 	printf("%s\n", "Returning to shell, daemon has loaded in the background.");
 	printf("\n");

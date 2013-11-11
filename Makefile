@@ -9,14 +9,14 @@ SQLFLAG := $(shell mysql_config --cflags)
 
 #The standard config needed to compile basic server, withought these it won't work.
 FLAGS = $(SQLFLAG) --fast-math -Wall -fno-strict-aliasing -O3
-LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl -lpng 
+LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl -lpng
 
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb -rdynamic
 
 # Right then, now we know all of that... lets build something!
-server: sv.o io.o db.o cmd.o html.o map.o md5.o
-	$(CC) sv.o io.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: sv.o io.o http.o db.o cmd.o html.o map.o md5.o
+	$(CC) sv.o io.o http.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
 	sudo service evserver start
@@ -31,6 +31,9 @@ sv.o: *.h sv.c extras/iniparser.c ircbot.c
 
 io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
+
+http.o: http/*.h http/*.c
+	$(CC) http/demo.c $(DEFS) -o http.o -c $(FLAGS)
 
 db.o: *.h db.c
 	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)
