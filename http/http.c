@@ -581,12 +581,12 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	ssize_t got;
 	#endif
 	const char *mime;
-	char *filename, realfile[512];
+	char *filename, filebuffer[512];
 
 	filename = strrchr(url,'/');
-	strcpy(realfile,sysconfig.httpimages);
-	strcat(realfile,&url[7]);
-	filename = realfile;
+	strcpy(filebuffer,sysconfig.httpimages);
+	strcat(filebuffer,&url[7]);
+	filename = filebuffer;
 
 	if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
 		return MHD_NO;  /* unexpected method (we're not polite...) */
@@ -621,6 +621,12 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       /* add mime type if we had one */
 	if (NULL != mime)
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
+	else
+		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr(iohttpMime[ iohttpMimeFind( filename ) ].def, ' ')+1 ) );
+
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
+	strftime(filebuffer,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filebuffer );
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 	MHD_destroy_response (response);
 
