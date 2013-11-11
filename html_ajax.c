@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "global.h"
-#endif
 
 //Ok, so here goes nothing...
 void iohttpFunc_ajax( svConnectionPtr cnt ) {

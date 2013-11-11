@@ -1,3 +1,4 @@
+#ifndef HTMLMAININCLUDES
 #define HTMLMAININCLUDES
 //The above line MUST STAY HERE! -- This prevents double calling.
 
@@ -34,3 +35,5 @@ void iohttpFunc_gettingstarted( svConnectionPtr cnt );
 
 void iohttpFunc_halloffame( svConnectionPtr cnt );
 void iohttpFunc_halloffame11();
+
+#endif

@@ -1,3 +1,5 @@
+#ifndef _IMGPNG_H
+#define _IMGPNG_H
 /* -----------------------------------------------------------------------------
  *
  * Copyright (c) 2007-2012 Alexis Naveros. All Rights Reserved.
@@ -35,4 +37,4 @@ int imgWritePngFile( char *filename, imgImage *image );
 void imgFree( imgImage *image );
 
 
-
+#endif

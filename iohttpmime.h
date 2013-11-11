@@ -1,3 +1,4 @@
+#ifndef IOMIMEINCLUDES
 #define IOMIMEINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -23,3 +24,5 @@ extern char *iohttpMimeHeaderExts6[];
 extern char *iohttpMimeHeaderExts7[];
 
 extern iohttpMimeDef iohttpMime[];
+
+#endif

@@ -1,3 +1,4 @@
+#ifndef IRCINCLUDED
 #define IRCINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
 
@@ -17,3 +18,5 @@ void ircbot_send(char *fmt, ...);
 void ircbot_messagephrase(ircmessageDef *irc);
 
 void ircbot_scan();
+
+#endif

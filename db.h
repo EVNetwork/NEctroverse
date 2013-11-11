@@ -1,3 +1,4 @@
+#ifndef DATABASEINCLUDES
 #define DATABASEINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -503,4 +504,4 @@ extern int dbArtefactMax;
 
 
 
-
+#endif

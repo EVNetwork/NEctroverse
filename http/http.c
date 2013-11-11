@@ -1,6 +1,3 @@
-#ifndef GLOBALINCLUDED
-#include "../global.h"
-#endif
 /*
      This file is part of libmicrohttpd
      (C) 2013 Christian Grothoff (and other contributing authors)
@@ -31,7 +28,7 @@
  *        to be adjusted depending on the number of available cores.
  * @author Christian Grothoff
  */
-
+#include "../global.h"
 #include "memorypool.c"
 #include "internal.c"
 #include "response.c"
@@ -42,8 +39,6 @@
 #include "connection_https.c"
 #endif
 #include "daemon.c"
-
-#include "http.h"
 
 
 MHD_DaemonPtr server;

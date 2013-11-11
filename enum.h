@@ -1,3 +1,4 @@
+#ifndef ENUMINCLUDES
 #define ENUMINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -686,4 +687,4 @@ SIGNALS_NUMUSED,
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
-
+#endif

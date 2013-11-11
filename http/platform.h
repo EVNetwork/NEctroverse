@@ -57,6 +57,16 @@
 #include <limits.h>
 #undef HAVE_CONFIG_H
 #include <pthread.h>
+
+/* Get thread name visible in the kernel and its interfaces.  */
+extern int pthread_getname_np (pthread_t __target_thread, char *__buf,
+			       size_t __buflen)
+     __THROW __nonnull ((2));
+
+/* Set thread name visible in the kernel and its interfaces.  */
+extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
+     __THROW __nonnull ((2));
+
 #define HAVE_CONFIG_H 1
 
 /* different OSes have fd_set in

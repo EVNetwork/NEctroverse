@@ -1,3 +1,4 @@
+#ifndef SERVERINCLUDES
 #define SERVERINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -225,4 +226,4 @@ char *itoa(int i);
 
 
 
-
+#endif

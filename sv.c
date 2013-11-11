@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "global.h"
-#endif
 
 #include "extras/iniparser.c"
 #include "ircbot.c"

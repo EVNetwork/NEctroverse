@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "../global.h"
-#endif
 
 #include "md5.c"
 #include "base64.c"

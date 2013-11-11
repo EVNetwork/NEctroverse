@@ -1,3 +1,4 @@
+#ifndef FORUMINCLUDES
 #define FORUMINCLUDES
 //The above line MUST STAY HERE! -- This prevents double calling.
 
@@ -15,4 +16,4 @@ int iohttpForumCleanIP( char *ipstring );
 
 void iohttpForum( svConnectionPtr cnt );
 
-
+#endif

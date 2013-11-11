@@ -1,5 +1,6 @@
 /* MHD_config.h.  Generated from MHD_config.h.in by configure.  */
 /* MHD_config.h.in.  Generated from configure.ac by autoheader.  */
+#define HTTPINCLUDES
 
 #define _GNU_SOURCE  1
 

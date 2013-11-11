@@ -1,3 +1,4 @@
+#ifndef COMMANDINCLUDES
 #define COMMANDINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -188,4 +189,4 @@ extern char *cmdRaceName[CMD_RACE_NUMUSED];
 
 
 
-
+#endif

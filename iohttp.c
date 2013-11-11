@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "global.h"
-#endif
 
 char iohttpEnd[2][5] = { "\r\n\r\n", "\n\n" };
 int iohttpEndSize[2] = { 4, 2 };

@@ -1,3 +1,4 @@
+#ifndef ADMININCLUDES
 #define ADMININCLUDES
 
 
@@ -27,3 +28,5 @@ void iohttpAdminSubmit( svConnectionPtr cnt, char *name );
 void iohttpAdminInput( svConnectionPtr cnt, adminFormInputPtr inputs );
 
 int iohttpAdminAction( int act );
+
+#endif

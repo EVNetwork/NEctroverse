@@ -1,7 +1,6 @@
+#ifndef GLOBALINCLUDED
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
-#include "http/MHD_config.h"
-#include "http/platform.h"
 #include <arpa/inet.h>
 #include <asm/param.h>
 #include <linux/limits.h>
@@ -30,8 +29,9 @@
 #include <netdb.h>
 #include <png.h>
 #include <pwd.h>
-#include <stdbool.h>
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,102 +97,43 @@ static const long day = ((60*60) * 24);
 static const double megabyte = (1024 * 1024);
 #endif
 
+
+#include "http/MHD_config.h"
+#include "http/platform.h"
+
 #include "extras/cpuinfo.h"
 
-#ifndef ENUMINCLUDES
 #include "enum.h"
-#endif
 
-#ifndef INIINCLUDES
 #include "extras/dictionary.h"
 #include "extras/iniparser.h"
-#endif
 
-#ifndef HASHINCLUDES
 #include "extras/md5.h"
 #include "extras/base64.h"
 #include "extras/encrypt.h"
-#endif
 
-#ifndef ARTEFACTINCLUDES
 #include "artefact.h"
-#endif
-
-#ifndef DATABASEINCLUDES
 #include "db.h"
-#endif
-
-#ifndef BATTLETINCLUDES
 #include "battle.h"
-#endif
-
-#ifndef SERVERINCLUDES
 #include "sv.h"
-#endif
-
-#ifndef IOINCLUDES
 #include "io.h"
-#endif
-
-#ifndef IOVARSINCLUDES
 #include "iohttpvars.h"
-#endif
-
-#ifndef IOMIMEINCLUDES
 #include "iohttpmime.h"
-#endif
-
-#ifndef IOHTTPINCLUDES
 #include "iohttp.h"
-#endif
-
-#ifndef HTMLINCLUDES
 #include "html.h"
-#endif
-
-#ifndef HTMLMAININCLUDES
 #include "html_main.h"
-#endif
-
-#ifndef GAMEPLAYINCLUDES
 #include "html_gameplay.h"
-#endif
-
-#ifndef ADMININCLUDES
 #include "html_admin.h"
-#endif
-
-#ifndef USERINCLUDES
 #include "html_user.h"
-#endif
-
-#ifndef IOSINCLUDES
 #include "html_status.h"
-#endif
-
-#ifndef FORUMINCLUDES
 #include "html_forum.h"
-#endif
-
-#ifndef COMMANDINCLUDES
 #include "cmd.h"
-#endif
-
-#ifndef MAPINCLUDES
 #include "map.h"
-#endif
-
-#ifndef IRCINCLUDES
 #include "ircbot.h"
-#endif
-
-#ifndef AJAXINCLUDED
 #include "html_ajax.h"
-#endif
 
-#ifndef URLPINCLUDED
+
 #include "extras/url_parser.h"
+
 #endif
-
-
 

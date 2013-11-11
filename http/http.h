@@ -1,3 +1,6 @@
+#ifndef HTTP_H
+#define HTTP_H
+
 
 extern MHD_DaemonPtr server;
 
@@ -13,3 +16,4 @@ extern int create_response (void *cls, MHD_ConnectionPtr connection, const char 
 
 extern void request_completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe);
 
+#endif

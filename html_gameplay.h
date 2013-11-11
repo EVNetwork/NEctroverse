@@ -1,3 +1,4 @@
+#ifndef GAMEPLAYINCLUDES
 #define GAMEPLAYINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -109,3 +110,5 @@ void iohttpFunc_mail( svConnectionPtr cnt );
 void iohttpFunc_rankings( svConnectionPtr cnt );
 
 void iohttpFunc_search( svConnectionPtr cnt );
+
+#endif

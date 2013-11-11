@@ -1,3 +1,4 @@
+#ifndef BATTLEINCLUDES
 #define BATTLEINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
@@ -13,4 +14,4 @@ void battlePhaseUpdate( int *unit, int *results );
 int battle( int id, int fltid, int *results );
 
 
-
+#endif
