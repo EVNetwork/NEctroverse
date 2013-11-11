@@ -9,7 +9,7 @@
 #ifndef BASE64_H
 #define BASE64_H
 
-#include "platform.h"
+
 
 char * 
 BASE64Decode(const char* src);

@@ -32,8 +32,6 @@
  * @author Christian Grothoff
  */
 
-#include "md5.c"
-#include "base64.c"
 #include "memorypool.c"
 #include "internal.c"
 #include "response.c"

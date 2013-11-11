@@ -15,8 +15,8 @@ LIBS = $(SQLLIBS) -lcrypt -lcrypto -lssl -lpng
 DEFS = -ggdb -rdynamic
 
 # Right then, now we know all of that... lets build something!
-server: sv.o io.o http.o db.o cmd.o html.o map.o md5.o
-	$(CC) sv.o io.o http.o db.o cmd.o html.o map.o md5.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: sv.o io.o http.o db.o cmd.o html.o map.o encrypt.o
+	$(CC) sv.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
 	sudo service evserver start
@@ -47,8 +47,8 @@ map.o: *.h map.c extras/imgpng.c
 html.o: *.h html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c extras/cpuinfo.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-md5.o: *.h extras/md5.c
-	$(CC) extras/md5.c $(DEFS) -o md5.o -c $(FLAGS)
+encrypt.o: *.h extras/encrypt.c
+	$(CC) extras/encrypt.c $(DEFS) -o encrypt.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
 clean:

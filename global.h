@@ -111,6 +111,8 @@ static const double megabyte = (1024 * 1024);
 
 #ifndef HASHINCLUDES
 #include "extras/md5.h"
+#include "extras/base64.h"
+#include "extras/encrypt.h"
 #endif
 
 #ifndef ARTEFACTINCLUDES
