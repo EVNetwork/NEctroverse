@@ -88,12 +88,12 @@ iohttpFilePtr iohttpFileFind( char *path )
 
 
 void InitHTTP() {
-	char COREDIR[1024];
+	iohttpFilePtr file;
+/*	char COREDIR[1024];
 	int a;
 	struct dirent *direntry;
 	struct stat stdata;
 	dbMainEmpireDef empired;
-	iohttpFilePtr file;
 	FILE *fd;
 	DIR *dirdata;
 
@@ -163,7 +163,7 @@ if( chdir( COREDIR ) != -1 ) {
 		sprintf( file->path, "/fampic%02d%d", a, empired.pictime );
 	}
 }
-
+*/
   // ahhaha... yes, we'll make a table
 
   file = iohttpFileAdd( 0 );
