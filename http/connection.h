@@ -27,7 +27,6 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-extern struct MHD_Daemon *server;
 /**
  * Set callbacks for this connection to those for HTTP.
  *

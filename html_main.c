@@ -949,10 +949,10 @@ return;
 
 
 void iohttpFunc_halloffame11( ) {
-	int a;
+	/*int a;
 	struct stat stdata;
 	char DIRCHECKER[256];
-	char LINKSTRING[256];
+	char LINKSTRING[256];*/
 
 
 //iohttpBase( cnt, 8 );

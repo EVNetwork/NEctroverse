@@ -1662,6 +1662,8 @@ MHD_get_timeout (struct MHD_Daemon *daemon,
   struct MHD_Connection *pos;
   int have_timeout;
 
+  earliest_deadline = 0;
+
   if (0 != (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
     {
 #if HAVE_MESSAGES
@@ -1773,7 +1775,9 @@ MHD_run_from_select (struct MHD_Daemon *daemon,
   /* drain signaling pipe to avoid spinning select */
   if ( (-1 != daemon->wpipe[0]) &&
        (FD_ISSET (daemon->wpipe[0], read_fd_set)) )
-    (void) read (daemon->wpipe[0], &tmp, sizeof (tmp));
+    if( read(daemon->wpipe[0], &tmp, sizeof (tmp)) < 0 ) {
+    loghandle(LOG_INFO, errno, "%s", "HTTP 1.1 Server error");
+    }
 
   if (0 == (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
     {

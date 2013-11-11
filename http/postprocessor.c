@@ -114,7 +114,7 @@ enum NE_State
  * Internal state of the post-processor.  Note that the fields
  * are sorted by type to enable optimal packing by the compiler.
  */
-struct MHD_PostProcessor
+typedef struct MHD_PostProcessor
 {
 
   /**
@@ -240,7 +240,7 @@ struct MHD_PostProcessor
    */
   enum NE_State have;
 
-};
+} MHD_PostProcessorDef, *MHD_PostProcessorPtr;
 
 
 /**

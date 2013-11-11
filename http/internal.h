@@ -153,7 +153,7 @@ enum MHD_ConnectionEventLoopInfo
  * A structure representing the internal holder of the
  * nonce-nc map.
  */
-struct MHD_NonceNc 
+typedef struct MHD_NonceNc 
 {
   
   /**
@@ -167,7 +167,7 @@ struct MHD_NonceNc
    */
   char nonce[MAX_NONCE_LENGTH];
 
-};
+} MHD_NonceNcDef, *MHD_NonceNcPtr;
 
 #if HAVE_MESSAGES
 /**
@@ -199,7 +199,7 @@ MHD_http_unescape (void *cls,
 /**
  * Header or cookie in HTTP request or response.
  */
-struct MHD_HTTP_Header
+typedef struct MHD_HTTP_Header
 {
   /**
    * Headers are kept in a linked list.
@@ -223,13 +223,13 @@ struct MHD_HTTP_Header
    */
   enum MHD_ValueKind kind;
 
-};
+} MHD_HTTP_HeaderDef, *MHD_HTTP_HeaderPtr;
 
 
 /**
  * Representation of a response.
  */
-struct MHD_Response
+typedef struct MHD_Response
 {
 
   /**
@@ -306,7 +306,7 @@ struct MHD_Response
    */
   int fd;
 
-};
+} MHD_ResponseDef, *MHD_ResponsePtr;
 
 
 /**
@@ -488,7 +488,7 @@ typedef ssize_t (*TransmitCallback) (struct MHD_Connection * conn,
 /**
  * State kept for each HTTP request.
  */
-struct MHD_Connection
+typedef struct MHD_Connection
 {
 
 #if EPOLL_SUPPORT
@@ -823,7 +823,7 @@ struct MHD_Connection
   int tls_read_ready;
 
 #endif
-};
+} MHD_ConnectionDef, *MHD_ConnectionPtr;
 
 /**
  * Signature of function called to log URI accesses.
@@ -858,7 +858,7 @@ typedef size_t (*UnescapeCallback)(void *cls,
  * write, locally blocked, cleanup) whereas the second is about its
  * timeout state (default or custom).
  */
-struct MHD_Daemon
+typedef struct MHD_Daemon
 {
 
   /**
@@ -1179,7 +1179,7 @@ struct MHD_Daemon
 
 #endif
 
-};
+} MHD_DaemonDef, *MHD_DaemonPtr;
 
 
 #if EXTRA_CHECKS

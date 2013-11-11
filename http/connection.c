@@ -26,7 +26,7 @@
  */
 
 
-struct MHD_Daemon *server;
+
 /**
  * Message to transmit when http 1.1 request is received
  */

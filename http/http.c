@@ -47,6 +47,9 @@
 
 #include "http.h"
 
+
+MHD_DaemonPtr server;
+
 char httpbuffer[ 256 * 1024 ];
 
 /**
@@ -77,7 +80,7 @@ char httpbuffer[ 256 * 1024 ];
 /**
  * Last page.
  */
-#define LAST_PAGE "<html><head><title>Thank you</title></head><body>Thank you.</body></html>"
+#define LAST_PAGE "<html><head><title>Thank you</title></head><body>Thank you %s, I hope you enjoyed %s.</body></html>"
 
 /**
  * Name of our cookie.
@@ -92,7 +95,7 @@ static pthread_mutex_t mutex;
 /**
  * State we keep for each user/session/browser.
  */
-struct Session
+typedef struct Session
 {
   /**
    * We keep all sessions in a linked list.
@@ -125,25 +128,25 @@ struct Session
    */
   char value_2[64];
 
-};
+} SessionDef, *SessionPtr;
 
 
 /**
  * Data kept per request.
  */
-struct Request
+typedef struct Request
 {
 
   /**
    * Associated session.
    */
-  struct Session *session;
+  SessionPtr session;
 
   /**
    * Post processor handling form data (IF this is
    * a POST request).
    */
-  struct MHD_PostProcessor *pp;
+  MHD_PostProcessorPtr pp;
 
   /**
    * URL to serve in response to this POST (if this request 
@@ -151,14 +154,14 @@ struct Request
    */
   const char *post_url;
 
-};
+} RequestDef, *RequestPtr;
 
 
 /**
  * Linked list of all active sessions.  Yes, O(n) but a
  * hash table would be overkill for a simple example...
  */
-static struct Session *sessions;
+static SessionPtr sessions;
 
 
 
@@ -167,10 +170,10 @@ static struct Session *sessions;
  * Return the session handle for this connection, or 
  * create one if this is a new user.
  */
-static struct Session *
-get_session (struct MHD_Connection *connection)
+static SessionPtr 
+get_session (MHD_ConnectionPtr connection)
 {
-  struct Session *ret;
+  SessionPtr ret;
   const char *cookie;
 
   cookie = MHD_lookup_connection_value (connection,
@@ -193,7 +196,7 @@ get_session (struct MHD_Connection *connection)
 	}
     }
   /* create fresh session */
-  ret = calloc (1, sizeof (struct Session));
+  ret = calloc (1, sizeof (SessionDef));
   if (NULL == ret)
     {						
       fprintf (stderr, "calloc error: %s\n", strerror (errno));
@@ -227,14 +230,14 @@ get_session (struct MHD_Connection *connection)
  */
 typedef int (*PageHandler)(const void *cls,
 			   const char *mime,
-			   struct Session *session,
-			   struct MHD_Connection *connection);
+			   SessionPtr session,
+			   MHD_ConnectionPtr connection);
 
 
 /**
  * Entry we generate for each page served.
  */ 
-struct Page
+typedef struct Page
 {
   /**
    * Acceptable URL for this page.
@@ -255,7 +258,7 @@ struct Page
    * Extra argument to handler.
    */ 
   const void *handler_cls;
-};
+} PageDef, *PagePtr;
 
 
 /**
@@ -265,8 +268,8 @@ struct Page
  * @param response response to modify
  */ 
 static void
-add_session_cookie (struct Session *session,
-		    struct MHD_Response *response)
+add_session_cookie (SessionPtr session,
+		    MHD_ResponsePtr response)
 {
   char cstr[256];
   snprintf (cstr,
@@ -297,16 +300,24 @@ add_session_cookie (struct Session *session,
 static int
 serve_simple_form (const void *cls,
 		   const char *mime,
-		   struct Session *session,
-		   struct MHD_Connection *connection)
+		   SessionPtr session,
+		   MHD_ConnectionPtr connection)
 {
   int ret;
+  char *reply;
   const char *form = cls;
-  struct MHD_Response *response;
-
+  MHD_ResponsePtr response;
+  if (-1 == asprintf (&reply,
+		      form,
+		      session->value_1,
+		      session->value_2))
+    {
+      /* oops */
+      return MHD_NO;
+    }
   /* return static form */
-  response = MHD_create_response_from_buffer (strlen (form),
-					      (void *) form,
+  response = MHD_create_response_from_buffer (strlen (reply),
+					      (void *) reply,
 					      MHD_RESPMEM_PERSISTENT);
   add_session_cookie (session, response);
   MHD_add_response_header (response,
@@ -331,13 +342,13 @@ serve_simple_form (const void *cls,
 static int
 fill_v1_form (const void *cls,
 	      const char *mime,
-	      struct Session *session,
-	      struct MHD_Connection *connection)
+	      SessionPtr session,
+	      MHD_ConnectionPtr connection)
 {
   int ret;
   const char *form = cls;
   char *reply;
-  struct MHD_Response *response;
+  MHD_ResponsePtr response;
 
   if (-1 == asprintf (&reply,
 		      form,
@@ -373,13 +384,13 @@ fill_v1_form (const void *cls,
 static int
 fill_v1_v2_form (const void *cls,
 		 const char *mime,
-		 struct Session *session,
-		 struct MHD_Connection *connection)
+		 SessionPtr session,
+		 MHD_ConnectionPtr connection)
 {
   int ret;
   const char *form = cls;
   char *reply;
-  struct MHD_Response *response;
+  MHD_ResponsePtr response;
 
   if (-1 == asprintf (&reply,
 		      form,
@@ -416,11 +427,11 @@ fill_v1_v2_form (const void *cls,
 static int
 not_found_page (const void *cls,
 		const char *mime,
-		struct Session *session,
-		struct MHD_Connection *connection)
+		SessionPtr session,
+		MHD_ConnectionPtr connection)
 {
   int ret;
-  struct MHD_Response *response;
+  MHD_ResponsePtr response;
 
   /* unsupported HTTP method */
   response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR),
@@ -440,7 +451,7 @@ not_found_page (const void *cls,
 /**
  * List of all pages served by this HTTP server.
  */
-static struct Page pages[] = 
+static PageDef pages[] = 
   {
     { "/", "text/html",  &fill_v1_form, MAIN_PAGE },
     { "/2", "text/html", &fill_v1_v2_form, SECOND_PAGE },
@@ -479,8 +490,8 @@ post_iterator (void *cls,
 	       const char *transfer_encoding,
 	       const char *data, uint64_t off, size_t size)
 {
-  struct Request *request = cls;
-  struct Session *session = request->session;
+  RequestPtr request = cls;
+  SessionPtr session = request->session;
 
   if (0 == strcmp ("DONE", key))
     {
@@ -551,26 +562,76 @@ post_iterator (void *cls,
  *         MHS_NO if the socket must be closed due to a serios
  *         error while handling the request
  */
-int
-create_response (void *cls,
-		 struct MHD_Connection *connection,
-		 const char *url,
-		 const char *method,
-		 const char *version,
-		 const char *upload_data, 
-		 size_t *upload_data_size,
-		 void **ptr)
+#define MAGIC_HEADER_SIZE (16 * 1024)
+
+int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
 {
-  struct MHD_Response *response;
-  struct Request *request;
-  struct Session *session;
+  MHD_ResponsePtr response;
+  RequestPtr request;
+  SessionPtr session;
   int ret;
   unsigned int i;
+  int fd;
+  struct stat buf;
 
+if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) ) ) {
+	/* should be file download */
+	#if HAVE_MAGIC_H
+	char file_data[MAGIC_HEADER_SIZE];
+	ssize_t got;
+	#endif
+	const char *mime;
+	char *filename, realfile[512];
+
+	filename = strrchr(url,'/');
+	strcpy(realfile,sysconfig.httpimages);
+	strcat(realfile,&url[7]);
+	filename = realfile;
+
+	if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
+		return MHD_NO;  /* unexpected method (we're not polite...) */
+	if ( (0 == stat (filename, &buf)) && (NULL == strstr (filename, "..")) && ('/' != filename[1]) )
+		fd = open (filename, O_RDONLY);
+	else
+		fd = -1;
+	if (-1 == fd) {
+		loghandle(LOG_INFO, errno, "so we are here too awww, %s", &url[1]);
+		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
+		MHD_destroy_response (response);
+		return ret;
+	}
+
+      /* read beginning of the file to determine mime type  */
+#if HAVE_MAGIC_H
+	got = read (fd, file_data, sizeof (file_data));
+	if (-1 != got)
+		mime = magic_buffer (magic, file_data, got);
+	else
+#endif      
+		mime = NULL;
+	(void) lseek (fd, 0, SEEK_SET);
+
+	if (NULL == (response = MHD_create_response_from_fd(buf.st_size,fd)) ) {
+		/* internal error (i.e. out of memory) */
+		(void) close (fd);
+		return MHD_NO; 
+	}
+
+      /* add mime type if we had one */
+	if (NULL != mime)
+		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	MHD_destroy_response (response);
+
+	return ret;
+}
+//end images
+    
   request = *ptr;
   if (NULL == request)
     {
-      request = calloc (1, sizeof (struct Request));
+      request = calloc (1, sizeof (RequestDef));
       if (NULL == request)
 	{
 	  fprintf (stderr, "calloc error: %s\n", strerror (errno));
@@ -660,11 +721,11 @@ create_response (void *cls,
  */
 void
 request_completed_callback (void *cls,
-			    struct MHD_Connection *connection,
+			    MHD_ConnectionPtr connection,
 			    void **con_cls,
 			    enum MHD_RequestTerminationCode toe)
 {
-  struct Request *request = *con_cls;
+  RequestPtr request = *con_cls;
 
   if (NULL == request)
     return;
@@ -683,9 +744,9 @@ request_completed_callback (void *cls,
 void
 expire_sessions ()
 {
-  struct Session *pos;
-  struct Session *prev;
-  struct Session *next;
+  SessionPtr pos;
+  SessionPtr prev;
+  SessionPtr next;
   time_t now;
 
   now = time (NULL);
@@ -716,49 +777,7 @@ expire_sessions ()
  */
 int
 main_clone ()
-{/*
-  struct timeval tv;
-  struct timeval *tvp;
-  fd_set rs;
-  fd_set ws;
-  fd_set es;
-  int max;
-  unsigned MHD_LONG_LONG mhd_timeout;
-
-
-
-  srandom ((unsigned int) time (NULL));
-  server = MHD_start_daemon (MHD_USE_DEBUG,
-                        8080,
-                        NULL, NULL, 
-			&create_response, NULL, 
-			MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int) 15,
-			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,
-			MHD_OPTION_END);
-  if (NULL == server)
-    return 1;
-    
-  while ( sysconfig.shutdown == false )
-    {
-      expire_sessions ();
-      max = 0;
-      FD_ZERO (&rs);
-      FD_ZERO (&ws);
-      FD_ZERO (&es);
-      if (MHD_YES != MHD_get_fdset (server, &rs, &ws, &es, &max))
-	break;
-      if (MHD_get_timeout (server, &mhd_timeout) == MHD_YES)	
-	{
-	  tv.tv_sec = mhd_timeout / 1000;
-	  tv.tv_usec = (mhd_timeout - (tv.tv_sec * 1000)) * 1000;
-	  tvp = &tv;	  
-	}
-      else
-	tvp = NULL;
-      select (max + 1, &rs, &ws, &es, tvp);
-      MHD_run (server);
-    }
-  MHD_stop_daemon (server);*/
+{
   int THREADS;
   cpuInfo cpuinfo;
   unsigned int port = 8080;
