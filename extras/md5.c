@@ -19,7 +19,7 @@
    prototypes) to maintain the tradition that Netfone will compile
    with Sun's original "cc". */
 
-#include "md5.h"
+//#include "md5.h"
 
 
 #ifndef HIGHFIRST
@@ -151,7 +151,7 @@ MD5Transform(uint32_t buf[4],
  * initialization constants.
  */
 void
-MD5Init(struct MD5Context *ctx)
+MD5Init(MD5ContextPtr ctx)
 {
     ctx->buf[0] = 0x67452301;
     ctx->buf[1] = 0xefcdab89;
@@ -167,7 +167,7 @@ MD5Init(struct MD5Context *ctx)
  * of bytes.
  */
 void
-MD5Update(struct MD5Context *ctx,
+MD5Update(MD5ContextPtr ctx,
 	  const void *data,
 	  unsigned len)
 {
@@ -220,7 +220,7 @@ MD5Update(struct MD5Context *ctx,
  */
 void 
 MD5Final(unsigned char digest[16],
-	 struct MD5Context *ctx)
+	 MD5ContextPtr ctx)
 {
   unsigned count;
   unsigned char *p;
@@ -261,7 +261,7 @@ MD5Final(unsigned char digest[16],
   MD5Transform(ctx->buf, (uint32_t *) ctx->in);
   byteReverse((unsigned char *) ctx->buf, 4);
   memcpy(digest, ctx->buf, 16);
-  memset(ctx, 0, sizeof(struct MD5Context));        /* In case it's sensitive */
+  memset(ctx, 0, sizeof(MD5Context));        /* In case it's sensitive */
 }
 
 
@@ -271,22 +271,22 @@ char *str2md5(const char *str) {
 	int i, length;
 	char *out = (char*)malloc(33);
 	unsigned char digest[16];
-	MD5_CTX c;
+	MD5Context c;
 
 length = strlen(str);
-MD5_Init(&c);
+MD5Init(&c);
 
 while(length > 0) {
 	if (length > 512) {
-		MD5_Update(&c, str, 512);
+		MD5Update(&c, str, 512);
 	} else {
-		MD5_Update(&c, str, length);
+		MD5Update(&c, str, length);
 	}
 	length -= 512;
 	str += 512;
 }
 
-MD5_Final(digest, &c);
+MD5Final(digest, &c);
 
 for(i = 0; i < 16; ++i) {
 	snprintf(&(out[i*2]), 16*2, "%02x", (unsigned int)digest[i]);
@@ -303,21 +303,21 @@ char *md5file( char *filename ) {
 	int i;
 	char *out = (char*)malloc(33);
 	unsigned char data[1024];
-	unsigned char digest[MD5_DIGEST_LENGTH];
+	unsigned char digest[MD5_DIGEST_SIZE];
 	FILE *inFile = fopen (filename, "rb");
-	MD5_CTX mdContext;
+	MD5Context mdContext;
 
 if (inFile == NULL) {
 	loghandle(LOG_ERR, errno, "Error opening file for md5 hash: \"%s\"", filename );
         return 0;
 }
 
-MD5_Init(&mdContext);
+MD5Init(&mdContext);
 
 while( (bytes = fread (data, 1, 1024, inFile)) != 0 )
-	MD5_Update(&mdContext, data, bytes);
+	MD5Update(&mdContext, data, bytes);
 fclose(inFile);
-MD5_Final(digest,&mdContext);
+MD5Final(digest,&mdContext);
 
 for(i = 0; i < 16; ++i) {
 	snprintf(&(out[i*2]), 16*2, "%02x", (unsigned int)digest[i]);

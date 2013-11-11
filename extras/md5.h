@@ -28,24 +28,24 @@
 
 #define MD5_DIGEST_SIZE 16
 
-struct MD5Context 
+typedef struct 
 {
   uint32_t buf[4];
   uint32_t bits[2];
   unsigned char in[64];
-};
+} MD5Context, *MD5ContextPtr;
 
 
 void 
-MD5Init(struct MD5Context *ctx);
+MD5Init(MD5ContextPtr ctx);
 
 void
-MD5Update(struct MD5Context *ctx,
+MD5Update(MD5ContextPtr ctx,
 	  const void *buf,
 	  unsigned len);
 
 void MD5Final(unsigned char digest[MD5_DIGEST_SIZE],
-	      struct MD5Context *ctx);
+	      MD5ContextPtr ctx);
 
 #endif /* !MD5_H */
 
