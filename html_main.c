@@ -91,7 +91,7 @@ svSendString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\"
 svSendString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
 svSendString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-svSendString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
+svSendString( cnt, "<link rel=\"icon\" href=\"http://www.nectroverse.net:8080/images/favicon.ico\">" );
 svSendString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
 svSendString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
 svSendString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
@@ -101,7 +101,7 @@ if( flags & 4 )
 	svSendString( cnt, "<base target=\"_blank\">" );
 if( flags & 1 ) {
 svSendString( cnt, "<style type=\"text/css\">" );
-	svSendString( cnt, "body{background-image:url(images/mbg.gif);" );
+	svSendString( cnt, "body{background-image:url(http://www.nectroverse.net:8080/images/mbg.gif);" );
 	if( !( flags & 2 ) )
 		svSendString( cnt, "background-attachment:fixed;" );
 	svSendString( cnt, "}</style>" );
@@ -131,57 +131,57 @@ int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
  svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
 
  svSendString( cnt, "<tr>" );
- svSendString( cnt, "<td width=\"35\" rowspan=\"2\"><img height=\"63\" src=\"images/i02.jpg\" width=\"35\"></td>" );
+ svSendString( cnt, "<td width=\"35\" rowspan=\"2\"><img height=\"63\" src=\"http://www.nectroverse.net:8080/images/i02.jpg\" width=\"35\"></td>" );
  svSendString( cnt, "<td width=\"100%\" height=\"21\" align=\"center\">" );
 
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i05.jpg\" border=\"0\" align=\"center\">" );
+ svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"http://www.nectroverse.net:8080/images/i05.jpg\" border=\"0\" align=\"center\">" );
  svSendString( cnt, "<tr>" );
- svSendString( cnt, "<td width=\"41\"><img height=\"21\" src=\"images/i03.jpg\" width=\"41\"></td>" );
- svSendString( cnt, "<td background=\"images/i05.jpg\">" );
+ svSendString( cnt, "<td width=\"41\"><img height=\"21\" src=\"http://www.nectroverse.net:8080/images/i03.jpg\" width=\"41\"></td>" );
+ svSendString( cnt, "<td background=\"http://www.nectroverse.net:8080/images/i05.jpg\">" );
 
  if( ticks.status )
  svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Next tick : <span id=\"headerTime\">%d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", (long long)mainp->networth, (int)( ticks.next - time(0) ), (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
  else
  svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", (long long)mainp->networth, (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
 
- svSendString( cnt, "</td><td width=\"78\"><img height=\"21\" src=\"images/i07.jpg\" width=\"78\"></td></tr></table>" );
+ svSendString( cnt, "</td><td width=\"78\"><img height=\"21\" src=\"http://www.nectroverse.net:8080/images/i07.jpg\" width=\"78\"></td></tr></table>" );
  svSendString( cnt, "</td></tr>" );
 
  svSendString( cnt, "<tr><td width=\"100%\" align=\"center\">" );
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i15.jpg\" border=\"0\" align=\"center\"><tr>" );
+ svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"http://www.nectroverse.net:8080/images/i15.jpg\" border=\"0\" align=\"center\"><tr>" );
 
  a = dbUserNewsGetFlags( id );
- svSendString( cnt, "<td width=\"41\"><a href=\"hq\"><img id=\"headermail\" height=\"42\" title=\"mail\" src=\"images/i09" );
+ svSendString( cnt, "<td width=\"41\"><a href=\"hq\"><img id=\"headermail\" height=\"42\" title=\"mail\" src=\"http://www.nectroverse.net:8080/images/i09" );
  if( a & CMD_NEWS_FLAGS_MAIL )
   svSendString( cnt, "a" );
  svSendString( cnt, ".jpg\" width=\"41\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"40\"><a href=\"hq\"><img id=\"headerbuild\" height=\"42\" title=\"reports\" src=\"images/i10" );
+ svSendString( cnt, "<td width=\"40\"><a href=\"hq\"><img id=\"headerbuild\" height=\"42\" title=\"reports\" src=\"http://www.nectroverse.net:8080/images/i10" );
  if( a & CMD_NEWS_FLAGS_BUILD )
   svSendString( cnt, "a" );
  svSendString( cnt, ".jpg\" width=\"40\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headeraid\" height=\"42\" title=\"economy\" src=\"images/i11" );
+ svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headeraid\" height=\"42\" title=\"economy\" src=\"http://www.nectroverse.net:8080/images/i11" );
  if( a & CMD_NEWS_FLAGS_AID )
   svSendString( cnt, "a" );
  svSendString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headerfleet\" height=\"42\" title=\"fleets\" src=\"images/i12" );
+ svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headerfleet\" height=\"42\" title=\"fleets\" src=\"http://www.nectroverse.net:8080/images/i12" );
  if( a & CMD_NEWS_FLAGS_ATTACK )
   svSendString( cnt, "a" );
  else if( a & CMD_NEWS_FLAGS_FLEET )
   svSendString( cnt, "b" );
  svSendString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
 
- svSendString( cnt, "<td width=\"18\"><img height=\"42\" src=\"images/i13.jpg\" width=\"18\"></td>" );
- svSendString( cnt, "<td width=\"100%\" background=\"images/i15.jpg\" align=\"left\">" );
+ svSendString( cnt, "<td width=\"18\"><img height=\"42\" src=\"http://www.nectroverse.net:8080/images/i13.jpg\" width=\"18\"></td>" );
+ svSendString( cnt, "<td width=\"100%\" background=\"http://www.nectroverse.net:8080/images/i15.jpg\" align=\"left\">" );
 
  svSendString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
  svSendString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
  svSendPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
  svSendString( cnt, "</td></tr></table>" );
 
- svSendString( cnt, "</td><td width=\"49\"><img height=\"42\" src=\"images/i17.jpg\" width=\"49\"></td></tr></table>" );
+ svSendString( cnt, "</td><td width=\"49\"><img height=\"42\" src=\"http://www.nectroverse.net:8080/images/i17.jpg\" width=\"49\"></td></tr></table>" );
 
  svSendString( cnt, "</td></tr></table><br>" );
 
@@ -192,17 +192,17 @@ void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags ) {
 
 svSendString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_03.jpg\" width=350 height=80  alt=\"ect Top\"></td></tr>" );
+svSendString( cnt, "<tr><td align=\"center\"><img src=\"http://www.nectroverse.net:8080/images/ectro_03.jpg\" width=350 height=80  alt=\"ect Top\"></td></tr>" );
 
 svSendString( cnt, "<tr><td><table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
-svSendString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
-svSendString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"images/ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
-svSendString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
+svSendString( cnt, "<td background=\"http://www.nectroverse.net:8080/images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
+svSendString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"http://www.nectroverse.net:8080/images/ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
+svSendString( cnt, "<td background=\"http://www.nectroverse.net:8080/images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
 svSendString( cnt, "</tr></table></tr></td>" );
 
-svSendString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
-svSendString( cnt, "<tr><td background=\"images/ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
+svSendString( cnt, "<tr><td align=\"center\"><img src=\"http://www.nectroverse.net:8080/images/ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
 	svSendString( cnt, "<a href=\"/\">Main</a>" );
@@ -248,16 +248,16 @@ void iohttpBodyInit( svConnectionPtr cnt, char *title, ... )
  va_list ap;
  va_start( ap, title );
  vsnprintf( text, 4096, title, ap );
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
+ svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"http://www.nectroverse.net:8080/images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"http://www.nectroverse.net:8080/images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
  svSendString( cnt, text );
- svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table>" );
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"center\"><br>" );
+ svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"http://www.nectroverse.net:8080/images/i30.jpg\" width=\"62\"></td></tr></table>" );
+ svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"http://www.nectroverse.net:8080/images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"center\"><br>" );
  return;
 }
 
 void iohttpBodyEnd( svConnectionPtr cnt )
 {
- svSendString( cnt, "<br></td><td width=\"7\" background=\"images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"images/i47.jpg\"><img height=\"12\" src=\"images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"images/i49.jpg\" width=\"62\"></td></tr></table></center><br><br><br></body></html>" );
+ svSendString( cnt, "<br></td><td width=\"7\" background=\"http://www.nectroverse.net:8080/images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"http://www.nectroverse.net:8080/images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"http://www.nectroverse.net:8080/images/i47.jpg\"><img height=\"12\" src=\"http://www.nectroverse.net:8080/images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"http://www.nectroverse.net:8080/images/i49.jpg\" width=\"62\"></td></tr></table></center><br><br><br></body></html>" );
  return;
 }
 
@@ -599,16 +599,16 @@ return;
 
 void iohttpFunc_boxstart( svConnectionPtr cnt, char *title ) {
 
-svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
+svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"http://www.nectroverse.net:8080/images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"http://www.nectroverse.net:8080/images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
 svSendPrintf( cnt, "%s", title);
-svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\"><br>" );
+svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"http://www.nectroverse.net:8080/images/i30.jpg\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"http://www.nectroverse.net:8080/images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\"><br>" );
 
 return;
 }
 
 void iohttpFunc_boxend( svConnectionPtr cnt ) {
 
-svSendString( cnt, "<br><br></td><td width=\"7\" background=\"images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"images/i47.jpg\"><img height=\"12\" src=\"images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"images/i49.jpg\" width=\"62\"></td></tr></table>" );
+svSendString( cnt, "<br><br></td><td width=\"7\" background=\"http://www.nectroverse.net:8080/images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"http://www.nectroverse.net:8080/images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"http://www.nectroverse.net:8080/images/i47.jpg\"><img height=\"12\" src=\"http://www.nectroverse.net:8080/images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"http://www.nectroverse.net:8080/images/i49.jpg\" width=\"62\"></td></tr></table>" );
 
 return;
 }
@@ -676,7 +676,7 @@ svSendString( cnt, "&nbsp;" );
 svSendString( cnt, "</td><td width=\"40%\" valign=\"top\">" );
 
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Log in</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Log in</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
 svSendString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 
@@ -717,7 +717,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 //end todo list
 
 /*
-svSendString( cnt, "<iframe src=\"images///www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FEctroverse%2F133044593518078&amp;send=false&amp;layout=box_count&amp;width=450&amp;show_faces=false&amp;font=segoe+ui&amp;colorscheme=dark&amp;action=like&amp;height=90\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:90px;\" allowTransparency=\"true\"></iframe>\n" );
+svSendString( cnt, "<iframe src=\"http://www.nectroverse.net:8080/images///www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FEctroverse%2F133044593518078&amp;send=false&amp;layout=box_count&amp;width=450&amp;show_faces=false&amp;font=segoe+ui&amp;colorscheme=dark&amp;action=like&amp;height=90\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:90px;\" allowTransparency=\"true\"></iframe>\n" );
 
 svSendString( cnt, "<br>\n" );
 svSendString( cnt, "<br>\n" );
@@ -756,7 +756,7 @@ iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_FAQ );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
 sprintf( DIRCHECKER, "%s/faq.html", sysconfig.httpread );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
@@ -790,7 +790,7 @@ svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"t
 
 
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
 svSendString( cnt, "<tr><td><font size=\"2\">" );
 svSendString( cnt, "<center>This page is a basic guide to new players on how to get started.<br>It is important to read this to get the best possible experience when first playing!</center>" );
 
@@ -819,7 +819,7 @@ svSendString( cnt, "</td></tr></table><br><br>" );
 
 
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
 svSendString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 svSendString( cnt, "<a name=\"a0\"><b><i>0. Registering the account.</i></b></a><br>" );
@@ -855,7 +855,7 @@ svSendString( cnt, "<br>" );
 svSendString( cnt, "</td></tr></table><br><br>" );
 
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
 svSendString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 svSendString( cnt, "<a name=\"b0\"><b><i>0. Resources & Buildings.</i></b></a><br>" );
@@ -885,7 +885,7 @@ svSendString( cnt, "</td></tr></table><br><br>" );
 
 
 svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
 svSendString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 svSendString( cnt, "<a name=\"c0\"><b><i>0. Map generation</i></b></a><br>" );
@@ -920,7 +920,7 @@ iohttpBase( cnt, 8 );
 iohttpFunc_frontmenu( cnt, FMENU_RANKS );
 
 svSendString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
+svSendString( cnt, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 svSendString( cnt, "<tr><td>" );
 
 svSendPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", sysconfig.round );
@@ -959,7 +959,7 @@ void iohttpFunc_halloffame11( ) {
 //iohttpFunc_frontmenu( cnt, FMENU_RANKS );
 strcpy(httpbuffer,"");
 strcat( httpbuffer, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-strcat( httpbuffer, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
+strcat( httpbuffer, "<tr><td background=\"http://www.nectroverse.net:8080/images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 strcat( httpbuffer, "<tr><td>" );
 
 //svSendPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", sysconfig.round );
