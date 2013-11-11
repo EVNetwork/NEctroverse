@@ -627,6 +627,8 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
 	strftime(filebuffer,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filebuffer );
+
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 	MHD_destroy_response (response);
 
@@ -708,6 +710,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
   response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),
 					      (void *) METHOD_ERROR,
 					      MHD_RESPMEM_PERSISTENT);
+  (void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );					      
   ret = MHD_queue_response (connection, 
 			    MHD_HTTP_METHOD_NOT_ACCEPTABLE, 
 			    response);
