@@ -93,7 +93,7 @@ return 1;
 void cleanUp(int type) {
 	char DIRCHECKER[256];
 
-
+call_clean();
 
 if( type ) {
 	close(options.serverpipe);
