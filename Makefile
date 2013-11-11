@@ -33,7 +33,7 @@ io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
 http.o: http/*.h http/*.c
-	$(CC) http/demo.c $(DEFS) -o http.o -c $(FLAGS)
+	$(CC) http/http.c $(DEFS) -o http.o -c $(FLAGS)
 
 db.o: *.h db.c
 	$(CC) db.c $(DEFS) -o db.o -c $(FLAGS)

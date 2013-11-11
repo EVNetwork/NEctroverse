@@ -33,4 +33,4 @@ void iohttpFunc_faq( svConnectionPtr cnt );
 void iohttpFunc_gettingstarted( svConnectionPtr cnt );
 
 void iohttpFunc_halloffame( svConnectionPtr cnt );
-
+void iohttpFunc_halloffame11();

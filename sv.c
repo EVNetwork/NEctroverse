@@ -738,8 +738,42 @@ void daemonloop() {
 	ioInterfacePtr io;
 	int a, curtime;
 
+#if PRODUCTION
+	int THREADS;
+	cpuInfo cpuinfo;
+	unsigned int port = 8080;
+
+cpuGetInfo( &cpuinfo );
+	
+THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
+  srandom ((unsigned int) time (NULL));
+  server = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG
+#if EPOLL_SUPPORT 
+			| MHD_USE_EPOLL_LINUX_ONLY
+#endif
+			,
+                        port,
+                        NULL, NULL,
+                        &create_response, NULL,  
+			MHD_OPTION_CONNECTION_MEMORY_LIMIT, (size_t) (256 * 1024), 
+#if PRODUCTION
+			MHD_OPTION_PER_IP_CONNECTION_LIMIT, (unsigned int) (64),
+#endif
+			MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int) (120 /* seconds */),
+			MHD_OPTION_THREAD_POOL_SIZE, (unsigned int) 4,
+			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,
+			MHD_OPTION_END);
+  if (NULL == server)
+    return;	
+    else
+    loghandle(LOG_INFO, false, "HTTP 1.1 Server live with %d threads on port: %d", THREADS, port);
+#endif
+
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
+	#if PRODUCTION
+	expire_sessions ();
+	#endif
 	if( irccfg.bot ) {
 		ircbot_scan();
 	}
@@ -784,6 +818,10 @@ while( sysconfig.shutdown == false ) {
 	if( options.verbose )
 		fflush(stdout);
 }
+#if PRODUCTION
+MHD_stop_daemon (server);
+#endif
+
 
 return;
 }
@@ -895,7 +933,7 @@ sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[POR
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 
-main_clone();
+//main_clone();
 
 loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
 

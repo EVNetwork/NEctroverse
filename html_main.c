@@ -948,5 +948,42 @@ return;
 }
 
 
+void iohttpFunc_halloffame11( ) {
+	int a;
+	struct stat stdata;
+	char DIRCHECKER[256];
+	char LINKSTRING[256];
+
+
+//iohttpBase( cnt, 8 );
+//iohttpFunc_frontmenu( cnt, FMENU_RANKS );
+strcpy(httpbuffer,"");
+strcat( httpbuffer, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+strcat( httpbuffer, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
+strcat( httpbuffer, "<tr><td>" );
+
+//svSendPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", sysconfig.round );
+/*
+for( a = ( sysconfig.round - 1 ); a > -1; a--) {
+
+svSendPrintf( cnt, "<tr><td><br>Round %d<br>", a );
+
+sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", sysconfig.directory, a );
+sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d&typ=1\">", a );
+svSendPrintf( cnt, "%sEmpires%s - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+
+sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", sysconfig.directory, a );
+sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d\">", a );
+svSendPrintf( cnt, "%sPlayers%s", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+svSendString( cnt, "</tr></td>" );
+
+}
+*/
+
+strcat( httpbuffer,"</td></tr></table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
+
+//iohttpFunc_endhtml( cnt );
+return;
+}
 
 
