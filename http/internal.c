@@ -91,16 +91,20 @@ MHD_state_to_string (enum MHD_CONNECTION_STATE state)
  * messages.
  */
 void
-MHD_DLOG (const struct MHD_Daemon *daemon, const char *format, ...)
-{
+MHD_DLOG (const struct MHD_Daemon *daemon, const char *format, ...) {
   va_list va;
+  char sbuf[512];
+
+va_start(va, format);
+vsnprintf(sbuf, 512, format, va);
+va_end(va);
 
   if ((daemon->options & MHD_USE_DEBUG) == 0)
     return;
-  va_start (va, format);
-  daemon->custom_error_log (daemon->custom_error_log_cls, format, va);
-  loghandle(LOG_ERR, FALSE, (char *)format, va);
-  va_end (va);
+  //va_start (va, format);
+  //daemon->custom_error_log (daemon->custom_error_log_cls, format, va);
+  loghandle(LOG_ERR, FALSE, "%s", sbuf);
+  //va_end (va);
 }
 #endif
 

@@ -73,7 +73,7 @@ va_end( ap );
 snprintf(cstr, sizeof (cstr), "%s=%s", name, text);
 
 if (MHD_NO == MHD_add_response_header( cnt->connection->response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
-	fprintf (stderr, "Failed to set cookie: %s\n", cstr);
+	loghandle(LOG_ERR, FALSE, "Failed to set cookie: %s", cstr);
 	return 0;
 }
 /*

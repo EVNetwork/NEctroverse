@@ -128,7 +128,7 @@ static SessionPtr get_session( MHD_ConnectionPtr connection )
   ret = calloc (1, sizeof (SessionDef));
   if (NULL == ret)
     {						
-      fprintf (stderr, "calloc error: %s\n", strerror (errno));
+      loghandle(LOG_ERR, errno, "%s", "HTTP calloc error");
       return NULL; 
     }
   /* not a super-secure way to generate a random session ID,
@@ -162,7 +162,7 @@ static void add_session_cookie (SessionPtr session, MHD_ResponsePtr response) {
 snprintf (cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid);
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
-	fprintf (stderr, "Failed to set session cookie header!\n");
+	loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
 }
 
 }
@@ -389,7 +389,7 @@ post_iterator (void *cls,
 	session->faction[size+off] = '\0';
       return MHD_YES;
     }
-  fprintf (stderr, "Unsupported form value `%s'\n", key);
+  loghandle(LOG_ERR, FALSE, "Unsupported form value \'%s\'", key);
   return MHD_YES;
 }
 
@@ -516,7 +516,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       request = calloc (1, sizeof (RequestDef));
       if (NULL == request)
 	{
-	  fprintf (stderr, "calloc error: %s\n", strerror (errno));
+	  loghandle(LOG_ERR, errno, "calloc error: %s\n", errno );
 	  return MHD_NO;
 	}
       *ptr = request;
@@ -526,8 +526,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	  request->pp = MHD_create_post_processor (connection, 1024, &post_iterator, request);
 	  if (NULL == request->pp)
 	    {
-	      fprintf (stderr, "Failed to setup post processor for `%s'\n",
-		       url);
+	      loghandle(LOG_ERR, FALSE, "Failed to setup post processor for: \'%s\'", url);
 	      return MHD_NO;
 	    }
 	} else if ( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) ) {
@@ -540,8 +539,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       request->session = get_session (connection);
       if (NULL == request->session)
 	{
-	  fprintf (stderr, "Failed to setup session for `%s'\n",
-		   url);
+	  loghandle(LOG_ERR, FALSE, "Failed to setup session for \'%s\'", url);
 	  return MHD_NO; 
 	}
     }
@@ -575,8 +573,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	i++;
       ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
       if (ret != MHD_YES)
-	fprintf (stderr, "Failed to create page for `%s'\n",
-		 url);
+	loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", url);
       return ret;
     }
   /* unsupported HTTP method */
@@ -664,22 +661,18 @@ process_upload_data (void *cls,
     return do_append (&uc->language, data, size);
   if (0 != strcmp (key, "upload"))
     {
-      fprintf (stderr, 
-	       "Ignoring unexpected form value `%s'\n",
-	       key);
+      loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
       return MHD_YES; /* ignore */  
     }
   if (NULL == filename)
     {
-      fprintf (stderr, "No filename, aborting upload\n");
+      loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
       return MHD_NO; /* no filename, error */
     }
   if ( (NULL == uc->category) ||
        (NULL == uc->language) )
     {
-      fprintf (stderr, 
-	       "Missing form data for upload `%s'\n",
-	       filename);
+      loghandle(LOG_ERR, FALSE, "Missing form data for upload: \'%s\'", filename);
       uc->response = request_refused_response;
       return MHD_NO;
     }
@@ -727,10 +720,7 @@ process_upload_data (void *cls,
 		     S_IRUSR | S_IWUSR);
       if (-1 == uc->fd)
 	{
-	  fprintf (stderr, 
-		   "Error opening file `%s' for upload: %s\n",
-		   fn,
-		   strerror (errno));
+	  loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
 	  uc->response = request_refused_response;
 	  return MHD_NO;
 	}      
@@ -740,10 +730,7 @@ process_upload_data (void *cls,
        (size != write (uc->fd, data, size)) )    
     {
       /* write failed; likely: disk full */
-      fprintf (stderr, 
-	       "Error writing to file `%s': %s\n",
-	       uc->filename,
-	       strerror (errno));
+      loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
       uc->response = internal_error_response;
       close (uc->fd);
       uc->fd = -1;

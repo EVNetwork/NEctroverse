@@ -1752,7 +1752,7 @@ switch(flag) {
 }
 
 
-if( error ) {
+if ( error ) {
 	if( options.verbose ) {
 		printf("%s%s"RESET,font, ebuffer);
 		printf(" -- "BOLDBLUE"%s"RESET"\n", strerror(error) );
