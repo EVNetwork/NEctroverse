@@ -496,7 +496,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	if (NULL != mime)
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
 	else
-		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr(iohttpMime[ iohttpMimeFind( filename ) ].def, ' ')+1 ) );
+		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( strdup(iohttpMime[ iohttpMimeFind( filename ) ].def ), ' ')+1 ) );
 
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
 	strftime(filebuffer,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
@@ -853,9 +853,40 @@ struct MHD_OptionItem ops[] = {
 };
 
 /**
- * Call with the port number as the only argument.
- * Never terminates (other than by signals, such as CTRL-C).
+ * Function called if we get a SIGPIPE. Does nothing.
+ *
+ * @param sig will be SIGPIPE (ignored)
  */
+static void
+catcher (int sig)
+{
+  /* do nothing */
+}
+
+
+/**
+ * setup handlers to ignore SIGPIPE.
+ */
+#ifndef MINGW
+static void
+ignore_sigpipe ()
+{
+  struct sigaction oldsig;
+  struct sigaction sig;
+
+  sig.sa_handler = &catcher;
+  sigemptyset (&sig.sa_mask);
+#ifdef SA_INTERRUPT
+  sig.sa_flags = SA_INTERRUPT;  /* SunOS */
+#else
+  sig.sa_flags = SA_RESTART;
+#endif
+  if (0 != sigaction (SIGPIPE, &sig, &oldsig))
+    fprintf (stderr,
+             "Failed to install SIGPIPE handler: %s\n", strerror (errno));
+}
+#endif
+
 int
 main_clone ()
 {
@@ -866,7 +897,9 @@ main_clone ()
   #endif
   unsigned int port = 8880;
   cpuGetInfo( &cpuinfo );
-
+  #ifndef MINGW
+  ignore_sigpipe ();
+  #endif
   THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
 #if HAVE_MAGIC_H
   magic = magic_open (MAGIC_MIME_TYPE);
