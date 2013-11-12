@@ -903,9 +903,9 @@ main_clone ()
   int THREADS;
   cpuInfo cpuinfo;
   #if HTTPS_SUPPORT 
-  unsigned int sslport = 8888;
+  unsigned int sslport = 8881;
   #endif
-  unsigned int port = 8080;
+  unsigned int port = 8880;
   cpuGetInfo( &cpuinfo );
 
   THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );

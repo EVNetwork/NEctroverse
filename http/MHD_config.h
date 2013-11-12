@@ -197,7 +197,7 @@
 /* #undef HAVE_WS2TCPIP_H */
 
 /* disable HTTPS support */
-#define HTTPS_SUPPORT 0
+#define HTTPS_SUPPORT 1
 
 /* Defined if libcurl supports AsynchDNS */
 /* #undef LIBCURL_FEATURE_ASYNCHDNS */
