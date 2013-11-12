@@ -15,6 +15,7 @@ Additional Librarys needed for optinal components:
 * build-essentials -- needed, but you should already have that.
 * libmysqlclient-dev -- needed for mySql addition.
 * libpng-dev & imagemagick (ImageMagick is only needed because I don't know how to scale the image in lib)
+* libgnutls-dev -- For HTTPs support.
 
 Run:
 * make 
