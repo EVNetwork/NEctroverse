@@ -530,6 +530,8 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 		       url);
 	      return MHD_NO;
 	    }
+	} else if ( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) ) {
+	return MHD_NO;
 	}
       return MHD_YES;
     }
@@ -562,7 +564,9 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       method = MHD_HTTP_METHOD_GET;
       if (NULL != request->post_url)
 	url = request->post_url;
-    }
+    }else if ( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) ) {
+	return MHD_NO;
+	}
 
   if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
       /* find out which page to serve */
