@@ -1587,7 +1587,7 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	user->level = (( admincfg.level[a] >= 0 ) ? admincfg.level[a] : 0);
 	dbUserSave( id, user );
 	dbUserInfoRetrieve(id, &infod);
-	sprintf( infod.forumtag, "%s", admincfg.forumtag[a] );
+	strncpy( infod.forumtag,admincfg.forumtag[a], sizeof(infod.forumtag) );
 	dbUserInfoSet(id, &infod);
 
 	if( user->level >= LEVEL_MODERATOR ) { 

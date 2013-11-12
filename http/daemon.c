@@ -18,23 +18,8 @@
 
 */
 /* Get thread name visible in the kernel and its interfaces.  */
-#ifndef AVOIDIMPLICITS
-#define AVOIDIMPLICITS
-extern int pthread_getname_np (pthread_t __target_thread, char *__buf,
-			       size_t __buflen)
-     __THROW __nonnull ((2));
 
-/* Set thread name visible in the kernel and its interfaces.  */
-extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
-     __THROW __nonnull ((2));
-     
-extern int asprintf (char **__restrict __ptr,
-		     const char *__restrict __fmt, ...)
-     __THROWNL __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
-     
-extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
-		    socklen_t *__restrict __addr_len, int __flags);
-#endif
+
 /**
  * @file microhttpd/daemon.c
  * @brief  A minimal-HTTP server library
@@ -107,7 +92,7 @@ mhd_panic_std (void *cls,
   fprintf (stderr, "Fatal error in GNU libmicrohttpd %s:%u: %s\n",
 	   file, line, reason);
 #endif
-  abort ();
+  abort();
 }
 
 

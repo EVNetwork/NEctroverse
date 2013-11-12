@@ -196,6 +196,10 @@ void svSendStaticFlush( svConnectionPtr cnt );
 void svSend( svConnectionPtr cnt, void *data, int size );
 void svSendString( svConnectionPtr cnt, char *string );
 
+void httpString( ReplyDataPtr rd, char *string );
+__attribute__ ((format (printf, 2, 3))) void httpPrintf( ReplyDataPtr rd, char *string, ... );
+
+
 __attribute__ ((format (printf, 2, 3))) void svSendPrintf( svConnectionPtr cnt, char *string, ... );
 
 void svSendStatic( svConnectionPtr cnt, void *data, int size );
@@ -224,6 +228,6 @@ void loghandle( int flag, int error, char *fmt, ... );
 extern bool firstload;
 char *itoa(int i);
 
-
+void svSignal( int signal );
 
 #endif

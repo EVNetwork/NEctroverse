@@ -33,16 +33,16 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
   }
 
 memset( &newuser, 0, sizeof(dbUserInfoDef) );
-snprintf(newuser.name, sizeof(newuser.name), "%s", name );
-snprintf(newuser.faction, sizeof(newuser.faction), "%s", faction );
-snprintf(newuser.password, sizeof(newuser.password), "%s", hashencrypt(pass) );
-snprintf(newuser.forumtag, sizeof(newuser.forumtag), "%s", "Player" );
+strncpy(newuser.name, name, sizeof(newuser.name) );
+strncpy(newuser.faction, faction, sizeof(newuser.faction) );
+strncpy(newuser.password, hashencrypt(pass), sizeof(newuser.password) );
+strncpy(newuser.forumtag, "Player", sizeof(newuser.forumtag) );
 b = time( 0 );
 newuser.createtime = b;
 newuser.lasttime = b;
 a = dbUserAdd( &newuser );
 
-  sprintf( cmdUserMainDefault.faction, "%s", faction );
+  strncpy( cmdUserMainDefault.faction, faction, sizeof(cmdUserMainDefault.faction) );
   cmdUserMainDefault.empire = -1;
   b = time( 0 );
 

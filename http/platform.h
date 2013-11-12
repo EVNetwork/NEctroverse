@@ -58,6 +58,8 @@
 #undef HAVE_CONFIG_H
 #include <pthread.h>
 
+#ifndef AVOIDIMPLICITS
+#define AVOIDIMPLICITS
 /* Get thread name visible in the kernel and its interfaces.  */
 extern int pthread_getname_np (pthread_t __target_thread, char *__buf,
 			       size_t __buflen)
@@ -66,6 +68,23 @@ extern int pthread_getname_np (pthread_t __target_thread, char *__buf,
 /* Set thread name visible in the kernel and its interfaces.  */
 extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
      __THROW __nonnull ((2));
+extern int pthread_getname_np (pthread_t __target_thread, char *__buf,
+			       size_t __buflen)
+     __THROW __nonnull ((2));
+
+/* Set thread name visible in the kernel and its interfaces.  */
+extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
+     __THROW __nonnull ((2));
+     
+extern int asprintf (char **__restrict __ptr,
+		     const char *__restrict __fmt, ...)
+     __THROWNL __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
+     
+extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
+		    socklen_t *__restrict __addr_len, int __flags);
+		    
+
+#endif
 
 #define HAVE_CONFIG_H 1
 
@@ -121,7 +140,6 @@ extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
 #if HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
 #if HTTPS_SUPPORT
 #include <gnutls/gnutls.h>
 #endif
@@ -137,7 +155,6 @@ extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
 #endif
 
 #if HTTPS_SUPPORT
-#include "connection_https.h"
 #include <gcrypt.h>
 #endif
 
@@ -159,6 +176,9 @@ extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
 #include "microhttpd.h"
 #include "internal.h"
 #include "connection.h"
+#if HTTPS_SUPPORT
+#include "connection_https.h"
+#endif
 #include "memorypool.h"
 #include "response.h"
 #include "reason_phrase.h"

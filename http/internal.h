@@ -308,6 +308,29 @@ typedef struct MHD_Response
 
 } MHD_ResponseDef, *MHD_ResponsePtr;
 
+/**
+ * Context keeping the data for the response we're building.
+ */
+typedef struct ResponseDataContext
+{
+  /**
+   * Response data string.
+   */
+  char *buf;
+  
+  /**
+   * Number of bytes allocated for 'buf'.
+   */
+  size_t buf_len;
+
+  /**
+   * Current position where we append to 'buf'. Must be smaller or equal to 'buf_len'.
+   */
+  size_t off;
+
+} ResponseDataDef, *ResponseDataPtr;
+
+
 
 /**
  * States in a state machine for a connection.

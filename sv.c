@@ -74,7 +74,7 @@ for( b = 0 ; b < options.interfaces ; b++ ) {
 		svListenSocket[b] = -1;
 		continue;
 	} else { c++; }
-	loghandle(LOG_INFO, false, "HTTP 1.0 Server awaiting connections on port: %d", options.port[b] );
+	loghandle(LOG_INFO, false, "HTTP  1.0 Server live with 1 thread(s) on port: %d", options.port[b] );
 }
 
 if ( c == 0 ) {
@@ -90,8 +90,6 @@ return 1;
 
 void cleanUp(int type) {
 	char DIRCHECKER[256];
-
-call_clean();
 
 if( type ) {
 	close(options.serverpipe);
@@ -525,11 +523,32 @@ void svSendPrintf( svConnectionPtr cnt, char *string, ... ) {
 	int len;
 	char text[4096];
 	va_list ap;
-	va_start( ap, string );
 
+va_start( ap, string );
 len = vsnprintf( text, 4096, string, ap );
 va_end( ap );
 svSend( cnt, text, len );
+
+return;
+}
+
+
+void httpString( ReplyDataPtr rd, char *string ) {
+
+rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", string);
+
+return;
+}
+
+void httpPrintf( ReplyDataPtr rd, char *string, ... ) {
+	char text[4096];
+	va_list ap;
+	va_start( ap, string );
+
+vsnprintf( text, 4096, string, ap );
+va_end( ap );
+
+rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", text);
 
 return;
 }
@@ -630,6 +649,7 @@ if( irccfg.bot ) {
 }
 
 sysconfig.shutdown = true;
+call_clean();
 cleanUp(1);
 cleanUp(0);
 
@@ -907,6 +927,8 @@ if( irccfg.bot ) {
 
 daemonloop();
 
+call_clean();
+
 if( irccfg.bot ) {
 	ircbot_send("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
 	ircbot_send("QUIT");
@@ -924,6 +946,8 @@ for( a = 0 ; a < options.interfaces ; a++ ) {
 	io->End();
 }
 svEnd();
+
+
 
 return 1;
 }

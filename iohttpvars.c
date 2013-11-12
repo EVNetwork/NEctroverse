@@ -38,6 +38,56 @@ char *iohttpVarsFind( char *id )
 }
 
 
+char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
+
+
+if( MHD_lookup_connection_value(cnt->connection, MHD_POSTDATA_KIND, id) )
+return (char *)MHD_lookup_connection_value(cnt->connection, MHD_POSTDATA_KIND, id);
+
+if( MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id) )
+return (char *)MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id);
+
+
+return NULL;
+}
+
+char *iohtmlHeaderFind( ReplyDataPtr cnt, char *id ) {
+
+return (char *)MHD_lookup_connection_value(cnt->connection, MHD_HEADER_KIND, id);
+}
+
+char *iohtmlCookieFind( ReplyDataPtr cnt, char *id ) {
+
+return (char *)MHD_lookup_connection_value(cnt->connection, MHD_COOKIE_KIND, id);
+}
+
+int iohtmlCookieAdd( ReplyDataPtr cnt, char *name, char *value, ... ) {
+	char cstr[256];
+	char text[256];
+	va_list ap;
+
+va_start( ap, value );
+vsnprintf( text, 256, value, ap );
+va_end( ap );
+
+snprintf(cstr, sizeof (cstr), "%s=%s", name, text);
+
+if (MHD_NO == MHD_add_response_header( cnt->connection->response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
+	fprintf (stderr, "Failed to set cookie: %s\n", cstr);
+	return 0;
+}
+/*
+printf("%s\n",cstr);
+printf("%d\n",ret);
+cleanUp(0);
+cleanUp(1);
+exit(0);
+*/
+		
+
+return 1;
+}
+
 
 void iohttpVarsCut()
 {

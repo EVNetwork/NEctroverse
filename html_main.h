@@ -3,19 +3,20 @@
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 int iohttpIdentifyHex( char *num );
-int iohttpIdentify( svConnectionPtr cnt, int action );
 
-void iohttpBase( svConnectionPtr cnt, int flags );
+int iohttpIdentify( svConnectionPtr cnt, int action ); //done
 
-int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp );
+void iohttpBase( svConnectionPtr cnt, int flags ); //done
 
-void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags );
+int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp ); //done
 
-void iohttpBodyInit( svConnectionPtr cnt, char *title, ... );
+void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags ); //done
 
-void iohttpBodyEnd( svConnectionPtr cnt );
+void iohttpBodyInit( svConnectionPtr cnt, char *title, ... ); //done
 
-void iohttpFunc_races( svConnectionPtr cnt );
+void iohttpBodyEnd( svConnectionPtr cnt ); //done
+
+void iohttpFunc_races( svConnectionPtr cnt ); //done
 
 void iohttpFunc_register( svConnectionPtr cnt );
 
@@ -25,15 +26,46 @@ void iohttpFunc_register3( svConnectionPtr cnt );
 
 void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... );
 
-void iohttpFunc_endhtml( svConnectionPtr cnt );
+void iohttpFunc_endhtml( svConnectionPtr cnt ); //done
 
-void iohttpFunc_front( svConnectionPtr cnt, char *text, ... );
+void iohttpFunc_front( svConnectionPtr cnt, char *text, ... ); //done
 
-void iohttpFunc_faq( svConnectionPtr cnt );
+void iohttpFunc_faq( svConnectionPtr cnt ); //done
 
-void iohttpFunc_gettingstarted( svConnectionPtr cnt );
+void iohttpFunc_gettingstarted( svConnectionPtr cnt ); //done
 
-void iohttpFunc_halloffame( svConnectionPtr cnt );
-void iohttpFunc_halloffame11();
+void iohttpFunc_halloffame( svConnectionPtr cnt ); //done
+
+
+int iohtmlIdentify( ReplyDataPtr cnt, int action );
+
+void iohtmlBase( ReplyDataPtr cnt, int flags );
+
+int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp );
+
+void iohtmlBodyInit( ReplyDataPtr cnt, char *title, ... );
+
+void iohtmlBodyEnd( ReplyDataPtr cnt );
+
+
+
+void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags );
+
+void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ... );
+
+
+void iohtmlFunc_register( ReplyDataPtr cnt );
+void iohtmlFunc_register2( ReplyDataPtr cnt );
+void iohtmlFunc_register3( ReplyDataPtr cnt );
+
+void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... );
+
+void iohtmlFunc_faq( ReplyDataPtr cnt );
+void iohtmlFunc_races( ReplyDataPtr cnt );
+void iohtmlFunc_gettingstarted( ReplyDataPtr cnt );
+void iohtmlFunc_halloffame( ReplyDataPtr cnt );
+
+
+void iohtmlFunc_endhtml( ReplyDataPtr cnt );
 
 #endif

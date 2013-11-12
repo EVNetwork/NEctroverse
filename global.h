@@ -98,12 +98,15 @@ static const double megabyte = (1024 * 1024);
 #endif
 
 
+#include "enum.h"
+#include "artefact.h"
+#include "db.h"
+
+
 #include "http/MHD_config.h"
 #include "http/platform.h"
 
 #include "extras/cpuinfo.h"
-
-#include "enum.h"
 
 #include "extras/dictionary.h"
 #include "extras/iniparser.h"
@@ -112,8 +115,6 @@ static const double megabyte = (1024 * 1024);
 #include "extras/base64.h"
 #include "extras/encrypt.h"
 
-#include "artefact.h"
-#include "db.h"
 #include "battle.h"
 #include "sv.h"
 #include "io.h"

@@ -29,6 +29,7 @@ char *TimeToString( int eltime );
 
 void iohttpFunc_status( svConnectionPtr cnt );
 
+void iohtmlFunc_status( ReplyDataPtr cnt );
 
 void connverttime_todef( timeDef *statime, int stime );
 

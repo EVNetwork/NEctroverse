@@ -12,4 +12,13 @@ int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords );
 
 char *iohttpVarsUpload( svConnectionPtr cnt, char **filename, int *filesize );
 
+
+char *iohtmlVarsFind( ReplyDataPtr cnt, char *id );
+
+char *iohtmlHeaderFind( ReplyDataPtr cnt, char *id );
+
+char *iohtmlCookieFind( ReplyDataPtr cnt, char *id );
+
+int iohtmlCookieAdd( ReplyDataPtr cnt, char *name, char *value, ... );
+
 #endif

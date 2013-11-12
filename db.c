@@ -575,12 +575,12 @@ for( a = 0 ; a < b ; a++ ) {
 	}
 	user->level = infod.level;
 	user->flags = infod.flags;
-	sprintf(user->name, "%s", infod.name );
+	strncpy(user->name, infod.name, sizeof(user->name) );
     
 //printf("%d\n",infod.id);
 //printf("%d\n",infod.rank);
-	sprintf( user->faction, "%s", infod.faction );
-	sprintf( user->forumtag, "%s", infod.forumtag );
+	strncpy( user->faction, infod.faction, sizeof(user->faction) );
+	strncpy( user->forumtag, infod.forumtag, sizeof(user->forumtag) );
 	user->lasttime = infod.lasttime;
 }
 
@@ -959,6 +959,23 @@ user->lasttime = time( 0 );
 return 1;
 }
 
+int dbUserHttpLinkDatabase( void *cnt, int id ) {
+	dbUserPtr user;
+	ReplyDataPtr cnt2 = cnt;
+
+if( id < 0 ) {
+	cnt2->dbuser = 0;
+	return 1;
+}
+
+if( !( user = dbUserLinkID( id ) ) )
+	return -2;
+
+cnt2->dbuser = user;
+user->lasttime = time( 0 );
+
+return 1;
+}
 
 
 
@@ -4586,8 +4603,8 @@ fclose( file );
 if( !( user = dbUserLinkID( id ) ) )
 	return -3;
 
-sprintf( user->faction, "%s", infod->faction );
-sprintf( user->forumtag, "%s", infod->forumtag );
+strncpy( user->faction, infod->faction, sizeof(user->faction) );
+strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
 
 
 return 1;

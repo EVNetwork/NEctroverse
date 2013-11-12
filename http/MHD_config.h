@@ -55,7 +55,8 @@
 #define HAVE_FSEEKO 1
 
 /* We have gnutls */
-#define HAVE_GNUTLS false
+#define HAVE_GNUTLS 1
+//#undef HAVE_GNUTLS
 
 /* Define to 1 if you have the <gnutls/gnutls.h> header file. */
 #define HAVE_GNUTLS_GNUTLS_H 0
