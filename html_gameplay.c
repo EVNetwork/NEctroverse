@@ -151,7 +151,7 @@ iohttpFunc_frontmenu( cnt, FMENU_MAIN );
  }
 
  svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
+ svSendPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"images/favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
  svSendString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
  svSendString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
  svSendString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
@@ -179,16 +179,16 @@ void iohttpFunc_menu( svConnectionPtr cnt )
  dbUserMainDef maind;
 
  svSendString( cnt, "Content-Type: text/html\n\n" );
- svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"http://www.nectroverse.net:8080/images/mbg.gif\">" );
+ svSendString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
  if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   return;
 if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 	maind.empire = -1;
 }
 
- svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"http://www.nectroverse.net:8080/images/i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"http://www.nectroverse.net:8080/images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"http://www.nectroverse.net:8080/images/i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"images/i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
 
- svSendString( cnt, "<a href=\"hq\" target=\"main\">Headquarters</a></font></b></td></tr><tr><td background=\"http://www.nectroverse.net:8080/images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "<a href=\"hq\" target=\"main\">Headquarters</a></font></b></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
  svSendPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
 
@@ -197,7 +197,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  svSendString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
  svSendString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
 
- svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"http://www.nectroverse.net:8080/images/i36.jpg\"><img height=\"15\" src=\"http://www.nectroverse.net:8080/images/i53.jpg\" width=\"150\"></td></tr><tr><td background=\"http://www.nectroverse.net:8080/images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"images/i36.jpg\"><img height=\"15\" src=\"images/i53.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  svSendString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"rankings?typ=1\" target=\"main\">Empire rankings</a><br>" );
  svSendString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
  svSendString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
@@ -231,7 +231,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
    svSendString( cnt, "<br><a href=\"administration\" target=\"_top\">Admin panel</a>" );
  }
 
- svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"http://www.nectroverse.net:8080/images/i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"http://www.nectroverse.net:8080/images/i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
+ svSendString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"images/i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"images/i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
 
  return;
 }
@@ -975,7 +975,7 @@ void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd )
  if( !( iohttpFamNewsEntryCount ) )
   svSendPrintf( cnt, " width=\"5%%\"" );
  if( picture >= 0 )
-  svSendPrintf( cnt, "><img src=\"http://www.nectroverse.net:8080/images/fn%d.gif\"></td><td", picture );
+  svSendPrintf( cnt, "><img src=\"images/fn%d.gif\"></td><td", picture );
  else
   svSendPrintf( cnt, "><br></td><td" );
  if( !( iohttpFamNewsEntryCount ) )
@@ -1679,7 +1679,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
   svSendPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br>", cmdUnitName[a] );
 
    if( ( a < CMD_UNIT_SOLDIER ) || ( a == CMD_UNIT_EXPLORATION ) )
-      svSendPrintf( cnt, "<img src=\"http://www.nectroverse.net:8080/images/u%d.jpg\">", a );
+      svSendPrintf( cnt, "<img src=\"images/u%d.jpg\">", a );
 
 
   svSendString( cnt, "</td><td valign=\"top\" nowrap>" );
@@ -1980,7 +1980,7 @@ else
   for( c = d = 0 ; c < CMD_BLDG_NUMUSED ; c++ )
    d += planetd.building[c];
   if(planetd.flags & CMD_PLANET_FLAGS_BEACON)
-  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>&nbsp;<img src=\"http://www.nectroverse.net:8080/images/beacon.gif\">", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>&nbsp;<img src=\"images/beacon.gif\">", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   else
   	svSendPrintf( cnt, "<tr><td><a href=\"planet?id=%d\">%d,%d:%d</a>", buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
 
@@ -2036,9 +2036,9 @@ svSendPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   svSendPrintf( cnt, " <img src=\"http://www.nectroverse.net:8080/images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+   svSendPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
   else if(planetd.special[1])
-  	svSendPrintf( cnt, " <img src=\"http://www.nectroverse.net:8080/images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+  	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
   svSendPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;
@@ -2126,7 +2126,7 @@ if ( curfam == maind.empire ) {
 	svSendString( cnt, "<br>" );
 }
 
- sprintf( fname, "/http://www.nectroverse.net:8080/images/fampic%02d%d", curfam, empired.pictime );
+ sprintf( fname, "/images/fampic%02d%d", curfam, empired.pictime );
  if( iohttpFileFind( fname ) )
   svSendPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
 
@@ -2285,7 +2285,7 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( cnt->dbuser )
    {
    	if( empired.artefacts & b )
    	{
-   		svSendPrintf( cnt, " <img src=\"http://www.nectroverse.net:8080/images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
+   		svSendPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
    	}
    }
    svSendString( cnt, "</td></tr></table>" );
@@ -2918,7 +2918,7 @@ if( taxstring ){
   {
    fwrite( fampic, 1, filesize, file );
    fclose( file );
-   sprintf( fname, "/http://www.nectroverse.net:8080/images/fampic%02d%d", curfam, empired.pictime );
+   sprintf( fname, "/images/fampic%02d%d", curfam, empired.pictime );
    iohttpFileDel( fname );
    if( ( cfile = iohttpFileAdd( filesize ) ) )
    {
@@ -2928,7 +2928,7 @@ if( taxstring ){
     empired.pictime = time( 0 );
     a = time( 0 );
     memcpy( &cfile->scurtime, &a, sizeof(time_t) );
-    sprintf( cfile->path, "/http://www.nectroverse.net:8080/images/fampic%02d%d", curfam, empired.pictime );
+    sprintf( cfile->path, "/images/fampic%02d%d", curfam, empired.pictime );
     memcpy( cfile->data, fampic, filesize );
     svSendString( cnt, "<i>Empire picture uploaded on server</i><br><br>" );
    }
@@ -3412,7 +3412,7 @@ void iohttpFunc_map( svConnectionPtr cnt )
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
     svSendPrintf( cnt, "<td><a href=\"system?id=%d\"", ( mapp[i] & 0xFFFF ) - 1 );
-    svSendPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"http://www.nectroverse.net:8080/images/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
+    svSendPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"images/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )
@@ -3471,7 +3471,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  svSendPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"http://www.nectroverse.net:8080/images/galaxyr%d.png\" ismap></a></td>", sysconfig.round );
+ svSendPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"images/galaxyr%d.png\" ismap></a></td>", sysconfig.round );
  svSendPrintf( cnt, "<td height=\"%d\" align=\"left\" valign=\"top\"><b>0</b></td></tr>", a );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] >> 1 );
  svSendPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX], a, dbMapBInfoStatic[MAP_SIZEX] );
@@ -3625,7 +3625,7 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
 
   svSendPrintf( cnt, "<td align=\"center\" width=\"%d%%\">", lns[b] );
   dbMapRetrievePlanet( plnid, &planetd );
-  svSendPrintf( cnt, "<a href=\"planet?id=%d\"><img src=\"http://www.nectroverse.net:8080/images/p%02d.gif\" border=\"0\"></a><br>", plnid, pics[a] );
+  svSendPrintf( cnt, "<a href=\"planet?id=%d\"><img src=\"images/p%02d.gif\" border=\"0\"></a><br>", plnid, pics[a] );
 
   if( planetd.owner == -1 )
   {
@@ -3822,7 +3822,7 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
  srand( planetd.system );
  for( a = 0 ; a < b ; a++ )
   rand();
- svSendPrintf( cnt, "<img src=\"http://www.nectroverse.net:8080/images/p%02d.gif\" border=\"0\"><br><br>", rand() & 0xF );
+ svSendPrintf( cnt, "<img src=\"images/p%02d.gif\" border=\"0\"><br><br>", rand() & 0xF );
 
  if( unstationstring )
  {
@@ -3849,9 +3849,9 @@ svSendPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a hr
   svSendPrintf( cnt, "Population : %d0<br>", planetd.population );
  b = (int)artefactPrecense( &planetd );
   if( b >= 0 )
-   svSendPrintf( cnt, "<br><img src=\"http://www.nectroverse.net:8080/images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
+   svSendPrintf( cnt, "<br><img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
   else if(planetd.special[1])
-   svSendPrintf( cnt, "<br><img src=\"http://www.nectroverse.net:8080/images/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+   svSendPrintf( cnt, "<br><img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
 
 
@@ -6145,10 +6145,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
 
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
-      svSendPrintf( cnt, "  <img src=\"http://www.nectroverse.net:8080/images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+      svSendPrintf( cnt, "  <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
 
      if(planetd.special[1])
-     	svSendPrintf( cnt, " <img src=\"http://www.nectroverse.net:8080/images/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
+     	svSendPrintf( cnt, " <img src=\"images/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
 
      svSendPrintf( cnt, "</td></tr>" );
      totals[3] += planetd.population;
@@ -6257,10 +6257,10 @@ if( ( id = iohttpIdentify( cnt, 1|2 ) ) < 0 )
     svSendPrintf( cnt, "Size : %d<br>", planetd.size );
     d = (int)artefactPrecense( &planetd );
     if( d >= 0 )
-     svSendPrintf( cnt, "Artefact :  <img src=\"http://www.nectroverse.net:8080/images/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
+     svSendPrintf( cnt, "Artefact :  <img src=\"images/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
     if( planetd.special[1] )
     {
-     svSendPrintf( cnt, "%s : <img src=\"http://www.nectroverse.net:8080/images/pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
+     svSendPrintf( cnt, "%s : <img src=\"images/pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
     }
     svSendPrintf( cnt, "Portal : %s<br><br>", ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ? "yes" : "no" );
    }
