@@ -99,6 +99,7 @@ MHD_DLOG (const struct MHD_Daemon *daemon, const char *format, ...)
     return;
   va_start (va, format);
   daemon->custom_error_log (daemon->custom_error_log_cls, format, va);
+  loghandle(LOG_ERR, FALSE, (char *)format, va);
   va_end (va);
 }
 #endif

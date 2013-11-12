@@ -77,6 +77,15 @@
 #define DEF_PI 3.14159265358979323846
 #endif
 
+#ifndef TRUE
+#define TRUE true
+#endif
+
+#ifndef FALSE
+#define FALSE false
+#endif
+
+
 #ifndef ANG_SIN
 #define ANG_SIN(x) sin((x*2*DEF_PI)/360.0)
 #endif

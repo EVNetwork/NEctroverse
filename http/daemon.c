@@ -89,8 +89,7 @@ mhd_panic_std (void *cls,
 	       const char *reason)
 {
 #if HAVE_MESSAGES
-  fprintf (stderr, "Fatal error in GNU libmicrohttpd %s:%u: %s\n",
-	   file, line, reason);
+  loghandle(LOG_CRIT, FALSE, "Fatal error in GNU libmicrohttpd %s:%u: %s", file, line, reason);
 #endif
   abort();
 }
