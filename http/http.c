@@ -436,7 +436,18 @@ int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, c
   SessionPtr session;
   int ret, fd;
   unsigned int i;
+  bool local;
   struct stat buf;
+  ReplyDataDef rd;
+
+rd.connection = connection;
+
+    if( ( iohtmlHeaderFind(&rd, "Referer") ) && ( iohtmlHeaderFind(&rd, "Host") ) ) {
+      local = strstr( iohtmlHeaderFind(&rd, "Referer"), iohtmlHeaderFind(&rd, "Host") ) ? true : false;
+    } else {
+    	local = false;
+    }
+
 
 if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) ) ) {
 	/* should be file download */
@@ -498,7 +509,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	return ret;
 }
 //end images
-    
+   
   request = *ptr;
   if (NULL == request)
     {
@@ -509,8 +520,9 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	  return MHD_NO;
 	}
       *ptr = request;
-      if (0 == strcmp (method, MHD_HTTP_METHOD_POST))
+      if( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) && ( local ) )
 	{
+	
 	  request->pp = MHD_create_post_processor (connection, 1024, &post_iterator, request);
 	  if (NULL == request->pp)
 	    {
@@ -533,7 +545,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
     }
   session = request->session;
   session->start = time (NULL);
-  if (0 == strcmp (method, MHD_HTTP_METHOD_POST))
+  if( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) && ( local ) )
     {      
       
       MHD_post_process (request->pp,
