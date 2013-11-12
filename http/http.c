@@ -827,7 +827,13 @@ if( stat( filename, &stdata ) != -1 ) {
 	}
 }
 
-return strdup( ret );
+if( ret ) {
+	return strdup( ret );
+} else {
+	return NULL;
+}
+
+return -1;
 }
 
 struct MHD_OptionItem ops[] = {
@@ -906,7 +912,7 @@ main_clone ()
 							     MHD_RESPMEM_PERSISTENT);
   mark_as(internal_error_response, "text/html" );
 #if HTTPS_SUPPORT  
-  
+  THREADS = fmax( 1.0, ( THREADS / 2 ) );
   server_https = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG | MHD_USE_SSL
 #if EPOLL_SUPPORT 
 			| MHD_USE_EPOLL_LINUX_ONLY
@@ -934,7 +940,11 @@ main_clone ()
                         NULL, NULL, 
 			&create_response, NULL, 
 			MHD_OPTION_ARRAY, ops,
+			#if HTTPS_SUPPORT  
+                        MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, (THREADS / 2) ),
+                        #else
                         MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
+                        #endif
 			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,
 			MHD_OPTION_END);
 

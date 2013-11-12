@@ -32,7 +32,7 @@ sv.o: *.h sv.c extras/iniparser.c ircbot.c
 io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
-http.o: *.h http/*.h http/*.c
+http.o: *.h http/*.h http/connection.c http/connection_https.c http/daemon.c http/http.c http/internal.c http/memorypool.c http/postprocessor.c http/reason_phrase.c http/response.c
 	$(CC) http/http.c $(DEFS) -o http.o -c $(FLAGS)
 
 db.o: *.h db.c
@@ -47,7 +47,7 @@ map.o: *.h map.c extras/imgpng.c
 html.o: *.h html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c extras/cpuinfo.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-encrypt.o: *.h extras/encrypt.c
+encrypt.o: *.h extras/*.h extras/encrypt.c extras/md5.c
 	$(CC) extras/encrypt.c $(DEFS) -o encrypt.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
