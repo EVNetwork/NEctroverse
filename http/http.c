@@ -879,7 +879,7 @@ const char srv_signed_cert_pem[] = "-----BEGIN CERTIFICATE-----\n"
   "4+SrTPEg1L3CaWqCCB0I7CGgZy0Dv5l4BfRumi5P5gVSKCX67Ws3nsxRmfjM4nWI\n"
   "16w57JsSiT6J6V4C1REVcsvSjkHx0oaIoGhtsTwhx20BVjdtNWm/Mh3bAmNNVxvB\n"
   "jpZwm5fuh0oNmgIodJ6WC1pVl0w/dgAtY2GVokwsNKI492ie/PZOOVgNsOz/7ndX\n"
-  "4G8+fScf2VObvS0vIhmBj3NA+YCuRO9CDMtaM94=
+  "4G8+fScf2VObvS0vIhmBj3NA+YCuRO9CDMtaM94=\n"
   "-----END CERTIFICATE-----\n";
   
   /* test server CA trust certificates */
