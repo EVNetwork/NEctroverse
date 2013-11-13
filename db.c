@@ -1424,6 +1424,7 @@ int dbUserPlanetSetFlags( int id, int plnid, int flags )
   fwrite( &flags, 1, sizeof(int), file );
   fclose( file );
   return 1;
+
 }
 
 int dbUserPlanetListCoords( int id, int **list )
@@ -2649,9 +2650,7 @@ if( (unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES] )
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
 if( fread( empired, 1, sizeof(dbMainEmpireDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x39.0\n" );
-	syslog(LOG_ERR, "Failure reading file x39.0\n" );
+	loghandle(LOG_ERR, errno, "Failure reading file x39.0 with ID#%d", famid );
 }
 
 return 1;

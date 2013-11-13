@@ -10,4 +10,14 @@ void iohttpFunc_delete( svConnectionPtr cnt );
 
 void iohttpFunc_logout( svConnectionPtr cnt );
 
+
+
+void iohtmlFunc_account( ReplyDataPtr cnt );
+
+void iohtmlFunc_changepass( ReplyDataPtr cnt );
+
+void iohtmlFunc_delete( ReplyDataPtr cnt );
+
+void iohtmlFunc_logout( ReplyDataPtr cnt );
+
 #endif

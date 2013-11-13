@@ -40,11 +40,6 @@ typedef struct Session
 typedef struct Cookies
 {
   /**
-   * We keep all cookies in a linked list.
-   */
-  struct Cookies *next;
-
-  /**
    * Number of cookies. 
    */
   int num;
@@ -52,7 +47,7 @@ typedef struct Cookies
   /**
    * Pointers for cookie values. 
    */
-  char value[8][512];
+  char value[8][256];
 
 } CookiesDef, *CookiesPtr;
 
@@ -84,7 +79,7 @@ typedef struct Request
   /**
    * Associated session.
    */
-  struct Session *session;
+  SessionPtr session;
   
   /**
    * Post processor we're using to process the upload.

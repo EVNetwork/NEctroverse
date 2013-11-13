@@ -21,7 +21,7 @@
  * @file demo.c
  * @brief complex demonstration site: create directory index, offer
  *        upload via form and HTTP POST, download with mime type detection
- *        and error reporting (403, etc.) --- and all of this with 
+ *        and error reporting (403, etc.) --- and all of this with
  *        high-performance settings (large buffers, thread pool).
  *        If you want to benchmark MHD, this code should be used to
  *        run tests against.  Note that the number of threads may need
@@ -99,7 +99,7 @@ static SessionPtr sessions;
 
 
 /**
- * Return the session handle for this connection, or 
+ * Return the session handle for this connection, or
  * create one if this is a new user.
  */
 static SessionPtr get_session( MHD_ConnectionPtr connection )
@@ -127,9 +127,9 @@ static SessionPtr get_session( MHD_ConnectionPtr connection )
   /* create fresh session */
   ret = calloc (1, sizeof (SessionDef));
   if (NULL == ret)
-    {						
+    {
       loghandle(LOG_ERR, errno, "%s", "HTTP calloc error");
-      return NULL; 
+      return NULL;
     }
   /* not a super-secure way to generate a random session ID,
      but should do for a simple example... */
@@ -140,7 +140,7 @@ static SessionPtr get_session( MHD_ConnectionPtr connection )
 	    (unsigned int) random (),
 	    (unsigned int) random (),
 	    (unsigned int) random ());
-  ret->rc++;  
+  ret->rc++;
   ret->start = time (NULL);
   ret->next = sessions;
   sessions = ret;
@@ -155,7 +155,7 @@ static SessionPtr get_session( MHD_ConnectionPtr connection )
  *
  * @param session session to use
  * @param response response to modify
- */ 
+ */
 static void add_session_cookie (SessionPtr session, MHD_ResponsePtr response) {
 	char cstr[256];
 
@@ -172,7 +172,7 @@ if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr
  *
  * @param cls a 'const char *' with the HTML webpage to return
  * @param mime mime type to use
- * @param session session handle 
+ * @param session session handle
  * @param connection connection to use
  */
 static int
@@ -188,8 +188,8 @@ not_found_page ( int id, const void *cls,
   response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR),
 					      (void *) NOT_FOUND_ERROR,
 					      MHD_RESPMEM_PERSISTENT);
-  ret = MHD_queue_response (connection, 
-			    MHD_HTTP_NOT_FOUND, 
+  ret = MHD_queue_response (connection,
+			    MHD_HTTP_NOT_FOUND,
 			    response);
   MHD_add_response_header (response,
 			   MHD_HTTP_HEADER_CONTENT_ENCODING,
@@ -208,7 +208,7 @@ rd.session = session;
 rd.connection = connection;
 rd.cookies.num = 0;
   /* unsupported HTTP method */
-rd.response.buf_len = initial_allocation; 
+rd.response.buf_len = initial_allocation;
 if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
 	return -1;
 }
@@ -231,7 +231,7 @@ ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
 mark_as( response, mime );
 MHD_destroy_response (response);
-  
+
 return ret;
 }
 
@@ -245,7 +245,7 @@ rd.session = session;
 rd.connection = connection;
 rd.cookies.num = 0;
   /* unsupported HTTP method */
-rd.response.buf_len = initial_allocation; 
+rd.response.buf_len = initial_allocation;
 if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
 	return -1;
 }
@@ -262,9 +262,8 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 }
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
-
 MHD_destroy_response (response);
-  
+
 return ret;
 }
 
@@ -293,7 +292,7 @@ static int file_page( int id, const void *cls, const char *mime, SessionPtr sess
 	if (NULL == (response = MHD_create_response_from_fd(buf.st_size,fd)) ) {
 		/* internal error (i.e. out of memory) */
 		(void) close (fd);
-		return MHD_NO; 
+		return MHD_NO;
 	}
 
       /* add mime type if we had one */
@@ -315,8 +314,9 @@ static int file_page( int id, const void *cls, const char *mime, SessionPtr sess
 /**
  * List of all pages served by this HTTP server.
  */
-PageDef pages[] = 
+PageDef pages[] =
   {
+    //Basic/Main pages
     { "/", "text/html",  &key_page, NULL, NULL },
     { "/login", "text/html",  &key_page, NULL, "login" },
     { "/halloffame", "text/html",  &page_render, iohtmlFunc_halloffame, NULL },
@@ -327,12 +327,31 @@ PageDef pages[] =
     { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
     { "/register2", "text/html",  &page_render, iohtmlFunc_register2, NULL },
     { "/register3", "text/html",  &page_render, iohtmlFunc_register3, NULL },
-    
+    //Generic
+    { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },
+    { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },
     { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
-    { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },    
-    { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },    
-    { "/javascript.js", "text/javascript",  &file_page, NULL, "/javascript.js" },  
-
+    { "/javascript.js", "text/javascript",  &file_page, NULL, "/javascript.js" },
+    { "/stats", "text/html",  &file_page, NULL, "/stats.html" },
+    { "/chat", "text/html",  &file_page, NULL, "/chat.html" },
+    //Game Pages
+    { "/rankings", "text/html",  &page_render, iohtmlFunc_rankings, NULL },
+    { "/hq", "text/html",  &page_render, iohtmlFunc_hq, NULL },
+    { "/main", "text/html",  &page_render, iohtmlFunc_main, NULL },
+    { "/menu", "text/html",  &page_render, iohtmlFunc_menu, NULL },
+    { "/news", "text/html",  &page_render, iohtmlFunc_news, NULL },
+    { "/council", "text/html",  &page_render, iohtmlFunc_council, NULL },
+    
+    //User Account Pages
+    { "/account", "text/html",  &page_render, iohtmlFunc_account, NULL },
+    { "/delete", "text/html",  &page_render, iohtmlFunc_delete, NULL },
+    { "/logout", "text/html",  &page_render, iohtmlFunc_logout, NULL },
+    { "/changepass", "text/html",  &page_render, iohtmlFunc_changepass, NULL },
+    //Administration Pages
+    { "/administration", "text/html",  &page_render, iohtmlFunc_adminframe, NULL },
+    { "/adminmenu", "text/html",  &page_render, iohtmlFunc_adminmenu, NULL },
+    { "/adminforum", "text/html",  &page_render, iohtmlFunc_adminforum, NULL },
+    //Not Found.
     { NULL, NULL, &not_found_page, NULL, NULL } /* 404 */
   };
 
@@ -516,14 +535,14 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	if (-1 != got)
 		mime = magic_buffer (magic, file_data, got);
 	else
-#endif      
+#endif
 		mime = NULL;
 	(void) lseek (fd, 0, SEEK_SET);
 
 	if (NULL == (response = MHD_create_response_from_fd(buf.st_size,fd)) ) {
 		/* internal error (i.e. out of memory) */
 		(void) close (fd);
-		return MHD_NO; 
+		return MHD_NO;
 	}
 
       /* add mime type if we had one */
@@ -543,7 +562,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	return ret;
 }
 //end images
-   
+
   request = *ptr;
   if (NULL == request)
     {
@@ -556,7 +575,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       *ptr = request;
       if( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) && ( local ) )
 	{
-	
+
 	  request->pp = MHD_create_post_processor (connection, 1024, &post_iterator, request);
 	  if (NULL == request->pp)
 	    {
@@ -574,14 +593,14 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       if (NULL == request->session)
 	{
 	  loghandle(LOG_ERR, FALSE, "Failed to setup session for \'%s\'", url);
-	  return MHD_NO; 
+	  return MHD_NO;
 	}
     }
   session = request->session;
   session->start = time (NULL);
   if( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) && ( local ) )
-    {      
-      
+    {
+
       MHD_post_process (request->pp,
 			upload_data,
 			*upload_data_size);
@@ -590,36 +609,31 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	  *upload_data_size = 0;
 	  return MHD_YES;
 	}
-   
+
       MHD_destroy_post_processor (request->pp);
       request->pp = NULL;
       method = MHD_HTTP_METHOD_GET;
       if (NULL != request->post_url)
 	url = request->post_url;
-    }else if ( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) ) {
-	return MHD_NO;
-	}
-
-  if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
-      /* find out which page to serve */
-      i=0;
-      while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
-	i++;
-      ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
-      if (ret != MHD_YES)
-	loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", url);
-      return ret;
     }
-  /* unsupported HTTP method */
-  response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),
-					      (void *) METHOD_ERROR,
-					      MHD_RESPMEM_PERSISTENT);
-  (void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );					      
-  ret = MHD_queue_response (connection, 
-			    MHD_HTTP_METHOD_NOT_ACCEPTABLE, 
-			    response);
-  MHD_destroy_response (response);
-  return ret;
+
+if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
+	i=0;
+	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
+		i++;
+	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
+	if (ret != MHD_YES)
+		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", url);
+	return ret;
+}
+
+/* unsupported HTTP method */
+response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_PERSISTENT);
+(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
+ret = MHD_queue_response (connection, MHD_HTTP_METHOD_NOT_ACCEPTABLE, response);
+MHD_destroy_response (response);
+
+return ret;
 }
 
 
@@ -632,28 +646,26 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
  * @param size number of bytes in 'data'
  * @return MHD_NO on allocation failure, MHD_YES on success
  */
-static int
-do_append (char **ret,
-	   const char *data,
-	   size_t size)
-{
-  char *buf;
-  size_t old_len;
-  
-  if (NULL == *ret)
-    old_len = 0;
-  else
-    old_len = strlen (*ret);
-  buf = malloc (old_len + size + 1);
-  if (NULL == buf)
-    return MHD_NO;
-  memcpy (buf, *ret, old_len);
-  if (NULL != *ret)
-    free (*ret);
-  memcpy (&buf[old_len], data, size);
-  buf[old_len + size] = '\0';
-  *ret = buf;
-  return MHD_YES;
+static int do_append (char **ret, const char *data, size_t size) {
+	char *buf;
+	size_t old_len;
+
+if (NULL == *ret) {
+	old_len = 0;
+} else {
+	old_len = strlen (*ret);
+}
+buf = malloc (old_len + size + 1);
+if (NULL == buf)
+	return MHD_NO;
+memcpy (buf, *ret, old_len);
+if (NULL != *ret)
+	free (*ret);
+memcpy (&buf[old_len], data, size);
+buf[old_len + size] = '\0';
+*ret = buf;
+
+return MHD_YES;
 }
 
 /**
@@ -675,134 +687,115 @@ do_append (char **ret,
  * @return MHD_YES to continue iterating,
  *         MHD_NO to abort the iteration
  */
-static int
-process_upload_data (void *cls,
-		     enum MHD_ValueKind kind,
-		     const char *key,
-		     const char *filename,
-		     const char *content_type,
-		     const char *transfer_encoding,
-		     const char *data, 
-		     uint64_t off, 
-		     size_t size)
-{
-  RequestPtr uc = cls;
-  int i;
+static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
+	RequestPtr uc = cls;
+	int i;
 
-  if (0 == strcmp (key, "category"))
-    return do_append (&uc->category, data, size);
-  if (0 == strcmp (key, "language"))
-    return do_append (&uc->language, data, size);
-  if (0 != strcmp (key, "upload"))
-    {
-      loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
-      return MHD_YES; /* ignore */  
-    }
-  if (NULL == filename)
-    {
-      loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
-      return MHD_NO; /* no filename, error */
-    }
-  if ( (NULL == uc->category) ||
-       (NULL == uc->language) )
-    {
-      loghandle(LOG_ERR, FALSE, "Missing form data for upload: \'%s\'", filename);
-      uc->response = request_refused_response;
-      return MHD_NO;
-    }
-  if (-1 == uc->fd)
-    {
-      char fn[PATH_MAX];
+if (0 == strcmp (key, "category"))
+	return do_append (&uc->category, data, size);
+if (0 == strcmp (key, "language"))
+	return do_append (&uc->language, data, size);
 
-      if ( (NULL != strstr (filename, "..")) ||
-	   (NULL != strchr (filename, '/')) ||
-	   (NULL != strchr (filename, '\\')) )
-	{
-	  uc->response = request_refused_response;
-	  return MHD_NO;
+if (0 != strcmp (key, "upload")) {
+	loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
+	return MHD_YES;
+}
+if (NULL == filename) {
+	loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
+	return MHD_NO;
+}
+if ( (NULL == uc->category) || (NULL == uc->language) ) {
+	loghandle(LOG_ERR, FALSE, "Missing form data for upload: \'%s\'", filename);
+	uc->response = request_refused_response;
+	return MHD_NO;
+}
+if (-1 == uc->fd) {
+	char fn[PATH_MAX];
+	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
+		uc->response = request_refused_response;
+		return MHD_NO;
 	}
-      /* create directories -- if they don't exist already */
-#ifdef WINDOWS
-      (void) mkdir (uc->language);
-#else
-      (void) mkdir (uc->language, S_IRWXU);
-#endif
-      snprintf (fn, sizeof (fn),
-		"%s/%s",
-		uc->language,
-		uc->category);  
-#ifdef WINDOWS    
-      (void) mkdir (fn);
-#else
-      (void) mkdir (fn, S_IRWXU);
-#endif
-      /* open file */
-      snprintf (fn, sizeof (fn),
-		"%s/%s/%s",
-		uc->language,
-		uc->category,
-		filename); 
-      for (i=strlen (fn)-1;i>=0;i--)
-	if (! isprint ((int) fn[i]))
-	  fn[i] = '_';
-      uc->fd = open (fn, 
-		     O_CREAT | O_EXCL 
+	(void) mkdir (uc->language, S_IRWXU);
+	snprintf (fn, sizeof (fn), "%s/%s", uc->language, uc->category);
+	(void) mkdir (fn, S_IRWXU);
+
+	snprintf (fn, sizeof (fn),"%s/%s/%s", uc->language, uc->category, filename);
+	for (i=strlen (fn)-1;i>=0;i--) { 
+		if( !isprint( (int)fn[i] ) ){
+			fn[i] = '_';
+		}
+	}
+	uc->fd = open (fn, O_CREAT | O_EXCL
 #if O_LARGEFILE
 		     | O_LARGEFILE
 #endif
-		     | O_WRONLY,
-		     S_IRUSR | S_IWUSR);
-      if (-1 == uc->fd)
-	{
-	  loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
-	  uc->response = request_refused_response;
-	  return MHD_NO;
-	}      
-      uc->filename = strdup (fn);
-    }
-  if ( (0 != size) &&
-       (size != write (uc->fd, data, size)) )    
-    {
-      /* write failed; likely: disk full */
-      loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
-      uc->response = internal_error_response;
-      close (uc->fd);
-      uc->fd = -1;
-      if (NULL != uc->filename)
-	{
-	  unlink (uc->filename);
-	  free (uc->filename);
-	  uc->filename = NULL;
+		     | O_WRONLY,S_IRUSR | S_IWUSR);
+
+	if (-1 == uc->fd) {
+		loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
+		uc->response = request_refused_response;
+		return MHD_NO;
 	}
-      return MHD_NO; 
-    }
-  return MHD_YES;
+	uc->filename = strdup (fn);
 }
 
-/**
- * Callback called upon completion of a request.
- * Decrements session reference counter.
- *
- * @param cls not used
- * @param connection connection that completed
- * @param con_cls session handle
- * @param toe status code
- */
-void
-request_completed_callback (void *cls,
-			    MHD_ConnectionPtr connection,
-			    void **con_cls,
-			    enum MHD_RequestTerminationCode toe)
-{
-  RequestPtr request = *con_cls;
+if ( (0 != size) && (size != write (uc->fd, data, size)) ) {
+	loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
+	uc->response = internal_error_response;
+	close (uc->fd);
+	uc->fd = -1;
+	if (NULL != uc->filename) {
+		unlink (uc->filename);
+		free (uc->filename);
+		uc->filename = NULL;
+	}
+	return MHD_NO;
+}
 
-  if (NULL == request)
-    return;
-  if (NULL != request->session)
-    request->session->rc--;
-  if (NULL != request->pp)
-    MHD_destroy_post_processor (request->pp);
-  free (request);
+
+return MHD_YES;
+}
+
+
+/**
+ * Function called whenever a request was completed.
+ * Used to clean up 'struct UploadContext' objects.
+ *
+ * @param cls client-defined closure, NULL
+ * @param connection connection handle
+ * @param con_cls value as set by the last call to
+ *        the MHD_AccessHandlerCallback, points to NULL if this was
+ *            not an upload
+ * @param toe reason for request termination
+ */
+void post_completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
+	RequestPtr request = *con_cls;
+  
+if (NULL == request)
+	return;
+if (NULL != request->session)
+	request->session->rc--;
+if (NULL != request->pp) {
+	MHD_destroy_post_processor(request->pp);
+	//request->pp = NULL;
+}
+/*
+if (-1 != request->fd) {
+loghandle(LOG_INFO, FALSE, "%s", "Into file find");
+	(void) close (request->fd);
+	if (NULL != request->filename) {
+		loghandle(LOG_INFO, FALSE, "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename);
+		(void) unlink (request->filename);
+	}
+}
+  
+if (NULL != request->filename) {    
+loghandle(LOG_INFO, FALSE, "%s", "Into file free");
+	free (request->filename);
+}	
+*/
+
+free(request);
 }
 
 
@@ -810,33 +803,32 @@ request_completed_callback (void *cls,
  * Clean up handles of sessions that have been idle for
  * too long.
  */
-void
-expire_sessions ()
-{
-  SessionPtr pos;
-  SessionPtr prev;
-  SessionPtr next;
-  time_t now;
+void expire_sessions () {
+	SessionPtr pos;
+	SessionPtr prev;
+	SessionPtr next;
+	time_t now;
 
-  now = time (NULL);
-  prev = NULL;
-  pos = sessions;
-  while (NULL != pos)
-    {
-      next = pos->next;
-      if (now - pos->start > 60 * 60)
-	{
-	  /* expire sessions after 1h */
-	  if (NULL == prev)
-	    sessions = pos->next;
-	  else
-	    prev->next = next;
-	  free (pos);
-	}
-      else
-        prev = pos;
-      pos = next;
-    }      
+now = time(NULL);
+prev = NULL;
+pos = sessions;
+  
+while( NULL != pos ) {
+	next = pos->next;
+	if (now - pos->start > 60 * 60) {
+		/* expire sessions after 1h */
+		if (NULL == prev) {
+			sessions = pos->next;
+		} else {
+			prev->next = next;
+		}
+		free (pos);
+	} else {
+	        prev = pos;
+        }
+	pos = next;
+}
+
 }
 
 char *loadsslfile( char *filename ) {
@@ -919,7 +911,7 @@ main_clone ()
 {
   int THREADS;
   cpuInfo cpuinfo;
-  #if HTTPS_SUPPORT 
+  #if HTTPS_SUPPORT
   unsigned int sslport = 8881;
   #endif
   unsigned int port = 8880;
@@ -945,41 +937,44 @@ main_clone ()
 							     (void *) INTERNAL_ERROR_PAGE,
 							     MHD_RESPMEM_PERSISTENT);
   mark_as(internal_error_response, "text/html" );
-#if HTTPS_SUPPORT  
-  THREADS = fmax( 1.0, ( THREADS / 2 ) );
-  server_https = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG | MHD_USE_SSL
-#if EPOLL_SUPPORT 
-			| MHD_USE_EPOLL_LINUX_ONLY
+
+  
+int flags = MHD_USE_SELECT_INTERNALLY | MHD_USE_DUAL_STACK;
+
+if( options.verbose )
+	flags |=  MHD_USE_DEBUG;
+  
+#if EPOLL_SUPPORT
+flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 #endif
-			,
+
+#if HTTPS_SUPPORT
+  THREADS = fmax( 1.0, ( THREADS / 2 ) );
+  server_https = MHD_start_daemon (flags | MHD_USE_SSL,
                         sslport,
-                        NULL, NULL, 
-			&create_response, NULL, 
+                        NULL, NULL,
+			&create_response, NULL,
 			MHD_OPTION_ARRAY, ops,
 			MHD_OPTION_HTTPS_MEM_KEY, loadsslfile( "/home/stephen/.ssl/certificate.key" ),
 			MHD_OPTION_HTTPS_MEM_CERT, loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt"),
 			MHD_OPTION_HTTPS_MEM_TRUST, loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt"),
                         MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
-			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,
+			MHD_OPTION_NOTIFY_COMPLETED, &post_completed_callback, NULL,
 			MHD_OPTION_END);
 
-#endif  
-  
-  server_http = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG
-#if EPOLL_SUPPORT 
-			| MHD_USE_EPOLL_LINUX_ONLY
 #endif
-			,
+
+  server_http = MHD_start_daemon (flags,
                         port,
-                        NULL, NULL, 
-			&create_response, NULL, 
+                        NULL, NULL,
+			&create_response, NULL,
 			MHD_OPTION_ARRAY, ops,
-			#if HTTPS_SUPPORT  
+			#if HTTPS_SUPPORT
                         MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, (THREADS / 2) ),
                         #else
                         MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
                         #endif
-			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,
+			MHD_OPTION_NOTIFY_COMPLETED, &post_completed_callback, NULL,
 			MHD_OPTION_END);
 
  if(NULL == server_http)

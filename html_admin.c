@@ -19,6 +19,25 @@ void iohttpFunc_adminframe( svConnectionPtr cnt )
 }
 
 
+void iohtmlFunc_adminframe( ReplyDataPtr cnt )
+{
+  int id;
+  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+    return;
+  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
+    goto denied;
+  httpPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
+  httpString( cnt, "<frame src=\"adminmenu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
+  httpString( cnt, "<frame src=\"adminserver\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
+  httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
+  httpString( cnt, "</frameset></html>" );
+  return;
+  denied:
+  httpString( cnt, "You do not have administrator privileges." );
+  return;
+}
+
+
 void iohttpFunc_adminmenu( svConnectionPtr cnt )
 {
  int id;
@@ -61,6 +80,49 @@ return;
  return;
 }
 
+
+void iohtmlFunc_adminmenu( ReplyDataPtr cnt )
+{
+ int id;
+ dbUserMainDef maind;
+ 
+ httpString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
+ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+  return;
+ if( dbUserMainRetrieve( id, &maind ) < 0 )
+  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
+    goto denied;
+
+ httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"images/i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+
+ httpString( cnt, "<a href=\"adminforum\" target=\"main\">Forums</a></font></b></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
+ httpPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
+ httpString( cnt, "<a href=\"fleets\" target=\"main\">Fleets</a><br>" );
+ httpString( cnt, "<a href=\"mappick\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- <a href=\"map\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- <a href=\"mapadv\" target=\"main\">Map generation</a><br>" );
+ httpString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
+ httpString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
+
+ httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"images/i36.jpg\"><img height=\"15\" src=\"images/i53.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"famranks\" target=\"main\">Empire rankings</a><br>" );
+ httpString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
+ httpString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
+ httpString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
+
+   httpString( cnt, "<br><a href=\"admin\" target=\"main\">Old Admin</a>" );
+      httpString( cnt, "<br><a href=\"moderator\" target=\"main\">Old Mod</a>" );
+   httpString( cnt, "<br><a href=\"main\" target=\"_top\">Back to Game</a>" );
+   httpString( cnt, "<br><a href=\"/\" target=\"_top\">Mainpage</a>" );
+
+
+ httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"images/i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"images/i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
+return;
+ denied:
+  httpString( cnt, "You do not have administrator privileges." );
+  httpString( cnt, "</body></html>" );
+ return;
+}
+
 void iohttpAdminForm( svConnectionPtr cnt, char *target )
 {
   svSendPrintf( cnt, "<form action=\"%s\" method=\"POST\">", target );
@@ -73,12 +135,34 @@ void iohttpAdminSubmit( svConnectionPtr cnt, char *name )
   return;
 }
 
+
 void iohttpAdminInput( svConnectionPtr cnt, adminFormInputPtr inputs )
 {
 if( inputs->size )
   svSendPrintf( cnt, "<input type=\"%s\" name=\"%s\" id=\"%s\" value=\"%s\" size=\"%d\">", inputs->type, inputs->name, inputs->name, inputs->value, inputs->size );
 else
   svSendPrintf( cnt, "<input type=\"%s\" name=\"%s\" id=\"%s\" value=\"%s\">", inputs->type, inputs->name, inputs->name, inputs->value );
+  return;
+}
+
+void iohtmlAdminForm( ReplyDataPtr cnt, char *target )
+{
+  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", target );
+  return;
+}
+
+void iohtmlAdminSubmit( ReplyDataPtr cnt, char *name )
+{
+  httpPrintf( cnt, "<input type=\"submit\" value=\"%s\"></form>", name );
+  return;
+}
+
+void iohtmlAdminInput( ReplyDataPtr cnt, adminFormInputPtr inputs )
+{
+if( inputs->size )
+  httpPrintf( cnt, "<input type=\"%s\" name=\"%s\" id=\"%s\" value=\"%s\" size=\"%d\">", inputs->type, inputs->name, inputs->name, inputs->value, inputs->size );
+else
+  httpPrintf( cnt, "<input type=\"%s\" name=\"%s\" id=\"%s\" value=\"%s\">", inputs->type, inputs->name, inputs->name, inputs->value );
   return;
 }
 
@@ -174,6 +258,102 @@ iohttpBodyEnd( cnt );
 
   cancel:
   svSendString( cnt, "<i>Command refused, make sure you didn't make an error in the input</i><br><br>" );
+  goto meat;
+
+  return;
+}
+
+
+
+void iohtmlFunc_adminforum( ReplyDataPtr cnt ) {
+	int a, id;
+	char *actionstring, *str0;
+	dbForumForumDef forumd;
+	dbUserMainDef maind;
+
+iohtmlBase( cnt, 1 );
+
+if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+	return;
+if( (cnt->dbuser)->level < LEVEL_FORUMMOD ) {
+    httpString( cnt, "This account does not have adminitrator privileges" );
+    httpString( cnt, "</center></body></html>" );
+    return;
+}
+if( !( iohtmlHeader( cnt, id, &maind ) ) )
+	return;
+
+iohtmlBodyInit( cnt, "Forums Administration" );
+
+  if( ( actionstring = iohtmlVarsFind( cnt, "famforum" ) ) )
+  {
+    for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ )
+    {
+      sprintf( forumd.title, "Empire %d forum", a );
+      forumd.rperms = 2;
+      forumd.wperms = 2;
+      forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
+      dbForumAddForum( &forumd, 1, 100+a );
+    }
+    httpString( cnt, "<i>Empire forums created</i><br><br>" );
+  }
+
+  if( ( actionstring = iohtmlVarsFind( cnt, "crforum" ) ) )
+  {
+    forumd.threads = 0;
+    forumd.time = 0;
+    forumd.tick = 0;
+    forumd.flags = 0;
+    for( a = 0 ; ( a < 63 ) && ( actionstring[a] ) ; a++ );
+    actionstring[a] = 0;
+    memcpy( forumd.title, actionstring, a );
+    if( !( str0 = iohttpVarsFind( "crforumread" ) ) )
+      goto cancel;
+    if( !( sscanf( str0, "%d", &forumd.rperms ) ) )
+      goto cancel;
+    if( !( str0 = iohttpVarsFind( "crforumwrite" ) ) )
+      goto cancel;
+    if( !( sscanf( str0, "%d", &forumd.wperms ) ) )
+      goto cancel;
+    forumd.flags = 0;
+    dbForumAddForum( &forumd, 1, 0 );
+    httpString( cnt, "<i>Forum created</i><br><br>" );
+  }
+
+  if( ( actionstring = iohtmlVarsFind( cnt, "delforum" ) ) )
+  {
+    if( !( sscanf( actionstring, "%d", &a ) ) )
+      goto cancel;
+    if( dbForumRemoveForum( a ) >= 0 )
+      httpString( cnt, "<i>Forum deleted</i><br><br>" );
+  }
+
+iohttpVarsCut();
+
+  meat:
+
+  iohtmlAdminForm( cnt, "adminforum" );
+  httpString( cnt, "<input type=\"hidden\" name=\"famforum\"><br>" );
+  iohtmlAdminSubmit( cnt, "Create empire forums" );
+
+  iohtmlAdminForm( cnt, "adminforum" );
+  httpString( cnt, "<input type=\"text\" name=\"crforum\" value=\"Forum name\"><br>" );
+  httpString( cnt, "<input type=\"text\" name=\"crforumread\" value=\"Read permission\"><br>" );
+  httpString( cnt, "<input type=\"text\" name=\"crforumwrite\" value=\"Write permission\"><br>" );
+  iohtmlAdminSubmit( cnt, "Create forum" );
+
+  iohtmlAdminForm( cnt, "adminforum" );
+  httpString( cnt, "<input type=\"text\" name=\"delforum\" value=\"Forum number\"><br>" );
+  iohtmlAdminSubmit( cnt, "Delete forum" );
+
+
+
+  iohtmlBodyEnd( cnt );
+  return;
+
+
+  cancel:
+  httpString( cnt, "<i>Command refused, make sure you didn't make an error in the input</i><br><br>" );
   goto meat;
 
   return;

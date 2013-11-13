@@ -2,18 +2,19 @@
 #define GAMEPLAYINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
-void iohttpFunc_main( svConnectionPtr cnt );
+void iohttpFunc_main( svConnectionPtr cnt ); //done
 
-void iohttpFunc_menu( svConnectionPtr cnt );
+void iohttpFunc_menu( svConnectionPtr cnt ); //done
 
-void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd );
+void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd ); //done
 
-void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd );
+void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd ); //done
 
-void iohttpFamNews( svConnectionPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired );
+void iohttpFamNews( svConnectionPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired ); //done
 
-void iohttpFunc_hq( svConnectionPtr cnt );
+void iohttpFunc_hq( svConnectionPtr cnt ); //done
 
 void iohttpFunc_news( svConnectionPtr cnt );
 
@@ -38,8 +39,6 @@ void iohttpFunc_famnews( svConnectionPtr cnt );
 void iohttpFunc_famrels( svConnectionPtr cnt );
 
 void iohttpFunc_famleader( svConnectionPtr cnt );
-
-void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
 void iohttpFunc_map( svConnectionPtr cnt );
 
@@ -107,8 +106,27 @@ void iohttpFunc_research( svConnectionPtr cnt );
 
 void iohttpFunc_mail( svConnectionPtr cnt );
 
-void iohttpFunc_rankings( svConnectionPtr cnt );
+void iohttpFunc_rankings( svConnectionPtr cnt ); //done
 
 void iohttpFunc_search( svConnectionPtr cnt );
+
+
+void iohtmlFunc_main( ReplyDataPtr cnt );
+
+void iohtmlFunc_menu( ReplyDataPtr cnt );
+
+void iohtmlFunc_hq( ReplyDataPtr cnt );
+
+void iohtmlFunc_news( ReplyDataPtr cnt );
+
+void iohtmlFunc_council( ReplyDataPtr cnt );
+
+void iohtmlFunc_rankings( ReplyDataPtr cnt );
+
+void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd );
+
+void iohtmlFamNewsEntry( ReplyDataPtr cnt, int picture, int64_t *newsd );
+
+void iohtmlFamNews( ReplyDataPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired );
 
 #endif

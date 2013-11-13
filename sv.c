@@ -759,7 +759,7 @@ void daemonloop() {
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
 	#if PRODUCTION
-	expire_sessions ();
+	expire_sessions();
 	#endif
 	if( irccfg.bot ) {
 		ircbot_scan();
