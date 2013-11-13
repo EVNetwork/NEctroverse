@@ -16,43 +16,22 @@ void iohttpBodyInit( svConnectionPtr cnt, char *title, ... ); //done
 
 void iohttpBodyEnd( svConnectionPtr cnt ); //done
 
-void iohttpFunc_races( svConnectionPtr cnt ); //done
-
-void iohttpFunc_register( svConnectionPtr cnt ); //done
-
-void iohttpFunc_register2( svConnectionPtr cnt ); //done
-
-void iohttpFunc_register3( svConnectionPtr cnt ); // done
-
 void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ); //done
 
 void iohttpFunc_endhtml( svConnectionPtr cnt ); //done
 
 void iohttpFunc_front( svConnectionPtr cnt, char *text, ... ); //done
 
-void iohttpFunc_faq( svConnectionPtr cnt ); //done
-
-void iohttpFunc_gettingstarted( svConnectionPtr cnt ); //done
-
-void iohttpFunc_halloffame( svConnectionPtr cnt ); //done
-
-
-int iohtmlIdentify( ReplyDataPtr cnt, int action );
 
 void iohtmlBase( ReplyDataPtr cnt, int flags );
-
+int iohtmlIdentify( ReplyDataPtr cnt, int action );
 int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp );
 
 void iohtmlBodyInit( ReplyDataPtr cnt, char *title, ... );
-
 void iohtmlBodyEnd( ReplyDataPtr cnt );
 
-
-
 void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags );
-
 void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ... );
-
 
 void iohtmlFunc_register( ReplyDataPtr cnt );
 void iohtmlFunc_register2( ReplyDataPtr cnt );

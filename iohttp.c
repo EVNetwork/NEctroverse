@@ -168,7 +168,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_front;
   sprintf( file->path, "/" );
-
+/*
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_faq;
@@ -248,7 +248,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_council;
   sprintf( file->path, "/council" );
-
+*/
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_units;
@@ -459,7 +459,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_mail;
   sprintf( file->path, "/mail" );
-
+/*
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_rankings;
@@ -484,7 +484,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_logout;
   sprintf( file->path, "/logout" );
-
+*/
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_search;
@@ -499,7 +499,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_oldadmin;
   sprintf( file->path, "/admin" );
-  
+/*  
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_adminframe;
@@ -514,7 +514,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_adminforum;
   sprintf( file->path, "/adminforum" );
-
+*/
   file = iohttpFileAdd(0);
   file->type = FILE_FUNCTION;
   file->function = iohttpForum;
@@ -524,7 +524,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_Approve;
   sprintf( file->path, "/approve" );
-  
+/*  
   file = iohttpFileAdd( 0 );
   file->type = FILE_HTML;
   sprintf( file->path, "/stats" );
@@ -534,7 +534,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_HTML;
   sprintf( file->path, "/chat" );
   sprintf( file->fileread, "chat.html" );
-
+*/
   file = iohttpFileAdd( 0 );
   file->type = FILE_CSS;
   sprintf( file->path, "/style.css" );
