@@ -40,6 +40,19 @@ typedef struct
   struct in_addr sin_addr[MAXIPRECORD];
 } dbUserInfoDef, *dbUserInfoPtr;
 
+
+typedef struct
+{
+  char race[16];
+  char empire[16];
+  char name[64];
+  char faction[32];
+  char password[128];
+  char fampass[128];
+  char email[128];
+  struct in_addr sin_addr;
+} dbUserSignupDef, *dbUserSignupPtr;
+
 int dbUserInfoSet( int id, dbUserInfoPtr info );
 int dbUserInfoRetrieve( int id, dbUserInfoPtr info );
 

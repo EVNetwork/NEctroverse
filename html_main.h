@@ -2,7 +2,7 @@
 #define HTMLMAININCLUDES
 //The above line MUST STAY HERE! -- This prevents double calling.
 
-int iohttpIdentifyHex( char *num );
+int iohttpIdentifyHex( char *num ); //no need -- hotlinked
 
 int iohttpIdentify( svConnectionPtr cnt, int action ); //done
 
@@ -18,13 +18,13 @@ void iohttpBodyEnd( svConnectionPtr cnt ); //done
 
 void iohttpFunc_races( svConnectionPtr cnt ); //done
 
-void iohttpFunc_register( svConnectionPtr cnt );
+void iohttpFunc_register( svConnectionPtr cnt ); //done
 
-void iohttpFunc_register2( svConnectionPtr cnt );
+void iohttpFunc_register2( svConnectionPtr cnt ); //done
 
-void iohttpFunc_register3( svConnectionPtr cnt );
+void iohttpFunc_register3( svConnectionPtr cnt ); // done
 
-void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... );
+void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ); //done
 
 void iohttpFunc_endhtml( svConnectionPtr cnt ); //done
 

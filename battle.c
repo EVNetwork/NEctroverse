@@ -148,7 +148,7 @@ void battlePhaseUpdate( int *unit, int *results )
 
     if( results[a] < 0 )
     {
-printf( "CRAP %d %d\n", a, results[a] );
+    loghandle(LOG_ERR, FALSE, "Battle just CRAPed %d %d\n", a, results[a] );
     results[a] = unit[a];
     }
 
@@ -897,8 +897,8 @@ int battle( int id, int fltid, int *results )
 
   if( defsats < 0 )
   {
+    loghandle(LOG_CRIT, FALSE, "Battle CRAP part negative sats on planet #%d: %d", fleetd.destid, defsats );
     defsats = 0;
-    printf( "CRAP!!!\n" );
   }
 
   planetd.building[CMD_BUILDING_SATS] = defsats;

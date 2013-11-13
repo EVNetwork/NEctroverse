@@ -1,6 +1,6 @@
 12 November 2013
 <center><i>All Function development placed on hold, Alpha stage postponed.
-Upgrade from HTTP/1.0 to HTTP/1.1 in progress. Nothing changes untill this is finished.
+Upgrade from HTTP/1.0 to HTTP/1.1 in progress. Nothing changes untill this is finished.<br>
 What is HTTP/1.1, and Why is it needed? -- Simply put, its majorly superiour in many ways.
 First and foremost, a connection with HTTP/1.0 must close and re-open with every transmission.
 With HTTP/1.1 a connection stays open untill it is no longer needed, therfore much more efficent.</i></center>

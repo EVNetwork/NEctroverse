@@ -40,15 +40,7 @@ char *iohttpVarsFind( char *id )
 
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
 
-
-if( MHD_lookup_connection_value(cnt->connection, MHD_POSTDATA_KIND, id) )
-return (char *)MHD_lookup_connection_value(cnt->connection, MHD_POSTDATA_KIND, id);
-
-if( MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id) )
 return (char *)MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id);
-
-
-return NULL;
 }
 
 char *iohtmlHeaderFind( ReplyDataPtr cnt, char *id ) {
@@ -72,20 +64,11 @@ va_end( ap );
 
 snprintf(cstr, sizeof (cstr), "%s=%s", name, text);
 
-if (MHD_NO == MHD_add_response_header( cnt->connection->response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
-	loghandle(LOG_ERR, FALSE, "Failed to set cookie: %s", cstr);
-	return 0;
-}
-/*
-printf("%s\n",cstr);
-printf("%d\n",ret);
-cleanUp(0);
-cleanUp(1);
-exit(0);
-*/
-		
+strncpy((cnt->cookies).value[(cnt->cookies).num], cstr, sizeof(cstr) );
+(cnt->cookies).num = (cnt->cookies).num + 1;
+	
 
-return 1;
+return (cnt->cookies).num;
 }
 
 

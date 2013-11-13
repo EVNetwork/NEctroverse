@@ -30,20 +30,31 @@ typedef struct Session
   /**
    * String submitted via form.
    */
-  char name[256];
-
-  /**
-   * Another value submitted via form.
-   */
-  char pass[256];
-  
-  /**
-   * Another value submitted via form.
-   */
-  char faction[256];
+  dbUserSignupDef uinfo;
 
 } SessionDef, *SessionPtr;
 
+/**
+ * State we keep for each user/session/browser.
+ */
+typedef struct Cookies
+{
+  /**
+   * We keep all cookies in a linked list.
+   */
+  struct Cookies *next;
+
+  /**
+   * Number of cookies. 
+   */
+  int num;
+
+  /**
+   * Pointers for cookie values. 
+   */
+  char value[8][512];
+
+} CookiesDef, *CookiesPtr;
 
 /**
  * Context we keep for an upload.
@@ -104,6 +115,10 @@ typedef struct Request
  */
 typedef struct ReplyData
 {
+  /**
+   * Associated cookies to be set with responce.
+   */
+  CookiesDef cookies;
 
   /**
    * Associated session.
@@ -200,35 +215,15 @@ extern void request_completed_callback (void *cls, MHD_ConnectionPtr connection,
 /**
  * Invalid method page.
  */
-#define METHOD_ERROR "<html><head><title>Illegal request</title></head><body>Go away.</body></html>"
+#define METHOD_ERROR "<html><head><title>Illegal request</title></head><body>Bad request.</body></html>"
 
 /**
  * Invalid URL page.
  */
-#define NOT_FOUND_ERROR "<html><head><title>Not found</title></head><body>Go away.</body></html>"
-
-/**
- * Front page. (/)
- */
-#define MAIN_PAGE "<html><head><title>Welcome</title></head><body><form action=\"/2\" method=\"post\">What is your name? <input type=\"text\" name=\"v1\" value=\"%s\" /><input type=\"submit\" value=\"Next\" /></body></html>"
-
-/**
- * Second page. (/2)
- */
-#define SECOND_PAGE "<html><head><title>Tell me more</title></head><body><a href=\"/\">previous</a> <form action=\"/S\" method=\"post\">%s, what is your job? <input type=\"text\" name=\"v2\" value=\"%s\" /><input type=\"submit\" value=\"Next\" /></body></html>"
-
-/**
- * Second page (/S)
- */
-#define SUBMIT_PAGE "<html><head><title>Ready to submit?</title></head><body><form action=\"/F\" method=\"post\"><a href=\"/2\">previous </a> <input type=\"hidden\" name=\"DONE\" value=\"yes\" /><input type=\"submit\" value=\"Submit\" /></body></html>"
-
-/**
- * Last page.
- */
-#define LAST_PAGE "<html><head><title>Thank you</title></head><body>Thank you %s, I hope you enjoyed %s.</body></html>"
+#define NOT_FOUND_ERROR "<html><head><title>Not found</title></head><body>The item you are looking for was not found...</body></html>"
 
 /**
  * Name of our cookie.
  */
-#define COOKIE_NAME "session"
+#define COOKIE_NAME "evsid"
 #endif

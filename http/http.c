@@ -200,12 +200,13 @@ not_found_page ( int id, const void *cls,
 
 static int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	const char *pname = cls;
-	int ret;
+	int ret, a;
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
 
 rd.session = session;
 rd.connection = connection;
+rd.cookies.num = 0;
   /* unsupported HTTP method */
 rd.response.buf_len = initial_allocation; 
 if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
@@ -221,6 +222,11 @@ if( ( pname ) && strcmp( pname, "login" ) == false  ) {
 
 response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(session, response);
+for( a = 0; a < rd.cookies.num ; a++  ) {
+	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
+		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
+	}
+}
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
 mark_as( response, mime );
@@ -231,12 +237,13 @@ return ret;
 
 
 static int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
-	int ret;
+	int ret, a;
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
 
 rd.session = session;
 rd.connection = connection;
+rd.cookies.num = 0;
   /* unsupported HTTP method */
 rd.response.buf_len = initial_allocation; 
 if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
@@ -248,6 +255,11 @@ pages[id].function( &rd );
 
 response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(session, response);
+for( a = 0; a < rd.cookies.num ; a++  ) {
+	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
+		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
+	}
+}
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
 
@@ -314,6 +326,7 @@ PageDef pages[] =
     { "/races", "text/html",  &page_render, iohtmlFunc_races, NULL },
     { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
     { "/register2", "text/html",  &page_render, iohtmlFunc_register2, NULL },
+    { "/register3", "text/html",  &page_render, iohtmlFunc_register3, NULL },
     
     { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
     { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },    
@@ -358,35 +371,56 @@ post_iterator (void *cls,
 
   if (0 == strcmp ("name", key))
     {
-      if (size + off > sizeof(session->name))
-	size = sizeof (session->name) - off;
-      memcpy (&session->name[off],
-	      data,
-	      size);
-      if (size + off < sizeof (session->name))
-	session->name[size+off] = '\0';
+      if (size + off > sizeof((session->uinfo).name))
+	size = sizeof ((session->uinfo).name) - off;
+      memcpy (&(session->uinfo).name[off], data, size);
+      if (size + off < sizeof ((session->uinfo).name))
+	(session->uinfo).name[size+off] = '\0';
       return MHD_YES;
     }
   if (0 == strcmp ("pass", key))
     {
-      if (size + off > sizeof(session->pass))
-	size = sizeof (session->pass) - off;
-      memcpy (&session->pass[off],
-	      data,
-	      size);
-      if (size + off < sizeof (session->pass))
-	session->pass[size+off] = '\0';
+      if (size + off > sizeof((session->uinfo).password))
+	size = sizeof ((session->uinfo).password) - off;
+      memcpy (&(session->uinfo).password[off], data, size);
+      if (size + off < sizeof ((session->uinfo).password))
+	(session->uinfo).password[size+off] = '\0';
       return MHD_YES;
     }
   if (0 == strcmp ("faction", key))
     {
-      if (size + off > sizeof(session->faction))
-	size = sizeof (session->faction) - off;
-      memcpy (&session->faction[off],
-	      data,
-	      size);
-      if (size + off < sizeof (session->faction))
-	session->faction[size+off] = '\0';
+      if (size + off > sizeof((session->uinfo).faction))
+	size = sizeof ((session->uinfo).faction) - off;
+      memcpy (&(session->uinfo).faction[off], data, size);
+      if (size + off < sizeof ((session->uinfo).faction))
+	(session->uinfo).faction[size+off] = '\0';
+      return MHD_YES;
+    }
+  if (0 == strcmp ("fampass", key))
+    {
+      if (size + off > sizeof((session->uinfo).fampass))
+	size = sizeof ((session->uinfo).fampass) - off;
+      memcpy (&(session->uinfo).fampass[off], data, size);
+      if (size + off < sizeof ((session->uinfo).fampass))
+	(session->uinfo).fampass[size+off] = '\0';
+      return MHD_YES;
+    }
+  if (0 == strcmp ("race", key))
+    {
+      if (size + off > sizeof((session->uinfo).fampass))
+	size = sizeof ((session->uinfo).fampass) - off;
+      memcpy (&(session->uinfo).fampass[off], data, size);
+      if (size + off < sizeof ((session->uinfo).fampass))
+	(session->uinfo).fampass[size+off] = '\0';
+      return MHD_YES;
+    }
+  if (0 == strcmp ("empire", key))
+    {
+      if (size + off > sizeof((session->uinfo).fampass))
+	size = sizeof ((session->uinfo).fampass) - off;
+      memcpy (&(session->uinfo).fampass[off], data, size);
+      if (size + off < sizeof ((session->uinfo).fampass))
+	(session->uinfo).fampass[size+off] = '\0';
       return MHD_YES;
     }
   loghandle(LOG_ERR, FALSE, "Unsupported form value \'%s\'", key);
@@ -833,7 +867,7 @@ if( ret ) {
 	return NULL;
 }
 
-return -1;
+return NULL;
 }
 
 struct MHD_OptionItem ops[] = {

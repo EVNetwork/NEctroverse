@@ -838,13 +838,6 @@ svSendString( cnt, "This account was not activated yet." );
  return;
 }
 
-int print_out_key (void *cls, enum MHD_ValueKind kind, 
-                   const char *key, const char *value)
-{
-  printf ("%s: %s\n", key, value);
-  return MHD_YES;
-}
-
 void iohtmlFunc_register2( ReplyDataPtr cnt )
 {
  int a, i, id;
@@ -856,12 +849,8 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
-MHD_get_connection_values(cnt->connection, MHD_HEADER_KIND, &print_out_key, NULL);
-
- if ( MHD_lookup_connection_value(cnt->connection, MHD_POSTDATA_KIND, "name") )
-printf("Name: %s\n", MHD_lookup_connection_value(cnt->connection, MHD_POSTDATA_KIND, "name") );
-if( ( (cnt->session)->name != NULL ) && ( (cnt->session)->pass != NULL ) && ( (cnt->session)->faction != NULL ) ) {
-	  if( ( id = cmdExecNewUser( (cnt->session)->name, (cnt->session)->pass, (cnt->session)->faction ) ) < 0 ) {
+if( ( ((cnt->session)->uinfo).name != NULL ) && ( ((cnt->session)->uinfo).password != NULL ) && ( ((cnt->session)->uinfo).faction != NULL ) ) {
+	  if( ( id = cmdExecNewUser( ((cnt->session)->uinfo).name, ((cnt->session)->uinfo).password, ((cnt->session)->uinfo).faction ) ) < 0 ) {
 		iohtmlBase( cnt, 8 );
 		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
@@ -907,7 +896,7 @@ iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
   iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
-  httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", (cnt->session)->name, (cnt->session)->pass, (cnt->session)->faction, id );
+  httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", ((cnt->session)->uinfo).name, ((cnt->session)->uinfo).password, ((cnt->session)->uinfo).faction, id );
 
   sprintf( COREDIR, "%s/logs/register", sysconfig.directory );
   if( ( file = fopen( COREDIR, "ab" ) ) )
@@ -916,9 +905,9 @@ iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
    a = time(0);
    strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
    fprintf( file, "Time %s\n", timebuf );
-   fprintf( file, "Name %s;\n", (cnt->session)->name );
-   fprintf( file, "Password %s;\n", (cnt->session)->pass );
-   fprintf( file, "Faction %s;\n", (cnt->session)->faction );
+   fprintf( file, "Name %s;\n", ((cnt->session)->uinfo).name );
+   fprintf( file, "Password %s;\n", ((cnt->session)->uinfo).password );
+   fprintf( file, "Faction %s;\n", ((cnt->session)->uinfo).faction );
    if( (cnt->connection)->addr->sa_family == AF_INET )
    fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
    strcpy(timebuf, iohtmlHeaderFind( cnt, "User-Agent" ) );
@@ -1015,6 +1004,55 @@ iohttpFunc_endhtml( cnt );
  return;
 }
 
+
+void iohtmlFunc_register3( ReplyDataPtr cnt )
+{
+ int a, id, raceid;
+
+ iohtmlBase( cnt, 8 );
+ if( ( id = iohtmlIdentify( cnt, 1|4 ) ) < 0 )
+  return;
+iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
+
+
+ if( ( ((cnt->session)->uinfo).empire ) && ( ((cnt->session)->uinfo).race ) )
+ {
+  for( a = 0 ; a < 31 ; a++ )
+  {
+   if( ( ((cnt->session)->uinfo).fampass[a] == 10 ) || ( ((cnt->session)->uinfo).fampass[a] == 13 ) )
+    break;
+  }
+
+		if( ((cnt->session)->uinfo).empire[0] == 0 )
+  	a = -1;
+  else if( ((cnt->session)->uinfo).empire[0] == '#' )
+   sscanf( &((cnt->session)->uinfo).empire[1], "%d", &a );
+  else
+   sscanf( ((cnt->session)->uinfo).empire, "%d", &a );
+  sscanf( ((cnt->session)->uinfo).race, "%d", &raceid );
+
+  if( cmdExecNewUserEmpire( id, a, ((cnt->session)->uinfo).fampass, raceid, (cnt->dbuser)->level ) < 0 )
+  {
+   if( cmdErrorString )
+    httpString( cnt, cmdErrorString );
+   else
+    httpString( cnt, "Error encountered while registering user" );
+   httpString( cnt, "<br><br><a href=\"/register2\">Try again</a>" );
+   goto iohtmlFunc_register3L0;
+  }
+  httpPrintf( cnt, "<b>Account activated!</b><br>" );
+  httpString( cnt, "<br><br><br><a href=\"/main\">Log in</a>" );
+iohtmlFunc_endhtml( cnt );
+  return;
+ }
+ else
+  httpString( cnt, "Incorrect query!" );
+
+ iohtmlFunc_register3L0:
+ httpString( cnt, "<br><br><a href=\"/\">Main page</a><br><br><a href=\"/login\">Log in</a>" );
+iohtmlFunc_endhtml( cnt );
+ return;
+}
 
 void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
 	struct stat stdata;
