@@ -774,7 +774,8 @@ while( sysconfig.shutdown == false ) {
 
 	if( curtime < ticks.next )
 		continue;
-	ticks.next += sysconfig.ticktime;
+
+	ticks.next = ( curtime + sysconfig.ticktime );
 	
 	if( ( sysconfig.autostop ) && ( timediff(sysconfig.stop) < 1 ) ) {
 		ticks.status = false;
