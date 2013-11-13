@@ -712,9 +712,9 @@ iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
 httpString ( cnt, "<br><br><h3>Register</h3><br>" );
-//httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
+httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
 
-httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+//httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -849,6 +849,8 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
+goto registerLOCK;
+
 if( ( ((cnt->session)->uinfo).name != NULL ) && ( ((cnt->session)->uinfo).password != NULL ) && ( ((cnt->session)->uinfo).faction != NULL ) ) {
 	  if( ( id = cmdExecNewUser( ((cnt->session)->uinfo).name, ((cnt->session)->uinfo).password, ((cnt->session)->uinfo).faction ) ) < 0 ) {
 		iohtmlBase( cnt, 8 );
@@ -922,6 +924,7 @@ iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
    fclose( file );
   }
 } else {
+registerLOCK:
 	iohtmlBase( cnt, 8 );
 	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 	httpString( cnt, "Error, bad input detected..." );

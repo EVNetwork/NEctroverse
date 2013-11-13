@@ -26,7 +26,7 @@ updatehtml('sstatsTime',time);
 
 SD=window.setTimeout("countDown();", 1000);
 
-if (min == '00' && sec == '00') { getInfo("ticker"); } 
+if (min == '00' && sec == '00') { getInfo("ticker"); }
 
 }
 setInterval( function(){
@@ -104,17 +104,17 @@ return input;
 }
 
 
-function changeimage(img, a) { 
+function changeimage(img, a) {
 
 try {
-	document.getElementById(img).src=a; 
+	document.getElementById(img).src=a;
 } catch(err) {
 	return;
 }
 
 }
 
-function updatehtml(id, i) { 
+function updatehtml(id, i) {
 
 if(i==""){ return; }
 else if(i=="undefined"){ return; }
