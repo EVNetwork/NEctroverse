@@ -4,21 +4,11 @@
 
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
-void iohttpFunc_main( svConnectionPtr cnt ); //done
-
-void iohttpFunc_menu( svConnectionPtr cnt ); //done
-
 void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd ); //done
 
 void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd ); //done
 
 void iohttpFamNews( svConnectionPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired ); //done
-
-void iohttpFunc_hq( svConnectionPtr cnt ); //done
-
-void iohttpFunc_news( svConnectionPtr cnt );
-
-void iohttpFunc_council( svConnectionPtr cnt );
 
 void iohttpFunc_units( svConnectionPtr cnt );
 
