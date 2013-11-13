@@ -4,14 +4,14 @@ function countDown() {
 
 sec--;
 
-if (sec < 00) {
+if (sec < 0 ) {
 	if ( min > 0 ) {
 		sec = 59;
 		min = min - 1;
 	} else {
 		sec = 00;
 		getInfo("ticker");
-		SD=window.setTimeout("countDown();", 15000);
+		SD=window.setTimeout("countDown();", 5000);
 		login = false;
 		return;
 	}
@@ -19,7 +19,7 @@ if (sec < 00) {
 	min = min;
 }
 
-time = (min < 0 ? min + " minute and " : "" ) + sec + " seconds";
+time = (min < 0 ? min + " minute"+( (min > 1) ? "s" : "" )+" and " : "" ) + sec + " second"+( (sec > 1) ? "s" : "" );
 updatehtml('headerTime',time);
 updatehtml('hqTime',time);
 updatehtml('sstatsTime',time);
