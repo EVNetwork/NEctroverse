@@ -4,7 +4,7 @@ function countDown() {
 
 sec--;
 
-if (sec == -01) {
+if (sec < 00) {
 	if ( min > 0 ) {
 		sec = 59;
 		min = min - 1;
