@@ -94,7 +94,7 @@ void InitHTTP() {
 	dbMainEmpireDef empired;
 	FILE *fd;
 	DIR *dirdata;
-
+/*
 for(a = 0; a < HTTP_DIR_TOTAL; a++) {
 	sprintf( COREDIR, dbImageDirs[a], sysconfig.httpimages );
 	if( chdir( COREDIR ) == -1 ) {
@@ -161,7 +161,7 @@ if( chdir( COREDIR ) != -1 ) {
 		sprintf( file->path, "/fampic%02d%d", a, empired.pictime );
 	}
 }
-
+*/
   // ahhaha... yes, we'll make a table
 
   file = iohttpFileAdd( 0 );

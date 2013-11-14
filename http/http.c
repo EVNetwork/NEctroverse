@@ -392,11 +392,11 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 	int i;
 
 if( ( !( filename ) ) ) {
+	(uc->session)->upload = UPLOAD_STATE_NULL;
 	if( ( data ) && ( strlen(data) ) ) {
 		//loghandle(LOG_INFO, FALSE, "Converting form value \'%s\' - \'%s\'", key, data );
 		 set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
 		 set_postvalue(&(uc->session)->value[(uc->session)->posts], data, strlen(data) );
-		//loghandle(LOG_INFO, FALSE, "Converted form value \'%s\' - \'%s\'", (uc->session)->key[(uc->session)->posts], (uc->session)->value[(uc->session)->posts] );
 		(uc->session)->posts++;
 	} else if ( strlen(data) )
 		loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
@@ -429,7 +429,7 @@ if (-1 == uc->fd) {
 
 	if (-1 == uc->fd) {
 		loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
-		uc->response = request_refused_response;
+		(uc->session)->upload = UPLOAD_STATE_FAIL;
 		return MHD_NO;
 	}
 	uc->filename = strdup (fn);

@@ -766,14 +766,16 @@ while( sysconfig.shutdown == false ) {
 	}
 	svPipeScan( options.serverpipe );
 	loadconfig(options.sysini,CONFIG_BANNED);
-	svSelect();
-	svListen();
-	svRecv();
+	//svSelect();
+	//svListen();
+	//svRecv();
 	svDebugConnection = 0;
 	curtime = time( 0 );
 
-	if( curtime < ticks.next )
+	if( curtime < ticks.next ) {
+		nanosleep((struct timespec[]){{0, 125000000}}, NULL);
 		continue;
+	}
 
 	ticks.next = ( curtime + sysconfig.ticktime );
 	
@@ -783,24 +785,24 @@ while( sysconfig.shutdown == false ) {
 		ticks.status = true;
 	}
 
-
+/*
 	for( a = 0 ; a < options.interfaces ; a++ ) {
 		io = &ioInterface[a];
 		io->TickStart();
 	}
-
+*/
 	cmdTickInit();
 	if( ticks.status ) {
 		cmdTick();
 		ticks.number++;
 	}
 	cmdTickEnd();
-
+/*
 	for( a = 0 ; a < options.interfaces ; a++ ) {
 		io = &ioInterface[a];
 		io->TickEnd();
 	}
-
+*/
 	cmdExecuteFlush();
 
 	if( options.verbose )
@@ -875,25 +877,28 @@ signal( SIGUSR1, &svSignal);
 signal( SIGUSR2, &svSignal);
 	
 srand( time(NULL) ); //Random Init
-	
+/*	
 if( !( svInit() ) ) {
 	loghandle(LOG_CRIT, false, "%s", "Server Core Initation Failed, now exiting..." );
 	return 0;
 }
-
+*/
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
 	loghandle(LOG_CRIT, false, "%s", "Server Database Initation Failed, now exiting..." );
 	return 0;
 }
+
 for( a = 0 ; a < options.interfaces ; a++ ) {
 	io = &ioInterface[a];
 	io->Init();
 }
 
+
 if( !( cmdInit() ) )  {
 	loghandle(LOG_CRIT, false, "%s", "Server Command Initation Failed, now exiting..." );
 	return 0;
 }
+
 sprintf( DIRCHECKER, "%s/data", sysconfig.directory );  
 if( chdir( DIRCHECKER ) == -1 ) {
 	if( options.verbose )
@@ -917,8 +922,6 @@ sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[POR
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 
-main_clone();
-
 loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
@@ -926,6 +929,7 @@ if( irccfg.bot ) {
 	ircbot_connect();
 }
 
+main_clone();
 daemonloop();
 
 call_clean();
@@ -946,7 +950,8 @@ for( a = 0 ; a < options.interfaces ; a++ ) {
 	io = &ioInterface[a];
 	io->End();
 }
-svEnd();
+
+//svEnd();
 
 
 

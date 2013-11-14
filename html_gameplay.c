@@ -4076,8 +4076,8 @@ if( relsmesstring ) {
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  httpString( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">Empire picture</td></tr>" );
- httpString( cnt, "<tr><td><i>Note : Empire pictures can't exceed 64k</i></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"file\" name=\"picfile\" size=\"64\"></td></tr>" );
+ httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></td></tr>" );
+ httpString( cnt, "<tr><td><input type=\"file\" name=\"picfile\"></td></tr>" );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Upload\"></form><br><br><br></td></tr>" );
 
  if( empired.numplayers > 1 ) {
