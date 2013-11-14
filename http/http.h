@@ -36,17 +36,17 @@ typedef struct Session
   /**
    * Pointers for keys. 
    */
-  char key[6][512];
+  char *key[512];
   
   /**
    * Pointers for values. 
    */
-  char value[6][512];
+  char *value[512];
 
 } SessionDef, *SessionPtr;
 
 /**
- * State we keep for each user/session/browser.
+ * State we keep for each page build... in case we need to set cookies.
  */
 typedef struct Cookies
 {
@@ -58,7 +58,7 @@ typedef struct Cookies
   /**
    * Pointers for cookie values. 
    */
-  char value[8][256];
+  char value[4][512];
 
 } CookiesDef, *CookiesPtr;
 

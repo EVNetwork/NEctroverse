@@ -131,6 +131,7 @@ static SessionPtr get_session( MHD_ConnectionPtr connection )
       loghandle(LOG_ERR, errno, "%s", "HTTP calloc error");
       return NULL;
     }
+    //printf("new session\n");
   /* not a super-secure way to generate a random session ID,
      but should do for a simple example... */
   snprintf (ret->sid,
@@ -220,8 +221,8 @@ if( ( pname ) && strcmp( pname, "login" ) == false  ) {
 	iohtmlFunc_front( &rd, NULL );
 }
 
-response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_PERSISTENT);
-//add_session_cookie(session, response);
+response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
+add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
 	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
 		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
@@ -253,8 +254,8 @@ rd.response.off = 0;
 
 pages[id].function( &rd );
 
-response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_PERSISTENT);
-//add_session_cookie(session, response);
+response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
+add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
 	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
 		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
@@ -282,7 +283,7 @@ static int file_page( int id, const void *cls, const char *mime, SessionPtr sess
 	else
 		fd = -1;
 	if (-1 == fd) {
-		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE);
 		add_session_cookie(session, response);
 		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
 		MHD_destroy_response (response);
@@ -420,8 +421,8 @@ if (0 == strcmp (key, "language"))
 if( ( uc->fd == -1 ) && (0 != strcmp (key, "upload") ) ) {
 	if( ( data ) && ( strlen(data) ) ) {
 		//loghandle(LOG_INFO, FALSE, "Converting form value \'%s\'", key );
-		strcpy( (uc->session)->key[(uc->session)->posts], key );
-		strcpy( (uc->session)->value[(uc->session)->posts], data );
+		do_append(&(uc->session)->key[(uc->session)->posts], key, size);
+		do_append(&(uc->session)->value[(uc->session)->posts], data, size);
 		(uc->session)->posts++;
 
 /*	value = malloc( (uc->requests).num * sizeof(*value) );
@@ -570,7 +571,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	else
 		fd = -1;
 	if (-1 == fd) {
-		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
 		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
 		MHD_destroy_response (response);
 		return ret;
