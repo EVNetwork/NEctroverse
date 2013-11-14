@@ -40,6 +40,7 @@
 #endif
 #include "daemon.c"
 
+#include "pagelist.c"
 
 MHD_DaemonPtr server_http;
 MHD_DaemonPtr server_https;
@@ -176,7 +177,7 @@ if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr
  * @param session session handle
  * @param connection connection to use
  */
-static int
+int
 not_found_page ( int id, const void *cls,
 		const char *mime,
 		SessionPtr session,
@@ -199,7 +200,7 @@ not_found_page ( int id, const void *cls,
   return ret;
 }
 
-static int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	const char *pname = cls;
 	int ret, a;
 	MHD_ResponsePtr response;
@@ -237,7 +238,7 @@ return ret;
 }
 
 
-static int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	int ret, a;
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
@@ -268,7 +269,7 @@ MHD_destroy_response (response);
 return ret;
 }
 
-static int file_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int file_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	int ret, fd;
 	struct stat buf;
 	MHD_ResponsePtr response;
@@ -311,51 +312,6 @@ static int file_page( int id, const void *cls, const char *mime, SessionPtr sess
 
 return ret;
 }
-
-/**
- * List of all pages served by this HTTP server.
- */
-PageDef pages[] =
-  {
-    //Basic/Main pages
-    { "/", "text/html",  &key_page, NULL, NULL },
-    { "/login", "text/html",  &key_page, NULL, "login" },
-    { "/halloffame", "text/html",  &page_render, iohtmlFunc_halloffame, NULL },
-    { "/gettingstarted", "text/html",  &page_render, iohtmlFunc_gettingstarted, NULL },
-    { "/faq", "text/html",  &page_render, iohtmlFunc_faq, NULL },
-    { "/status", "text/html",  &page_render, iohtmlFunc_status, NULL },
-    { "/races", "text/html",  &page_render, iohtmlFunc_races, NULL },
-    { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
-    { "/register2", "text/html",  &page_render, iohtmlFunc_register2, NULL },
-    { "/register3", "text/html",  &page_render, iohtmlFunc_register3, NULL },
-    //Generic
-    { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },
-    { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },
-    { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
-    { "/javascript.js", "text/javascript",  &file_page, NULL, "/javascript.js" },
-    { "/stats", "text/html",  &file_page, NULL, "/stats.html" },
-    { "/chat", "text/html",  &file_page, NULL, "/chat.html" },
-    //Game Pages
-    { "/rankings", "text/html",  &page_render, iohtmlFunc_rankings, NULL },
-    { "/hq", "text/html",  &page_render, iohtmlFunc_hq, NULL },
-    { "/main", "text/html",  &page_render, iohtmlFunc_main, NULL },
-    { "/menu", "text/html",  &page_render, iohtmlFunc_menu, NULL },
-    { "/news", "text/html",  &page_render, iohtmlFunc_news, NULL },
-    { "/council", "text/html",  &page_render, iohtmlFunc_council, NULL },
-    
-    //User Account Pages
-    { "/account", "text/html",  &page_render, iohtmlFunc_account, NULL },
-    { "/delete", "text/html",  &page_render, iohtmlFunc_delete, NULL },
-    { "/logout", "text/html",  &page_render, iohtmlFunc_logout, NULL },
-    { "/changepass", "text/html",  &page_render, iohtmlFunc_changepass, NULL },
-    //Administration Pages
-    { "/administration", "text/html",  &page_render, iohtmlFunc_adminframe, NULL },
-    { "/adminmenu", "text/html",  &page_render, iohtmlFunc_adminmenu, NULL },
-    { "/adminforum", "text/html",  &page_render, iohtmlFunc_adminforum, NULL },
-    //Not Found.
-    { NULL, NULL, &not_found_page, NULL, NULL } /* 404 */
-  };
-
 
 /**
  * Append the 'size' bytes from 'data' to '*ret', adding

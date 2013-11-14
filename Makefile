@@ -32,7 +32,7 @@ sv.o: *.h sv.c extras/iniparser.c ircbot.c
 io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
-http.o: *.h http/*.h http/connection.c http/connection_https.c http/daemon.c http/http.c http/internal.c http/memorypool.c http/postprocessor.c http/reason_phrase.c http/response.c
+http.o: *.h http/*.h http/connection.c http/connection_https.c http/daemon.c http/http.c http/internal.c http/memorypool.c http/postprocessor.c http/reason_phrase.c http/response.c http/pagelist.c
 	$(CC) http/http.c $(DEFS) -o http.o -c $(FLAGS)
 
 db.o: *.h db.c

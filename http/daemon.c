@@ -82,16 +82,10 @@
  * @param line line number with the problem
  * @param reason error message with details
  */
-static void 
-mhd_panic_std (void *cls,
-	       const char *file,
-	       unsigned int line,
-	       const char *reason)
-{
-#if HAVE_MESSAGES
+static void mhd_panic_std (void *cls, const char *file, unsigned int line, const char *reason) {
+
   loghandle(LOG_CRIT, FALSE, "Fatal error in GNU libmicrohttpd %s:%u: %s", file, line, reason);
-#endif
-  abort();
+
 }
 
 
