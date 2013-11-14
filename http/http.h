@@ -1,7 +1,8 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-extern size_t initial_allocation;
+#define SERVERALLOCATION (256 * 1024)
+
 /**
  * State we keep for each user/session/browser.
  */

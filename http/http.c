@@ -45,7 +45,7 @@
 MHD_DaemonPtr server_http;
 MHD_DaemonPtr server_https;
 
-size_t initial_allocation = 256 * 1024; //Yer, its huge... so sue me!
+size_t initial_allocation = 256 * 1024;
 
 
 /**
@@ -591,7 +591,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
           request->fd = -1;
 	  request->connection = connection;
 	  request->pp = MHD_create_post_processor (connection,
-					      64 * 1024 /* buffer size */,
+					      initial_allocation,
 					      &process_upload_data, request);
 	  if (NULL == request->pp)
 	    {
@@ -767,7 +767,7 @@ return NULL;
 }
 
 struct MHD_OptionItem ops[] = {
-	{ MHD_OPTION_CONNECTION_MEMORY_LIMIT, (size_t)(256 * 1024), NULL },
+	{ MHD_OPTION_CONNECTION_MEMORY_LIMIT, (size_t)SERVERALLOCATION, NULL },
 #if PRODUCTION
 	{ MHD_OPTION_PER_IP_CONNECTION_LIMIT, (unsigned int)(64), NULL },
 #endif
@@ -843,7 +843,7 @@ main_clone ()
   mark_as(internal_error_response, "text/html" );
 
   
-int flags = MHD_USE_SELECT_INTERNALLY | MHD_USE_DUAL_STACK;
+int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
 
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;
