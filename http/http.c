@@ -625,10 +625,10 @@ if( ( request ) && ( request->session ) ) {
 	session = request->session;
 } else {
 	session = get_session(connection);
+	session->upload = UPLOAD_STATE_NULL;
 }
 
 session->start = time(NULL);
-session->upload = UPLOAD_STATE_NULL;
 
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
