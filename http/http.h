@@ -14,7 +14,7 @@ typedef struct Session
   struct Session *next;
 
   /**
-   * Unique ID for this session. 
+   * Unique ID for this session.
    */
   char sid[33];
 
@@ -30,17 +30,17 @@ typedef struct Session
   time_t start;
 
   /**
-   * Number of keys. 
+   * Number of keys.
    */
   int posts;
 
   /**
-   * Pointers for keys. 
+   * Pointers for keys.
    */
   char *key[512];
-  
+
   /**
-   * Pointers for values. 
+   * Pointers for values.
    */
   char *value[512];
 
@@ -52,12 +52,12 @@ typedef struct Session
 typedef struct Cookies
 {
   /**
-   * Number of cookies. 
+   * Number of cookies.
    */
   int num;
 
   /**
-   * Pointers for cookie values. 
+   * Pointers for cookie values.
    */
   char value[4][512];
 
@@ -78,26 +78,16 @@ typedef struct Request
    */
   char *filename;
 
-  /**
-   * Language for the upload.
+   /**
+   * URL to serve in response to this POST (if this request
+   * was a 'POST')
    */
-  char *language;
-
-  /**
-   * Category for the upload.
-   */
-  char *category;
+  const char *post_url;
 
   /**
    * Associated session.
    */
   SessionPtr session;
-  
-   /**
-   * URL to serve in response to this POST (if this request 
-   * was a 'POST')
-   */
-  const char *post_url;
 
    /**
    * Post processor we're using to process the upload.
@@ -108,12 +98,12 @@ typedef struct Request
    * Handle to connection that we're processing the upload for.
    */
   MHD_ConnectionPtr connection;
-  
+
   /**
    * Response to generate, NULL to use directory.
    */
   MHD_ResponsePtr response;
-  
+
 } RequestDef, *RequestPtr;
 
 
@@ -139,11 +129,11 @@ typedef struct ReplyData
   ResponseDataDef response;
 
   /**
-   * URL to serve in response to this POST (if this request 
+   * URL to serve in response to this POST (if this request
    * was a 'POST')
    */
   MHD_ConnectionPtr connection;
-  
+
   /**
    * Database user Linkage
    */
@@ -167,7 +157,7 @@ typedef int (*PageHandler)( int id, const void *cls, const char *mime, SessionPt
 
 /**
  * Entry we generate for each page served.
- */ 
+ */
 typedef struct Page
 {
   /**
@@ -191,7 +181,7 @@ typedef struct Page
   PageFunction function;
   /**
    * Extra argument to handler.
-   */ 
+   */
   const void *handler_cls;
 } PageDef, *PagePtr;
 

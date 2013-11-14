@@ -379,17 +379,12 @@ return MHD_YES;
  * @return MHD_YES to continue iterating,
  *         MHD_NO to abort the iteration
  */
- 
+
 static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
 	RequestPtr uc = cls;
 	int i;
-	
-if (0 == strcmp (key, "category"))
-	return do_append (&uc->category, data, size);
-if (0 == strcmp (key, "language"))
-	return do_append (&uc->language, data, size);
 
-if( ( uc->fd == -1 ) && (0 != strcmp (key, "upload") ) ) {
+if( ( !( filename ) ) ) {
 	if( ( data ) && ( strlen(data) ) ) {
 		//loghandle(LOG_INFO, FALSE, "Converting form value \'%s\' - \'%s\'", key, data );
 		 set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
@@ -398,30 +393,24 @@ if( ( uc->fd == -1 ) && (0 != strcmp (key, "upload") ) ) {
 		(uc->session)->posts++;
 	} else if ( strlen(data) )
 		loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
-	
 	return MHD_YES;
 }
 if (NULL == filename) {
 	loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
 	return MHD_NO;
 }
-if ( (NULL == uc->category) || (NULL == uc->language) ) {
-	loghandle(LOG_ERR, FALSE, "Missing form data for upload: \'%s\'", filename);
-	uc->response = request_refused_response;
-	return MHD_NO;
-}
+
 if (-1 == uc->fd) {
 	char fn[PATH_MAX];
 	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
+	printf("rejecting %s\n", filename);
 		uc->response = request_refused_response;
 		return MHD_NO;
 	}
-	(void) mkdir (uc->language, S_IRWXU);
-	snprintf (fn, sizeof (fn), "%s/%s", uc->language, uc->category);
+	snprintf (fn, sizeof (fn), "%s/uploads", sysconfig.directory );
 	(void) mkdir (fn, S_IRWXU);
-
-	snprintf (fn, sizeof (fn),"%s/%s/%s", uc->language, uc->category, filename);
-	for (i=strlen (fn)-1;i>=0;i--) { 
+	snprintf (fn, sizeof (fn),"%s/uploads/%s", sysconfig.directory, filename);
+	for (i=strlen (fn)-1;i>=0;i--) {
 		if( !isprint( (int)fn[i] ) ){
 			fn[i] = '_';
 		}
@@ -573,7 +562,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 }
 //end images
   request = *ptr;
-  if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) && ( local ) ) )
+  if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) )
     {
       if (NULL == request)
 	{
@@ -591,7 +580,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
           request->fd = -1;
 	  request->connection = connection;
 	  request->pp = MHD_create_post_processor (connection,
-					      initial_allocation,
+					      64 * 1024 /* buffer size */,
 					      &process_upload_data, request);
 	  if (NULL == request->pp)
 	    {
@@ -601,11 +590,11 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	    }
 	  *ptr = request;
 	  return MHD_YES;
-	}     
+	}
       if (0 != *upload_data_size)
 	{
 	  if (NULL == request->response)
-	    (void) MHD_post_process (request->pp, 
+	    (void) MHD_post_process (request->pp,
 				     upload_data,
 				     *upload_data_size);
 	  *upload_data_size = 0;
@@ -621,8 +610,8 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	}
       if (NULL != request->response)
 	{
-	  return MHD_queue_response (connection, 
-				     MHD_HTTP_FORBIDDEN, 
+	  return MHD_queue_response (connection,
+				     MHD_HTTP_FORBIDDEN,
 				     request->response);
 } else {
 	i=0;
@@ -676,7 +665,7 @@ return ret;
  */
 void completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
 	RequestPtr request = *con_cls;
-  
+
 if (NULL == request)
 	return;
 if (NULL != request->session)
@@ -693,10 +682,10 @@ if (-1 != request->fd) {
 		(void) unlink (request->filename);
 	}
 }
-  
-if (NULL != request->filename) {    
+
+if (NULL != request->filename) {
 	free (request->filename);
-}	
+}
 
 
 free(request);
@@ -716,7 +705,7 @@ void expire_sessions () {
 now = time(NULL);
 prev = NULL;
 pos = sessions;
-  
+
 while( NULL != pos ) {
 	next = pos->next;
 	if (now - pos->start > 60 * 60) {
@@ -842,12 +831,12 @@ main_clone ()
 							     MHD_RESPMEM_PERSISTENT);
   mark_as(internal_error_response, "text/html" );
 
-  
+
 int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
 
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;
-  
+
 #if EPOLL_SUPPORT
 flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 #endif
