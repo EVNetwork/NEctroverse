@@ -224,6 +224,7 @@ extern int create_response (void *cls, MHD_ConnectionPtr connection, const char 
 extern void request_completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe);
 
 extern int not_found_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
+extern int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
 extern int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
 extern int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
 extern int file_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
