@@ -45,6 +45,13 @@
 MHD_DaemonPtr server_http;
 MHD_DaemonPtr server_https;
 
+char *cmdUploadState[4] = {
+"No Upload",
+"In Progress",
+"Completed",
+"Failed"
+};
+
 size_t initial_allocation = 256 * 1024;
 
 
@@ -403,7 +410,6 @@ if (NULL == filename) {
 if (-1 == uc->fd) {
 	char fn[PATH_MAX];
 	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
-	printf("rejecting %s\n", filename);
 		uc->response = request_refused_response;
 		return MHD_NO;
 	}
@@ -561,59 +567,49 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	return ret;
 }
 //end images
-  request = *ptr;
-  if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) )
-    {
-      if (NULL == request)
-	{
-	  if (NULL == (request = malloc (sizeof (RequestDef))))
-	    return MHD_NO; /* out of memory, close connection */
-	  memset (request, 0, sizeof (RequestDef));
-	  request->session = get_session(connection);
-	  if (NULL == request->session) {
-	  fprintf (stderr, "Failed to setup session for `%s'\n", url);
-	  return MHD_NO; /* internal error */
+request = *ptr;
+if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
+	if (NULL == request) {
+		if (NULL == (request = malloc (sizeof (RequestDef))))
+			return MHD_NO; /* out of memory, close connection */
+		memset (request, 0, sizeof (RequestDef));
+		request->session = get_session(connection);
+		if (NULL == request->session) {
+			fprintf (stderr, "Failed to setup session for `%s'\n", url);
+			return MHD_NO; /* internal error */
+		}
+		request->session->start = time(NULL);
+		request->session->posts = 0;
+		request->session->upload = UPLOAD_STATE_START;
+		request->post_url = url;
+		request->fd = -1;
+		request->connection = connection;
+		request->pp = MHD_create_post_processor (connection, 64 * 1024 /* buffer size */, &process_upload_data, request);
+		if (NULL == request->pp) {
+			/* out of memory, close connection */
+			free (request);
+			return MHD_NO;
+		}
+		*ptr = request;
+		return MHD_YES;
 	}
-	  request->session->start = time(NULL);
-      	  request->session->posts = 0;
-	  request->post_url = url;
-          request->fd = -1;
-	  request->connection = connection;
-	  request->pp = MHD_create_post_processor (connection,
-					      64 * 1024 /* buffer size */,
-					      &process_upload_data, request);
-	  if (NULL == request->pp)
-	    {
-	      /* out of memory, close connection */
-	      free (request);
-	      return MHD_NO;
-	    }
-	  *ptr = request;
-	  return MHD_YES;
+	if (0 != *upload_data_size) {
+		if (NULL == request->response)
+			(void) MHD_post_process (request->pp, upload_data, *upload_data_size);
+		*upload_data_size = 0;
+		return MHD_YES;
 	}
-      if (0 != *upload_data_size)
-	{
-	  if (NULL == request->response)
-	    (void) MHD_post_process (request->pp,
-				     upload_data,
-				     *upload_data_size);
-	  *upload_data_size = 0;
-	  return MHD_YES;
+	/* end of upload, finish it! */
+	MHD_destroy_post_processor (request->pp);
+	request->pp = NULL;
+	if (-1 != request->fd) {
+		close (request->fd);
+		request->fd = -1;
+		request->session->upload = UPLOAD_STATE_DONE;
 	}
-      /* end of upload, finish it! */
-      MHD_destroy_post_processor (request->pp);
-      request->pp = NULL;
-      if (-1 != request->fd)
-	{
-	  close (request->fd);
-	  request->fd = -1;
-	}
-      if (NULL != request->response)
-	{
-	  return MHD_queue_response (connection,
-				     MHD_HTTP_FORBIDDEN,
-				     request->response);
-} else {
+	if (NULL != request->response) {
+		return MHD_queue_response (connection, MHD_HTTP_FORBIDDEN, request->response);
+	} else {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
@@ -625,13 +621,14 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	}
 }
 
-if( ( request ) && ( request->session ) )
+if( ( request ) && ( request->session ) ) {
 	session = request->session;
-else {
+} else {
 	session = get_session(connection);
 }
 
 session->start = time(NULL);
+session->upload = UPLOAD_STATE_NULL;
 
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
@@ -678,6 +675,7 @@ if (NULL != request->pp) {
 if (-1 != request->fd) {
 	(void) close (request->fd);
 	if (NULL != request->filename) {
+		request->session->upload = UPLOAD_STATE_FAIL;
 		loghandle(LOG_INFO, FALSE, "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename);
 		(void) unlink (request->filename);
 	}

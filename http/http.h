@@ -3,20 +3,34 @@
 
 #define SERVERALLOCATION (256 * 1024)
 
+
+enum UploadState {
+
+    UPLOAD_STATE_NULL = 0,
+
+    UPLOAD_STATE_START = 1,
+
+    UPLOAD_STATE_DONE = 2,
+
+    UPLOAD_STATE_FAIL = 3,
+
+};
+
+extern char *cmdUploadState[]; 
 /**
  * State we keep for each user/session/browser.
  */
 typedef struct Session
 {
   /**
-   * We keep all sessions in a linked list.
+   * Number of keys.
    */
-  struct Session *next;
+  int posts;
 
   /**
-   * Unique ID for this session.
+   * Upload Status key.
    */
-  char sid[33];
+  int upload;
 
   /**
    * Reference counter giving the number of connections
@@ -25,14 +39,9 @@ typedef struct Session
   unsigned int rc;
 
   /**
-   * Time when this session was last active.
+   * Unique ID for this session.
    */
-  time_t start;
-
-  /**
-   * Number of keys.
-   */
-  int posts;
+  char sid[33];
 
   /**
    * Pointers for keys.
@@ -43,6 +52,16 @@ typedef struct Session
    * Pointers for values.
    */
   char *value[512];
+
+  /**
+   * Time when this session was last active.
+   */
+  time_t start;
+
+   /**
+   * We keep all sessions in a linked list.
+   */
+  struct Session *next;
 
 } SessionDef, *SessionPtr;
 

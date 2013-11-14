@@ -3922,6 +3922,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = relsmesstring = filename = taxstring = 0;
 
+  fampic = iohtmlVarsFind( cnt, "picname" );
   empirestring = iohtmlVarsFind( cnt, "id" );
   fnamestring = iohtmlVarsFind( cnt, "fname" );
   sidstring = iohtmlVarsFind( cnt, "sid" );
@@ -3995,50 +3996,9 @@ if( taxstring ){
 		else
 			httpString( cnt, "<i>Empire password changed</i><br><br>" );
  }
-/*
- if( fampic )
- {
-  if( filesize <= 0 )
-  {
-   httpString( cnt, "<i>Error while retrieving empire picture?</i><br><br>" );
-   goto iohttpFunc_famleaderL0;
-  }
-  b = 4;
-  if( filename )
-  {
-   for( a = 0 ; filename[a] ; a++ )
-   {
-    if( filename[a] == '"' )
-     filename[a] = 0;
-   }
-   b = iohttpMimeFind( filename );
-  }
-  sprintf( fname, "%s/fampic%02d", sysconfig.httpimages, curfam );
-  if( ( file = fopen( fname, "wb" ) ) )
-  {
-   fwrite( fampic, 1, filesize, file );
-   fclose( file );
-   sprintf( fname, "/images/fampic%02d%d", curfam, empired.pictime );
-   iohttpFileDel( fname );
-   if( ( cfile = iohttpFileAdd( filesize ) ) )
-   {
-    cfile->type = 0;
-    cfile->mime = b;
-    empired.picmime = b;
-    empired.pictime = time( 0 );
-    a = time( 0 );
-    memcpy( &cfile->scurtime, &a, sizeof(time_t) );
-    sprintf( cfile->path, "/images/fampic%02d%d", curfam, empired.pictime );
-    memcpy( cfile->data, fampic, filesize );
-    httpString( cnt, "<i>Empire picture uploaded on server</i><br><br>" );
-   }
-  }
-  if( dbMapSetEmpire( curfam, &empired ) < 0 )
-  {
-   httpString( cnt, "Error while saving empire data</body></html>" );
-   return;
-  }
- }*/
+if( !((cnt->session)->upload == UPLOAD_STATE_NULL) )
+httpPrintf( cnt, "<i>Upload %s</i><br><br>", cmdUploadState[(cnt->session)->upload] );
+
 
  if( ( sidstring ) && ( statusstring ) && ( sscanf( sidstring, "%d", &sid ) == 1 ) && ( sscanf( statusstring, "%d", &status ) == 1 ) )
  {
