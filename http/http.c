@@ -344,6 +344,22 @@ buf[old_len + size] = '\0';
 return MHD_YES;
 }
 
+int set_postvalue(char **ret, const char *data, size_t size) {
+	char *buf;
+
+if (NULL != *ret) {
+	free( *ret );
+}
+buf = malloc( size );
+if (NULL == buf)
+	return MHD_NO;
+memcpy(&buf[0], data, size);
+buf[size] = '\0';
+*ret = buf;
+
+return MHD_YES;
+}
+
 /**
  * Iterator over key-value pairs where the value
  * maybe made available in increments and/or may
@@ -375,9 +391,10 @@ if (0 == strcmp (key, "language"))
 
 if( ( uc->fd == -1 ) && (0 != strcmp (key, "upload") ) ) {
 	if( ( data ) && ( strlen(data) ) ) {
-		loghandle(LOG_INFO, FALSE, "Converting form value \'%s\'", key );
-		do_append(&(uc->session)->key[(uc->session)->posts], key, size);
-		do_append(&(uc->session)->value[(uc->session)->posts], data, size);
+		//loghandle(LOG_INFO, FALSE, "Converting form value \'%s\' - \'%s\'", key, data );
+		 set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
+		 set_postvalue(&(uc->session)->value[(uc->session)->posts], data, strlen(data) );
+		//loghandle(LOG_INFO, FALSE, "Converted form value \'%s\' - \'%s\'", (uc->session)->key[(uc->session)->posts], (uc->session)->value[(uc->session)->posts] );
 		(uc->session)->posts++;
 	} else if ( strlen(data) )
 		loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);

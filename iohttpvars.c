@@ -112,7 +112,7 @@ int iohttpVarsInit( svConnectionPtr cnt )
   return 1;
 }
 
-
+//FIXME
 int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords )
 {
   iohttpDataPtr iohttp = cnt->iodata;

@@ -248,7 +248,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_council;
   sprintf( file->path, "/council" );
-*/
+
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_units;
@@ -266,13 +266,13 @@ if( chdir( COREDIR ) != -1 ) {
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_pltake;
-  sprintf( file->path, "/pltake" );
+  file->function = iohttpFunc_empire;
+  sprintf( file->path, "/empire" );
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_empire;
-  sprintf( file->path, "/empire" );
+  file->function = iohttpFunc_pltake;
+  sprintf( file->path, "/pltake" );
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
@@ -302,7 +302,6 @@ if( chdir( COREDIR ) != -1 ) {
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_famleader;
-
   sprintf( file->path, "/famleader" );
 
   file = iohttpFileAdd( 0 );
@@ -339,7 +338,7 @@ if( chdir( COREDIR ) != -1 ) {
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_planet;
   sprintf( file->path, "/planet" );
-
+*/
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;
   file->function = iohttpFunc_build;
@@ -485,10 +484,10 @@ if( chdir( COREDIR ) != -1 ) {
   file->function = iohttpFunc_logout;
   sprintf( file->path, "/logout" );
 */
-  file = iohttpFileAdd( 0 );
-  file->type = FILE_FUNCTION;
-  file->function = iohttpFunc_search;
-  sprintf( file->path, "/search" );
+//FIXME  file = iohttpFileAdd( 0 );
+//FIXME  file->type = FILE_FUNCTION;
+//FIXME  file->function = iohttpFunc_search;
+//FIXME  sprintf( file->path, "/search" );
 
   file = iohttpFileAdd( 0 );
   file->type = FILE_FUNCTION;

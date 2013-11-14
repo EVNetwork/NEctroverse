@@ -4,47 +4,6 @@
 
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
-void iohttpNewsString( svConnectionPtr cnt, int64_t *newsd ); //done
-
-void iohttpFamNewsEntry( svConnectionPtr cnt, int picture, int64_t *newsd ); //done
-
-void iohttpFamNews( svConnectionPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr empired ); //done
-
-void iohttpFunc_units( svConnectionPtr cnt );
-
-void iohttpFunc_market( svConnectionPtr cnt );
-
-void iohttpFunc_planets( svConnectionPtr cnt );
-
-void iohttpFunc_empire( svConnectionPtr cnt );
-
-void iohttpFunc_famaid( svConnectionPtr cnt );
-
-void iohttpFunc_famgetaid( svConnectionPtr cnt );
-
-void iohttpFunc_vote( svConnectionPtr cnt );
-
-void iohttpFunc_famnews( svConnectionPtr cnt );
-
-void iohttpFunc_famrels( svConnectionPtr cnt );
-
-void iohttpFunc_famleader( svConnectionPtr cnt );
-
-void iohttpFunc_map( svConnectionPtr cnt );
-
-void iohttpFunc_mappick( svConnectionPtr cnt );
-
-void iohttpFunc_mapadv( svConnectionPtr cnt );
-
-void iohttpFunc_system( svConnectionPtr cnt );
-
-void iohttpFunc_player( svConnectionPtr cnt );
-
-void iohttpFunc_playerlist( svConnectionPtr cnt );
-
-void iohttpFunc_planet( svConnectionPtr cnt );
-
-void iohttpFunc_pltake( svConnectionPtr cnt );
 
 void iohttpFunc_build( svConnectionPtr cnt );
 
@@ -96,9 +55,6 @@ void iohttpFunc_research( svConnectionPtr cnt );
 
 void iohttpFunc_mail( svConnectionPtr cnt );
 
-void iohttpFunc_search( svConnectionPtr cnt );
-
-
 
 //New Section
 void iohtmlFunc_main( ReplyDataPtr cnt );
@@ -110,6 +66,45 @@ void iohtmlFunc_hq( ReplyDataPtr cnt );
 void iohtmlFunc_news( ReplyDataPtr cnt );
 
 void iohtmlFunc_council( ReplyDataPtr cnt );
+
+void iohtmlFunc_units( ReplyDataPtr cnt );
+
+void iohtmlFunc_market( ReplyDataPtr cnt );
+
+void iohtmlFunc_planets( ReplyDataPtr cnt );
+
+void iohtmlFunc_pltake( ReplyDataPtr cnt );
+
+void iohtmlFunc_empire( ReplyDataPtr cnt );
+
+void iohtmlFunc_famaid( ReplyDataPtr cnt );
+
+void iohtmlFunc_famgetaid( ReplyDataPtr cnt );
+
+void iohtmlFunc_vote( ReplyDataPtr cnt );
+
+void iohtmlFunc_famnews( ReplyDataPtr cnt );
+
+void iohtmlFunc_famrels( ReplyDataPtr cnt );
+
+void iohtmlFunc_famleader( ReplyDataPtr cnt );
+
+void iohtmlFunc_map( ReplyDataPtr cnt );
+
+void iohtmlFunc_mappick( ReplyDataPtr cnt );
+
+void iohtmlFunc_mapadv( ReplyDataPtr cnt );
+
+void iohtmlFunc_system( ReplyDataPtr cnt );
+
+void iohtmlFunc_player( ReplyDataPtr cnt );
+
+void iohtmlFunc_playerlist( ReplyDataPtr cnt );
+
+void iohtmlFunc_planet( ReplyDataPtr cnt );
+
+
+//void iohtmlFunc_search( ReplyDataPtr cnt );
 
 void iohtmlFunc_rankings( ReplyDataPtr cnt );
 

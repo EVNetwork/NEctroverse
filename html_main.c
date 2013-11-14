@@ -577,9 +577,9 @@ iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
 httpString ( cnt, "<br><br><h3>Register</h3><br>" );
-//httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
+httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
 
-httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+//httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -599,9 +599,9 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
- name = iohtmlVarsFind( cnt, "name" );
- pass = iohtmlVarsFind( cnt, "pass" );
- faction = iohtmlVarsFind( cnt, "faction" );
+ name = NULL;//iohtmlVarsFind( cnt, "name" );
+ pass = NULL;//iohtmlVarsFind( cnt, "pass" );
+ faction = NULL;//iohtmlVarsFind( cnt, "faction" );
 
 if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
