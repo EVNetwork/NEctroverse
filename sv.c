@@ -773,7 +773,7 @@ while( sysconfig.shutdown == false ) {
 	curtime = time( 0 );
 
 	if( curtime < ticks.next ) {
-		nanosleep((struct timespec[]){{0, 125000000}}, NULL);
+		nanosleep((struct timespec[]){{0, ( 50000000 ) }}, NULL);
 		continue;
 	}
 

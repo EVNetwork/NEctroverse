@@ -1,21 +1,6 @@
 #ifndef GLOBALINCLUDED
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
-#include <arpa/inet.h>
-#include <asm/param.h>
-#include <linux/limits.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/sysinfo.h>
-#include <sys/time.h>
-#include <sys/times.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <sys/utsname.h>
-#include <sys/wait.h>
-
 #include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -39,18 +24,33 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
+#include <asm/param.h>
+#include <linux/limits.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/sysinfo.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <sys/utsname.h>
+#include <sys/wait.h>
+
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT
-#define SERVER_REPORT_CONNECT 0
+#define SERVER_REPORT_CONNECT 1
 #endif
 
 
 #ifndef SERVER_REPORT_CLOSE
-#define SERVER_REPORT_CLOSE 0
+#define SERVER_REPORT_CLOSE 1
 #endif
 
 #ifndef SERVER_REPORT_IGNOREDHEADER
-#define SERVER_REPORT_IGNOREDHEADER 0
+#define SERVER_REPORT_IGNOREDHEADER 1
 #endif
 
 #ifndef SERVER_RECV_BUFSIZE
@@ -83,6 +83,10 @@
 
 #ifndef FALSE
 #define FALSE false
+#endif
+
+#ifndef null
+#define null NULL
 #endif
 
 
