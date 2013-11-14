@@ -2,10 +2,10 @@
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 typedef struct {
-	int seconds;
-	int minutes;
-	int hours;
-	int days;
+	long seconds;
+	long minutes;
+	long hours;
+	long days;
 } timeDef, *timePtr;
 
 typedef struct {
@@ -25,15 +25,15 @@ typedef struct {
 	float loadavg[0];
 } proginfoDef, *proginfoPtr;
 
-char *TimeToString( int eltime );
+char *TimeToString( long eltime );
 
 void iohttpFunc_status( svConnectionPtr cnt );
 
 void iohtmlFunc_status( ReplyDataPtr cnt );
 
-void connverttime_todef( timeDef *statime, int stime );
+void connverttime_todef( timeDef *statime, long stime );
 
-void getsys_infos( proginfoDef *proginfo, struct sysinfo sinfo );
+void getsys_infos( proginfoDef *proginfo );
 
 struct tm *gettime( int t_in, bool gmt );
 

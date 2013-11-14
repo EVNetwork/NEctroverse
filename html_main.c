@@ -1071,7 +1071,9 @@ void iohtmlFunc_faq( ReplyDataPtr cnt ) {
 iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_FAQ );
 
-httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
+httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+
 httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
 httpString( cnt, "<tr><td>" );
 sprintf( DIRCHECKER, "%s/faq.html", sysconfig.httpread );
@@ -1089,6 +1091,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		free( data );
 	}
 }
+httpString( cnt, "</td></tr></table><br><br>" );
 
 iohtmlFunc_endhtml( cnt );
 return;
@@ -1103,7 +1106,7 @@ iohtmlFunc_frontmenu( cnt, FMENU_GSTART );
 
 /*
 httpString( cnt, "<h1>Upload</h1>\n" );
-httpString( cnt, "<form method=\"POST\" enctype=\"multipart/form-data\" action=\"/\">\n" );
+httpString( cnt, "<form method=\"POST\" enctype=\"multipart/form-data\" >\n" );
 httpString( cnt, "<dl><dt>Content type:</dt><dd>" );
 httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"books\">Book</input>" );
 httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"images\">Image</input>" );

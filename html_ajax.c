@@ -16,14 +16,11 @@ void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
 
 refer = idstring = typestring = NULL;
 cpuGetInfo( &cpuinfo );
-
+getsys_infos( &pinfod );
 if( sysinfo(&sysinfod) != 0 ) {
 	loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
-
-getsys_infos( &pinfod, sysinfod );
-
 
 idstring = iohtmlVarsFind( cnt, "id" );
 typestring = iohtmlVarsFind( cnt, "typ" );
@@ -193,24 +190,24 @@ if( refer ) {
 	httpString( cnt, "//Time to use this to more of its potential!!.\n" );
 	httpString( cnt, "var page;\n" );
 	httpString( cnt, "var login = false;\n" );
-	httpPrintf( cnt, "var sec = %d;\n", javatime.seconds );
-	httpPrintf( cnt, "var min = %d;\n", javatime.minutes );
+	httpPrintf( cnt, "var sec = %ld;\n", javatime.seconds );
+	httpPrintf( cnt, "var min = %ld;\n", javatime.minutes );
 	if( !strcmp(refer,"status") ) {
+		getsys_infos( &pinfod );
 		if( sysinfo(&sysajaxd) != 0 ) {
 			loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
 			sysconfig.shutdown = true; return;
 		}
-		getsys_infos( &pinfod, sysajaxd );
 		converttime_todef( &javatime, pinfod.runtime );
-		httpPrintf( cnt, "var gsec = %02d;\n", javatime.seconds );
-		httpPrintf( cnt, "var gmin = %02d;\n", javatime.minutes );
-		httpPrintf( cnt, "var ghour = %02d;\n", javatime.hours );
-		httpPrintf( cnt, "var gday = %02d;\n", javatime.days );
+		httpPrintf( cnt, "var gsec = %02ld;\n", javatime.seconds );
+		httpPrintf( cnt, "var gmin = %02ld;\n", javatime.minutes );
+		httpPrintf( cnt, "var ghour = %02ld;\n", javatime.hours );
+		httpPrintf( cnt, "var gday = %02ld;\n", javatime.days );
 		converttime_todef( &javatime, sysajaxd.uptime );
-		httpPrintf( cnt, "var hsec = %02d;\n", javatime.seconds );
-		httpPrintf( cnt, "var hmin = %02d;\n", javatime.minutes );
-		httpPrintf( cnt, "var hhour = %02d;\n", javatime.hours );
-		httpPrintf( cnt, "var hday = %02d;\n", javatime.days );
+		httpPrintf( cnt, "var hsec = %02ld;\n", javatime.seconds );
+		httpPrintf( cnt, "var hmin = %02ld;\n", javatime.minutes );
+		httpPrintf( cnt, "var hhour = %02ld;\n", javatime.hours );
+		httpPrintf( cnt, "var hday = %02ld;\n", javatime.days );
 	}
 	//OK, Time for some AJAX! =/ ...
 	//It's been a while, forgive me if its messy lol! =P

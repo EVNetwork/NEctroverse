@@ -410,7 +410,6 @@ return MHD_YES;
  
 static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
 	RequestPtr uc = cls;
-//	char **value;
 	int i;
 	
 if (0 == strcmp (key, "category"))
@@ -420,20 +419,10 @@ if (0 == strcmp (key, "language"))
 
 if( ( uc->fd == -1 ) && (0 != strcmp (key, "upload") ) ) {
 	if( ( data ) && ( strlen(data) ) ) {
-		//loghandle(LOG_INFO, FALSE, "Converting form value \'%s\'", key );
+		loghandle(LOG_INFO, FALSE, "Converting form value \'%s\'", key );
 		do_append(&(uc->session)->key[(uc->session)->posts], key, size);
 		do_append(&(uc->session)->value[(uc->session)->posts], data, size);
 		(uc->session)->posts++;
-
-/*	value = malloc( (uc->requests).num * sizeof(*value) );
-	
-	for( a = 0; a < (uc->requests).num; a++ ) {
-		if( ( data ) && ( strcmp(data,"") ) ) {
-			strcpy( value[a], data);
-		}
-	}
-	free( value );
-*/
 	} else if ( strlen(data) )
 		loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
 	
@@ -610,61 +599,6 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	return ret;
 }
 //end images
-/*
-  request = *ptr;
-  if (NULL == request)
-    {
-      request = calloc (1, sizeof (RequestDef));
-      if (NULL == request)
-	{
-	  loghandle(LOG_ERR, errno, "calloc error: %s\n", errno );
-	  return MHD_NO;
-	}
-      *ptr = request;
-      if( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) && ( local ) )
-	{
-
-	  request->pp = MHD_create_post_processor (connection, 1024, &post_iterator, request);
-	  if (NULL == request->pp)
-	    {
-	      loghandle(LOG_ERR, FALSE, "Failed to setup post processor for: \'%s\'", url);
-	      return MHD_NO;
-	    }
-	} else if ( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) ) {
-	return MHD_NO;
-	}
-      return MHD_YES;
-    }
-  if (NULL == request->session)
-    {
-      request->session = get_session (connection);
-      if (NULL == request->session)
-	{
-	  loghandle(LOG_ERR, FALSE, "Failed to setup session for \'%s\'", url);
-	  return MHD_NO;
-	}
-    }
-  session = request->session;
-  session->start = time (NULL);
-  if( (0 == strcmp (method, MHD_HTTP_METHOD_POST)) && ( local ) )
-    {
-
-      MHD_post_process (request->pp,
-			upload_data,
-			*upload_data_size);
-      if (0 != *upload_data_size)
-	{
-	  *upload_data_size = 0;
-	  return MHD_YES;
-	}
-
-      MHD_destroy_post_processor (request->pp);
-      request->pp = NULL;
-      method = MHD_HTTP_METHOD_GET;
-      if (NULL != request->post_url)
-	url = request->post_url;
-    }
-*/
   request = *ptr;
   if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) && ( local ) ) )
     {
@@ -672,8 +606,6 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	{
 	  if (NULL == (request = malloc (sizeof (RequestDef))))
 	    return MHD_NO; /* out of memory, close connection */
-//	  if (NULL == (uc->requests = malloc (sizeof (PostGetsDef))))
-//	    return MHD_NO; /* out of memory, close connection */
 	  memset (request, 0, sizeof (RequestDef));
 	  request->session = get_session(connection);
 	  if (NULL == request->session) {
@@ -723,6 +655,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
+	request->session->start = time(NULL);
 	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, request->session, request->connection );
 	if (ret != MHD_YES)
 		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", request->post_url);
@@ -768,7 +701,7 @@ return ret;
  *            not an upload
  * @param toe reason for request termination
  */
-void post_completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
+void completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
 	RequestPtr request = *con_cls;
   
 if (NULL == request)
@@ -781,7 +714,6 @@ if (NULL != request->pp) {
 }
 
 if (-1 != request->fd) {
-loghandle(LOG_INFO, FALSE, "%s", "Into file find");
 	(void) close (request->fd);
 	if (NULL != request->filename) {
 		loghandle(LOG_INFO, FALSE, "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename);
@@ -790,7 +722,6 @@ loghandle(LOG_INFO, FALSE, "%s", "Into file find");
 }
   
 if (NULL != request->filename) {    
-loghandle(LOG_INFO, FALSE, "%s", "Into file free");
 	free (request->filename);
 }	
 
@@ -959,7 +890,7 @@ flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 			MHD_OPTION_HTTPS_MEM_CERT, loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt"),
 			MHD_OPTION_HTTPS_MEM_TRUST, loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt"),
                         MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
-			MHD_OPTION_NOTIFY_COMPLETED, &post_completed_callback, NULL,
+			MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 			MHD_OPTION_END);
 
 #endif
@@ -974,7 +905,7 @@ flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
                         #else
                         MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
                         #endif
-			MHD_OPTION_NOTIFY_COMPLETED, &post_completed_callback, NULL,
+			MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 			MHD_OPTION_END);
 
  if(NULL == server_http)
