@@ -39,8 +39,20 @@ char *iohttpVarsFind( char *id )
 
 
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
+	int a;
+	char *value;	
+	
+for( a = 0; a < (cnt->session)->posts; a++ ) {
+	if( strcmp( id, (cnt->session)->key[a] ) == 0 )
+		return (cnt->session)->value[a];
+}
 
-return (char *)MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id);
+value = (char *)MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id);
+if( ( value ) && strlen(value) ) {
+	return value;
+}
+
+return 0;
 }
 
 char *iohtmlHeaderFind( ReplyDataPtr cnt, char *id ) {

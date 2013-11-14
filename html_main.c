@@ -577,9 +577,9 @@ iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
 httpString ( cnt, "<br><br><h3>Register</h3><br>" );
-httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
+//httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
 
-//httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -594,14 +594,17 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  FILE *file;
  char timebuf[256];
  char COREDIR[256];
+ char *name, *pass, *faction;
  int64_t newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
-goto registerLOCK;
+ name = iohtmlVarsFind( cnt, "name" );
+ pass = iohtmlVarsFind( cnt, "pass" );
+ faction = iohtmlVarsFind( cnt, "faction" );
 
-if( ( ((cnt->session)->uinfo).name != NULL ) && ( ((cnt->session)->uinfo).password != NULL ) && ( ((cnt->session)->uinfo).faction != NULL ) ) {
-	  if( ( id = cmdExecNewUser( ((cnt->session)->uinfo).name, ((cnt->session)->uinfo).password, ((cnt->session)->uinfo).faction ) ) < 0 ) {
+if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
+	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
 		iohtmlBase( cnt, 8 );
 		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
@@ -623,79 +626,81 @@ if( ( ((cnt->session)->uinfo).name != NULL ) && ( ((cnt->session)->uinfo).passwo
 	cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
 
 
-		(maild.mail).length = strlen(Message);
-		maild.text = Message;
-		(maild.mail).authorid = 0;
-  sprintf( (maild.mail).authorname, "Admin" );
-  (maild.mail).authorempire = 0;
-  (maild.mail).time = time( 0 );
-  (maild.mail).tick = ticks.number;
-  (maild.mail).flags = 0;
-  if( dbMailAdd( id, 0, &maild ) < 0 )
-	loghandle(LOG_ERR, false, "%s", "Error sending registration email" );
+	(maild.mail).length = strlen(Message);
+	maild.text = Message;
+	(maild.mail).authorid = 0;
+	sprintf( (maild.mail).authorname, "Admin" );
+	(maild.mail).authorempire = 0;
+	(maild.mail).time = time( 0 );
+	(maild.mail).tick = ticks.number;
+	(maild.mail).flags = 0;
+	if( dbMailAdd( id, 0, &maild ) < 0 )
+		loghandle(LOG_ERR, false, "%s", "Error sending registration email" );
 
 
-  if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) )
-  {
-   iohtmlBase( cnt, 8 );
-iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-   httpString( cnt, "Error encountered while registering session" );
-   goto iohtmlFunc_register2L0;
-  }
-  iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", id, session[0], session[1], session[2], session[3] );
+	if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) ) {
+		iohtmlBase( cnt, 8 );
+		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
+		httpString( cnt, "Error encountered while registering session" );
+		goto iohtmlFunc_register2L0;
+	}
 
-  iohtmlBase( cnt, 8 );
-iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
+	iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", id, session[0], session[1], session[2], session[3] );
 
-  httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", ((cnt->session)->uinfo).name, ((cnt->session)->uinfo).password, ((cnt->session)->uinfo).faction, id );
-
-  sprintf( COREDIR, "%s/logs/register", sysconfig.directory );
-  if( ( file = fopen( COREDIR, "ab" ) ) )
-  {
-   fprintf( file, "Register ID %d ( %x )\n", id, id );
-   a = time(0);
-   strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
-   fprintf( file, "Time %s\n", timebuf );
-   fprintf( file, "Name %s;\n", ((cnt->session)->uinfo).name );
-   fprintf( file, "Password %s;\n", ((cnt->session)->uinfo).password );
-   fprintf( file, "Faction %s;\n", ((cnt->session)->uinfo).faction );
-   if( (cnt->connection)->addr->sa_family == AF_INET )
-   fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
-   strcpy(timebuf, iohtmlHeaderFind( cnt, "User-Agent" ) );
-	  for(i=0;i<strlen(timebuf);i++)
-	  {
-	  	if(timebuf[i] == ';')
-	  		timebuf[i] = ',';
-	  }
-	  fprintf( file, "User Agent: %s;\n", timebuf );
-   //fprintf( file, "Cookie %s;;\n", iohttp->cookie );
-   fprintf(file, "ID : %d ( %X );\n\n\n", id, id);
-   fclose( file );
-  }
-} else {
-registerLOCK:
 	iohtmlBase( cnt, 8 );
 	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-	httpString( cnt, "Error, bad input detected..." );
+
+	httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
+
+	sprintf( COREDIR, "%s/logs/register", sysconfig.directory );
+	if( ( file = fopen( COREDIR, "ab" ) ) ) {
+		fprintf( file, "Register ID %d ( %x )\n", id, id );
+		a = time(0);
+		strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
+		fprintf( file, "Time %s\n", timebuf );
+		fprintf( file, "Name %s;\n", name );
+		fprintf( file, "Password %s;\n", pass );
+		fprintf( file, "Faction %s;\n", faction );
+		if( (cnt->connection)->addr->sa_family == AF_INET )
+			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+		strcpy(timebuf, iohtmlHeaderFind( cnt, "User-Agent" ) );
+		for(i=0;i<strlen(timebuf);i++) {
+			if(timebuf[i] == ';')
+				timebuf[i] = ',';
+		}
+		fprintf( file, "User Agent: %s;\n", timebuf );
+		//fprintf( file, "Cookie %s;;\n", iohttp->cookie );
+		fprintf(file, "ID : %d ( %X );\n\n\n", id, id);
+		fclose( file );
+	}
+
+} else if(  ( id = iohtmlIdentify( cnt, 0 ) ) < 0  ) {
+	iohtmlBase( cnt, 8 );
+	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
+	httpString( cnt, "Bad input detected... Strange, this shoulden't be able to happen!" );
 	goto iohtmlFunc_register2L0;
+} else {
+	iohtmlBase( cnt, 8 );
+	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 }
 
- httpString( cnt, "<form action=\"register3\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>" );
- httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
- httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - <a href=\"races\" target=\"_blank\">See races</a><br><select name=\"race\">" );
- for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ )
-  httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRaceName[a] );
- httpString( cnt, "</select><br><br>" );
+httpString( cnt, "<form action=\"register3\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>" );
+httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
+httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - <a href=\"races\" target=\"_blank\">See races</a><br><select name=\"race\">" );
+	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ )
+		httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRaceName[a] );
+httpString( cnt, "</select><br><br>" );
 
- httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
+httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
 
- httpString( cnt, "<br><br><a href=\"rankings?typ=1\" target=\"_blank\">See empire rankings</a>" );
- httpString( cnt, "<br><a href=\"rankings\" target=\"_blank\">See faction rankings</a>" );
+httpString( cnt, "<br><br><a href=\"rankings?typ=1\" target=\"_blank\">See empire rankings</a>" );
+httpString( cnt, "<br><a href=\"rankings\" target=\"_blank\">See faction rankings</a>" );
 
- iohtmlFunc_register2L0:
- iohtmlFunc_endhtml( cnt );
+iohtmlFunc_register2L0:
+iohtmlFunc_endhtml( cnt );
 
- return;
+
+return;
 }
 
 
@@ -703,50 +708,57 @@ registerLOCK:
 void iohtmlFunc_register3( ReplyDataPtr cnt )
 {
  int a, id, raceid;
-
+ char *empire;
+ char *fampass;
+ char *race;
+ 
  iohtmlBase( cnt, 8 );
  if( ( id = iohtmlIdentify( cnt, 1|4 ) ) < 0 )
   return;
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
+ race = iohtmlVarsFind( cnt, "race" );
+ empire = iohtmlVarsFind( cnt, "empire" );
+ fampass = iohtmlVarsFind( cnt, "fampass" );
 
- if( ( ((cnt->session)->uinfo).empire ) && ( ((cnt->session)->uinfo).race ) )
- {
-  for( a = 0 ; a < 31 ; a++ )
-  {
-   if( ( ((cnt->session)->uinfo).fampass[a] == 10 ) || ( ((cnt->session)->uinfo).fampass[a] == 13 ) )
-    break;
-  }
+if( race ) {
+	if( fampass ) {
+		for( a = 0 ; a < 31 ; a++ ) {
+			if( ( fampass[a] == 10 ) || ( fampass[a] == 13 ) )
+				break;
+		}
+	}
+	if( !( empire ) || ( empire[0] == 0 ) )
+		a = -1;
+	else if( empire[0] == '#' )
+		sscanf( &empire[1], "%d", &a );
+	else
+		sscanf( empire, "%d", &a );
+  
+	sscanf( race, "%d", &raceid );
 
-		if( ((cnt->session)->uinfo).empire[0] == 0 )
-  	a = -1;
-  else if( ((cnt->session)->uinfo).empire[0] == '#' )
-   sscanf( &((cnt->session)->uinfo).empire[1], "%d", &a );
-  else
-   sscanf( ((cnt->session)->uinfo).empire, "%d", &a );
-  sscanf( ((cnt->session)->uinfo).race, "%d", &raceid );
+	if( cmdExecNewUserEmpire( id, a, fampass, raceid, (cnt->dbuser)->level ) < 0 ) {
+   		if( cmdErrorString )
+   			httpString( cnt, cmdErrorString );
+   		else
+    			httpString( cnt, "Error encountered while registering user" );
+   		httpString( cnt, "<br><br><a href=\"/register2\">Try again</a>" );
+   		goto iohtmlFunc_register3L0;
+  	}
+	httpPrintf( cnt, "<b>Account activated!</b><br>" );
+	httpString( cnt, "<br><br><br><a href=\"/main\">Log in</a>" );
+	iohtmlFunc_endhtml( cnt );
+	return;
+} else {
+	httpString( cnt, "Incorrect query, strange... this really shoulden't happen!" );
+}
 
-  if( cmdExecNewUserEmpire( id, a, ((cnt->session)->uinfo).fampass, raceid, (cnt->dbuser)->level ) < 0 )
-  {
-   if( cmdErrorString )
-    httpString( cnt, cmdErrorString );
-   else
-    httpString( cnt, "Error encountered while registering user" );
-   httpString( cnt, "<br><br><a href=\"/register2\">Try again</a>" );
-   goto iohtmlFunc_register3L0;
-  }
-  httpPrintf( cnt, "<b>Account activated!</b><br>" );
-  httpString( cnt, "<br><br><br><a href=\"/main\">Log in</a>" );
+iohtmlFunc_register3L0:
+httpString( cnt, "<br><br><a href=\"/\">Main page</a><br><br><a href=\"/login\">Log in</a>" );
 iohtmlFunc_endhtml( cnt );
-  return;
- }
- else
-  httpString( cnt, "Incorrect query!" );
 
- iohtmlFunc_register3L0:
- httpString( cnt, "<br><br><a href=\"/\">Main page</a><br><br><a href=\"/login\">Log in</a>" );
-iohtmlFunc_endhtml( cnt );
- return;
+
+return;
 }
 
 void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
@@ -1087,6 +1099,29 @@ void iohtmlFunc_gettingstarted( ReplyDataPtr cnt ) {
 
 iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_GSTART );
+
+
+/*
+httpString( cnt, "<h1>Upload</h1>\n" );
+httpString( cnt, "<form method=\"POST\" enctype=\"multipart/form-data\" action=\"/\">\n" );
+httpString( cnt, "<dl><dt>Content type:</dt><dd>" );
+httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"books\">Book</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"images\">Image</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"music\">Music</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"software\">Software</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"videos\">Videos</input>\n" );
+httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"other\" checked>Other</input></dd>" );
+httpString( cnt, "<dt>Language:</dt><dd>" );
+httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"no-lang\" checked>none</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"en\">English</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"de\">German</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"fr\">French</input>" );
+httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"es\">Spanish</input></dd>\n" );
+httpString( cnt, "<dt>File:</dt><dd>" );
+httpString( cnt, "<input type=\"file\" name=\"upload\"/></dd></dl>" );
+httpString( cnt, "<input type=\"submit\" value=\"Send!\"/>\n" );
+httpString( cnt, "</form>\n" );
+*/
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 

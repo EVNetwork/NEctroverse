@@ -96,11 +96,11 @@ void iohttpFunc_research( svConnectionPtr cnt );
 
 void iohttpFunc_mail( svConnectionPtr cnt );
 
-void iohttpFunc_rankings( svConnectionPtr cnt ); //done
-
 void iohttpFunc_search( svConnectionPtr cnt );
 
 
+
+//New Section
 void iohtmlFunc_main( ReplyDataPtr cnt );
 
 void iohtmlFunc_menu( ReplyDataPtr cnt );

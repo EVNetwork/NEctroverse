@@ -5,15 +5,17 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
  char *name, *pass;
  char rtpass[128];
  int session[4];
- FILE *file;
+ FILE *file = NULL;
  char timebuf[256];
  char COREDIR[256];
  int64_t *newsp, *newsd;
  dbUserInfoDef infod;
-
- name = ((cnt->session)->uinfo).name;
- pass = ((cnt->session)->uinfo).password;
  
+ name = iohtmlVarsFind( cnt, "name" );
+ pass = iohtmlVarsFind( cnt, "pass" );
+
+ if( ( name ) && ( pass ) )
+ {
  sprintf( COREDIR, "%s/logs/login", sysconfig.directory );
  if( ( file = fopen( COREDIR, "ab" ) ) )
  {
@@ -34,9 +36,7 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
   fprintf( file, "User Agent: %s;\n", timebuf );
   //fprintf( file, "Cookie: %s;\n", iohttp->cookie );
  }
-
- if( ( name ) && ( pass ) )
- {
+ 
   for( a = 0 ; name[a] ; a++ )
   {
    if( name[a] == '+' )
@@ -133,7 +133,12 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    iohtmlFunc_endhtml( cnt );
    return;
   }
-
+ if( file )
+ {
+  fprintf( file, "ID : %d ( %x )\n\n\n", id, id );
+  fclose( file );
+  file = 0;
+ }
  }
  else
  {
@@ -141,12 +146,6 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    goto iohtmlFunc_mainL0;
  }
 
- if( file )
- {
-  fprintf( file, "ID : %d ( %x )\n\n\n", id, id );
-  fclose( file );
-  file = 0;
- }
 
  httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"images/favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
  httpString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );

@@ -34,7 +34,7 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
         if( cmdErrorString )
           httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
         else
-          httpString( cnt, "<i>Error encountered while changing faction name/i><br><br>" );
+          httpString( cnt, "<i>Error encountered while changing faction name</i><br><br>" );
       }
       else
       {
@@ -57,7 +57,10 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
   {
       iohttpForumFilter( description, desc, 4096, 0 );
       iohttpForumFilter2( infod.desc, description, 4096 );
-      dbUserInfoSet( id, &infod );
+      if( dbUserInfoSet( id, &infod ) )
+      	httpString( cnt, "<i>Description Updated</i><br><br>" );
+      else
+      	httpString( cnt, "<i>Error encountered while changing Description</i><br><br>" );
   }
 
   httpString( cnt, "<table border=\"0\"><tr><td>" );

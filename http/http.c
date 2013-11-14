@@ -220,8 +220,8 @@ if( ( pname ) && strcmp( pname, "login" ) == false  ) {
 	iohtmlFunc_front( &rd, NULL );
 }
 
-response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
-add_session_cookie(session, response);
+response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_PERSISTENT);
+//add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
 	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
 		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
@@ -253,8 +253,8 @@ rd.response.off = 0;
 
 pages[id].function( &rd );
 
-response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
-add_session_cookie(session, response);
+response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_PERSISTENT);
+//add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
 	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
 		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
@@ -282,7 +282,7 @@ static int file_page( int id, const void *cls, const char *mime, SessionPtr sess
 	else
 		fd = -1;
 	if (-1 == fd) {
-		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE);
+		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
 		add_session_cookie(session, response);
 		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
 		MHD_destroy_response (response);
@@ -304,11 +304,11 @@ static int file_page( int id, const void *cls, const char *mime, SessionPtr sess
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filename );
 
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
-	add_session_cookie(session, response);
+	//add_session_cookie(session, response);
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 	MHD_destroy_response (response);
 
-	return ret;
+return ret;
 }
 
 /**
@@ -356,6 +356,36 @@ PageDef pages[] =
   };
 
 
+/**
+ * Append the 'size' bytes from 'data' to '*ret', adding
+ * 0-termination.  If '*ret' is NULL, allocate an empty string first.
+ *
+ * @param ret string to update, NULL or 0-terminated
+ * @param data data to append
+ * @param size number of bytes in 'data'
+ * @return MHD_NO on allocation failure, MHD_YES on success
+ */
+int do_append (char **ret, const char *data, size_t size) {
+	char *buf;
+	size_t old_len;
+
+if (NULL == *ret) {
+	old_len = 0;
+} else {
+	old_len = strlen (*ret);
+}
+buf = malloc (old_len + size + 1);
+if (NULL == buf)
+	return MHD_NO;
+memcpy (buf, *ret, old_len);
+if (NULL != *ret)
+	free (*ret);
+memcpy (&buf[old_len], data, size);
+buf[old_len + size] = '\0';
+*ret = buf;
+
+return MHD_YES;
+}
 
 /**
  * Iterator over key-value pairs where the value
@@ -364,7 +394,7 @@ PageDef pages[] =
  * POST data.
  *
  * @param cls user-specified closure
- * @param kind type of the value
+ * @param kind type of the value, always MHD_POSTDATA_KIND when called from MHD
  * @param key 0-terminated key for the value
  * @param filename name of the uploaded file, NULL if not known
  * @param content_type mime-type of the data, NULL if not known
@@ -376,76 +406,93 @@ PageDef pages[] =
  * @return MHD_YES to continue iterating,
  *         MHD_NO to abort the iteration
  */
-static int
-post_iterator (void *cls,
-	       enum MHD_ValueKind kind,
-	       const char *key,
-	       const char *filename,
-	       const char *content_type,
-	       const char *transfer_encoding,
-	       const char *data, uint64_t off, size_t size)
-{
-  RequestPtr request = cls;
-  SessionPtr session = request->session;
+ 
+static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
+	RequestPtr uc = cls;
+//	char **value;
+	int i;
+	
+if (0 == strcmp (key, "category"))
+	return do_append (&uc->category, data, size);
+if (0 == strcmp (key, "language"))
+	return do_append (&uc->language, data, size);
 
-  if (0 == strcmp ("name", key))
-    {
-      if (size + off > sizeof((session->uinfo).name))
-	size = sizeof ((session->uinfo).name) - off;
-      memcpy (&(session->uinfo).name[off], data, size);
-      if (size + off < sizeof ((session->uinfo).name))
-	(session->uinfo).name[size+off] = '\0';
-      return MHD_YES;
-    }
-  if (0 == strcmp ("pass", key))
-    {
-      if (size + off > sizeof((session->uinfo).password))
-	size = sizeof ((session->uinfo).password) - off;
-      memcpy (&(session->uinfo).password[off], data, size);
-      if (size + off < sizeof ((session->uinfo).password))
-	(session->uinfo).password[size+off] = '\0';
-      return MHD_YES;
-    }
-  if (0 == strcmp ("faction", key))
-    {
-      if (size + off > sizeof((session->uinfo).faction))
-	size = sizeof ((session->uinfo).faction) - off;
-      memcpy (&(session->uinfo).faction[off], data, size);
-      if (size + off < sizeof ((session->uinfo).faction))
-	(session->uinfo).faction[size+off] = '\0';
-      return MHD_YES;
-    }
-  if (0 == strcmp ("fampass", key))
-    {
-      if (size + off > sizeof((session->uinfo).fampass))
-	size = sizeof ((session->uinfo).fampass) - off;
-      memcpy (&(session->uinfo).fampass[off], data, size);
-      if (size + off < sizeof ((session->uinfo).fampass))
-	(session->uinfo).fampass[size+off] = '\0';
-      return MHD_YES;
-    }
-  if (0 == strcmp ("race", key))
-    {
-      if (size + off > sizeof((session->uinfo).fampass))
-	size = sizeof ((session->uinfo).fampass) - off;
-      memcpy (&(session->uinfo).fampass[off], data, size);
-      if (size + off < sizeof ((session->uinfo).fampass))
-	(session->uinfo).fampass[size+off] = '\0';
-      return MHD_YES;
-    }
-  if (0 == strcmp ("empire", key))
-    {
-      if (size + off > sizeof((session->uinfo).fampass))
-	size = sizeof ((session->uinfo).fampass) - off;
-      memcpy (&(session->uinfo).fampass[off], data, size);
-      if (size + off < sizeof ((session->uinfo).fampass))
-	(session->uinfo).fampass[size+off] = '\0';
-      return MHD_YES;
-    }
-  loghandle(LOG_ERR, FALSE, "Unsupported form value \'%s\'", key);
-  return MHD_YES;
+if( ( uc->fd == -1 ) && (0 != strcmp (key, "upload") ) ) {
+	if( ( data ) && ( strlen(data) ) ) {
+		//loghandle(LOG_INFO, FALSE, "Converting form value \'%s\'", key );
+		strcpy( (uc->session)->key[(uc->session)->posts], key );
+		strcpy( (uc->session)->value[(uc->session)->posts], data );
+		(uc->session)->posts++;
+
+/*	value = malloc( (uc->requests).num * sizeof(*value) );
+	
+	for( a = 0; a < (uc->requests).num; a++ ) {
+		if( ( data ) && ( strcmp(data,"") ) ) {
+			strcpy( value[a], data);
+		}
+	}
+	free( value );
+*/
+	} else if ( strlen(data) )
+		loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
+	
+	return MHD_YES;
+}
+if (NULL == filename) {
+	loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
+	return MHD_NO;
+}
+if ( (NULL == uc->category) || (NULL == uc->language) ) {
+	loghandle(LOG_ERR, FALSE, "Missing form data for upload: \'%s\'", filename);
+	uc->response = request_refused_response;
+	return MHD_NO;
+}
+if (-1 == uc->fd) {
+	char fn[PATH_MAX];
+	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
+		uc->response = request_refused_response;
+		return MHD_NO;
+	}
+	(void) mkdir (uc->language, S_IRWXU);
+	snprintf (fn, sizeof (fn), "%s/%s", uc->language, uc->category);
+	(void) mkdir (fn, S_IRWXU);
+
+	snprintf (fn, sizeof (fn),"%s/%s/%s", uc->language, uc->category, filename);
+	for (i=strlen (fn)-1;i>=0;i--) { 
+		if( !isprint( (int)fn[i] ) ){
+			fn[i] = '_';
+		}
+	}
+	uc->fd = open (fn, O_CREAT | O_EXCL
+#if O_LARGEFILE
+		     | O_LARGEFILE
+#endif
+		     | O_WRONLY,S_IRUSR | S_IWUSR);
+
+	if (-1 == uc->fd) {
+		loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
+		uc->response = request_refused_response;
+		return MHD_NO;
+	}
+	uc->filename = strdup (fn);
 }
 
+if ( (0 != size) && (size != write (uc->fd, data, size)) ) {
+	loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
+	uc->response = internal_error_response;
+	close (uc->fd);
+	uc->fd = -1;
+	if (NULL != uc->filename) {
+		unlink (uc->filename);
+		free (uc->filename);
+		uc->filename = NULL;
+	}
+	return MHD_NO;
+}
+
+
+return MHD_YES;
+}
 
 /**
  * Main MHD callback for handling requests.
@@ -486,7 +533,7 @@ int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, c
 {
   MHD_ResponsePtr response;
   RequestPtr request;
-  SessionPtr session;
+//  SessionPtr session;
   int ret, fd;
   unsigned int i;
   bool local;
@@ -562,7 +609,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	return ret;
 }
 //end images
-
+/*
   request = *ptr;
   if (NULL == request)
     {
@@ -616,12 +663,73 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
       if (NULL != request->post_url)
 	url = request->post_url;
     }
+*/
+  if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) && ( local ) ) )
+    {
+     request = *ptr;
+      if (NULL == request)
+	{
+	  if (NULL == (request = malloc (sizeof (RequestDef))))
+	    return MHD_NO; /* out of memory, close connection */
+//	  if (NULL == (uc->requests = malloc (sizeof (PostGetsDef))))
+//	    return MHD_NO; /* out of memory, close connection */
+	  memset (request, 0, sizeof (RequestDef));
+	  request->session = get_session(connection);
+	  request->session->start = time(NULL);
+      	  request->session->posts = 0;
+	  request->post_url = url;
+          request->fd = -1;
+	  request->connection = connection;
+	  request->pp = MHD_create_post_processor (connection,
+					      64 * 1024 /* buffer size */,
+					      &process_upload_data, request);
+	  if (NULL == request->pp)
+	    {
+	      /* out of memory, close connection */
+	      free (request);
+	      return MHD_NO;
+	    }
+	  *ptr = request;
+	  return MHD_YES;
+	}     
+      if (0 != *upload_data_size)
+	{
+	  if (NULL == request->response)
+	    (void) MHD_post_process (request->pp, 
+				     upload_data,
+				     *upload_data_size);
+	  *upload_data_size = 0;
+	  return MHD_YES;
+	}
+      /* end of upload, finish it! */
+      MHD_destroy_post_processor (request->pp);
+      request->pp = NULL;
+      if (-1 != request->fd)
+	{
+	  close (request->fd);
+	  request->fd = -1;
+	}
+      if (NULL != request->response)
+	{
+	  return MHD_queue_response (connection, 
+				     MHD_HTTP_FORBIDDEN, 
+				     request->response);
+} else {
+	i=0;
+	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
+		i++;
+	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, request->session, request->connection );
+	if (ret != MHD_YES)
+		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", request->post_url);
+	return ret;
+	}
+}
 
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
 		i++;
-	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
+	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, get_session(connection), connection );
 	if (ret != MHD_YES)
 		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", url);
 	return ret;
@@ -635,127 +743,6 @@ MHD_destroy_response (response);
 
 return ret;
 }
-
-
-/**
- * Append the 'size' bytes from 'data' to '*ret', adding
- * 0-termination.  If '*ret' is NULL, allocate an empty string first.
- *
- * @param ret string to update, NULL or 0-terminated
- * @param data data to append
- * @param size number of bytes in 'data'
- * @return MHD_NO on allocation failure, MHD_YES on success
- */
-static int do_append (char **ret, const char *data, size_t size) {
-	char *buf;
-	size_t old_len;
-
-if (NULL == *ret) {
-	old_len = 0;
-} else {
-	old_len = strlen (*ret);
-}
-buf = malloc (old_len + size + 1);
-if (NULL == buf)
-	return MHD_NO;
-memcpy (buf, *ret, old_len);
-if (NULL != *ret)
-	free (*ret);
-memcpy (&buf[old_len], data, size);
-buf[old_len + size] = '\0';
-*ret = buf;
-
-return MHD_YES;
-}
-
-/**
- * Iterator over key-value pairs where the value
- * maybe made available in increments and/or may
- * not be zero-terminated.  Used for processing
- * POST data.
- *
- * @param cls user-specified closure
- * @param kind type of the value, always MHD_POSTDATA_KIND when called from MHD
- * @param key 0-terminated key for the value
- * @param filename name of the uploaded file, NULL if not known
- * @param content_type mime-type of the data, NULL if not known
- * @param transfer_encoding encoding of the data, NULL if not known
- * @param data pointer to size bytes of data at the
- *              specified offset
- * @param off offset of data in the overall value
- * @param size number of bytes in data available
- * @return MHD_YES to continue iterating,
- *         MHD_NO to abort the iteration
- */
-static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
-	RequestPtr uc = cls;
-	int i;
-
-if (0 == strcmp (key, "category"))
-	return do_append (&uc->category, data, size);
-if (0 == strcmp (key, "language"))
-	return do_append (&uc->language, data, size);
-
-if (0 != strcmp (key, "upload")) {
-	loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
-	return MHD_YES;
-}
-if (NULL == filename) {
-	loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
-	return MHD_NO;
-}
-if ( (NULL == uc->category) || (NULL == uc->language) ) {
-	loghandle(LOG_ERR, FALSE, "Missing form data for upload: \'%s\'", filename);
-	uc->response = request_refused_response;
-	return MHD_NO;
-}
-if (-1 == uc->fd) {
-	char fn[PATH_MAX];
-	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
-		uc->response = request_refused_response;
-		return MHD_NO;
-	}
-	(void) mkdir (uc->language, S_IRWXU);
-	snprintf (fn, sizeof (fn), "%s/%s", uc->language, uc->category);
-	(void) mkdir (fn, S_IRWXU);
-
-	snprintf (fn, sizeof (fn),"%s/%s/%s", uc->language, uc->category, filename);
-	for (i=strlen (fn)-1;i>=0;i--) { 
-		if( !isprint( (int)fn[i] ) ){
-			fn[i] = '_';
-		}
-	}
-	uc->fd = open (fn, O_CREAT | O_EXCL
-#if O_LARGEFILE
-		     | O_LARGEFILE
-#endif
-		     | O_WRONLY,S_IRUSR | S_IWUSR);
-
-	if (-1 == uc->fd) {
-		loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
-		uc->response = request_refused_response;
-		return MHD_NO;
-	}
-	uc->filename = strdup (fn);
-}
-
-if ( (0 != size) && (size != write (uc->fd, data, size)) ) {
-	loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
-	uc->response = internal_error_response;
-	close (uc->fd);
-	uc->fd = -1;
-	if (NULL != uc->filename) {
-		unlink (uc->filename);
-		free (uc->filename);
-		uc->filename = NULL;
-	}
-	return MHD_NO;
-}
-
-
-return MHD_YES;
-}
-
 
 /**
  * Function called whenever a request was completed.
@@ -773,13 +760,13 @@ void post_completed_callback (void *cls, MHD_ConnectionPtr connection, void **co
   
 if (NULL == request)
 	return;
-if (NULL != request->session)
-	request->session->rc--;
+/*if (NULL != request->session)
+	request->session->rc--;*/
 if (NULL != request->pp) {
 	MHD_destroy_post_processor(request->pp);
-	//request->pp = NULL;
+	request->pp = NULL;
 }
-/*
+
 if (-1 != request->fd) {
 loghandle(LOG_INFO, FALSE, "%s", "Into file find");
 	(void) close (request->fd);
@@ -793,7 +780,7 @@ if (NULL != request->filename) {
 loghandle(LOG_INFO, FALSE, "%s", "Into file free");
 	free (request->filename);
 }	
-*/
+
 
 free(request);
 }

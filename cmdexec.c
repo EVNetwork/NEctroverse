@@ -462,6 +462,8 @@ int cmdExecChangeName( int id, char *faction )
   dbUserInfoDef infod;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -1;
+  if( dbUserInfoRetrieve( id, &infod ) < 0 )
+    return -1;
   cmdErrorString = 0;
   if( !( cmdCheckName( faction ) ) )
   {
@@ -1854,6 +1856,7 @@ if(order == CMD_FLEET_ORDER_MOVE)
     fleetd.basetime = fleetd.time;
     fleetd.sysid = dbMapFindSystem( x, y );
     if( ( fleetd.sysid < 0 ) || ( dbMapRetrieveSystem( fleetd.sysid, &systemd ) < 0 ) || ( z >= systemd.numplanets ) )
+
     {
       cmdErrorString = "This planet doesn't exist";
       return -3;

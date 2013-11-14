@@ -1,6 +1,7 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+extern size_t initial_allocation;
 /**
  * State we keep for each user/session/browser.
  */
@@ -28,9 +29,19 @@ typedef struct Session
   time_t start;
 
   /**
-   * String submitted via form.
+   * Number of keys. 
    */
-  dbUserSignupDef uinfo;
+  int posts;
+
+  /**
+   * Pointers for keys. 
+   */
+  char key[1024][SERVER_RECV_BUFSIZE];
+  
+  /**
+   * Pointers for values. 
+   */
+  char value[1024][SERVER_RECV_BUFSIZE];
 
 } SessionDef, *SessionPtr;
 
@@ -81,7 +92,13 @@ typedef struct Request
    */
   SessionPtr session;
   
-  /**
+   /**
+   * URL to serve in response to this POST (if this request 
+   * was a 'POST')
+   */
+  const char *post_url;
+
+   /**
    * Post processor we're using to process the upload.
    */
   struct MHD_PostProcessor *pp;
@@ -90,12 +107,6 @@ typedef struct Request
    * Handle to connection that we're processing the upload for.
    */
   MHD_ConnectionPtr connection;
-
-   /**
-   * URL to serve in response to this POST (if this request 
-   * was a 'POST')
-   */
-  const char *post_url;
   
   /**
    * Response to generate, NULL to use directory.
@@ -131,7 +142,6 @@ typedef struct ReplyData
    * was a 'POST')
    */
   MHD_ConnectionPtr connection;
-  
   
   /**
    * Database user Linkage
