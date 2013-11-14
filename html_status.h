@@ -18,10 +18,7 @@ typedef struct {
 	long long unsigned int ststarttime;
 	long unsigned int stvsize;
 	long int strss;
-	int stcmajflt;
-	int stmajflt;
-	int stcminflt;
-	int stminflt;
+	long int threads;
 	float loadavg[0];
 } proginfoDef, *proginfoPtr;
 

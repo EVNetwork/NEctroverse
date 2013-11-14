@@ -48,24 +48,28 @@ if( ( typestring ) && ( refer ) ) {
 		httpPrintf( cnt, "<page>%s</page>", refer  );
 		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
 		if( !strcmp(refer,"status") ) {
-			sprintf(CHECKER,"%lu bytes ( %lu mb )", pinfod.stvsize, pinfod.stvsize >> 20);
+			sprintf(CHECKER,"%lu bytes ( %5.1f mb )", pinfod.stvsize, pinfod.stvsize  / megabyte );
+			httpString( cnt, "<general>" );
+			httpPrintf( cnt, "<servpriority>%ld</servpriority>", pinfod.stpriority );
+			httpPrintf( cnt, "<servthreads>%ld</servthreads>", pinfod.threads );
+			httpString( cnt, "</general>" );
 			httpString( cnt, "<memory>" );
 			httpPrintf( cnt, "<memused>%s</memused>", CHECKER );
 			httpPrintf( cnt, "<memavbytes>%ld bytes</memavbytes>", sysinfod.freeram );
-			httpPrintf( cnt, "<memavmeg>( %ld mb )</memavmeg>", (sysinfod.freeram >> 20) );
+			httpPrintf( cnt, "<memavmeg>( %4.1f mb )</memavmeg>", (sysinfod.freeram  / megabyte ) );
 
 
 			httpPrintf( cnt, "<totalswapbytes>%ld bytes</totalswapbytes>", sysinfod.totalswap );
-			httpPrintf( cnt, "<totalswapmeg>( %ld mb )</totalswapmeg>", (sysinfod.totalswap >> 20) );
+			httpPrintf( cnt, "<totalswapmeg>( %5.1f mb )</totalswapmeg>", (sysinfod.totalswap / megabyte ) );
 
 			httpPrintf( cnt, "<freeswapbytes>%ld bytes</freeswapbytes>", sysinfod.freeswap );
-			httpPrintf( cnt, "<freeswapmeg>( %ld mb )</freeswapmeg>", (sysinfod.freeswap >> 20) );
+			httpPrintf( cnt, "<freeswapmeg>( %5.1f mb )</freeswapmeg>", (sysinfod.freeswap  / megabyte ) );
 
 			httpPrintf( cnt, "<bufferbytes>%ld bytes</bufferbytes>", sysinfod.bufferram );
-			httpPrintf( cnt, "<bufermeg>( %ld mb )</bufermeg>", (sysinfod.bufferram >> 20) );
+			httpPrintf( cnt, "<bufermeg>( %5.1f mb )</bufermeg>", (sysinfod.bufferram  / megabyte ) );
 
 			httpPrintf( cnt, "<sharedbytes>%ld bytes</sharedbytes>", sysinfod.sharedram );
-			httpPrintf( cnt, "<sharedmeg>( %ld mb )</sharedmeg>", (sysinfod.sharedram >> 20) );
+			httpPrintf( cnt, "<sharedmeg>( %5.1f mb )</sharedmeg>", (sysinfod.sharedram  / megabyte ) );
 
 			httpPrintf( cnt, "<timeserver>%s</timeserver>", trimwhitespace( asctime( gettime( time(0),false ) ) ) );
 			httpPrintf( cnt, "<timegmt>%s</timegmt>", trimwhitespace( asctime( gettime( time(0),true ) ) ) );
@@ -73,6 +77,7 @@ if( ( typestring ) && ( refer ) ) {
 			httpPrintf( cnt, "<strss>%lu pages</strss>", pinfod.strss );
 			httpPrintf( cnt, "</memory>" );
 			httpString( cnt, "<cpu>" );
+			httpPrintf( cnt, "<cpuprocs>%d</cpuprocs>", sysinfod.procs );
 			httpPrintf( cnt, "<cpuloads>%f (1 min) - %f (5 mins) - %f (15 mins)</cpuloads>",pinfod.loadavg[0],pinfod.loadavg[1],pinfod.loadavg[2]);
 			httpPrintf( cnt, "<cputotal>%.3f %%</cputotal>", pinfod.userload + pinfod.kernelload );
 			httpPrintf( cnt, "<cpukernel>%.3f %%</cpukernel>", pinfod.kernelload );
@@ -237,6 +242,13 @@ if( refer ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"hqweeks\",week);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqyears\",year);\n" );
 	} else if( !strcmp(refer,"status") ) {
+		httpString( cnt, "\t\tvar hostprocs = getnodevar(xmlhttp.responseXML,\"cpuprocs\");\n" );
+		httpString( cnt, "\t\t\tupdatehtml(\"hostprocs\",hostprocs);\n" );
+		httpString( cnt, "\t\tvar servpriority = getnodevar(xmlhttp.responseXML,\"servpriority\");\n" );
+		httpString( cnt, "\t\t\tupdatehtml(\"servpriority\",servpriority);\n" );
+		httpString( cnt, "\t\tvar servthreads = getnodevar(xmlhttp.responseXML,\"servthreads\");\n" );
+		httpString( cnt, "\t\t\tupdatehtml(\"servthreads\",servthreads);\n" );
+
 		httpString( cnt, "\t\tvar memused = getnodevar(xmlhttp.responseXML,\"memused\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"memused\",memused);\n" );
 		httpString( cnt, "\t\tvar strss = getnodevar(xmlhttp.responseXML,\"strss\");\n" );

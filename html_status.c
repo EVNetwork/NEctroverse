@@ -71,7 +71,7 @@ if( sysinfo(&sinfo) != 0 ) {
 pid = getpid();
 sprintf( fname, "/proc/%d/stat", pid );
 if( ( file = fopen( fname, "r" ) ) ) {
-	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu %*d %*d %ld %*d %*u %*u %llu %lu %ld", &proginfo->stutime, &proginfo->ststime, &proginfo->stpriority, &proginfo->ststarttime, &proginfo->stvsize, &proginfo->strss ) != 6 ) {
+	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu %*d %*d %ld %*d %ld %*u %llu %lu %ld", &proginfo->stutime, &proginfo->ststime, &proginfo->stpriority, &proginfo->threads, &proginfo->ststarttime, &proginfo->stvsize, &proginfo->strss ) != 7 ) {
 	loghandle(LOG_ERR, errno, "%s", "Error getting process stat Info...");
 	}
 	fclose( file );
@@ -117,7 +117,7 @@ iohtmlFunc_boxstart( cnt, addstring);
 httpString( cnt, "<table border=\"0\"><tr><td>" );
 httpString( cnt, "<b>Overall Game Stats</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-httpPrintf( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
+httpString( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
 if( irccfg.bot ) {
 	httpPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
 } else {
@@ -133,12 +133,13 @@ if( ticks.status ) {
 } else {
 	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>Time Frozen!</td></tr>" );
 }
-httpPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td>%ld</td></tr>", pinfod.stpriority );
+httpPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td id=\"servpriority\">%ld</td></tr>", pinfod.stpriority );
+httpPrintf( cnt, "<tr><td>Threads Active</td><td>&nbsp;:&nbsp;</td><td id=\"servthreads\">%ld</td></tr>", pinfod.threads );
 httpString( cnt, "</table><br>" );
 
 httpString( cnt, "<b>Game Server usage ( average )</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-httpPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%lu bytes ( %lu mb )</td></tr>", pinfod.stvsize, pinfod.stvsize >> 20 );
+httpPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%lu bytes ( %5.1f mb )</td></tr>", pinfod.stvsize, pinfod.stvsize  / megabyte  );
 httpPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%ld pages</td></tr>", pinfod.strss );
 httpPrintf( cnt, "<tr><td>Total CPU usage</td><td>&nbsp;:&nbsp;</td><td id=\"cputotal\">%.3f %%</td></tr>", pinfod.userload + pinfod.kernelload );
 httpPrintf( cnt, "<tr><td>In kernel mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpukernel\">%.3f %%</td></tr>", pinfod.kernelload );
@@ -160,6 +161,7 @@ httpPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td id=\"timegm
 httpPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", stustname.sysname, stustname.release );
 httpPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );
 httpPrintf( cnt, "<tr><td>Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"hostuptime\">%s</td></tr>", TimeToString( sysinfod.uptime ) );
+httpPrintf( cnt, "<tr><td>Processes</td><td>&nbsp;:&nbsp;</td><td id=\"hostprocs\">%d</td></tr>", sysinfod.procs );
 httpString( cnt, "</table><br>" );
 
 
@@ -194,16 +196,16 @@ if( cpuinfo.socketcount ) {
 httpString( cnt, "</table><br>" );
 httpString( cnt, "<b>System RAM infomation</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-httpPrintf( cnt, "<tr><td>Total memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\">( %ld mb )</td></tr>", sysinfod.totalram, (sysinfod.totalram >> 20) );
-httpPrintf( cnt, "<tr><td>Avalible memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"memavbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"memavmeg\">( %ld mb )</td></tr>", sysinfod.freeram, (sysinfod.freeram >> 20) );
+httpPrintf( cnt, "<tr><td>Total memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\">( %5.1f mb )</td></tr>", sysinfod.totalram, (sysinfod.totalram  / megabyte ) );
+httpPrintf( cnt, "<tr><td>Avalible memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"memavbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"memavmeg\">( %5.1f mb )</td></tr>", sysinfod.freeram, (sysinfod.freeram  / megabyte ) );
 if( (sysinfod.totalswap) > 0 ) {
-	httpPrintf( cnt, "<tr><td>Total Swap</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"totalswapbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"totalswapmeg\">( %ld mb )</td></tr>", sysinfod.totalswap, (sysinfod.totalswap >> 20) );
-	httpPrintf( cnt, "<tr><td>Free Swap</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"freeswapbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"freeswapmeg\">( %ld mb )</td></tr>", sysinfod.freeswap, (sysinfod.freeswap >> 20) );
+	httpPrintf( cnt, "<tr><td>Total Swap</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"totalswapbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"totalswapmeg\">( %5.1f mb )</td></tr>", sysinfod.totalswap, (sysinfod.totalswap  / megabyte ) );
+	httpPrintf( cnt, "<tr><td>Free Swap</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"freeswapbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"freeswapmeg\">( %5.1f mb )</td></tr>", sysinfod.freeswap, (sysinfod.freeswap  / megabyte ) );
 }
 if( (sysinfod.bufferram) > 0 )
-	httpPrintf( cnt, "<tr><td>Buffer Usage</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"bufferbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"bufermeg\">( %ld mb )</td></tr>", sysinfod.bufferram, (sysinfod.bufferram >> 20));
+	httpPrintf( cnt, "<tr><td>Buffer Usage</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"bufferbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"bufermeg\">( %5.1f mb )</td></tr>", sysinfod.bufferram, (sysinfod.bufferram  / megabyte ));
 if( (sysinfod.sharedram) > 0 )
-	httpPrintf( cnt, "<tr><td>Shared Ram</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"sharedbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"sharedmeg\">( %ld mb )</td></tr>", sysinfod.sharedram, (sysinfod.sharedram >> 20) );
+	httpPrintf( cnt, "<tr><td>Shared Ram</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"sharedbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"sharedmeg\">( %5.1f mb )</td></tr>", sysinfod.sharedram, (sysinfod.sharedram  / megabyte ) );
 httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
 iohtmlFunc_boxend( cnt );
