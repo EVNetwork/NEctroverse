@@ -51,7 +51,7 @@ if( ( typestring ) && ( refer ) ) {
 		httpPrintf( cnt, "<page>%s</page>", refer  );
 		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
 		if( !strcmp(refer,"status") ) {
-			sprintf(CHECKER,"%d bytes ( %d mb )", pinfod.stvsize, pinfod.stvsize >> 20);
+			sprintf(CHECKER,"%lu bytes ( %lu mb )", pinfod.stvsize, pinfod.stvsize >> 20);
 			httpString( cnt, "<memory>" );
 			httpPrintf( cnt, "<memused>%s</memused>", CHECKER );
 			httpPrintf( cnt, "<memavbytes>%ld bytes</memavbytes>", sysinfod.freeram );
@@ -73,7 +73,7 @@ if( ( typestring ) && ( refer ) ) {
 			httpPrintf( cnt, "<timeserver>%s</timeserver>", trimwhitespace( asctime( gettime( time(0),false ) ) ) );
 			httpPrintf( cnt, "<timegmt>%s</timegmt>", trimwhitespace( asctime( gettime( time(0),true ) ) ) );
 			
-			httpPrintf( cnt, "<strss>%d pages</strss>", pinfod.strss );
+			httpPrintf( cnt, "<strss>%lu pages</strss>", pinfod.strss );
 			httpPrintf( cnt, "</memory>" );
 			httpString( cnt, "<cpu>" );
 			httpPrintf( cnt, "<cpuloads>%f (1 min) - %f (5 mins) - %f (15 mins)</cpuloads>",pinfod.loadavg[0],pinfod.loadavg[1],pinfod.loadavg[2]);

@@ -36,12 +36,12 @@ typedef struct Session
   /**
    * Pointers for keys. 
    */
-  char key[1024][SERVER_RECV_BUFSIZE];
+  char key[6][512];
   
   /**
    * Pointers for values. 
    */
-  char value[1024][SERVER_RECV_BUFSIZE];
+  char value[6][512];
 
 } SessionDef, *SessionPtr;
 

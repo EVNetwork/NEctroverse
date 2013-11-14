@@ -12,12 +12,12 @@ typedef struct {
 	float runtime;
 	float userload;
 	float kernelload;
-	int stutime;
-	int ststime;
-	int stpriority;
-	int ststarttime;
-	int stvsize;
-	int strss;
+	long unsigned int stutime;
+	long unsigned int ststime;
+	long int stpriority;
+	long long unsigned int ststarttime;
+	long unsigned int stvsize;
+	long int strss;
 	int stcmajflt;
 	int stmajflt;
 	int stcminflt;

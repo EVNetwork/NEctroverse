@@ -65,7 +65,7 @@ void getsys_infos( proginfoDef *proginfo, struct sysinfo sinfo ) {
 pid = getpid();
 sprintf( fname, "/proc/%d/stat", pid );
 if( ( file = fopen( fname, "r" ) ) ) {
-	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %u %u %u %u %d %d %*d %*d %d %*d %*u %*u %u %u %u", &proginfo->stcminflt, &proginfo->stminflt, &proginfo->stmajflt, &proginfo->stcmajflt, &proginfo->stutime, &proginfo->ststime, &proginfo->stpriority, &proginfo->ststarttime, &proginfo->stvsize, &proginfo->strss ) != 10 ) {
+	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu %*d %*d %ld %*d %*u %*u %llu %lu %ld", &proginfo->stutime, &proginfo->ststime, &proginfo->stpriority, &proginfo->ststarttime, &proginfo->stvsize, &proginfo->strss ) != 6 ) {
 	loghandle(LOG_ERR, errno, "%s", "Error getting process stat Info...");
 	}
 	fclose( file );
@@ -128,13 +128,13 @@ if( ticks.status ) {
 } else {
 	svSendPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>Time Frozen!</td></tr>" );
 }
-svSendPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", pinfod.stpriority );
+svSendPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td>%ld</td></tr>", pinfod.stpriority );
 svSendString( cnt, "</table><br>" );
 
 svSendString( cnt, "<b>Game Server usage ( average )</b><br>" );
 svSendString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-svSendPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%d bytes ( %d mb )</td></tr>", pinfod.stvsize, pinfod.stvsize >> 20 );
-svSendPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%d pages</td></tr>", pinfod.strss );
+svSendPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%lu bytes ( %lu mb )</td></tr>", pinfod.stvsize, pinfod.stvsize >> 20 );
+svSendPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%ld pages</td></tr>", pinfod.strss );
 svSendPrintf( cnt, "<tr><td>Total CPU usage</td><td>&nbsp;:&nbsp;</td><td id=\"cputotal\">%.3f %%</td></tr>", pinfod.userload + pinfod.kernelload );
 svSendPrintf( cnt, "<tr><td>In kernel mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpukernel\">%.3f %%</td></tr>", pinfod.kernelload );
 svSendPrintf( cnt, "<tr><td>In user mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpuuser\">%.3f %%</td></tr>", pinfod.userload );
@@ -256,13 +256,13 @@ if( ticks.status ) {
 } else {
 	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>Time Frozen!</td></tr>" );
 }
-httpPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", pinfod.stpriority );
+httpPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td>%ld</td></tr>", pinfod.stpriority );
 httpString( cnt, "</table><br>" );
 
 httpString( cnt, "<b>Game Server usage ( average )</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
-httpPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%d bytes ( %d mb )</td></tr>", pinfod.stvsize, pinfod.stvsize >> 20 );
-httpPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%d pages</td></tr>", pinfod.strss );
+httpPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%lu bytes ( %lu mb )</td></tr>", pinfod.stvsize, pinfod.stvsize >> 20 );
+httpPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%ld pages</td></tr>", pinfod.strss );
 httpPrintf( cnt, "<tr><td>Total CPU usage</td><td>&nbsp;:&nbsp;</td><td id=\"cputotal\">%.3f %%</td></tr>", pinfod.userload + pinfod.kernelload );
 httpPrintf( cnt, "<tr><td>In kernel mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpukernel\">%.3f %%</td></tr>", pinfod.kernelload );
 httpPrintf( cnt, "<tr><td>In user mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpuuser\">%.3f %%</td></tr>", pinfod.userload );

@@ -533,7 +533,7 @@ int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, c
 {
   MHD_ResponsePtr response;
   RequestPtr request;
-//  SessionPtr session;
+  SessionPtr session;
   int ret, fd;
   unsigned int i;
   bool local;
@@ -664,9 +664,9 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	url = request->post_url;
     }
 */
+  request = *ptr;
   if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) && ( local ) ) )
     {
-     request = *ptr;
       if (NULL == request)
 	{
 	  if (NULL == (request = malloc (sizeof (RequestDef))))
@@ -675,6 +675,10 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 //	    return MHD_NO; /* out of memory, close connection */
 	  memset (request, 0, sizeof (RequestDef));
 	  request->session = get_session(connection);
+	  if (NULL == request->session) {
+	  fprintf (stderr, "Failed to setup session for `%s'\n", url);
+	  return MHD_NO; /* internal error */
+	}
 	  request->session->start = time(NULL);
       	  request->session->posts = 0;
 	  request->post_url = url;
@@ -725,11 +729,19 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	}
 }
 
+if( ( request ) && ( request->session ) )
+	session = request->session;
+else {
+	session = get_session(connection);
+}
+
+session->start = time(NULL);
+
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
 		i++;
-	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, get_session(connection), connection );
+	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
 	if (ret != MHD_YES)
 		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", url);
 	return ret;
@@ -760,8 +772,8 @@ void post_completed_callback (void *cls, MHD_ConnectionPtr connection, void **co
   
 if (NULL == request)
 	return;
-/*if (NULL != request->session)
-	request->session->rc--;*/
+if (NULL != request->session)
+	request->session->rc--;
 if (NULL != request->pp) {
 	MHD_destroy_post_processor(request->pp);
 	request->pp = NULL;
