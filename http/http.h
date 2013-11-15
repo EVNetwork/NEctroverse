@@ -221,6 +221,7 @@ extern void mark_as( MHD_ResponsePtr response, const char *type );
 
 extern size_t initial_allocation;
 
+extern int set_postvalue(char **ret, const char *data, size_t size);
 extern void expire_sessions ();
 
 extern int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);

@@ -2,12 +2,12 @@
 
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
 	int a;
-	char *value;	
-
+	char *value;
 
 for( a = 0; a < (cnt->session)->posts; a++ ) {
-	if( strcmp( id, (cnt->session)->key[a] ) == 0 ) {
+	if( ( (cnt->session)->key[a] ) && ( strcmp( id, (cnt->session)->key[a] ) == 0 ) ) {
 		value = (cnt->session)->value[a];
+		(cnt->session)->key[a] = NULL;
 		(cnt->session)->value[a] = NULL;
 		return value;
 	}

@@ -2600,6 +2600,7 @@ if( typestring ) {
 	evote = strcmp(typestring,"eleader") ? false : true;
 }
 
+
 iohtmlBodyInit( cnt, "%s votes", evote ? "Empire" : ( "Unavalible" ) );
 
 if( evote ) {
