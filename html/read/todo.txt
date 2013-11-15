@@ -1,4 +1,2 @@
-<b>--UPGRADE TO HTTP/1.1 IN PROGRESS--</b>
 Finish Empire Polotics. -- Utalises to Empire Fund.
-More Automatic "SpiceUp" -- Such as these pages
 Upgrade the admin/mod interface -- Oh this is long overdue!

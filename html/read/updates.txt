@@ -1,3 +1,7 @@
+15 November 2013
+Well, that was epic... The server has now been upgraded to full HTTP/1.1 support.
+Hopefully you will all see it paying off with improved load/responce times =)
+
 12 November 2013
 <center><i>All Function development placed on hold, Alpha stage postponed.
 Upgrade from HTTP/1.0 to HTTP/1.1 in progress. Nothing changes untill this is finished.<br>
