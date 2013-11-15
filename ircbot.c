@@ -170,9 +170,7 @@ if( !( strcmp(sub,"status") ) ){
 		irccfg.bot = true;
 		ircbot_connect();
 	} else {
-		ircbot_send("NOTICE %s :Administration has requested IRC Bot shutdown!", irccfg.channel);
-		ircbot_send("PRIVMSG %s :Good bye all, untill next time! =)", irccfg.channel);
-		ircbot_send("QUIT");
+		ircbot_send("QUIT :Administration has requested IRC Bot shutdown!");
 		if( close( options.botconn ) == -1 ) {
 			loghandle(LOG_ERR, errno, "Error %03d, closing ircbot socket", errno);
 		}

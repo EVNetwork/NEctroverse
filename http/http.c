@@ -68,7 +68,7 @@ static MHD_ResponsePtr internal_error_response;
 /**
  * Response returned for '/' (GET) to list the contents of the directory and allow upload.
  */
-//static MHD_ResponsePtr cached_directory_response;
+static MHD_ResponsePtr cached_directory_response;
 
 /**
  * Response returned for refused uploads.
@@ -93,6 +93,35 @@ void mark_as( MHD_ResponsePtr response, const char *type ) {
 
 return;
 }
+/**
+ * Mark the given response as HTML for the brower.
+ *
+ * @param response response to mark
+ */
+static void
+mark_as_html (struct MHD_Response *response)
+{
+  (void) MHD_add_response_header (response,
+				  MHD_HTTP_HEADER_CONTENT_TYPE,
+				  "text/html");
+}
+/**
+ * Head of index page.
+ */
+#define UPLOAD_DIR_PAGE_HEADER "<html>\n<head><title>Welcome</title></head>\n<body>\n"\
+   "<h1>Upload</h1>\n"\
+   "<form method=\"POST\" enctype=\"multipart/form-data\" action=\"/files\">\n"\
+   "<dt>File:</dt><dd>"\
+   "<input type=\"file\" name=\"upload\"/></dd></dl>"\
+   "<input type=\"submit\" value=\"Send!\"/>\n"\
+   "</form>\n"\
+   "<h1>Download</h1>\n"\
+   "<ol>\n"
+
+/**
+ * Footer of index page.
+ */
+#define UPLOAD_DIR_PAGE_FOOTER "</ol>\n</body>\n</html>"
 
 
 
@@ -191,30 +220,130 @@ fclose (file);
 
 }
 
-static void dir_free_callback( void *cls ) {
-	DIR *dir = cls;
 
-if (dir != NULL)
-	closedir (dir);
-	
-}
+/**
+ * Replace the existing 'cached_directory_response' with the
+ * given response.
+ *
+ * @param response new directory response
+ */
+void update_cached_response(MHD_ResponsePtr response) {
 
-static ssize_t dir_reader( void *cls, uint64_t pos, char *buf, size_t max ) {
-	DIR *dir = cls;
-	struct dirent *e;
+(void) pthread_mutex_lock (&mutex);
 
-if (max < 512) 
-	return 0;
-do {
-	e = readdir (dir);
-	if (e == NULL)
-		return MHD_CONTENT_READER_END_OF_STREAM;
-} while (e->d_name[0] == '.');
+if (NULL != cached_directory_response)
+	MHD_destroy_response (cached_directory_response);
+cached_directory_response = response;
 
-return snprintf (buf, max, "<a href=\"/files/%s\">%s</a><br>", e->d_name, e->d_name);
+(void) pthread_mutex_unlock (&mutex);
 
 }
 
+
+static int list_directory( ResponseDataPtr rdc, const char *dirname ) {
+	char fullname[PATH_MAX];
+	struct stat sbuf;
+	struct dirent *de;
+	DIR *dir;
+
+if (NULL == (dir = opendir (dirname)))
+	return MHD_NO;      
+
+while (NULL != (de = readdir (dir))) {
+	if ('.' == de->d_name[0])
+		continue;
+	if( sizeof (fullname) <= snprintf (fullname, sizeof (fullname), "%s/%s", dirname, de->d_name) )
+		continue;
+	if (0 != stat (fullname, &sbuf))
+		continue;
+	if (! S_ISREG (sbuf.st_mode))
+		continue;
+	if (rdc->off + 1024 > rdc->buf_len) {
+			void *r;
+		if ( (2 * rdc->buf_len + 1024) < rdc->buf_len)
+			    break; /* more than SIZE_T _index_ size? Too big for us */
+		rdc->buf_len = 2 * rdc->buf_len + 1024;
+		if( NULL == ( r = realloc(rdc->buf, rdc->buf_len) ) )
+			break; /* out of memory */
+		rdc->buf = r;
+	}
+	rdc->off += snprintf (&rdc->buf[rdc->off], rdc->buf_len - rdc->off, "<li><a href=\"files/%s\">%s</a></li>\n", de->d_name, de->d_name );
+}
+(void)closedir( dir );
+
+return MHD_YES;
+}
+
+
+/**
+ * Re-scan our local directory and re-build the index.
+ */
+static void update_directory () {
+  MHD_ResponsePtr response;
+  ResponseDataDef rdc;
+  char dir_name[128];
+  struct stat sbuf;
+
+  rdc.buf_len = initial_allocation; 
+  if (NULL == (rdc.buf = malloc (rdc.buf_len)))
+    {
+      update_cached_response (NULL);
+      return; 
+    }
+  rdc.off = snprintf (rdc.buf, rdc.buf_len,
+		      "%s",
+		      UPLOAD_DIR_PAGE_HEADER);
+
+	  snprintf (dir_name, sizeof (dir_name), "%s/uploads", sysconfig.directory);
+	  if( 0 == stat (dir_name, &sbuf) ) {
+	  
+	  if (MHD_NO == list_directory (&rdc, dir_name))
+	    {
+	      free (rdc.buf);
+	      update_cached_response (NULL);
+	      return;
+	    }
+	}
+  /* we ensured always +1k room, filenames are ~256 bytes,
+     so there is always still enough space for the footer 
+     without need for a final reallocation check. */
+  rdc.off += snprintf (&rdc.buf[rdc.off], rdc.buf_len - rdc.off,
+		       "%s",
+		       UPLOAD_DIR_PAGE_FOOTER);
+  initial_allocation = rdc.buf_len; /* remember for next time */
+  response = MHD_create_response_from_buffer (rdc.off,
+					      rdc.buf,
+					      MHD_RESPMEM_MUST_FREE);
+  mark_as_html (response);
+  (void) MHD_add_response_header (response,
+				  MHD_HTTP_HEADER_CONNECTION,
+				  "close");
+  update_cached_response (response);
+}
+
+
+
+/**
+ * Return the current directory listing.
+ * 
+ * @param connection connection to return the directory for
+ * @return MHD_YES on success, MHD_NO on error
+ */
+static int return_directory_response( MHD_ConnectionPtr connection ) {
+	int ret;
+
+(void) pthread_mutex_lock( &mutex );
+
+if (NULL == cached_directory_response)
+	ret = MHD_queue_response( connection, MHD_HTTP_INTERNAL_SERVER_ERROR,  internal_error_response );
+else
+	ret = MHD_queue_response( connection, MHD_HTTP_OK, cached_directory_response );
+
+(void)pthread_mutex_unlock( &mutex );
+
+
+return ret;
+}
 
 /**
  * Handler used to generate a 404 reply.
@@ -238,14 +367,15 @@ return ret;
 }
 
 int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
-  struct MHD_Response *response;
   int ret;
-  FILE *file;
-  DIR *dir;
+  char dmsg[512];
   struct stat buf;
-  char emsg[1024], dmsg[512];
+  MHD_ResponsePtr response;
+  FILE *file;
 
 
+
+  
 snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", sysconfig.directory, &connection->url[7] );
 if( (0 == stat (dmsg, &buf)) && (S_ISREG (buf.st_mode)) ) {
 	file = fopen (dmsg, "rb");
@@ -253,26 +383,9 @@ if( (0 == stat (dmsg, &buf)) && (S_ISREG (buf.st_mode)) ) {
 	file = NULL;
 }
    
-if (file == NULL) {
-	snprintf (dmsg, sizeof (dmsg), "%s/uploads", sysconfig.directory );
-	dir = opendir (dmsg);
-	if (dir == NULL) {
-		/* most likely cause: more concurrent requests than  available file descriptors / 2 */
-		snprintf(emsg, sizeof (emsg), "Failed to open directory \"%s\": %s\n", dmsg,  strerror (errno) );
-		response = MHD_create_response_from_buffer (strlen (emsg), emsg, MHD_RESPMEM_MUST_COPY);
-		if (response == NULL)
-			return MHD_NO;	    
-		ret = MHD_queue_response (connection, MHD_HTTP_SERVICE_UNAVAILABLE, response);
-		MHD_destroy_response (response);
-	} else {
-		response = MHD_create_response_from_callback (MHD_SIZE_UNKNOWN, 32 * 1024, &dir_reader, dir, &dir_free_callback);
-		if (response == NULL) {
-			closedir (dir);
-		return MHD_NO;
-		}
-	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-	MHD_destroy_response (response);
-	}
+if (file == NULL) { 
+	update_directory ();
+	ret = return_directory_response (connection);
 } else {
 	response = MHD_create_response_from_callback (buf.st_size, 32 * 1024, &file_read, file, &file_free_callback);
 	if (response == NULL) {
@@ -688,6 +801,9 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL != request->response) {
 		return MHD_queue_response (connection, MHD_HTTP_FORBIDDEN, request->response);
 	} else {
+		if ( ( strncmp(request->post_url,"/files",6) == false ) ) {
+			return files_dir_page( false, cls, "text/html", request->session, request->connection);
+		}
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
