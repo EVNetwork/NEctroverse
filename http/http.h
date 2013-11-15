@@ -67,6 +67,11 @@ typedef struct Session
    * We keep all sessions in a linked list.
    */
   struct Session *next;
+ 
+   /**
+   * Database user Linkage
+   */
+  dbUserPtr dbuser;
 
 } SessionDef, *SessionPtr;
 
@@ -157,11 +162,6 @@ typedef struct ReplyData
    * was a 'POST')
    */
   MHD_ConnectionPtr connection;
-
-  /**
-   * Database user Linkage
-   */
-  dbUserPtr dbuser;
 
 } ReplyDataDef, *ReplyDataPtr;
 

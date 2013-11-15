@@ -61,7 +61,7 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    goto iohtmlFunc_mainL0;
 
 
-  if( dbSessionSet( cnt->dbuser, saltgen(), session ) < 0 )
+  if( dbSessionSet( (cnt->session)->dbuser, saltgen(), session ) < 0 )
    goto iohtmlFunc_mainL0;
 
   iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", id, session[0], session[1], session[2], session[3] );
@@ -77,14 +77,14 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
   memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
   dbUserInfoSet( id, &infod );
 
-  if( ( file ) && ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
+  if( ( file ) && ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
   {
    fprintf( file, "ID : %d ( %x ) deactivated\n\n\n", id, id );
    fclose( file );
    file = 0;
   }
 
-  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_KILLED] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_KILLED] )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
@@ -101,14 +101,14 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
     free( newsp );
    goto iohtmlFunc_mainL1;
   }
-  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_DELETED] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_DELETED] )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
    httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
    goto iohtmlFunc_mainL1;
   }
-  if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_NEWROUND] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_NEWROUND] )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
@@ -116,18 +116,18 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    goto iohtmlFunc_mainL1;
   }
 
-  if( !( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
+  if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
    httpString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
    iohtmlFunc_mainL1:
    httpString( cnt, "<a href=\"forum\">Public Forums</a>" );
-   if(cnt->dbuser)
+   if((cnt->session)->dbuser)
    {
-	   if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
+	   if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
 	    httpString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
-	   if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
+	   if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
 	    httpString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
 	  }
    iohtmlFunc_endhtml( cnt );
@@ -218,11 +218,11 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
  httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
 
- if( cnt->dbuser )
+ if( (cnt->session)->dbuser )
  {
-  if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
+  if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
    httpString( cnt, "<br><a href=\"moderator\" target=\"main\">Moderator panel</a>" );
-  if( (cnt->dbuser)->level >= LEVEL_ADMINISTRATOR )
+  if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
    httpString( cnt, "<br><a href=\"administration\" target=\"_top\">Admin panel</a>" );
  }
 
@@ -673,7 +673,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMSPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMSPEND ) )
  {
   httpPrintf( cnt, "Your psychics are casting <b>%s</b> on ", cmdPsychicopName[(long long)newsd[7]] );
-  if( (long long)newsd[3] == (cnt->dbuser)->id )
+  if( (long long)newsd[3] == ((cnt->session)->dbuser)->id )
    httpPrintf( cnt, "your faction.<br>" );
   else
   {
@@ -681,7 +681,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.<br>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
    else
     httpPrintf( cnt, "an unknown faction.<br>" );
-   if( ( (long long)newsd[3] != (cnt->dbuser)->id ) && ( user ) )
+   if( ( (long long)newsd[3] != ((cnt->session)->dbuser)->id ) && ( user ) )
    {
     if( (long long)newsd[5] == -1 )
      httpPrintf( cnt, "<i>Your psychics successfully stayed undiscovered while performing the spell.</i><br>" );
@@ -794,7 +794,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
     httpPrintf( cnt, "<i>No artefact was felt in the area.</i><br>" );
 
 
-   if( dbUserMainRetrieve( (cnt->dbuser)->id, &maind ) < 0 )
+   if( dbUserMainRetrieve( ((cnt->session)->dbuser)->id, &maind ) < 0 )
    	return;
   }
   else if( (long long)newsd[2] == CMD_NEWS_INSURVEY )
@@ -1342,7 +1342,7 @@ void iohtmlFunc_hq( ReplyDataPtr cnt )
 
 if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
 	httpString( cnt, "Error retriving Empire details!" );
-	if( cnt->dbuser->level < LEVEL_MODERATOR )
+	if( (cnt->session)->dbuser->level < LEVEL_MODERATOR )
 		return;
 }
 
@@ -1359,7 +1359,7 @@ if( ticks.status ) {
 	httpString( cnt, "Time frozen<br>" );
 }
 
- httpPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", cnt->dbuser->name, maind.faction );
+ httpPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", (cnt->session)->dbuser->name, maind.faction );
 
  httpPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
  httpString( cnt, "<td align=\"center\">" );
@@ -2246,13 +2246,13 @@ if ( curfam == maind.empire ) {
   httpPrintf( cnt, "</a></td><td><a href=\"races\">%s</a></td><td>%d</td><td>%lld</td><td>", cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
   nAlly = cmdExecFindRelation(maind.empire, curfam, 0, 0);
 
-  if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || (nAlly == CMD_RELATION_ALLY) || ( ( cnt->dbuser ) && ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) ) )
+  if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || (nAlly == CMD_RELATION_ALLY) || ( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) ) )
   {
 
    b = curtime - user->lasttime;
    if( b < 5*60 )
     httpString( cnt, "[online]" );
-   else if( ( cnt->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_COMMINISTER] ) ) || ( cnt->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( ( (cnt->session)->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_COMMINISTER] ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
@@ -2274,8 +2274,8 @@ if ( curfam == maind.empire ) {
 
 }
  httpString( cnt, "</table><br>" );
-if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( cnt->dbuser ) && ( (cnt->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
-	if( ( (cnt->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( (cnt->dbuser)->level >= LEVEL_MODERATOR ) ) {
+if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
+	if( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
 		if( empired.taxation ) {
 			httpPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
@@ -2296,7 +2296,7 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( cnt->dbuser )
 
  if( empired.artefacts )
  {
- 	if( ( id >= 0 ) && ( ( curfam == maind.empire ) || ( ( cnt->dbuser ) && ( cnt->dbuser->level >= LEVEL_MODERATOR ) ) ) )
+ 	if( ( id >= 0 ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) ) )
    c = ARTEFACT_NUMUSED;
   else
   {
@@ -2697,9 +2697,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   sscanf( empirestring, "%d", &curfam );
   a = cmdExecFindRelation( maind.empire, curfam, 0, 0 );
-  if( ( a != CMD_RELATION_ALLY ) && ( cnt->dbuser->level < LEVEL_MODERATOR ) )
+  if( ( a != CMD_RELATION_ALLY ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
    curfam = maind.empire;
-  if(cnt->dbuser->level >= LEVEL_MODERATOR)
+  if((cnt->session)->dbuser->level >= LEVEL_MODERATOR)
  	{
 		sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
  		fFile = fopen( COREDIR, "a+t" );
@@ -2751,7 +2751,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  	nEmp = atoi(empirestring);
  else
  	nEmp = -1;
- if(( ( cnt->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )|| ( cmdExecFindRelation(maind.empire, nEmp, &c, 0) == CMD_RELATION_ALLY))
+ if(( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )|| ( cmdExecFindRelation(maind.empire, nEmp, &c, 0) == CMD_RELATION_ALLY))
   sscanf( empirestring, "%d", &curfam );
 
 	if( ( dbMapRetrieveEmpire( curfam, &empired ) ) < 0 )
@@ -2846,7 +2846,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   relsmesstring = iohtmlVarsFind( cnt, "relsmes" );
 
  curfam = maind.empire;
- if( ( cnt->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )
+ if( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )
   sscanf( empirestring, "%d", &curfam );
 
  if( dbMapRetrieveEmpire( curfam, &empired ) < 0 )
@@ -2854,7 +2854,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpString( cnt, "This empire does not seem to exist!</body></html>" );
   return;
  }
- if( ( empired.leader != id ) && ( cnt->dbuser->level < LEVEL_MODERATOR ) )
+ if( ( empired.leader != id ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
  {
   httpString( cnt, "You are not the leader of this empire!</body></html>" );
   return;
@@ -6872,9 +6872,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 	  a = 0;
 	  if(id != -1 )
 	  {
-	  	if(cnt->dbuser)
+	  	if((cnt->session)->dbuser)
   		{
-		  	if((cnt->dbuser)->level >= LEVEL_MODERATOR )
+		  	if(((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
 		   		a = 1;
 		  }
 	  }
@@ -6912,7 +6912,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 				else
 				{
 			  (maild.mail).authorid = id;
-			  sprintf( (maild.mail).authorname, "%s", (cnt->dbuser)->faction );
+			  sprintf( (maild.mail).authorname, "%s", ((cnt->session)->dbuser)->faction );
 			  (maild.mail).authorempire = maind.empire;
 			  (maild.mail).time = time( 0 );
 			  (maild.mail).tick = ticks.number;
@@ -7049,7 +7049,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    if( ( text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) )
    {
     a = 0;
-    if(cnt->dbuser)
+    if((cnt->session)->dbuser)
     {
     	if(id != -1 )
      	a = 1;

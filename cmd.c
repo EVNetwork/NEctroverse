@@ -1174,9 +1174,9 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
   {
     if( cmd[1] < 0 )
       return -2;
-    if( !( cnt->dbuser ) )
+    if( !( (cnt->session)->dbuser ) )
       return -3;
-    if( ( cnt->dbuser->id != cmd[1] ) && ( cnt->dbuser->level < LEVEL_ADMINISTRATOR ) )
+    if( ( (cnt->session)->dbuser->id != cmd[1] ) && ( (cnt->session)->dbuser->level < LEVEL_ADMINISTRATOR ) )
       return -3;
     return cmdUserDelete( cmd[1] );
   }

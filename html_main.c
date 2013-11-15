@@ -31,7 +31,7 @@ id = iohttpIdentifyHex( src );
 if( dbUserHttpLinkDatabase( cnt, id ) < 0 )
 	goto iohtmlIdentifyL0;
 
-if( dbSessionRetrieve( cnt->dbuser, session ) < 0 )
+if( dbSessionRetrieve( (cnt->session)->dbuser, session ) < 0 )
 	goto iohtmlIdentifyL0;
 
 for( a = 0 ; a < 4 ; a++ ) {
@@ -41,8 +41,8 @@ for( a = 0 ; a < 4 ; a++ ) {
 		goto iohtmlIdentifyL0;
 }
 
-if(( action & 2 )&&(cnt->dbuser)) {
-	if( !( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( (cnt->dbuser)->level < LEVEL_MODERATOR ) ) {
+if(( action & 2 )&&((cnt->session)->dbuser)) {
+	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
 			if( action & 8 )
 			iohtmlBase( cnt, 1|2 );
@@ -53,7 +53,7 @@ if(( action & 2 )&&(cnt->dbuser)) {
 }
 
 if( action & 4 ) {
-	if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) {
+	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) {
 		if( action & 1 ) {
 			if( action & 8 )
 				iohtmlBase( cnt, 1|2 );
@@ -414,7 +414,7 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 		loghandle(LOG_ERR, false, "%s", "Error sending registration email" );
 
 
-	if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, saltgen(), session ) < 0 ) ) {
+	if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, saltgen(), session ) < 0 ) ) {
 		iohtmlBase( cnt, 8 );
 		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 		httpString( cnt, "Error encountered while registering session" );
@@ -513,7 +513,7 @@ if( race ) {
   
 	sscanf( race, "%d", &raceid );
 
-	if( cmdExecNewUserEmpire( id, a, fampass, raceid, (cnt->dbuser)->level ) < 0 ) {
+	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
    		if( cmdErrorString )
    			httpString( cnt, cmdErrorString );
    		else
@@ -686,7 +686,7 @@ httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 if( (id < 0) || ( len > 0 ) ) {
 	httpString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
 } else {
-	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", cnt->dbuser->name );
+	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", (cnt->session)->dbuser->name );
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a>" );
 	httpString( cnt, "<br>" );

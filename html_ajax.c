@@ -44,7 +44,7 @@ if( ( typestring ) && ( refer ) ) {
 	//Begin XML generation, we only make one request now... so we have to structure carefully!
 	if( !strcmp(typestring,"ticker") ) {
 		//Send basic tick info, and check if user is loged in.
-		httpPrintf( cnt, "<pass>%d</pass>", ( id != -1 ) ? ( ( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) ? true : false ) : false );
+		httpPrintf( cnt, "<pass>%d</pass>", ( id != -1 ) ? ( ( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) ? true : false ) : false );
 		httpPrintf( cnt, "<page>%s</page>", refer  );
 		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
 		if( !strcmp(refer,"status") ) {

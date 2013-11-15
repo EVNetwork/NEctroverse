@@ -64,7 +64,7 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
   }
 
   httpString( cnt, "<table border=\"0\"><tr><td>" );
-  httpPrintf( cnt, "User name : <b>%s</b><br>", (cnt->dbuser)->name );
+  httpPrintf( cnt, "User name : <b>%s</b><br>", ((cnt->session)->dbuser)->name );
   httpPrintf( cnt, "Faction name : <b>%s</b><br>", maind.faction );
   httpPrintf( cnt, "Faction race : <b>%s</b><br>", cmdRaceName[maind.raceid] );
   httpPrintf( cnt, "Forum tag : <b>%s</b><br>", infod.forumtag );

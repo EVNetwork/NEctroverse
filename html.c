@@ -36,7 +36,7 @@ void iohttpFunc_Approve( ReplyDataPtr cnt )
 
 	if((( id = iohtmlIdentify( cnt, 0 ) ) >= 0 ) && (cnt != NULL))
  {
- 	if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
+ 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
  		nAllow ++;
  }
 

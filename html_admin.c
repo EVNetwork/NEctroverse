@@ -5,7 +5,7 @@ void iohtmlFunc_adminframe( ReplyDataPtr cnt )
   int id;
   if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     return;
-  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
+  if( ((cnt->session)->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto denied;
   httpPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
   httpString( cnt, "<frame src=\"adminmenu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
@@ -28,7 +28,7 @@ void iohtmlFunc_adminmenu( ReplyDataPtr cnt )
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  if( dbUserMainRetrieve( id, &maind ) < 0 )
-  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
+  if( ((cnt->session)->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto denied;
 
  httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"images/i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"images/i18.jpg\" width=\"150\"></td></tr><tr><td background=\"images/i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
@@ -93,7 +93,7 @@ iohtmlBase( cnt, 1 );
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 	return;
-if( (cnt->dbuser)->level < LEVEL_FORUMMOD ) {
+if( ((cnt->session)->dbuser)->level < LEVEL_FORUMMOD ) {
     httpString( cnt, "This account does not have adminitrator privileges" );
     httpString( cnt, "</center></body></html>" );
     return;
@@ -209,7 +209,7 @@ void iohtmlFunc_moderator( ReplyDataPtr cnt )
   iohtmlBase( cnt, 1 );
   if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     return;
-  if( (cnt->dbuser)->level < LEVEL_MODERATOR )
+  if( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR )
   {
     httpString( cnt, "This account does not have moderator privileges" );
     httpString( cnt, "</center></body></html>" );
@@ -467,7 +467,7 @@ sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
       goto iohtmlFunc_moderatorL0;
     if( !( user = dbUserLinkID( actionid ) ) )
       goto iohtmlFunc_moderatorL0;
-    if( ( user->level >= (cnt->dbuser)->level ) && ( id != actionid ) )
+    if( ( user->level >= ((cnt->session)->dbuser)->level ) && ( id != actionid ) )
     {
       httpString( cnt, "Permission denied<br><br>" );
       goto iohtmlFunc_moderatorL1;
@@ -950,7 +950,7 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
 
   if( ( id = iohtmlIdentify( cnt, 0 ) ) < 0 )
     goto iohtmlFunc_admin_mainL0;
-  if( (cnt->dbuser)->level < LEVEL_ADMINISTRATOR )
+  if( ((cnt->session)->dbuser)->level < LEVEL_ADMINISTRATOR )
     goto iohtmlFunc_admin_mainL0;
 
   action[0] = iohtmlVarsFind( cnt, "reloadfiles" );

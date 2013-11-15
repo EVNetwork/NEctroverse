@@ -964,14 +964,14 @@ int dbUserHttpLinkDatabase( void *cnt, int id ) {
 	ReplyDataPtr cnt2 = cnt;
 
 if( id < 0 ) {
-	cnt2->dbuser = 0;
+	(cnt2->session)->dbuser = 0;
 	return 1;
 }
 
 if( !( user = dbUserLinkID( id ) ) )
 	return -2;
 
-cnt2->dbuser = user;
+(cnt2->session)->dbuser = user;
 user->lasttime = time( 0 );
 
 return 1;
@@ -2638,6 +2638,7 @@ if ( empired->numplayers == 1) {
 */
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
+
 fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
 
 return 1;

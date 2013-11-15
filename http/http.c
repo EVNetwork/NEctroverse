@@ -55,6 +55,10 @@ char *cmdUploadState[4] = {
 size_t initial_allocation = 256 * 1024;
 
 
+
+static size_t dir_buf_allocation = 256 * 1024;
+
+
 /**
  * Response returned if the requested file does not exist (or is not accessible).
  */
@@ -116,6 +120,8 @@ mark_as_html (struct MHD_Response *response)
  * Footer of index page.
  */
 #define UPLOAD_DIR_PAGE_FOOTER "</ol>\n</body>\n</html>"
+
+#define FILE_EXISTS_ERROR "File already exists"
 
 
 
@@ -225,11 +231,18 @@ cached_directory_response = response;
 }
 
 
-static int list_directory( ResponseDataPtr rdc, const char *dirname ) {
+static int list_directory( ReplyDataPtr rd, const char *dirname ) {
 	char fullname[PATH_MAX];
+	bool local;
 	struct stat sbuf;
 	struct dirent *de;
 	DIR *dir;
+
+if( ( iohtmlHeaderFind(rd, "Referer") ) && ( strncmp( ( strrchr(iohtmlHeaderFind(rd, "Referer"),'/') ) ,"/test",5) == false ) ) {
+	local = true;
+} else {
+   	local = false;
+}
 
 if (NULL == (dir = opendir (dirname)))
 	return MHD_NO;      
@@ -243,16 +256,16 @@ while (NULL != (de = readdir (dir))) {
 		continue;
 	if (! S_ISREG (sbuf.st_mode))
 		continue;
-	if (rdc->off + 1024 > rdc->buf_len) {
+	if (rd->response.off + 1024 > rd->response.buf_len) {
 			void *r;
-		if ( (2 * rdc->buf_len + 1024) < rdc->buf_len)
+		if ( (2 * rd->response.buf_len + 1024) < rd->response.buf_len)
 			    break; /* more than SIZE_T _index_ size? Too big for us */
-		rdc->buf_len = 2 * rdc->buf_len + 1024;
-		if( NULL == ( r = realloc(rdc->buf, rdc->buf_len) ) )
+		rd->response.buf_len = 2 * rd->response.buf_len + 1024;
+		if( NULL == ( r = realloc(rd->response.buf, rd->response.buf_len) ) )
 			break; /* out of memory */
-		rdc->buf = r;
+		rd->response.buf = r;
 	}
-	rdc->off += snprintf (&rdc->buf[rdc->off], rdc->buf_len - rdc->off, "<li><a href=\"files/%s\">%s</a></li>\n", de->d_name, de->d_name );
+	rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "<li><a href=\"%s%s\">%s</a></li>\n",( local ? "files/" : "" ), de->d_name, de->d_name );
 }
 (void)closedir( dir );
 
@@ -263,47 +276,39 @@ return MHD_YES;
 /**
  * Re-scan our local directory and re-build the index.
  */
-static void update_directory () {
-  MHD_ResponsePtr response;
-  ResponseDataDef rdc;
-  char dir_name[128];
-  struct stat sbuf;
+static void update_directory( MHD_ConnectionPtr connection ) {
+	MHD_ResponsePtr response;
+	ReplyDataDef rd;
+	char dir_name[128];
+	struct stat sbuf;
 
-  rdc.buf_len = initial_allocation; 
-  if (NULL == (rdc.buf = malloc (rdc.buf_len)))
-    {
-      update_cached_response (NULL);
-      return; 
-    }
-  rdc.off = snprintf (rdc.buf, rdc.buf_len,
-		      "%s",
-		      UPLOAD_DIR_PAGE_HEADER);
+rd.connection = connection;
 
-	  snprintf (dir_name, sizeof (dir_name), "%s/uploads", sysconfig.directory);
-	  if( 0 == stat (dir_name, &sbuf) ) {
-	  
-	  if (MHD_NO == list_directory (&rdc, dir_name))
-	    {
-	      free (rdc.buf);
-	      update_cached_response (NULL);
-	      return;
-	    }
+
+rd.response.buf_len = dir_buf_allocation; 
+if( NULL == ( rd.response.buf = malloc(rd.response.buf_len) ) ) {
+	update_cached_response (NULL);
+	return; 
+}
+rd.response.off = snprintf (rd.response.buf, rd.response.buf_len, "%s", UPLOAD_DIR_PAGE_HEADER );
+
+snprintf (dir_name, sizeof (dir_name), "%s/uploads", sysconfig.directory);
+if( 0 == stat (dir_name, &sbuf) ) {  
+	if (MHD_NO == list_directory (&rd, dir_name)) {
+		free (rd.response.buf);
+		update_cached_response (NULL);
+		return;
 	}
-  /* we ensured always +1k room, filenames are ~256 bytes,
-     so there is always still enough space for the footer 
-     without need for a final reallocation check. */
-  rdc.off += snprintf (&rdc.buf[rdc.off], rdc.buf_len - rdc.off,
-		       "%s",
-		       UPLOAD_DIR_PAGE_FOOTER);
-  initial_allocation = rdc.buf_len; /* remember for next time */
-  response = MHD_create_response_from_buffer (rdc.off,
-					      rdc.buf,
-					      MHD_RESPMEM_MUST_FREE);
-  mark_as_html (response);
-  (void) MHD_add_response_header (response,
-				  MHD_HTTP_HEADER_CONNECTION,
-				  "close");
-  update_cached_response (response);
+}
+
+rd.response.off += snprintf (&rd.response.buf[rd.response.off], rd.response.buf_len - rd.response.off, "%s", UPLOAD_DIR_PAGE_FOOTER );
+dir_buf_allocation = rd.response.buf_len; /* remember for next time */
+response = MHD_create_response_from_buffer (rd.response.off, rd.response.buf, MHD_RESPMEM_MUST_FREE );
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
+mark_as_html (response);
+(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONNECTION, "close");
+
+update_cached_response (response);
 }
 
 
@@ -344,6 +349,7 @@ int not_found_page ( int id, const void *cls, const char *mime, SessionPtr sessi
 
   /* unsupported HTTP method */
 response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( NOT_FOUND_ERROR ) );
 ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
 MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
 MHD_destroy_response (response);
@@ -352,15 +358,12 @@ return ret;
 }
 
 int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
-  int ret;
-  char dmsg[512];
-  struct stat buf;
-  MHD_ResponsePtr response;
-  FILE *file;
+	int ret;
+	char dmsg[512];
+	struct stat buf;
+	MHD_ResponsePtr response;
+	FILE *file;
 
-
-
-  
 snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", sysconfig.directory, &connection->url[7] );
 if( (0 == stat (dmsg, &buf)) && (S_ISREG (buf.st_mode)) ) {
 	file = fopen (dmsg, "rb");
@@ -369,16 +372,16 @@ if( (0 == stat (dmsg, &buf)) && (S_ISREG (buf.st_mode)) ) {
 }
    
 if (file == NULL) { 
-	update_directory ();
-	ret = return_directory_response (connection);
+	update_directory( connection );
+	ret = return_directory_response( connection );
 } else {
-	response = MHD_create_response_from_callback (buf.st_size, 32 * 1024, &file_read, file, &file_free_callback);
+	response = MHD_create_response_from_callback( buf.st_size, 32 * 1024, &file_read, file, &file_free_callback );
 	if (response == NULL) {
 		fclose (file);
 	return MHD_NO;
 	}
-	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-	MHD_destroy_response (response);
+	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
+	MHD_destroy_response( response );
 }
 	
 return ret;
@@ -414,6 +417,7 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
 	}
 }
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
@@ -430,15 +434,13 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 rd.session = session;
 rd.connection = connection;
 rd.cookies.num = 0;
-  /* unsupported HTTP method */
 rd.response.buf_len = initial_allocation;
-if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
+if( NULL == ( rd.response.buf = malloc( rd.response.buf_len ) ) ) {
 	return -1;
 }
 rd.response.off = 0;
 
 pages[id].function( &rd );
-
 response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
@@ -446,6 +448,7 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
 	}
 }
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
@@ -605,6 +608,7 @@ if (-1 == uc->fd) {
 
 	if (-1 == uc->fd) {
 		loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
+		uc->response = request_refused_response;
 		(uc->session)->upload = UPLOAD_STATE_FAIL;
 		return MHD_NO;
 	}
@@ -770,7 +774,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	}
 	if (0 != *upload_data_size) {
 		if (NULL == request->response)
-			(void) MHD_post_process (request->pp, upload_data, *upload_data_size);
+			(void)MHD_post_process( request->pp, upload_data, *upload_data_size );
 		*upload_data_size = 0;
 		return MHD_YES;
 	}
@@ -957,14 +961,17 @@ magic = magic_open(MAGIC_MIME_TYPE);
 #endif
 (void) pthread_mutex_init (&mutex, NULL);
 
-file_not_found_response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+file_not_found_response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *)NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT );
+request_refused_response = MHD_create_response_from_buffer( strlen( METHOD_ERROR ), (void *)METHOD_ERROR, MHD_RESPMEM_PERSISTENT );
+internal_error_response = MHD_create_response_from_buffer( strlen( INTERNAL_ERROR_PAGE ), (void *)INTERNAL_ERROR_PAGE, MHD_RESPMEM_PERSISTENT );
+
 mark_as(file_not_found_response, "text/html" );
-
-request_refused_response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_PERSISTENT);
 mark_as(request_refused_response, "text/html" );
-
-internal_error_response = MHD_create_response_from_buffer (strlen (INTERNAL_ERROR_PAGE), (void *) INTERNAL_ERROR_PAGE, MHD_RESPMEM_PERSISTENT);
 mark_as(internal_error_response, "text/html" );
+
+(void)MHD_add_response_header(request_refused_response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( METHOD_ERROR ) );
+(void)MHD_add_response_header(file_not_found_response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( NOT_FOUND_ERROR ) );
+(void)MHD_add_response_header(internal_error_response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( INTERNAL_ERROR_PAGE ) );
 
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;
