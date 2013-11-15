@@ -12,24 +12,12 @@ typedef struct
 
 
 
-void iohttpFunc_oldadmin( svConnectionPtr cnt );
-void iohttpFunc_moderator( svConnectionPtr cnt );
-
-
-void iohttpFunc_adminframe( svConnectionPtr cnt ); //done
-void iohttpFunc_adminmenu( svConnectionPtr cnt ); //done
-void iohttpFunc_adminforum( svConnectionPtr cnt ); //done
+void iohtmlFunc_oldadmin( ReplyDataPtr cnt );
+void iohtmlFunc_moderator( ReplyDataPtr cnt );
 
 
 
-
-void iohttpAdminForm( svConnectionPtr cnt, char *target ); //done
-void iohttpAdminSubmit( svConnectionPtr cnt, char *name ); //done
-void iohttpAdminInput( svConnectionPtr cnt, adminFormInputPtr inputs ); //done
-
-int iohttpAdminAction( int act );
-
-
+int iohtmlAdminAction( int act );
 
 
 void iohtmlFunc_oldadmin( ReplyDataPtr cnt );

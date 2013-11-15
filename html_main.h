@@ -4,24 +4,6 @@
 
 int iohttpIdentifyHex( char *num ); //no need -- hotlinked
 
-int iohttpIdentify( svConnectionPtr cnt, int action ); //done
-
-void iohttpBase( svConnectionPtr cnt, int flags ); //done
-
-int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp ); //done
-
-void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags ); //done
-
-void iohttpBodyInit( svConnectionPtr cnt, char *title, ... ); //done
-
-void iohttpBodyEnd( svConnectionPtr cnt ); //done
-
-void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ); //done
-
-void iohttpFunc_endhtml( svConnectionPtr cnt ); //done
-
-void iohttpFunc_front( svConnectionPtr cnt, char *text, ... ); //done
-
 
 void iohtmlBase( ReplyDataPtr cnt, int flags );
 int iohtmlIdentify( ReplyDataPtr cnt, int action );

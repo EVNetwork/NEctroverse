@@ -214,7 +214,7 @@ Accessible to user level >= mod
 */
 
 
-int iohttpForumPerms( int id, int forum, svConnectionPtr cnt, dbUserMainPtr maind, int perms )
+int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, int perms )
 {
 	if( perms >= 4 )
 	{
@@ -331,7 +331,7 @@ int iohttpForumCleanIP( char *ipstring )
 
 
 
-void iohttpForum( svConnectionPtr cnt )
+void iohtmlFunc_forum( ReplyDataPtr cnt )
 {
  int a, b, c, d, id, forum, thread, post, action, skip;
  dbUserMainDef maind;
@@ -348,26 +348,24 @@ void iohttpForum( svConnectionPtr cnt )
  char *text;
 	FILE *fFile;
 
-if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
-	iohttpBase( cnt, 1 );
-	if( !( iohttpHeader( cnt, id, &maind ) ) )
+if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
+	iohtmlBase( cnt, 1 );
+	if( !( iohtmlHeader( cnt, id, &maind ) ) )
 		return;
 } else {
-	iohttpBase( cnt, 8 );
-	iohttpFunc_frontmenu( cnt, FMENU_FORUM );
+	iohtmlBase( cnt, 8 );
+	iohtmlFunc_frontmenu( cnt, FMENU_FORUM );
 }
 
- iohttpVarsInit( cnt );
- forumstring = iohttpVarsFind( "forum" );
- threadstring = iohttpVarsFind( "thread" );
- topicstring = iohttpVarsFind( "topic" );
- poststring = iohttpVarsFind( "post" );
- delthreadstring = iohttpVarsFind( "delthread" );
- delpoststring = iohttpVarsFind( "delpost" );
- editpoststring = iohttpVarsFind( "editpost" );
- namestring = iohttpVarsFind( "name" );
- skipstring = iohttpVarsFind( "skip" );
- iohttpVarsCut();
+ forumstring = iohtmlVarsFind( cnt, "forum" );
+ threadstring = iohtmlVarsFind( cnt, "thread" );
+ topicstring = iohtmlVarsFind( cnt, "topic" );
+ poststring = iohtmlVarsFind( cnt, "post" );
+ delthreadstring = iohtmlVarsFind( cnt, "delthread" );
+ delpoststring = iohtmlVarsFind( cnt, "delpost" );
+ editpoststring = iohtmlVarsFind( cnt, "editpost" );
+ namestring = iohtmlVarsFind( cnt, "name" );
+ skipstring = iohtmlVarsFind( cnt, "skip" );
 
  action = 0;
  if( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) )
@@ -408,20 +406,20 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   b = dbForumListForums( 0, &forums );
   if( b < 0 )
   {
-   svSendString( cnt, "Error while retrieving list of forums</center></body></html>" );
+   httpString( cnt, "Error while retrieving list of forums</center></body></html>" );
    return;
   }
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", sysconfig.servername, sysconfig.servername, asctime( gettime(time(0), true) ) );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", sysconfig.servername, sysconfig.servername, asctime( gettime(time(0), true) ) );
   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
-   svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
-  svSendString( cnt, "</td></tr></table>" );
+   httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
+  httpString( cnt, "</td></tr></table>" );
 
-  svSendString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
+  httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
-   svSendPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, asctime( gettime(forums[a].time, true) ), forums[a].tick % 52, forums[a].tick / 52 );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, asctime( gettime(forums[a].time, true) ), forums[a].tick % 52, forums[a].tick / 52 );
   }
-  svSendString( cnt, "</table>" );
+  httpString( cnt, "</table>" );
 
   free( forums );
  }
@@ -432,14 +430,14 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   b = dbForumListThreads( forum, skip, skip+IOHTTP_FORUM_THREADSNUM, &forumd, &threads );
   if( b < 0 )
   {
-   svSendString( cnt, "These threads do not exist!</center></body></html>" );
+   httpString( cnt, "These threads do not exist!</center></body></html>" );
    return;
   }
   if( !( iohttpForumPerms( id, forum, cnt, &maind, forumd.rperms ) ) )
   {
    if( threads )
     free( threads );
-   svSendString( cnt, "You are not authorized to view this forum</center></body></html>" );
+   httpString( cnt, "You are not authorized to view this forum</center></body></html>" );
    return;
   }
   if(cnt->dbuser)
@@ -458,78 +456,78 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 		 	}
 	  	}
 	 }
-		svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forumd.title );
+		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forumd.title );
   if( forum < 100 )
   {
-   svSendString( cnt, asctime( gettime( time(0), true) ) );
+   httpString( cnt, asctime( gettime( time(0), true) ) );
    if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
-    svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
-   svSendString( cnt, "</td></tr></table>" );
+    httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
+   httpString( cnt, "</td></tr></table>" );
   }
   else
-   svSendPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
+   httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
 
   if( forumd.threads > IOHTTP_FORUM_THREADSNUM )
   {
-   svSendString( cnt, "Pages : " );
+   httpString( cnt, "Pages : " );
    for( a = 0, c = 1 ; a < forumd.threads ; a += IOHTTP_FORUM_THREADSNUM, c++ )
    {
     if( skip != a )
-     svSendPrintf( cnt, "<a href=\"forum?forum=%d&skip=%d\">%d</a> ", forum, a, c );
+     httpPrintf( cnt, "<a href=\"forum?forum=%d&skip=%d\">%d</a> ", forum, a, c );
     else
-     svSendPrintf( cnt, "<b>%d</b> ", c );
+     httpPrintf( cnt, "<b>%d</b> ", c );
    }
   }
 
-  svSendString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
+  httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
   	sprintf( timebuf, "%s", asctime( gettime( time(0), true) ) );
    sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
    strcat( timebuf, timetemp);
 
-   svSendPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&thread=%d&last=%d\">%s</a>", forum, threads[a].id, threads[a].time, threads[a].topic );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&thread=%d&last=%d\">%s</a>", forum, threads[a].id, threads[a].time, threads[a].topic );
    if( threads[a].posts > IOHTTP_FORUM_POSTSNUM )
    {
-    svSendString( cnt, " - Pages : " );
+    httpString( cnt, " - Pages : " );
     for( d = 0, c = 1 ; d < threads[a].posts ; d += IOHTTP_FORUM_POSTSNUM, c++ )
-     svSendPrintf( cnt, "<a href=\"forum?forum=%d&thread=%d&skip=%d&last=%d\">%d</a> ", forum, threads[a].id, d, threads[a].time, c );
+     httpPrintf( cnt, "<a href=\"forum?forum=%d&thread=%d&skip=%d&last=%d\">%d</a> ", forum, threads[a].id, d, threads[a].time, c );
    }
-   svSendPrintf( cnt, "</td><td>%d</td><td nowrap>%s</td><td nowrap>%s", threads[a].posts, threads[a].authorname, timebuf );
+   httpPrintf( cnt, "</td><td>%d</td><td nowrap>%s</td><td nowrap>%s", threads[a].posts, threads[a].authorname, timebuf );
 			if(( iohttpForumPerms( id, forum, cnt, &maind, 0 ) )&&(id != -1))
    {
-   	svSendPrintf( cnt, " <a href=\"forum?forum=%d&thread=%d&delthread=1\">Delete</a>", forum, threads[a].id );
+   	httpPrintf( cnt, " <a href=\"forum?forum=%d&thread=%d&delthread=1\">Delete</a>", forum, threads[a].id );
   	}
   	if(cnt->dbuser)
   	{
 	   if(( id != -1 ) && ((((cnt->dbuser)->level >= LEVEL_FORUMMOD))||((cnt->dbuser)->level >= LEVEL_FORUMMOD)))
-	    svSendPrintf( cnt, "<br>IP: %s", inet_ntoa( threads[a].sin_addr ) );
+	    httpPrintf( cnt, "<br>IP: %s", inet_ntoa( threads[a].sin_addr ) );
 	  }
-			svSendString( cnt, "</td></tr>" );
+			httpString( cnt, "</td></tr>" );
   }
-  svSendString( cnt, "</table>" );
+  httpString( cnt, "</table>" );
   if( forumd.threads > IOHTTP_FORUM_THREADSNUM )
   {
-   svSendString( cnt, "Pages : " );
+   httpString( cnt, "Pages : " );
    for( a = 0, c = 1 ; a < forumd.threads ; a += IOHTTP_FORUM_THREADSNUM, c++ )
    {
     if( skip != a )
-     svSendPrintf( cnt, "<a href=\"forum?forum=%d&skip=%d\">%d</a> ", forum, a, c );
+     httpPrintf( cnt, "<a href=\"forum?forum=%d&skip=%d\">%d</a> ", forum, a, c );
     else
-     svSendPrintf( cnt, "<b>%d</b> ", c );
+     httpPrintf( cnt, "<b>%d</b> ", c );
    }
   }
 
   if( iohttpForumPerms( id, forum, cnt, &maind, forumd.wperms ) )
   {
-   svSendPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum );
+   httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum );
    if( id == -1 )
-//    svSendPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+//    httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
    return;
    else
-    svSendPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", (cnt->dbuser)->faction, (cnt->dbuser)->faction );
-   svSendString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
-   svSendString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
+    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", (cnt->dbuser)->faction, (cnt->dbuser)->faction );
+   httpString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
+   httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
   }
 
   if( threads )
@@ -540,13 +538,13 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   iohttpForumL1:
   if( dbForumRetrieveForum( forum, &forumd ) < 0 )
   {
-   svSendString( cnt, "This forum does not exist!</center></body></html>" );
+   httpString( cnt, "This forum does not exist!</center></body></html>" );
    return;
   }
   b = dbForumListPosts( forum, thread, skip, skip+IOHTTP_FORUM_POSTSNUM, &threadd, &posts );
   if( b < 0 )
   {
-   svSendString( cnt, "Error while retrieving list of posts</center></body></html>" );
+   httpString( cnt, "Error while retrieving list of posts</center></body></html>" );
    return;
   }
 
@@ -559,83 +557,83 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
    }
    if( posts )
     free( posts );
-   svSendString( cnt, "You are not authorized to view this forum</center></body></html>" );
+   httpString( cnt, "You are not authorized to view this forum</center></body></html>" );
    return;
   }
 
-  svSendPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forum, forumd.title, threadd.topic );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forum, forumd.title, threadd.topic );
   if( forum < 100 )
   {
-   svSendString( cnt, asctime( gettime( time(0), true) ) );
+   httpString( cnt, asctime( gettime( time(0), true) ) );
    if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
-    svSendPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
-   svSendString( cnt, "</td></tr></table>" );
+    httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
+   httpString( cnt, "</td></tr></table>" );
   }
   else
-   svSendPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
+   httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
 
   if( threadd.posts > IOHTTP_FORUM_POSTSNUM )
   {
-   svSendString( cnt, "Pages : " );
+   httpString( cnt, "Pages : " );
    for( a = 0, c = 1 ; a < threadd.posts ; a += IOHTTP_FORUM_POSTSNUM, c++ )
    {
     if( skip != a )
-     svSendPrintf( cnt, "<a href=\"forum?forum=%d&thread=%d&skip=%d\">%d</a> ", forum, thread, a, c );
+     httpPrintf( cnt, "<a href=\"forum?forum=%d&thread=%d&skip=%d\">%d</a> ", forum, thread, a, c );
     else
-     svSendPrintf( cnt, "<b>%d</b> ", c );
+     httpPrintf( cnt, "<b>%d</b> ", c );
    }
   }
 
-  svSendString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">" );
+  httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">" );
   for( a = 0 ; a < b ; a++ )
   {
    if( !( posts[a].text ) )
     continue;
    c = a + skip;
    if( forum < 100 ) {
-      svSendPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, asctime( gettime( posts[a].post.time, true) ) );
+      httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, asctime( gettime( posts[a].post.time, true) ) );
    } else {
-   svSendPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
+   httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
    if( iohttpForumPerms( id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, (cnt->dbuser)->faction ) ))
-    svSendPrintf( cnt, "<br><a href=\"forum?forum=%d&thread=%d&editpost=%d\">Edit</a> - <a href=\"forum?forum=%d&thread=%d&delpost=%d\">Delete</a>", forum, thread, c, forum, thread, c );
+    httpPrintf( cnt, "<br><a href=\"forum?forum=%d&thread=%d&editpost=%d\">Edit</a> - <a href=\"forum?forum=%d&thread=%d&delpost=%d\">Delete</a>", forum, thread, c, forum, thread, c );
    if(cnt->dbuser)
    {
 	   if( ( id != -1 ) && ( (cnt->dbuser)->level >= LEVEL_MODERATOR ) )
 	   {
-	    svSendPrintf( cnt, "<br>Account: <a href=\"player?id=%d\">%d</a>", posts[a].post.authorid, posts[a].post.authorid );
-	    svSendPrintf( cnt, "<br>IP: %s", inet_ntoa( posts[a].post.sin_addr ) );
+	    httpPrintf( cnt, "<br>Account: <a href=\"player?id=%d\">%d</a>", posts[a].post.authorid, posts[a].post.authorid );
+	    httpPrintf( cnt, "<br>IP: %s", inet_ntoa( posts[a].post.sin_addr ) );
 	   }
 	  }
-   svSendString( cnt, "</td><td valign=\"top\" width=\"90%\" bgcolor=\"#181818\">" );
-   svSendString( cnt, posts[a].text );
-   svSendString( cnt, "</td></tr>" );
+   httpString( cnt, "</td><td valign=\"top\" width=\"90%\" bgcolor=\"#181818\">" );
+   httpString( cnt, posts[a].text );
+   httpString( cnt, "</td></tr>" );
    if( posts[a].text )
     free( posts[a].text );
   }
-  svSendString( cnt, "</table>" );
+  httpString( cnt, "</table>" );
 
   if( threadd.posts > IOHTTP_FORUM_POSTSNUM )
   {
-   svSendString( cnt, "Pages : " );
+   httpString( cnt, "Pages : " );
    for( a = 0, c = 1 ; a < threadd.posts ; a += IOHTTP_FORUM_POSTSNUM, c++ )
    {
     if( skip != a )
-     svSendPrintf( cnt, "<a href=\"forum?forum=%d&thread=%d&skip=%d\">%d</a> ", forum, thread, a, c );
+     httpPrintf( cnt, "<a href=\"forum?forum=%d&thread=%d&skip=%d\">%d</a> ", forum, thread, a, c );
     else
-     svSendPrintf( cnt, "<b>%d</b> ", c );
+     httpPrintf( cnt, "<b>%d</b> ", c );
    }
   }
 
   if( iohttpForumPerms( id, forum, cnt, &maind, forumd.wperms ) )
   {
-   svSendPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum, thread );
+   httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum, thread );
    if( id == -1 )
    return;
-  //  svSendPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+  //  httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
    else
-    svSendPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", (cnt->dbuser)->faction, (cnt->dbuser)->faction );
-   svSendString( cnt, "</td></tr><tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
+    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", (cnt->dbuser)->faction, (cnt->dbuser)->faction );
+   httpString( cnt, "</td></tr><tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
   }
 
   if( posts )
@@ -645,12 +643,12 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  {
   if( dbForumRetrieveForum( forum, &forumd ) < 0 )
   {
-   svSendString( cnt, "This forum does not exist!</center></body></html>" );
+   httpString( cnt, "This forum does not exist!</center></body></html>" );
    return;
   }
   if( !( iohttpForumPerms( id, forum, cnt, &maind, forumd.wperms ) ) )
   {
-   svSendString( cnt, "You are not authorized to post in this forum</center></body></html>" );
+   httpString( cnt, "You are not authorized to post in this forum</center></body></html>" );
    return;
   }
   iohttpForumFilter( threadd.topic, topicstring, DB_FORUM_NAME_SIZE, 0 );
@@ -665,7 +663,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   threadd.time = time( 0 );
   threadd.tick = ticks.number;
   threadd.flags = 0;
-  memcpy( &(threadd.sin_addr), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
+  memcpy( &(threadd.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );
   thread = dbForumAddThread( forum, &threadd );
   goto iohttpForumL0;
  }
@@ -673,12 +671,12 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  {
   if( dbForumRetrieveForum( forum, &forumd ) < 0 )
   {
-   svSendString( cnt, "This forum does not exist!</center></body></html>" );
+   httpString( cnt, "This forum does not exist!</center></body></html>" );
    return;
   }
   if( !( iohttpForumPerms( id, forum, cnt, &maind, forumd.wperms ) ) )
   {
-   svSendString( cnt, "You are not authorized to post in this forum</center></body></html>" );
+   httpString( cnt, "You are not authorized to post in this forum</center></body></html>" );
    return;
   }
 
@@ -688,7 +686,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   {
   	if(threads[thread].flags == DB_FORUM_FLAGS_THREAD_LOCK)
   	{
-  		svSendString( cnt, "Sorry this topic is <b>lock</b> and nothing can happen here" );
+  		httpString( cnt, "Sorry this topic is <b>lock</b> and nothing can happen here" );
    	return;
   	}
   }*/
@@ -697,7 +695,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 
   if( !( postd.text = malloc( 3 * IOHTTP_FORUM_BUFFER ) ) )
   {
-   svSendString( cnt, "</center></body></html>" );
+   httpString( cnt, "</center></body></html>" );
    return;
   }
   a = 0;
@@ -725,12 +723,12 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   postd.post.time = time( 0 );  //to be in GMT with the server running anywhere worldwide
   postd.post.tick = ticks.number;
   postd.post.flags = 0;
-  memcpy( &(postd.post.sin_addr), &(cnt->sockaddr.sin_addr), sizeof(struct in_addr) );
+  memcpy( &(threadd.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );
   a = dbForumAddPost( forum, thread, &postd );
   if( a >= 0 )
-   svSendPrintf( cnt, "Post added!<br><br>" );
+   httpPrintf( cnt, "Post added!<br><br>" );
   else
-   svSendPrintf( cnt, "Error while adding post<br><br>" );
+   httpPrintf( cnt, "Error while adding post<br><br>" );
   free( postd.text );
   goto iohttpForumL1;
  }
@@ -738,15 +736,15 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
  {
   if(( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) ) || (id == -1))
   {
-   svSendString( cnt, "You are not authorized to delete threads here</center></body></html>" );
+   httpString( cnt, "You are not authorized to delete threads here</center></body></html>" );
    return;
   }
   iohttpForumL3:
 
   if( dbForumRemoveThread( forum, thread ) >= 0 )
-   svSendPrintf( cnt, "Thread removed<br><br>" );
+   httpPrintf( cnt, "Thread removed<br><br>" );
   else
-   svSendPrintf( cnt, "Error while removing thread<br><br>" );
+   httpPrintf( cnt, "Error while removing thread<br><br>" );
   goto iohttpForumL2;
  }
  else if( action == 6 )
@@ -754,12 +752,12 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   b = dbForumListPosts( forum, thread, post, post+1, &threadd, &posts );
   if( b < 0 )
   {
-   svSendString( cnt, "This post doesn't exist</center></body></html>" );
+   httpString( cnt, "This post doesn't exist</center></body></html>" );
    return;
   }
   if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, (cnt->dbuser)->faction ) ) ) )
   {
-   svSendString( cnt, "You are not authorized to delete this post</center></body></html>" );
+   httpString( cnt, "You are not authorized to delete this post</center></body></html>" );
    if( posts[0].text )
     free( posts[0].text );
    free( posts );
@@ -773,10 +771,10 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   {
    if( !( a ) )
     goto iohttpForumL3;
-   svSendPrintf( cnt, "Post removed<br><br>" );
+   httpPrintf( cnt, "Post removed<br><br>" );
   }
   else
-   svSendPrintf( cnt, "Error while removing post<br><br>" );
+   httpPrintf( cnt, "Error while removing post<br><br>" );
   goto iohttpForumL1;
  }
  else if( action == 7 )
@@ -784,49 +782,49 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
   b = dbForumListPosts( forum, thread, post, post+1, &threadd, &posts );
   if( b < 0 )
   {
-   svSendString( cnt, "This post doesn't exist</center></body></html>" );
+   httpString( cnt, "This post doesn't exist</center></body></html>" );
    return;
   }
   if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, (cnt->dbuser)->faction ) ) ) )
   {
-   svSendString( cnt, "You are not authorized to edit this post</center></body></html>" );
+   httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
    if( posts[0].text )
     free( posts[0].text );
    free( posts );
    return;
   }
 
-  svSendPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><input type=\"hidden\" name=\"editpost\" value=\"%d\">", forum, thread, post );
-  svSendString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
+  httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><input type=\"hidden\" name=\"editpost\" value=\"%d\">", forum, thread, post );
+  httpString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 
   if( !( text = malloc( 2 * IOHTTP_FORUM_BUFFER ) ) )
   {
    if( posts[0].text )
     free( posts[0].text );
    free( posts );
-   svSendString( cnt, "</center></body></html>" );
+   httpString( cnt, "</center></body></html>" );
    return;
   }
   iohttpForumFilter3( text, posts[0].text, 2*IOHTTP_FORUM_BUFFER - 512 );
-  svSendString( cnt, text );
+  httpString( cnt, text );
 
   if( posts[0].text )
    free( posts[0].text );
   free( posts );
   free( text );
-  svSendString( cnt, "</textarea><br><br><input type=\"submit\" value=\"Post\"></form>" );
+  httpString( cnt, "</textarea><br><br><input type=\"submit\" value=\"Post\"></form>" );
  }
  else if( action == 8 )
  {
   b = dbForumListPosts( forum, thread, post, post+1, &threadd, &posts );
   if( b < 0 )
   {
-   svSendString( cnt, "This post doesn't exist</center></body></html>" );
+   httpString( cnt, "This post doesn't exist</center></body></html>" );
    return;
   }
   if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, (cnt->dbuser)->faction ) ) ) )
   {
-   svSendString( cnt, "You are not authorized to edit this post</center></body></html>" );
+   httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
    if( posts[0].text )
     free( posts[0].text );
    free( posts );
@@ -844,7 +842,7 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 
   if( !( postd.text = malloc( 3 * IOHTTP_FORUM_BUFFER ) ) )
   {
-   svSendString( cnt, "</center></body></html>" );
+   httpString( cnt, "</center></body></html>" );
    return;
   }
   a = 0;
@@ -859,17 +857,17 @@ if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
 
   a = dbForumEditPost( forum, thread, post, &postd );
   if( a >= 0 )
-   svSendPrintf( cnt, "Post edited!<br><br>" );
+   httpPrintf( cnt, "Post edited!<br><br>" );
   else
-   svSendPrintf( cnt, "Error while editing post<br><br>" );
+   httpPrintf( cnt, "Error while editing post<br><br>" );
   free( postd.text );
   goto iohttpForumL1;
  }
 
 if( id != -1 ) {
-	svSendString( cnt, "</center></body></html>" );
+	httpString( cnt, "</center></body></html>" );
 } else {
-	iohttpFunc_endhtml( cnt );
+	iohtmlFunc_endhtml( cnt );
 }
 
 return;

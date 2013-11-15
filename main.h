@@ -179,13 +179,13 @@ int svPipeSend(int pipedirection, char *message, ...);
 
 // Functions used by the Output interface
 void svSend( svConnectionPtr cnt, void *data, int size );
-void svSendString( svConnectionPtr cnt, char *string );
+//void svSendString( svConnectionPtr cnt, char *string );
 
 void httpString( ReplyDataPtr rd, char *string );
 __attribute__ ((format (printf, 2, 3))) void httpPrintf( ReplyDataPtr rd, char *string, ... );
 
 
-__attribute__ ((format (printf, 2, 3))) void svSendPrintf( svConnectionPtr cnt, char *string, ... );
+//__attribute__ ((format (printf, 2, 3))) void svSendPrintf( svConnectionPtr cnt, char *string, ... );
 
 //void svSendStatic( svConnectionPtr cnt, void *data, int size );
 

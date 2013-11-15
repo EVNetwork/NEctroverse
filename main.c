@@ -3,11 +3,6 @@
 #include "extras/iniparser.c"
 #include "ircbot.c"
 
-svConnectionPtr svConnectionList = 0;
-fd_set svSelectRead;
-fd_set svSelectWrite;
-fd_set svSelectError;
-
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
 
 configDef sysconfig;
@@ -20,8 +15,6 @@ ircDef irccfg;
 bool firstload = false;
 
 int svListenSocket[PORT_TOTAL];
-
-svConnectionPtr svDebugConnection;
 
 svbanDef banlist = { 0 };
 
@@ -102,27 +95,6 @@ return;
 }
 
 
-void svSendString( svConnectionPtr cnt, char *string ) {
-
-svSend( cnt, string, strlen(string) );
-
-return;
-}
-
-void svSendPrintf( svConnectionPtr cnt, char *string, ... ) {
-	int len;
-	char text[4096];
-	va_list ap;
-
-va_start( ap, string );
-len = vsnprintf( text, 4096, string, ap );
-va_end( ap );
-svSend( cnt, text, len );
-
-return;
-}
-
-
 void httpString( ReplyDataPtr rd, char *string ) {
 
 rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", string);
@@ -165,12 +137,12 @@ if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
   	return;
   }*/
 
-iohttpDataPtr iohttp;
+
 loghandle(LOG_CRIT, false, "ERROR, signal \'%s\'", cmdSignalNames[signal]);
-loghandle(LOG_CRIT, false, "cnt : %d", (int)(intptr_t)svDebugConnection);
+//loghandle(LOG_CRIT, false, "cnt : %d", (int)(intptr_t)svDebugConnection);
 loghandle(LOG_CRIT, false, "tick pass : %d", ticks.debug_pass);
 loghandle(LOG_CRIT, false, "tick id : %d", ticks.debug_id);
-
+/*
 if( svDebugConnection ) {
 
 	iohttp = svDebugConnection->iodata;
@@ -204,7 +176,7 @@ if( svDebugConnection ) {
 		}
 		svDebugConnection->sendflushpos = 0;
 	}
-}
+}*/
 
 
 if( irccfg.bot ) {
@@ -341,7 +313,7 @@ while( sysconfig.shutdown == false ) {
 	svPipeScan( options.serverpipe );
 	loadconfig(options.sysini,CONFIG_BANNED);
 
-	svDebugConnection = 0;
+	//svDebugConnection = 0;
 	curtime = time( 0 );
 
 	if( curtime < ticks.next ) {

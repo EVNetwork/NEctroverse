@@ -4,59 +4,8 @@
 
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
+void iohtmlAttackReport( ReplyDataPtr cnt, int *results, int sats );
 
-void iohttpFunc_build( svConnectionPtr cnt );
-
-void iohttpFunc_cancelbuild(svConnectionPtr cnt);
-
-void iohttpFunc_massbuild( svConnectionPtr cnt );
-
-void iohttpFunc_raze( svConnectionPtr cnt );
-
-void iohttpFunc_fleets( svConnectionPtr cnt );
-
-void iohttpFunc_fleetssplit( svConnectionPtr cnt );
-
-void iohttpFunc_fleetsmerge( svConnectionPtr cnt);
-
-void iohttpFunc_fleetdisband( svConnectionPtr cnt );
-
-void iohttpFunc_fleetsend( svConnectionPtr cnt );
-
-void iohttpFunc_fleetchange( svConnectionPtr cnt );
-
-void iohttpAttackReport( svConnectionPtr cnt, int *results, int sats );
-
-void iohttpFunc_fleetattack( svConnectionPtr cnt );
-
-void iohttpFunc_explore( svConnectionPtr cnt );
-
-void iohttpFunc_attack( svConnectionPtr cnt );
-
-void iohttpFunc_station( svConnectionPtr cnt );
-
-void iohttpFunc_spec( svConnectionPtr cnt );
-
-void iohttpFunc_specinfos( svConnectionPtr cnt );
-
-void iohttpFunc_operation( svConnectionPtr cnt );
-
-void iohttpFunc_spell( svConnectionPtr cnt );
-
-void iohttpFunc_incant( svConnectionPtr cnt );
-
-void iohttpFunc_operationsend( svConnectionPtr cnt );
-
-void iohttpFunc_spellsend( svConnectionPtr cnt );
-
-void iohttpFunc_incantsend( svConnectionPtr cnt );
-
-void iohttpFunc_research( svConnectionPtr cnt );
-
-void iohttpFunc_mail( svConnectionPtr cnt );
-
-
-//New Section
 void iohtmlFunc_main( ReplyDataPtr cnt );
 
 void iohtmlFunc_menu( ReplyDataPtr cnt );
@@ -103,8 +52,55 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt );
 
 void iohtmlFunc_planet( ReplyDataPtr cnt );
 
+void iohtmlFunc_build( ReplyDataPtr cnt );
 
-//void iohtmlFunc_search( ReplyDataPtr cnt );
+void iohtmlFunc_cancelbuild( ReplyDataPtr cnt );
+
+void iohtmlFunc_massbuild( ReplyDataPtr cnt );
+
+void iohtmlFunc_raze( ReplyDataPtr cnt );
+
+void iohtmlFunc_fleets( ReplyDataPtr cnt );
+
+void iohtmlFunc_fleetsend( ReplyDataPtr cnt );
+
+void iohtmlFunc_fleetssplit( ReplyDataPtr cnt );
+
+void iohtmlFunc_fleetsmerge( ReplyDataPtr cnt);
+
+void iohtmlFunc_fleetdisband( ReplyDataPtr cnt );
+
+void iohtmlFunc_fleetchange( ReplyDataPtr cnt );
+
+void iohtmlFunc_fleetattack( ReplyDataPtr cnt );
+
+void iohtmlFunc_explore( ReplyDataPtr cnt );
+
+void iohtmlFunc_attack( ReplyDataPtr cnt );
+
+void iohtmlFunc_station( ReplyDataPtr cnt );
+
+void iohtmlFunc_spec( ReplyDataPtr cnt );
+
+void iohtmlFunc_specinfos( ReplyDataPtr cnt );
+
+void iohtmlFunc_operation( ReplyDataPtr cnt );
+
+void iohtmlFunc_spell( ReplyDataPtr cnt );
+
+void iohtmlFunc_incant( ReplyDataPtr cnt );
+
+void iohtmlFunc_operationsend( ReplyDataPtr cnt );
+
+void iohtmlFunc_spellsend( ReplyDataPtr cnt );
+
+void iohtmlFunc_incantsend( ReplyDataPtr cnt );
+
+void iohtmlFunc_research( ReplyDataPtr cnt );
+
+void iohtmlFunc_mail( ReplyDataPtr cnt );
+
+//void iohtmlFunc_search( ReplyDataPtr cnt ); FIXME
 
 void iohtmlFunc_rankings( ReplyDataPtr cnt );
 

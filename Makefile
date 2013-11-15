@@ -47,10 +47,10 @@ restart: stop run
 main.o: $(HEAD) main.c extras/iniparser.c ircbot.c
 	$(CC) main.c $(DEFS) -o main.o -c $(FLAGS)
 
-io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
+io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
-http.o: $(HEAD) http/connection.c http/connection_https.c http/daemon.c http/http.c http/internal.c http/memorypool.c http/postprocessor.c http/reason_phrase.c http/response.c http/pagelist.c
+http.o: $(HEAD) http/connection.c http/connection_https.c http/daemon.c http/http.c http/internal.c http/memorypool.c http/postprocessor.c http/reason_phrase.c http/response.c http/pagelist.c 
 	$(CC) http/http.c $(DEFS) -o http.o -c $(FLAGS)
 
 db.o: $(HEAD) db.c

@@ -58,7 +58,7 @@ int cmdExecTakePlanet( int id, int plnid );
 
 
 
-int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size );
+int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size );
 
 void cmdGetBuildCosts( dbUserMainPtr maind, int type, int64_t *buffer );
 float cmdGetBuildOvercost( int size, int total );

@@ -1144,7 +1144,7 @@ void cmdFleetGetPosition( dbUserFleetPtr fleetd, int *x, int *y )
 // Note : this is getting unused and will be removed, an interface independant layer is being created differently.
 // Replacement functions are available in cmdexec.c
 
-int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
+int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
 {
   int a, b, c, d;
   int64_t cost[4];
@@ -1155,6 +1155,7 @@ int cmdExecute( svConnectionPtr cnt, int *cmd, void *buffer, int size )
   dbUserMainDef maind;
   dbUserFleetDef fleetd, fleet2d;
   dbMainPlanetDef planetd;
+  ReplyDataPtr cnt = DEPRECIATED;
 
   cmdErrorString = 0;
 

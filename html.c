@@ -21,7 +21,7 @@
 
 
 /*This function will be use to approve file uploaded by player to our image server*/
-void iohttpFunc_Approve (svConnectionPtr cnt)
+void iohttpFunc_Approve( ReplyDataPtr cnt )
 {
 	int nAllow = 0; // == 1 if this user have the right of allowing image
 	int id, nAction;  //Action == 1 approve 2 == Disapprove (file deleted, msg send to id)
@@ -34,21 +34,19 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 	char szTemp[50];
 	FILE *fDesc;
 
-	if((( id = iohttpIdentify( cnt, 0 ) ) >= 0 ) && (cnt != NULL))
+	if((( id = iohtmlIdentify( cnt, 0 ) ) >= 0 ) && (cnt != NULL))
  {
  	if( (cnt->dbuser)->level >= LEVEL_MODERATOR )
  		nAllow ++;
  }
 
- iohttpVarsInit( cnt );
  //Look for variable here
 
- szAction = iohttpVarsFind( "action" );
- szID = iohttpVarsFind( "id" );
+ szAction = iohtmlVarsFind( cnt, "action" );
+ szID = iohtmlVarsFind( cnt, "id" );
 
- iohttpVarsCut();
- iohttpBase( cnt, 1 ); //Init of the html code for the player
- iohttpBodyInit( cnt, "Approving" );
+ iohtmlBase( cnt, 1 ); //Init of the html code for the player
+ iohtmlBodyInit( cnt, "Approving" );
 
  if(nAllow)
  {
@@ -100,11 +98,11 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
 
 	 		if(nAction == 1)			//Approve
 	 		{
-	 			svSendPrintf(cnt, "The file %s is approved<br>", szID);
+	 			httpPrintf(cnt, "The file %s is approved<br>", szID);
 	 		}
 	 		else if(nAction == 2)	//Disapprove
 	 		{
-	 			svSendPrintf(cnt, "This file %s is deleted and a message was sent to the user<br>", szID);
+	 			httpPrintf(cnt, "This file %s is deleted and a message was sent to the user<br>", szID);
 	 		}
 				fclose(fDesc);
 			}
@@ -115,9 +113,9 @@ void iohttpFunc_Approve (svConnectionPtr cnt)
  }
  else
  {
- 	svSendString(cnt, "Sorry you don't have the necessary right to approve file upload by all the players!");
+ 	httpString(cnt, "Sorry you don't have the necessary right to approve file upload by all the players!");
  }
- iohttpBodyEnd( cnt );
+ iohtmlBodyEnd( cnt );
  return;
 }
 

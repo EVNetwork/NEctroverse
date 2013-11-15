@@ -3,69 +3,7 @@
 #endif
 
 
-void inNewHTTP( svConnectionPtr cnt );
-void inNewDataHTTP( svConnectionPtr cnt );
-void outSendReplyHTTP( svConnectionPtr cnt );
-void inSendCompleteHTTP( svConnectionPtr cnt );
-void inClosedHTTP( svConnectionPtr cnt );
-void inErrorHTTP( svConnectionPtr cnt, int type );
-
 #include "iohttp.c"
-
-
-
-
-
-void inNewEvm( svConnectionPtr cnt );
-void inNewDataEvm( svConnectionPtr cnt );
-void outSendReplyEvm( svConnectionPtr cnt );
-void inSendCompleteEvm( svConnectionPtr cnt );
-void inClosedEvm( svConnectionPtr cnt );
-void inErrorEvm( svConnectionPtr cnt, int type );
-
-#include "ioevm.c"
-
-
-
-ioInterfaceDef ioInterface[PORT_TOTAL] =
-{
-  // HTTP interface definition
-  {
-    InitHTTP,
-    EndHTTP,
-    inNewHTTP,
-    inNewDataHTTP,
-    outSendReplyHTTP,
-    inSendCompleteHTTP,
-    inClosedHTTP,
-    inErrorHTTP,
-    TickStartHTTP,
-    TickEndHTTP,
-    65536,
-    30000,
-    40000
-  }
-,
-
-  // Evm protocol interface definition
-  {
-    InitEvm,
-    EndEvm,
-    inNewEvm,
-    inNewDataEvm,
-    outSendReplyEvm,
-    inSendCompleteEvm,
-    inClosedEvm,
-    inErrorEvm,
-    TickStartEvm,
-    TickEndEvm,
-    65536,
-    300000,
-    360000
-  }
-};
-
-
 
 
 char *ioCompareWords( char *string, char *word )

@@ -17,72 +17,6 @@ int iohttpIdentifyHex( char *num )
  return b;
 }
 
-int iohttpIdentify( svConnectionPtr cnt, int action ) {
-	int a, b, id, session[4];
-	char *src;
-
-iohttpDataPtr iohttp = cnt->iodata;
-
-
-if( !( src = iohttp->cookie ) )
-	goto iohttpIdentifyL0;
-
-if( !( src = ioCompareFindWords( src, "USRID=" ) ) )
-	goto iohttpIdentifyL0;
-
-id = iohttpIdentifyHex( &src[0] );
-
-if( dbUserLinkDatabase( cnt, id ) < 0 )
-	goto iohttpIdentifyL0;
-
-if( dbSessionRetrieve( cnt->dbuser, session ) < 0 )
-	goto iohttpIdentifyL0;
-
-for( a = 0 ; a < 4 ; a++ ) {
-	b = iohttpIdentifyHex( &src[4+(a<<2)] );
-
-	if( session[a] != b )
-		goto iohttpIdentifyL0;
-}
-
-if(( action & 2 )&&(cnt->dbuser)) {
-	if( !( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( (cnt->dbuser)->level < LEVEL_MODERATOR ) ) {
-		if( action & 1 ) {
-			if( action & 8 )
-			iohttpBase( cnt, 1|2 );
-			svSendString( cnt, "This account has not been activated yet.</body></html>" );
-		}
-		return -1;
-	}
-}
-
-if( action & 4 ) {
-	if( (cnt->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) {
-		if( action & 1 ) {
-			if( action & 8 )
-				iohttpBase( cnt, 1|2 );
-			svSendString( cnt, "This account has been activated.</body></html>" );
-		}
-		return -1;
-	}
-}
-
-
-return id;
-
-iohttpIdentifyL0:
-
-if( action & 1 ) {
-
-	iohttpFunc_login( cnt, 1, "If you were playing just a few seconds ago, the server program was probably updated and restarted." );
-
-}
-
-
-return -1;
-}
-
-
 int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
 	int a, b, id, session[4];
 	char *src;
@@ -144,44 +78,6 @@ if( action & 1 ) {
 return -1;
 }
 
-
-void iohttpBase( svConnectionPtr cnt, int flags ) {
-
-svSendString( cnt, "Content-Type: text/html\n\n" );
-svSendString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
-svSendString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-svSendString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
-svSendString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
-svSendString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
-svSendPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-svSendString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
-svSendString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
-svSendString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
-svSendString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
-
-
-if( flags & 4 )
-	svSendString( cnt, "<base target=\"_blank\">" );
-if( flags & 1 ) {
-svSendString( cnt, "<style type=\"text/css\">" );
-	svSendString( cnt, "body{background-image:url(images/mbg.gif);" );
-	if( !( flags & 2 ) )
-		svSendString( cnt, "background-attachment:fixed;" );
-	svSendString( cnt, "}</style>" );
-}
-
-svSendString( cnt, "</head>" );
-svSendString( cnt, "<body" );
-
-if( flags & 8 )
-	svSendString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown(); gametimer(); hosttimer();\" " );
-
-
-svSendString( cnt, "><center>" );
-
-return;
-}
-
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
@@ -217,76 +113,6 @@ httpString( cnt, "><center>" );
 
 return;
 }
-
-int iohttpHeader( svConnectionPtr cnt, int id, dbUserMainPtr mainp )
-{
- int a;
- if( dbUserMainRetrieve( id, mainp ) < 0 )
- {
-  svSendString( cnt, "Error while retriving user's main data</center></body></html>" );
-  return 0;
- }
-
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
-
- svSendString( cnt, "<tr>" );
- svSendString( cnt, "<td width=\"35\" rowspan=\"2\"><img height=\"63\" src=\"images/i02.jpg\" width=\"35\"></td>" );
- svSendString( cnt, "<td width=\"100%\" height=\"21\" align=\"center\">" );
-
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i05.jpg\" border=\"0\" align=\"center\">" );
- svSendString( cnt, "<tr>" );
- svSendString( cnt, "<td width=\"41\"><img height=\"21\" src=\"images/i03.jpg\" width=\"41\"></td>" );
- svSendString( cnt, "<td background=\"images/i05.jpg\">" );
-
- if( ticks.status )
- svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Next tick : <span id=\"headerTime\">%d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", (long long)mainp->networth, (int)( ticks.next - time(0) ), (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
- else
- svSendPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", (long long)mainp->networth, (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
-
- svSendString( cnt, "</td><td width=\"78\"><img height=\"21\" src=\"images/i07.jpg\" width=\"78\"></td></tr></table>" );
- svSendString( cnt, "</td></tr>" );
-
- svSendString( cnt, "<tr><td width=\"100%\" align=\"center\">" );
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i15.jpg\" border=\"0\" align=\"center\"><tr>" );
-
- a = dbUserNewsGetFlags( id );
- svSendString( cnt, "<td width=\"41\"><a href=\"hq\"><img id=\"headermail\" height=\"42\" title=\"mail\" src=\"images/i09" );
- if( a & CMD_NEWS_FLAGS_MAIL )
-  svSendString( cnt, "a" );
- svSendString( cnt, ".jpg\" width=\"41\" border=\"0\"></a></td>" );
-
- svSendString( cnt, "<td width=\"40\"><a href=\"hq\"><img id=\"headerbuild\" height=\"42\" title=\"reports\" src=\"images/i10" );
- if( a & CMD_NEWS_FLAGS_BUILD )
-  svSendString( cnt, "a" );
- svSendString( cnt, ".jpg\" width=\"40\" border=\"0\"></a></td>" );
-
- svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headeraid\" height=\"42\" title=\"economy\" src=\"images/i11" );
- if( a & CMD_NEWS_FLAGS_AID )
-  svSendString( cnt, "a" );
- svSendString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
-
- svSendString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headerfleet\" height=\"42\" title=\"fleets\" src=\"images/i12" );
- if( a & CMD_NEWS_FLAGS_ATTACK )
-  svSendString( cnt, "a" );
- else if( a & CMD_NEWS_FLAGS_FLEET )
-  svSendString( cnt, "b" );
- svSendString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
-
- svSendString( cnt, "<td width=\"18\"><img height=\"42\" src=\"images/i13.jpg\" width=\"18\"></td>" );
- svSendString( cnt, "<td width=\"100%\" background=\"images/i15.jpg\" align=\"left\">" );
-
- svSendString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
- svSendString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
- svSendPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
- svSendString( cnt, "</td></tr></table>" );
-
- svSendString( cnt, "</td><td width=\"49\"><img height=\"42\" src=\"images/i17.jpg\" width=\"49\"></td></tr></table>" );
-
- svSendString( cnt, "</td></tr></table><br>" );
-
- return 1;
-}
-
 
 int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
 {
@@ -357,35 +183,6 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  return 1;
 }
 
-
-void iohttpFunc_frontmenu( svConnectionPtr cnt, int flags ) {
-
-svSendString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
-svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_03.jpg\" width=350 height=80  alt=\"ect Top\"></td></tr>" );
-
-svSendString( cnt, "<tr><td><table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
-svSendString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
-svSendString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"images/ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
-svSendString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
-svSendString( cnt, "</tr></table></tr></td>" );
-
-svSendString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
-svSendString( cnt, "<tr><td background=\"images/ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-svSendString( cnt, "<tr><td background=\"images/ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
-
-
-svSendString( cnt, "<a href=\"https://www.nectroverse.net\">New Server Module</a>" );
-
-svSendString( cnt, "</b></td></tr>" );
-
-svSendString( cnt, "</table>" );
-svSendString( cnt, "</td></tr></table>" );
-svSendString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-
-return;
-}
-
 void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
@@ -439,27 +236,6 @@ httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspaci
 
 return;
 }
-
-
-void iohttpBodyInit( svConnectionPtr cnt, char *title, ... )
-{
- char text[4096];
- va_list ap;
- va_start( ap, title );
- vsnprintf( text, 4096, title, ap );
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
- svSendString( cnt, text );
- svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table>" );
- svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"center\"><br>" );
- return;
-}
-
-void iohttpBodyEnd( svConnectionPtr cnt )
-{
- svSendString( cnt, "<br></td><td width=\"7\" background=\"images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"images/i47.jpg\"><img height=\"12\" src=\"images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"images/i49.jpg\" width=\"62\"></td></tr></table></center><br><br><br></body></html>" );
- return;
-}
-
 
 void iohtmlBodyInit( ReplyDataPtr cnt, char *title, ... )
 {
@@ -761,48 +537,6 @@ iohtmlFunc_endhtml( cnt );
 return;
 }
 
-void iohttpFunc_login( svConnectionPtr cnt, int flag, char *text, ... ) {
-	struct stat stdata;
-	char *data;
-	char DIRCHECKER[256];
-	FILE *file;
-
-iohttpBase( cnt, 8 );
-iohttpFunc_frontmenu( cnt, FMENU_NONE );
-
-
-if( text ) {
-	svSendPrintf( cnt, "<br>%s", text );
-	if( flag ) {
-		sprintf( DIRCHECKER, "%s/login.txt", sysconfig.httpread );
-		if( stat( DIRCHECKER, &stdata ) != -1 ) {
-			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-				data[stdata.st_size] = 0;
-				if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
-					if( stdata.st_size > 0 ) {
-						svSendString( cnt, "<br>" );
-						while( fgets( data, stdata.st_size, file ) != NULL ) {
-							svSendPrintf( cnt, "%s<br>", trimwhitespace(data) );
-						}
-					}
-					fclose( file );
-				}
-				free( data );
-			}
-		}
-	}
-	svSendString( cnt, "<br><br>" );
-} else {
-svSendString( cnt, "<br><h3>Login</h3><br>" );
-}
-svSendString( cnt, "<form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
-
-svSendString( cnt, "</center></body></html>" );
-
-iohttpFunc_endhtml( cnt );
-
-return;
-}
 
 void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
 	struct stat stdata;
@@ -847,39 +581,12 @@ iohtmlFunc_endhtml( cnt );
 return;
 }
 
-void iohttpFunc_endhtml( svConnectionPtr cnt ) {
-
-
-svSendString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
-svSendString( cnt, "</td></tr></tbody></table>" );
-svSendString( cnt, "</body></html>" );
-
-return;
-}
-
 void iohtmlFunc_endhtml( ReplyDataPtr cnt ) {
 
 
 httpString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
 httpString( cnt, "</td></tr></tbody></table>" );
 httpString( cnt, "</body></html>" );
-
-return;
-}
-
-
-void iohttpFunc_boxstart( svConnectionPtr cnt, char *title ) {
-
-svSendString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
-svSendPrintf( cnt, "%s", title);
-svSendString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\"><br>" );
-
-return;
-}
-
-void iohttpFunc_boxend( svConnectionPtr cnt ) {
-
-svSendString( cnt, "<br><br></td><td width=\"7\" background=\"images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"images/i47.jpg\"><img height=\"12\" src=\"images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"images/i49.jpg\" width=\"62\"></td></tr></table>" );
 
 return;
 }
@@ -900,26 +607,6 @@ httpString( cnt, "<br><br></td><td width=\"7\" background=\"images/i43.jpg\">&nb
 
 return;
 }
-
-void iohttpFunc_front( svConnectionPtr cnt, char *text, ...  ) {
-	dbUserMainDef maind;
-	int id;
-
-iohttpBase( cnt, 8 );
-
-if( ( id = iohttpIdentify( cnt, 2 ) ) >= 0 ) {
-	if( dbUserMainRetrieve( id, &maind ) < 0 )
-	return;
-}
-
-iohttpFunc_frontmenu( cnt, FMENU_MAIN );
-
-svSendPrintf( cnt, "<b>%s</b><br><br><a href=\"https://www.nectroverse.net\">New Server</a><br><br>", "This site is now being depreicated, please check out the new server module!" );
-
-iohttpFunc_endhtml( cnt );
-return;
-}
-
 
 void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	dbUserMainDef maind;
