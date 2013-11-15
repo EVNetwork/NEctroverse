@@ -11,10 +11,8 @@ va_start(ap, fmt);
 vsnprintf(sbuf, 512, fmt, ap);
 va_end(ap);
 strncat(sbuf, ender, 512 - strlen(sbuf) - 1);
-if( options.verbose )
-	loghandle(LOG_INFO, false, "Sending to IRC: %s", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines.
-send(options.botconn, sbuf, strlen(sbuf), 0);
-
+if( !( send(options.botconn, sbuf, strlen(sbuf), 0) ) )
+	loghandle(LOG_INFO, false, "Failed Sending to IRC: %s", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines.
 return;
 }
 
@@ -29,7 +27,7 @@ void ircbot_scan() {
 
 sprintf(bottrigger, "!%s ", irccfg.botnick);
 memset(&sbuf, 0, 512 );
-if( (sl = read(options.botconn, sbuf, 512)) ) {
+if( ( sl = recv(options.botconn, sbuf, 512, 0) ) ){
 	for (i = 0; i < sl; i++) {
 		o++;
 		buf[o] = sbuf[i];
@@ -114,20 +112,14 @@ if( setsockopt( options.botconn, IPPROTO_TCP, TCP_NODELAY, (char *)&a, sizeof(in
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
-if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
-	loghandle(LOG_ERR, errno, "Error %03d, setting non-blocking on port:", errno );
-	close( options.botconn );
+if( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) ) {
+	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
-a = 0;
-while( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) || ( errno == 115 ) && ( a < 10 ) ) {
-	nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
-	a++;
-}
-
-if( ( errno ) && ( errno != 114 ) ) {
-	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
+if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
+	loghandle(LOG_ERR, errno, "Error %03d, setting non-blocking on port:", errno );
+	close( options.botconn );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
@@ -138,7 +130,6 @@ if( irccfg.botpass ){
 	ircbot_send("PRIVMSG NickServ :identify %s", irccfg.botpass);
 }
 
-loghandle(LOG_INFO, errno, "%s", "IRC bot connected." );
 return 1;
 }
 
