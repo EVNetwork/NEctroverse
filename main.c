@@ -32,14 +32,14 @@ void cleanUp(int type) {
 
 if( type ) {
 	close(options.serverpipe);
-	sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+	sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
 	loghandle(LOG_INFO, false, "%s", "Server shutdown complete, now cleaning up!" );
 	syslog(LOG_INFO, "%s", "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>" ); //Don't really need this, but meh... why not!
 	closelog();
 } else {
 	close(options.clientpipe);
-	sprintf( DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+	sprintf( DIRCHECKER, "%s/%d.client.pipe", TMPDIR, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
 }
 
@@ -168,7 +168,7 @@ while(end > str && isspace(*end))
 
 return str;
 }
-
+#if PIPEFILE
 //Read from pipe file... command execution latter to come...
 void svPipeScan(int pipefileid){
 	int num, stop;
@@ -222,7 +222,7 @@ va_start(ap, message);
 vsnprintf(formatuffer, SERVER_RECV_BUFSIZE, message, ap);
 va_end(ap);
 
-sprintf( DIRCHECKER, "%s/%s.%d.%s", TMPDIR, options.pipefile, options.port[PORT_HTTP], ( pipedirection ? "pipe" : "client.pipe" ) );
+sprintf( DIRCHECKER, "%s/%d.%s", TMPDIR, options.port[PORT_HTTP], ( pipedirection ? "pipe" : "client.pipe" ) );
 if( file_exist(DIRCHECKER) && strlen(formatuffer) ) {
 	if( ( pipefile = fopen(DIRCHECKER, "w") ) < 0) {
 		loghandle(LOG_ERR, errno, "Piping Error: unable to open pipe for write: %s", DIRCHECKER );
@@ -244,14 +244,16 @@ if( options.verbose )
 
 return 1;
 }
-
+#endif
 //This is the actual loop process, which listens and responds to requests on all sockets.
-void daemonloop() {
+int daemonloop() {
 	int curtime;
 
 //Start HTTP/1.1 Server
-http_prep();
-http_start();
+if( http_prep() )
+	return 1;
+if( http_start() )
+	return 1;
 #if HTTPS_SUPPORT
 https_start();
 #endif
@@ -264,7 +266,9 @@ while( sysconfig.shutdown == false ) {
 	if( irccfg.bot ) {
 		ircbot_scan();
 	}
+	#if PIPEFILE
 	svPipeScan( options.serverpipe );
+	#endif
 	loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
@@ -299,7 +303,7 @@ while( sysconfig.shutdown == false ) {
 
 server_shutdown();
 
-return;
+return 0;
 }
 
 //begin upgrade to daemon, I don't like shell dependancy!
@@ -391,15 +395,15 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <
 }
 
 //add local pipe, for basic commands from shell
-
-sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+#if PIPEFILE
+sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	if( mkfifo(DIRCHECKER, 0666) < 0 ) {
 	loghandle(LOG_ERR, errno, "Error creating pipe: %sn", DIRCHECKER );
 	options.serverpipe = -1;
 } else {
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
-
+#endif
 loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
@@ -962,7 +966,10 @@ return result;
 
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[256];
-	int num, test;
+	#if PIPEFILE
+	int num;
+	#endif
+	int test;
 
 if( checkops(argc,argv) ) {
 	printf ("Error: Invalid usage detected...\n");
@@ -995,13 +1002,13 @@ if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
 
 if( ( firstload ) || ( sysconfig.shutdown ) )
 	goto BAILOUT;
-	
-sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+#if PIPEFILE	
+sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
 	loghandle(LOG_INFO, false, "%s", "Pipe file detected, auto switching to client mode");
 	goto CLIENT;
 }
-
+#endif
 memset( &ticks, 0, sizeof(tickDef) );
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,CONFIG_TICKS);
@@ -1121,11 +1128,11 @@ if( options.mode == MODE_FORKED ) {
 }
 cleanUp(1);
 return 0;
-
+#if PIPEFILE
 //OK, so we made it down here... that means we are a client and the pipe is active.
 CLIENT:
 
-sprintf(DIRCHECKER, "%s/%s.%d.client.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
+sprintf(DIRCHECKER, "%s/%d.client.pipe", TMPDIR, options.port[PORT_HTTP] );
 mkfifo(DIRCHECKER, 0666);
 
 if( strlen(options.pipestring) ) {
@@ -1152,7 +1159,7 @@ while( file_exist(DIRCHECKER) ) {
 		fflush( stdout );
 	}
 }
-
+#endif
 BAILOUT:
 cleanUp(0);
 printf("\n");
