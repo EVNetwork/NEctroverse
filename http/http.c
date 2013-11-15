@@ -941,7 +941,7 @@ struct MHD_OptionItem ops[] = {
 
 static int THREADS;
 static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
-unsigned int ports[2] = { 8880, 8881 };
+unsigned int ports[2] = { 9122, 8881 };
 
 
 /**
