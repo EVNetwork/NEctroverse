@@ -1,6 +1,7 @@
 #ifndef GLOBALINCLUDED
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
+#include "http/config.h"
 #include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -10,7 +11,9 @@
 #include <inttypes.h>
 #include <libgen.h>
 #include <math.h>
+#if MYSQL_SUPPORT
 #include <mysql.h>
+#endif
 #include <netdb.h>
 #include <png.h>
 #include <pwd.h>
@@ -115,8 +118,6 @@ static const double megabyte = (1024 * 1024);
 #include "artefact.h"
 #include "db.h"
 
-
-#include "http/config.h"
 #include "http/platform.h"
 
 #include "extras/cpuinfo.h"

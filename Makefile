@@ -8,20 +8,31 @@ CONFIGS := $(shell cat http/config.h)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
+MODS = 
 #The standard config needed to compile basic server, withought these it won't work.
-FLAGS = $(SQLFLAG) --fast-math -Wall -fno-strict-aliasing -O3
-LIBS = $(SQLLIBS) -lcrypt -lpng
+FLAGS = --fast-math -Wall -fno-strict-aliasing -O3
+LIBS = -lcrypt -lpng
 
 ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)
 LIBS += -lgcrypt -lgnutls
 endif
 
-#Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
+ifneq ($(findstring DEBUG_SUPPORT 1,$(CONFIGS)),)
 DEFS = -ggdb -rdynamic
+endif
+
+
+ifneq ($(findstring MYSQL_SUPPORT 1,$(CONFIGS)),)
+FLAGS += $(SQLFLAG)
+LIBS += $(SQLLIBS)
+else
+LIBS += -lm -pthread
+endif
+
 
 # Right then, now we know all of that... lets build something!
-server: main.o io.o http.o db.o cmd.o html.o map.o encrypt.o
-	$(CC) main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(MODS)
+	$(CC) main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
 	sudo service evserver start
