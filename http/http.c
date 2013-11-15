@@ -238,7 +238,6 @@ return ret;
 }
 
 int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
-  static int aptr;
   struct MHD_Response *response;
   int ret;
   FILE *file;
@@ -840,41 +839,6 @@ struct MHD_OptionItem ops[] = {
 	{ MHD_OPTION_END, 0, NULL }
 };
 
-/**
- * Function called if we get a SIGPIPE. Does nothing.
- *
- * @param sig will be SIGPIPE (ignored)
- */
-static void
-catcher (int sig)
-{
-  /* do nothing */
-}
-
-
-/**
- * setup handlers to ignore SIGPIPE.
- */
-#ifndef MINGW
-static void
-ignore_sigpipe ()
-{
-  struct sigaction oldsig;
-  struct sigaction sig;
-
-  sig.sa_handler = &catcher;
-  sigemptyset (&sig.sa_mask);
-#ifdef SA_INTERRUPT
-  sig.sa_flags = SA_INTERRUPT;  /* SunOS */
-#else
-  sig.sa_flags = SA_RESTART;
-#endif
-  if (0 != sigaction (SIGPIPE, &sig, &oldsig))
-    fprintf (stderr,
-             "Failed to install SIGPIPE handler: %s\n", strerror (errno));
-}
-#endif
-
 static int THREADS;
 static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
 unsigned int ports[2] = { 8880, 8881 };
@@ -885,9 +849,6 @@ int http_prep(){
 	cpuInfo cpuinfo;
 
 cpuGetInfo( &cpuinfo );
-#ifndef MINGW
-//ignore_sigpipe ();
-#endif
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
 #if HAVE_MAGIC_H
@@ -934,7 +895,7 @@ server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 				MHD_OPTION_END);
 if(NULL == server_https)
 	return 1;
-loghandle(LOG_INFO, false, "HTTPS 1.1 Server live with %d thread(s) on port: %d", THREADS, ports[1]);
+loghandle(LOG_INFO, false, "HTTPS Server live with %d thread(s) on port: %d", THREADS, ports[1]);
 
 return 0;
 }
@@ -957,7 +918,7 @@ server_http = MHD_start_daemon (flags,
 
 if(NULL == server_http)
 	return 1;
-loghandle(LOG_INFO, false, "HTTP  1.1 Server live with %d thread(s) on port: %d", THREADS, ports[0]);
+loghandle(LOG_INFO, false, "HTTP Server live with %d thread(s) on port: %d", THREADS, ports[0]);
 
 return 0;
 }
@@ -966,16 +927,24 @@ return 0;
 void server_stop( int flag ) {
 
 if( flag == 1 ) {
-	if( server_http )
+	if( server_http ) {
 		MHD_stop_daemon(server_http);
+	loghandle(LOG_INFO, false, "%s", "HTTP  Server has been gracefully shutdown!" );
+	}
 } else if( flag == 2 ) {
-	if( server_https )
+	if( server_https ) {
 		MHD_stop_daemon(server_https);
+	loghandle(LOG_INFO, false, "%s", "HTTPS Server has been gracefully shutdown!" );
+	}
 } else {
-	if( server_http )
+	if( server_http ) {
 		MHD_stop_daemon(server_http);
-	if( server_https )		
+	loghandle(LOG_INFO, false, "%s", "HTTP Server has been gracefully shutdown!" );
+	}
+	if( server_https ) {
 		MHD_stop_daemon(server_https);
+	loghandle(LOG_INFO, false, "%s", "HTTPS Server has been gracefully shutdown!" );
+	}
 }
 
 return;

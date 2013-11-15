@@ -41,7 +41,7 @@ if( type ) {
 	close(options.serverpipe);
 	sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
-	loghandle(LOG_INFO, false, "%s", "Server has been Completly shutdown!" );
+	loghandle(LOG_INFO, false, "%s", "Server shutdown complete, now cleaning up!" );
 	syslog(LOG_INFO, "%s", "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>" ); //Don't really need this, but meh... why not!
 	closelog();
 } else {
@@ -217,7 +217,7 @@ if( irccfg.bot ) {
 }
 
 sysconfig.shutdown = true;
-http_stop();
+server_shutdown();
 cleanUp(1);
 cleanUp(0);
 
