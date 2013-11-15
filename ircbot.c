@@ -120,9 +120,10 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
-
-while( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) || ( errno == 115 ) ) {
+a = 0;
+while( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) || ( errno == 115 ) && ( a < 10 ) ) {
 	nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
+	a++;
 }
 
 if( ( errno ) && ( errno != 114 ) ) {
