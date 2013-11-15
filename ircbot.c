@@ -121,9 +121,10 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	return 0;
 }
 
-errno = 115;
-while( errno == 115 )
-connect(options.botconn, res->ai_addr, res->ai_addrlen);
+
+while( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) && ( errno == 115 ) ) {
+	nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
+}
 
 
 ircbot_send("USER %s 0 0 :%s", irccfg.botnick, sysconfig.servername);
