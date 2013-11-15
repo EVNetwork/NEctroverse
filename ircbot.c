@@ -121,16 +121,10 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	return 0;
 }
 
-INPROGRESS:
-if( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) && ( errno != 115 ) ) {
-	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
-	options.botconn = -1; irccfg.bot = false;
-	return 0;
-}
+errno = 115;
+while( errno == 115 )
+connect(options.botconn, res->ai_addr, res->ai_addrlen);
 
-if( errno == 115 ) {
-	goto INPROGRESS;
-}
 
 ircbot_send("USER %s 0 0 :%s", irccfg.botnick, sysconfig.servername);
 ircbot_send("NICK %s", irccfg.botnick);
