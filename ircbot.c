@@ -137,6 +137,7 @@ if( irccfg.botpass ){
 	ircbot_send("PRIVMSG NickServ :identify %s", irccfg.botpass);
 }
 
+loghandle(LOG_INFO, errno, "%s", "IRC bot connected." );
 return 1;
 }
 
