@@ -121,7 +121,7 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	return 0;
 }
 
-if( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1) {
+if( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) && ( errno != 115 ) ) {
 	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
