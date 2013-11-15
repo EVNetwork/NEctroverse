@@ -87,7 +87,7 @@ if( (sl = read(options.botconn, sbuf, 512)) ) {
 					if ((sep = strchr(ircmsg.nick, '!')) != NULL) ircmsg.nick[sep - ircmsg.nick] = '\0';
 					if( !strcmp(ircmsg.nick,"NickServ") || !strcmp(ircmsg.nick,"ChanServ") || !strcmp(ircmsg.nick,irccfg.botnick) ) continue;
 					//Trigger for when someone leaves/joins the channel -- We only use the one channel, so we won't bother checking where they are.
-					printf("%s from host \'%s\' %s channel.\n", ircmsg.nick, ircmsg.host, ( !strncmp(command, "JOIN", 4) ? "Joined" : "Left" ) );
+					loghandle(LOG_INFO, false, "%s from host \'%s\' %s channel.", ircmsg.nick, ircmsg.host, ( !strncmp(command, "JOIN", 4) ? "Joined" : "Left" ) );
 				}
 			}
 		}
@@ -107,14 +107,8 @@ hints.ai_family = AF_INET;
 hints.ai_socktype = SOCK_STREAM;
 getaddrinfo(irccfg.host, irccfg.port, &hints, &res);
 options.botconn = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-if( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1) {
-	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
-	options.botconn = -1; irccfg.bot = false;
-	return 0;
-}
-
 a = 1;
-if( setsockopt( options.botconn, SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
+if( setsockopt( options.botconn, IPPROTO_TCP, TCP_NODELAY, (char *)&a, sizeof(int) ) == -1 ) {
 	loghandle(LOG_ERR, errno, "Error %03d, set bot sockopt", errno );
 	close( options.botconn );
 	options.botconn = -1; irccfg.bot = false;
@@ -126,6 +120,13 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
 }
+
+if( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1) {
+	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
+	options.botconn = -1; irccfg.bot = false;
+	return 0;
+}
+
 ircbot_send("USER %s 0 0 :%s", irccfg.botnick, sysconfig.servername);
 ircbot_send("NICK %s", irccfg.botnick);
 if( irccfg.botpass ){
@@ -257,7 +258,7 @@ while( (token = strsep(&string, " ") ) != NULL ) {
 free(string);
 */
 if( options.verbose )
-	printf("[from:%s] [host:%s] [reply-to:%s] %s\n", irc->nick, irc->host, irc->target, irc->input);
+	loghandle(LOG_INFO, false, "[from:%s] [host:%s] [reply-to:%s] %s", irc->nick, irc->host, irc->target, irc->input);
 
 if( !strcmp(irc->input,"tick") ){
 	if( ticks.status ) {

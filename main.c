@@ -49,52 +49,6 @@ return;
 
 
 
-int svSendAddBuffer( svBufferPtr *bufferp, int size ) {
-	svBufferPtr buffer;
-	char *mem;
-
-if( !( mem = malloc( sizeof(svBufferDef) + size ) ) ) {
-	loghandle(LOG_ERR, errno, "Error %03d, add buffer malloc", errno );
-	return 0;
-}
-
-buffer = (svBufferPtr)mem;
-buffer->data = &mem[sizeof(svBufferDef)];
-
-buffer->prev = (void **)&(bufferp);
-buffer->next = 0;
-*bufferp = buffer;
-
-return 1;
-}
-
-void svSend( svConnectionPtr cnt, void *data, int size ) {
-	int mem;
-	svBufferPtr buffer;
-
-for( buffer = cnt->sendbufpos ; ; ) {
-	mem = cnt->sendsize - cnt->sendpos;
-	if( size <= mem ) {
-		memcpy( &buffer->data[cnt->sendpos], data, size );
-		cnt->sendpos += size;
-		return;
-	} else {
-		memcpy( &buffer->data[cnt->sendpos], data, mem );
-		cnt->sendpos += mem;
-		size -= mem;
-		data += mem;
-		if( !( svSendAddBuffer( (svBufferPtr *)&(buffer->next), cnt->sendsize ) ) )
-			return;
-		buffer = cnt->sendbufpos = buffer->next;
-		cnt->sendpos = 0;
-	}
-}
-
-
-return;
-}
-
-
 void httpString( ReplyDataPtr rd, char *string ) {
 
 rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", string);

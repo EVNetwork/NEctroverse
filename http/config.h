@@ -11,7 +11,7 @@
 #define HTTPS_SUPPORT 0
 
 /* disable debugging symbols support */
-#define DEBUG_SUPPORT 0
+#define DEBUG_SUPPORT 1
 
 /* disable debugging symbols support */
 #define MYSQL_SUPPORT 0
