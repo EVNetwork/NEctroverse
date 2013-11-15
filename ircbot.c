@@ -121,11 +121,15 @@ if( fcntl( options.botconn, F_SETFL, O_NONBLOCK ) == -1 ) {
 	return 0;
 }
 
-
 while( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) && ( errno == 115 ) ) {
 	nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
 }
 
+if( ( errno ) ) {
+	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
+	options.botconn = -1; irccfg.bot = false;
+	return 0;
+}
 
 ircbot_send("USER %s 0 0 :%s", irccfg.botnick, sysconfig.servername);
 ircbot_send("NICK %s", irccfg.botnick);
