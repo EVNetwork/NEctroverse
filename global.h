@@ -42,6 +42,8 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
+#define PIPEFILE 0
+
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT
 #define SERVER_REPORT_CONNECT 1

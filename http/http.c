@@ -875,7 +875,8 @@ flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 #if HTTPS_SUPPORT
 THREADS = fmax( 1.0, ( THREADS / 2 ) );
 #endif
-return 1;
+
+return 0;
 }
 
 #if HTTPS_SUPPORT

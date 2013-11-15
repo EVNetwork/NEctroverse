@@ -132,7 +132,7 @@ if( irccfg.botpass ){
 
 return 1;
 }
-
+#if PIPEFILE
 int ircbot_command( char *command ) {
 	char *sub = {0}, *chop = {0};
 
@@ -206,6 +206,7 @@ if( !( strcmp(sub,"status") ) ){
 
 return 0;
 }
+#endif
 
 #define IS_CTRL  (1 << 0)
 #define IS_EXT	 (1 << 1)

@@ -168,7 +168,7 @@ while(end > str && isspace(*end))
 
 return str;
 }
-
+#if PIPEFILE
 //Read from pipe file... command execution latter to come...
 void svPipeScan(int pipefileid){
 	int num, stop;
@@ -244,14 +244,17 @@ if( options.verbose )
 
 return 1;
 }
-
+#endif
 //This is the actual loop process, which listens and responds to requests on all sockets.
 void daemonloop() {
 	int curtime;
 
 //Start HTTP/1.1 Server
-http_prep();
-http_start();
+if( http_prep() )
+sysconfig.shutdown = true;
+if( http_start() )
+sysconfig.shutdown = true;
+
 #if HTTPS_SUPPORT
 https_start();
 #endif
@@ -259,13 +262,15 @@ https_start();
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
 	#if PRODUCTION
-	expire_sessions();
+	(void)expire_sessions();
 	#endif
 	if( irccfg.bot ) {
-		ircbot_scan();
+		(void)ircbot_scan();
 	}
-	svPipeScan( options.serverpipe );
-	loadconfig(options.sysini,CONFIG_BANNED);
+	#if PIPEFILE
+	(void)svPipeScan( options.serverpipe );
+	#endif
+	(void)loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
 	curtime = time( 0 );
@@ -995,12 +1000,14 @@ if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
 
 if( ( firstload ) || ( sysconfig.shutdown ) )
 	goto BAILOUT;
-	
+
+#if PIPEFILE	
 sprintf( DIRCHECKER, "%s/%s.%d.pipe", TMPDIR, options.pipefile, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
 	loghandle(LOG_INFO, false, "%s", "Pipe file detected, auto switching to client mode");
 	goto CLIENT;
 }
+#endif
 
 memset( &ticks, 0, sizeof(tickDef) );
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
@@ -1121,7 +1128,7 @@ if( options.mode == MODE_FORKED ) {
 }
 cleanUp(1);
 return 0;
-
+#if PIPEFILE
 //OK, so we made it down here... that means we are a client and the pipe is active.
 CLIENT:
 
@@ -1152,7 +1159,7 @@ while( file_exist(DIRCHECKER) ) {
 		fflush( stdout );
 	}
 }
-
+#endif
 BAILOUT:
 cleanUp(0);
 printf("\n");
