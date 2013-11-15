@@ -1,9 +1,10 @@
 #ifndef ENCRYPT_H
 #define ENCRYPT_H
 
+extern char *saltgen();
 
-char *hashencrypt( char *pass2hash );
+extern char *hashencrypt( char *pass2hash );
 
-int checkencrypt( char *passentered, char *passcheck );
+extern int checkencrypt( char *passentered, char *passcheck );
 
 #endif

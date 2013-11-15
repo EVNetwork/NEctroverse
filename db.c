@@ -981,20 +981,23 @@ return 1;
 
 // session functions
 
-int dbSessionSet( dbUserPtr user, char *hash, int *session )
-{
-  int a, b;
-  if( !( user ) )
-    return -3;
-  b = rand() & 0xFFFF;
-  if( hash )
-    srand( time(0) + b + 3*hash[0] + 7*hash[2] + 11*hash[4] + 13*hash[6] + 17*hash[8] );
-  else
-    srand( time(0) + b );
-  for( a = 0 ; a < 4 ; a++ )
-    user->session[a] = rand() & 0xFFFF;
-  memcpy( session, user->session, 4*sizeof(int) );
-  return 1;
+int dbSessionSet( dbUserPtr user, char *hash, int *session ) {
+	int a, b;
+
+if( !( user ) )
+	return -3;
+b = rand() & 0xFFFF;
+if( hash )
+	srand( time(0) + b + 3*hash[0] + 7*hash[2] + 11*hash[4] + 13*hash[6] + 17*hash[8] );
+else
+	srand( time(0) + b );
+for( a = 0 ; a < 4 ; a++ )
+	user->session[a] = rand() & 0xFFFF;
+
+memcpy( session, user->session, 4*sizeof(int) );
+
+
+return 1;
 }
 
 int dbSessionRetrieve( dbUserPtr user, int *session ) {
@@ -1424,6 +1427,7 @@ int dbUserPlanetSetFlags( int id, int plnid, int flags )
   fwrite( &flags, 1, sizeof(int), file );
   fclose( file );
   return 1;
+
 
 }
 

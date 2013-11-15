@@ -56,6 +56,11 @@ typedef struct Session
   /**
    * Time when this session was last active.
    */
+  time_t active;
+
+   /**
+   * Time when this session was started.
+   */
   time_t start;
 
    /**

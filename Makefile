@@ -65,7 +65,7 @@ map.o: $(HEAD) map.c extras/imgpng.c
 html.o: $(HEAD) html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c extras/cpuinfo.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-encrypt.o: $(HEAD) extras/*.h extras/encrypt.c extras/md5.c
+encrypt.o: $(HEAD) extras/*.h extras/encrypt.c extras/md5.c extras/base64.c
 	$(CC) extras/encrypt.c $(DEFS) -o encrypt.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.

@@ -61,7 +61,7 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    goto iohtmlFunc_mainL0;
 
 
-  if( dbSessionSet( cnt->dbuser, rtpass, session ) < 0 )
+  if( dbSessionSet( cnt->dbuser, saltgen(), session ) < 0 )
    goto iohtmlFunc_mainL0;
 
   iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", id, session[0], session[1], session[2], session[3] );

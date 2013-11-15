@@ -4,8 +4,6 @@
 
 #define IOHTTP_FORUM_POSTSNUM (40)
 
-char iohttpInputHex( char *src );
-
 #define IOHTTP_FORUM_SMILETOTAL (62)
 #define IOHTTP_FORUM_SMILEBASE (8)
 
@@ -723,7 +721,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   postd.post.time = time( 0 );  //to be in GMT with the server running anywhere worldwide
   postd.post.tick = ticks.number;
   postd.post.flags = 0;
-  memcpy( &(threadd.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );
+  memcpy( &(postd.post.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );
   a = dbForumAddPost( forum, thread, &postd );
   if( a >= 0 )
    httpPrintf( cnt, "Post added!<br><br>" );

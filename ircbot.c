@@ -12,7 +12,7 @@ vsnprintf(sbuf, 512, fmt, ap);
 va_end(ap);
 strncat(sbuf, ender, 512 - strlen(sbuf) - 1);
 if( !( send(options.botconn, sbuf, strlen(sbuf), 0) ) )
-	loghandle(LOG_INFO, false, "Failed Sending to IRC: %s", trimwhitespace(strdup(sbuf))); //We duplicate the output, triming the enders for IRC off, and add the shell end back on... just to stop blank lines.
+	loghandle(LOG_INFO, false, "Failed Sending to IRC: %s", trimwhitespace( sbuf ) );
 return;
 }
 

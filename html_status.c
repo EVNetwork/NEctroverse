@@ -13,6 +13,7 @@ return;
 char *TimeToString( long eltime ) {
 	bool bdays, bhours, bmins;
 	char timeline[32], buffer[1024];
+	char *ret;
 	timeDef deftime;
 
 converttime_todef(&deftime, eltime);
@@ -53,7 +54,9 @@ if( !( strlen( buffer ) ) ) {
 	strcpy(buffer, "Never, or bad time input!" );
 }
 
-return strdup(buffer);
+ret = buffer;
+
+return ret;
 }
 
 void getsys_infos( proginfoDef *proginfo ) {

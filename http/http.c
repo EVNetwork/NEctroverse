@@ -109,12 +109,6 @@ mark_as_html (struct MHD_Response *response)
  * Head of index page.
  */
 #define UPLOAD_DIR_PAGE_HEADER "<html>\n<head><title>Welcome</title></head>\n<body>\n"\
-   "<h1>Upload</h1>\n"\
-   "<form method=\"POST\" enctype=\"multipart/form-data\" action=\"/files\">\n"\
-   "<dt>File:</dt><dd>"\
-   "<input type=\"file\" name=\"upload\"/></dd></dl>"\
-   "<input type=\"submit\" value=\"Send!\"/>\n"\
-   "</form>\n"\
    "<h1>Download</h1>\n"\
    "<ol>\n"
 
@@ -139,50 +133,41 @@ static SessionPtr sessions;
  * Return the session handle for this connection, or
  * create one if this is a new user.
  */
-static SessionPtr get_session( MHD_ConnectionPtr connection )
-{
-  SessionPtr ret;
-  const char *cookie;
+static SessionPtr get_session( MHD_ConnectionPtr connection ) {
+	SessionPtr ret;
+	const char *cookie;
 
-  cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
-  if (cookie != NULL)
-    {
-      /* find existing session */
-      ret = sessions;
-      while (NULL != ret)
-	{
-	  if (0 == strcmp (cookie, ret->sid))
-	    break;
-	  ret = ret->next;
+cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
+
+if (cookie != NULL) {
+	ret = sessions;
+	while (NULL != ret) {
+		if( 0 == strcmp( cookie, ret->sid ) )
+			break;
+		ret = ret->next;
 	}
-      if (NULL != ret)
-	{
-	  ret->rc++;
-	  return ret;
+	if (NULL != ret) {
+		ret->rc++;
+		return ret;
 	}
-    }
-  /* create fresh session */
-  ret = calloc (1, sizeof (SessionDef));
-  if (NULL == ret)
-    {
-      loghandle(LOG_ERR, errno, "%s", "HTTP calloc error");
-      return NULL;
-    }
-    //printf("new session\n");
-  /* not a super-secure way to generate a random session ID,
-     but should do for a simple example... */
-  snprintf (ret->sid,
-	    sizeof (ret->sid),
-	    "%X%X%X%X",
-	    (unsigned int) random (),
-	    (unsigned int) random (),
-	    (unsigned int) random (),
-	    (unsigned int) random ());
-  ret->rc++;
-  ret->start = time (NULL);
-  ret->next = sessions;
-  sessions = ret;
-  return ret;
+}
+
+//No Cookie, Make a new one.
+ret = calloc( 1, sizeof(SessionDef) );
+
+if (NULL == ret) {
+	loghandle(LOG_ERR, errno, "%s", "HTTP session allocation error!");
+	return NULL;
+}
+
+snprintf (ret->sid, sizeof (ret->sid), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+  
+ret->rc++;
+ret->start = ret->active = time(NULL);
+ret->next = sessions;
+sessions = ret;
+
+return ret;
 }
 
 
@@ -768,7 +753,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 			fprintf (stderr, "Failed to setup session for `%s'\n", url);
 			return MHD_NO; /* internal error */
 		}
-		request->session->start = time(NULL);
+		request->session->active = time(NULL);
 		request->session->posts = 0;
 		request->session->upload = UPLOAD_STATE_START;
 		request->post_url = url;
@@ -806,7 +791,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
-	request->session->start = time(NULL);
+	request->session->active = time(NULL);
 	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, request->session, request->connection );
 	if (ret != MHD_YES)
 		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", request->post_url);
@@ -821,7 +806,7 @@ if( ( request ) && ( request->session ) ) {
 	session->upload = UPLOAD_STATE_NULL;
 }
 
-session->start = time(NULL);
+session->active = time(NULL);
 session->posts = 0;
 if ( ( strncmp(url,"/files",6) == false ) ) {
 	return files_dir_page( false, cls, "text/html", session, connection);
@@ -903,14 +888,14 @@ pos = sessions;
 
 while( NULL != pos ) {
 	next = pos->next;
-	if (now - pos->start > 60 * 60) {
+	if (now - pos->active > 60 * 60) {
 		/* expire sessions after 1h */
 		if (NULL == prev) {
 			sessions = pos->next;
 		} else {
 			prev->next = next;
 		}
-		free (pos);
+		free( pos );
 	} else {
 	        prev = pos;
         }

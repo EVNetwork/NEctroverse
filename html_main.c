@@ -414,7 +414,7 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 		loghandle(LOG_ERR, false, "%s", "Error sending registration email" );
 
 
-	if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, 0, session ) < 0 ) ) {
+	if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( cnt->dbuser, saltgen(), session ) < 0 ) ) {
 		iohtmlBase( cnt, 8 );
 		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 		httpString( cnt, "Error encountered while registering session" );

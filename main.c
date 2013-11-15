@@ -859,7 +859,7 @@ do{
 	*--p = digit[i%10];
 	i = i/10;
 }while(i);
-    
+
 return strdup(p);
 }
 
@@ -956,7 +956,9 @@ if( !( strlen(options.sysini) > 0 ) ) {
 			perror("getcwd() error");
 			result = true;
 		}
+		free( file );
 	}
+	free( pointer); 
 }
 
 for( index = optind; index < argc; index++ ) {
