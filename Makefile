@@ -30,7 +30,7 @@ else
 LIBS += -lm -pthread
 endif
 
-HEAD = *.h http/*.h extras/*.h optional/*.h
+HEAD = *.h http/*.h extras/*.h
 
 # Right then, now we know all of that... lets build something!
 server: main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(MODS)

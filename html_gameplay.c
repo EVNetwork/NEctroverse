@@ -6746,7 +6746,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 void iohtmlFunc_research( ReplyDataPtr cnt )
 {
  int a, b, id, cmd[3];
- char *fundstring;
+ char fundstring[128] = {0};
  char *fund;
  char *rschptr[CMD_RESEARCH_NUMUSED];
  int rschvalue[CMD_RESEARCH_NUMUSED];
@@ -6756,7 +6756,9 @@ void iohtmlFunc_research( ReplyDataPtr cnt )
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohtmlBase( cnt, 1 );
-
+ if( !( iohtmlHeader( cnt, id, &maind ) ) )
+  return;
+ iohtmlBodyInit( cnt, "Research" );
 
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
  {
@@ -6764,8 +6766,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   rschptr[a] = iohtmlVarsFind( cnt, rschname );
  }
  fund = iohtmlVarsFind( cnt, "fund" );
-
- fundstring = 0;
+ 
 if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
 	if( a > maind.ressource[CMD_RESSOURCE_ENERGY] ) {
 		sprintf( fundstring, "<i>%s</i><br><br>", "You don't have so much energy" );
@@ -6779,9 +6780,7 @@ if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
 		}
 	}
 }
- if( !( iohtmlHeader( cnt, id, &maind ) ) )
-  return;
- iohtmlBodyInit( cnt, "Research" );
+
 
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
  {
@@ -6803,7 +6802,7 @@ if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
   memcpy( maind.allocresearch, rschvalue, CMD_RESEARCH_NUMUSED*sizeof(int) );
  }
  iohttpFunc_researchL0:
- if( fundstring )
+ if( fundstring[0] )
   httpString( cnt, fundstring );
 
  httpPrintf( cnt, "Increase fundings<br><form action=\"research\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\"></form><br>Current research fundings : %lld<br><br>", (long long)maind.fundresearch );
