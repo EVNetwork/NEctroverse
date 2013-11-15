@@ -944,10 +944,48 @@ static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have 
 unsigned int ports[2] = { 8880, 8881 };
 
 
+/**
+ * Function called if we get a SIGPIPE. Does nothing.
+ *
+ * @param sig will be SIGPIPE (ignored)
+ */
+static void
+catcher (int sig)
+{
+  /* do nothing */
+}
+
+
+/**
+ * setup handlers to ignore SIGPIPE.
+ */
+#ifndef MINGW
+static void
+ignore_sigpipe ()
+{
+  struct sigaction oldsig;
+  struct sigaction sig;
+
+  sig.sa_handler = &catcher;
+  sigemptyset (&sig.sa_mask);
+#ifdef SA_INTERRUPT
+  sig.sa_flags = SA_INTERRUPT;  /* SunOS */
+#else
+  sig.sa_flags = SA_RESTART;
+#endif
+  if (0 != sigaction (SIGPIPE, &sig, &oldsig))
+    fprintf (stderr,
+             "Failed to install SIGPIPE handler: %s\n", strerror (errno));
+}
+#endif
+
+
 
 int http_prep(){
 	cpuInfo cpuinfo;
-
+#ifndef MINGW
+  ignore_sigpipe ();
+#endif
 cpuGetInfo( &cpuinfo );
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
