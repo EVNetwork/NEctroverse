@@ -209,8 +209,13 @@ extern PageDef pages[];
 extern MHD_DaemonPtr server_http;
 extern MHD_DaemonPtr server_https;
 
+int http_prep();
 int http_start();
-void http_stop();
+#if HTTPS_SUPPORT
+int https_start();
+#endif
+void server_stop();
+void server_shutdown();
 
 extern void mark_as( MHD_ResponsePtr response, const char *type );
 

@@ -324,7 +324,12 @@ void daemonloop() {
 	int curtime;
 
 //Start HTTP/1.1 Server
+http_prep();
 http_start();
+#if HTTPS_SUPPORT
+https_start();
+#endif
+
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
 	#if PRODUCTION
@@ -366,7 +371,7 @@ while( sysconfig.shutdown == false ) {
 		fflush(stdout);
 }
 
-http_stop();
+server_shutdown();
 
 return;
 }

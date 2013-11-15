@@ -4,6 +4,9 @@
 
 #define _GNU_SOURCE  1
 
+/* Define if this is a live server or test model */
+#define PRODUCTION 1
+
 /* disable HTTPS support */
 #define HTTPS_SUPPORT 0
 
@@ -379,4 +382,3 @@
 /* Define curl_free() as free() if our version of curl lacks curl_free. */
 /* #undef curl_free */
 
-#define PRODUCTION 1

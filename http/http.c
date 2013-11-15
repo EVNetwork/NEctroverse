@@ -804,7 +804,7 @@ while( NULL != pos ) {
 }
 
 }
-
+#if HTTPS_SUPPORT
 char *loadsslfile( char *filename ) {
 	struct stat stdata;
 	char *data, *ret;
@@ -829,6 +829,7 @@ if( stat( filename, &stdata ) != -1 ) {
 
 return ret;
 }
+#endif
 
 struct MHD_OptionItem ops[] = {
 	{ MHD_OPTION_CONNECTION_MEMORY_LIMIT, (size_t)SERVERALLOCATION, NULL },
@@ -874,23 +875,24 @@ ignore_sigpipe ()
 }
 #endif
 
-int http_start() {
-	int THREADS, flags;
-	#if HTTPS_SUPPORT
-	unsigned int sslport = 8881;
-	#endif
-	unsigned int port = 8880;
+static int THREADS;
+static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
+unsigned int ports[2] = { 8880, 8881 };
+
+
+
+int http_prep(){
 	cpuInfo cpuinfo;
 
 cpuGetInfo( &cpuinfo );
 #ifndef MINGW
-ignore_sigpipe ();
+//ignore_sigpipe ();
 #endif
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
 #if HAVE_MAGIC_H
-magic = magic_open (MAGIC_MIME_TYPE);
-(void) magic_load (magic, NULL);
+magic = magic_open(MAGIC_MIME_TYPE);
+(void) magic_load(magic, NULL);
 #endif
 (void) pthread_mutex_init (&mutex, NULL);
 
@@ -903,8 +905,6 @@ mark_as(request_refused_response, "text/html" );
 internal_error_response = MHD_create_response_from_buffer (strlen (INTERNAL_ERROR_PAGE), (void *) INTERNAL_ERROR_PAGE, MHD_RESPMEM_PERSISTENT);
 mark_as(internal_error_response, "text/html" );
 
-flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
-
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;
 
@@ -914,8 +914,15 @@ flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 
 #if HTTPS_SUPPORT
 THREADS = fmax( 1.0, ( THREADS / 2 ) );
+#endif
+return 1;
+}
+
+#if HTTPS_SUPPORT
+int https_start() {
+
 server_https = MHD_start_daemon (flags | MHD_USE_SSL,
-				sslport,
+				ports[1],
 				NULL, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
@@ -925,10 +932,18 @@ server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
 				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 				MHD_OPTION_END);
+if(NULL == server_https)
+	return 1;
+loghandle(LOG_INFO, false, "HTTPS 1.1 Server live with %d thread(s) on port: %d", THREADS, ports[1]);
+
+return 0;
+}
 #endif
 
+int http_start() {
+
 server_http = MHD_start_daemon (flags,
-				port,
+				ports[0],
 				NULL, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
@@ -942,25 +957,35 @@ server_http = MHD_start_daemon (flags,
 
 if(NULL == server_http)
 	return 1;
-
-loghandle(LOG_INFO, false, "HTTP  1.1 Server live with %d thread(s) on port: %d", THREADS, port);
-
-#if HTTPS_SUPPORT
-if(NULL == server_https)
-	return 1;
-loghandle(LOG_INFO, false, "HTTPS 1.1 Server live with %d thread(s) on port: %d", THREADS, sslport);
-#endif
+loghandle(LOG_INFO, false, "HTTP  1.1 Server live with %d thread(s) on port: %d", THREADS, ports[0]);
 
 return 0;
 }
 
 
-void http_stop(){
+void server_stop( int flag ) {
 
-#if HTTPS_SUPPORT
-MHD_stop_daemon(server_https);
-#endif
-MHD_stop_daemon(server_http);
+if( flag == 1 ) {
+	if( server_http )
+		MHD_stop_daemon(server_http);
+} else if( flag == 2 ) {
+	if( server_https )
+		MHD_stop_daemon(server_https);
+} else {
+	if( server_http )
+		MHD_stop_daemon(server_http);
+	if( server_https )		
+		MHD_stop_daemon(server_https);
+}
+
+return;
+}
+
+
+void server_shutdown(){
+
+server_stop(0);
+
 MHD_destroy_response (file_not_found_response);
 MHD_destroy_response (request_refused_response);
 MHD_destroy_response (internal_error_response);
