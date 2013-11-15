@@ -410,8 +410,7 @@ if( irccfg.bot ) {
 daemonloop();
 
 if( irccfg.bot ) {
-	ircbot_send("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
-	ircbot_send("QUIT");
+	ircbot_send("QUIT :Server Shutdown has been iniated!");
 	if( close( options.botconn ) == -1 ) {
 		loghandle(LOG_ERR, errno, "Error %03d, closing ircbot socket", errno);
 	}
