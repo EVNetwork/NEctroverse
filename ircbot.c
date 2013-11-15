@@ -126,8 +126,10 @@ if( ( connect(options.botconn, res->ai_addr, res->ai_addrlen) == -1 ) && ( errno
 	loghandle(LOG_ERR, errno, "Error %03d, ircbot unable to connect", errno );
 	options.botconn = -1; irccfg.bot = false;
 	return 0;
-} else if( errno == 115 ) {
-goto INPROGRESS;
+}
+
+if( errno == 115 ) {
+	goto INPROGRESS;
 }
 
 ircbot_send("USER %s 0 0 :%s", irccfg.botnick, sysconfig.servername);
