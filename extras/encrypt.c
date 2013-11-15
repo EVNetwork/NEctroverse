@@ -3,12 +3,11 @@
 #include "md5.c"
 #include "base64.c"
 
-//Time to add some hash protection to our passwords.
 char *saltgen() {
 	int i;
 	const char *const seedchars = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	unsigned long seed[2];
-	char salted[128], *salt;
+	char salted[128];
 	char urandom[9];
 	char random[33];
 	FILE *fh;
@@ -35,17 +34,18 @@ seed[1] = getpid() ^ (seed[0] >> 14 & 0x30000);
 
 for (i = 0; i < 6; i++)
 	salted[3+i] = seedchars[(seed[i/5] >> (i%5)*6) & 0x3f];
-
-salt = salted;
-
-return salt;
+//Well, we have "spare" MD5... lets use it.
+	
+	
+return strdup(salted);
 }
 
-
+//Time to add some hash protection to our passwords.
 char *hashencrypt( char *passhash ) {
 	struct crypt_data data;
 
 data.initialized = 0;
+
 return crypt_r( str2md5(passhash), saltgen(), &data );
 }
 
@@ -54,8 +54,10 @@ int checkencrypt( char *passentered, char *passcheck ) {
 	struct crypt_data data;
 
 data.initialized = 0;
+
 return ( ( strcmp( crypt_r( str2md5(passentered), passcheck, &data), passcheck) == 0 ) ? 1 : 0 );
 }
+
 
 
 
