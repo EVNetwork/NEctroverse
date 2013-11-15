@@ -238,12 +238,6 @@ static int list_directory( ReplyDataPtr rd, const char *dirname ) {
 	struct dirent *de;
 	DIR *dir;
 
-if( ( iohtmlHeaderFind(rd, "Referer") ) && ( strncmp( ( strrchr(iohtmlHeaderFind(rd, "Referer"),'/') ) ,"/test",5) == false ) ) {
-	local = true;
-} else {
-   	local = false;
-}
-
 if (NULL == (dir = opendir (dirname)))
 	return MHD_NO;      
 
@@ -265,7 +259,7 @@ while (NULL != (de = readdir (dir))) {
 			break; /* out of memory */
 		rd->response.buf = r;
 	}
-	rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "<li><a href=\"%s%s\">%s</a></li>\n",( local ? "files/" : "" ), de->d_name, de->d_name );
+	rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "<li><a href=\"/files/%s\">%s</a></li>\n", de->d_name, de->d_name );
 }
 (void)closedir( dir );
 
@@ -378,7 +372,7 @@ if (file == NULL) {
 	response = MHD_create_response_from_callback( buf.st_size, 32 * 1024, &file_read, file, &file_free_callback );
 	if (response == NULL) {
 		fclose (file);
-	return MHD_NO;
+		return MHD_NO;
 	}
 	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
 	MHD_destroy_response( response );
@@ -471,14 +465,15 @@ int file_page( int id, const void *cls, const char *mime, SessionPtr session, MH
 	else
 		fd = -1;
 	if (-1 == fd) {
-		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE);
-		add_session_cookie(session, response);
-		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
-		MHD_destroy_response (response);
+		response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE );
+		(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( NOT_FOUND_ERROR ) );
+		add_session_cookie( session, response );
+		ret = MHD_queue_response( connection, MHD_HTTP_NOT_FOUND, response );
+		MHD_destroy_response( response );
 		return ret;
 	}
 
-	if (NULL == (response = MHD_create_response_from_fd(buf.st_size,fd)) ) {
+	if (NULL == ( response = MHD_create_response_from_fd(buf.st_size,fd) ) ) {
 		/* internal error (i.e. out of memory) */
 		(void) close (fd);
 		return MHD_NO;
@@ -489,6 +484,7 @@ int file_page( int id, const void *cls, const char *mime, SessionPtr session, MH
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
 
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
+	
 	strftime(filename,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filename );
 
