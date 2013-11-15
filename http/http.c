@@ -317,7 +317,6 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 	}
 }
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
 mark_as( response, mime );
 MHD_destroy_response (response);
 
@@ -350,7 +349,7 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 	}
 }
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
+mark_as( response, mime );
 MHD_destroy_response (response);
 
 return ret;
