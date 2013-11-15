@@ -59,7 +59,7 @@
 //#undef HAVE_GNUTLS
 
 /* Define to 1 if you have the <gnutls/gnutls.h> header file. */
-#define HAVE_GNUTLS_GNUTLS_H 0
+#define HAVE_GNUTLS_GNUTLS_H 1
 
 /* Provides IPv6 headers */
 #define HAVE_INET6 1

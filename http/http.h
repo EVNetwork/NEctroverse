@@ -209,9 +209,8 @@ extern PageDef pages[];
 extern MHD_DaemonPtr server_http;
 extern MHD_DaemonPtr server_https;
 
-void call_clean();
-
-int main_clone();
+int http_start();
+void http_stop();
 
 extern void mark_as( MHD_ResponsePtr response, const char *type );
 

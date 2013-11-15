@@ -819,7 +819,7 @@ if( stat( filename, &stdata ) != -1 ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
 				loghandle(LOG_ERR, errno, "%s", "Failure reading ssl file." );
 			} else {
-				ret = data;
+				ret = strdup( data );
 			}
 			fclose( file );
 		}
@@ -827,13 +827,7 @@ if( stat( filename, &stdata ) != -1 ) {
 	}
 }
 
-if( ret ) {
-	return strdup( ret );
-} else {
-	return NULL;
-}
-
-return NULL;
+return ret;
 }
 
 struct MHD_OptionItem ops[] = {
@@ -880,40 +874,36 @@ ignore_sigpipe ()
 }
 #endif
 
-int
-main_clone ()
-{
-  int THREADS;
-  cpuInfo cpuinfo;
-  #if HTTPS_SUPPORT
-  unsigned int sslport = 8881;
-  #endif
-  unsigned int port = 8880;
-  cpuGetInfo( &cpuinfo );
-  #ifndef MINGW
-  ignore_sigpipe ();
-  #endif
-  THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
-#if HAVE_MAGIC_H
-  magic = magic_open (MAGIC_MIME_TYPE);
-  (void) magic_load (magic, NULL);
+int http_start() {
+	int THREADS, flags;
+	#if HTTPS_SUPPORT
+	unsigned int sslport = 8881;
+	#endif
+	unsigned int port = 8880;
+	cpuInfo cpuinfo;
+
+cpuGetInfo( &cpuinfo );
+#ifndef MINGW
+ignore_sigpipe ();
 #endif
-  (void) pthread_mutex_init (&mutex, NULL);
-  file_not_found_response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR),
-							     (void *) NOT_FOUND_ERROR,
-							     MHD_RESPMEM_PERSISTENT);
-  mark_as(file_not_found_response, "text/html" );
-  request_refused_response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),
-							     (void *) METHOD_ERROR,
-							     MHD_RESPMEM_PERSISTENT);
-  mark_as(request_refused_response, "text/html" );
-  internal_error_response = MHD_create_response_from_buffer (strlen (INTERNAL_ERROR_PAGE),
-							     (void *) INTERNAL_ERROR_PAGE,
-							     MHD_RESPMEM_PERSISTENT);
-  mark_as(internal_error_response, "text/html" );
 
+THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
+#if HAVE_MAGIC_H
+magic = magic_open (MAGIC_MIME_TYPE);
+(void) magic_load (magic, NULL);
+#endif
+(void) pthread_mutex_init (&mutex, NULL);
 
-int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
+file_not_found_response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+mark_as(file_not_found_response, "text/html" );
+
+request_refused_response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_PERSISTENT);
+mark_as(request_refused_response, "text/html" );
+
+internal_error_response = MHD_create_response_from_buffer (strlen (INTERNAL_ERROR_PAGE), (void *) INTERNAL_ERROR_PAGE, MHD_RESPMEM_PERSISTENT);
+mark_as(internal_error_response, "text/html" );
+
+flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
 
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;
@@ -923,48 +913,49 @@ flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 #endif
 
 #if HTTPS_SUPPORT
-  THREADS = fmax( 1.0, ( THREADS / 2 ) );
-  server_https = MHD_start_daemon (flags | MHD_USE_SSL,
-                        sslport,
-                        NULL, NULL,
-			&create_response, NULL,
-			MHD_OPTION_ARRAY, ops,
-			MHD_OPTION_HTTPS_MEM_KEY, loadsslfile( "/home/stephen/.ssl/certificate.key" ),
-			MHD_OPTION_HTTPS_MEM_CERT, loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt"),
-			MHD_OPTION_HTTPS_MEM_TRUST, loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt"),
-                        MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
-			MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
-			MHD_OPTION_END);
-
+THREADS = fmax( 1.0, ( THREADS / 2 ) );
+server_https = MHD_start_daemon (flags | MHD_USE_SSL,
+				sslport,
+				NULL, NULL,
+				&create_response, NULL,
+				MHD_OPTION_ARRAY, ops,
+				MHD_OPTION_HTTPS_MEM_KEY, loadsslfile( "/home/stephen/.ssl/certificate.key" ),
+				MHD_OPTION_HTTPS_MEM_CERT, loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt"),
+				MHD_OPTION_HTTPS_MEM_TRUST, loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt"),
+				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
+				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
+				MHD_OPTION_END);
 #endif
 
-  server_http = MHD_start_daemon (flags,
-                        port,
-                        NULL, NULL,
-			&create_response, NULL,
-			MHD_OPTION_ARRAY, ops,
-			#if HTTPS_SUPPORT
-                        MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, (THREADS / 2) ),
-                        #else
-                        MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
-                        #endif
-			MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
-			MHD_OPTION_END);
+server_http = MHD_start_daemon (flags,
+				port,
+				NULL, NULL,
+				&create_response, NULL,
+				MHD_OPTION_ARRAY, ops,
+				#if HTTPS_SUPPORT
+				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, (THREADS / 2) ),
+				#else
+				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
+				#endif
+				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
+				MHD_OPTION_END);
 
- if(NULL == server_http)
-    return 1;
-  loghandle(LOG_INFO, false, "HTTP  1.1 Server live with %d thread(s) on port: %d", THREADS, port);
+if(NULL == server_http)
+	return 1;
+
+loghandle(LOG_INFO, false, "HTTP  1.1 Server live with %d thread(s) on port: %d", THREADS, port);
 
 #if HTTPS_SUPPORT
 if(NULL == server_https)
-    return 1;
-  loghandle(LOG_INFO, false, "HTTPS 1.1 Server live with %d thread(s) on port: %d", THREADS, sslport);
+	return 1;
+loghandle(LOG_INFO, false, "HTTPS 1.1 Server live with %d thread(s) on port: %d", THREADS, sslport);
 #endif
-  return 0;
+
+return 0;
 }
 
 
-void call_clean(){
+void http_stop(){
 
 #if HTTPS_SUPPORT
 MHD_stop_daemon(server_https);
@@ -973,8 +964,9 @@ MHD_stop_daemon(server_http);
 MHD_destroy_response (file_not_found_response);
 MHD_destroy_response (request_refused_response);
 MHD_destroy_response (internal_error_response);
-  //update_cached_response (NULL);
+//update_cached_response (NULL);
 (void) pthread_mutex_destroy (&mutex);
+
 #if HAVE_MAGIC_H
 magic_close (magic);
 #endif

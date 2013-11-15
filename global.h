@@ -116,7 +116,7 @@ static const double megabyte = (1024 * 1024);
 #include "db.h"
 
 
-#include "http/MHD_config.h"
+#include "http/config.h"
 #include "http/platform.h"
 
 #include "extras/cpuinfo.h"
@@ -129,7 +129,7 @@ static const double megabyte = (1024 * 1024);
 #include "extras/encrypt.h"
 
 #include "battle.h"
-#include "sv.h"
+#include "main.h"
 #include "io.h"
 #include "iohttpvars.h"
 #include "iohttpmime.h"

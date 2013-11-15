@@ -34,60 +34,6 @@ return ( lntime.tv_sec * 1000 ) + ( lntime.tv_usec / 1000 );
 }
 
 
-
-int svInit() {
-	int a, b, c;
-	struct sockaddr_in sinInterface;
-
-c=0;
-for( b = 0 ; b < options.interfaces ; b++ ) {
-	svListenSocket[b] = socket( AF_INET, SOCK_STREAM, 0 );
-	if( svListenSocket[b] == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, creating listening socket", errno );
-		continue;
-	}
-	a = 1;
-	if( setsockopt( svListenSocket[b], SOL_SOCKET, SO_REUSEADDR, (char *)&a, sizeof(int) ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, setsockopt", errno );
-		close( svListenSocket[b] );
-		svListenSocket[b] = -1;
-		continue;
-	}
-	sinInterface.sin_family = AF_INET;
-	sinInterface.sin_addr.s_addr = htonl(INADDR_ANY);
-	sinInterface.sin_port = htons( options.port[b] );
-	if( bind( svListenSocket[b], (struct sockaddr *)&sinInterface, sizeof(struct sockaddr_in) ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, binding listening socket to port: %d", errno, options.port[b] );
-		close( svListenSocket[b] );
-		svListenSocket[b] = -1;
-		continue;
-	}
-	if( listen( svListenSocket[b], SOMAXCONN ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, listen on port: %d", errno, options.port[b] );
-		close( svListenSocket[b] );
-		svListenSocket[b] = -1;
-		continue;
-	} 
-	if( fcntl( svListenSocket[b], F_SETFL, O_NONBLOCK ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, setting non-blocking on port: %d", errno, options.port[b] );
-		close( svListenSocket[b] );
-		svListenSocket[b] = -1;
-		continue;
-	} else { c++; }
-	loghandle(LOG_INFO, false, "HTTP  1.0 Server live with 1 thread(s) on port: %d", options.port[b] );
-}
-
-if ( c == 0 ) {
-	loghandle(LOG_CRIT, false, "Server Binding failed, ports are not avalible/allowed!!" );
-//Empty Return to indicate no ports avaliable, and server can not iniate.
-	return 0;
-}
-
-
-//Return to indicate all ports avaliable, and server can iniate.
-return 1;
-}
-
 void cleanUp(int type) {
 	char DIRCHECKER[256];
 
@@ -107,306 +53,6 @@ if( type ) {
 return;
 }
 
-void svEnd() {
-	int a;
-	svConnectionPtr cnt, next;
-
-loghandle(LOG_INFO, false, "%s", "Shutdown called, begin deamon breakdown..." );
-
-for( cnt = svConnectionList ; cnt ; cnt = next ) {
-	next = cnt->next;
-	svFree( cnt );
-}
-for( a = 0 ; a < options.interfaces ; a++ ) {
-	if( svListenSocket[a] == -1 )
-		continue;
-	//Error 009 means not connected, so we ignore that "error" now... afterall we are closing connections here.
-   	if( ( shutdown( options.port[a], 2 ) == -1 ) && ( errno != 9 ) ) {
-		loghandle(LOG_ERR, errno, "Error %03d, unable to shutdown listening socket: %d", errno, options.port[a] );
-	}
- 	if( close( svListenSocket[a] ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, closing socket: %d", errno, options.port[a] );
-	} else {
-		loghandle(LOG_INFO, false, "Server released port: %d", options.port[a] );
-		}
-
-   	}
-
-return;
-}
-
-int svListen () {
-	int a, b, socket;
-	struct sockaddr_in sockaddr;
-	svConnectionPtr cnt;
-	ioInterfacePtr io;
-
-for( b = 0 ; b < options.interfaces ; b++ ) {
-	if( svListenSocket[b] == -1 )
-		continue;
-	a = sizeof( struct sockaddr_in );
-	socket = accept( svListenSocket[b], (struct sockaddr *)(&sockaddr), (socklen_t * __restrict__)&a );
-	if( socket == -1 ) {
-		if( errno == EWOULDBLOCK )
-			continue;
-		loghandle(LOG_ERR, errno, "Error %03d, failed to accept a connection %s", errno, inet_ntoa(sockaddr.sin_addr) );
-		continue;
-		loghandle(LOG_CRIT, false, "This is a critical problem... should we really keep going past this?? - We do anways." );
-	}
-	if( socket >= FD_SETSIZE ) {
-		loghandle(LOG_ERR, false, "Error, socket >= FD_SETSIZE, %d", socket );
-		if( close( socket ) == -1 ) {
-			loghandle(LOG_ERR, errno, "Error %03d, unable to close socket", errno );
-		}
-	continue;
-}
-#if SERVER_REPORT_CONNECT == 1
-else
-loghandle(LOG_INFO, false, "Accepting connection from %s:%d>%d", inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), socket );
-#endif
-
-	if( !( cnt = malloc( sizeof(svConnectionDef) ) ) ) {
-		loghandle(LOG_ERR, false, "%s", "ERROR, not enough memory to create a connection structure" );
-		if( close( socket ) == -1 ) {
-			loghandle(LOG_ERR, errno, "Error %03d, unable to close socket", errno );
-		}
-		continue;
-	}
-	cnt->socket = 0;
-	cnt->next = 0;
-	cnt->previous = 0;
-	cnt->time = 0;
-	cnt->flags = 0;
-	cnt->sendbuf = 0;
-	cnt->sendbufpos = 0;
-	cnt->sendpos = 0;
-	cnt->sendsize = 0;
-	cnt->sendflushbuf = 0;
-	cnt->sendflushpos = 0;
-	cnt->sendstatic = 0;
-	cnt->sendstaticsize = 0;
-	cnt->io = 0;
-	cnt->iodata = 0;
-	cnt->dbuser = 0;
-
-	cnt->recv_buf[SERVER_RECV_BUFSIZE] = 0;
-	cnt->recv_pos = 0;
-	cnt->recv = cnt->recv_buf;
-	cnt->recv_max = SERVER_RECV_BUFSIZE;
-
-
-#if SERVER_NAGLE_BUFFERING == 0
-	a = 1;
-	if( setsockopt( socket, IPPROTO_TCP, TCP_NODELAY, (char *)&a, sizeof(int) ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, setsockopt", errno );
-	}
-#endif
-
-	if( fcntl( socket, F_SETFL, O_NONBLOCK ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, setting a socket to non-blocking", errno );
-	}
-
-	cnt->socket = socket;
-	memcpy( &(cnt->sockaddr), &sockaddr, sizeof(struct sockaddr_in) );
-	cnt->time = svTime();
-
-	cnt->previous = (void **)&(svConnectionList);
-	cnt->next = svConnectionList;
-	if( svConnectionList )
-		svConnectionList->previous = &(cnt->next);
-	svConnectionList = cnt;
-
-	io = cnt->io = &ioInterface[ ( (b == PORT_EVMP) ? true : false ) ];
-	svSendInit( cnt, io->outputsize );
-	io->inNew( cnt );
-}
-
-
-return 1;
-}
-
-
-void svSelect() {
-	int a, rmax;
-	svConnectionPtr cnt;
-	struct timeval to;
-	FD_ZERO( &svSelectRead );
-	FD_ZERO( &svSelectWrite );
-	FD_ZERO( &svSelectError );
-
-rmax = 0;
-for( a = 0 ; a < options.interfaces ; a++ ) {
-	if( svListenSocket[a] == -1 )
-		continue;
-	FD_SET( svListenSocket[a], &svSelectRead );
-	if( svListenSocket[a] > rmax )
-		rmax = svListenSocket[a];
-}
-
-for( cnt = svConnectionList ; cnt ; cnt = cnt->next ) {
-	if( cnt->socket > rmax )
-		rmax = cnt->socket;
-	FD_SET( cnt->socket, &svSelectError );
-	if( cnt->flags & ( SV_FLAGS_NEED_WRITE | SV_FLAGS_WRITE_BUFFERED | SV_FLAGS_WRITE_STATIC | SV_FLAGS_TO_CLOSE ) )
-		FD_SET( cnt->socket, &svSelectWrite );
-	else
-		FD_SET( cnt->socket, &svSelectRead );
-}
-
-to.tv_usec = ( SERVER_SELECT_MSEC % 1000 ) * 1000;
-to.tv_sec = SERVER_SELECT_MSEC / 1000;
-
-if( ( select( rmax+1, &svSelectRead, &svSelectWrite, &svSelectError, &to ) < 0 ) && (sysconfig.shutdown == false) ) {
-	loghandle(LOG_ERR, errno, "Error %03d, select()", errno );
-	return;
-}
-
-
-return;
-}
-
-
-void svRecv() { 
-	int a, b, time;
-	ioInterfacePtr io;
-	svConnectionPtr cnt, next;
-
-time = svTime();
-
-for( cnt = svConnectionList ; cnt ; cnt = next ) {
-	svDebugConnection = cnt;
-	next = cnt->next;
-	io = cnt->io;
-	if( ( time - cnt->time >= io->timeout ) && !( cnt->flags & SV_FLAGS_TIMEOUT ) ) {
-		#if SERVER_REPORT_ERROR == 1
-		loghandle(LOG_ERR, errno, "%s>%d Timeout : %d", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		#endif
-		io->inError( cnt, 0 );
-		cnt->flags |= SV_FLAGS_TIMEOUT;
-	}
-	if( time - cnt->time >= io->hardtimeout ) {
-		#if SERVER_REPORT_ERROR == 1
-		loghandle(LOG_ERR, errno, "%s>%d Hard timeout : %d", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		#endif
-		svFree( cnt );
-		continue;
-	}
-
-	if( cnt->flags & SV_FLAGS_WAIT_CLOSE ) {
-		a = recv( cnt->socket, &b, 4, 0 );
-		if( ( a == 0 ) || ( ( a == -1 ) && ( errno != EWOULDBLOCK ) ) ) {
-			io->inClosed( cnt );
-			svFree( cnt );
-		}
-	continue;
-	}
-
-	if( ( cnt->flags & ( SV_FLAGS_NEED_WRITE | SV_FLAGS_WRITE_BUFFERED | SV_FLAGS_WRITE_STATIC ) ) && ( FD_ISSET( cnt->socket, &svSelectWrite ) ) ) {
-		if( cnt->flags & SV_FLAGS_NEED_WRITE ) {
-			io->outSendReply( cnt );
-			cnt->flags &= 0xFFFFFFFF - SV_FLAGS_NEED_WRITE;
-			cnt->flags |= SV_FLAGS_WRITE_BUFFERED;
-		}
-		if( cnt->flags & SV_FLAGS_WRITE_BUFFERED ) {
-			if( svSendFlush( cnt ) )
-			cnt->flags &= 0xFFFFFFFF - SV_FLAGS_WRITE_BUFFERED;
-			cnt->time = time;
-		}
-		if( ( cnt->flags & ( SV_FLAGS_WRITE_STATIC | SV_FLAGS_WRITE_BUFFERED ) ) == SV_FLAGS_WRITE_STATIC ) {
-			svSendStaticFlush( cnt );
-			if( !( cnt->sendstaticsize ) )
-				cnt->flags &= 0xFFFFFFFF - SV_FLAGS_WRITE_STATIC;
-			cnt->time = time;
-		}
-		if( !( cnt->flags & ( SV_FLAGS_WRITE_STATIC | SV_FLAGS_WRITE_BUFFERED ) ) )
-			io->inSendComplete( cnt );
-	}
-
-	if( cnt->flags & SV_FLAGS_TO_CLOSE ) {
-		svShutdown( cnt );
-		cnt->flags |= SV_FLAGS_WAIT_CLOSE;
-		continue;
-	}
-
-	if( !( FD_ISSET( cnt->socket, &svSelectRead ) ) && !( FD_ISSET( cnt->socket, &svSelectError ) ) )
-		continue;
-
-	if( cnt->recv_pos == cnt->recv_max )
-		io->inError( cnt, 1 );
-
-	a = recv( cnt->socket, &((cnt->recv)[cnt->recv_pos]), cnt->recv_max - cnt->recv_pos, 0 );
-	if( a <= 0 ) {
-		if( ( a == -1 ) && ( errno == EWOULDBLOCK ) )
-			continue;
-		#if SERVER_REPORT_ERROR == 1
-		loghandle(LOG_ERR, errno, "Connection to %s>%d died : %d", inet_ntoa( (cnt->sockaddr).sin_addr ), cnt->socket, errno );
-		#endif
-		io->inClosed( cnt );
-		svFree( cnt );
-		continue;
-	}
-
-	cnt->recv_pos += a;
-	cnt->time = time;
-	cnt->flags &= 0xFFFFFFFF - SV_FLAGS_TIMEOUT;
-
-	io->inNewData( cnt );
-}
-
-return;
-}
-
-
-
-
-void svShutdown( svConnectionPtr cnt ) {
-
-#if SERVER_REPORT_CLOSE == 1
-loghandle(LOG_INFO, false, "Shuting down connection to %s:%d>%d", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
-#endif
-shutdown( cnt->socket, 1 );
-
-return;
-}
-
-void svClose( svConnectionPtr cnt ) {
-
-#if SERVER_REPORT_CLOSE == 1
-loghandle(LOG_INFO, false, "Closed connection to %s:%d>%d", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ), cnt->socket);
-#endif
-if( close( cnt->socket ) == -1 ) {
-	loghandle(LOG_ERR, errno, "Error %03d, closing socket", errno);
-}
-cnt->socket = -1;
-
-return;
-}
-
-int svFree( svConnectionPtr cnt ) {
-
-svConnectionPtr next;
-
-if( cnt->socket != -1 )
-	svClose( cnt );
-#if SERVER_REPORT_CLOSE == 1
-loghandle(LOG_INFO, false, "Freed connection to %s:%d", inet_ntoa( cnt->sockaddr.sin_addr ), ntohs( cnt->sockaddr.sin_port ) );
-#endif
-svSendEnd( cnt );
-next = cnt->next;
-*(cnt->previous) = (void *)next;
-if( next )
-	next->previous = cnt->previous;
-if( cnt->iodata ) {
-	free( cnt->iodata );
-	cnt->iodata = 0;
-}
-
-free( cnt );
-
-return 1;
-}
-
-
 
 
 
@@ -425,62 +71,6 @@ buffer->data = &mem[sizeof(svBufferDef)];
 buffer->prev = (void **)&(bufferp);
 buffer->next = 0;
 *bufferp = buffer;
-
-return 1;
-}
-
-void svSendInit( svConnectionPtr cnt, int size ) {
-
-svSendEnd( cnt );
-if( !( svSendAddBuffer( &(cnt->sendbuf), size ) ) )
-	return;
-cnt->sendsize = size;
-cnt->sendbufpos = cnt->sendbuf;
-cnt->sendpos = 0;
-cnt->sendflushbuf = cnt->sendbuf;
-cnt->sendflushpos = 0;
-
-return;
-}
-
-void svSendEnd( svConnectionPtr cnt ) {
-	svBufferPtr buffer, next;
-
-for( buffer = cnt->sendbuf ; buffer ; buffer = next ) {
-	next = buffer->next;
-	free( buffer );
-}
-cnt->sendbuf = 0;
-
-return;
-}
-
-int svSendFlush( svConnectionPtr cnt ) {
-	int a, size;
-
-for( ; cnt->sendflushbuf ; cnt->sendflushbuf = (cnt->sendflushbuf)->next ) {
-	if( (cnt->sendflushbuf)->next )
-		size = cnt->sendsize - cnt->sendflushpos;
-	else
-		size = cnt->sendpos - cnt->sendflushpos;
-	a = send( cnt->socket, &(cnt->sendflushbuf)->data[cnt->sendflushpos], size, 0 );
-	if( a == -1 ) {
-		if( errno == EWOULDBLOCK )
-			return 0;
-		loghandle(LOG_ERR, errno, "Error %d, send flush", errno);
-		return 1;
-	}
-	if( a != size ) {
-		cnt->sendflushpos += a;
-		return 0;
-	}
-	cnt->sendflushpos = 0;
-}
-
-cnt->sendbufpos = cnt->sendbuf;
-cnt->sendpos = 0;
-cnt->sendflushbuf = cnt->sendbuf;
-cnt->sendflushpos = 0;
 
 return 1;
 }
@@ -549,28 +139,6 @@ vsnprintf( text, 4096, string, ap );
 va_end( ap );
 
 rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", text);
-
-return;
-}
-
-
-
-void svSendStaticFlush( svConnectionPtr cnt ) {
-int a;
-
-a = send( cnt->socket, cnt->sendstatic, cnt->sendstaticsize, 0 );
-if( a == -1 )
-	return;
-cnt->sendstatic += a;
-cnt->sendstaticsize -= a;
-
-return;
-}
-
-void svSendStatic( svConnectionPtr cnt, void *data, int size ) {
-	cnt->sendstatic = data;
-	cnt->sendstaticsize = size;
-	cnt->flags |= SV_FLAGS_WRITE_STATIC;
 
 return;
 }
@@ -649,7 +217,7 @@ if( irccfg.bot ) {
 }
 
 sysconfig.shutdown = true;
-call_clean();
+http_stop();
 cleanUp(1);
 cleanUp(0);
 
@@ -753,9 +321,10 @@ return 1;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 void daemonloop() {
-	ioInterfacePtr io;
-	int a, curtime;
+	int curtime;
 
+//Start HTTP/1.1 Server
+http_start();
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
 	#if PRODUCTION
@@ -766,14 +335,12 @@ while( sysconfig.shutdown == false ) {
 	}
 	svPipeScan( options.serverpipe );
 	loadconfig(options.sysini,CONFIG_BANNED);
-	//svSelect();
-	//svListen();
-	//svRecv();
+
 	svDebugConnection = 0;
 	curtime = time( 0 );
 
 	if( curtime < ticks.next ) {
-		nanosleep((struct timespec[]){{0, ( 50000000 ) }}, NULL);
+		nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
 		continue;
 	}
 
@@ -785,39 +352,29 @@ while( sysconfig.shutdown == false ) {
 		ticks.status = true;
 	}
 
-/*
-	for( a = 0 ; a < options.interfaces ; a++ ) {
-		io = &ioInterface[a];
-		io->TickStart();
-	}
-*/
+
 	cmdTickInit();
 	if( ticks.status ) {
 		cmdTick();
 		ticks.number++;
 	}
 	cmdTickEnd();
-/*
-	for( a = 0 ; a < options.interfaces ; a++ ) {
-		io = &ioInterface[a];
-		io->TickEnd();
-	}
-*/
+
 	cmdExecuteFlush();
 
 	if( options.verbose )
 		fflush(stdout);
 }
 
+http_stop();
+
 return;
 }
 
 //begin upgrade to daemon, I don't like shell dependancy!
 int daemon_init() {
-	int a;
 	int binfo[MAP_TOTAL_INFO];
 	char DIRCHECKER[256];
-	ioInterfacePtr io;
 	pid_t pid, sid;
 
 loghandle(LOG_INFO, false, "%s", "Server process iniating...");
@@ -877,20 +434,10 @@ signal( SIGUSR1, &svSignal);
 signal( SIGUSR2, &svSignal);
 	
 srand( time(NULL) ); //Random Init
-/*	
-if( !( svInit() ) ) {
-	loghandle(LOG_CRIT, false, "%s", "Server Core Initation Failed, now exiting..." );
-	return 0;
-}
-*/
+
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
 	loghandle(LOG_CRIT, false, "%s", "Server Database Initation Failed, now exiting..." );
 	return 0;
-}
-
-for( a = 0 ; a < options.interfaces ; a++ ) {
-	io = &ioInterface[a];
-	io->Init();
 }
 
 
@@ -929,10 +476,7 @@ if( irccfg.bot ) {
 	ircbot_connect();
 }
 
-main_clone();
 daemonloop();
-
-call_clean();
 
 if( irccfg.bot ) {
 	ircbot_send("NOTICE %s :Server Shutdown has been iniated!", irccfg.channel);
@@ -945,14 +489,6 @@ if( irccfg.bot ) {
 
 cmdEnd();
 dbEnd();
-
-for( a = 0 ; a < options.interfaces ; a++ ) {
-	io = &ioInterface[a];
-	io->End();
-}
-
-//svEnd();
-
 
 
 return 1;

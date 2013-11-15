@@ -4,19 +4,24 @@ CC = gcc
 else
 CC = colorgcc
 endif
+CONFIGS := $(shell cat http/config.h)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
 #The standard config needed to compile basic server, withought these it won't work.
 FLAGS = $(SQLFLAG) --fast-math -Wall -fno-strict-aliasing -O3
-LIBS = $(SQLLIBS) -lcrypt -lpng -lgcrypt -lgnutls
+LIBS = $(SQLLIBS) -lcrypt -lpng
+
+ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)
+LIBS += -lgcrypt -lgnutls
+endif
 
 #Purely optional, you can remove this. It adds extra debugging headers for gdb usage.
 DEFS = -ggdb -rdynamic
 
 # Right then, now we know all of that... lets build something!
-server: sv.o io.o http.o db.o cmd.o html.o map.o encrypt.o
-	$(CC) sv.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: main.o io.o http.o db.o cmd.o html.o map.o encrypt.o
+	$(CC) main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
 	sudo service evserver start
@@ -26,8 +31,8 @@ stop:
 	
 restart: stop run
 	
-sv.o: *.h sv.c extras/iniparser.c ircbot.c
-	$(CC) sv.c $(DEFS) -o sv.o -c $(FLAGS)
+main.o: *.h main.c extras/iniparser.c ircbot.c
+	$(CC) main.c $(DEFS) -o main.o -c $(FLAGS)
 
 io.o: *.h io.c iohttpvars.c iohttp.c iohttpmime.c ioevm.c extras/url_parser.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)

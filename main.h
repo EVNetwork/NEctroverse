@@ -1,5 +1,5 @@
-#ifndef SERVERINCLUDES
-#define SERVERINCLUDES
+#ifndef MAININCLUDES
+#define MAININCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 extern char *cmdSignalNames[SIGNALS_NUMUSED];
@@ -164,11 +164,6 @@ typedef struct
 
 
 int svTime();
-int svInit();
-int svListen();
-void svEnd();
-void svSelect();
-void svRecv();
 
 int file_exist(char *filename);
 int loadconfig( char *file, int type );
@@ -177,20 +172,10 @@ char *trimwhitespace(char *str);
 char** str_split(char* str, char delim, int* numSplits );
 void dirstructurecheck(char *directory);
 
-void svShutdown( svConnectionPtr cnt );
-void svClose( svConnectionPtr cnt );
-int svFree( svConnectionPtr cnt );
-
 void cleanUp(int type);
 
 void svPipeScan(int pipefileid);
 int svPipeSend(int pipedirection, char *message, ...);
-
-void svSendEnd( svConnectionPtr cnt );
-void svSendInit( svConnectionPtr cnt, int size );
-int svSendFlush( svConnectionPtr cnt );
-void svSendStaticFlush( svConnectionPtr cnt );
-
 
 // Functions used by the Output interface
 void svSend( svConnectionPtr cnt, void *data, int size );
@@ -202,7 +187,7 @@ __attribute__ ((format (printf, 2, 3))) void httpPrintf( ReplyDataPtr rd, char *
 
 __attribute__ ((format (printf, 2, 3))) void svSendPrintf( svConnectionPtr cnt, char *string, ... );
 
-void svSendStatic( svConnectionPtr cnt, void *data, int size );
+//void svSendStatic( svConnectionPtr cnt, void *data, int size );
 
 
 #define SV_FLAGS_NEED_WRITE (0x1)

@@ -711,16 +711,6 @@ void outSendReplyHTTP( svConnectionPtr cnt )
     svSendPrintf( cnt, "HTTP Code : %d<br>Path requested : %s<br>Method : %d<br>Query string : %s<br>Agent : %s<br>Content : %s<br>Host : %s<br>Referer : %s<br>Cookie : %s<br>", iohttp->code, iohttp->path, iohttp->method, iohttp->query_string, iohttp->user_agent, iohttp->content, iohttp->host, iohttp->referer, iohttp->cookie );
     svSendString( cnt, "</body></html>" );
   }
-  else if( file->type == FILE_IMAGEDIR )
-  {
-    strftime( scurtime, 256, "%a, %d %b %Y %H:%M:%S GMT", gmtime( &file->scurtime ) );
-    svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );
-    svSendString( cnt, "Expires: Thu, 01 Dec 2004 16:00:00 GMT\n" );
-    svSendPrintf( cnt, "Content-Length: %d\n", file->size );
-    svSendPrintf( cnt, "Content-MD5: %s\n", str2md5(file->data) );
-    svSendString( cnt, iohttpMime[file->mime].def );
-    svSendStatic( cnt, file->data, file->size );
-  }
   else if( file->type == FILE_FUNCTION )
   {
     svSendPrintf( cnt, "Last-Modified: %s\n", scurtime );

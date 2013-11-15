@@ -34,7 +34,7 @@
 #ifndef MHD_PLATFORM_H
 #define MHD_PLATFORM_H
 
-#include "MHD_config.h"
+#include "config.h"
 
 #define _XOPEN_SOURCE_EXTENDED  1
 #if OS390
