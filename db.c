@@ -371,11 +371,6 @@ if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
   user->id = id;
   user->lasttime = 0;
   dbUserRetrievePassword( id, pass );
-  srand( time(0) + pass[1] + 3*pass[3] + 5*pass[5] + 7*pass[7] );
-  user->session[0] = rand();
-  user->session[1] = rand();
-  user->session[2] = rand();
-  user->session[3] = rand();
   dbUserTable[id] = user;
   return user;
 }
@@ -576,11 +571,9 @@ for( a = 0 ; a < b ; a++ ) {
 	user->level = infod.level;
 	user->flags = infod.flags;
 	strncpy(user->name, infod.name, sizeof(user->name) );
-    
-//printf("%d\n",infod.id);
-//printf("%d\n",infod.rank);
 	strncpy( user->faction, infod.faction, sizeof(user->faction) );
 	strncpy( user->forumtag, infod.forumtag, sizeof(user->forumtag) );
+	strncpy( user->linksession, infod.linksession, sizeof(user->linksession) );
 	user->lasttime = infod.lasttime;
 }
 
@@ -680,12 +673,8 @@ return dbUserTable[id];
 
 int dbUserAdd( dbUserInfoPtr adduser ) {
 	int a, id, freenum;
-	int *user_hashes;
-	int num_users=0;
-	int *user_ptr;
 	char dname[532], fname[532], uname[532];
 	char COREDIR[512];
-	dbUserPtr h_user;
 	dbUserPtr user;
 	FILE *file;
 
@@ -790,43 +779,9 @@ if( !( freenum ) ) {
 	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 }
 
-//preserve user hashes so they are not logged out
-for(h_user=dbUserList;h_user;h_user=h_user->next) {
-	num_users++;
-}
-
-user_hashes=(int*)malloc(num_users*5*sizeof(int));
-user_ptr=user_hashes;
-
-for(h_user=dbUserList;h_user;h_user=h_user->next) {
-	user_ptr[0]=h_user->id;
-	user_ptr[1]=h_user->session[0];
-	user_ptr[2]=h_user->session[1];
-	user_ptr[3]=h_user->session[2];
-	user_ptr[4]=h_user->session[3];
-	user_ptr+=5;
-}
 
 dbEnd();
 dbInit();
-
-//restore the hashes
-user_ptr=user_hashes;
-for(h_user=dbUserList;h_user;h_user=h_user->next) {
-	if(user_ptr[0]!=h_user->id) {
-		if( options.verbose )
-		printf("WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
-		syslog(LOG_INFO, "WARNING: can't restore user hashes, id mismatch (user %d, stored %d)\n",h_user->id,user_ptr[0] );
-		continue;
-	}
-	h_user->session[0]=user_ptr[1];
-	h_user->session[1]=user_ptr[2];
-	h_user->session[2]=user_ptr[3];
-	h_user->session[3]=user_ptr[4];
-	user_ptr+=5;
-}
-free(user_hashes);
-
 
 return id;
 }
@@ -896,6 +851,7 @@ uinfo.id = user->id;
 uinfo.level = user->level;
 strcpy(uinfo.name,user->name);
 uinfo.flags = user->flags;
+strcpy(uinfo.linksession,user->linksession);
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	if( options.verbose ) {
@@ -941,25 +897,8 @@ sprintf(pass, "%s", uinfo.password);
 return 1;
 }
 
+
 int dbUserLinkDatabase( void *cnt, int id ) {
-	dbUserPtr user;
-	svConnectionPtr cnt2 = cnt;
-
-if( id < 0 ) {
-	cnt2->dbuser = 0;
-	return 1;
-}
-
-if( !( user = dbUserLinkID( id ) ) )
-	return -2;
-
-cnt2->dbuser = user;
-user->lasttime = time( 0 );
-
-return 1;
-}
-
-int dbUserHttpLinkDatabase( void *cnt, int id ) {
 	dbUserPtr user;
 	ReplyDataPtr cnt2 = cnt;
 
@@ -981,31 +920,46 @@ return 1;
 
 // session functions
 
-int dbSessionSet( dbUserPtr user, char *hash, int *session ) {
-	int a, b;
+int dbSessionSet( dbUserPtr user, char *session ) {
+	dbUserInfoDef uinfo;
 
-if( !( user ) )
+if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
+	if( options.verbose ) {
+		printf("Error in user save, getting real info\n" );
+	}
+	syslog(LOG_ERR, "Error in user save, getting real info\n" );
 	return -3;
-b = rand() & 0xFFFF;
-if( hash )
-	srand( time(0) + b + 3*hash[0] + 7*hash[2] + 11*hash[4] + 13*hash[6] + 17*hash[8] );
-else
-	srand( time(0) + b );
-for( a = 0 ; a < 4 ; a++ )
-	user->session[a] = rand() & 0xFFFF;
+}
 
-memcpy( session, user->session, 4*sizeof(int) );
+memcpy( user->linksession, session, 128 );
+memcpy( uinfo.linksession, session, 128 );
+
+if( !( dbUserInfoSet( user->id, &uinfo ) ) ) {
+	if( options.verbose ) {
+		printf("Error in user save, getting setting info\n" );
+	}
+	syslog(LOG_ERR, "Error in user save, getting setting info\n" );
+	return -3;
+}
 
 
 return 1;
 }
 
-int dbSessionRetrieve( dbUserPtr user, int *session ) {
+int dbSessionRetrieve( dbUserPtr user, char *session ) {
+	dbUserInfoDef uinfo;
 
 if( !( user ) )
 	return -3;
+if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
+	if( options.verbose ) {
+		printf("Error in user save, getting real info\n" );
+	}
+	syslog(LOG_ERR, "Error in user save, getting real info\n" );
+	return -3;
+}
 
-memcpy( session, user->session, 4*sizeof(int) );
+memcpy( session, user->linksession, 128 );
 
 return 1;
 }
@@ -1082,6 +1036,7 @@ if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x07\n" );
 	syslog(LOG_ERR, "Failure reading file x07\n" );
+
 
 }
 

@@ -4,7 +4,6 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
  int a, i, id, num;
  char *name, *pass;
  char rtpass[128];
- int session[4];
  FILE *file = NULL;
  char timebuf[256];
  char COREDIR[256];
@@ -58,14 +57,12 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    goto iohtmlFunc_mainL0;
   if( !( checkencrypt( pass, rtpass ) ) )
    goto iohtmlFunc_mainL0;
-  if( dbUserHttpLinkDatabase( cnt, id ) < 0 )
+  if( dbUserLinkDatabase( cnt, id ) < 0 )
    goto iohtmlFunc_mainL0;
 
 
-  if( dbSessionSet( (cnt->session)->dbuser, saltgen(), session ) < 0 )
+  if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
    goto iohtmlFunc_mainL0;
-
-  iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", id, session[0], session[1], session[2], session[3] );
 
   dbUserInfoRetrieve( id, &infod );
   infod.lasttime = time( 0 );

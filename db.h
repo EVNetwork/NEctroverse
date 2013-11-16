@@ -13,7 +13,7 @@ typedef struct
   //fast access informations -- copied from maind for now. FIXME
   char faction[32];
   char forumtag[256];
-  int session[4];
+  char linksession[129];
   int lasttime;
 
   //Pointers for next/last user in list.
@@ -35,6 +35,7 @@ typedef struct
   char password[128];
   char email[128];
   char faction[32];
+  char linksession[129];
   char forumtag[256];
   char desc[4096];
   struct in_addr sin_addr[MAXIPRECORD];
@@ -66,10 +67,9 @@ int dbUserSave( int id, dbUserPtr user );
 int dbUserSetPassword( int id, char *pass );
 int dbUserRetrievePassword( int id, char *pass );
 int dbUserLinkDatabase( void *, int id );
-int dbUserHttpLinkDatabase( void *, int id );
 
-int dbSessionSet( dbUserPtr user, char *hash, int *session );
-int dbSessionRetrieve( dbUserPtr user, int *session );
+int dbSessionSet( dbUserPtr user, char *session );
+int dbSessionRetrieve( dbUserPtr user, char *session );
 
 
 typedef struct

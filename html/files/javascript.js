@@ -208,6 +208,7 @@ function progressHandler(event){
 function completeHandler(event){
 	updatehtml("status","Upload Completed");
 	updatevalue("progressBar",0);
+	window.setTimeout("toggle();", 2000);
 }
 function errorHandler(event){
 	updatehtml("status","Upload Failed");

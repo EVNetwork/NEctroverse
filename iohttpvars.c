@@ -2,9 +2,6 @@
 char *iohttpVarsRaw;
 
 
-int iohttpVarsSize;
-
-
 
 char *iohttpVarsFind( char *id )
 {

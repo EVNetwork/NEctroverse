@@ -18,28 +18,19 @@ int iohttpIdentifyHex( char *num )
 }
 
 int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
-	int a, b, id, session[4];
-	char *src;
+	int id;
+	char sess[129];
 
-src = iohtmlCookieFind( cnt, "USRID" );
-
-if( NULL == src )
+if( NULL == (cnt->session)->dbuser )
 	goto iohtmlIdentifyL0;
 
-id = iohttpIdentifyHex( src );
-
-if( dbUserHttpLinkDatabase( cnt, id ) < 0 )
+if( dbSessionRetrieve( (cnt->session)->dbuser, sess ) < 0 )
 	goto iohtmlIdentifyL0;
 
-if( dbSessionRetrieve( (cnt->session)->dbuser, session ) < 0 )
+if( strcmp( (cnt->session)->sid, sess )  )
 	goto iohtmlIdentifyL0;
 
-for( a = 0 ; a < 4 ; a++ ) {
-	b = iohttpIdentifyHex( &src[4+(a<<2)] );
-
-	if( session[a] != b )
-		goto iohtmlIdentifyL0;
-}
+id = ((cnt->session)->dbuser)->id;
 
 if(( action & 2 )&&((cnt->session)->dbuser)) {
 	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
@@ -366,7 +357,6 @@ return;
 void iohtmlFunc_register2( ReplyDataPtr cnt )
 {
  int a, i, id;
- int session[4];
  FILE *file;
  char timebuf[256];
  char COREDIR[256];
@@ -414,14 +404,12 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 		loghandle(LOG_ERR, false, "%s", "Error sending registration email" );
 
 
-	if( ( dbUserHttpLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, saltgen(), session ) < 0 ) ) {
+	if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) ) {
 		iohtmlBase( cnt, 8 );
 		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 		httpString( cnt, "Error encountered while registering session" );
 		goto iohtmlFunc_register2L0;
 	}
-
-	iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", id, session[0], session[1], session[2], session[3] );
 
 	iohtmlBase( cnt, 8 );
 	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
