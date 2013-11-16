@@ -233,7 +233,6 @@ cached_directory_response = response;
 
 static int list_directory( ReplyDataPtr rd, const char *dirname ) {
 	char fullname[PATH_MAX];
-	bool local;
 	struct stat sbuf;
 	struct dirent *de;
 	DIR *dir;
@@ -583,6 +582,11 @@ if (NULL == filename) {
 }
 
 if (-1 == uc->fd) {
+	if( !( ( (uc->session)->dbuser ) ) ) {
+		uc->response = request_refused_response;
+		(uc->session)->upload = UPLOAD_STATE_FAIL;
+		return MHD_NO;
+	}
 	char fn[PATH_MAX];
 	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
 		uc->response = request_refused_response;
@@ -753,6 +757,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 			fprintf (stderr, "Failed to setup session for `%s'\n", url);
 			return MHD_NO; /* internal error */
 		}
+		request->session->dbuser = NULL;
 		request->session->active = time(NULL);
 		request->session->posts = 0;
 		request->session->upload = UPLOAD_STATE_START;
@@ -875,7 +880,7 @@ int access_check(void *cls, const struct sockaddr *addr, socklen_t addrlen) {
 	int a;
 
 for( a = 0 ; a < banlist.number ; a++ ) {
-	if( ioCompareFindWords( inet_ntoa( ((struct sockaddr_in *)(addr))->sin_addr ), banlist.ip[a] ) )
+	if( ioCompareFindWords( inet_ntoa( ((struct sockaddr_in *)addr)->sin_addr ), banlist.ip[a] ) )
 		return MHD_NO;
 }
 
@@ -899,7 +904,7 @@ pos = sessions;
 
 while( NULL != pos ) {
 	next = pos->next;
-	if (now - pos->active > 60 * 60) {
+	if( (now - pos->active) > hour ) {
 		/* expire sessions after 1h */
 		if (NULL == prev) {
 			sessions = pos->next;
@@ -999,7 +1004,7 @@ int https_start() {
 
 server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 				ports[1],
-				NULL, NULL,
+				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
 				MHD_OPTION_HTTPS_MEM_KEY, loadsslfile( "/home/stephen/.ssl/certificate.key" ),
