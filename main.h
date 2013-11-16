@@ -7,13 +7,14 @@ extern char *cmdSignalNames[SIGNALS_NUMUSED];
 //config struct
 typedef struct {
 	//server
-	char* servername;
-	char* directory;
-	char* downfrom;
-	char* httpimages;
-	char* httpfiles;
-	char* httpread;
-	char* pubforum;
+	char *servername;
+	char *cookdomain;
+	char *directory;
+	char *downfrom;
+	char *httpimages;
+	char *httpfiles;
+	char *httpread;
+	char *pubforum;
 	int httpport;
 	int stockpile;
 	int warend;

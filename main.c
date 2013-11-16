@@ -545,6 +545,7 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.syslog_facility = strdup( iniparser_getstring(ini, "syslog:facility", "LOG_LOCAL6" ) );
 
 	sysconfig.servername = strdup( iniparser_getstring(ini, "system:name", "NEctroverse") );
+	sysconfig.cookdomain = strdup( iniparser_getstring(ini, "system:cookiedomain", "") );
 	sysconfig.directory = strdup( iniparser_getstring(ini, "system:directory", "/tmp/evcore/data") );
 	sysconfig.downfrom = strdup( iniparser_getstring(ini, "system:downfrom", "http://www.sknill.com/evbasic") );
 	sysconfig.httpimages = strdup( iniparser_getstring(ini, "system:httpimages", "/tmp/evcore/html/images") );
@@ -718,6 +719,7 @@ if( firstload ) {
 	if( !( iniparser_find_entry(ini,"system") ) ){
 		iniparser_set(ini,"system",NULL);
 		iniparser_set(ini,"system:name",sysconfig.servername);
+		iniparser_set(ini,"system:cookiedomain","yourdomain.com");
 		iniparser_set(ini,"system:directory",sysconfig.directory);
 		iniparser_set(ini,"system:downfrom",sysconfig.downfrom);
 		iniparser_set(ini,"system:httpimages",sysconfig.httpimages);

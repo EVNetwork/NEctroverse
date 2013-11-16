@@ -205,8 +205,10 @@ return ret;
  */
 static void add_session_cookie( SessionPtr session, MHD_ResponsePtr response ) {
 	char cstr[256];
-
-snprintf (cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid);
+if( strlen(sysconfig.cookdomain) )
+snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s", COOKIE_NAME, session->sid, sysconfig.cookdomain );
+else
+snprintf( cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
 	loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
