@@ -31,6 +31,7 @@ if( strcmp( (cnt->session)->sid, sess )  )
 	goto iohtmlIdentifyL0;
 
 id = ((cnt->session)->dbuser)->id;
+((cnt->session)->dbuser)->lasttime = time(NULL);
 
 if(( action & 2 )&&((cnt->session)->dbuser)) {
 	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
