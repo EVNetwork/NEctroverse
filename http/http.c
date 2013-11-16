@@ -52,6 +52,8 @@ char *cmdUploadState[4] = {
 "Failed"
 };
 
+#define SESSION_TIME ( 15 * 60 )
+
 size_t initial_allocation = 256 * 1024;
 
 
@@ -141,10 +143,9 @@ static SessionPtr sessions;
  */
 static SessionPtr get_session( MHD_ConnectionPtr connection ) {
 	SessionPtr ret;
-	int id;
+	int id, now;
 	char buffer[129];
 	const char *cookie;
-
 cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
 
 if (cookie != NULL) {
@@ -176,8 +177,13 @@ if( cookie != NULL ) {
 		goto MAKECOOKIE;
 	} else {
 		ret->dbuser = dbUserLinkID( id );
-			if( strcmp( cookie, ret->dbuser->linksession ) == 0 )
-				strcpy(ret->sid,cookie);
+		now = time(NULL);
+		if( (now - (ret->dbuser)->lasttime) > ( SESSION_TIME ) ) {
+			ret->dbuser = NULL;
+			goto MAKECOOKIE;
+		}
+		if( strcmp( cookie, ret->dbuser->linksession ) == 0 )
+			strcpy(ret->sid,cookie);
 	}
 }
 
@@ -928,7 +934,7 @@ pos = sessions;
 
 while( NULL != pos ) {
 	next = pos->next;
-	if( (now - pos->active) > ( 15 * minute ) ) {
+	if( (now - pos->active) > ( SESSION_TIME ) ) {
 		if (NULL == prev) {
 			sessions = pos->next;
 		} else {
