@@ -866,6 +866,7 @@ uinfo.level = user->level;
 strcpy(uinfo.name,user->name);
 uinfo.flags = user->flags;
 strcpy(uinfo.linksession,user->linksession);
+uinfo.lasttime = user->lasttime;
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	if( options.verbose ) {
@@ -949,6 +950,7 @@ if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 	return -3;
 }
 
+uinfo.lasttime = time(NULL);
 strncpy( user->linksession, session, sizeof(uinfo.linksession) );
 strncpy( uinfo.linksession, session, sizeof(uinfo.linksession) );
 

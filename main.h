@@ -104,6 +104,7 @@ extern mySqlDef mysqlcfg;
 
 typedef struct {
 	bool status;
+	bool locked;
 	int number;
 	int round;
 	int speed;
@@ -217,6 +218,8 @@ void loghandle( int flag, int error, char *fmt, ... );
 extern bool firstload;
 char *itoa(int i);
 
-void svSignal( int signal );
+//void svSignal( int signal );
+
+//typedef void (*svSignal) ( int signal, const char *file, unsigned int line );
 
 #endif

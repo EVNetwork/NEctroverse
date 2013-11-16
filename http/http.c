@@ -212,7 +212,7 @@ return ret;
 static void add_session_cookie( SessionPtr session, MHD_ResponsePtr response ) {
 	char cstr[256];
 if( strlen(sysconfig.cookdomain) )
-snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s", COOKIE_NAME, session->sid, sysconfig.cookdomain );
+snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s; max-age=%d", COOKIE_NAME, session->sid, sysconfig.cookdomain, SESSION_TIME );
 else
 snprintf( cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid );
 
@@ -1130,7 +1130,7 @@ if( flag == 1 ) {
 	}
 	if( server_https ) {
 		MHD_stop_daemon(server_https);
-	loghandle(LOG_INFO, false, "%s", "HTTPS Server has been gracefully shutdown!" );
+	info("HTTPS Server has been gracefully shutdown!");
 	}
 }
 

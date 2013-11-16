@@ -65,14 +65,16 @@ extern void *mhd_panic_cls;
  * 
  * @param msg error message (const char *)
  */
-#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, msg)
+ #define MHD_PANIC(msg) loghandle(LOG_ERR, errno, "%s in: %s, on line: %d", msg, __FILE__, __LINE__ )
+//#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, msg)
 #else
 /**
  * Trigger 'panic' action based on fatal errors.
  * 
  * @param msg error message (const char *)
  */
-#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, NULL)
+#define MHD_PANIC(msg) loghandle(LOG_ERR, errno, "Error in: %s, on line: %d", __FILE__, __LINE__ )
+//#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, NULL)
 #endif
 
 

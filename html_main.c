@@ -33,6 +33,9 @@ if( strcmp( (cnt->session)->sid, sess )  )
 id = ((cnt->session)->dbuser)->id;
 ((cnt->session)->dbuser)->lasttime = time(NULL);
 
+if( dbUserSave( id, (cnt->session)->dbuser ) < 0 )
+	loghandle(LOG_ERR, false, "%s", "Error while syncing user info: line %d, of %s, in %s", __LINE__, __FILE__, __FUNCTION__);
+
 if(( action & 2 )&&((cnt->session)->dbuser)) {
 	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {

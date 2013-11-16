@@ -3,6 +3,8 @@
 #include "extras/iniparser.c"
 #include "ircbot.c"
 
+#define trapsignal( signal )  svSignal( signal, __LINE__, __FILE__, __FUNCTION__)
+
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
 
 configDef sysconfig;
@@ -25,7 +27,6 @@ gettimeofday( &lntime, 0 );
 
 return ( lntime.tv_sec * 1000 ) + ( lntime.tv_usec / 1000 );
 }
-
 
 void cleanUp(int type) {
 	char DIRCHECKER[256];
@@ -695,6 +696,7 @@ if( type == CONFIG_SYSTEM ) {
 		iniparser_freedict(ticks.ini);
 	ticks.ini = iniparser_load(file);
 	ticks.status = iniparser_getboolean(ticks.ini, "ticks:status", false);
+	ticks.locked = iniparser_getboolean(ticks.ini, "ticks:locked", false);
 	ticks.number = iniparser_getint(ticks.ini, "ticks:number", 0);
 	ticks.round = iniparser_getint(ticks.ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
 	ticks.speed = iniparser_getint(ticks.ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
@@ -874,6 +876,7 @@ if(file) {
 	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
 	iniparser_set(ticks.ini,"ticks",NULL);
 	iniparser_set(ticks.ini,"ticks:status",ticks.status ? "true" : "false");
+	iniparser_set(ticks.ini,"ticks:locked",ticks.locked ? "true" : "false");
 	iniparser_set(ticks.ini,"ticks:number",itoa(ticks.number));
 	iniparser_set(ticks.ini,"ticks:round",itoa(ticks.round));
 	iniparser_set(ticks.ini,"ticks:speed",itoa(ticks.speed));
