@@ -880,6 +880,9 @@ if(file) {
 	iniparser_set(ticks.ini,"ticks:next",itoa(ticks.next));
 	iniparser_set(ticks.ini,"ticks:debug_id",itoa(ticks.debug_id));
 	iniparser_set(ticks.ini,"ticks:debug_pass",itoa(ticks.debug_pass));
+	iniparser_set(ticks.ini,"ticks:uonline",itoa(ticks.uonline));
+	iniparser_set(ticks.ini,"ticks:uactive",itoa(ticks.uactive));
+	iniparser_set(ticks.ini,"ticks:uregist",itoa(ticks.uregist));
 	iniparser_dump_ini(ticks.ini,file);
 	fflush( file );
 	fclose( file );

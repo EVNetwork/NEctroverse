@@ -21,7 +21,6 @@ PageDef pages[] =
     //Generic
     { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },
     { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },
-    { "/test", "text/html",  &file_page, NULL, "/test.html" },
     { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
     { "/javascript.js", "text/javascript",  &file_page, NULL, "/javascript.js" },
     { "/stats", "text/html",  &file_page, NULL, "/stats.html" },

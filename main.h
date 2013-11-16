@@ -110,6 +110,9 @@ typedef struct {
 	int next;
 	int debug_id;
 	int debug_pass;
+	int uonline;
+	int uactive;
+	int uregist;
 	inikey ini;
 } tickDef, *tickPtr;
 

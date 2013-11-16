@@ -1,6 +1,7 @@
 int cmdTickProduction[CMD_BLDG_NUMUSED];
 
-
+int dbUsersOnline;
+int dbUsersRegist;
 
 void cmdTickGenRanks()
 {
@@ -566,7 +567,7 @@ ticks.debug_pass = 13 + 10000;
 
 int cmdTick()
 {
-  int a, c, d, e, num, specopnum, opvirus /*,cmd[3], i*/;
+  int a, c, d, e, num, now, last, specopnum, opvirus /*,cmd[3], i*/;
   float fb, phdecay;
   double fa, fc;
   int64_t newd[DB_USER_NEWS_BASE],/* nIllusion,*/ b;
@@ -584,8 +585,12 @@ int cmdTick()
   dbMainEmpireDef empired;
 
 
+ticks.uonline = 0;
+ticks.uactive = 0;
+ticks.uregist = 0;
 ticks.debug_pass = 0;
 ticks.debug_id = 0;
+now = time(NULL);
 
 	//Maybe useless but can t cause trouble only set the news buffer to 0
 	memset(&newd, 0, sizeof(int64_t)*DB_USER_NEWS_BASE);
@@ -613,12 +618,16 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 
   for( user = dbUserList ; user ; user = user->next )
   {
-
+ticks.uregist++;
 
     if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
       continue;
 
+ticks.uactive++;
 ticks.debug_id = user->id;
+last = (now - user->lasttime);
+if( last < 5*60 )
+ticks.uonline++;
 
 if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
 	loghandle(LOG_ERR, false, "Tick error: Retriving User %d", user->id );
