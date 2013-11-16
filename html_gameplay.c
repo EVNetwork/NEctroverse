@@ -3448,7 +3448,7 @@ for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
 	dbMapRetrieveSystem( i, &systemd );
 	px = ( ( systemd.position & 0xFFFF )* IOHTTP_MAPPICK_DIVIDE );
 	py = ( (systemd.position >> 16)* IOHTTP_MAPPICK_DIVIDE );
-	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,5\" alt=\"System%d\" href=\"map?sectorzoom=%d,%d\">", px, py, i, px, py );
+	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"System%d\" href=\"map?sectorzoom=%d,%d\">", px, py, i, px, py );
 
 }
 httpString( cnt, "</map></td>" );
