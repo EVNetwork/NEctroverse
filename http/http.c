@@ -141,6 +141,7 @@ static SessionPtr sessions;
  */
 static SessionPtr get_session( MHD_ConnectionPtr connection ) {
 	SessionPtr ret;
+	char buffer[129];
 	const char *cookie;
 
 cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
@@ -165,12 +166,15 @@ if (NULL == ret) {
 	loghandle(LOG_ERR, errno, "%s", "HTTP session allocation error!");
 	return NULL;
 }
+snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+snprintf(ret->sid, sizeof(ret->sid), "%s", hashencrypt(buffer) );
 
-snprintf (ret->sid, sizeof (ret->sid), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-  
 ret->rc++;
-ret->start = ret->active = time(NULL);
+ret->dbuser = NULL;
+ret->active = time(NULL);
+ret->start = time(NULL);
 ret->next = sessions;
+
 sessions = ret;
 
 return ret;
@@ -185,7 +189,7 @@ return ret;
  * @param session session to use
  * @param response response to modify
  */
-static void add_session_cookie (SessionPtr session, MHD_ResponsePtr response) {
+static void add_session_cookie( SessionPtr session, MHD_ResponsePtr response ) {
 	char cstr[256];
 
 snprintf (cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid);
@@ -757,7 +761,6 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 			fprintf (stderr, "Failed to setup session for `%s'\n", url);
 			return MHD_NO; /* internal error */
 		}
-		request->session->dbuser = NULL;
 		request->session->active = time(NULL);
 		request->session->posts = 0;
 		request->session->upload = UPLOAD_STATE_START;
@@ -904,8 +907,7 @@ pos = sessions;
 
 while( NULL != pos ) {
 	next = pos->next;
-	if( (now - pos->active) > hour ) {
-		/* expire sessions after 1h */
+	if( (now - pos->active) > ( 15 * minute ) ) {
 		if (NULL == prev) {
 			sessions = pos->next;
 		} else {
@@ -919,6 +921,37 @@ while( NULL != pos ) {
 }
 
 }
+
+
+int remove_session( const char *sid ) {
+	bool donenothing = true;
+	SessionPtr pos;
+	SessionPtr prev;
+	SessionPtr next;
+
+prev = NULL;
+pos = sessions;
+
+while( NULL != pos ) {
+	next = pos->next;
+	if( 0 == strcmp( sid, pos->sid ) ) {
+		if (NULL == prev) {
+			sessions = pos->next;
+		} else {
+			prev->next = next;
+		}
+		donenothing = false;
+		free( pos );
+	} else {
+	        prev = pos;
+        }
+	pos = next;
+}
+
+
+return donenothing;
+}
+
 #if HTTPS_SUPPORT
 char *loadsslfile( char *filename ) {
 	struct stat stdata;

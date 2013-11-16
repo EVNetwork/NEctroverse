@@ -238,6 +238,16 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 
 
 void iohtmlFunc_logout( ReplyDataPtr cnt ) {
+	int a;
+
+if( ((cnt->session)->dbuser) ) {
+for( a = 0 ; a < 4 ; a++ )
+	((cnt->session)->dbuser)->session[a] = -1; 
+}
+
+if( remove_session( (cnt->session)->sid ) )
+	loghandle(LOG_ERR, false, "%s", "Unable to remove user session, this really shoulden't be able to happen." );
+
 
 iohtmlCookieAdd( cnt, "USRID", "%04x%04x%04x%04x%04x", 0, 0, 0, 0, 0 );
 

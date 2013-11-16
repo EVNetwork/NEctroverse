@@ -17,6 +17,24 @@ enum UploadState {
 };
 
 extern char *cmdUploadState[]; 
+
+/**
+ * State we keep for each page build... in case we need to set cookies.
+ */
+typedef struct Cookies
+{
+  /**
+   * Number of cookies.
+   */
+  int num;
+
+  /**
+   * Pointers for cookie values.
+   */
+  char value[4][512];
+
+} CookiesDef, *CookiesPtr;
+
 /**
  * State we keep for each user/session/browser.
  */
@@ -41,7 +59,7 @@ typedef struct Session
   /**
    * Unique ID for this session.
    */
-  char sid[33];
+  char sid[129];
 
   /**
    * Pointers for keys.
@@ -75,22 +93,6 @@ typedef struct Session
 
 } SessionDef, *SessionPtr;
 
-/**
- * State we keep for each page build... in case we need to set cookies.
- */
-typedef struct Cookies
-{
-  /**
-   * Number of cookies.
-   */
-  int num;
-
-  /**
-   * Pointers for cookie values.
-   */
-  char value[4][512];
-
-} CookiesDef, *CookiesPtr;
 
 /**
  * Context we keep for an upload.
@@ -228,6 +230,8 @@ extern size_t initial_allocation;
 
 extern int set_postvalue(char **ret, const char *data, size_t size);
 extern void expire_sessions ();
+extern int remove_session( const char *sid );
+
 
 extern int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);
 

@@ -683,7 +683,7 @@ httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font
 httpString( cnt, "<tr><td>" );
 httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 
-if( (id < 0) || ( len > 0 ) ) {
+if( (id < 0) ) {
 	httpString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
 } else {
 	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", (cnt->session)->dbuser->name );
