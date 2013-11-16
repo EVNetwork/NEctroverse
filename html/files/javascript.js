@@ -104,10 +104,14 @@ return input;
 }
 
 
+function _(el){
+	return document.getElementById(el);
+}
+
 function changeimage(img, a) {
 
 try {
-	document.getElementById(img).src=a;
+	_(img).src=a;
 } catch(err) {
 	return;
 }
@@ -120,13 +124,28 @@ if(i==""){ return; }
 else if(i=="undefined"){ return; }
 
 try {
-	document.getElementById(id).innerHTML=i;
+	_(id).innerHTML=i;
 } catch(err) {
 	return;
 }
 
 
 }
+
+function updatevalue(id, i) {
+
+if(i==""){ return; }
+else if(i=="undefined"){ return; }
+
+try {
+	_(id).value=i;
+} catch(err) {
+	return;
+}
+
+
+}
+
 
 function addLoadEvent(func) {
 	var oldonload = window.onload;
@@ -152,13 +171,23 @@ function changeslider(newValue,field) {
 	document.getElementById(field).value=newValue;
 }
 
+function bytesToSize(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return 'n/a';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[[i]];
+};
 
-function _(el){
-	return document.getElementById(el);
-}
 function uploadFile(){
 	var file = _("file1").files[0];
-	//alert(file.name+" | "+file.size+" | "+file.type);
+	var prompt = confirm("You are about to upload\n"+file.name+" | "+bytesToSize(file.size)+" | "+file.type);
+	if ( prompt == true ) {
+		sendFile(file);
+	} else {
+  		updatehtml("status","Upload aborted!");
+	}
+}
+function sendFile(file){
 	var formdata = new FormData();
 	formdata.append("file1", file);
 	var ajax = new XMLHttpRequest();
@@ -170,19 +199,20 @@ function uploadFile(){
 	ajax.send(formdata);
 }
 function progressHandler(event){
-	_("loaded_n_total").innerHTML = "Uploaded "+( event.loaded / (1024 * 1024) )+" bytes of "+( event.total / (1024 * 1024) );
-	var percent = (event.loaded / event.total) * 100;
-	_("progressBar").value = Math.round(percent);
-	_("status").innerHTML = Math.round(percent)+"% uploaded... please wait";
+	updatehtml("loaded_n_total","Uploaded "+bytesToSize(event.loaded)+" of "+bytesToSize(event.total) );
+	var percent = ( event.loaded / event.total ) * 100;
+	updatevalue("progressBar",Math.round(percent) );
+	updatehtml("status",Math.round(percent)+"% uploaded... please wait");
 }
 function completeHandler(event){
-	_("status").innerHTML = event.target.responseText;
-	_("progressBar").value = 0;
+	updatehtml("status",event.target.responseText);
+	updatevalue("progressBar",0);
 }
 function errorHandler(event){
-	_("status").innerHTML = "Upload Failed";
+	updatehtml("status","Upload Failed");
 }
 function abortHandler(event){
-	_("status").innerHTML = "Upload Aborted";
+	updatehtml("status","Upload Aborted");
 }
+
 

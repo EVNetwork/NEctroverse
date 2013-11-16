@@ -775,7 +775,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		return MHD_YES;
 	}
 	/* end of upload, finish it! */
-	MHD_destroy_post_processor (request->pp);
+	MHD_destroy_post_processor(request->pp);
 	request->pp = NULL;
 	if (-1 != request->fd) {
 		close (request->fd);
@@ -871,6 +871,17 @@ if (NULL != request->filename) {
 free(request);
 }
 
+int access_check(void *cls, const struct sockaddr *addr, socklen_t addrlen) {
+	int a;
+
+for( a = 0 ; a < banlist.number ; a++ ) {
+	if( ioCompareFindWords( inet_ntoa( ((struct sockaddr_in *)(addr))->sin_addr ), banlist.ip[a] ) )
+		return MHD_NO;
+}
+
+return MHD_YES;
+}
+
 
 /**
  * Clean up handles of sessions that have been idle for
@@ -944,48 +955,10 @@ static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have 
 unsigned int ports[2] = { 8880, 8881 };
 
 
-/**
- * Function called if we get a SIGPIPE. Does nothing.
- *
- * @param sig will be SIGPIPE (ignored)
- */
-static void
-catcher (int sig)
-{
-  /* do nothing */
-}
-
-
-/**
- * setup handlers to ignore SIGPIPE.
- */
-#ifndef MINGW
-static void
-ignore_sigpipe ()
-{
-  struct sigaction oldsig;
-  struct sigaction sig;
-
-  sig.sa_handler = &catcher;
-  sigemptyset (&sig.sa_mask);
-#ifdef SA_INTERRUPT
-  sig.sa_flags = SA_INTERRUPT;  /* SunOS */
-#else
-  sig.sa_flags = SA_RESTART;
-#endif
-  if (0 != sigaction (SIGPIPE, &sig, &oldsig))
-    fprintf (stderr,
-             "Failed to install SIGPIPE handler: %s\n", strerror (errno));
-}
-#endif
-
-
 
 int http_prep(){
 	cpuInfo cpuinfo;
-#ifndef MINGW
-  ignore_sigpipe ();
-#endif
+
 cpuGetInfo( &cpuinfo );
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
@@ -1047,7 +1020,7 @@ int http_start() {
 
 server_http = MHD_start_daemon (flags,
 				ports[0],
-				NULL, NULL,
+				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
 				#if HTTPS_SUPPORT
@@ -1109,5 +1082,7 @@ magic_close (magic);
 
 return;
 }
+
+
 
 
