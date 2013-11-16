@@ -2,8 +2,9 @@
 #define IOVARSINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
-int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords );
+int iohtmlVarsMapcoords( ReplyDataPtr cnt, int *coords );
 
+int iohtmlVarsInit( ReplyDataPtr cnt );
 
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id );
 

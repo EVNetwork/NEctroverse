@@ -573,6 +573,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
 	if( ( data ) && ( strlen(data) ) ) {
+		//loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\' - \'%s\'", key, data);
 		 set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
 		 set_postvalue(&(uc->session)->value[(uc->session)->posts], data, strlen(data) );
 		(uc->session)->posts++;

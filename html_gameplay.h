@@ -100,7 +100,7 @@ void iohtmlFunc_research( ReplyDataPtr cnt );
 
 void iohtmlFunc_mail( ReplyDataPtr cnt );
 
-//void iohtmlFunc_search( ReplyDataPtr cnt ); FIXME
+void iohtmlFunc_search( ReplyDataPtr cnt );
 
 void iohtmlFunc_rankings( ReplyDataPtr cnt );
 

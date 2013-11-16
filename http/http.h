@@ -64,12 +64,12 @@ typedef struct Session
   /**
    * Pointers for keys.
    */
-  char *key[512];
+  char *key[128];
 
   /**
    * Pointers for values.
    */
-  char *value[512];
+  char *value[16384];
 
   /**
    * Time when this session was last active.

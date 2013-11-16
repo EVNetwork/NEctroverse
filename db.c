@@ -1082,6 +1082,7 @@ if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x07\n" );
 	syslog(LOG_ERR, "Failure reading file x07\n" );
+
 }
 
 fseek( file, 4+(pos*sizeof(dbUserBuildDef)), SEEK_SET );
@@ -3603,6 +3604,7 @@ int dbForumRemoveForum( int forum )
 		sprintf( fname, "%s/forums", sysconfig.pubforum );	
 	
   if( !( file = fopen( fname, "rb+" ) ))
+
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
  	if( options.verbose )

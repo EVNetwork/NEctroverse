@@ -14,6 +14,7 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
  name = iohtmlVarsFind( cnt, "name" );
  pass = iohtmlVarsFind( cnt, "pass" );
 
+  
  if( ( name ) && ( pass ) )
  {
  sprintf( COREDIR, "%s/logs/login", sysconfig.directory );
@@ -3141,7 +3142,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
  }
  memset( mapp, 0, dbMapBInfoStatic[MAP_SIZEX]*dbMapBInfoStatic[MAP_SIZEY]*sizeof(int) );
 
- if( !( /*iohttpVarsMapcoords( cnt, zoompos )*/NULL ) ) //FIXME
+ if( !( iohtmlVarsMapcoords( cnt, zoompos ) ) )
  {
   zoompos[0] = 0;
   zoompos[1] = 0;
@@ -3402,8 +3403,10 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
 #define MAPPICKSIZES (4) // Disable 45 and 60, due to bad rendering
 void iohtmlFunc_mappick( ReplyDataPtr cnt )
 {
- int a, b, id;
+ int a, b, i, id;
+ int px, py;
  dbUserMainDef maind;
+ dbMainSystemDef systemd;
  char *sizestring;
  static int sizes[MAPPICKSIZES] = { 15, 20, 25, 30/*, 45, 60*/ };
 
@@ -3438,7 +3441,22 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><a href=\"map\"><img src=\"images/galaxyr%d.png\" ismap></a></td>", sysconfig.round );
+ httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"images/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", sysconfig.round, mapcfg.sizex *3, mapcfg.sizey *3 );
+
+httpString( cnt, "<map name=\"systemmap\">" );
+for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
+	dbMapRetrieveSystem( i, &systemd );
+	px = ( ( systemd.position & 0xFFFF )* IOHTTP_MAPPICK_DIVIDE );
+	py = ( (systemd.position >> 16)* IOHTTP_MAPPICK_DIVIDE );
+	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,5\" alt=\"System%d\" href=\"map?sectorzoom=%d,%d\">", px, py, i, px, py );
+
+}
+httpString( cnt, "</map></td>" );
+ 
+ 
+ 
+ 
+ 
  httpPrintf( cnt, "<td height=\"%d\" align=\"left\" valign=\"top\"><b>0</b></td></tr>", a );
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"center\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"center\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] >> 1 );
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"bottom\"><b>%d</b></td><td height=\"%d\" align=\"left\" valign=\"bottom\"><b>%d</b></td></tr>", a, dbMapBInfoStatic[MAP_SIZEX], a, dbMapBInfoStatic[MAP_SIZEX] );
@@ -7150,20 +7168,17 @@ return;
 
 
 
-/*
-
-void iohtmlFunc_search( svConnectionPtr cnt )
+void iohtmlFunc_search( ReplyDataPtr cnt )
 {
  int id, a, x, y, z, status, sysid;
  dbUserMainDef maind;
  char *search, *str0, *str1, *str2, *error;
- iohttpDataPtr iohttp = cnt->iodata;
  dbMainSystemDef systemd;
  char content[256], buf0[256], buf1[256];
  dbUserPtr user;
 
- search = iohttpVarsFind( "search" );
-
+ search = iohtmlVarsFind( cnt, "search" );
+ 
  status = 0;
  str0 = 0;
  error = 0;
@@ -7231,10 +7246,7 @@ void iohtmlFunc_search( svConnectionPtr cnt )
  }
  else
  {
-  status = 1;
-  iohttp->method = 3;
-  iohttp->content = content;
-
+status = 1;
   iohttpForumFilter( content, search, 256, 0 );
   str0 = content;
 
@@ -7266,6 +7278,7 @@ void iohtmlFunc_search( svConnectionPtr cnt )
    if( status & 2 )
    {
     sprintf( content, "%d,%d", x*IOHTTP_MAPPICK_DIVIDE, y*IOHTTP_MAPPICK_DIVIDE );
+    MHD_set_connection_value(cnt->connection,  MHD_GET_ARGUMENT_KIND, "sectorzoom", content );
     iohtmlFunc_map( cnt );
     goto iohttpFunc_searchL1;
    }
@@ -7274,8 +7287,9 @@ void iohtmlFunc_search( svConnectionPtr cnt )
     error = "There is no system at the coordinates specified<br><br>";
     goto iohttpFunc_searchL0;
    }
-   if( dbMapRetrieveSystem( sysid, &systemd ) < 0 )
+   if( dbMapRetrieveSystem( sysid, &systemd ) < 0 ) {
     goto iohttpFunc_searchL0;
+    }
    if( ( str2 = ioCompareFindWords( str1, ":" ) ) )
    {
     if( sscanf( str2, "%d", &z ) != 1 )
@@ -7285,7 +7299,8 @@ void iohtmlFunc_search( svConnectionPtr cnt )
      error = "There is no planet at the coordinates specified<br><br>";
      goto iohttpFunc_searchL0;
     }
-    sprintf( content, "id=%d", systemd.indexplanet + z );
+    sprintf( content, "%d", systemd.indexplanet + z );
+    MHD_set_connection_value(cnt->connection,  MHD_GET_ARGUMENT_KIND, "id", content );
     if( status & 8 )
      iohtmlFunc_attack( cnt );
     else if( status & 16 )
@@ -7294,7 +7309,8 @@ void iohtmlFunc_search( svConnectionPtr cnt )
      iohtmlFunc_planet( cnt );
     goto iohttpFunc_searchL1;
    }
-   sprintf( content, "id=%d", sysid );
+   sprintf( content, "%d", sysid );
+   MHD_set_connection_value(cnt->connection,  MHD_GET_ARGUMENT_KIND, "id", content );
    iohtmlFunc_system( cnt );
    goto iohttpFunc_searchL1;
   }
@@ -7305,7 +7321,8 @@ void iohtmlFunc_search( svConnectionPtr cnt )
    iohttpFunc_searchL2:
    if( sscanf( str0, "%d", &a ) != 1 )
     goto iohttpFunc_searchL0;
-   sprintf( content, "id=%d", a );
+   sprintf( content, "%d", a );
+   MHD_set_connection_value(cnt->connection,  MHD_GET_ARGUMENT_KIND, "id", content);
    iohtmlFunc_empire( cnt );
    goto iohttpFunc_searchL1;
   }
@@ -7320,7 +7337,8 @@ void iohtmlFunc_search( svConnectionPtr cnt )
   {
    if( sscanf( &str0[1], "%d", &a ) != 1 )
     goto iohttpFunc_searchL0;
-   sprintf( content, "id=%d", a );
+   sprintf( content, "%d", a );
+   MHD_set_connection_value(cnt->connection,  MHD_GET_ARGUMENT_KIND, "id", content);
    iohtmlFunc_player( cnt );
    goto iohttpFunc_searchL1;
   }
@@ -7329,10 +7347,11 @@ void iohtmlFunc_search( svConnectionPtr cnt )
    status = 4;
 
   goto iohttpFunc_searchL0;
-  iohttpFunc_searchL1:
  }
+ 
+ iohttpFunc_searchL1:
 
  return;
 }
-*/
+
 

@@ -77,7 +77,7 @@ PageDef pages[] =
     { "/mail", "text/html",  &page_render, iohtmlFunc_mail, NULL },
     { "/forum", "text/html",  &page_render, iohtmlFunc_forum, NULL },
 
-
+    { "/search", "text/html",  &page_render, iohtmlFunc_search, NULL },
     { "/vote", "text/html",  &page_render, iohtmlFunc_vote, NULL },
     
     //User Account Pages

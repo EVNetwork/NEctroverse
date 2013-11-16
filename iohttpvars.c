@@ -1,8 +1,102 @@
 
+char *iohttpVarsRaw;
+
+
+int iohttpVarsSize;
+
+
+
+char *iohttpVarsFind( char *id )
+{
+  int a;
+  char *src;
+  if( !( iohttpVarsRaw ) )
+    return 0;
+  src = iohttpVarsRaw;
+  for( ; ; )
+  {
+    for( a = 0 ; ; a++ )
+    {
+      if( !( id[a] ) && ( src[a] == '=' ) )
+        return( src + a + 1 );
+      if( src[a] != id[a] )
+        break;
+      if( !( src[a] ) )
+        return 0;
+    }
+    for( ; ; src++ )
+    {
+      if( src[0] == '&' )
+      {
+        src++;
+        break;
+      }
+      if( !( src[0] ) )
+        return 0;
+    }
+  }
+  return 0;
+}
+
+
+
+void iohttpVarsCut()
+{
+  char *src;
+  if( !( iohttpVarsRaw ) )
+    return;
+  src = iohttpVarsRaw;
+  for( ; ; src++ )
+  {
+    if( src[0] == '&' )
+      src[0] = 0;
+    else if( src[0] == 0 )
+      return;
+  }
+  return;
+}
+
+
+
+int iohttpVarsInit( ReplyDataPtr cnt )
+{
+  int num, num2;
+  if( 0 == strcmp( (cnt->connection)->method, "POST") )
+    iohttpVarsRaw = (cnt->connection)->read_buffer;
+    
+printf("%s\n", cnt->connection->url );
+printf("%s\n", cnt->connection->method );
+printf("%s\n", cnt->connection->read_buffer );
+//printf("%s\n", cnt->connection->write_buffer );
+    
+    char** tokens;
+    tokens = str_split( (cnt->connection)->read_buffer, '&', &num);
+
+if ( (tokens) && (num) ) {
+	char** tokens2;
+        int i, i2;
+	for (i = 0; i < num ; i++) {
+		printf("%d\n",num);
+		tokens2 = str_split( *(tokens + i), '=', &num2);
+		printf("%d\n",num2);
+			for (i2 = 0; i2 < num2 ; i2++) {
+				printf("month=%d[%s]\n", i2, *(tokens2 + i2));
+			}
+	}
+	printf("\n");
+}
+
+ /* else
+    iohttpVarsRaw = iohttp->query_string;*/
+  return 1;
+}
+
+
 
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
 	int a;
-	char *value, *key;
+	char *value;
+
 
 for( a = 0; a < (cnt->session)->posts; a++ ) {
 	if( ( (cnt->session)->key[a] ) && ( strcmp( id, (cnt->session)->key[a] ) == 0 ) ) {
@@ -50,16 +144,12 @@ return (cnt->cookies).num;
 }
 
 
-/*
-//FIXME
-int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords )
+
+int iohtmlVarsMapcoords( ReplyDataPtr cnt, int *coords )
 {
-  iohttpDataPtr iohttp = cnt->iodata;
-  char *string;
-  if( iohttp->method == 3 )
-    string = iohttp->content;
-  else
-    string = iohttp->query_string;
+
+char *string = iohtmlVarsFind( cnt, "sectorzoom" );
+
   if( !( string ) )
     return 0;
   if( sscanf( string, "%d", &coords[0] ) != 1 )
@@ -69,9 +159,11 @@ int iohttpVarsMapcoords( svConnectionPtr cnt, int *coords )
     return 0;
   if( sscanf( string, "%d", &coords[1] ) != 1 )
     return 0;
+    
+    
   return 1;
 }
-*/
+
 
 
 
