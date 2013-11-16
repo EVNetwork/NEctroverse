@@ -923,6 +923,10 @@ return 1;
 int dbSessionSet( dbUserPtr user, char *session ) {
 	dbUserInfoDef uinfo;
 
+
+if( !( user ) )
+	return -3;
+
 if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 	if( options.verbose ) {
 		printf("Error in user save, getting real info\n" );
@@ -931,8 +935,8 @@ if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 	return -3;
 }
 
-memcpy( user->linksession, session, 128 );
-memcpy( uinfo.linksession, session, 128 );
+strncpy( user->linksession, session, sizeof(uinfo.linksession) );
+strncpy( uinfo.linksession, session, sizeof(uinfo.linksession) );
 
 if( !( dbUserInfoSet( user->id, &uinfo ) ) ) {
 	if( options.verbose ) {
@@ -959,7 +963,7 @@ if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 	return -3;
 }
 
-memcpy( session, user->linksession, 128 );
+strncpy( session, user->linksession, sizeof(uinfo.linksession) );
 
 return 1;
 }
