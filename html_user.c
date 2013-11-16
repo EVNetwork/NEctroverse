@@ -238,7 +238,11 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 
 
 void iohtmlFunc_logout( ReplyDataPtr cnt ) {
+	char buffer[129];
 
+snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+snprintf(((cnt->session)->dbuser)->linksession, sizeof(((cnt->session)->dbuser)->linksession), "%s", hashencrypt(buffer) );
+dbUserSave( ((cnt->session)->dbuser)->id, (cnt->session)->dbuser );
 if( remove_session( (cnt->session)->sid ) ) {
 	loghandle(LOG_ERR, false, "%s", "Unable to remove user session, this really shoulden't be able to happen." );
 	if( ( cnt->session ) )

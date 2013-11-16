@@ -57,6 +57,7 @@ int dbMapFindValid( int x, int y );
 
 
 int dbUserSearch( char *name );
+int dbUserSessionSearch( char *cookie );
 int dbUserSearchFaction( char *name );
 int dbUserAdd( dbUserInfoPtr adduser );
 int dbUserRemove( int id );

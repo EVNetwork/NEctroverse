@@ -649,6 +649,20 @@ for( user = dbUserList ; user ; user = user->next ) {
 return -1;
 }
 
+// Users functions
+int dbUserSessionSearch( char *session ) {
+	dbUserPtr user;
+
+for( user = dbUserList ; user ; user = user->next ) {
+	if( !( ioCompareExact( session, user->linksession ) ) )
+		continue;
+	return user->id;
+}
+
+return -1;
+}
+
+
 int dbUserSearchFaction( char *name ) {
 	dbUserPtr user;
 

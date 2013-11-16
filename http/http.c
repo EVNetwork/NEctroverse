@@ -131,7 +131,7 @@ mark_as_html (struct MHD_Response *response)
  * hash table would be overkill for a simple example...
  */
 static SessionPtr sessions;
-
+	dbUserPtr user;
 
 
 
@@ -141,6 +141,7 @@ static SessionPtr sessions;
  */
 static SessionPtr get_session( MHD_ConnectionPtr connection ) {
 	SessionPtr ret;
+	int id;
 	char buffer[129];
 	const char *cookie;
 
@@ -166,11 +167,24 @@ if (NULL == ret) {
 	loghandle(LOG_ERR, errno, "%s", "HTTP session allocation error!");
 	return NULL;
 }
+ret->dbuser = NULL;
 snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
 snprintf(ret->sid, sizeof(ret->sid), "%s", hashencrypt(buffer) );
 
+if( cookie != NULL ) {
+	if( ( ( id = dbUserSessionSearch( (char *)cookie ) < 0 ) ) ) {
+		goto MAKECOOKIE;
+	} else {
+		ret->dbuser = dbUserLinkID( id );
+			if( strcmp( cookie, ret->dbuser->linksession ) == 0 )
+				strcpy(ret->sid,cookie);
+	}
+}
+
+MAKECOOKIE:
+
+
 ret->rc++;
-ret->dbuser = NULL;
 ret->active = time(NULL);
 ret->start = time(NULL);
 ret->next = sessions;
@@ -898,6 +912,9 @@ return MHD_YES;
  * too long.
  */
 void expire_sessions () {
+	int id;
+	char buffer[129];
+	dbUserPtr user;
 	SessionPtr pos;
 	SessionPtr prev;
 	SessionPtr next;
@@ -914,6 +931,13 @@ while( NULL != pos ) {
 			sessions = pos->next;
 		} else {
 			prev->next = next;
+		}
+		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
+			if( ( user = dbUserLinkID( id ) ) ){
+				snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+				snprintf(user->linksession, sizeof(user->linksession), "%s", hashencrypt(buffer) );
+				dbUserSave( id, user );
+			}
 		}
 		free( pos );
 	} else {
