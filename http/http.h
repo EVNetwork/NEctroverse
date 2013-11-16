@@ -69,7 +69,7 @@ typedef struct Session
   /**
    * Pointers for values.
    */
-  char *value[16384];
+  char *value[4096];
 
   /**
    * Time when this session was last active.
