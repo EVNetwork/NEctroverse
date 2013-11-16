@@ -84,7 +84,7 @@ httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=
 httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
-//httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
+httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
 httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
 httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );

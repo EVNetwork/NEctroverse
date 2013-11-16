@@ -623,6 +623,7 @@ if (-1 == uc->fd) {
 if ( (0 != size) && (size != write (uc->fd, data, size)) ) {
 	loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
 	uc->response = internal_error_response;
+	(uc->session)->upload = UPLOAD_STATE_FAIL;
 	close (uc->fd);
 	uc->fd = -1;
 	if (NULL != uc->filename) {
@@ -792,7 +793,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		request->session->upload = UPLOAD_STATE_DONE;
 	}
 	if (NULL != request->response) {
-		return MHD_queue_response (connection, MHD_HTTP_FORBIDDEN, request->response);
+		return MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, request->response);
 	} else {
 		if ( ( strncmp(request->post_url,"/files",6) == false ) ) {
 			return files_dir_page( false, cls, "text/html", request->session, request->connection);

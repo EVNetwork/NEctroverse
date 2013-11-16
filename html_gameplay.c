@@ -2977,9 +2977,15 @@ if( relsmesstring ) {
 
  iohttpFunc_famleaderL0:
  dbMapRetrieveEmpire( curfam, &empired );
+
+httpString( cnt, "<div id=\"progblock\" style=\"display:none\">" );
+httpString( cnt, "<progress id=\"progressBar\" value=\"0\" max=\"100\" style=\"width:300px;\"></progress>" );
+httpString( cnt, "<h3 id=\"status\"></h3>" );
+httpString( cnt, "<p id=\"loaded_n_total\"></p>" );
+httpString( cnt, "</div>" );
  httpString( cnt, "<table>" );
 
- httpString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Empire name</td></tr>" );
+ httpString( cnt, "<tr><td><form method=\"POST\">Empire name</td></tr>" );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fname\" size=\"64\" value=\"%s\"></td></tr>", curfam, empired.name );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
@@ -2987,10 +2993,15 @@ if( relsmesstring ) {
  httpPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100.0 ) );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- httpString( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"famleader\" method=\"POST\">Empire picture</td></tr>" );
+
+
+ httpString( cnt, "<tr><td><form enctype=\"multipart/form-data\" method=\"POST\">Empire picture</td></tr>" );
  httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"file\" name=\"picfile\"></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Upload\"></form><br><br><br></td></tr>" );
+ httpString( cnt, "<tr><td><input type=\"file\" name=\"fileupload\" id=\"fileupload\"></td></tr>" );
+ httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br><br><br></td></tr>" );
+
+
+
 
  if( empired.numplayers > 1 ) {
  httpString( cnt, "<tr><td>Set an empire member status</td></tr>" );
@@ -3441,14 +3452,14 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"images/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", sysconfig.round, mapcfg.sizex *3, mapcfg.sizey *3 );
+ httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"images/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", sysconfig.round, mapcfg.sizex *IOHTTP_MAPPICK_DIVIDE, mapcfg.sizey *IOHTTP_MAPPICK_DIVIDE );
 
 httpString( cnt, "<map name=\"systemmap\">" );
 for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
 	dbMapRetrieveSystem( i, &systemd );
 	px = ( ( systemd.position & 0xFFFF )* IOHTTP_MAPPICK_DIVIDE );
 	py = ( (systemd.position >> 16)* IOHTTP_MAPPICK_DIVIDE );
-	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"System%d\" href=\"map?sectorzoom=%d,%d\">", px, py, i, px, py );
+	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"map?sectorzoom=%d,%d\">", px, py, i, px, py );
 
 }
 httpString( cnt, "</map></td>" );

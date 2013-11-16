@@ -179,7 +179,7 @@ function bytesToSize(bytes) {
 };
 
 function uploadFile(){
-	var file = _("file1").files[0];
+	var file = _("fileupload").files[0];
 	var prompt = confirm("You are about to upload\n"+file.name+" | "+bytesToSize(file.size)+" | "+file.type);
 	if ( prompt == true ) {
 		sendFile(file);
@@ -188,8 +188,9 @@ function uploadFile(){
 	}
 }
 function sendFile(file){
+	toggle();
 	var formdata = new FormData();
-	formdata.append("file1", file);
+	formdata.append("uploadfile", file);
 	var ajax = new XMLHttpRequest();
 	ajax.upload.addEventListener("progress", progressHandler, false);
 	ajax.addEventListener("load", completeHandler, false);
@@ -205,7 +206,7 @@ function progressHandler(event){
 	updatehtml("status",Math.round(percent)+"% uploaded... please wait");
 }
 function completeHandler(event){
-	updatehtml("status",event.target.responseText);
+	updatehtml("status","Upload Completed");
 	updatevalue("progressBar",0);
 }
 function errorHandler(event){
@@ -214,5 +215,14 @@ function errorHandler(event){
 function abortHandler(event){
 	updatehtml("status","Upload Aborted");
 }
+
+  var toggle = function() {
+  var mydiv = document.getElementById('progblock');
+  if (mydiv.style.display === 'block' || mydiv.style.display === '')
+    mydiv.style.display = 'none';
+  else
+    mydiv.style.display = 'block'
+  }
+  
 
 
