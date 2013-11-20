@@ -1,3 +1,6 @@
+18 November 2013
+Homeless again. Everything suspended... see you all again when I can =(
+
 15 November 2013
 Well, that was epic... The server has now been upgraded to full HTTP/1.1 support.
 Hopefully you will all see it paying off with improved load/responce times =)
