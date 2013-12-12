@@ -42,20 +42,20 @@ return strdup(salted);
 
 //Time to add some hash protection to our passwords.
 char *hashencrypt( char *passhash ) {
-	struct crypt_data data;
+	struct crypt_data data_crypt_buff;
 
-data.initialized = 0;
+data_crypt_buff.initialized = 0;
 
-return crypt_r( str2md5(passhash), saltgen(), &data );
+return crypt_r( str2md5(passhash), saltgen(), &data_crypt_buff );
 }
 
 //Good stuff, now to check those encypted passwords.
 int checkencrypt( char *passentered, char *passcheck ) {
-	struct crypt_data data;
+	struct crypt_data data_crypt_check;
 
-data.initialized = 0;
+data_crypt_check.initialized = 0;
 
-return ( ( strcmp( crypt_r( str2md5(passentered), passcheck, &data), passcheck) == 0 ) ? 1 : 0 );
+return ( ( strcmp( crypt_r( str2md5(passentered), passcheck, &data_crypt_check), passcheck) == 0 ) ? 1 : 0 );
 }
 
 

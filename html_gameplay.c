@@ -3441,7 +3441,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  a = ( maind.home >> 8 ) & 0xFFF;
  b = maind.home >> 20;
- httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"mapadv\">map generation</a> settings.<br>Your home system is located at the coordinates <a href=\"map?%d,%d\">%d,%d</a> ( click to zoom there ).<br><br>", a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
+ httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"mapadv\">map generation</a> settings.<br>Your home system is located at the coordinates <a href=\"map?sectorzoom=%d,%d\">%d,%d</a> ( click to zoom there ).<br><br>", a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
 
  a = dbMapBInfoStatic[MAP_SIZEX] * IOHTTP_MAPPICK_DIVIDE;
  httpPrintf( cnt, "<table border=\"0\" width=\"%d\" cellpadding=\"0\" cellspacing=\"0\">", a + 80 );
