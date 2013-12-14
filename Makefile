@@ -9,7 +9,6 @@ SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
 LIBDIR = .libs/
-MODNAME = 
 MODLIBS = 
 #The standard config needed to compile basic server, withought these it won't work.
 FLAGS = --fast-math -Wall -fno-strict-aliasing -O2 -O3
@@ -81,7 +80,6 @@ $(LIBDIR)ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
 clean:
 	rm *~ -rf
 	rm .libs/*.o -rf
-	rm *.raw -rf
 	rm test_modules/*~ -rf
 
 #Dangerous, will wipe everything... whole database the works. Nothing is spared.
