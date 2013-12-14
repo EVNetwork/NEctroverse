@@ -24,7 +24,6 @@ DEFS = -ggdb -rdynamic
 endif
 
 ifneq ($(findstring IRCBOT_SUPPORT 1,$(CONFIGS)),)
-MODNAME += ircbot.o
 MODLIBS += $(LIBDIR)ircbot.o
 endif
 
@@ -32,7 +31,6 @@ endif
 ifneq ($(findstring MYSQL_SUPPORT 1,$(CONFIGS)),)
 FLAGS += $(SQLFLAG)
 LIBS += $(SQLLIBS)
-MODNAME += mysql.o
 MODLIBS += $(LIBDIR)mysql.o
 else
 LIBS += -lm -pthread
@@ -41,7 +39,7 @@ endif
 HEAD = *.h config/config.h
 
 # Right then, now we know all of that... lets build something!
-server: main.o io.o http.o db.o cmd.o html.o map.o extras.o $(MODNAME)
+server: $(LIBDIR)main.o $(LIBDIR)io.o $(LIBDIR)http.o $(LIBDIR)db.o $(LIBDIR)cmd.o $(LIBDIR)html.o $(LIBDIR)map.o $(LIBDIR)extras.o $(MODLIBS)
 	$(CC) $(LIBDIR)main.o $(LIBDIR)io.o $(LIBDIR)http.o $(LIBDIR)db.o $(LIBDIR)cmd.o $(LIBDIR)html.o $(LIBDIR)map.o $(LIBDIR)extras.o $(MODLIBS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
@@ -52,31 +50,31 @@ stop:
 	
 restart: stop run
 	
-main.o: $(HEAD) main.c
+$(LIBDIR)main.o: $(HEAD) main.c
 	$(CC) main.c $(DEFS) -o $(LIBDIR)main.o -c $(FLAGS)
 
-io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c
+$(LIBDIR)io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c
 	$(CC) io.c $(DEFS) -o $(LIBDIR)io.o -c $(FLAGS)
 
-http.o: $(HEAD) http/*.h http/*.c 
+$(LIBDIR)http.o: $(HEAD) http/*.h http/*.c 
 	$(CC) http/http.c $(DEFS) -o $(LIBDIR)http.o -c $(FLAGS)
 
-db.o: $(HEAD) db.c
+$(LIBDIR)db.o: $(HEAD) db.c
 	$(CC) db.c $(DEFS) -o $(LIBDIR)db.o -c $(FLAGS)
 
-cmd.o: $(HEAD) cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
+$(LIBDIR)cmd.o: $(HEAD) cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
 	$(CC) cmd.c $(DEFS) -o $(LIBDIR)cmd.o -c $(FLAGS)
 
-map.o: $(HEAD) map.c
+$(LIBDIR)map.o: $(HEAD) map.c
 	$(CC) map.c $(DEFS) -o $(LIBDIR)map.o -c $(FLAGS)
 
-html.o: $(HEAD) html/*.h html/*.c
+$(LIBDIR)html.o: $(HEAD) html/*.h html/*.c
 	$(CC) html/html.c $(DEFS) -o $(LIBDIR)html.o -c $(FLAGS)
 
-extras.o: $(HEAD) extras/*.h extras/*.c
+$(LIBDIR)extras.o: $(HEAD) extras/*.h extras/*.c
 	$(CC) extras/extras.c $(DEFS) -o $(LIBDIR)extras.o -c $(FLAGS)
 
-ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
+$(LIBDIR)ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
 	$(CC) ircbot/ircbot.c $(DEFS) -o $(LIBDIR)ircbot.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
