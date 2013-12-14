@@ -1,5 +1,3 @@
-#include "global.h"
-
 //Ok, so here goes nothing...
 void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
 	int id, a, b;

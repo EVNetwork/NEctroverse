@@ -119,7 +119,6 @@ static const double megabyte = (1024 * 1024);
 #include "db.h"
 
 #include "http/platform.h"
-
 #include "extras/extras.h"
 
 #include "battle.h"
@@ -128,21 +127,13 @@ static const double megabyte = (1024 * 1024);
 #include "iohttpvars.h"
 #include "iohttpmime.h"
 #include "iohttp.h"
-#include "html.h"
-#include "html_main.h"
-#include "html_gameplay.h"
-#include "html_admin.h"
-#include "html_user.h"
-#include "html_status.h"
-#include "html_forum.h"
+#include "html/html.h"
 #include "cmd.h"
 #include "map.h"
+
 #if IRCBOT_SUPPORT
-#include "ircbot/libircclient.h"
-#include "ircbot/libirc_rfcnumeric.h"
 #include "ircbot/ircbot.h"
 #endif
-#include "html_ajax.h"
 
 
 #define info(msg) loghandle(LOG_INFO, false, "%s", msg )

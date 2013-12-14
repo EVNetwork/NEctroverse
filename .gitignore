@@ -4,8 +4,8 @@
 
 
 #Program files
-html/images/fampic*
-html/images/galaxy*.*
+read/images/fampic*
+read/images/galaxy*.*
 core/
 evserver
 map

@@ -2,6 +2,9 @@
 #define IRCINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
 
+#include "libircclient.h"
+#include "libirc_rfcnumeric.h"
+
 //OK, ... time to covert it to a struct for proper phrasing.
 typedef struct {
 	char *nick;

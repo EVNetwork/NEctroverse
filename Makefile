@@ -66,10 +66,10 @@ cmd.o: $(HEAD) cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
 map.o: $(HEAD) map.c
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: $(HEAD) html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c
-	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
+html.o: $(HEAD) html/html.c html/html_*.c
+	$(CC) html/html.c $(DEFS) -o html.o -c $(FLAGS)
 
-extras.o: $(HEAD) extras/*.h extras/*.c
+extras.o: $(HEAD) extras/*.c
 	$(CC) extras/extras.c $(DEFS) -o extras.o -c $(FLAGS)
 
 ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
