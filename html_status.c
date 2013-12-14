@@ -121,11 +121,14 @@ httpString( cnt, "<table border=\"0\"><tr><td>" );
 httpString( cnt, "<b>Overall Game Stats</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 httpString( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
+
+#if IRCBOT_SUPPORT
 if( irccfg.bot ) {
 	httpPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
 } else {
 	httpString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Disabled</td></tr>" );
 }
+#endif
 
 httpPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"gameuptime\">%s</td></tr>", TimeToString(pinfod.runtime) );
 httpPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span id=\"sstatweeks\">%d</span>, year <span id=\"sstatyears\">%d</span></td></tr>", ticks.number % 52, ticks.number / 52 );

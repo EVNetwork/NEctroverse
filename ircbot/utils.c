@@ -109,7 +109,7 @@ static void libirc_event_ctcp_internal (irc_session_t * session, const char * ev
 		{
 			time_t now = time(0);
 
-#if defined (ENABLE_THREADS) && defined (HAVE_LOCALTIME_R)
+#if HAVE_LOCALTIME_R
 			struct tm tmtmp, *ltime = localtime_r (&now, &tmtmp);
 #else
 			struct tm * ltime = localtime (&now);

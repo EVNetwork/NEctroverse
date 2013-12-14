@@ -83,13 +83,16 @@ if( ( typestring ) && ( refer ) ) {
 			httpPrintf( cnt, "<cpukernel>%.3f %%</cpukernel>", pinfod.kernelload );
 			httpPrintf( cnt, "<cpuuser>%.3f %%</cpuuser>", pinfod.userload );
 			httpString( cnt, "</cpu>" );
-
+			
+			#if IRCBOT_SUPPORT
 			if( irccfg.bot ) {
 				sprintf(CHECKER,"Enabled (Host:%s, Channel:%s)",irccfg.host, irccfg.channel );
 			} else {
 				sprintf(CHECKER,"%s", "Disabled");
 			}
 			httpPrintf( cnt, "<botstatus>%s</botstatus>", CHECKER );
+			#endif
+
 		//End Status block -- Start user block
 		}
 		if( id < 0 )
@@ -287,8 +290,11 @@ if( refer ) {
 		httpString( cnt, "\t\tvar timegmt = getnodevar(xmlhttp.responseXML,\"timegmt\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"timegmt\",timegmt);\n" );
 
+		#if IRCBOT_SUPPORT
 		httpString( cnt, "\t\tvar botstatus = getnodevar(xmlhttp.responseXML,\"botstatus\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"botstatus\",botstatus);\n" );
+		#endif
+
 		httpString( cnt, "\t\t\tupdatehtml(\"sstatweeks\",week);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"sstatyears\",year);\n" );
 	}

@@ -1,23 +1,24 @@
-/* MHD_config.h.  Generated from MHD_config.h.in by configure.  */
-/* MHD_config.h.in.  Generated from configure.ac by autoheader.  */
 #define HTTPINCLUDES
 
+/* This is a Linux kernel */
+#define LINUX 1
+
 #define _GNU_SOURCE  1
-
-/* Define if this is a live server or test model */
-#define PRODUCTION 1
-
-/* disable HTTPS support */
-#define HTTPS_SUPPORT 1
 
 /* disable debugging symbols support */
 #define DEBUG_SUPPORT 1
 
-/* disable mysql support */
-#define MYSQL_SUPPORT 0
+/* disable HTTPS support */
+#define HTTPS_SUPPORT 1
+
+/* disable pipefile support */
+#define PIPEFILE_SUPPORT 1
 
 /* disable ircbot support */
 #define IRCBOT_SUPPORT 1
+
+/* disable mysql support */
+#define MYSQL_SUPPORT 0
 
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
@@ -274,9 +275,6 @@
 /* Defined if libcurl supports TFTP */
 #define LIBCURL_PROTOCOL_TFTP 1
 
-/* This is a Linux kernel */
-#define LINUX 1
-
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #define LT_OBJDIR ".libs/"
@@ -361,8 +359,6 @@
 /* Define curl_free() as free() if our version of curl lacks curl_free. */
 /* #undef curl_free */
 
-/* src/config.h.  Generated from config.h.in by configure.  */
-/* include/config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Define to 1 if you have the `getaddrinfo' function. */
 /* #undef HAVE_GETADDRINFO */

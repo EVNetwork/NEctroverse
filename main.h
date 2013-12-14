@@ -57,6 +57,7 @@ typedef struct {
 
 extern adminDef admincfg;
 
+#if IRCBOT_SUPPORT
 typedef struct {
 	//admin
 	bool bot;
@@ -70,6 +71,7 @@ typedef struct {
 } ircDef, *ircPtr;
 
 extern ircDef irccfg;
+#endif
 
 typedef struct {
 	//startup options

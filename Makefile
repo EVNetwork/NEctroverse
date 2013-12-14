@@ -34,11 +34,11 @@ else
 LIBS += -lm -pthread
 endif
 
-HEAD = *.h http/*.h extras/*.h
+HEAD = *.h http/*.h extras/*.h config/config.h
 
 # Right then, now we know all of that... lets build something!
-server: main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(MODS)
-	$(CC) main.o io.o http.o db.o cmd.o html.o map.o encrypt.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
+server: main.o io.o http.o db.o cmd.o html.o map.o extras.o $(MODS)
+	$(CC) main.o io.o http.o db.o cmd.o html.o map.o extras.o $(MODS) $(DEFS) -o evserver $(FLAGS) $(LIBS)
 
 run:	server
 	sudo service evserver start
@@ -48,13 +48,13 @@ stop:
 	
 restart: stop run
 	
-main.o: $(HEAD) main.c extras/iniparser.c
+main.o: $(HEAD) main.c
 	$(CC) main.c $(DEFS) -o main.o -c $(FLAGS)
 
-io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c extras/url_parser.c
+io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c
 	$(CC) io.c $(DEFS) -o io.o -c $(FLAGS)
 
-http.o: $(HEAD) http/connection.c http/connection_https.c http/daemon.c http/http.c http/internal.c http/memorypool.c http/postprocessor.c http/reason_phrase.c http/response.c http/pagelist.c 
+http.o: $(HEAD) http/*.c 
 	$(CC) http/http.c $(DEFS) -o http.o -c $(FLAGS)
 
 db.o: $(HEAD) db.c
@@ -63,16 +63,16 @@ db.o: $(HEAD) db.c
 cmd.o: $(HEAD) cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
 	$(CC) cmd.c $(DEFS) -o cmd.o -c $(FLAGS)
 
-map.o: $(HEAD) map.c extras/imgpng.c
+map.o: $(HEAD) map.c
 	$(CC) map.c $(DEFS) -o map.o -c $(FLAGS)
 
-html.o: $(HEAD) html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c extras/cpuinfo.c
+html.o: $(HEAD) html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html_user.c html_forum.c html_status.c
 	$(CC) html.c $(DEFS) -o html.o -c $(FLAGS)
 
-encrypt.o: $(HEAD) extras/*.h extras/encrypt.c extras/md5.c extras/base64.c
-	$(CC) extras/encrypt.c $(DEFS) -o encrypt.o -c $(FLAGS)
+extras.o: $(HEAD) extras/*.h extras/*.c
+	$(CC) extras/extras.c $(DEFS) -o extras.o -c $(FLAGS)
 
-ircbot.o: $(HEAD) ircbot/ircbot.c ircbot/libircclient.c
+ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
 	$(CC) ircbot/ircbot.c $(DEFS) -o ircbot.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.

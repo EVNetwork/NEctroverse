@@ -3,8 +3,6 @@
 #endif
 
 
-#include "extras/cpuinfo.c"
-
 #include "html_gameplay.c"
 
 #include "html_main.c"

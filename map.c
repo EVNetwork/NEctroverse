@@ -2,8 +2,6 @@
 #include "global.h"
 #endif
 
-#include "extras/imgpng.c"
-
 
 void mapCalcFactors(mapstoreDef *mapstore) {
 	int a, b, c, x, y, index;
@@ -311,6 +309,7 @@ for( y = 0 ; y < mapcfg.sizey ; y++ ) {
 }
 
 
+bigpixies = NULL;
 /*
 mapgen.width = MAP_DEFINE_SIZEX *3;
 mapgen.height = MAP_DEFINE_SIZEY *3;

@@ -1015,9 +1015,7 @@ return ret;
 
 struct MHD_OptionItem ops[] = {
 	{ MHD_OPTION_CONNECTION_MEMORY_LIMIT, (size_t)SERVERALLOCATION, NULL },
-#if PRODUCTION
 	{ MHD_OPTION_PER_IP_CONNECTION_LIMIT, (unsigned int)(64), NULL },
-#endif
 	{ MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int)(120), NULL },
 	{ MHD_OPTION_END, 0, NULL }
 };

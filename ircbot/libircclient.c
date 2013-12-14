@@ -96,9 +96,7 @@ void irc_destroy_session (irc_session_t * session)
 	if ( session->sock >= 0 )
 		socket_close (&session->sock);
 
-#if defined (ENABLE_THREADS)
 	libirc_mutex_destroy (&session->mutex_session);
-#endif
 
 	/* 
 	 * delete DCC data 

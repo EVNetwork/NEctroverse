@@ -29,14 +29,11 @@
 	#include <ctype.h>
 	#include <time.h>
 
-	#if defined (ENABLE_THREADS)
-		#include <pthread.h>
-		typedef pthread_mutex_t		port_mutex_t;
-
-		#if !defined (PTHREAD_MUTEX_RECURSIVE) && defined (PTHREAD_MUTEX_RECURSIVE_NP)
-			#define PTHREAD_MUTEX_RECURSIVE		PTHREAD_MUTEX_RECURSIVE_NP
-		#endif
-	#endif 
+	#include <pthread.h>
+	typedef pthread_mutex_t		port_mutex_t;
+	#if !defined (PTHREAD_MUTEX_RECURSIVE) && defined (PTHREAD_MUTEX_RECURSIVE_NP)
+		#define PTHREAD_MUTEX_RECURSIVE		PTHREAD_MUTEX_RECURSIVE_NP
+	#endif
 #else
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
@@ -48,9 +45,7 @@
 	#include <stdlib.h>
 	#include <sys/stat.h>
 
-	#if defined (ENABLE_THREADS)
-		typedef CRITICAL_SECTION	port_mutex_t;
-	#endif
+	typedef CRITICAL_SECTION	port_mutex_t;
 
 	#define inline
 	#define snprintf			_snprintf
@@ -67,7 +62,6 @@
 #endif
 
 
-#if defined (ENABLE_THREADS)
 static inline int libirc_mutex_init (port_mutex_t * mutex)
 {
 #if defined (_WIN32)
@@ -115,17 +109,6 @@ static inline void libirc_mutex_unlock (port_mutex_t * mutex)
 	pthread_mutex_unlock (mutex);
 #endif
 }
-
-#else
-
-	typedef void *	port_mutex_t;
-
-	static inline int libirc_mutex_init (port_mutex_t * mutex) { return 0; }
-	static inline void libirc_mutex_destroy (port_mutex_t * mutex) {}
-	static inline void libirc_mutex_lock (port_mutex_t * mutex) {}
-	static inline void libirc_mutex_unlock (port_mutex_t * mutex) {}
-
-#endif
 
 
 /*

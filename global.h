@@ -42,8 +42,6 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
-#define PIPEFILE 0
-
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT
 #define SERVER_REPORT_CONNECT 1
@@ -122,14 +120,7 @@ static const double megabyte = (1024 * 1024);
 
 #include "http/platform.h"
 
-#include "extras/cpuinfo.h"
-
-#include "extras/dictionary.h"
-#include "extras/iniparser.h"
-
-#include "extras/md5.h"
-#include "extras/base64.h"
-#include "extras/encrypt.h"
+#include "extras/extras.h"
 
 #include "battle.h"
 #include "main.h"
@@ -153,8 +144,6 @@ static const double megabyte = (1024 * 1024);
 #endif
 #include "html_ajax.h"
 
-
-#include "extras/url_parser.h"
 
 #define info(msg) loghandle(LOG_INFO, false, "%s", msg )
 #define error(msg) loghandle(LOG_ERR, errno, "Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )

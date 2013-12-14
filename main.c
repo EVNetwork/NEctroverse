@@ -1,17 +1,19 @@
 #include "global.h"
 
-#include "extras/iniparser.c"
-
 #define trapsignal( signal )  svSignal( signal, __LINE__, __FILE__, __FUNCTION__)
 
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
 
 configDef sysconfig;
+#if MYSQL_SUPPORT
 mySqlDef mysqlcfg;
+#endif
 adminDef admincfg;
 mapcfgDef mapcfg;
 tickDef ticks;
+#if IRCBOT_SUPPORT
 ircDef irccfg;
+#endif
 
 bool firstload = false;
 
@@ -71,7 +73,7 @@ return;
 
 
 void svSignal( int signal ) {
-	int a, size;
+//	int a, size;
  
 if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
 	if( options.verbose ) {
@@ -169,7 +171,7 @@ while(end > str && isspace(*end))
 
 return str;
 }
-#if PIPEFILE
+#if PIPEFILE_SUPPORT
 //Read from pipe file... command execution latter to come...
 void svPipeScan(int pipefileid){
 	int num, stop;
@@ -188,12 +190,16 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 	if( !(strcmp(buffer,"stop") ) ) {
 		sysconfig.shutdown = true;
 		stop = 1;
-	} else if( !( strncmp(buffer, "bot", 3) ) ) {
+	}
+	#if IRCBOT_SUPPORT
+	 else if( !( strncmp(buffer, "bot", 3) ) ) {
 		if( !ircbot_command(buffer) ) {
 			loghandle(LOG_INFO, false, "Bot subfunction reported error with command: \"%s\"", buffer);
 			svPipeSend(0, "Bot subfunction reported error with command: \"%s\"\n",buffer );
 		}
-	} else {
+	}
+	#endif
+	 else {
 		loghandle(LOG_INFO, false, "Piping Error Unrecognized command size \"%d\" line \"%s\"", num, buffer);
 	}
 }
@@ -261,17 +267,19 @@ https_start();
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
-	#if PRODUCTION
+	/* Expire HTTP Sessions */
 	expire_sessions();
-	#endif
+
 	#if IRCBOT_SUPPORT
 	if( irccfg.bot ) {
 		ircbot_scan();
 	}
 	#endif
-	#if PIPEFILE
+
+	#if PIPEFILE_SUPPORT
 	svPipeScan( options.serverpipe );
 	#endif
+
 	loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
@@ -398,7 +406,7 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <
 }
 
 //add local pipe, for basic commands from shell
-#if PIPEFILE
+#if PIPEFILE_SUPPORT
 sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	if( mkfifo(DIRCHECKER, 0666) < 0 ) {
 	loghandle(LOG_ERR, errno, "Error creating pipe: %sn", DIRCHECKER );
@@ -584,14 +592,14 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.stop.tm_mday = iniparser_getint(ini, "auto_stop:day", -1);
 	sysconfig.stop.tm_mon = (( iniparser_getint(ini, "auto_stop:month", -1) ) - 1);
 	sysconfig.stop.tm_year = (( iniparser_getint(ini, "auto_stop:year", -1) ) + 100);
-
+	#if MYSQL_SUPPORT
 	mysqlcfg.enable = iniparser_getboolean(ini, "mysql:enable", false);
 	mysqlcfg.host = strdup( iniparser_getstring(ini, "mysql:host", "localhost") );
 	mysqlcfg.port = iniparser_getint(ini, "mysql:port", 3306);
 	mysqlcfg.user = strdup( iniparser_getstring(ini, "mysql:user", "localhost") );
 	mysqlcfg.password = iniparser_getstring(ini, "mysql:password", NULL) ? strdup( iniparser_getstring(ini, "mysql:password", "") ) : NULL;
 	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
-
+	#endif
 
 	admincfg.numadmins = iniparser_getint(ini, "admin:number", 0);
 	if( admincfg.numadmins > 0 ) {
@@ -707,7 +715,9 @@ if( type == CONFIG_SYSTEM ) {
 	ticks.round = iniparser_getint(ticks.ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
 	ticks.speed = iniparser_getint(ticks.ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
 	ticks.next = iniparser_getint(ticks.ini, "ticks:next", 0);
-} else if( type == CONFIG_IRC ) {
+}
+#if IRCBOT_SUPPORT
+else if( type == CONFIG_IRC ) {
 	/*if( irccfg.ini )
 		iniparser_freedict(irccfg.ini);
 	irccfg.ini = iniparser_load(file);*/
@@ -721,6 +731,7 @@ if( type == CONFIG_SYSTEM ) {
 	irccfg.bot = iniparser_getboolean(/*irccfg.*/ini, "irc:bot_enable", false);
 	irccfg.announcetick = iniparser_getboolean(/*irccfg.*/ini, "irc:bot_announcetick", false);
 }
+#endif
 
 if( firstload ) {
 	FILE *dumpfile;
@@ -751,6 +762,7 @@ if( firstload ) {
 		iniparser_set(ini,"syslog:tag", sysconfig.syslog_tagname);
 		iniparser_set(ini,"syslog:facility", sysconfig.syslog_facility);
 	}
+	#if IRCBOT_SUPPORT
 	if( !( iniparser_find_entry(ini,"irc") ) ){
 		iniparser_set(ini,"irc",NULL);
 		iniparser_set(ini,"irc:host", "irc.freenode.net" );
@@ -761,6 +773,7 @@ if( firstload ) {
 		iniparser_set(ini,"irc:bot_enable", "false" );
 		iniparser_set(ini,"irc:bot_announcetick", "false" );
 	}
+	#endif
 	if( !( iniparser_find_entry(ini,"admin") ) ){
 		iniparser_set(ini,"admin",NULL);
 		iniparser_set(ini,"admin:number", "2" );
@@ -980,7 +993,7 @@ return result;
 
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[256];
-	#if PIPEFILE
+	#if PIPEFILE_SUPPORT
 	int num;
 	#endif
 	int test;
@@ -1016,7 +1029,7 @@ if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
 
 if( ( firstload ) || ( sysconfig.shutdown ) )
 	goto BAILOUT;
-#if PIPEFILE	
+#if PIPEFILE_SUPPORT	
 sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
 	loghandle(LOG_INFO, false, "%s", "Pipe file detected, auto switching to client mode");
@@ -1027,8 +1040,10 @@ memset( &ticks, 0, sizeof(tickDef) );
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
 loadconfig(DIRCHECKER,CONFIG_TICKS);
 
+#if IRCBOT_SUPPORT
 memset( &irccfg, 0, sizeof(ircDef) );
 loadconfig(options.sysini,CONFIG_IRC);
+#endif
 
 loadconfig(options.sysini,CONFIG_BANNED);
 
@@ -1142,7 +1157,7 @@ if( options.mode == MODE_FORKED ) {
 }
 cleanUp(1);
 return 0;
-#if PIPEFILE
+#if PIPEFILE_SUPPORT
 //OK, so we made it down here... that means we are a client and the pipe is active.
 CLIENT:
 

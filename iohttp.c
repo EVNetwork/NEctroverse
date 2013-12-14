@@ -2,7 +2,6 @@
 
 #include "iohttpvars.c"
 #include "iohttpmime.c"
-#include "extras/url_parser.c"
 
 int iohttpMimeFind( char *name )
 {

@@ -168,10 +168,10 @@ void iohtmlFunc_delete( ReplyDataPtr cnt )
   int a, b, c, id;
   dbUserMainDef maind;
   dbUserInfoDef infod;
-  char *deletestring, *deathstring;
+  char *deletestring/*, *deathstring*/;
 
   deletestring = iohtmlVarsFind( cnt, "delete" );
-  deathstring = iohtmlVarsFind( cnt, "death" );
+  //deathstring = iohtmlVarsFind( cnt, "death" );
 
   iohtmlBase( cnt, 1 );
   if( ( id = iohtmlIdentify( cnt, 1 ) ) < 0 )

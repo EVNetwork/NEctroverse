@@ -19,4 +19,8 @@ void ircbot_messagephrase(ircmessageDef *irc);
 
 void ircbot_scan();
 
+#if PIPEFILE_SUPPORT
+int ircbot_command( char *command );
+#endif
+
 #endif

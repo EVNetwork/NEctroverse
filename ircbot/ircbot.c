@@ -4,6 +4,25 @@
 
 #include "libircclient.c"
 
+
+/*
+ * We store data in IRC session context.
+ */
+typedef struct
+{
+	char 	* channel;
+	char 	* nick;
+	//std::map <std::string, unsigned int> insolents;
+
+} irc_ctx_t;
+
+
+
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 void ircbot_send(char *fmt, ...) {
 	va_list ap;
 	char sbuf[512];
@@ -134,7 +153,7 @@ if( irccfg.botpass ){
 
 return 1;
 }
-#if PIPEFILE
+#if PIPEFILE_SUPPORT
 int ircbot_command( char *command ) {
 	char *sub = {0}, *chop = {0};
 
