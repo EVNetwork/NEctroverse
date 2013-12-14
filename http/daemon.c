@@ -3802,7 +3802,7 @@ MHD_set_panic_func (MHD_PanicCallback cb, void *cls)
 const char *
 MHD_get_version (void)
 {
-  return PACKAGE_VERSION;
+  return "0.9.31";
 }
 
 

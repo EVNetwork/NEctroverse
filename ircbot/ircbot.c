@@ -1,5 +1,5 @@
 #ifndef GLOBALINCLUDED
-#include "global.h"
+#include "../global.h"
 #endif
 
 #include "libircclient.c"

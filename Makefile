@@ -4,7 +4,7 @@ CC = gcc
 else
 CC = colorgcc
 endif
-CONFIGS := $(shell cat http/config.h)
+CONFIGS := $(shell cat config/config.h)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
@@ -19,6 +19,10 @@ endif
 
 ifneq ($(findstring DEBUG_SUPPORT 1,$(CONFIGS)),)
 DEFS = -ggdb -rdynamic
+endif
+
+ifneq ($(findstring IRCBOT_SUPPORT 1,$(CONFIGS)),)
+MODS = ircbot.o
 endif
 
 
@@ -68,7 +72,7 @@ html.o: $(HEAD) html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html
 encrypt.o: $(HEAD) extras/*.h extras/encrypt.c extras/md5.c extras/base64.c
 	$(CC) extras/encrypt.c $(DEFS) -o encrypt.o -c $(FLAGS)
 
-ircbot.o: $(HEAD) ircbot/ircbot.c
+ircbot.o: $(HEAD) ircbot/ircbot.c ircbot/libircclient.c
 	$(CC) ircbot/ircbot.c $(DEFS) -o ircbot.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.

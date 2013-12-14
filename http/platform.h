@@ -34,8 +34,6 @@
 #ifndef MHD_PLATFORM_H
 #define MHD_PLATFORM_H
 
-#include "config.h"
-
 #define _XOPEN_SOURCE_EXTENDED  1
 #if OS390
 #define _OPEN_THREADS

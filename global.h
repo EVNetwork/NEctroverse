@@ -1,7 +1,7 @@
 #ifndef GLOBALINCLUDED
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
-#include "http/config.h"
+#include "config/config.h"
 #include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -147,6 +147,8 @@ static const double megabyte = (1024 * 1024);
 #include "cmd.h"
 #include "map.h"
 #if IRCBOT_SUPPORT
+#include "ircbot/libircclient.h"
+#include "ircbot/libirc_rfcnumeric.h"
 #include "ircbot/ircbot.h"
 #endif
 #include "html_ajax.h"

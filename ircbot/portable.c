@@ -13,7 +13,6 @@
  */
 
 #if !defined (_WIN32)
-	#include "config.h"
 	#include <stdio.h>
 	#include <stdarg.h>
 	#include <unistd.h>
