@@ -1,4 +1,5 @@
-#define HTTPINCLUDES
+#ifndef CORECONFIGS
+#define CORECONFIGS
 
 /* This is a Linux kernel */
 #define LINUX 1
@@ -275,10 +276,6 @@
 /* Defined if libcurl supports TFTP */
 #define LIBCURL_PROTOCOL_TFTP 1
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#define LT_OBJDIR ".libs/"
-
 /* gcrypt lib version */
 #define MHD_GCRYPT_VERSION "1:1.2.2"
 
@@ -294,38 +291,11 @@
 /* required cURL version to run tests */
 #define MHD_REQ_CURL_VERSION "7.16.4"
 
-/* This is a MinGW system */
-/* #undef MINGW */
-
-/* This is a NetBSD system */
-/* #undef NETBSD */
-
-/* This is an OpenBSD system */
-/* #undef OPENBSD */
-
-/* This is a OS/390 system */
-/* #undef OS390 */
-
-/* This is an OS X system */
-/* #undef OSX */
-
-/* Some strange OS */
-/* #undef OTHEROS */
-
-/* This is a Solaris system */
-/* #undef SOLARIS */
-
-/* This is a BSD system */
-/* #undef SOMEBSD */
-
 /* disable libmicrospdy support */
 #define SPDY_SUPPORT 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
-
-/* This is a Windows system */
-/* #undef WINDOWS */
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -416,3 +386,5 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
+
+#endif
