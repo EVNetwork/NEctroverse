@@ -10,7 +10,7 @@ SQLFLAG := $(shell mysql_config --cflags)
 
 MODS = 
 #The standard config needed to compile basic server, withought these it won't work.
-FLAGS = --fast-math -Wall -fno-strict-aliasing -O3
+FLAGS = --fast-math -Wall -fno-strict-aliasing -O2 -O3
 LIBS = -lcrypt -lpng
 
 ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)
@@ -44,7 +44,7 @@ stop:
 	
 restart: stop run
 	
-main.o: $(HEAD) main.c extras/iniparser.c ircbot.c
+main.o: $(HEAD) main.c extras/iniparser.c
 	$(CC) main.c $(DEFS) -o main.o -c $(FLAGS)
 
 io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c extras/url_parser.c
@@ -67,6 +67,9 @@ html.o: $(HEAD) html.c html_main.c html_ajax.c html_admin.c html_gameplay.c html
 
 encrypt.o: $(HEAD) extras/*.h extras/encrypt.c extras/md5.c extras/base64.c
 	$(CC) extras/encrypt.c $(DEFS) -o encrypt.o -c $(FLAGS)
+
+ircbot.o: $(HEAD) ircbot/ircbot.c
+	$(CC) ircbot/ircbot.c $(DEFS) -o ircbot.o -c $(FLAGS)
 
 #I hate to point out the ovbious, but these are just used for cleaning things up a bit.
 clean:

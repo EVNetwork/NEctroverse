@@ -2,6 +2,8 @@
 #include "global.h"
 #endif
 
+#include "libircclient.c"
+
 void ircbot_send(char *fmt, ...) {
 	va_list ap;
 	char sbuf[512];

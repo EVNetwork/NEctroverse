@@ -1,7 +1,6 @@
 #include "global.h"
 
 #include "extras/iniparser.c"
-#include "ircbot.c"
 
 #define trapsignal( signal )  svSignal( signal, __LINE__, __FILE__, __FUNCTION__)
 
@@ -133,7 +132,7 @@ if( svDebugConnection ) {
 	}
 }*/
 
-
+#if IRCBOT_SUPPORT
 if( irccfg.bot ) {
 	ircbot_send("NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
 	ircbot_send("QUIT");
@@ -142,6 +141,7 @@ if( irccfg.bot ) {
 	}
 
 }
+#endif
 
 sysconfig.shutdown = true;
 server_shutdown();
@@ -264,9 +264,11 @@ while( sysconfig.shutdown == false ) {
 	#if PRODUCTION
 	expire_sessions();
 	#endif
+	#if IRCBOT_SUPPORT
 	if( irccfg.bot ) {
 		ircbot_scan();
 	}
+	#endif
 	#if PIPEFILE
 	svPipeScan( options.serverpipe );
 	#endif
@@ -408,12 +410,15 @@ sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
+#if IRCBOT_SUPPORT
 if( irccfg.bot ) {
 	ircbot_connect();
 }
+#endif
 
 daemonloop();
 
+#if IRCBOT_SUPPORT
 if( irccfg.bot ) {
 	ircbot_send("QUIT :Server Shutdown has been iniated!");
 	if( close( options.botconn ) == -1 ) {
@@ -421,6 +426,7 @@ if( irccfg.bot ) {
 	}
 
 }
+#endif
 
 cmdEnd();
 dbEnd();

@@ -146,7 +146,9 @@ static const double megabyte = (1024 * 1024);
 #include "html_forum.h"
 #include "cmd.h"
 #include "map.h"
-#include "ircbot.h"
+#if IRCBOT_SUPPORT
+#include "ircbot/ircbot.h"
+#endif
 #include "html_ajax.h"
 
 

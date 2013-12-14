@@ -13,8 +13,11 @@
 /* disable debugging symbols support */
 #define DEBUG_SUPPORT 1
 
-/* disable debugging symbols support */
+/* disable mysql support */
 #define MYSQL_SUPPORT 0
+
+/* disable ircbot support */
+#define IRCBOT_SUPPORT 0
 
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
