@@ -73,8 +73,8 @@ clean:
 	rm *~ -rf
 	rm *.o -rf
 	rm *.raw -rf
-	rm optional/*.o -rf
-	rm optional/*~ -rf
+	rm test_modules/*.o -rf
+	rm test_modules/*~ -rf
 
 #Dangerous, will wipe everything... whole database the works. Nothing is spared.
 #But I do a lot of clean testing, so I like to have this one handy. It doesn't build anything.
@@ -84,8 +84,8 @@ blank: clean
 	rm /tmp/evcore -rf
 
 #Not yet in deployment. This is just my testing section.
-mysql.o: optional/mysql.c optional/mysql.h *.h
-	$(CC) optional/mysql.c $(DEFS) -o mysql.o -c $(FLAGS) $(LIBS)
+mysql.o: test_modules/mysql.c test_modules/mysql.h *.h
+	$(CC) test_modules/mysql.c $(DEFS) -o mysql.o -c $(FLAGS) $(LIBS)
 
 mysqltest: mysql.o md5.o
 	$(CC) mysql.o md5.o $(DEFS) -o mysqltest $(FLAGS) $(LIBS)
