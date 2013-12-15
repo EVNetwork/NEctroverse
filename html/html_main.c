@@ -6,13 +6,13 @@ int iohttpIdentifyHex( char *num )
  for( a = b = 0 ; ; b <<= 4 )
  {
   if( ( num[a] >= '0' ) && ( num[a] <= '9' ) )
-   b += c = num[a] - '0';
+ b += c = num[a] - '0';
   else if( ( num[a] >= 'a' ) && ( num[a] <= 'z' ) )
-   b += c = num[a] - ('a'-10);
+ b += c = num[a] - ('a'-10);
   else if( ( num[a] >= 'A' ) && ( num[a] <= 'Z' ) )
-   b += c = num[a] - ('A'-10);
+ b += c = num[a] - ('A'-10);
   if( ++a == 4 )
-   break;
+ break;
  }
  return b;
 }
@@ -74,15 +74,15 @@ return -1;
 }
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
-httpString( cnt, "<!DOCTYPE xhtml>");
+httpString( cnt, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
 httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
-httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
-httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
-httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
+httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />" );
+httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" );
+httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\" />" );
+httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\" />" );
 httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
-httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\" />" );
+httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\" />" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
 
@@ -182,7 +182,7 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_03.jpg\" width=350 height=80  alt=\"ect Top\"></td></tr>" );
+httpString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_03.jpg\" width=\"350\" height=\"80\" alt=\"ect Top\"></td></tr>" );
 
 httpString( cnt, "<tr><td><table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
 httpString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
@@ -563,12 +563,12 @@ if( race ) {
 	sscanf( race, "%d", &raceid );
 
 	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
-   		if( cmdErrorString )
-   			httpString( cnt, cmdErrorString );
-   		else
-    			httpString( cnt, "Error encountered while registering user" );
-   		httpString( cnt, "<br><br><a href=\"/register2\">Try again</a>" );
-   		goto iohtmlFunc_register3L0;
+ 		if( cmdErrorString )
+ 			httpString( cnt, cmdErrorString );
+ 		else
+  			httpString( cnt, "Error encountered while registering user" );
+ 		httpString( cnt, "<br><br><a href=\"/register2\">Try again</a>" );
+ 		goto iohtmlFunc_register3L0;
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
 	httpString( cnt, "<br><br><br><a href=\"/main\">Log in</a>" );
@@ -777,20 +777,20 @@ httpString( cnt, "<br>\n" );
 httpString( cnt, "<script type=\"text/javascript\">\n" );
 httpString( cnt, "\n" );
 httpString( cnt, "  var _gaq = _gaq || [];\n" );
-httpString( cnt, "    _gaq.push(['_setAccount', 'UA-38148306-1']);\n" );
-httpString( cnt, "      _gaq.push(['_trackPageview']);\n" );
+httpString( cnt, "  _gaq.push(['_setAccount', 'UA-38148306-1']);\n" );
+httpString( cnt, "  _gaq.push(['_trackPageview']);\n" );
 httpString( cnt, "\n" );
-httpString( cnt, "        (function() {\n" );
-httpString( cnt, "            var ga = document.createElement('script'); ga.type =\n" );
-httpString( cnt, "            'text/javascript'; ga.async = true;\n" );
-httpString( cnt, "                ga.src = ('https:' == document.location.protocol ?\n" );
-httpString( cnt, "                'https://ssl' : 'http://www') +\n" );
-httpString( cnt, "                '.google-analytics.com/ga.js';\n" );
-httpString( cnt, "                    var s = document.getElementsByTagName('script')[0];\n" );
-httpString( cnt, "                    s.parentNode.insertBefore(ga, s);\n" );
-httpString( cnt, "                      })();\n" );
-httpString( cnt, "                      \n" );
-httpString( cnt, "                      </script>\n" );
+httpString( cnt, "    (function() {\n" );
+httpString( cnt, "    var ga = document.createElement('script'); ga.type =\n" );
+httpString( cnt, "    'text/javascript'; ga.async = true;\n" );
+httpString( cnt, "      ga.src = ('https:' == document.location.protocol ?\n" );
+httpString( cnt, "      'https://ssl' : 'http://www') +\n" );
+httpString( cnt, "      '.google-analytics.com/ga.js';\n" );
+httpString( cnt, "        var s = document.getElementsByTagName('script')[0];\n" );
+httpString( cnt, "        s.parentNode.insertBefore(ga, s);\n" );
+httpString( cnt, "        })();\n" );
+httpString( cnt, "        \n" );
+httpString( cnt, "        </script>\n" );
 httpString( cnt, "\n" );
 httpString( cnt, "<br>\n" );
 */
