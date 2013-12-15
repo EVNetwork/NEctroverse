@@ -74,15 +74,15 @@ return -1;
 }
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
-httpString( cnt, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
-httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />" );
-httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" );
-httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\" />" );
-httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\" />" );
+httpString( cnt, "<!DOCTYPE xhtml>");
+//httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
+httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
+httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
+httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
+httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\" />" );
-httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\" />" );
+httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
+httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
 
