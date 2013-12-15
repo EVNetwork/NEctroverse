@@ -15,6 +15,7 @@ PageDef pages[] =
     { "/faq", "text/html",  &page_render, iohtmlFunc_faq, NULL },
     { "/status", "text/html",  &page_render, iohtmlFunc_status, NULL },
     { "/races", "text/html",  &page_render, iohtmlFunc_races, NULL },
+    { "/rules", "text/html",  &page_render, iohtmlFunc_rules, NULL },
     { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
     { "/register2", "text/html",  &page_render, iohtmlFunc_register2, NULL },
     { "/register3", "text/html",  &page_render, iohtmlFunc_register3, NULL },

@@ -111,7 +111,7 @@ void iohttpFunc_Approve( ReplyDataPtr cnt )
  }
  else
  {
- 	httpString(cnt, "Sorry you don't have the necessary right to approve file upload by all the players!");
+ 	httpString(cnt, "Sorry you don't have the necessary right to approve files upload by players!");
  }
  iohtmlBodyEnd( cnt );
  return;

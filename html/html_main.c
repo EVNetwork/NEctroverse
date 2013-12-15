@@ -342,6 +342,63 @@ iohtmlBodyEnd( cnt );
  return;
 }
 
+
+void iohtmlFunc_rules( ReplyDataPtr cnt ) {
+	struct stat stdata;
+	char *data;
+	char DIRCHECKER[256];
+	FILE *file;
+
+iohtmlBase( cnt, 8 );
+iohtmlFunc_frontmenu( cnt, FMENU_NONE );
+
+httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
+
+
+httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+httpPrintf( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>General Rules for %s.</b></font></td></tr>", sysconfig.servername );
+httpString( cnt, "<tr><td><font size=\"2\">" );
+
+
+sprintf( DIRCHECKER, "%s/rules.txt", sysconfig.httpread );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
+			if( stdata.st_size > 0 ) {
+			httpString( cnt, "<ul>" );
+				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					if( strlen(data) > 1 )
+						httpPrintf( cnt, "<li>%s</li>", trimwhitespace(data) );
+				}
+			httpString( cnt, "</ul>" );
+			}
+			fclose( file );
+		}
+		free( data );
+	}
+}
+
+
+httpString( cnt, "<br>" );
+httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", sysconfig.servername );
+httpString( cnt, "<br>" );
+httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br>" );
+httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
+httpString( cnt, "<br>" );
+httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br>" );
+httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br>" );
+httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br>" );
+httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br>" );
+
+httpString( cnt, "</td></tr></table><br><br>" );
+
+iohtmlFunc_endhtml( cnt );
+
+return;
+}
+
+
 void iohtmlFunc_register( ReplyDataPtr cnt ) {
 
 iohtmlBase( cnt, 8 );
@@ -479,7 +536,7 @@ void iohtmlFunc_register3( ReplyDataPtr cnt )
  char *empire;
  char *fampass;
  char *race;
- 
+
  iohtmlBase( cnt, 8 );
  if( ( id = iohtmlIdentify( cnt, 1|4 ) ) < 0 )
   return;
@@ -502,7 +559,7 @@ if( race ) {
 		sscanf( &empire[1], "%d", &a );
 	else
 		sscanf( empire, "%d", &a );
-  
+
 	sscanf( race, "%d", &raceid );
 
 	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
@@ -572,6 +629,7 @@ iohtmlFunc_endhtml( cnt );
 
 return;
 }
+
 
 void iohtmlFunc_endhtml( ReplyDataPtr cnt ) {
 
