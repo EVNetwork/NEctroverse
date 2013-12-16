@@ -198,12 +198,17 @@ return;
 }
 
 
-void event_connect (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count)
-{
-	irc_ctx_t * ctx = (irc_ctx_t *) irc_get_ctx (session);
-	dump_event (session, event, origin, params, count);
+void event_connect( irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count ) {
+	char buffer[512];
+dump_event (session, event, origin, params, count);
 
-	irc_cmd_join (session, ctx->channel, 0);
+irc_cmd_join (session, irccfg.channel, 0);
+if( irccfg.botpass ){
+	sprintf(buffer, "identify %s", irccfg.botpass);
+	irc_cmd_msg(irccfg.session, "NickServ", buffer);
+}
+
+return;
 }
 
 
@@ -276,8 +281,8 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 
 void event_channel (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count)
 {
-	char nickbuf[128];
 	char buffer[512];
+	char nickbuf[128];
 
 	if ( count != 2 )
 		return;
@@ -358,15 +363,7 @@ void irc_event_dcc_send (irc_session_t * session, const char * nick, const char 
 }
 
 void event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count) {
-	char buf[24], buffer[512];
-
-if( event == 376 ) {
-	if( irccfg.botpass ){
-		sprintf(buffer, "identify %s", irccfg.botpass);
-		irc_cmd_msg(irccfg.session, "NickServ", buffer);
-	}
-	irc_cmd_join(irccfg.session, irccfg.channel, NULL);
-}
+	char buf[24];
 
 sprintf (buf, "%d", event);
 dump_event (session, buf, origin, params, count);
@@ -377,7 +374,7 @@ return;
 
 int ircbot_connect( ) {
 	irc_callbacks_t	callbacks;
-	irc_ctx_t ctx;
+	//irc_ctx_t ctx;
 
 	memset (&callbacks, 0, sizeof(callbacks));
 
@@ -402,7 +399,7 @@ int ircbot_connect( ) {
 	callbacks.event_dcc_chat_req = irc_event_dcc_chat;
 	callbacks.event_dcc_send_req = irc_event_dcc_send;
 
-	irccfg.session = irc_create_session (&callbacks);
+	irccfg.session = irc_create_session( &callbacks );
 
 	if ( !irccfg.session )
 	{
@@ -410,13 +407,14 @@ int ircbot_connect( ) {
 		return 1;
 	}
 
-	ctx.channel = irccfg.channel;
-        ctx.nick = irccfg.botnick;
-	irc_set_ctx(irccfg.session, &ctx);
+	//ctx.channel = irccfg.channel;
+        //ctx.nick = irccfg.botnick;
+
+	//irc_set_ctx( irccfg.session, &ctx );
 
 
 	// Initiate the IRC server connection
-	if ( irc_connect (irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick) ) {
+	if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
 		printf ("Could not connect: %s\n", irc_strerror (irc_errno(irccfg.session)));
 		return 1;
 	} 
