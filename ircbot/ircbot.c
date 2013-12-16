@@ -191,8 +191,11 @@ void event_join( irc_session_t *session, const char *event, const char *origin, 
 
 dump_event( session, event, origin, params, count );
 irc_cmd_user_mode( session, "+i" );
-sprintf( buffer, "op %s", params[0] );	
-irc_cmd_msg( session, "ChanServ", buffer );
+irc_target_get_nick( origin, buffer, sizeof(buffer) );
+if( !strncmp( origin, irccfg.botnick, strlen(irccfg.botnick) ) ) {
+	sprintf( buffer, "op %s", params[0] );	
+	irc_cmd_msg( session, "ChanServ", buffer );
+}
 
 return;
 }
@@ -401,21 +404,14 @@ int ircbot_connect( ) {
 
 	irccfg.session = irc_create_session( &callbacks );
 
-	if ( !irccfg.session )
-	{
-		printf ("Could not create session\n");
+	if ( !irccfg.session ) {
+		error("Could not create IRC session");
 		return 1;
 	}
 
-	//ctx.channel = irccfg.channel;
-        //ctx.nick = irccfg.botnick;
-
-	//irc_set_ctx( irccfg.session, &ctx );
-
-
 	// Initiate the IRC server connection
 	if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
-		printf ("Could not connect: %s\n", irc_strerror (irc_errno(irccfg.session)));
+		error("Connectiong to IRC Network");
 		return 1;
 	} 
 

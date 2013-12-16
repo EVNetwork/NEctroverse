@@ -14,15 +14,6 @@ typedef struct {
 	char *how;
 } ircmessageDef;
 
-/*
- * We store data in IRC session context.
- */
-typedef struct {
-	char 	* channel;
-	char 	* nick;
-	//std::map <std::string, unsigned int> insolents;
-} irc_ctx_t;
-
 extern float ircbot_version;
 
 int ircbot_connect();
