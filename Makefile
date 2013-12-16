@@ -86,7 +86,7 @@ clean:
 #But I do a lot of clean testing, so I like to have this one handy. It doesn't build anything.
 #Can also be used in unison such as "make blank server", same for above "make clean server" works.
 blank: clean
-	rm core -rf
+	rm data_core -rf
 	rm /tmp/evcore -rf
 
 #Not yet in deployment. This is just my testing section.

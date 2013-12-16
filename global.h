@@ -10,19 +10,26 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <libgen.h>
+#include <limits.h>
 #include <math.h>
+#include <memory.h>
 #if MYSQL_SUPPORT
 #include <mysql.h>
 #endif
 #include <netdb.h>
 #include <png.h>
+#include <poll.h>
+#include <pthread.h>
 #include <pwd.h>
+#include <search.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
@@ -32,6 +39,13 @@
 #include <linux/limits.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#if EPOLL_SUPPORT
+#include <sys/epoll.h>
+#endif
+#include <sys/msg.h>
+#include <sys/mman.h>
+#include <sys/select.h>
+#include <sys/sendfile.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/sysinfo.h>
@@ -41,6 +55,17 @@
 #include <sys/un.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+
+#if HAVE_MAGIC
+#include <magic.h>
+#endif
+
+#if HTTPS_SUPPORT
+#include <gnutls/gnutls.h>
+#include <gcrypt.h>
+#endif
+
+
 
 // 0 = Off | 1 = On
 #ifndef SERVER_REPORT_CONNECT

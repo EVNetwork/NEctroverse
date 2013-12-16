@@ -35,27 +35,7 @@
 #define MHD_PLATFORM_H
 
 #define _XOPEN_SOURCE_EXTENDED  1
-#if OS390
-#define _OPEN_THREADS
-#define _OPEN_SYS_SOCK_IPV6
-#define _OPEN_MSGQ_EXT
-#define _LP64
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stddef.h>
-#include <limits.h>
 #undef HAVE_CONFIG_H
-#include <pthread.h>
-
 #ifndef AVOIDIMPLICITS
 #define AVOIDIMPLICITS
 /* Get thread name visible in the kernel and its interfaces.  */
@@ -85,89 +65,6 @@ extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
 #endif
 
 #define HAVE_CONFIG_H 1
-
-/* different OSes have fd_set in
-   a broad range of header files;
-   we just include most of them (if they
-   are available) */
-
-
-#ifdef OS_VXWORKS
-#include <sockLib.h>
-#include <netinet/in.h>
-#include <stdarg.h>
-#include <sys/mman.h>
-#define RESTRICT __restrict__
-#endif
-#if HAVE_MEMORY_H
-#include <memory.h>
-#endif
-#if HAVE_MAGIC_H
-#include <magic.h>
-#endif
-#if HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#if HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#if HAVE_SYS_MSG_H
-#include <sys/msg.h>
-#endif
-#if HAVE_SYS_MMAN_H
-#include <sys/mman.h>
-#endif
-#if HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#if HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#if HAVE_TIME_H
-#include <time.h>
-#endif
-#if HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#if HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#if HTTPS_SUPPORT
-#include <gnutls/gnutls.h>
-#endif
-#if EPOLL_SUPPORT
-#include <sys/epoll.h>
-#endif
-#include <limits.h>
-
-#if HAVE_SEARCH_H
-#include <search.h>
-#else
-#include "tsearch.h"
-#endif
-
-#if HTTPS_SUPPORT
-#include <gcrypt.h>
-#endif
-
-#ifdef HAVE_POLL_H
-#include <poll.h>
-#endif
-
-#ifdef LINUX
-#include <sys/sendfile.h>
-#endif
-
-#if HAVE_NETINET_TCP_H
-/* for TCP_CORK */
-#include <netinet/tcp.h>
-#endif
 
 #include "plibc.h"
 

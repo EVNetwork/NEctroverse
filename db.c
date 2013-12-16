@@ -852,10 +852,7 @@ int dbUserSave( int id, dbUserPtr user ) {
 	dbUserInfoDef uinfo;
 
 if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting real info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting real info\n" );
+	error( "Error in user save, getting real info" );
 	return -3;
 }
 
@@ -867,10 +864,7 @@ strcpy(uinfo.http_session,user->http_session);
 uinfo.lasttime = user->lasttime;
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting setting info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting setting info\n" );
+	error( "Error in user save, getting setting info" );
 	return -3;
 }
 
