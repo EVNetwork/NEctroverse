@@ -121,6 +121,13 @@ static const double megabyte = (1024 * 1024);
 #include "http/platform.h"
 #include "extras/extras.h"
 
+
+#if IRCBOT_SUPPORT
+#include "ircbot/ircbot.h"
+#endif
+
+
+
 #include "battle.h"
 #include "main.h"
 #include "io.h"
@@ -131,16 +138,10 @@ static const double megabyte = (1024 * 1024);
 #include "cmd.h"
 #include "map.h"
 
-#if IRCBOT_SUPPORT
-#include "ircbot/ircbot.h"
-#endif
-
 
 #define info(msg) loghandle(LOG_INFO, false, "%s", msg )
 #define error(msg) loghandle(LOG_ERR, errno, "Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
 #define critical(msg) loghandle(LOG_CRIT, errno, "Critical Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
-
-#define trapsignal(signal) svSignal( signal, __LINE__, __FILE__, __FUNCTION__)
 
 #endif
 

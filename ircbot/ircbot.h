@@ -14,13 +14,20 @@ typedef struct {
 	char *how;
 } ircmessageDef;
 
+/*
+ * We store data in IRC session context.
+ */
+typedef struct {
+	char 	* channel;
+	char 	* nick;
+	//std::map <std::string, unsigned int> insolents;
+} irc_ctx_t;
+
+
+
 int ircbot_connect();
 
-void ircbot_send(char *fmt, ...);
-
-void ircbot_messagephrase(ircmessageDef *irc);
-
-void ircbot_scan();
+void ircbot_select();
 
 #if PIPEFILE_SUPPORT
 int ircbot_command( char *command );

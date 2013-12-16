@@ -75,7 +75,7 @@ return -1;
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
 httpString( cnt, "<!DOCTYPE xhtml>");
-//httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
+httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
 httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );

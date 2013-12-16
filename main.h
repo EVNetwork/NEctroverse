@@ -62,11 +62,12 @@ typedef struct {
 	//admin
 	bool bot;
 	char *host;
-	char *port;
+	unsigned short port;
 	char *botnick;
 	char *botpass;
 	char *channel;
 	bool announcetick;
+	irc_session_t *session;
 	inikey ini;
 } ircDef, *ircPtr;
 

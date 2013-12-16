@@ -372,7 +372,7 @@ savetickconfig();
 #if IRCBOT_SUPPORT
 if( irccfg.bot ) {
 	if( ( irccfg.announcetick ) && ( ticks.status ) )
-		ircbot_send("NOTICE %s :Game has Ticked -- Week %d, Year %d (Tick #%d)", irccfg.channel, ticks.number % 52, ticks.number / 52, ticks.number);
+		irc_send_raw( irccfg.session, "NOTICE %s :Game has Ticked -- Week %d, Year %d (Tick #%d)", irccfg.channel, ticks.number % 52, ticks.number / 52, ticks.number );
 }
 #endif
 

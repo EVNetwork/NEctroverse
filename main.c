@@ -135,13 +135,13 @@ if( svDebugConnection ) {
 }*/
 
 #if IRCBOT_SUPPORT
-if( irccfg.bot ) {
-	ircbot_send("NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
-	ircbot_send("QUIT");
-	if( close( options.botconn ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, closing ircbot socket", errno);
+if( irc_is_connected(irccfg.session) ) {
+	irc_send_raw( irccfg.session, "NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
+	if( irc_cmd_quit( irccfg.session, "Server Saftey Triped... Shutting down!" ) ) {
+		error("Quitting IRC");
 	}
-
+	ircbot_select();
+	irc_disconnect( irccfg.session );
 }
 #endif
 
@@ -272,7 +272,7 @@ while( sysconfig.shutdown == false ) {
 
 	#if IRCBOT_SUPPORT
 	if( irccfg.bot ) {
-		ircbot_scan();
+		ircbot_select();
 	}
 	#endif
 
@@ -312,6 +312,16 @@ while( sysconfig.shutdown == false ) {
 		fflush(stdout);
 }
 
+#if IRCBOT_SUPPORT
+if( irc_is_connected(irccfg.session) ) {
+	if( irc_cmd_quit( irccfg.session, "Server Shutdown has been iniated!" ) ) {
+		error("Quitting IRC");
+	}
+	ircbot_select();
+	irc_disconnect( irccfg.session );
+}
+#endif
+
 server_shutdown();
 
 return 0;
@@ -323,7 +333,7 @@ int daemon_init() {
 	char DIRCHECKER[256];
 	pid_t pid, sid;
 
-loghandle(LOG_INFO, false, "%s", "Server process iniating...");
+info("Server process iniating...");
 
 if( options.mode == MODE_FORKED ) {
 pid = fork();
@@ -426,15 +436,6 @@ if( irccfg.bot ) {
 
 daemonloop();
 
-#if IRCBOT_SUPPORT
-if( irccfg.bot ) {
-	ircbot_send("QUIT :Server Shutdown has been iniated!");
-	if( close( options.botconn ) == -1 ) {
-		loghandle(LOG_ERR, errno, "Error %03d, closing ircbot socket", errno);
-	}
-
-}
-#endif
 
 cmdEnd();
 dbEnd();
@@ -722,7 +723,7 @@ else if( type == CONFIG_IRC ) {
 		iniparser_freedict(irccfg.ini);
 	irccfg.ini = iniparser_load(file);*/
 	irccfg.host = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:host", "irc.freenode.net") );
-	irccfg.port = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:port", "6667") );
+	irccfg.port = atoi( iniparser_getstring(/*irccfg.*/ini, "irc:port", "6667") );
 	strcpy(DIRCHECKER,"#");
 	strcat(DIRCHECKER,strdup( iniparser_getstring(/*irccfg.*/ini, "irc:channel", "ectroverse") ) );
 	irccfg.channel = strdup(DIRCHECKER);
@@ -1263,9 +1264,9 @@ switch(flag) {
 if ( error ) {
 	if( options.verbose ) {
 		printf("%s%s"RESET,font, ebuffer);
-		printf(" -- "BOLDBLUE"%s"RESET"\n", strerror(error) );
+		printf(" -- "BOLDBLUE"#%d, %s"RESET"\n", error, strerror(error) );
 	}
-	syslog(flag, "%s -- %s", ebuffer, strerror(error) );
+	syslog(flag, "%s -- #%d, %s", ebuffer, error, strerror(error) );
 } else {
 	if( options.verbose )
 		printf("%s%s\n"RESET,font, ebuffer);
