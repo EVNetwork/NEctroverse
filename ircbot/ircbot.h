@@ -23,7 +23,7 @@ typedef struct {
 	//std::map <std::string, unsigned int> insolents;
 } irc_ctx_t;
 
-
+extern float ircbot_version;
 
 int ircbot_connect();
 

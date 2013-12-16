@@ -4,6 +4,7 @@
 
 #include "libircclient.c"
 
+float ircbot_version = 0.01;
 
 #if PIPEFILE_SUPPORT
 int ircbot_command( char *command ) {
@@ -272,6 +273,7 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 void event_channel (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count)
 {
 	char nickbuf[128];
+	char buffer[512];
 
 	if ( count != 2 )
 		return;
@@ -311,7 +313,8 @@ void event_channel (irc_session_t * session, const char * event, const char * or
 	if ( !strcmp (params[1], "dcc send") )
 	{
 		irc_dcc_t dccid;
-		irc_dcc_sendfile (session, 0, nickbuf, "irctest.c", dcc_file_recv_callback, &dccid);
+		sprintf(buffer, "%s/cookie.gif", sysconfig.httpimages );
+		irc_dcc_sendfile (session, 0, nickbuf, buffer, dcc_file_recv_callback, &dccid);
 		printf ("DCC send ID: %d\n", dccid);
 	}
 
