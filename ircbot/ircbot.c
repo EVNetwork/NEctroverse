@@ -8,8 +8,8 @@ float ircbot_version = 0.01;
 
 #if PIPEFILE_SUPPORT
 int ircbot_command( char *command ) {
-	char *sub = {0}, *chop = {0};
-/*
+/*	char *sub = {0}, *chop = {0};
+
 if( ( strlen(command) > 3 ) && ( strchr( command, ' ' ) ) )
 sub = ( strchr( command, ' ' ) + 1 );
 
@@ -80,72 +80,7 @@ return 0;
 }
 #endif
 
-#define IS_CTRL  (1 << 0)
-#define IS_EXT	 (1 << 1)
-#define IS_ALPHA (1 << 2)
-
-unsigned int char_tbl[256] = {0};
-
-
-void init_table() {
-	int i;
-
-	for (i = 0; i < 32; i++) char_tbl[i] |= IS_CTRL;
-	char_tbl[127] |= IS_CTRL;
-
-	for (i = 'A'; i <= 'Z'; i++) {
-		char_tbl[i] |= IS_ALPHA;
-		char_tbl[i + 0x20] |= IS_ALPHA; /* lower case */
-	}
-
-	for (i = 128; i < 256; i++) char_tbl[i] |= IS_EXT;
-}
-
-void strip(char * str, int what) {
-	unsigned char *ptr, *s = (void*)str;
-	ptr = s;
-	while (*s != '\0') {
-		if ((char_tbl[(int)*s] & what) == 0)
-			*(ptr++) = *s;
-		s++;
-	}
-	*ptr = '\0';
-}
-/*
-void ircbot_messagephrase(ircmessageDef *irc) {
-
-
-init_table();
-strip(irc->input, IS_CTRL | IS_EXT);
-
-if( options.verbose )
-	loghandle(LOG_INFO, false, "[from:%s] [host:%s] [reply-to:%s] %s", irc->nick, irc->host, irc->target, irc->input);
-
-if( !strcmp(irc->input,"tick") ){
-	if( ticks.status ) {
-		ircbot_send("NOTICE %s :Week %d, Year %d (Tick #%d)", irc->target, ticks.number % 52, ticks.number / 52, ticks.number );
-	} else {
-		ircbot_send("NOTICE %s :Game time is frozen!", irc->target );
-	}
-} else if( !strncmp(irc->input,"login", 5) ) {
-	printf("%s of host:%s attempted to login via IRC bot.\n", irc->nick, irc->host);
-	if(irc->target != irc->nick) {
-		ircbot_send("NOTICE %s :Login via public is so unsafe... I'm going to deny login.", irc->nick);
-		ircbot_send("NOTICE %s :Please only use Private Message or Notice to login.", irc->nick);
-		ircbot_send("NOTICE %s :Sorry %s, your login attempt is invalid!", irc->target, irc->nick);
-		return;
-	}
-	ircbot_send("NOTICE %s :Sorry, %s is currently still under construction!", irc->target, irc->input);
-} else {
-	//Deny ability for any input not listed above.
-	ircbot_send("NOTICE %s :<%s> is not currently a command I recognize!", irc->target, irc->input);
-}
-
-return;
-}
-*/
 //Begin new IRC Test.
-
 void addlog (const char * fmt, ...)
 {
 	FILE * fp;
@@ -156,11 +91,12 @@ void addlog (const char * fmt, ...)
 	vsnprintf (buf, sizeof(buf), fmt, va_alist);
 	va_end (va_alist);
 
-	printf ("%s\n", buf);
+	//addlog ("%s", buf);
+	info( irc_color_strip_from_mirc( buf ) );
 
 	if ( (fp = fopen ("irctest.log", "ab")) != 0 )
 	{
-		fprintf (fp, "%s\n", buf);
+		fprintf (fp, "%s", buf);
 		fclose (fp);
 	}
 }
@@ -219,7 +155,7 @@ void event_privmsg (irc_session_t * session, const char * event, const char * or
 {
 	dump_event (session, event, origin, params, count);
 
-	printf ("'%s' said me (%s): %s\n", 
+	addlog ("'%s' said me (%s): %s", 
 		origin ? origin : "someone",
 		params[0], params[1] );
 }
@@ -233,42 +169,42 @@ void dcc_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void 
 	switch (status)
 	{
 	case LIBIRC_ERR_CLOSED:
-		printf ("DCC %d: chat closed\n", id);
+		addlog ("DCC %d: chat closed", id);
 		break;
 
 	case 0:
 		if ( !data )
 		{
-			printf ("DCC %d: chat connected\n", id);
+			addlog ("DCC %d: chat connected", id);
 			irc_dcc_msg	(session, id, "Hehe");
 		}
 		else 
 		{
-			printf ("DCC %d: %s\n", id, data);
+			addlog ("DCC %d: %s", id, data);
 			sprintf (buf, "DCC [%d]: %d", id, count++);
 			irc_dcc_msg	(session, id, buf);
 		}
 		break;
 
 	default:
-		printf ("DCC %d: error %s\n", id, irc_strerror(status));
+		addlog ("DCC %d: error %s", id, irc_strerror(status));
 		break;
 	}
 }
 
 
-void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void * ctx, const char * data, unsigned int length)
+void dcc_file_send_callback (irc_session_t * session, irc_dcc_t id, int status, void * ctx, const char * data, unsigned int length)
 {
 	if ( status == 0 && length == 0 )
 	{
-		printf ("File sent successfully\n");
+		addlog ("File sent successfully");
 
 		if ( ctx )
 			fclose ((FILE*) ctx);
 	}
 	else if ( status )
 	{
-		printf ("File sent error: %d\n", status);
+		addlog ("File sent error: %d", status);
 
 		if ( ctx )
 			fclose ((FILE*) ctx);
@@ -277,7 +213,7 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 	{
 		if ( ctx )
 			fwrite (data, 1, length, (FILE*) ctx);
-		printf ("File sent progress: %d\n", length);
+		addlog ("File sent progress: %d", length);
 	}
 }
 
@@ -290,7 +226,7 @@ void event_channel (irc_session_t * session, const char * event, const char * or
 	if ( count != 2 )
 		return;
 
-	printf ("'%s' said in channel %s: %s\n", 
+	addlog ("'%s' said in channel %s: %s", 
 		origin ? origin : "someone",
 		params[0], params[1] );
 
@@ -319,15 +255,15 @@ void event_channel (irc_session_t * session, const char * event, const char * or
 	{
 		irc_dcc_t dccid;
 		irc_dcc_chat (session, 0, nickbuf, dcc_recv_callback, &dccid);
-		printf ("DCC chat ID: %d\n", dccid);
+		addlog ("DCC chat ID: %d", dccid);
 	}
 
 	if ( !strcmp (params[1], "dcc send") )
 	{
 		irc_dcc_t dccid;
 		sprintf(buffer, "%s/cookie.gif", sysconfig.httpimages );
-		irc_dcc_sendfile (session, 0, nickbuf, buffer, dcc_file_recv_callback, &dccid);
-		printf ("DCC send ID: %d\n", dccid);
+		irc_dcc_sendfile (session, 0, nickbuf, buffer, dcc_file_send_callback, &dccid);
+		addlog ("DCC send ID: %d", dccid);
 	}
 
 	if ( !strcmp (params[1], "topic") )
@@ -348,7 +284,7 @@ void event_channel (irc_session_t * session, const char * event, const char * or
 
 void irc_event_dcc_chat (irc_session_t * session, const char * nick, const char * addr, irc_dcc_t dccid)
 {
-	printf ("DCC chat [%d] requested from '%s' (%s)\n", dccid, nick, addr);
+	addlog ("DCC chat [%d] requested from '%s' (%s)", dccid, nick, addr);
 
 	irc_dcc_accept (session, dccid, 0, dcc_recv_callback);
 }
@@ -357,12 +293,12 @@ void irc_event_dcc_chat (irc_session_t * session, const char * nick, const char 
 void irc_event_dcc_send (irc_session_t * session, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid)
 {
 	FILE * fp;
-	printf ("DCC send [%d] requested from '%s' (%s): %s (%lu bytes)\n", dccid, nick, addr, filename, size);
+	addlog ("DCC send [%d] requested from '%s' (%s): %s (%lu bytes)", dccid, nick, addr, filename, size);
 
 	if ( (fp = fopen (filename, "wb")) == 0 )
 		abort();
 
-	irc_dcc_accept (session, dccid, fp, dcc_file_recv_callback);
+	irc_dcc_accept (session, dccid, fp, dcc_file_send_callback);
 }
 
 void event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count) {
@@ -375,45 +311,49 @@ return;
 }
 
 
-int ircbot_connect( ) {
+int ircbot_prepare( ) {
 	irc_callbacks_t	callbacks;
-	//irc_ctx_t ctx;
 
-	memset (&callbacks, 0, sizeof(callbacks));
+memset (&callbacks, 0, sizeof(callbacks));
 
-	callbacks.event_connect = event_connect;
-	callbacks.event_join = event_join;
-	callbacks.event_nick = dump_event;
-	callbacks.event_quit = dump_event;
-	callbacks.event_part = dump_event;
-	callbacks.event_mode = dump_event;
-	callbacks.event_topic = dump_event;
-	callbacks.event_kick = dump_event;
-	callbacks.event_channel = event_channel;
-	callbacks.event_privmsg = event_privmsg;
-	callbacks.event_notice = dump_event;
-	callbacks.event_invite = dump_event;
-	callbacks.event_umode = dump_event;
-	callbacks.event_ctcp_rep = dump_event;
-	callbacks.event_ctcp_action = dump_event;
-	callbacks.event_unknown = dump_event;
-	callbacks.event_numeric = event_numeric;
+callbacks.event_connect = event_connect;
+callbacks.event_join = event_join;
+callbacks.event_nick = dump_event;
+callbacks.event_quit = dump_event;
+callbacks.event_part = dump_event;
+callbacks.event_mode = dump_event;
+callbacks.event_topic = dump_event;
+callbacks.event_kick = dump_event;
+callbacks.event_channel = event_channel;
+callbacks.event_privmsg = event_privmsg;
+callbacks.event_notice = dump_event;
+callbacks.event_invite = dump_event;
+callbacks.event_umode = dump_event;
+callbacks.event_ctcp_rep = dump_event;
+callbacks.event_ctcp_action = dump_event;
+callbacks.event_unknown = dump_event;
+callbacks.event_numeric = event_numeric;
 
-	callbacks.event_dcc_chat_req = irc_event_dcc_chat;
-	callbacks.event_dcc_send_req = irc_event_dcc_send;
+callbacks.event_dcc_chat_req = irc_event_dcc_chat;
+callbacks.event_dcc_send_req = irc_event_dcc_send;
 
-	irccfg.session = irc_create_session( &callbacks );
+irccfg.session = irc_create_session( &callbacks );
 
-	if ( !irccfg.session ) {
-		error("Could not create IRC session");
-		return 1;
-	}
+if ( !irccfg.session ) {
+	error("Could not create IRC session");
+	return 1;
+}
 
-	// Initiate the IRC server connection
-	if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
-		error("Connectiong to IRC Network");
-		return 1;
-	} 
+return 0;
+}
+
+int ircbot_connect() {
+
+// Initiate the IRC server connection
+if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
+	error("Connecting to IRC Network");
+	return 1;
+} 
 
 return 0;
 }
@@ -455,6 +395,7 @@ if ( irc_process_select_descriptors(irccfg.session, &in_set, &out_set) ) {
 	// The connection failed, or the server disconnected. Handle it.
 	error("IRC Session Error");
 }
+
 
 return;
 }

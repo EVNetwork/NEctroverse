@@ -298,7 +298,7 @@ if((num&0xFFFF) == DB_FILE_USER_INFO) {
 if( !( file = fopen( fname, "rb+" ) ) ) {
 		// mooooooo
 	if( ( file = fopen( fname, "wb" ) ) ) {
-		fwrite( dbFileUserListData[num&0xFFFF], 1, dbFileUserListBase[num&0xFFFF], file );
+		t_fwrite( dbFileUserListData[num&0xFFFF], 1, dbFileUserListBase[num&0xFFFF], file );
 		fclose( file );
 		return fopen( fname, "rb+" );
 	}
@@ -327,13 +327,13 @@ FILE *dbFileFamOpen( int id, int num )
       if( num == 0 )
       {
         a = 0;
-        fwrite( &a, 1, sizeof(int), file );
+        t_fwrite( &a, 1, sizeof(int), file );
       }
       else
       {
         a = 0;
         for( b = 0 ; b < 4096*2/4 ; b++ )
-          fwrite( &a, 1, sizeof(int), file );
+          t_fwrite( &a, 1, sizeof(int), file );
       }
       fseek( file, 0, SEEK_SET );
       return file;
@@ -422,16 +422,16 @@ int dbInitUsersReset()
       fclose( file );
       continue;
     }
-    fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+    t_fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
     freenum++;
   }
 
   fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
   last++;
-  fwrite( &last, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+  t_fwrite( &last, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
   fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-  fwrite( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+  t_fwrite( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
   return 1;
 }
@@ -469,13 +469,13 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	fseek( dbFilePtr[DB_FILE_MARKET], 0, SEEK_SET );
 	array[0] = 0;
 	array[1] = -1;
-	fwrite( array, 1, 2*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+	t_fwrite( array, 1, 2*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
 
 	array[0] = 0;
 	array[1] = -1;
 	array[2] = -1;
 	for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
-		fwrite( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+		t_fwrite( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
 
 	dbFileGenClose( DB_FILE_MARKET );
 }
@@ -490,7 +490,7 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 		return 0;
 	}
 	a = 0;
-	fwrite( &a, 1, sizeof(int), file );
+	t_fwrite( &a, 1, sizeof(int), file );
 	forumd.threads = 0;
 	forumd.time = 0;
 	forumd.tick = 0;
@@ -519,15 +519,13 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 		return 0;
 	}
 	a = 0;
-	fwrite( &a, 1, sizeof(int), file );
+	t_fwrite( &a, 1, sizeof(int), file );
 }
 fclose( file );
 
 
 if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
-	if( options.verbose )
-	printf("User database not found, creating...\n" );
-	syslog(LOG_INFO, "User database not found, creating...\n" );
+	info( "User database not found, creating..." );
 
     // Create a path to the users file in the same way as dbFileGenOpen
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
@@ -538,8 +536,8 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 	}
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
 	a = 0;
-	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	t_fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	t_fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 	dbFileGenClose( DB_FILE_USERS );
 	return 1;
 } else {
@@ -573,7 +571,7 @@ for( a = 0 ; a < b ; a++ ) {
 	strncpy(user->name, infod.name, sizeof(user->name) );
 	strncpy( user->faction, infod.faction, sizeof(user->faction) );
 	strncpy( user->forumtag, infod.forumtag, sizeof(user->forumtag) );
-	strncpy( user->linksession, infod.linksession, sizeof(user->linksession) );
+	strncpy( user->http_session, infod.http_session, sizeof(user->http_session) );
 	user->lasttime = infod.lasttime;
 }
 
@@ -654,7 +652,7 @@ int dbUserSessionSearch( char *session ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( ioCompareExact( session, user->linksession ) ) )
+	if( !( ioCompareExact( session, user->http_session ) ) )
 		continue;
 	return user->id;
 }
@@ -747,11 +745,11 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 	if( a == 0 )
 		break;
 	if( dbFileUserListBase[a] )
-		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
+		t_fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
 	fclose( file );
 }
 adduser->id = id;
-fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
+t_fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
   
 //Create a user Database in the db 10Min server
@@ -775,22 +773,22 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 		break;
 	if( dbFileUserListBase[a] ) {
 //		printf("write base of %s\n", fname);
-		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
+		t_fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
 	}
 	fclose( file );
 }
 adduser->id = id;
-fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
+t_fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
 	
 if( !( freenum ) ) {
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
 	a = id + 1;
-	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	t_fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 } else {
 	a = freenum - 1;
 	fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	t_fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 }
 
 
@@ -823,9 +821,9 @@ if( fread( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
 }
 a++;
 fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
-fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+t_fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 fseek( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2, SEEK_SET );
-fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+t_fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
 for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
@@ -865,7 +863,7 @@ uinfo.id = user->id;
 uinfo.level = user->level;
 strcpy(uinfo.name,user->name);
 uinfo.flags = user->flags;
-strcpy(uinfo.linksession,user->linksession);
+strcpy(uinfo.http_session,user->http_session);
 uinfo.lasttime = user->lasttime;
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
@@ -951,8 +949,8 @@ if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 }
 
 uinfo.lasttime = time(NULL);
-strncpy( user->linksession, session, sizeof(uinfo.linksession) );
-strncpy( uinfo.linksession, session, sizeof(uinfo.linksession) );
+strncpy( user->http_session, session, sizeof(uinfo.http_session) );
+strncpy( uinfo.http_session, session, sizeof(uinfo.http_session) );
 
 if( !( dbUserInfoSet( user->id, &uinfo ) ) ) {
 	if( options.verbose ) {
@@ -979,7 +977,7 @@ if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 	return -3;
 }
 
-strncpy( session, user->linksession, sizeof(uinfo.linksession) );
+strncpy( session, user->http_session, sizeof(uinfo.http_session) );
 
 return 1;
 }
@@ -996,7 +994,7 @@ int dbUserMainSet( int id, dbUserMainPtr maind ) {
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
     return -3;
 
-fwrite( maind, 1, sizeof(dbUserMainDef), file );
+t_fwrite( maind, 1, sizeof(dbUserMainDef), file );
 fclose( file );
 
 if( !( user = dbUserLinkID( id ) ) )
@@ -1061,10 +1059,10 @@ if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
 }
 
 fseek( file, 4+(pos*sizeof(dbUserBuildDef)), SEEK_SET );
-fwrite( &buildp, 1, sizeof(dbUserBuildDef), file );
+t_fwrite( &buildp, 1, sizeof(dbUserBuildDef), file );
 fseek( file, 0, SEEK_SET );
 pos++;
-fwrite( &pos, 1, sizeof(int), file );
+t_fwrite( &pos, 1, sizeof(int), file );
 fclose( file );
 
 return pos;
@@ -1096,12 +1094,12 @@ if( bldid+1 < num ) {
 		syslog(LOG_ERR, "Failure reading file x08.1\n" );
 	}
 	fseek( file, 4+(bldid*sizeof(dbUserBuildDef)), SEEK_SET );
-	fwrite( data, 1, sizeof(dbUserBuildDef), file );
+	t_fwrite( data, 1, sizeof(dbUserBuildDef), file );
 }
 
 fseek( file, 0, SEEK_SET );
 a = num-1;
-fwrite( &a, 1, sizeof(int), file );
+t_fwrite( &a, 1, sizeof(int), file );
 fclose( file );
 
 return 1;
@@ -1232,7 +1230,7 @@ for( a = 0 ; a < num ; a++ ) {
 	}
 	buildp[a].time--;
 	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
-	fwrite( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+	t_fwrite( &buildp[a], 1, sizeof(dbUserBuildDef), file );
 }
 fclose( file );
 *build = buildp;
@@ -1248,7 +1246,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
 	return -3;
 
 a = 0;
-fwrite( &a, 1, sizeof(int), file );
+t_fwrite( &a, 1, sizeof(int), file );
 fclose( file );
 
 return 1;
@@ -1305,15 +1303,15 @@ if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x12\n" );
 }
   fseek( file, 4+(pos*20), SEEK_SET );
-  fwrite( &plnid, 1, sizeof(int), file );
-  fwrite( &sysid, 1, sizeof(int), file );
-  fwrite( &plnloc, 1, sizeof(int), file );
-  fwrite( &flags, 1, sizeof(int), file );
+  t_fwrite( &plnid, 1, sizeof(int), file );
+  t_fwrite( &sysid, 1, sizeof(int), file );
+  t_fwrite( &plnloc, 1, sizeof(int), file );
+  t_fwrite( &flags, 1, sizeof(int), file );
   a = 0;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   fseek( file, 0, SEEK_SET );
   pos++;
-  fwrite( &pos, 1, sizeof(int), file );
+  t_fwrite( &pos, 1, sizeof(int), file );
   fclose( file );
   return pos;
 }
@@ -1367,11 +1365,11 @@ int dbUserPlanetRemove( int id, int plnid )
     if( ( num >= 2 ) && ( a+1 < num ) )
     {
       fseek( file, 4+(a*20), SEEK_SET );
-      fwrite( data, 1, 20, file );
+      t_fwrite( data, 1, 20, file );
     }
     fseek( file, 0, SEEK_SET );
     num--;
-    fwrite( &num, 1, sizeof(int), file );
+    t_fwrite( &num, 1, sizeof(int), file );
     fclose( file );
     return 1;
   }
@@ -1400,7 +1398,7 @@ int dbUserPlanetSetFlags( int id, int plnid, int flags )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   fseek( file, 4+(pos*20)+12, SEEK_SET );
-  fwrite( &flags, 1, sizeof(int), file );
+  t_fwrite( &flags, 1, sizeof(int), file );
   fclose( file );
   return 1;
 
@@ -1868,10 +1866,10 @@ int dbUserFleetAdd( int id, dbUserFleetPtr fleetd )
 	syslog(LOG_ERR, "Failure reading file x22.0\n" );
 }
   fseek( file, 4+(pos*sizeof(dbUserFleetDef)), SEEK_SET );
-  fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
+  t_fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
   fseek( file, 0, SEEK_SET );
   pos++;
-  fwrite( &pos, 1, sizeof(int), file );
+  t_fwrite( &pos, 1, sizeof(int), file );
   fclose( file );
   return (pos-1);
 }
@@ -1901,11 +1899,11 @@ int dbUserFleetRemove( int id, int fltid )
 	syslog(LOG_ERR, "Failure reading file x23.1\n" );
 }
     fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
-    fwrite( data, 1, sizeof(dbUserFleetDef), file );
+    t_fwrite( data, 1, sizeof(dbUserFleetDef), file );
   }
   fseek( file, 0, SEEK_SET );
   a = num-1;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -1958,7 +1956,7 @@ int dbUserFleetSet( int id, int fltid, dbUserFleetPtr fleetd )
     return -2;
   }
   fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
-  fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
+  t_fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
   fclose( file );
   return num;
 }
@@ -2033,7 +2031,7 @@ if( fread( &cflags, 1, sizeof(int64_t), file ) < 1 ) {
 }
   cflags |= flags;
   fseek( file, 24, SEEK_SET );
-  fwrite( &cflags, 1, sizeof(int64_t), file );
+  t_fwrite( &cflags, 1, sizeof(int64_t), file );
 
 if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
@@ -2050,7 +2048,7 @@ if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x27.5\n" );
 }
     fseek( file, 16, SEEK_SET );
-    fwrite( &lnext, 1, sizeof(int64_t), file );
+    t_fwrite( &lnext, 1, sizeof(int64_t), file );
     lcur = lfree;
   }
   else
@@ -2058,27 +2056,27 @@ if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
     lcur = numnext;
     numnext++;
     fseek( file, 32, SEEK_SET );
-    fwrite( &numnext, 1, sizeof(int64_t), file );
+    t_fwrite( &numnext, 1, sizeof(int64_t), file );
   }
 
   fseek( file, 40+lcur*DB_USER_NEWS_SIZE, SEEK_SET );
   a = -1;
-  fwrite( &a, 1, sizeof(int64_t), file );
+  t_fwrite( &a, 1, sizeof(int64_t), file );
 
-  fwrite( &lused, 1, sizeof(int64_t), file );
+  t_fwrite( &lused, 1, sizeof(int64_t), file );
 
-  fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(int64_t), file );
+  t_fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(int64_t), file );
   if( lused != -1 )
   {
     fseek( file, 40+lused*DB_USER_NEWS_SIZE, SEEK_SET );
-    fwrite( &lcur, 1, sizeof(int64_t), file );
+    t_fwrite( &lcur, 1, sizeof(int64_t), file );
   }
   fseek( file, 8, SEEK_SET );
-  fwrite( &lcur, 1, sizeof(int64_t), file );
+  t_fwrite( &lcur, 1, sizeof(int64_t), file );
 
   num++;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(int64_t), file );
+  t_fwrite( &num, 1, sizeof(int64_t), file );
 
   fclose( file );
   return 1;
@@ -2197,7 +2195,7 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x30.2\n" );
 }
   a = 0;
-  fwrite( &a, 1, sizeof(int64_t), file );
+  t_fwrite( &a, 1, sizeof(int64_t), file );
   numnew = num;
 
   if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(int64_t) ) ) )
@@ -2234,32 +2232,32 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
         fseek( file, 40+lprev*DB_USER_NEWS_SIZE+8, SEEK_SET );
       else
         fseek( file, 8, SEEK_SET );
-      fwrite( &lnext, 1, sizeof(int64_t), file );
+      t_fwrite( &lnext, 1, sizeof(int64_t), file );
       if( lnext != -1 )
       {
         fseek( file, 40+lnext*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &lprev, 1, sizeof(int64_t), file );
+        t_fwrite( &lprev, 1, sizeof(int64_t), file );
       }
 
       fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
       d = -1;
-      fwrite( &d, 1, sizeof(int64_t), file );
-      fwrite( &lfree, 1, sizeof(int64_t), file );
+      t_fwrite( &d, 1, sizeof(int64_t), file );
+      t_fwrite( &lfree, 1, sizeof(int64_t), file );
       if( lfree != -1 )
       {
         fseek( file, 40+lfree*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &a, 1, sizeof(int64_t), file );
+        t_fwrite( &a, 1, sizeof(int64_t), file );
       }
       fseek( file, 16, SEEK_SET );
       lfree = a;
-      fwrite( &lfree, 1, sizeof(int64_t), file );
+      t_fwrite( &lfree, 1, sizeof(int64_t), file );
 
       fseek( file, 0, SEEK_SET );
-      fwrite( &num, 1, sizeof(int64_t), file );
+      t_fwrite( &num, 1, sizeof(int64_t), file );
     }
     fseek( file, 40+a*DB_USER_NEWS_SIZE+16+8, SEEK_SET );
     datap[b+1] &= 0xFFFFFFFF - CMD_NEWS_FLAGS_NEW;
-    fwrite( &datap[b+1], 1, sizeof(int64_t), file );
+    t_fwrite( &datap[b+1], 1, sizeof(int64_t), file );
     if( fread( &datap[b+2], 1, (DB_USER_NEWS_BASE-2)*sizeof(int64_t), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x30.6\n" );
@@ -2286,7 +2284,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 	return -3;
 }
 
-fwrite( dbFileUserListData[DB_FILE_USER_NEWS], 1, dbFileUserListBase[DB_FILE_USER_NEWS], file );
+t_fwrite( dbFileUserListData[DB_FILE_USER_NEWS], 1, dbFileUserListBase[DB_FILE_USER_NEWS], file );
 fclose( file );
 
 return 1;
@@ -2345,7 +2343,7 @@ if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x31.4\n" );
 }
     fseek( file, 16, SEEK_SET );
-    fwrite( &lnext, 1, sizeof(int64_t), file );
+    t_fwrite( &lnext, 1, sizeof(int64_t), file );
     lcur = lfree;
   }
   else
@@ -2353,27 +2351,27 @@ if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
     lcur = numnext;
     numnext++;
     fseek( file, 32, SEEK_SET );
-    fwrite( &numnext, 1, sizeof(int64_t), file );
+    t_fwrite( &numnext, 1, sizeof(int64_t), file );
   }
 
   fseek( file, 40+lcur*DB_USER_NEWS_SIZE, SEEK_SET );
   a = -1;
-  fwrite( &a, 1, sizeof(int64_t), file );
+  t_fwrite( &a, 1, sizeof(int64_t), file );
 
-  fwrite( &lused, 1, sizeof(int64_t), file );
+  t_fwrite( &lused, 1, sizeof(int64_t), file );
 
-  fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(int64_t), file );
+  t_fwrite( data, 1, DB_USER_NEWS_BASE*sizeof(int64_t), file );
   if( lused != -1 )
   {
     fseek( file, 40+lused*DB_USER_NEWS_SIZE, SEEK_SET );
-    fwrite( &lcur, 1, sizeof(int64_t), file );
+    t_fwrite( &lcur, 1, sizeof(int64_t), file );
   }
   fseek( file, 8, SEEK_SET );
-  fwrite( &lcur, 1, sizeof(int64_t), file );
+  t_fwrite( &lcur, 1, sizeof(int64_t), file );
 
   num++;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(int64_t), file );
+  t_fwrite( &num, 1, sizeof(int64_t), file );
 
   fclose( file );
   return 1;
@@ -2414,7 +2412,7 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x35.2\n" );
 }
   a = 0;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(int64_t) ) ) )
   {
     fclose( file );
@@ -2445,28 +2443,28 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
         fseek( file, 40+lprev*DB_USER_NEWS_SIZE+8, SEEK_SET );
       else
         fseek( file, 8, SEEK_SET );
-      fwrite( &lnext, 1, sizeof(int64_t), file );
+      t_fwrite( &lnext, 1, sizeof(int64_t), file );
       if( lnext != -1 )
       {
         fseek( file, 40+lnext*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &lprev, 1, sizeof(int64_t), file );
+        t_fwrite( &lprev, 1, sizeof(int64_t), file );
       }
 
       fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
       d = -1;
-      fwrite( &d, 1, sizeof(int64_t), file );
-      fwrite( &lfree, 1, sizeof(int64_t), file );
+      t_fwrite( &d, 1, sizeof(int64_t), file );
+      t_fwrite( &lfree, 1, sizeof(int64_t), file );
       if( lfree != -1 )
       {
         fseek( file, 40+lfree*DB_USER_NEWS_SIZE, SEEK_SET );
-        fwrite( &a, 1, sizeof(int64_t), file );
+        t_fwrite( &a, 1, sizeof(int64_t), file );
       }
       fseek( file, 16, SEEK_SET );
       lfree = a;
-      fwrite( &lfree, 1, sizeof(int64_t), file );
+      t_fwrite( &lfree, 1, sizeof(int64_t), file );
 
       fseek( file, 0, SEEK_SET );
-      fwrite( &num, 1, sizeof(int64_t), file );
+      t_fwrite( &num, 1, sizeof(int64_t), file );
     }
     fseek( file, 40+a*DB_USER_NEWS_SIZE+16+8, SEEK_SET );
     if( fread( &datap[b+1], 1, (DB_USER_NEWS_BASE-1)*sizeof(int64_t), file ) < 1 ) {
@@ -2512,7 +2510,7 @@ if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 	return -3;
 
 fseek( file, 0, SEEK_SET );
-fwrite( binfo, 1, sizeof(dbMainMapDef), file );
+t_fwrite( binfo, 1, sizeof(dbMainMapDef), file );
 
 return 1;
 }
@@ -2528,7 +2526,7 @@ if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 	return -3;
 
 fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
-fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
+t_fwrite( systemd, 1, sizeof(dbMainSystemDef), file );
 
 return 1;
 }
@@ -2562,7 +2560,7 @@ if( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] )
 	return -3;
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
-fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
+t_fwrite( planetd, 1, sizeof(dbMainPlanetDef), file );
 
 return 1;
 }
@@ -2615,7 +2613,7 @@ if ( empired->numplayers == 1) {
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
 
-fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
+t_fwrite( empired, 1, sizeof(dbMainEmpireDef), file );
 
 return 1;
 }
@@ -2662,10 +2660,10 @@ int dbEmpireRelsAdd( int id, int *rel )
 	syslog(LOG_ERR, "Failure reading file x40.0\n" );
 }
   fseek( file, 4+(pos*sizeof(dbEmpireRelationsDef)), SEEK_SET );
-  fwrite( rel, 1, sizeof(dbEmpireRelationsDef), file );
+  t_fwrite( rel, 1, sizeof(dbEmpireRelationsDef), file );
   fseek( file, 0, SEEK_SET );
   pos++;
-  fwrite( &pos, 1, sizeof(int), file );
+  t_fwrite( &pos, 1, sizeof(int), file );
   fclose( file );
   return (pos-1);
 }
@@ -2697,11 +2695,11 @@ int dbEmpireRelsRemove( int id, int relid )
 	syslog(LOG_ERR, "Failure reading file x41.1\n" );
 }
     fseek( file, 4+(relid*sizeof(dbEmpireRelationsDef)), SEEK_SET );
-    fwrite( data, 1, sizeof(dbEmpireRelationsDef), file );
+    t_fwrite( data, 1, sizeof(dbEmpireRelationsDef), file );
   }
   fseek( file, 0, SEEK_SET );
   a = num-1;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -2799,12 +2797,12 @@ int dbMarketReset()
   fseek( file, 0, SEEK_SET );
   array[0] = 0;
   array[1] = -1;
-  fwrite( array, 1, 2*sizeof(int), file );
+  t_fwrite( array, 1, 2*sizeof(int), file );
   array[0] = 0;
   array[1] = -1;
   array[2] = -1;
   for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
-    fwrite( array, 1, 3*sizeof(int), file );
+    t_fwrite( array, 1, 3*sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -2839,7 +2837,7 @@ int dbMarketReplaceFull( int *list )
   for( a = 0 ; a < 3*2*DB_MARKET_RANGE ; a++ )
   {
     fseek( file, 8+a*12, SEEK_SET );
-    fwrite( &list[a], 1, sizeof(int), file );
+    t_fwrite( &list[a], 1, sizeof(int), file );
   }
   return 1;
 }
@@ -2887,7 +2885,7 @@ int dbMarketAdd( int *bid )
 	syslog(LOG_ERR, "Failure reading file x45.3\n" );
 }
     fseek( file, 4, SEEK_SET );
-    fwrite( &a, 1, sizeof(int), file );
+    t_fwrite( &a, 1, sizeof(int), file );
     lcur = lfree;
   }
   else
@@ -2895,7 +2893,7 @@ int dbMarketAdd( int *bid )
     lcur = num;
     num++;
     fseek( file, 0, SEEK_SET );
-    fwrite( &num, 1, sizeof(int), file );
+    t_fwrite( &num, 1, sizeof(int), file );
   }
 
   databid[0] = mhead[2];
@@ -2909,15 +2907,15 @@ int dbMarketAdd( int *bid )
   else
   {
     fseek( file, DB_MARKET_BIDSOFF+mhead[2]*16 + 4, SEEK_SET );
-    fwrite( &lcur, 1, sizeof(int), file );
+    t_fwrite( &lcur, 1, sizeof(int), file );
   }
   mhead[2] = lcur;
 
   fseek( file, DB_MARKET_BIDSOFF+lcur*16, SEEK_SET );
-  fwrite( databid, 1, 16, file );
+  t_fwrite( databid, 1, 16, file );
 
   fseek( file, offs, SEEK_SET );
-  fwrite( mhead, 1, 12, file );
+  t_fwrite( mhead, 1, 12, file );
 
   return lcur;
 }
@@ -2951,12 +2949,12 @@ int dbMarketRemove( int *bid, int lcur )
   if( databid[0] != -1 )
   {
     fseek( file, DB_MARKET_BIDSOFF+databid[0]*16+4, SEEK_SET );
-    fwrite( &databid[1], 1, sizeof(int), file );
+    t_fwrite( &databid[1], 1, sizeof(int), file );
   }
   if( databid[1] != -1 )
   {
     fseek( file, DB_MARKET_BIDSOFF+databid[1]*16, SEEK_SET );
-    fwrite( &databid[0], 1, sizeof(int), file );
+    t_fwrite( &databid[0], 1, sizeof(int), file );
   }
 
   mhead[0] -= databid[2];
@@ -2965,7 +2963,7 @@ int dbMarketRemove( int *bid, int lcur )
   if( mhead[2] == lcur )
     mhead[2] = databid[0];
   fseek( file, offs, SEEK_SET );
-  fwrite( mhead, 1, 12, file );
+  t_fwrite( mhead, 1, 12, file );
 
   fseek( file, 4, SEEK_SET );
   if( fread( &lfree, 1, sizeof(int), file ) < 1 ) {
@@ -2979,10 +2977,10 @@ int dbMarketRemove( int *bid, int lcur )
   databid[2] = -1;
   databid[3] = -1;
   fseek( file, DB_MARKET_BIDSOFF+lcur*16, SEEK_SET );
-  fwrite( databid, 1, 16, file );
+  t_fwrite( databid, 1, 16, file );
 
   fseek( file, 4, SEEK_SET );
-  fwrite( &lcur, 1, sizeof(int), file );
+  t_fwrite( &lcur, 1, sizeof(int), file );
 
   return lcur;
 }
@@ -3047,10 +3045,10 @@ int dbMarketSetQuantity( int *bid, int lcur, int quantity, int loss )
 }
   mhead[0] -= loss;
   fseek( file, offs, SEEK_SET );
-  fwrite( mhead, 1, 12, file );
+  t_fwrite( mhead, 1, 12, file );
 
   fseek( file, DB_MARKET_BIDSOFF+lcur*16 + 8, SEEK_SET );
-  fwrite( &quantity, 1, 4, file );
+  t_fwrite( &quantity, 1, 4, file );
 
   return 0;
 }
@@ -3078,8 +3076,8 @@ int dbUserMarketReset( int id )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   a = 0;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -3096,14 +3094,14 @@ int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int
 	syslog(LOG_ERR, "Failure reading file x50.0\n" );
 }
   fseek( file, 8+(pos*20), SEEK_SET );
-  fwrite( &action, 1, sizeof(int), file );
-  fwrite( &resource, 1, sizeof(int), file );
-  fwrite( &price, 1, sizeof(int), file );
-  fwrite( &quantity, 1, sizeof(int), file );
-  fwrite( &bidid, 1, sizeof(int), file );
+  t_fwrite( &action, 1, sizeof(int), file );
+  t_fwrite( &resource, 1, sizeof(int), file );
+  t_fwrite( &price, 1, sizeof(int), file );
+  t_fwrite( &quantity, 1, sizeof(int), file );
+  t_fwrite( &bidid, 1, sizeof(int), file );
   fseek( file, 0, SEEK_SET );
   pos++;
-  fwrite( &pos, 1, sizeof(int), file );
+  t_fwrite( &pos, 1, sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -3155,7 +3153,7 @@ int dbUserMarketQuantity( int id, int bidid, int quantity )
     if( b != bidid )
       continue;
     fseek( file, 8+(a*20)+12, SEEK_SET );
-    fwrite( &quantity, 1, sizeof(int), file );
+    t_fwrite( &quantity, 1, sizeof(int), file );
     fclose( file );
     return 1;
   }
@@ -3197,11 +3195,11 @@ int dbUserMarketRemove( int id, int bidid )
     if( ( num >= 2 ) && ( a+1 < num ) )
     {
       fseek( file, 8+(a*20), SEEK_SET );
-      fwrite( data, 1, 20, file );
+      t_fwrite( data, 1, 20, file );
     }
     fseek( file, 0, SEEK_SET );
     num--;
-    fwrite( &num, 1, sizeof(int), file );
+    t_fwrite( &num, 1, sizeof(int), file );
     fclose( file );
     return 1;
   }
@@ -3495,10 +3493,10 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
 	syslog(LOG_ERR, "Failure reading file x58.0\n" );
 }
     fseek( file, 4+num*sizeof(dbForumForumDef), SEEK_SET );
-    fwrite( forumd, 1, sizeof(dbForumForumDef), file );
+    t_fwrite( forumd, 1, sizeof(dbForumForumDef), file );
     num++;
     fseek( file, 0, SEEK_SET );
-    fwrite( &num, 1, sizeof(int), file );
+    t_fwrite( &num, 1, sizeof(int), file );
     num--;
     fclose( file );
   }
@@ -3524,13 +3522,13 @@ if( mkdir( fname, S_IRWXU ) == -1 ) {
   if( !( file = fopen( fname, "wb" ) ))
     return -3;
   a = 0;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   a = -1;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   a = 0;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( forumd, 1, sizeof(dbForumForumDef), file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
 
   return num;
@@ -3599,7 +3597,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
 }
   forumd.flags |= DB_FORUM_FLAGS_FORUMUNUSED;
   fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
-  fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
+  t_fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
   a = num - ( forum + 1 );
   if( a )
   {
@@ -3612,12 +3610,12 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x59.2\n" );
 }
     fseek( file, 4+(forum+0)*sizeof(dbForumForumDef), SEEK_SET );
-    fwrite( frcopy, 1, b, file );
+    t_fwrite( frcopy, 1, b, file );
     free( frcopy );
   }
   num--;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(int), file );
+  t_fwrite( &num, 1, sizeof(int), file );
   fclose( file );
 
   return num;
@@ -3673,7 +3671,7 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x60.5\n" );
 }
     fseek( file, 8, SEEK_SET );
-    fwrite( &lnext, 1, sizeof(int), file );
+    t_fwrite( &lnext, 1, sizeof(int), file );
     lcur = lfree;
   }
   else
@@ -3681,7 +3679,7 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
     lcur = numnext;
     numnext++;
     fseek( file, 12, SEEK_SET );
-    fwrite( &numnext, 1, sizeof(int), file );
+    t_fwrite( &numnext, 1, sizeof(int), file );
   }
   forumd.time = threadd->time;
   forumd.tick = threadd->tick;
@@ -3689,23 +3687,23 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
 
   fseek( file, 16+sizeof(dbForumForumDef) + lcur * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
   a = -1;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &lused, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &lused, 1, sizeof(int), file );
   threadd->flags &= 0xFFFFFFFF - DB_FORUM_FLAGS_THREADFREE;
-  fwrite( threadd, 1, sizeof(dbForumThreadDef), file );
+  t_fwrite( threadd, 1, sizeof(dbForumThreadDef), file );
 
   if( lused != -1 )
   {
     fseek( file, 16+sizeof(dbForumForumDef) + lused * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
-    fwrite( &lcur, 1, sizeof(int), file );
+    t_fwrite( &lcur, 1, sizeof(int), file );
   }
 
   fseek( file, 0, SEEK_SET );
   num++;
-  fwrite( &num, 1, sizeof(int), file );
-  fwrite( &lcur, 1, sizeof(int), file );
+  t_fwrite( &num, 1, sizeof(int), file );
+  t_fwrite( &lcur, 1, sizeof(int), file );
   fseek( file, 16, SEEK_SET );
-  fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
+  t_fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
 
 	if(forum > 100)
@@ -3722,7 +3720,7 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   if( forum < num )
   {
     fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
-    fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
+    t_fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
   }
   fclose( file );
 	
@@ -3734,10 +3732,10 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   if( !( file = fopen( fname, "wb+" ) ))
     return -3;
   a = 0;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   a = 8 + sizeof(dbForumThreadDef);
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( threadd, 1, sizeof(dbForumThreadDef), file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( threadd, 1, sizeof(dbForumThreadDef), file );
   fclose( file );
 
   return lcur;
@@ -3813,30 +3811,30 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   fseek( file, 16+sizeof(dbForumForumDef) + thread * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
   threadd.flags |= DB_FORUM_FLAGS_THREADFREE;
   a = -1;
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &lfree, 1, sizeof(int), file );
-  fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &lfree, 1, sizeof(int), file );
+  t_fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
 
   if( lprev != -1 )
     fseek( file, 16+sizeof(dbForumForumDef) + lprev * ( sizeof(dbForumThreadDef) + 8 ) + 4, SEEK_SET );
   else
     fseek( file, 4, SEEK_SET );
-  fwrite( &lnext, 1, sizeof(int), file );
+  t_fwrite( &lnext, 1, sizeof(int), file );
   if( lnext != -1 )
   {
     fseek( file, 16+sizeof(dbForumForumDef) + lnext * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
-    fwrite( &lprev, 1, sizeof(int), file );
+    t_fwrite( &lprev, 1, sizeof(int), file );
   }
   fseek( file, 8, SEEK_SET );
-  fwrite( &thread, 1, sizeof(int), file );
+  t_fwrite( &thread, 1, sizeof(int), file );
 
   fseek( file, 0, SEEK_SET );
   num--;
-  fwrite( &num, 1, sizeof(int), file );
+  t_fwrite( &num, 1, sizeof(int), file );
 
   fseek( file, 16, SEEK_SET );
   forumd.threads--;
-  fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
+  t_fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
 
 	if(forum > 100)
@@ -3866,7 +3864,7 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
 }
     forumd.threads--;
     fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
-    fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
+    t_fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
   }
   fclose( file );
 
@@ -3895,7 +3893,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
 }
   num++;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(int), file );
+  t_fwrite( &num, 1, sizeof(int), file );
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x62.1\n" );
@@ -3911,16 +3909,16 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
   threadd.time = postd->post.time;
   threadd.tick = postd->post.tick;
   threadd.posts++;
-  fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
+  t_fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
 
   fseek( file, offset, SEEK_SET );
   a = offset + ( 4 + sizeof(dbForumPostInDef) + (postd->post).length );
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &(postd->post), 1, sizeof(dbForumPostInDef), file );
-  fwrite( postd->text, 1, (postd->post).length, file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &(postd->post), 1, sizeof(dbForumPostInDef), file );
+  t_fwrite( postd->text, 1, (postd->post).length, file );
 
   fseek( file, 4, SEEK_SET );
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
 
   fclose( file );
 
@@ -3948,31 +3946,31 @@ if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
 		printf("Failure reading file x62.5\n" );
 	syslog(LOG_ERR, "Failure reading file x62.5\n" );
 }
-  fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
+  t_fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
 
   if( lused != thread )
   {
     if( lprev != -1 )
     {
       fseek( file, 16+sizeof(dbForumForumDef) + lprev * ( sizeof(dbForumThreadDef) + 8 ) + 4, SEEK_SET );
-      fwrite( &lnext, 1, sizeof(int), file );
+      t_fwrite( &lnext, 1, sizeof(int), file );
     }
     if( lnext != -1 )
     {
       fseek( file, 16+sizeof(dbForumForumDef) + lnext * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
-      fwrite( &lprev, 1, sizeof(int), file );
+      t_fwrite( &lprev, 1, sizeof(int), file );
     }
     fseek( file, 16+sizeof(dbForumForumDef) + thread * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
     a = -1;
-    fwrite( &a, 1, sizeof(int), file );
-    fwrite( &lused, 1, sizeof(int), file );
+    t_fwrite( &a, 1, sizeof(int), file );
+    t_fwrite( &lused, 1, sizeof(int), file );
     if( lused != -1 )
     {
       fseek( file, 16+sizeof(dbForumForumDef) + lused * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
-      fwrite( &thread, 1, sizeof(int), file );
+      t_fwrite( &thread, 1, sizeof(int), file );
     }
     fseek( file, 4, SEEK_SET );
-    fwrite( &thread, 1, sizeof(int), file );
+    t_fwrite( &thread, 1, sizeof(int), file );
   }
 
   fclose( file );
@@ -3999,7 +3997,7 @@ if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
     forumd.time = threadd.time;
     forumd.tick = threadd.tick;
     fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
-    fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
+    t_fwrite( &forumd, 1, sizeof(dbForumForumDef), file );
   }
   fclose( file );
 
@@ -4043,7 +4041,7 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
 }
   fseek( file, 8, SEEK_SET );
   threadd.posts--;
-  fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
+  t_fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
 
   fseek( file, 8+sizeof(dbForumThreadDef), SEEK_SET );
   offset = 8+sizeof(dbForumThreadDef);
@@ -4088,17 +4086,17 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
 
       fseek( file, offset, SEEK_SET );
       offset += 4 + sizeof(dbForumPostInDef) + (postd.post).length;
-      fwrite( &offset, 1, sizeof(int), file );
-      fwrite( &postd.post, 1, sizeof(dbForumPostInDef), file );
-      fwrite( postd.text, 1, (postd.post).length, file );
+      t_fwrite( &offset, 1, sizeof(int), file );
+      t_fwrite( &postd.post, 1, sizeof(dbForumPostInDef), file );
+      t_fwrite( postd.text, 1, (postd.post).length, file );
       if( postd.text )
         free( postd.text );
     }
 
     fseek( file, 0, SEEK_SET );
     num--;
-    fwrite( &num, 1, sizeof(int), file );
-    fwrite( &offset, 1, sizeof(int), file );
+    t_fwrite( &num, 1, sizeof(int), file );
+    t_fwrite( &offset, 1, sizeof(int), file );
 
     fclose( file );
 
@@ -4109,7 +4107,7 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
     if( !( file = fopen( fname, "rb+" ) ))
       return -3;
     fseek( file, 16+sizeof(dbForumForumDef) + thread * ( sizeof(dbForumThreadDef) + 8 ) + 8, SEEK_SET );
-    fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
+    t_fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
     fclose( file );
 
     return num;
@@ -4173,17 +4171,17 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
 
     fseek( file, offset, SEEK_SET );
     offset += 4 + sizeof(dbForumPostInDef) + (postd->post).length;
-    fwrite( &offset, 1, sizeof(int), file );
-    fwrite( &postd->post, 1, sizeof(dbForumPostInDef), file );
-    fwrite( postd->text, 1, (postd->post).length, file );
+    t_fwrite( &offset, 1, sizeof(int), file );
+    t_fwrite( &postd->post, 1, sizeof(dbForumPostInDef), file );
+    t_fwrite( postd->text, 1, (postd->post).length, file );
 
     for( b = 0, a++ ; a < num ; a++, b++ )
     {
       fseek( file, offset, SEEK_SET );
       offset += 4 + sizeof(dbForumPostInDef) + (posts[b].post).length;
-      fwrite( &offset, 1, sizeof(int), file );
-      fwrite( &posts[b].post, 1, sizeof(dbForumPostInDef), file );
-      fwrite( posts[b].text, 1, (posts[b].post).length, file );
+      t_fwrite( &offset, 1, sizeof(int), file );
+      t_fwrite( &posts[b].post, 1, sizeof(dbForumPostInDef), file );
+      t_fwrite( posts[b].text, 1, (posts[b].post).length, file );
       if( posts[b].text )
         free( posts[b].text );
     }
@@ -4191,7 +4189,7 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
       free( posts );
 
     fseek( file, 4, SEEK_SET );
-    fwrite( &offset, 1, sizeof(int), file );
+    t_fwrite( &offset, 1, sizeof(int), file );
 
     fclose( file );
     return num;
@@ -4295,7 +4293,7 @@ int dbMailAdd( int id, int type, dbMailPtr maild )
 }
   num++;
   fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(int), file );
+  t_fwrite( &num, 1, sizeof(int), file );
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
  	if( options.verbose )
 		printf("Failure reading file x66.1\n" );
@@ -4304,12 +4302,12 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
 
   fseek( file, offset, SEEK_SET );
   a = offset + ( 4 + sizeof(dbMailInDef) + (maild->mail).length );
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &(maild->mail), 1, sizeof(dbMailInDef), file );
-  fwrite( maild->text, 1, (maild->mail).length, file );
+  t_fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &(maild->mail), 1, sizeof(dbMailInDef), file );
+  t_fwrite( maild->text, 1, (maild->mail).length, file );
 
   fseek( file, 4, SEEK_SET );
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -4383,17 +4381,17 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
 
       fseek( file, offset, SEEK_SET );
       offset += 4 + sizeof(dbMailInDef) + (maild.mail).length;
-      fwrite( &offset, 1, sizeof(int), file );
-      fwrite( &maild.mail, 1, sizeof(dbMailInDef), file );
-      fwrite( maild.text, 1, (maild.mail).length, file );
+      t_fwrite( &offset, 1, sizeof(int), file );
+      t_fwrite( &maild.mail, 1, sizeof(dbMailInDef), file );
+      t_fwrite( maild.text, 1, (maild.mail).length, file );
       if( maild.text )
         free( maild.text );
     }
 
     fseek( file, 0, SEEK_SET );
     num--;
-    fwrite( &num, 1, sizeof(int), file );
-    fwrite( &offset, 1, sizeof(int), file );
+    t_fwrite( &num, 1, sizeof(int), file );
+    t_fwrite( &offset, 1, sizeof(int), file );
 
     fclose( file );
     return num;
@@ -4409,7 +4407,7 @@ int dbMailEmpty( int id, int type )
     return -3;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
     return -3;
-  fwrite( dbFileUserListData[DB_FILE_USER_MAILIN+type], 1, dbFileUserListBase[DB_FILE_USER_MAILIN+type], file );
+  t_fwrite( dbFileUserListData[DB_FILE_USER_MAILIN+type], 1, dbFileUserListBase[DB_FILE_USER_MAILIN+type], file );
   fclose( file );
   return 1;
 }
@@ -4433,10 +4431,10 @@ int dbUserSpecOpAdd( int id, dbUserSpecOpPtr specopd )
 	syslog(LOG_ERR, "Failure reading file x68.0\n" );
 }
   fseek( file, 4+(pos*sizeof(dbUserSpecOpDef)), SEEK_SET );
-  fwrite( specopd, 1, sizeof(dbUserSpecOpDef), file );
+  t_fwrite( specopd, 1, sizeof(dbUserSpecOpDef), file );
   fseek( file, 0, SEEK_SET );
   pos++;
-  fwrite( &pos, 1, sizeof(int), file );
+  t_fwrite( &pos, 1, sizeof(int), file );
   fclose( file );
   return (pos-1);
 }
@@ -4467,11 +4465,11 @@ int dbUserSpecOpRemove( int id, int specopid )
 	syslog(LOG_ERR, "Failure reading file x69.1\n" );
 }
     fseek( file, 4+(specopid*sizeof(dbUserSpecOpDef)), SEEK_SET );
-    fwrite( &data, 1, sizeof(dbUserSpecOpDef), file );
+    t_fwrite( &data, 1, sizeof(dbUserSpecOpDef), file );
   }
   fseek( file, 0, SEEK_SET );
   a = num-1;
-  fwrite( &a, 1, sizeof(int), file );
+  t_fwrite( &a, 1, sizeof(int), file );
   fclose( file );
   return 1;
 }
@@ -4520,7 +4518,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
     return -2;
   }
   fseek( file, 4+(specopid*sizeof(dbUserSpecOpDef)), SEEK_SET );
-  fwrite( specopd, 1, sizeof(dbUserSpecOpDef), file );
+  t_fwrite( specopd, 1, sizeof(dbUserSpecOpDef), file );
   fclose( file );
   return num;
 }
@@ -4556,7 +4554,7 @@ int dbUserSpecOpEmpty( int id )
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
     return -3;
-  fwrite( dbFileUserListData[DB_FILE_USER_SPECOPS], 1, dbFileUserListBase[DB_FILE_USER_SPECOPS], file );
+  t_fwrite( dbFileUserListData[DB_FILE_USER_SPECOPS], 1, dbFileUserListBase[DB_FILE_USER_SPECOPS], file );
   fclose( file );
   return 1;
 }
@@ -4578,7 +4576,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) )
 	return -3;
 
 fseek( file, 0, SEEK_SET );
-fwrite( infod, 1, sizeof(dbUserInfoDef), file );
+t_fwrite( infod, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
 
 if( !( user = dbUserLinkID( id ) ) )
@@ -4620,9 +4618,9 @@ if( fread( &num, 1, 4, file ) < 1 ) {
 	syslog(LOG_ERR, "Failure reading file x75.0\n" );
 }
   num++;
-  fwrite( &num, 1, 4, file );
+  t_fwrite( &num, 1, 4, file );
   fseek( file, 4 + ( num - 1 ) * sizeof(dbUserRecordDef), SEEK_SET );
-  fwrite( recordd, 1, sizeof(dbUserRecordDef), file );
+  t_fwrite( recordd, 1, sizeof(dbUserRecordDef), file );
   fclose( file );
   return num;
 }

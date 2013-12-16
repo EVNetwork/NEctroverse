@@ -2,6 +2,12 @@
 #define MAININCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+/**
+ * Mutex used when we update stuff.
+ */
+extern pthread_mutex_t mutex;
+
+
 extern char *cmdSignalNames[SIGNALS_NUMUSED];
 
 //config struct

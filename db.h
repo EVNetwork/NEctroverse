@@ -13,7 +13,8 @@ typedef struct
   //fast access informations -- copied from maind for now. FIXME
   char faction[32];
   char forumtag[256];
-  char linksession[129];
+  char http_session[129];
+  char irc_session[129];
   int lasttime;
 
   //Pointers for next/last user in list.
@@ -35,7 +36,8 @@ typedef struct
   char password[128];
   char email[128];
   char faction[32];
-  char linksession[129];
+  char http_session[129];
+  char irc_session[129];
   char forumtag[256];
   char desc[4096];
   struct in_addr sin_addr[MAXIPRECORD];
@@ -418,8 +420,6 @@ extern char *dbImageDirs[HTTP_DIR_TOTAL];
 extern int dbArtefactPos[ARTEFACT_NUMUSED];
 
 extern int dbArtefactMax;
-
-
 
 
 #endif

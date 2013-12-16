@@ -82,11 +82,6 @@ static MHD_ResponsePtr cached_directory_response;
 static MHD_ResponsePtr request_refused_response;
 
 /**
- * Mutex used when we update the cached directory response object.
- */
-static pthread_mutex_t mutex;
-
-/**
  * Global handle to MAGIC data.
  */
 #if HAVE_MAGIC_H
@@ -182,7 +177,7 @@ if( cookie != NULL ) {
 			ret->dbuser = NULL;
 			goto MAKECOOKIE;
 		}
-		if( strcmp( cookie, ret->dbuser->linksession ) == 0 )
+		if( strcmp( cookie, ret->dbuser->http_session ) == 0 )
 			strcpy(ret->sid,cookie);
 	}
 }
@@ -943,7 +938,7 @@ while( NULL != pos ) {
 		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
 			if( ( user = dbUserLinkID( id ) ) ){
 				snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-				snprintf(user->linksession, sizeof(user->linksession), "%s", hashencrypt(buffer) );
+				snprintf(user->http_session, sizeof(user->http_session), "%s", hashencrypt(buffer) );
 				dbUserSave( id, user );
 			}
 		}
@@ -958,6 +953,8 @@ while( NULL != pos ) {
 
 
 int remove_session( const char *sid ) {
+	int id;
+	char buffer[129];
 	bool donenothing = true;
 	SessionPtr pos;
 	SessionPtr prev;
@@ -973,6 +970,13 @@ while( NULL != pos ) {
 			sessions = pos->next;
 		} else {
 			prev->next = next;
+		}
+		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
+			if( ( user = dbUserLinkID( id ) ) ){
+				snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+				snprintf(user->http_session, sizeof(user->http_session), "%s", hashencrypt(buffer) );
+				dbUserSave( id, user );
+			}
 		}
 		donenothing = false;
 		free( pos );
@@ -1036,7 +1040,6 @@ THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
 magic = magic_open(MAGIC_MIME_TYPE);
 (void) magic_load(magic, NULL);
 #endif
-(void) pthread_mutex_init (&mutex, NULL);
 
 file_not_found_response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *)NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT );
 request_refused_response = MHD_create_response_from_buffer( strlen( METHOD_ERROR ), (void *)METHOD_ERROR, MHD_RESPMEM_PERSISTENT );

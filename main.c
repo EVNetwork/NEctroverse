@@ -1,6 +1,6 @@
 #include "global.h"
 
-#define trapsignal( signal )  svSignal( signal, __LINE__, __FILE__, __FUNCTION__)
+pthread_mutex_t mutex;
 
 optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
 
@@ -333,7 +333,9 @@ int daemon_init() {
 	char DIRCHECKER[256];
 	pid_t pid, sid;
 
-info("Server process iniating...");
+info( "Server process iniating...");
+
+
 
 if( options.mode == MODE_FORKED ) {
 pid = fork();
@@ -429,6 +431,10 @@ loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." );
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 #if IRCBOT_SUPPORT
+if( ircbot_prepare() ) {
+	irccfg.bot = false;
+	irccfg.session = NULL;
+}
 if( irccfg.bot ) {
 	ircbot_connect();
 }
@@ -1016,6 +1022,7 @@ if( file_exist(options.sysini) == 0 ) {
 	fflush(stdout);
 }
 
+(void)pthread_mutex_init (&mutex, NULL);
 dirstructurecheck(TMPDIR);
 
 memset( &sysconfig, 0, sizeof(configDef) );
