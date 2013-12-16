@@ -186,11 +186,15 @@ void dump_event (irc_session_t * session, const char * event, const char * origi
 }
 
 
-void event_join (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count)
-{
-	dump_event (session, event, origin, params, count);
-	irc_cmd_user_mode (session, "+i");
-	irc_cmd_msg (session, params[0], "Hi all");
+void event_join( irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count ) {
+	char buffer[512];
+
+dump_event( session, event, origin, params, count );
+irc_cmd_user_mode( session, "+i" );
+sprintf( buffer, "op %s", params[0] );	
+irc_cmd_msg( session, "ChanServ", buffer );
+
+return;
 }
 
 
