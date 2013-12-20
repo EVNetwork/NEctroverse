@@ -269,7 +269,8 @@ dbArtefactMax = artmax;
       continue;
 	}
     if( dbUserMainRetrieve( user->id, &mainp[b] ) < 0 ) {
-	loghandle(LOG_ERR, false, "Error retreiving maind id: %d", user->id );
+	sprintf( logString, "Error retreiving maind id: %d", user->id );
+	error( logString );
       continue;
 	}
 	if( (mainp[b].empire == admincfg.empire) && (admincfg.rankommit) )
@@ -455,7 +456,8 @@ ticks.debug_pass = 2 + 10000;
     }
 
   	if( planetd.construction < 0 ) {
-	loghandle(LOG_ERR, false, "Warning : negative construction count : %d", planetd.construction );
+	sprintf(logString, "Warning : negative construction count : %d", planetd.construction );
+	error( logString );
       planetd.construction = 0;
     }
 
@@ -615,7 +617,7 @@ ticks.debug_pass = 1;
 
 
 if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
-	loghandle(LOG_ERR, false, "Tick error: Retriving Map Info!" );
+	error( "Tick error: Retriving Map Info!" );
 }
 
   for( user = dbUserList ; user ; user = user->next )
@@ -632,7 +634,8 @@ if( last < 5*60 )
 ticks.uonline++;
 
 if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
-	loghandle(LOG_ERR, false, "Tick error: Retriving User %d", user->id );
+	sprintf( logString, "Tick error: Retriving User %d", user->id );
+	error( logString );
 	continue;
 }
 
@@ -641,7 +644,8 @@ ticks.debug_pass = 2;
 
 
 if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
-	loghandle(LOG_ERR, false, "Tick error: SpecOps User %d", user->id );
+	sprintf( logString, "Tick error: SpecOps User %d", user->id );
+	error( logString );
 	continue;
 }
     opvirus = 0;
@@ -929,7 +933,8 @@ maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSO
 maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
 
 if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
-	loghandle(LOG_ERR, false, "Tick error: Retriving empire %d", maind.empire  );
+	sprintf( logString, "Tick error: Retriving empire %d", maind.empire  );
+	error( logString );
 	continue;
 }
 maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * empired.taxation ) );
@@ -951,7 +956,8 @@ empired.fund[CMD_RESSOURCE_CRYSTAL] += maind.infos[INFOS_CRYSTAL_TAX];
 empired.fund[CMD_RESSOURCE_ECTROLIUM] += maind.infos[INFOS_ECTROLIUM_TAX];
 
 if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
-	loghandle(LOG_ERR, false, "Tick error: Setting Empire #%d Fund!", maind.empire );
+	sprintf( logString, "Tick error: Setting Empire #%d Fund!", maind.empire );
+	error( logString );
 }
 
 

@@ -15,6 +15,8 @@ tickDef ticks;
 ircDef irccfg;
 #endif
 
+char logString[MAXLOGSTRING];
+
 bool firstload = false;
 
 int svListenSocket[PORT_TOTAL];
@@ -36,7 +38,7 @@ if( type ) {
 	close(options.serverpipe);
 	sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
-	loghandle(LOG_INFO, false, "%s", "Server shutdown complete, now cleaning up!" );
+	info( "Server shutdown complete, now cleaning up!" );
 	syslog(LOG_INFO, "%s", "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>" ); //Don't really need this, but meh... why not!
 	closelog();
 } else {
@@ -80,7 +82,8 @@ if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
 		printf("\n");
 		fflush(stdout);
 	}
-	loghandle(LOG_INFO, false, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);  
+	sprintf(logString, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);
+	info( logString );
   	sysconfig.shutdown = true;
 	return;
 }
@@ -206,8 +209,7 @@ if ( ( num > 0 ) && strlen(buffer) ) {
 
 if( stop ) {
 	svPipeSend(0,"Server is shutting down as requested..");
-	if( options.verbose )
-	loghandle(LOG_INFO, false, "%s", "Shutdown command recived from Pipe."); 
+	info( "Shutdown command recived from Pipe." );
 }
 
 if ( num > 0 ) {
@@ -552,8 +554,9 @@ if( firstload ) {
 }
 
 if( iniparser_find_entry(ini,"NEED_TO_DELETE_ME") ) {
-	loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been detected: \'%s\'",file);
-	loghandle(LOG_CRIT, false, "%s", "You must edit this file before the game server is able to run correctly!");
+	sprintf(logString, "A default, non-usable version of the evsystem.ini has been detected: \'%s\'",file);
+	info( logString );
+	info( "You must edit this file before the game server is able to run correctly!");
 	sysconfig.shutdown = true;
 	return -1;
 }
@@ -1284,6 +1287,8 @@ if( options.verbose ) {
 	printf(RESET);
 	fflush(stdout);
 }
+
+memset( logString, 0, sizeof(logString) );
 
 return;
 }

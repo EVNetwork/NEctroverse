@@ -223,6 +223,7 @@ extern svbanDef banlist;
 
 #define MAXLOGSTRING 1024
 void loghandle( int flag, int error, char *fmt, ... );
+extern char logString[MAXLOGSTRING];
 
 extern bool firstload;
 char *itoa(int i);

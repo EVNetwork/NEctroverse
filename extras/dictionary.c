@@ -338,7 +338,7 @@ void dictionary_dump(dictionary * d, FILE * out)
 
     if (d==NULL || out==NULL) return ;
     if (d->n<1) {
-        loghandle(LOG_ERR, false, "%s" "empty dictionary");
+        error( "empty dictionary" );
         return ;
     }
     for (i=0 ; i<d->size ; i++) {

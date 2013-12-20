@@ -34,7 +34,7 @@ id = ((cnt->session)->dbuser)->id;
 ((cnt->session)->dbuser)->lasttime = time(NULL);
 
 if( dbUserSave( id, (cnt->session)->dbuser ) < 0 )
-	loghandle(LOG_ERR, false, "%s", "Error while syncing user info: line %d, of %s, in %s", __LINE__, __FILE__, __FUNCTION__);
+	error( "Database UserSave" );
 
 if(( action & 2 )&&((cnt->session)->dbuser)) {
 	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
@@ -462,7 +462,7 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 	(maild.mail).tick = ticks.number;
 	(maild.mail).flags = 0;
 	if( dbMailAdd( id, 0, &maild ) < 0 )
-		loghandle(LOG_ERR, false, "%s", "Error sending registration email" );
+		error( "Error sending registration email" );
 
 
 	if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) ) {
@@ -819,7 +819,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
-				loghandle(LOG_ERR, errno, "%s", "Failure reading faq file." );
+				error( "Failure reading faq file." );
 			} else {
 				httpString( cnt, trimwhitespace(data) );
 			}

@@ -86,6 +86,7 @@ static void mhd_panic_std (void *cls, const char *file, unsigned int line, const
 
   loghandle(LOG_CRIT, FALSE, "Fatal error in GNU libmicrohttpd %s:%u: %s", file, line, reason);
 
+return;
 }
 
 
@@ -1747,7 +1748,7 @@ MHD_run_from_select (struct MHD_Daemon *daemon,
   if ( (-1 != daemon->wpipe[0]) &&
        (FD_ISSET (daemon->wpipe[0], read_fd_set)) )
     if( read(daemon->wpipe[0], &tmp, sizeof (tmp)) < 0 ) {
-    loghandle(LOG_INFO, errno, "%s", "HTTP 1.1 Server error");
+    error( "HTTP 1.1 Server error" );
     }
 
   if (0 == (daemon->options & MHD_USE_THREAD_PER_CONNECTION))

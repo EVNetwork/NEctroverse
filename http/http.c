@@ -160,7 +160,7 @@ if (cookie != NULL) {
 ret = calloc( 1, sizeof(SessionDef) );
 
 if (NULL == ret) {
-	loghandle(LOG_ERR, errno, "%s", "HTTP session allocation error!");
+	critical( "HTTP session allocation error!" );
 	return NULL;
 }
 ret->dbuser = NULL;
@@ -212,7 +212,7 @@ else
 snprintf( cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
-	loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
+	error( "Failed to set session cookie header!" );
 }
 
 }
@@ -428,7 +428,7 @@ response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd
 add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
 	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
-		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
+		error( "Failed to set session cookie header!" );
 	}
 }
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
@@ -459,7 +459,7 @@ response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd
 add_session_cookie(session, response);
 for( a = 0; a < rd.cookies.num ; a++  ) {
 	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
-		loghandle(LOG_ERR, FALSE, "%s", "Failed to set session cookie header!");
+		error( "Failed to set session cookie header!" );
 	}
 }
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
@@ -590,16 +590,19 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
 	if( ( data ) && ( strlen(data) ) ) {
-		//loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\' - \'%s\'", key, data);
+		//sprintf( logString, "Ignoring unexpected form value \'%s\' - \'%s\'", key, data);
+		//info( logString );
 		 set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
 		 set_postvalue(&(uc->session)->value[(uc->session)->posts], data, strlen(data) );
 		(uc->session)->posts++;
-	} else if ( strlen(data) )
-		loghandle(LOG_ERR, FALSE, "Ignoring unexpected form value \'%s\'", key);
+	} else if ( strlen(data) ) {
+		sprintf( logString, "Ignoring unexpected form value \'%s\'", key );
+		info( logString ); 
+	}
 	return MHD_YES;
 }
 if (NULL == filename) {
-	loghandle(LOG_ERR, FALSE, "%s", "No filename, aborting upload");
+	error( "No filename, aborting upload" );
 	return MHD_NO;
 }
 
@@ -629,7 +632,8 @@ if (-1 == uc->fd) {
 		     | O_WRONLY,S_IRUSR | S_IWUSR);
 
 	if (-1 == uc->fd) {
-		loghandle(LOG_ERR, errno, "Error opening file for upload: \'%s\'", fn );
+		sprintf( logString, "Error opening file for upload: \'%s\'", fn );
+		error( logString );
 		uc->response = request_refused_response;
 		(uc->session)->upload = UPLOAD_STATE_FAIL;
 		return MHD_NO;
@@ -638,7 +642,8 @@ if (-1 == uc->fd) {
 }
 
 if ( (0 != size) && (size != write (uc->fd, data, size)) ) {
-	loghandle(LOG_ERR, errno, "Error writing to file: \'%s\'", uc->filename);
+	sprintf( logString, "Error writing to file: \'%s\'", uc->filename);
+	error( logString );
 	uc->response = internal_error_response;
 	(uc->session)->upload = UPLOAD_STATE_FAIL;
 	close (uc->fd);
@@ -777,7 +782,8 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		memset (request, 0, sizeof (RequestDef));
 		request->session = get_session(connection);
 		if (NULL == request->session) {
-			fprintf (stderr, "Failed to setup session for `%s'\n", url);
+			sprintf( logString, "Failed to setup session for \'%s\'", url );
+			error( logString );
 			return MHD_NO; /* internal error */
 		}
 		request->session->active = time(NULL);
@@ -820,8 +826,10 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		i++;
 	request->session->active = time(NULL);
 	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, request->session, request->connection );
-	if (ret != MHD_YES)
-		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", request->post_url);
+	if (ret != MHD_YES) {
+		sprintf( logString, "Failed to create page for \'%s\'", request->post_url);
+		error( logString );
+	}
 	return ret;
 	}
 }
@@ -844,8 +852,10 @@ if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HT
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
 		i++;
 	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
-	if (ret != MHD_YES)
-		loghandle(LOG_ERR, FALSE, "Failed to create page for \'%s\'", url);
+	if (ret != MHD_YES) {
+		sprintf( logString, "Failed to create page for \'%s\'", url);
+		error( logString );
+	}
 	return ret;
 }
 
@@ -885,7 +895,8 @@ if (-1 != request->fd) {
 	(void) close (request->fd);
 	if (NULL != request->filename) {
 		request->session->upload = UPLOAD_STATE_FAIL;
-		loghandle(LOG_INFO, FALSE, "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename);
+		sprintf( logString, "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename );
+		error( logString );
 		(void) unlink (request->filename);
 	}
 }
@@ -1003,7 +1014,7 @@ if( stat( filename, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( filename, "rb" ) ) ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
-				loghandle(LOG_ERR, errno, "%s", "Failure reading ssl file." );
+				error( "Failure reading ssl file." );
 			} else {
 				ret = strdup( data );
 			}
@@ -1083,7 +1094,9 @@ server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 				MHD_OPTION_END);
 if(NULL == server_https)
 	return 1;
-loghandle(LOG_INFO, false, "HTTPS Server live with %d thread(s) on port: %d", THREADS, ports[1]);
+
+sprintf( logString, "HTTPS Server live with %d thread(s) on port: %d", THREADS, ports[1] );
+info( logString );
 
 return 0;
 }
@@ -1106,7 +1119,9 @@ server_http = MHD_start_daemon (flags,
 
 if(NULL == server_http)
 	return 1;
-loghandle(LOG_INFO, false, "HTTP Server live with %d thread(s) on port: %d", THREADS, ports[0]);
+
+sprintf( logString, "HTTP Server live with %d thread(s) on port: %d", THREADS, ports[0] );
+info( logString );
 
 return 0;
 }
@@ -1117,17 +1132,17 @@ void server_stop( int flag ) {
 if( flag == 1 ) {
 	if( server_http ) {
 		MHD_stop_daemon(server_http);
-	loghandle(LOG_INFO, false, "%s", "HTTP  Server has been gracefully shutdown!" );
+	info( "HTTP  Server has been gracefully shutdown!" );
 	}
 } else if( flag == 2 ) {
 	if( server_https ) {
 		MHD_stop_daemon(server_https);
-	loghandle(LOG_INFO, false, "%s", "HTTPS Server has been gracefully shutdown!" );
+	info( "HTTPS Server has been gracefully shutdown!" );
 	}
 } else {
 	if( server_http ) {
 		MHD_stop_daemon(server_http);
-	loghandle(LOG_INFO, false, "%s", "HTTP Server has been gracefully shutdown!" );
+	info( "HTTP Server has been gracefully shutdown!" );
 	}
 	if( server_https ) {
 		MHD_stop_daemon(server_https);

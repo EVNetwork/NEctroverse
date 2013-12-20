@@ -67,7 +67,7 @@ void getsys_infos( proginfoDef *proginfo ) {
 	struct sysinfo sinfo;
 
 if( sysinfo(&sinfo) != 0 ) {
-	loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
+	critical( "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
 
@@ -75,7 +75,7 @@ pid = getpid();
 sprintf( fname, "/proc/%d/stat", pid );
 if( ( file = fopen( fname, "r" ) ) ) {
 	if( fscanf( file, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu %*d %*d %ld %*d %ld %*u %llu %lu %ld", &proginfo->stutime, &proginfo->ststime, &proginfo->stpriority, &proginfo->threads, &proginfo->ststarttime, &proginfo->stvsize, &proginfo->strss ) != 7 ) {
-	loghandle(LOG_ERR, errno, "%s", "Error getting process stat Info...");
+	error( "Error getting process stat Info..." );
 	}
 	fclose( file );
 }
@@ -102,7 +102,7 @@ cpuGetInfo( &cpuinfo );
 getsys_infos( &pinfod );
 
 if( sysinfo(&sysinfod) != 0 ) {
-	loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
+	critical( "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
 

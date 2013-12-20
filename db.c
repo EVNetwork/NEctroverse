@@ -17,7 +17,6 @@ char dbFileMarketName[] = "market";
 char *dbFileList[DB_FILE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName };
 FILE *dbFilePtr[DB_FILE_TOTAL];
 
-
 char *dbImageDirs[HTTP_DIR_TOTAL] = {
 "%s",
 "%s/avatars",
@@ -256,7 +255,7 @@ FILE *dbFileGenOpen( int num ) {
 	}
     
 	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
-		loghandle(LOG_ERR, errno, "DBGen: %02d, Can't open \"%s\"", errno, szSource );
+		error( "Opening File" );
 		return 0;
 	}
 
@@ -304,7 +303,8 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 	}
 
 	if( num < 0x10000 ) {
-		loghandle(LOG_ERR, errno, "Error %02d, fopen %s", errno, fname );
+		sprintf(logString, "Opening File \'%s\'", fname);
+		error( logString );
 	}
 
 	return 0;
@@ -339,7 +339,8 @@ FILE *dbFileFamOpen( int id, int num )
       return file;
     }
 	if( num < 0x10000 ) {
-		loghandle(LOG_ERR, errno, "Error %02d, fopen %s", errno, fname );
+		sprintf(logString, "Opening File \'%s\'", fname);
+		error( logString );
 	}
     return 0;
   }
@@ -359,7 +360,7 @@ dbUserPtr dbUserAllocate( int id )
   char pass[128];
   dbUserPtr user;
 if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
-	loghandle(LOG_ERR, errno, "%s", "Error, malloc dbuser failed" );
+	critical("Database Malloc Failed");
 	return 0;
 }
   memset( user, 0, sizeof(dbUserDef) );
@@ -451,7 +452,7 @@ int dbInit() {
 	
 sprintf( COREDIR, "%s/data", sysconfig.directory );
 if( chdir( COREDIR ) == -1 ) {
-	loghandle(LOG_ERR, errno, "Error %02d, db chdir, Dir: %s", errno, COREDIR );
+	critical( "Change DIR" );
 	return 0;
 }
 
@@ -459,10 +460,10 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
 	return 0;
 
 if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
-	loghandle(LOG_INFO, false, "%s", "Market database not found, creating..." );
+	info( "Market database not found, creating..." );
 
 	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
-		loghandle(LOG_ERR, errno, "%s", "Error, could not create market database!" );
+		critical( "Error, could not create market database!" );
 		return 0;
 	}
 
@@ -483,10 +484,9 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 sprintf( COREDIR, "%s/forums", sysconfig.directory );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	if( options.verbose )
-	printf("Forum database not found, creating...\n" );
-	syslog(LOG_INFO, "Forum database not found, creating...\n" );
+	info("Forum database not found, creating...");
 	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
-		loghandle(LOG_ERR, errno, "%s", "Error, could not create forum database!" );
+		critical( "Error, could not create forum database!" );
 		return 0;
 	}
 	a = 0;
@@ -502,20 +502,17 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( &forumd, 1, 100+a );
 	}
-	if( options.verbose )
-	printf("Created Forums for %d Empires.\n", a-1 );
-	syslog(LOG_INFO, "Created Forums for %d Empires.\n", a-1 );
+	sprintf(logString, "Created Forums for %d Empires.", a-1 );
+	info(logString);
 
 }
 fclose( file );
 
 sprintf( COREDIR, "%s/forums", sysconfig.pubforum );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
-	if( options.verbose )
-	printf("Public Forum database not found, creating...\n" );
-	syslog(LOG_INFO, "Public Forum database not found, creating...\n" );
+	info( "Public Forum database not found, creating..." );
 	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
-		loghandle(LOG_ERR, errno, "%s", "Error, could not create public forum database!" );
+		critical( "Error, could not create public forum database!" );
 		return 0;
 	}
 	a = 0;
@@ -531,7 +528,7 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 	sprintf( COREDIR, "%s/users", sysconfig.directory );
 	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
 	if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) ) {
-		loghandle(LOG_ERR, errno, "%s", "Error, could not create user database!" );
+		critical( "Error, could not create user database!" );
 		return 0;
 	}
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
@@ -547,9 +544,7 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 
 fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
 if( fread( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x01: Userbase\n" );
-	syslog(LOG_ERR, "Failure reading file x01: Userbase\n"  );
+ 	error( "Failure reading file x01: Userbase"  );
 }
 
 for( a = 0 ; a < b ; a++ ) {
@@ -562,9 +557,8 @@ for( a = 0 ; a < b ; a++ ) {
 	}
 
 	if( !(	dbUserInfoRetrieve( a, &infod ) ) ) {
-	 	if( options.verbose )
-			printf("Failure reading file x02.0 for user; %d\n", a );
-		syslog(LOG_ERR, "Failure reading file x02.0 for user; %d\n", a );
+	 	sprintf( logString, "Failure reading file for user; %d", a );
+	 	error( logString );
 	}
 	user->level = infod.level;
 	user->flags = infod.flags;
@@ -696,26 +690,20 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
 
 fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
 if( fread( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x03.0\n" );
-	syslog(LOG_ERR, "Failure reading file x03.0\n" );
+ 	error( "Failure reading file" );
 }
 
 
 if( !( freenum ) ) {
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
 	if( fread( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x03.1\n" );
-		syslog(LOG_ERR, "Failure reading file x03.1\n" );
+	 	error( "Failure reading file" );
 	}
 } else {
 	a = freenum - 1;
 	fseek( dbFilePtr[DB_FILE_USERS], 8 + ( a << 2 ), SEEK_SET );
 	if( fread( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
-	 	if( options.verbose )
-			printf("Failure reading file x03.2\n" );
-		syslog(LOG_ERR, "Failure reading file x03.2\n" );
+	 	error( "Failure reading file" );
 	}
 }
 	
@@ -739,7 +727,7 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		loghandle(LOG_ERR, errno, "Data: %02d, fopen dbuseradd", errno );
+		error( "fopen dbuseradd" );
 		return -3;
 	}
 	if( a == 0 )
@@ -761,12 +749,7 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 		dbUserFree( user );
 		rmdir( dname );
 		rmdir( uname );
-		if( options.verbose ) {
-			printf("User: %02d, fopen dbuseradd\n", errno );
-			printf("Error description is : %s\n",strerror(errno) );
-		}
-		syslog(LOG_ERR, "User: %02d, fopen dbuseradd\n", errno );
-		syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+		error( "User Creation" );
 		return -3;
 	}
 	if( a == 0 )
@@ -815,9 +798,7 @@ dbUserFree( user );
 
 fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
 if( fread( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x04\n" );
-	syslog(LOG_ERR, "Failure reading file x04\n" );
+ 	error( "Failure reading file" );
 }
 a++;
 fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
@@ -875,20 +856,14 @@ int dbUserSetPassword( int id, char *pass ) {
 	dbUserInfoDef uinfo;
 
 if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting real info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting real info\n" );
+	error( "Error in user save, getting real info" );
 	return -3;
 }
 
 sprintf( uinfo.password, "%s", hashencrypt(pass) );
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting setting info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting setting info\n" );
+	error( "Error in user save, getting setting info" );
 	return -3;
 }
 
@@ -935,10 +910,7 @@ if( !( user ) )
 	return -3;
 
 if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting real info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting real info\n" );
+	error("Error in user save, getting real info");
 	return -3;
 }
 
@@ -947,10 +919,7 @@ strncpy( user->http_session, session, sizeof(uinfo.http_session) );
 strncpy( uinfo.http_session, session, sizeof(uinfo.http_session) );
 
 if( !( dbUserInfoSet( user->id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting setting info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting setting info\n" );
+	error("Error in user save, getting setting info");
 	return -3;
 }
 
@@ -964,10 +933,7 @@ int dbSessionRetrieve( dbUserPtr user, char *session ) {
 if( !( user ) )
 	return -3;
 if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
-	if( options.verbose ) {
-		printf("Error in user save, getting real info\n" );
-	}
-	syslog(LOG_ERR, "Error in user save, getting real info\n" );
+	error("Error in user save, getting real info");
 	return -3;
 }
 
@@ -1007,9 +973,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
 
 memset( maind, 0, sizeof(dbUserMainDef) );
 if( fread( maind, 1, sizeof(dbUserMainDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x06\n" );
-	syslog(LOG_ERR, "Failure reading file x06\n" );
+ 	error( "Failure reading File" );
 }
 
 fclose( file );
@@ -1045,9 +1009,7 @@ for(i=0;buildp.cost[i];i++)
 	buildp.cost[i] = cost[i];
 
 if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x07\n" );
-	syslog(LOG_ERR, "Failure reading file x07\n" );
+ 	error( "Failure reading File" );
 
 
 }
@@ -1070,9 +1032,7 @@ int dbUserBuildRemove( int id, int bldid ) {
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
 	return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x08.0\n" );
-	syslog(LOG_ERR, "Failure reading file x08.0\n" );
+ 	error( "Failure reading File" );
 }
 
 if( (unsigned int)bldid >= num ) {
@@ -1083,9 +1043,7 @@ if( (unsigned int)bldid >= num ) {
 if( bldid+1 < num ) {
 	fseek( file, 4+(num*sizeof(dbUserBuildDef))-sizeof(dbUserBuildDef), SEEK_SET );
 	if( fread( data, 1, sizeof(dbUserBuildDef), file ) < 1 ) {
- 		if( options.verbose )
-			printf("Failure reading file x08.1\n" );
-		syslog(LOG_ERR, "Failure reading file x08.1\n" );
+ 		error( "Failure reading file" );
 	}
 	fseek( file, 4+(bldid*sizeof(dbUserBuildDef)), SEEK_SET );
 	t_fwrite( data, 1, sizeof(dbUserBuildDef), file );
@@ -1108,9 +1066,7 @@ int dbUserBuildList( int id, dbUserBuildPtr *build ) {
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
 	return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x09.0\n" );
-	syslog(LOG_ERR, "Failure reading file x09.0\n" );
+ 	error( "Failure reading File" );
 }
 
 if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
@@ -1121,9 +1077,7 @@ if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
 for( a = 0 ; a < num ; a++ ) {
 	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
 	if( fread( &buildp[a], 1, sizeof(dbUserBuildDef), file ) < 1 ) {
- 		if( options.verbose )
-			printf("Failure reading file x09.1\n" );
-		syslog(LOG_ERR, "Failure reading file x09.1\n" );
+ 		error( "Failure reading File" );
 	}
 }
 fclose( file );
@@ -1159,7 +1113,7 @@ void sortlist ( int num, int *list1, int *list2 )
   for( b = 0 ; b < num ; b++ )
     list1[b] = list3[b];
 
-//syslog(LOG_ERR, "Dit is void sortlist\n" );
+//info( "Dit is void sortlist" );
   free (list3);
   return;
 
@@ -1191,7 +1145,7 @@ void sortlist2 ( int num, int *list1, int *list2, int *list3 )
   for( b = 0 ; b < num ; b++ )
     list1[b] = list4[b];
   
-//syslog(LOG_DEBUG, "dees is void sortlist2 \n" );
+//info("dees is void sortlist2" );
   free (list4);
   return;
 }
@@ -1205,9 +1159,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
 	return -3;
 
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x10.0\n" );
-	syslog(LOG_ERR, "Failure reading file x10.0\n" );
+ 	error( "Failure reading file" );
 }
 
 if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
@@ -1218,9 +1170,7 @@ if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
 for( a = 0 ; a < num ; a++ ) {
 	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
 	if( fread( &buildp[a], 1, sizeof(dbUserBuildDef), file ) < 1 ) {
- 		if( options.verbose )
-			printf("Failure reading file x10.1\n" );
-		syslog(LOG_ERR, "Failure reading file x10.1\n" );
+ 		error( "Failure reading file" );
 	}
 	buildp[a].time--;
 	fseek( file, 4+(a*sizeof(dbUserBuildDef)), SEEK_SET );
@@ -1260,9 +1210,7 @@ int dbUserPlanetNumber( int id )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x11\n" );
-	syslog(LOG_ERR, "Failure reading file x11\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   return pos;
@@ -1292,9 +1240,7 @@ int dbUserPlanetAdd( int id, int plnid, int sysid, int plnloc, int flags )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
 if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x12\n" );
-	syslog(LOG_ERR, "Failure reading file x12\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 4+(pos*20), SEEK_SET );
   t_fwrite( &plnid, 1, sizeof(int), file );
@@ -1333,26 +1279,20 @@ int dbUserPlanetRemove( int id, int plnid )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x13.0\n" );
-	syslog(LOG_ERR, "Failure reading file x13.0\n" );
+ 	error( "Failure reading file" );
 }
   if( num >= 2 )
   {
     fseek( file, 4+(num*20)-20, SEEK_SET );
     if( fread( data, 1, 20, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x13.1\n" );
-	syslog(LOG_ERR, "Failure reading file x13.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   for( a = 0 ; a < num ; a++ )
   {
     fseek( file, 4+(a*20), SEEK_SET );
     if( fread( &b, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x13.2\n" );
-	syslog(LOG_ERR, "Failure reading file x13.2\n" );
+ 	error( "Failure reading file" );
 }
     if( b != plnid )
       continue;
@@ -1407,9 +1347,7 @@ int dbUserPlanetListCoords( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x14.0\n" );
-	syslog(LOG_ERR, "Failure reading file x14.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*sizeof(int) ) ) )
   {
@@ -1420,9 +1358,7 @@ int dbUserPlanetListCoords( int id, int **list )
   {
     fseek( file, 4+(a*20)+8, SEEK_SET );
     if( fread( &listp[a], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x14.1\n" );
-	syslog(LOG_ERR, "Failure reading file x14.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   fclose( file );
@@ -1438,9 +1374,7 @@ int dbUserPlanetListIndices( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x15.0\n" );
-	syslog(LOG_ERR, "Failure reading file x15.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*sizeof(int) ) ) )
   {
@@ -1451,9 +1385,7 @@ int dbUserPlanetListIndices( int id, int **list )
   {
     fseek( file, 4+(a*20), SEEK_SET );
     if( fread( &listp[a], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x15.1\n" );
-	syslog(LOG_ERR, "Failure reading file x15.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   fclose( file );
@@ -1469,9 +1401,7 @@ int dbUserPlanetListSystems( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x16.0\n" );
-	syslog(LOG_ERR, "Failure reading file x16.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*sizeof(int) ) ) )
   {
@@ -1482,9 +1412,7 @@ int dbUserPlanetListSystems( int id, int **list )
   {
     fseek( file, 4+(a*20)+4, SEEK_SET );
     if( fread( &listp[a], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x16.1\n" );
-	syslog(LOG_ERR, "Failure reading file x16.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   fclose( file );
@@ -1502,9 +1430,7 @@ int dbUserPlanetListFull ( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x17.0\n" );
-	syslog(LOG_ERR, "Failure reading file x17.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*4*sizeof(int) ) ) )
   {
@@ -1515,9 +1441,7 @@ int dbUserPlanetListFull ( int id, int **list )
   {
     fseek( file, 4+(a*20), SEEK_SET );
     if( fread( &listp[a*4], 1, 4*sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x17.1\n" );
-	syslog(LOG_ERR, "Failure reading file x17.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   fclose( file );
@@ -1535,9 +1459,7 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x18.0\n" );
-	syslog(LOG_ERR, "Failure reading file x18.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*sizeof(int) ) ) )
     {
@@ -1555,9 +1477,7 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
     {
       fseek( file, 4+(a*20), SEEK_SET );
       if( fread( &listp[a], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x18.1\n" );
-	syslog(LOG_ERR, "Failure reading file x18.1\n" );
+ 	error( "Failure reading file" );
 }
     }
   fclose( file );
@@ -1744,9 +1664,7 @@ int dbUserPortalsList( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x19.0\n" );
-	syslog(LOG_ERR, "Failure reading file x19.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( 3*num*sizeof(int) ) ) )
     return -1;
@@ -1754,14 +1672,10 @@ int dbUserPortalsList( int id, int **list )
   {
     fseek( file, 4+(a*20), SEEK_SET );
     if( fread( &listp[b], 1, 3*sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x19.1\n" );
-	syslog(LOG_ERR, "Failure reading file x19.1\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &flags, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x19.2\n" );
-	syslog(LOG_ERR, "Failure reading file x19.2\n" );
+ 	error( "Failure reading file" );
 }
     if( flags & CMD_PLANET_FLAGS_PORTAL )
       b += 3;
@@ -1779,9 +1693,7 @@ int dbUserPortalsListCoords( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x20.0\n" );
-	syslog(LOG_ERR, "Failure reading file x20.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*sizeof(int) ) ) )
     return -1;
@@ -1789,14 +1701,10 @@ int dbUserPortalsListCoords( int id, int **list )
   {
     fseek( file, 4+(a*20)+8, SEEK_SET );
     if( fread( &listp[b], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x20.1\n" );
-	syslog(LOG_ERR, "Failure reading file x20.1\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &flags, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x20.2\n" );
-	syslog(LOG_ERR, "Failure reading file x20.2\n" );
+ 	error( "Failure reading file" );
 }
     if( flags & CMD_PLANET_FLAGS_PORTAL )
       b++;
@@ -1814,9 +1722,7 @@ int dbUserPortalsListIndices( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x21.0\n" );
-	syslog(LOG_ERR, "Failure reading file x21.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*sizeof(int) ) ) )
     return -1;
@@ -1824,14 +1730,10 @@ int dbUserPortalsListIndices( int id, int **list )
   {
     fseek( file, 4+(a*20), SEEK_SET );
     if( fread( &listp[b], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x21.1\n" );
-	syslog(LOG_ERR, "Failure reading file x21.1\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &flags, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x21.2\n" );
-	syslog(LOG_ERR, "Failure reading file x21.2\n" );
+ 	error( "Failure reading file" );
 }
     if( flags & CMD_PLANET_FLAGS_PORTAL )
       b++;
@@ -1855,9 +1757,7 @@ int dbUserFleetAdd( int id, dbUserFleetPtr fleetd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
     return -3;
   if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x22.0\n" );
-	syslog(LOG_ERR, "Failure reading file x22.0\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 4+(pos*sizeof(dbUserFleetDef)), SEEK_SET );
   t_fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
@@ -1875,9 +1775,7 @@ int dbUserFleetRemove( int id, int fltid )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x23.0\n" );
-	syslog(LOG_ERR, "Failure reading file x23.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)fltid >= num )
   {
@@ -1888,9 +1786,7 @@ int dbUserFleetRemove( int id, int fltid )
   {
     fseek( file, 4+(num*sizeof(dbUserFleetDef))-sizeof(dbUserFleetDef), SEEK_SET );
     if( fread( data, 1, sizeof(dbUserFleetDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x23.1\n" );
-	syslog(LOG_ERR, "Failure reading file x23.1\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
     t_fwrite( data, 1, sizeof(dbUserFleetDef), file );
@@ -1910,9 +1806,7 @@ int dbUserFleetList( int id, dbUserFleetPtr *fleetd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x24.0\n" );
-	syslog(LOG_ERR, "Failure reading file x24.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( fleetp = malloc( num*sizeof(dbUserFleetDef) ) ) )
   {
@@ -1923,9 +1817,7 @@ int dbUserFleetList( int id, dbUserFleetPtr *fleetd )
   {
     fseek( file, 4+(a*sizeof(dbUserFleetDef)), SEEK_SET );
     if( fread( &fleetp[a], 1, sizeof(dbUserFleetDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x24.1\n" );
-	syslog(LOG_ERR, "Failure reading file x24.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   fclose( file );
@@ -1940,9 +1832,7 @@ int dbUserFleetSet( int id, int fltid, dbUserFleetPtr fleetd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x25.0\n" );
-	syslog(LOG_ERR, "Failure reading file x25.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)fltid >= num )
   {
@@ -1962,9 +1852,7 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x26.0\n" );
-	syslog(LOG_ERR, "Failure reading file x26.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)fltid >= num )
   {
@@ -1973,9 +1861,7 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd )
   }
   fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
   if( fread( fleetd, 1, sizeof(dbUserFleetDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x26.1\n" );
-	syslog(LOG_ERR, "Failure reading file x26.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   return num;
@@ -1993,53 +1879,36 @@ int dbUserNewsAdd( int id, int64_t *data, int64_t flags )
   FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernewsadd\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	critical( "Database News Add" );
 	return -3;
 }
   
 if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x27.0\n" );
-	syslog(LOG_ERR, "Failure reading file x27.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x27.1\n" );
-	syslog(LOG_ERR, "Failure reading file x27.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x27.2\n" );
-	syslog(LOG_ERR, "Failure reading file x27.2\n" );
+ 	error( "Failure reading file" );
 }
 
 if( fread( &cflags, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x27.3\n" );
-	syslog(LOG_ERR, "Failure reading file x27.3\n" );
+ 	error( "Failure reading file" );
 }
   cflags |= flags;
   fseek( file, 24, SEEK_SET );
   t_fwrite( &cflags, 1, sizeof(int64_t), file );
 
 if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x27.4\n" );
-	syslog(LOG_ERR, "Failure reading file x27.4\n" );
+ 	error( "Failure reading file" );
 }
 
   if( lfree != -1 )
   {
     fseek( file, 40+lfree*DB_USER_NEWS_SIZE+8, SEEK_SET );
     if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x27.5\n" );
-	syslog(LOG_ERR, "Failure reading file x27.5\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 16, SEEK_SET );
     t_fwrite( &lnext, 1, sizeof(int64_t), file );
@@ -2081,20 +1950,13 @@ int64_t dbUserNewsGetFlags( int id ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernewsflags\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernewsflags\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	critical( "Database News Get Flags" );
 	return -3;
 }
 
 fseek( file, 24, SEEK_SET );
 if( fread( &flags, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x28.0\n" );
-	syslog(LOG_ERR, "Failure reading file x28.0\n" );
+ 	error( "Failure reading file" );
 }
 fclose( file );
 
@@ -2109,28 +1971,17 @@ int dbUserNewsList( int id, int64_t **data )
   *data = 0;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernewslist\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	critical( "Database News List" );
 	return -3;
 }
 if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x29.0\n" );
-	syslog(LOG_ERR, "Failure reading file x29.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x29.1\n" );
-	syslog(LOG_ERR, "Failure reading file x29.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x29.2\n" );
-	syslog(LOG_ERR, "Failure reading file x29.2\n" );
+ 	error( "Failure reading file" );
 }
 
   if( !( datap = malloc( num*DB_USER_NEWS_BASE*sizeof(int64_t) ) ) )
@@ -2142,14 +1993,10 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
   {
     fseek( file, 40+a*DB_USER_NEWS_SIZE+8, SEEK_SET );
     if( fread( &a, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x29.3\n" );
-	syslog(LOG_ERR, "Failure reading file x29.3\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &datap[b], 1, DB_USER_NEWS_BASE*sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x29.4\n" );
-	syslog(LOG_ERR, "Failure reading file x29.4\n" );
+ 	error( "Failure reading file" );
 }
   }
   *data = datap;
@@ -2166,27 +2013,17 @@ int64_t dbUserNewsListUpdate( int id, int64_t **data, int64_t time )
   int64_t *datap;
   *data = 0;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernews\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernews\n", errno );
+	critical( "Database News Update" );
 	return -3;
 }
 if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.0\n" );
-	syslog(LOG_ERR, "Failure reading file x30.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.1\n" );
-	syslog(LOG_ERR, "Failure reading file x30.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.2\n" );
-	syslog(LOG_ERR, "Failure reading file x30.2\n" );
+ 	error( "Failure reading file" );
 }
   a = 0;
   t_fwrite( &a, 1, sizeof(int64_t), file );
@@ -2201,19 +2038,13 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
   {
     fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
     if( fread( &lprev, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.3\n" );
-	syslog(LOG_ERR, "Failure reading file x30.3\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.4\n" );
-	syslog(LOG_ERR, "Failure reading file x30.4\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &datap[b], 1, 2*sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.5\n" );
-	syslog(LOG_ERR, "Failure reading file x30.5\n" );
+ 	error( "Failure reading file" );
 }
     if( !( datap[b+1] & CMD_NEWS_FLAGS_NEW ) )
     {
@@ -2253,9 +2084,7 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
     datap[b+1] &= 0xFFFFFFFF - CMD_NEWS_FLAGS_NEW;
     t_fwrite( &datap[b+1], 1, sizeof(int64_t), file );
     if( fread( &datap[b+2], 1, (DB_USER_NEWS_BASE-2)*sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x30.6\n" );
-	syslog(LOG_ERR, "Failure reading file x30.6\n" );
+ 	error( "Failure reading file" );
 }
     b += DB_USER_NEWS_BASE;
   }
@@ -2269,12 +2098,7 @@ int dbUserNewsEmpty( int id ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernewsempty\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernewsempty\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	critical( "Database News Empty" );
 	return -3;
 }
 
@@ -2297,44 +2121,29 @@ int dbFamNewsAdd( int id, int64_t *data )
   char fname[32];
   sprintf( fname, "fam%dnews", id );
 if( !( file = fopen( fname, "rb+" ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernewsadd\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernewsadd\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	critical( "Database Empire News Add" );
   	return -3;
 }
   
 if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x31.0\n" );
-	syslog(LOG_ERR, "Failure reading file x31.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x31.1\n" );
-	syslog(LOG_ERR, "Failure reading file x31.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x31.2\n" );
-	syslog(LOG_ERR, "Failure reading file x31.2\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 32, SEEK_SET );
 if( fread( &numnext, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x31.3\n" );
-	syslog(LOG_ERR, "Failure reading file x31.3\n" );
+ 	error( "Failure reading file" );
 }
 
   if( lfree != -1 )
   {
     fseek( file, 40+lfree*DB_USER_NEWS_SIZE+8, SEEK_SET );
     if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x31.4\n" );
-	syslog(LOG_ERR, "Failure reading file x31.4\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 16, SEEK_SET );
     t_fwrite( &lnext, 1, sizeof(int64_t), file );
@@ -2381,29 +2190,18 @@ int dbFamNewsList( int id, int64_t **data, int time )
   sprintf( fname, "fam%dnews", id );
 
 if( !( file = fopen( fname, "rb+" ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, fopen dbusernewslist\n", errno );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, fopen dbusernewslist\n", errno );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	critical( "Database Empire News List" );
 	return -3;
 }
 
 if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.0\n" );
-	syslog(LOG_ERR, "Failure reading file x35.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.1\n" );
-	syslog(LOG_ERR, "Failure reading file x35.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.2\n" );
-	syslog(LOG_ERR, "Failure reading file x35.2\n" );
+ 	error( "Failure reading file" );
 }
   a = 0;
   t_fwrite( &a, 1, sizeof(int), file );
@@ -2416,19 +2214,13 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
   {
     fseek( file, 40+a*DB_USER_NEWS_SIZE, SEEK_SET );
     if( fread( &lprev, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.3\n" );
-	syslog(LOG_ERR, "Failure reading file x35.3\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &lnext, 1, sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.4\n" );
-	syslog(LOG_ERR, "Failure reading file x35.4\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &datap[b], 1, 1*sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.5\n" );
-	syslog(LOG_ERR, "Failure reading file x35.5\n" );
+ 	error( "Failure reading file" );
 }
     if( datap[b+0]+CMD_NEWS_EXPIRE_TIME < time )
     {
@@ -2462,9 +2254,7 @@ if( fread( &lfree, 1, sizeof(int64_t), file ) < 1 ) {
     }
     fseek( file, 40+a*DB_USER_NEWS_SIZE+16+8, SEEK_SET );
     if( fread( &datap[b+1], 1, (DB_USER_NEWS_BASE-1)*sizeof(int64_t), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x35.6\n" );
-	syslog(LOG_ERR, "Failure reading file x35.6\n" );
+ 	error( "Failure reading file" );
 }
     b += DB_USER_NEWS_BASE;
   }
@@ -2489,9 +2279,7 @@ if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
 
 fseek( file, 0, SEEK_SET );
 if( fread( binfo, 1, sizeof(dbMainMapDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x36.0\n" );
-	syslog(LOG_ERR, "Failure reading file x36.0\n" );
+ 	error( "Failure reading file" );
 }
 
 return 1;
@@ -2536,9 +2324,7 @@ if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
 
 fseek( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)), SEEK_SET );
 if( fread( systemd, 1, sizeof(dbMainSystemDef), file ) < 1 ) {
-	if( options.verbose )
-		printf("Failure reading file x37.0\n" );
-	syslog(LOG_ERR, "Failure reading file x37.0\n" );
+	error( "Failure reading file" );
 }
 
 return 1;
@@ -2573,9 +2359,7 @@ if( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] )
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)), SEEK_SET );
 if( fread( planetd, 1, sizeof(dbMainPlanetDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x38.0\n" );
-	syslog(LOG_ERR, "Failure reading file x38.0\n" );
+ 	error( "Failure reading file" );
 }
 
 return 1;
@@ -2623,7 +2407,7 @@ if( (unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES] )
 
 fseek( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)), SEEK_SET );
 if( fread( empired, 1, sizeof(dbMainEmpireDef), file ) < 1 ) {
-	loghandle(LOG_ERR, errno, "Failure reading file x39.0 with ID#%d", famid );
+	critical( "Failure reading map file" );
 }
 
 return 1;
@@ -2649,9 +2433,7 @@ int dbEmpireRelsAdd( int id, int *rel )
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
   if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x40.0\n" );
-	syslog(LOG_ERR, "Failure reading file x40.0\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 4+(pos*sizeof(dbEmpireRelationsDef)), SEEK_SET );
   t_fwrite( rel, 1, sizeof(dbEmpireRelationsDef), file );
@@ -2671,9 +2453,7 @@ int dbEmpireRelsRemove( int id, int relid )
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x41.0\n" );
-	syslog(LOG_ERR, "Failure reading file x41.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)relid >= num )
   {
@@ -2684,9 +2464,7 @@ int dbEmpireRelsRemove( int id, int relid )
   {
     fseek( file, 4+(num*sizeof(dbEmpireRelationsDef))-sizeof(dbEmpireRelationsDef), SEEK_SET );
     if( fread( data, 1, sizeof(dbEmpireRelationsDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x41.1\n" );
-	syslog(LOG_ERR, "Failure reading file x41.1\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 4+(relid*sizeof(dbEmpireRelationsDef)), SEEK_SET );
     t_fwrite( data, 1, sizeof(dbEmpireRelationsDef), file );
@@ -2708,9 +2486,7 @@ int dbEmpireRelsList( int id, int **rel )
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x42.0\n" );
-	syslog(LOG_ERR, "Failure reading file x42.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( relp = malloc( num*sizeof(dbEmpireRelationsDef) ) ) )
   {
@@ -2718,9 +2494,7 @@ int dbEmpireRelsList( int id, int **rel )
     return -1;
   }
   if( ( fread( relp, 1, num*sizeof(dbEmpireRelationsDef), file ) < 1 ) && ( num ) ) {
- 	if( options.verbose )
-		printf("Failure reading file x42.1\n" );
-	syslog(LOG_ERR, "Failure reading file x42.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   *rel = relp;
@@ -2736,9 +2510,7 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
   if( !( file = dbFileFamOpen( id, 0 ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x43.0\n" );
-	syslog(LOG_ERR, "Failure reading file x43.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)relid >= num )
   {
@@ -2747,9 +2519,7 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
   }
   fseek( file, 4+relid*sizeof(dbEmpireRelationsDef), SEEK_SET );
   if( fread( rel, 1, sizeof(dbEmpireRelationsDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x43.1\n" );
-	syslog(LOG_ERR, "Failure reading file x43.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   return num;
@@ -2812,9 +2582,7 @@ int dbMarketFull( int *list )
   {
     fseek( file, 8+a*12, SEEK_SET );
     if( fread( &list[a], 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x44.0\n" );
-	syslog(LOG_ERR, "Failure reading file x44.0\n" );
+ 	error( "Failure reading Market" );
 }
   }
   return 1;
@@ -2853,30 +2621,22 @@ int dbMarketAdd( int *bid )
 
   fseek( file, offs, SEEK_SET );
   if( fread( mhead, 1, 12, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x45.0\n" );
-	syslog(LOG_ERR, "Failure reading file x45.0\n" );
+ 	error( "Failure reading file" );
 }
 
   fseek( file, 0, SEEK_SET );
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x45.1\n" );
-	syslog(LOG_ERR, "Failure reading file x45.1\n" );
+ 	error( "Failure reading file" );
 }
   if( fread( &lfree, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x45.2\n" );
-	syslog(LOG_ERR, "Failure reading file x45.2\n" );
+ 	error( "Failure reading file" );
 }
 
   if( lfree != -1 )
   {
     fseek( file, DB_MARKET_BIDSOFF+lfree*16 + 4, SEEK_SET );
     if( fread( &a, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x45.3\n" );
-	syslog(LOG_ERR, "Failure reading file x45.3\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 4, SEEK_SET );
     t_fwrite( &a, 1, sizeof(int), file );
@@ -2929,15 +2689,11 @@ int dbMarketRemove( int *bid, int lcur )
 
   fseek( file, offs, SEEK_SET );
   if( fread( mhead, 1, 12, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x46.0\n" );
-	syslog(LOG_ERR, "Failure reading file x46.0\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, DB_MARKET_BIDSOFF+lcur*16, SEEK_SET );
   if( fread( databid, 1, 16, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x46.1\n" );
-	syslog(LOG_ERR, "Failure reading file x46.1\n" );
+ 	error( "Failure reading file" );
 }
 
   if( databid[0] != -1 )
@@ -2961,9 +2717,7 @@ int dbMarketRemove( int *bid, int lcur )
 
   fseek( file, 4, SEEK_SET );
   if( fread( &lfree, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x46.2\n" );
-	syslog(LOG_ERR, "Failure reading file x46.2\n" );
+ 	error( "Failure reading file" );
 }
 
   databid[0] = -1;
@@ -2993,9 +2747,7 @@ int dbMarketListStart( int *bid )
 
   fseek( file, offs + 4, SEEK_SET );
   if( fread( &a, 1, 4, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x47.0\n" );
-	syslog(LOG_ERR, "Failure reading file x47.0\n" );
+ 	error( "Failure reading file" );
 }
 
   return a;
@@ -3009,9 +2761,7 @@ int dbMarketListNext( int lcur, int *result )
     return -3;
   fseek( file, DB_MARKET_BIDSOFF+lcur*16, SEEK_SET );
   if( fread( databid, 1, 16, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x48.0\n" );
-	syslog(LOG_ERR, "Failure reading file x48.0\n" );
+ 	error( "Failure reading file" );
 }
   result[0] = databid[2];
   result[1] = databid[3];
@@ -3033,9 +2783,7 @@ int dbMarketSetQuantity( int *bid, int lcur, int quantity, int loss )
 
   fseek( file, offs, SEEK_SET );
   if( fread( mhead, 1, 12, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x49.0\n" );
-	syslog(LOG_ERR, "Failure reading file x49.0\n" );
+ 	error( "Failure reading file" );
 }
   mhead[0] -= loss;
   fseek( file, offs, SEEK_SET );
@@ -3083,9 +2831,7 @@ int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x50.0\n" );
-	syslog(LOG_ERR, "Failure reading file x50.0\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 8+(pos*20), SEEK_SET );
   t_fwrite( &action, 1, sizeof(int), file );
@@ -3108,17 +2854,13 @@ int dbUserMarketList( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x51.0\n" );
-	syslog(LOG_ERR, "Failure reading file x51.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( listp = malloc( num*5*sizeof(int) ) ) )
     return -1;
   fseek( file, 8, SEEK_SET );
   if( ( fread( listp, 1, num*5*sizeof(int), file ) < 1 ) && ( num ) ) {
- 	if( options.verbose )
-		printf("Failure reading file x51.1\n" );
-	syslog(LOG_ERR, "Failure reading file x51.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   *list = listp;
@@ -3132,17 +2874,13 @@ int dbUserMarketQuantity( int id, int bidid, int quantity )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x52.0\n" );
-	syslog(LOG_ERR, "Failure reading file x52.0\n" );
+ 	error( "Failure reading file" );
 }
   for( a = 0 ; a < num ; a++ )
   {
     fseek( file, 8+(a*20)+16, SEEK_SET );
     if( fread( &b, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x52.1\n" );
-	syslog(LOG_ERR, "Failure reading file x52.1\n" );
+ 	error( "Failure reading file" );
 }
     if( b != bidid )
       continue;
@@ -3162,17 +2900,13 @@ int dbUserMarketRemove( int id, int bidid )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x53.0\n" );
-	syslog(LOG_ERR, "Failure reading file x53.0\n" );
+ 	error( "Failure reading file" );
 }
   if( num >= 2 )
   {
     fseek( file, 8+(num*20)-20, SEEK_SET );
     if( fread( data, 1, 20, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x53.1\n" );
-	syslog(LOG_ERR, "Failure reading file x53.1\n" );
+ 	error( "Failure reading file" );
 }
   }
   fseek( file, 8, SEEK_SET );
@@ -3180,9 +2914,7 @@ int dbUserMarketRemove( int id, int bidid )
   {
     fseek( file, 8+(a*20)+16, SEEK_SET );
     if( fread( &b, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x53.2\n" );
-	syslog(LOG_ERR, "Failure reading file x53.2\n" );
+ 	error( "Failure reading file" );
 }
     if( b != bidid )
       continue;
@@ -3247,16 +2979,12 @@ int dbForumListForums( int perms, dbForumForumPtr *forums )
   if( !( file = fopen( szSource, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x54.0\n" );
-	syslog(LOG_ERR, "Failure reading file x54.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( forumsp = malloc( num * sizeof(dbForumForumDef) ) ) )
     return -3;
   if( (fread( forumsp, 1, num*sizeof(dbForumForumDef), file ) < 1 ) && ( num ) ) {
- 	if( options.verbose )
-		printf("Failure reading file x54.1\n" );
-	syslog(LOG_ERR, "Failure reading file x54.1\n" );
+ 	error( "Failure reading file" );
 }
   *forums = forumsp;
   fclose( file );
@@ -3282,29 +3010,19 @@ int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, db
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.0\n" );
-	syslog(LOG_ERR, "Failure reading file x55.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.1\n" );
-	syslog(LOG_ERR, "Failure reading file x55.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.2\n" );
-	syslog(LOG_ERR, "Failure reading file x55.2\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &numnext, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.3\n" );
-	syslog(LOG_ERR, "Failure reading file x55.3\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.4\n" );
-	syslog(LOG_ERR, "Failure reading file x55.4\n" );
+ 	error( "Failure reading file" );
 }
 
   if( end < num )
@@ -3327,9 +3045,7 @@ if( fread( forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   {
     fseek( file, 16+sizeof(dbForumForumDef) + a * ( sizeof(dbForumThreadDef) + 8 ) + 4, SEEK_SET );
     if( fread( &a, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.5\n" );
-	syslog(LOG_ERR, "Failure reading file x55.5\n" );
+ 	error( "Failure reading file" );
 }
   }
   for( d = 0 ; b < num ; b++, d++ )
@@ -3337,14 +3053,10 @@ if( fread( forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
     fseek( file, 16+sizeof(dbForumForumDef) + a * ( sizeof(dbForumThreadDef) + 8 ) + 4, SEEK_SET );
     c = a;
     if( fread( &a, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.6\n" );
-	syslog(LOG_ERR, "Failure reading file x55.6\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &threadsp[d], 1, sizeof(dbForumThreadDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x55.7\n" );
-	syslog(LOG_ERR, "Failure reading file x55.7\n" );
+ 	error( "Failure reading file" );
 }
     threadsp[d].id = c;
   }
@@ -3374,16 +3086,12 @@ int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x56.0\n" );
-	syslog(LOG_ERR, "Failure reading file x56.0\n" );
+ 	error( "Failure reading file" );
 }
 
   fseek( file, 8, SEEK_SET );
 if( fread( threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x56.1\n" );
-	syslog(LOG_ERR, "Failure reading file x56.1\n" );
+ 	error( "Failure reading file" );
 }
 
   if( end < num )
@@ -3401,9 +3109,7 @@ if( fread( threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
   {
     fseek( file, offset, SEEK_SET );
     if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x56.2\n" );
-	syslog(LOG_ERR, "Failure reading file x56.2\n" );
+ 	error( "Failure reading file" );
 }
   }
 
@@ -3411,14 +3117,10 @@ if( fread( threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
   {
     fseek( file, offset, SEEK_SET );
     if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x56.3\n" );
-	syslog(LOG_ERR, "Failure reading file x56.3\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &postsp[b].post, 1, sizeof(dbForumPostInDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x56.4\n" );
-	syslog(LOG_ERR, "Failure reading file x56.4\n" );
+ 	error( "Failure reading file" );
 }
     postsp[b].text = 0;
     if( (unsigned int)((postsp[b].post).length) >= 65536 )
@@ -3432,9 +3134,7 @@ if( fread( threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
       continue;
     }
     if( fread( postsp[b].text, 1, (postsp[b].post).length, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x56.5\n" );
-	syslog(LOG_ERR, "Failure reading file x56.5\n" );
+ 	error( "Failure reading file" );
 }
     postsp[b].text[ (postsp[b].post).length ] = 0;
   }
@@ -3460,9 +3160,7 @@ int dbForumRetrieveForum( int forum, dbForumForumPtr forumd )
     return -3;
   fseek( file, 16, SEEK_SET );
   if( fread( forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x57.0\n" );
-	syslog(LOG_ERR, "Failure reading file x57.0\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   return 1;
@@ -3482,9 +3180,7 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
     if( !( file = fopen( fname, "rb+" ) ))
       return -3;
     if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x58.0\n" );
-	syslog(LOG_ERR, "Failure reading file x58.0\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 4+num*sizeof(dbForumForumDef), SEEK_SET );
     t_fwrite( forumd, 1, sizeof(dbForumForumDef), file );
@@ -3500,12 +3196,7 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
   else
   	sprintf( fname, "%s/forum%d", sysconfig.pubforum, num );
 if( mkdir( fname, S_IRWXU ) == -1 ) {
-	if( options.verbose ){
-		printf("Error %02d, mkdir(%s)\n", errno, fname );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, mkdir(%s)\n", errno, fname );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	error( "Making DIR" );
 	return -3;
 }
 	
@@ -3543,12 +3234,7 @@ int dbForumRemoveForum( int forum )
   else
   	a = sprintf( fname,  "%s/forum%d", sysconfig.pubforum, forum );
   if( !( dirdata = opendir( fname ) ) ) {
-	if( options.verbose ) {
-		printf("Error %02d, opendir(%s)\n", errno, fname );
-		printf("Error description is : %s\n",strerror(errno) );
-	}
-	syslog(LOG_ERR, "Error %02d, opendir(%s)\n", errno, fname );
-	syslog(LOG_ERR, "Error description is : %s\n",strerror(errno) );
+	error( "Opening DIR" );
 	return -3;
   }
   fname[a] = '/';
@@ -3574,9 +3260,7 @@ int dbForumRemoveForum( int forum )
 
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x59.0\n" );
-	syslog(LOG_ERR, "Failure reading file x59.0\n" );
+ 	error( "Failure reading file" );
 }
   if( forum >= num )
   {
@@ -3585,9 +3269,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
   }
   fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
   if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x59.1\n" );
-	syslog(LOG_ERR, "Failure reading file x59.1\n" );
+ 	error( "Failure reading file" );
 }
   forumd.flags |= DB_FORUM_FLAGS_FORUMUNUSED;
   fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
@@ -3599,9 +3281,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
     frcopy = malloc( b );
     fseek( file, 4+(forum+1)*sizeof(dbForumForumDef), SEEK_SET );
     if( fread( frcopy, 1, b, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x59.2\n" );
-	syslog(LOG_ERR, "Failure reading file x59.2\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 4+(forum+0)*sizeof(dbForumForumDef), SEEK_SET );
     t_fwrite( frcopy, 1, b, file );
@@ -3631,38 +3311,26 @@ int dbForumAddThread( int forum, dbForumThreadPtr threadd )
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.0\n" );
-	syslog(LOG_ERR, "Failure reading file x60.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.1\n" );
-	syslog(LOG_ERR, "Failure reading file x60.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.2\n" );
-	syslog(LOG_ERR, "Failure reading file x60.2\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &numnext, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.3\n" );
-	syslog(LOG_ERR, "Failure reading file x60.3\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.4\n" );
-	syslog(LOG_ERR, "Failure reading file x60.4\n" );
+ 	error( "Failure reading file" );
 }
 
   if( lfree != -1 )
   {
     fseek( file, 16+sizeof(dbForumForumDef) + lfree * ( sizeof(dbForumThreadDef) + 8 ) + 4, SEEK_SET );
     if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.5\n" );
-	syslog(LOG_ERR, "Failure reading file x60.5\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 8, SEEK_SET );
     t_fwrite( &lnext, 1, sizeof(int), file );
@@ -3707,9 +3375,7 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x60.6\n" );
-	syslog(LOG_ERR, "Failure reading file x60.6\n" );
+ 	error( "Failure reading file" );
 }
   if( forum < num )
   {
@@ -3750,29 +3416,19 @@ int dbForumRemoveThread( int forum, int thread )
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.0\n" );
-	syslog(LOG_ERR, "Failure reading file x61.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lused, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.1\n" );
-	syslog(LOG_ERR, "Failure reading file x61.1\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lfree, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.2\n" );
-	syslog(LOG_ERR, "Failure reading file x61.2\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &numnext, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.3\n" );
-	syslog(LOG_ERR, "Failure reading file x61.3\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.4\n" );
-	syslog(LOG_ERR, "Failure reading file x61.4\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)thread >= numnext )
   {
@@ -3782,19 +3438,13 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
 
   fseek( file, 16+sizeof(dbForumForumDef) + thread * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
   if( fread( &lprev, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.5\n" );
-	syslog(LOG_ERR, "Failure reading file x61.5\n" );
+ 	error( "Failure reading file" );
 }
   if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.6\n" );
-	syslog(LOG_ERR, "Failure reading file x61.6\n" );
+ 	error( "Failure reading file" );
 }
   if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.7\n" );
-	syslog(LOG_ERR, "Failure reading file x61.7\n" );
+ 	error( "Failure reading file" );
 }
   if( ( threadd.flags & DB_FORUM_FLAGS_THREADFREE ) )
   {
@@ -3844,17 +3494,13 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.8\n" );
-	syslog(LOG_ERR, "Failure reading file x61.8\n" );
+ 	error( "Failure reading file" );
 }
   if( forum < num )
   {
     fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
     if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x61.9\n" );
-	syslog(LOG_ERR, "Failure reading file x61.9\n" );
+ 	error( "Failure reading file" );
 }
     forumd.threads--;
     fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
@@ -3881,23 +3527,17 @@ int dbForumAddPost( int forum, int thread, dbForumPostPtr postd )
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.0\n" );
-	syslog(LOG_ERR, "Failure reading file x62.0\n" );
+ 	error( "Failure reading file" );
 }
   num++;
   fseek( file, 0, SEEK_SET );
   t_fwrite( &num, 1, sizeof(int), file );
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.1\n" );
-	syslog(LOG_ERR, "Failure reading file x62.1\n" );
+ 	error( "Failure reading file" );
 }
 
 if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.2\n" );
-	syslog(LOG_ERR, "Failure reading file x62.2\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 8, SEEK_SET );
   threadd.time = postd->post.time;
@@ -3924,21 +3564,15 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
     return -3;
   fseek( file, 4, SEEK_SET );
 if( fread( &lused, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.3\n" );
-	syslog(LOG_ERR, "Failure reading file x62.3\n" );
+ 	error( "Failure reading file" );
 }
 
   fseek( file, 16+sizeof(dbForumForumDef) + thread * ( sizeof(dbForumThreadDef) + 8 ), SEEK_SET );
 if( fread( &lprev, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.4\n" );
-	syslog(LOG_ERR, "Failure reading file x62.4\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.5\n" );
-	syslog(LOG_ERR, "Failure reading file x62.5\n" );
+ 	error( "Failure reading file" );
 }
   t_fwrite( &threadd, 1, sizeof(dbForumThreadDef), file );
 
@@ -3976,17 +3610,13 @@ if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.6\n" );
-	syslog(LOG_ERR, "Failure reading file x62.6\n" );
+ 	error( "Failure reading file" );
 }
   if( forum < num )
   {
     fseek( file, 4+forum*sizeof(dbForumForumDef), SEEK_SET );
     if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x62.7\n" );
-	syslog(LOG_ERR, "Failure reading file x62.7\n" );
+ 	error( "Failure reading file" );
 }
     forumd.time = threadd.time;
     forumd.tick = threadd.tick;
@@ -4013,14 +3643,10 @@ int dbForumRemovePost( int forum, int thread, int post )
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.0\n" );
-	syslog(LOG_ERR, "Failure reading file x63.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.1\n" );
-	syslog(LOG_ERR, "Failure reading file x63.1\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)post >= num )
   {
@@ -4029,9 +3655,7 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
   }
 
 if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.2\n" );
-	syslog(LOG_ERR, "Failure reading file x63.2\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 8, SEEK_SET );
   threadd.posts--;
@@ -4044,38 +3668,28 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
     if( a != post )
     {
       if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.3\n" );
-	syslog(LOG_ERR, "Failure reading file x63.3\n" );
+ 	error( "Failure reading file" );
 }
       fseek( file, offset, SEEK_SET );
       continue;
     }
 
     if( fread( &offset2, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.4\n" );
-	syslog(LOG_ERR, "Failure reading file x63.4\n" );
+ 	error( "Failure reading file" );
 }
     for( a++ ; a < num ; a++ )
     {
       fseek( file, offset2, SEEK_SET );
       if( fread( &offset2, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.5\n" );
-	syslog(LOG_ERR, "Failure reading file x63.5\n" );
+ 	error( "Failure reading file" );
 }
       if( fread( &postd.post, 1, sizeof(dbForumPostInDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.6\n" );
-	syslog(LOG_ERR, "Failure reading file x63.6\n" );
+ 	error( "Failure reading file" );
 }
       if( !( postd.text = malloc( (postd.post).length ) ) )
         (postd.post).length = 0;
       if( fread( postd.text, 1, (postd.post).length, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x63.7\n" );
-	syslog(LOG_ERR, "Failure reading file x63.7\n" );
+ 	error( "Failure reading file" );
 }
 
       fseek( file, offset, SEEK_SET );
@@ -4131,14 +3745,10 @@ int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd )
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x64.0\n" );
-	syslog(LOG_ERR, "Failure reading file x64.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x64.1\n" );
-	syslog(LOG_ERR, "Failure reading file x64.1\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)post >= num )
   {
@@ -4155,9 +3765,7 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
     if( a != post )
     {
       if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x64.2\n" );
-	syslog(LOG_ERR, "Failure reading file x64.2\n" );
+ 	error( "Failure reading file" );
 }
       fseek( file, offset, SEEK_SET );
       continue;
@@ -4207,9 +3815,7 @@ int dbMailList( int id, int type, int base, int end, dbMailPtr *mails, int *rtnu
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x65.0\n" );
-	syslog(LOG_ERR, "Failure reading file x65.0\n" );
+ 	error( "Failure reading file" );
 }
 	if( rtnum )
     *rtnum = num;
@@ -4234,9 +3840,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
   {
     fseek( file, offset, SEEK_SET );
     if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x65.1\n" );
-	syslog(LOG_ERR, "Failure reading file x65.1\n" );
+ 	error( "Failure reading file" );
 }
   }
 
@@ -4244,14 +3848,10 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
   {
     fseek( file, offset, SEEK_SET );
     if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x65.2\n" );
-	syslog(LOG_ERR, "Failure reading file x65.2\n" );
+ 	error( "Failure reading file" );
 }
     if( fread( &mailsp[b].mail, 1, sizeof(dbMailInDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x65.3\n" );
-	syslog(LOG_ERR, "Failure reading file x65.3\n" );
+ 	error( "Failure reading file" );
 }
     mailsp[b].text = 0;
     if( (unsigned int)((mailsp[b].mail).length) >= 65536 )
@@ -4259,9 +3859,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
     if( !( mailsp[b].text = malloc( (mailsp[b].mail).length + 1 ) ) )
       continue;
     if( fread( mailsp[b].text, 1, (mailsp[b].mail).length, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x65.4\n" );
-	syslog(LOG_ERR, "Failure reading file x65.4\n" );
+ 	error( "Failure reading file" );
 }
     mailsp[b].text[ (mailsp[b].mail).length ] = 0;
   }
@@ -4281,17 +3879,13 @@ int dbMailAdd( int id, int type, dbMailPtr maild )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x66.0\n" );
-	syslog(LOG_ERR, "Failure reading file x66.0\n" );
+ 	error( "Failure reading file" );
 }
   num++;
   fseek( file, 0, SEEK_SET );
   t_fwrite( &num, 1, sizeof(int), file );
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x66.1\n" );
-	syslog(LOG_ERR, "Failure reading file x66.1\n" );
+ 	error( "Failure reading file" );
 }
 
   fseek( file, offset, SEEK_SET );
@@ -4317,14 +3911,10 @@ int dbMailRemove( int id, int type, int message )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.0\n" );
-	syslog(LOG_ERR, "Failure reading file x67.0\n" );
+ 	error( "Failure reading file" );
 }
 if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.1\n" );
-	syslog(LOG_ERR, "Failure reading file x67.1\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)message >= num )
   {
@@ -4339,38 +3929,28 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
     if( a != message )
     {
       if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.2\n" );
-	syslog(LOG_ERR, "Failure reading file x67.2\n" );
+ 	error( "Failure reading file" );
 }
       fseek( file, offset, SEEK_SET );
       continue;
     }
 
     if( fread( &offset2, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.3\n" );
-	syslog(LOG_ERR, "Failure reading file x67.3\n" );
+ 	error( "Failure reading file" );
 }
     for( a++ ; a < num ; a++ )
     {
       fseek( file, offset2, SEEK_SET );
       if( fread( &offset2, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.4\n" );
-	syslog(LOG_ERR, "Failure reading file x67.4\n" );
+ 	error( "Failure reading file" );
 }
       if( fread( &maild.mail, 1, sizeof(dbMailInDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.5\n" );
-	syslog(LOG_ERR, "Failure reading file x67.5\n" );
+ 	error( "Failure reading file" );
 }
       if( !( maild.text = malloc( (maild.mail).length ) ) )
         (maild.mail).length = 0;
       if( fread( maild.text, 1, (maild.mail).length, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x67.6\n" );
-	syslog(LOG_ERR, "Failure reading file x67.6\n" );
+ 	error( "Failure reading file" );
 }
 
       fseek( file, offset, SEEK_SET );
@@ -4420,9 +4000,7 @@ int dbUserSpecOpAdd( int id, dbUserSpecOpPtr specopd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
     return -3;
   if( fread( &pos, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x68.0\n" );
-	syslog(LOG_ERR, "Failure reading file x68.0\n" );
+ 	error( "Failure reading file" );
 }
   fseek( file, 4+(pos*sizeof(dbUserSpecOpDef)), SEEK_SET );
   t_fwrite( specopd, 1, sizeof(dbUserSpecOpDef), file );
@@ -4441,9 +4019,7 @@ int dbUserSpecOpRemove( int id, int specopid )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x69.0\n" );
-	syslog(LOG_ERR, "Failure reading file x69.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)specopid >= num )
   {
@@ -4454,9 +4030,7 @@ int dbUserSpecOpRemove( int id, int specopid )
   {
     fseek( file, 4+(num*sizeof(dbUserSpecOpDef))-sizeof(dbUserSpecOpDef), SEEK_SET );
     if( fread( &data, 1, sizeof(dbUserSpecOpDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x69.1\n" );
-	syslog(LOG_ERR, "Failure reading file x69.1\n" );
+ 	error( "Failure reading file" );
 }
     fseek( file, 4+(specopid*sizeof(dbUserSpecOpDef)), SEEK_SET );
     t_fwrite( &data, 1, sizeof(dbUserSpecOpDef), file );
@@ -4476,9 +4050,7 @@ int dbUserSpecOpList( int id, dbUserSpecOpPtr *specopd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x70.0\n" );
-	syslog(LOG_ERR, "Failure reading file x70.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( specopp = malloc( num*sizeof(dbUserSpecOpDef) ) ) )
   {
@@ -4486,9 +4058,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
     return -1;
   }
 if( ( fread( specopp, 1, num*sizeof(dbUserSpecOpDef), file ) < 1 ) && ( num ) ) {
- 	if( options.verbose )
-		printf("Failure reading file x70.1\n" );
-	syslog(LOG_ERR, "Failure reading file x70.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   *specopd = specopp;
@@ -4502,9 +4072,7 @@ int dbUserSpecOpSet( int id, int specopid, dbUserSpecOpPtr specopd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x71.0\n" );
-	syslog(LOG_ERR, "Failure reading file x71.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)specopid >= num )
   {
@@ -4524,9 +4092,7 @@ int dbUserSpecOpRetrieve( int id, int specopid, dbUserSpecOpPtr specopd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x72.0\n" );
-	syslog(LOG_ERR, "Failure reading file x72.0\n" );
+ 	error( "Failure reading file" );
 }
   if( (unsigned int)specopid >= num )
   {
@@ -4535,9 +4101,7 @@ if( fread( &num, 1, sizeof(int), file ) < 1 ) {
   }
   fseek( file, 4+(specopid*sizeof(dbUserSpecOpDef)), SEEK_SET );
 if( fread( specopd, 1, sizeof(dbUserSpecOpDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x72.1\n" );
-	syslog(LOG_ERR, "Failure reading file x72.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   return num;
@@ -4591,9 +4155,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) )
 
 fseek( file, 0, SEEK_SET );
 if( fread( infod, 1, sizeof(dbUserInfoDef), file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x73.0\n" );
-	syslog(LOG_ERR, "Failure reading file x73.0\n" );
+ 	error( "Failure reading file" );
 }
 fclose( file );
 
@@ -4607,9 +4169,7 @@ int dbUserRecordAdd( int id, dbUserRecordPtr recordd )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
     return -3;
 if( fread( &num, 1, 4, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x75.0\n" );
-	syslog(LOG_ERR, "Failure reading file x75.0\n" );
+ 	error( "Failure reading file" );
 }
   num++;
   t_fwrite( &num, 1, 4, file );
@@ -4627,16 +4187,12 @@ int dbUserRecordList( int id, dbUserRecordPtr *records )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
     return -3;
 if( fread( &num, 1, 4, file ) < 1 ) {
- 	if( options.verbose )
-		printf("Failure reading file x76.0\n" );
-	syslog(LOG_ERR, "Failure reading file x76.0\n" );
+ 	error( "Failure reading file" );
 }
   if( !( recordp = malloc( num * sizeof(dbUserRecordDef) ) ) )
     return -3;
 if( ( fread( recordp, 1, num * sizeof(dbUserRecordDef), file ) < 1 ) && ( num ) ) {
- 	if( options.verbose )
-		printf("Failure reading file x76.1\n" );
-	syslog(LOG_ERR, "Failure reading file x76.1\n" );
+ 	error( "Failure reading file" );
 }
   fclose( file );
   *records = recordp;

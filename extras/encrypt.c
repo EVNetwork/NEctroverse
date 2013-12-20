@@ -24,7 +24,7 @@ strcat(salted, str2md5(urandom) );
 
 if( (fh = fopen("/dev/urandom", "rb")) ) {
 	if( fread( &random, 1, 32, fh ) < 1 ) {
-		loghandle(LOG_ERR, errno, "Error Getting random for MD5... Critical failure." );
+		critical( "Error Getting random for MD5... Critical failure." );
 	}
 	fclose(fh);
 }

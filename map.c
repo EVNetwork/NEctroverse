@@ -165,7 +165,8 @@ for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
 	if( mapstore.home[b] )
 		goto mainL2;
 	mapstore.arti[a] = mapstore.pbase[b] + ( rand() % mapstore.planets[b] );
-	loghandle(LOG_INFO, false,  "( %d,%d ) ID:%d Holds: %s", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
+	sprintf(logString,  "( %d,%d ) ID:%d Holds: %s", mapstore.pos[b] & 0xFFFF, mapstore.pos[b] >> 16, mapstore.arti[a], artefactName[a] );
+	info( logString );
 }
 
 
@@ -275,7 +276,8 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	if( ( admincfg.empire == a ) ) {
 		strcpy( empired.name, admincfg.ename);
 		strcpy( empired.password, hashencrypt(admincfg.epassword) );
-		loghandle(LOG_INFO, false, "Empire %d Claimed for Administration.", a);
+		sprintf(logString, "Empire %d Claimed for Administration.", a);
+		info( logString );
 	}
 	empired.homeid = mapstore.system[a];
 	empired.homepos = mapstore.pos[ mapstore.system[a] ];
@@ -349,7 +351,7 @@ free(pixels);
 if( mapgen.width == mapcfg.sizex ) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300%% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
-		loghandle(LOG_ERR, errno, "Map Error: unable to convert map size" );
+		error( "unable to resize map" );
 	}
 
 }

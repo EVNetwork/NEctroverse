@@ -1578,9 +1578,11 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	if( !( admincfg.name[a] ) || !( admincfg.password[a] ) || !( admincfg.faction[a] ) || ( ( id = dbUserSearch( admincfg.name[a] ) ) >= 0 ) )
 		continue;
 
-	loghandle(LOG_INFO, false, "Creating Administrator account named: \"%s\"", admincfg.name[a] );
+	sprintf(logString, "Creating Administrator account named: \"%s\"", admincfg.name[a] );
+	info( logString );
 	if( ( id = cmdExecNewUser( admincfg.name[a], admincfg.password[a], admincfg.faction[a] ) ) < 0 ) {
-		loghandle(LOG_INFO, false, "Failure Creating Administrator account: \"%s\"", admincfg.name[a] );
+		sprintf(logString, "Failure Creating Administrator account: \"%s\"", admincfg.name[a] );
+		info( logString );
 		continue;
 	}
 	user = dbUserLinkID( id );
@@ -1592,15 +1594,19 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	dbUserInfoSet(id, &infod);
 
 	if( user->level >= LEVEL_MODERATOR ) { 
-	loghandle(LOG_INFO, false, "Placing Administrator account: \"%s\"", infod.name );
+	sprintf(logString, "Placing Administrator account: \"%s\"", infod.name );
+	info( logString );
 	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
-		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", infod.name );
+		sprintf(logString, "Failure Placing Administrator account: \"%s\"", infod.name );
+		info( logString );
 		continue;
 	}
 	} else {
-	loghandle(LOG_INFO, false, "Placing Non Administrator account: \"%s\"", infod.name );
+	sprintf(logString, "Placing Non Administrator account: \"%s\"", infod.name );
+	info( logString );
 	if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
-		loghandle(LOG_INFO, false, "Failure Placing Administrator account: \"%s\"", infod.name );
+		sprintf(logString, "Failure Placing Administrator account: \"%s\"", infod.name );
+		info( logString );
 		continue;
 	}
 	}

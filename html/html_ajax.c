@@ -16,7 +16,7 @@ refer = idstring = typestring = NULL;
 cpuGetInfo( &cpuinfo );
 getsys_infos( &pinfod );
 if( sysinfo(&sysinfod) != 0 ) {
-	loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
+	critical( "Failure getting system infomation... Critical failure." );
 	sysconfig.shutdown = true; return;
 }
 
@@ -201,7 +201,7 @@ if( refer ) {
 	if( !strcmp(refer,"status") ) {
 		getsys_infos( &pinfod );
 		if( sysinfo(&sysajaxd) != 0 ) {
-			loghandle(LOG_ERR, errno, "%s", "Failure getting system infomation... Critical failure." );
+			critical( "Failure getting system infomation... Critical failure." );
 			sysconfig.shutdown = true; return;
 		}
 		converttime_todef( &javatime, pinfod.runtime );

@@ -20,7 +20,7 @@ void iohtmlFunc_account( ReplyDataPtr cnt )
     return;
 
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
-	loghandle(LOG_ERR, false, "%s", "Error in user html info, getting real info" );
+	error( "Error in user html info, getting real info" );
 	return;
 }
   iohtmlBodyInit( cnt, "Account Options" );
@@ -179,7 +179,7 @@ void iohtmlFunc_delete( ReplyDataPtr cnt )
   if( !( iohtmlHeader( cnt, id, &maind ) ) )
     return;
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
-	loghandle(LOG_ERR, false, "%s", "Error in user html delete, getting real info" );
+	error( "Error in user html delete, getting real info" );
 	return;
 }
   iohtmlBodyInit( cnt, "Delete faction" );
@@ -240,7 +240,7 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 void iohtmlFunc_logout( ReplyDataPtr cnt ) {
 
 if( remove_session( (cnt->session)->sid ) ) {
-	loghandle(LOG_ERR, false, "%s", "Unable to remove user session, this really shoulden't be able to happen." );
+	critical( "Unable to remove user session, this really shoulden't be able to happen." );
 	if( ( cnt->session ) )
 		cnt->session = NULL;
 	iohtmlFunc_front( cnt, "%s", "An error, has occured with the logout. To be safe please close your browser.!" );

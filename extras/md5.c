@@ -308,7 +308,8 @@ char *md5file( char *filename ) {
 	MD5Context mdContext;
 
 if (inFile == NULL) {
-	loghandle(LOG_ERR, errno, "Error opening file for md5 hash: \"%s\"", filename );
+	sprintf( logString, "Error opening file for md5 hash: \"%s\"", filename );
+	error( logString );
         return 0;
 }
 
