@@ -93,6 +93,8 @@ typedef struct Session
 
 } SessionDef, *SessionPtr;
 
+extern SessionPtr sessions;
+extern SessionPtr get_session( int type, void *cls );
 
 /**
  * Context we keep for an upload.

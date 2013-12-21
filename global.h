@@ -164,26 +164,9 @@ static const double megabyte = (1024 * 1024);
 #include "map.h"
 
 
-#define info_test( msg, ... ) { \
-	char buf[1024];\
-	va_list va_alist;\
-	va_start(va_alist, msg);\
-	vsnprintf (buf, sizeof(buf), msg, va_alist);\
-	va_end (va_alist);\
-loghandle(LOG_INFO, false, "%s", buf ); \
-}
-
 #define info(msg) loghandle(LOG_INFO, false, "%s", msg )
 #define error(msg) loghandle(LOG_ERR, errno, "Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
 #define critical(msg) loghandle(LOG_CRIT, errno, "Critical Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
-
-
-#define t_fwrite( data, flag, size, file ) { \
-(void) pthread_mutex_lock( &mutex );\
-fwrite( data, flag, size, file );\
-(void)pthread_mutex_unlock( &mutex );\
-}
-
 
 #endif
 

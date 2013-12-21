@@ -626,6 +626,13 @@ CONFIG_SYSTEM,
 CONFIG_BANNED,
 };
 
+
+enum
+{
+SESSION_IRC,
+SESSION_HTTP,
+};
+
 #define MAXIPRECORD (6) //It's really 5.
 
 enum

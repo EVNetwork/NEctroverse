@@ -1050,7 +1050,7 @@ if( action[0] ) {
   if( action[2] )
   {
     httpString( cnt, "<i>Server Shutdown has been Iniated!!</i><br><br>" );
-    printf( "Admin: Shutting down!\n" );
+    info( "Admin: Shutting down!" );
    /* cmdExecuteFlush();
     dbFlush();
 

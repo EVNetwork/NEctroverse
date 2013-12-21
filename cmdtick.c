@@ -356,7 +356,7 @@ dbArtefactMax = artmax;
 
 void cmdTickInit(){
 
-
+(void)pthread_mutex_lock( &mutex );
 
 return;
 }
@@ -376,6 +376,8 @@ if( irccfg.bot ) {
 		irc_send_raw( irccfg.session, "NOTICE %s :Game has Ticked -- Week %d, Year %d (Tick #%d)", irccfg.channel, ticks.number % 52, ticks.number / 52, ticks.number );
 }
 #endif
+
+(void)pthread_mutex_unlock( &mutex );
 
 return;
 }

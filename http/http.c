@@ -94,18 +94,7 @@ void mark_as( MHD_ResponsePtr response, const char *type ) {
 
 return;
 }
-/**
- * Mark the given response as HTML for the brower.
- *
- * @param response response to mark
- */
-static void
-mark_as_html (struct MHD_Response *response)
-{
-  (void) MHD_add_response_header (response,
-				  MHD_HTTP_HEADER_CONTENT_TYPE,
-				  "text/html");
-}
+
 /**
  * Head of index page.
  */
@@ -127,8 +116,7 @@ mark_as_html (struct MHD_Response *response)
  * Linked list of all active sessions.  Yes, O(n) but a
  * hash table would be overkill for a simple example...
  */
-static SessionPtr sessions;
-	dbUserPtr user;
+SessionPtr sessions;
 
 
 
@@ -136,12 +124,19 @@ static SessionPtr sessions;
  * Return the session handle for this connection, or
  * create one if this is a new user.
  */
-static SessionPtr get_session( MHD_ConnectionPtr connection ) {
+SessionPtr get_session( int type, void *cls ) {
 	SessionPtr ret;
 	int id, now;
 	char buffer[129];
 	const char *cookie;
+
+if( type == SESSION_HTTP ) {
+	MHD_ConnectionPtr connection = cls;
+	
 cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
+} else if( type == SESSION_IRC ) {
+	cookie = cls;
+}
 
 if (cookie != NULL) {
 	ret = sessions;
@@ -152,6 +147,7 @@ if (cookie != NULL) {
 	}
 	if (NULL != ret) {
 		ret->rc++;
+		ret->active = time(NULL);
 		return ret;
 	}
 }
@@ -164,10 +160,14 @@ if (NULL == ret) {
 	return NULL;
 }
 ret->dbuser = NULL;
-snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-snprintf(ret->sid, sizeof(ret->sid), "%s", hashencrypt(buffer) );
+if( type == SESSION_HTTP ) {
+	snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+	snprintf(ret->sid, sizeof(ret->sid), "%s", hashencrypt( buffer ) );
+} else if( type == SESSION_IRC ) {
+	snprintf(ret->sid, sizeof(ret->sid), "%s", cookie );
+}
 
-if( cookie != NULL ) {
+if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 	if( ( ( id = dbUserSessionSearch( (char *)cookie ) < 0 ) ) ) {
 		goto MAKECOOKIE;
 	} else {
@@ -319,7 +319,7 @@ rd.response.off += snprintf (&rd.response.buf[rd.response.off], rd.response.buf_
 dir_buf_allocation = rd.response.buf_len; /* remember for next time */
 response = MHD_create_response_from_buffer (rd.response.off, rd.response.buf, MHD_RESPMEM_MUST_FREE );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
-mark_as_html (response);
+mark_as( response, "text/html" );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONNECTION, "close");
 
 update_cached_response (response);
@@ -780,13 +780,12 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		if (NULL == (request = malloc (sizeof (RequestDef))))
 			return MHD_NO; /* out of memory, close connection */
 		memset (request, 0, sizeof (RequestDef));
-		request->session = get_session(connection);
+		request->session = get_session( SESSION_HTTP, connection );
 		if (NULL == request->session) {
 			sprintf( logString, "Failed to setup session for \'%s\'", url );
 			error( logString );
 			return MHD_NO; /* internal error */
 		}
-		request->session->active = time(NULL);
 		request->session->posts = 0;
 		request->session->upload = UPLOAD_STATE_START;
 		request->post_url = url;
@@ -824,7 +823,6 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
-	request->session->active = time(NULL);
 	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, request->session, request->connection );
 	if (ret != MHD_YES) {
 		sprintf( logString, "Failed to create page for \'%s\'", request->post_url);
@@ -837,11 +835,10 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 if( ( request ) && ( request->session ) ) {
 	session = request->session;
 } else {
-	session = get_session(connection);
+	session = get_session( SESSION_HTTP, connection );
 	session->upload = UPLOAD_STATE_NULL;
 }
 
-session->active = time(NULL);
 session->posts = 0;
 if ( ( strncmp(url,"/files",6) == false ) ) {
 	return files_dir_page( false, cls, "text/html", session, connection);
@@ -967,6 +964,7 @@ int remove_session( const char *sid ) {
 	int id;
 	char buffer[129];
 	bool donenothing = true;
+	dbUserPtr user;
 	SessionPtr pos;
 	SessionPtr prev;
 	SessionPtr next;

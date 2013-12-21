@@ -316,7 +316,7 @@ while( sysconfig.shutdown == false ) {
 
 #if IRCBOT_SUPPORT
 if( irc_is_connected(irccfg.session) ) {
-	if( irc_cmd_quit( irccfg.session, "Server Shutdown has been iniated!" ) ) {
+	if( irc_cmd_quit( irccfg.session, "Server Shutdown has been iniated" ) ) {
 		error("Quitting IRC");
 	}
 	ircbot_select();
@@ -548,13 +548,14 @@ if( firstload ) {
 } else {
 	ini = iniparser_load(file);
 	if( ini == NULL ) {
-		fprintf(stderr, "cannot parse file: %s\n", file);
+		sprintf( logString, "Loading INI File: %s", file );
+		error( logString );
 		return -1;
 	}
 }
 
 if( iniparser_find_entry(ini,"NEED_TO_DELETE_ME") ) {
-	sprintf(logString, "A default, non-usable version of the evsystem.ini has been detected: \'%s\'",file);
+	sprintf(logString, "A default, non-usable version of the evsystem.ini has been detected: %s",file);
 	info( logString );
 	info( "You must edit this file before the game server is able to run correctly!");
 	sysconfig.shutdown = true;
