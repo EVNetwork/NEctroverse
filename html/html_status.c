@@ -62,7 +62,7 @@ return ret;
 void getsys_infos( proginfoDef *proginfo ) {
 	int pid;
 	FILE *file;
-	char fname[256];
+	char fname[PATH_MAX];
 	float shiftfloat;
 	struct sysinfo sinfo;
 
@@ -124,7 +124,10 @@ httpString( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No proble
 
 #if IRCBOT_SUPPORT
 if( irccfg.bot ) {
-	httpPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
+	if( irc_is_connected(irccfg.session) )
+		httpPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
+	else
+		httpString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled but not connected</td></tr>" );
 } else {
 	httpString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Disabled</td></tr>" );
 }

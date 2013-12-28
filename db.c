@@ -240,22 +240,22 @@ And Mal forgot the mail file
 
 
 FILE *dbFileGenOpen( int num ) {
-	char szSource[500];
-	char COREDIR[512];
+	char fname[PATH_MAX];
+	char COREDIR[PATH_MAX];
 	
 	if(num == DB_FILE_USERS) {
-		sprintf( COREDIR, "%s/users", sysconfig.directory );
-		sprintf(szSource, dbFileList[num], COREDIR);
+		snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );
+		sprintf(fname, dbFileList[num], COREDIR);
 	} else {
-		sprintf( COREDIR, "%s/data", sysconfig.directory );
-		sprintf(szSource, dbFileList[num], COREDIR);
+		snprintf( COREDIR, sizeof(COREDIR), "%s/data", sysconfig.directory );
+		sprintf(fname, dbFileList[num], COREDIR);
 	}
 	if( dbFilePtr[num] ) {
 		return dbFilePtr[num];
 	}
     
-	if( !( dbFilePtr[num] = fopen( szSource, "rb+" ) ) ) {
-		sprintf( logString, "Opening File: %s", szSource );
+	if( !( dbFilePtr[num] = fopen( fname, "rb+" ) ) ) {
+		snprintf(logString, sizeof(logString), "Opening File: %s", fname );
 		error( logString );
 		return 0;
 	}
@@ -283,16 +283,16 @@ void dbFlush()
 
 
 FILE *dbFileUserOpen( int id, int num ) {
-	char fname[512];
-	char COREDIR[512];
+	char fname[PATH_MAX];
+	char COREDIR[PATH_MAX];
 	FILE *file;
 
 if((num&0xFFFF) == DB_FILE_USER_INFO) {
-	sprintf( COREDIR, "%s/users", sysconfig.directory );  
-	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
+	snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );  
+	snprintf( fname, sizeof(fname), dbFileUserList[num&0xFFFF], COREDIR, id );
 } else {
-	sprintf( COREDIR, "%s/data", sysconfig.directory );  
-  	sprintf( fname, dbFileUserList[num&0xFFFF], COREDIR, id );
+	snprintf( COREDIR, sizeof(COREDIR), "%s/data", sysconfig.directory );  
+  	snprintf( fname, sizeof(fname), dbFileUserList[num&0xFFFF], COREDIR, id );
 }
   
 if( !( file = fopen( fname, "rb+" ) ) ) {
@@ -304,7 +304,7 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 	}
 
 	if( num < 0x10000 ) {
-		sprintf(logString, "Opening File: %s", fname);
+		snprintf(logString, sizeof(logString), "Opening File: %s", fname);
 		error( logString );
 	}
 
@@ -318,9 +318,9 @@ return file;
 FILE *dbFileFamOpen( int id, int num )
 {
   int a, b;
-  char fname[32];
+  char fname[PATH_MAX];
   FILE *file;
-  sprintf( fname, "fam%02dn%02d", id, num );
+  snprintf( fname, sizeof(fname), "fam%02dn%02d", id, num );
   if( !( file = fopen( fname, "rb+" ) ) )
   {
     if( ( file = fopen( fname, "wb+" ) ) )
@@ -340,7 +340,7 @@ FILE *dbFileFamOpen( int id, int num )
       return file;
     }
 	if( num < 0x10000 ) {
-		sprintf(logString, "Opening File: %s", fname);
+		snprintf(logString, sizeof(logString), "Opening File: %s", fname);
 		error( logString );
 	}
     return 0;
@@ -448,10 +448,10 @@ int dbInit() {
 	dbMainPlanetDef planetd;
 	dbForumForumDef forumd;
 	FILE *file;
-	char szUsersFile[500];
-	char COREDIR[512];
+	char fname[PATH_MAX];
+	char COREDIR[PATH_MAX];
 	
-sprintf( COREDIR, "%s/data", sysconfig.directory );
+snprintf( COREDIR, sizeof(COREDIR), "%s/data", sysconfig.directory );
 if( chdir( COREDIR ) == -1 ) {
 	critical( "Change DIR" );
 	return 0;
@@ -482,7 +482,7 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	dbFileGenClose( DB_FILE_MARKET );
 }
 
-sprintf( COREDIR, "%s/forums", sysconfig.directory );
+snprintf( COREDIR, sizeof(COREDIR), "%s/forums", sysconfig.directory );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	if( options.verbose )
 	info("Forum database not found, creating...");
@@ -503,13 +503,13 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( &forumd, 1, 100+a );
 	}
-	sprintf(logString, "Created Forums for %d Empires.", a-1 );
+	snprintf(logString, sizeof(logString), "Created Forums for %d Empires.", a-1 );
 	info(logString);
 
 }
 fclose( file );
 
-sprintf( COREDIR, "%s/forums", sysconfig.pubforum );
+snprintf( COREDIR, sizeof(COREDIR), "%s/forums", sysconfig.pubforum );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	info( "Public Forum database not found, creating..." );
 	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
@@ -526,9 +526,9 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 	info( "User database not found, creating..." );
 
     // Create a path to the users file in the same way as dbFileGenOpen
-	sprintf( COREDIR, "%s/users", sysconfig.directory );
-	sprintf( szUsersFile, dbFileList[DB_FILE_USERS], COREDIR );
-	if( !( dbFilePtr[DB_FILE_USERS] = fopen( szUsersFile, "wb+" ) ) ) {
+	snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );
+	sprintf( fname, dbFileList[DB_FILE_USERS], COREDIR );
+	if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "wb+" ) ) ) {
 		critical( "Error, could not create user database!" );
 		return 0;
 	}
@@ -558,7 +558,7 @@ for( a = 0 ; a < b ; a++ ) {
 	}
 
 	if( !(	dbUserInfoRetrieve( a, &infod ) ) ) {
-	 	sprintf( logString, "Failure reading file for user; %d", a );
+	 	snprintf(logString, sizeof(logString), "Failure reading file for user; %d", a );
 	 	error( logString );
 	}
 	user->level = infod.level;
@@ -680,8 +680,8 @@ return dbUserTable[id];
 
 int dbUserAdd( dbUserInfoPtr adduser ) {
 	int a, id, freenum;
-	char dname[532], fname[532], uname[532];
-	char COREDIR[512];
+	char dname[PATH_MAX], fname[PATH_MAX], uname[PATH_MAX];
+	char COREDIR[PATH_MAX];
 	dbUserPtr user;
 	FILE *file;
 
@@ -721,8 +721,8 @@ mkdir( uname, S_IRWXU );
   
 //Create a db Database in the db other server
 for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
-	sprintf( COREDIR, "%s/data", sysconfig.directory );
-  	sprintf( fname, dbFileUserList[a], COREDIR, id );
+	snprintf( COREDIR, sizeof(COREDIR), "%s/data", sysconfig.directory );
+  	snprintf( fname, sizeof(fname), dbFileUserList[a], COREDIR, id );
     
 	if( !( file = fopen( fname, "wb+" ) )) {
 		dbUserFree( user );
@@ -743,8 +743,8 @@ fclose( file );
   
 //Create a user Database in the db 10Min server
 for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
-	sprintf( COREDIR, "%s/users", sysconfig.directory );
-  	sprintf( fname, dbFileUserList[a], COREDIR, id );
+	snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );
+  	snprintf( fname, sizeof(fname), dbFileUserList[a], COREDIR, id );
 
 	if( !( file = fopen( fname, "wb+" ) )) {
 		dbUserFree( user );
@@ -785,8 +785,8 @@ return id;
 
 int dbUserRemove( int id ) {
 	int a;
-	char COREDIR[512];
-	char dname[532], fname[532];
+	char COREDIR[PATH_MAX];
+	char dname[PATH_MAX], fname[PATH_MAX];
 	dbUserPtr user;
 
 
@@ -808,14 +808,14 @@ fseek( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2, SEEK_SET );
 fwrite( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 
 for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
-	sprintf( COREDIR, "%s/users", sysconfig.directory );
-	sprintf( fname, dbFileUserList[a], COREDIR, id );
+	snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );
+	snprintf( fname, sizeof(fname), dbFileUserList[a], COREDIR, id );
 	unlink( fname );
 }
 
 for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
-	sprintf( COREDIR, "%s/data", sysconfig.directory );
-	sprintf( fname, dbFileUserList[a], COREDIR, id );
+	snprintf( COREDIR, sizeof(COREDIR), "%s/data", sysconfig.directory );
+	snprintf( fname, sizeof(fname), dbFileUserList[a], COREDIR, id );
 	unlink( fname );
 }
 
@@ -1839,6 +1839,7 @@ int dbUserFleetSet( int id, int fltid, dbUserFleetPtr fleetd )
   {
     fclose( file );
     return -2;
+
   }
   fseek( file, 4+(fltid*sizeof(dbUserFleetDef)), SEEK_SET );
   fwrite( fleetd, 1, sizeof(dbUserFleetDef), file );
@@ -2119,8 +2120,8 @@ int dbFamNewsAdd( int id, int64_t *data )
 {
   int64_t a, num, lused, lfree, numnext, lcur, lnext;
   FILE *file;
-  char fname[32];
-  sprintf( fname, "fam%dnews", id );
+  char fname[PATH_MAX];
+  snprintf( fname, sizeof(fname), "fam%dnews", id );
 if( !( file = fopen( fname, "rb+" ) ) ) {
 	critical( "Database Empire News Add" );
   	return -3;
@@ -2186,9 +2187,9 @@ int dbFamNewsList( int id, int64_t **data, int time )
   int64_t a, b, c, d, num, lused, lfree, lprev, lnext;
   FILE *file;
   int64_t *datap;
-  char fname[32];
+  char fname[PATH_MAX];
   *data = 0;
-  sprintf( fname, "fam%dnews", id );
+  snprintf( fname, sizeof(fname), "fam%dnews", id );
 
 if( !( file = fopen( fname, "rb+" ) ) ) {
 	critical( "Database Empire News List" );
@@ -2974,10 +2975,10 @@ int dbForumListForums( int perms, dbForumForumPtr *forums )
   int num;
   FILE *file;
   dbForumForumPtr forumsp;
-  char szSource[500];
+  char fname[PATH_MAX];
   
-  sprintf(szSource, "%s/forums", sysconfig.pubforum);
-  if( !( file = fopen( szSource, "rb+" ) ))
+  sprintf(fname, "%s/forums", sysconfig.pubforum);
+  if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
  	error( "Failure reading file" );
@@ -2997,16 +2998,16 @@ int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, db
 {
   int a, b, c, d, num, lused, lfree, numnext;
   FILE *file;
-  char fname[556];
+  char fname[PATH_MAX];
   dbForumThreadPtr threadsp;
 
   *threads = 0;
   if( base < 0 )
     return -3;
   if(forum > 100)
-  	sprintf( fname, "forum%d/threads", forum );
+  	snprintf( fname, sizeof(fname), "forum%d/threads", forum );
   else
-  	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, forum );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, forum );
   
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
@@ -3073,7 +3074,7 @@ if( fread( forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
 int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts )
 {
   int a, b, offset, num;
-  char fname[556];
+  char fname[PATH_MAX];
   FILE *file;
   dbForumPostPtr postsp;
 
@@ -3081,9 +3082,9 @@ int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr
   if( base < 0 )
     return -3;
   if(forum > 100)
-  	sprintf( fname, "forum%d/thread%d", forum, thread );
+  	snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, thread );
   else
-  	sprintf( fname, "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3151,12 +3152,12 @@ if( fread( threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
 int dbForumRetrieveForum( int forum, dbForumForumPtr forumd )
 {
   FILE *file;
-  char fname[556];
+  char fname[PATH_MAX];
   
   if(forum > 100)
-  	sprintf( fname, "forum%d/threads", forum );
+  	snprintf( fname, sizeof(fname), "forum%d/threads", forum );
   else
-  	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, forum );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, forum );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   fseek( file, 16, SEEK_SET );
@@ -3173,11 +3174,11 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
 {
   int a, num;
   FILE *file;
-  char fname[532];
+  char fname[PATH_MAX];
   num = nid;
   if( !( type ) )
   {
-  	sprintf( fname, "%s/forums", sysconfig.pubforum);
+  	snprintf( fname, sizeof(fname), "%s/forums", sysconfig.pubforum);
     if( !( file = fopen( fname, "rb+" ) ))
       return -3;
     if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3193,18 +3194,18 @@ int dbForumAddForum( dbForumForumPtr forumd, int type, int nid )
   }
 	
 	if(num > 100)
-  	sprintf( fname, "forum%d", num );
+  	snprintf( fname, sizeof(fname), "forum%d", num );
   else
-  	sprintf( fname, "%s/forum%d", sysconfig.pubforum, num );
+  	snprintf( fname, sizeof(fname), "%s/forum%d", sysconfig.pubforum, num );
 if( mkdir( fname, S_IRWXU ) == -1 ) {
 	error( "Making DIR" );
 	return -3;
 }
 	
 	if(num > 100)
-  	sprintf( fname, "forum%d/threads", num );
+  	snprintf( fname, sizeof(fname), "forum%d/threads", num );
   else
-  	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, num );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, num );
   if( !( file = fopen( fname, "wb" ) ))
     return -3;
   a = 0;
@@ -3226,14 +3227,14 @@ int dbForumRemoveForum( int forum )
   FILE *file;
   DIR *dirdata;
   struct dirent *direntry;
-  char fname[256];
+  char fname[PATH_MAX];
   char *frcopy;
   dbForumForumDef forumd;
 
 	if(forum > 100)
-  	a = sprintf( fname, "%s/data/forum%d", sysconfig.directory, forum );
+  	a = snprintf( fname, sizeof(fname), "%s/data/forum%d", sysconfig.directory, forum );
   else
-  	a = sprintf( fname,  "%s/forum%d", sysconfig.pubforum, forum );
+  	a = snprintf( fname, sizeof(fname),  "%s/forum%d", sysconfig.pubforum, forum );
   if( !( dirdata = opendir( fname ) ) ) {
 	error( "Opening DIR" );
 	return -3;
@@ -3247,15 +3248,15 @@ int dbForumRemoveForum( int forum )
   closedir( dirdata );
   
   if(forum > 100)
-  	sprintf( fname, "forum%d", forum );
+  	snprintf( fname, sizeof(fname), "forum%d", forum );
   else
-  	sprintf( fname, "%s/forum%d", sysconfig.pubforum, forum );
+  	snprintf( fname, sizeof(fname), "%s/forum%d", sysconfig.pubforum, forum );
   rmdir( fname );
 
 	if(forum > 100)
-		sprintf( fname, "forums" );
+		snprintf( fname, sizeof(fname), "forums" );
 	else
-		sprintf( fname, "%s/forums", sysconfig.pubforum );	
+		snprintf( fname, sizeof(fname), "%s/forums", sysconfig.pubforum );	
 	
   if( !( file = fopen( fname, "rb+" ) ))
 
@@ -3302,13 +3303,13 @@ int dbForumAddThread( int forum, dbForumThreadPtr threadd )
 {
   int a, num, lused, lfree, numnext, lcur, lnext;
   FILE *file;
-  char fname[256];
+  char fname[PATH_MAX];
   dbForumForumDef forumd;
 
 	if(forum > 100)
-  	sprintf( fname, "forum%d/threads", forum );
+  	snprintf( fname, sizeof(fname), "forum%d/threads", forum );
   else
-  	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, forum );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, forum );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3370,9 +3371,9 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   fclose( file );
 
 	if(forum > 100)
-		sprintf( fname, "forums" );
+		snprintf( fname, sizeof(fname), "forums" );
 	else
-		sprintf( fname, "%s/forums", sysconfig.pubforum );	
+		snprintf( fname, sizeof(fname), "%s/forums", sysconfig.pubforum );	
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3386,9 +3387,9 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   fclose( file );
 	
 	if(forum > 100)
-		sprintf( fname, "forum%d/thread%d", forum, lcur );
+		snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, lcur );
 	else
-		sprintf( fname, "%s/forum%d/thread%d", sysconfig.pubforum, forum, lcur );
+		snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", sysconfig.pubforum, forum, lcur );
 
   if( !( file = fopen( fname, "wb+" ) ))
     return -3;
@@ -3406,14 +3407,14 @@ int dbForumRemoveThread( int forum, int thread )
 {
   int a, num, lused, lfree, numnext, lprev, lnext;
   FILE *file;
-  char fname[256];
+  char fname[PATH_MAX];
   dbForumForumDef forumd;
   dbForumThreadDef threadd;
 
 	if(forum > 100)
-  	sprintf( fname, "forum%d/threads", forum );
+  	snprintf( fname, sizeof(fname), "forum%d/threads", forum );
   else
-  	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, forum );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, forum );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3483,15 +3484,15 @@ if( fread( &forumd, 1, sizeof(dbForumForumDef), file ) < 1 ) {
   fclose( file );
 
 	if(forum > 100)
-  	sprintf( fname, "forum%d/thread%d", forum, thread );
+  	snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, thread );
   else
-  	sprintf( fname, "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
   unlink( fname );
 
 	if(forum > 100)
-		sprintf( fname, "forums" );
+		snprintf( fname, sizeof(fname), "forums" );
 	else
-		sprintf( fname, "%s/forums", sysconfig.pubforum );	
+		snprintf( fname, sizeof(fname), "%s/forums", sysconfig.pubforum );	
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3517,14 +3518,14 @@ int dbForumAddPost( int forum, int thread, dbForumPostPtr postd )
 {
   int a, num, offset, lused, lprev, lnext;
   FILE *file;
-  char fname[556];
+  char fname[PATH_MAX];
   dbForumThreadDef threadd;
   dbForumForumDef forumd;
 	
 	if(forum > 100)
-  	sprintf( fname, "forum%d/thread%d", forum, thread );
+  	snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, thread );
   else
-  	sprintf( fname, "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3558,9 +3559,9 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
   fclose( file );
 
 	if(forum > 100)
-  	sprintf( fname, "forum%d/threads", forum );
+  	snprintf( fname, sizeof(fname), "forum%d/threads", forum );
   else
-  	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, forum );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, forum );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   fseek( file, 4, SEEK_SET );
@@ -3605,9 +3606,9 @@ if( fread( &lnext, 1, sizeof(int), file ) < 1 ) {
   fclose( file );
 
 	if(forum > 100)
-		sprintf( fname, "forums" );
+		snprintf( fname, sizeof(fname), "forums" );
 	else
-		sprintf( fname, "%s/forums", sysconfig.pubforum );
+		snprintf( fname, sizeof(fname), "%s/forums", sysconfig.pubforum );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3633,14 +3634,14 @@ int dbForumRemovePost( int forum, int thread, int post )
 {
   int a, num, offset, offset2;
   FILE *file;
-  char fname[556];
+  char fname[PATH_MAX];
   dbForumThreadDef threadd;
   dbForumPostDef postd;
 
 	if(forum > 100)
-  	sprintf( fname, "forum%d/thread%d", forum, thread );
+  	snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, thread );
   else
-  	sprintf( fname, "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {
@@ -3710,9 +3711,9 @@ if( fread( &threadd, 1, sizeof(dbForumThreadDef), file ) < 1 ) {
     fclose( file );
 
 		if(forum > 100)
-    	sprintf( fname, "forum%d/threads", forum );
+    	snprintf( fname, sizeof(fname), "forum%d/threads", forum );
     else
-    	sprintf( fname, "%s/forum%d/threads", sysconfig.pubforum, forum );
+    	snprintf( fname, sizeof(fname), "%s/forum%d/threads", sysconfig.pubforum, forum );
     if( !( file = fopen( fname, "rb+" ) ))
       return -3;
     fseek( file, 16+sizeof(dbForumForumDef) + thread * ( sizeof(dbForumThreadDef) + 8 ) + 8, SEEK_SET );
@@ -3729,7 +3730,7 @@ int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd )
 {
   int a, b, num, offset;
   FILE *file;
-  char fname[556];
+  char fname[PATH_MAX];
   dbForumThreadDef threadd;
   dbForumPostPtr posts;
 /*
@@ -3740,9 +3741,9 @@ int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd )
   dbForumListPosts( forum, thread, post+1, 65536, &threadd, &posts );
 
 	if(forum > 100)
-  	sprintf( fname, "forum%d/thread%d", forum, thread );
+  	snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, thread );
   else
-  	sprintf( fname, "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", sysconfig.pubforum, forum, thread );
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
 if( fread( &num, 1, sizeof(int), file ) < 1 ) {

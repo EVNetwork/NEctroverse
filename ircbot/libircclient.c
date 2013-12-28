@@ -394,10 +394,13 @@ int irc_connect6 (irc_session_t * session,
 }
 
 
-int irc_is_connected (irc_session_t * session)
-{
-	return (session->state == LIBIRC_STATE_CONNECTED 
-	|| session->state == LIBIRC_STATE_CONNECTING) ? 1 : 0;
+int irc_is_connected( irc_session_t *session ) {
+
+if( !session )
+	return 0;
+else
+	return (session->state == LIBIRC_STATE_CONNECTED || session->state == LIBIRC_STATE_CONNECTING) ? 1 : 0;
+
 }
 
 

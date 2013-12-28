@@ -40,7 +40,7 @@ typedef struct {
 	bool autostop;
 	struct tm start;
 	struct tm stop;
-	inikey ini;
+	pthread_t h_thread;
 } configDef, *configPtr;
 
 extern configDef sysconfig;
@@ -58,7 +58,6 @@ typedef struct {
 	char **faction;
 	char **password;
 	char **forumtag;
-	inikey ini;
 } adminDef, *adminPtr;
 
 extern adminDef admincfg;
@@ -74,7 +73,7 @@ typedef struct {
 	char *channel;
 	bool announcetick;
 	irc_session_t *session;
-	inikey ini;
+	pthread_t thread;
 } ircDef, *ircPtr;
 
 extern ircDef irccfg;
@@ -105,7 +104,6 @@ typedef struct {
 	char *user;
 	char *password;
 	char *database;
-	inikey ini;
 } mySqlDef, *mySqlPtr;
 
 extern mySqlDef mysqlcfg;
@@ -123,7 +121,6 @@ typedef struct {
 	int uonline;
 	int uactive;
 	int uregist;
-	inikey ini;
 } tickDef, *tickPtr;
 
 extern tickDef ticks;
@@ -216,7 +213,7 @@ typedef struct {
 	//new ban listing
 	int number;
 	char **ip;
-	inikey ini;
+
 } svbanDef, *svbanPtr;
 
 extern svbanDef banlist;

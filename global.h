@@ -82,19 +82,11 @@
 #endif
 
 #ifndef SERVER_RECV_BUFSIZE
-#define SERVER_RECV_BUFSIZE (32768)
+#define SERVER_RECV_BUFSIZE 32768
 #endif
 
-#ifndef SERVER_PATH_BUFSIZE
-#define SERVER_PATH_BUFSIZE (512)
-#endif
-
-#ifndef SERVER_SELECT_MSEC
-#define SERVER_SELECT_MSEC (1000)
-#endif
-
-#ifndef SERVER_NAGLE_BUFFERING
-#define SERVER_NAGLE_BUFFERING 0
+#ifndef PATH_MAX
+#define PATH_MAX 4096
 #endif
 
 #ifndef CT_TO_SECS

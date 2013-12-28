@@ -293,7 +293,7 @@ return MHD_YES;
 static void update_directory( MHD_ConnectionPtr connection ) {
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
-	char dir_name[128];
+	char dir_name[PATH_MAX];
 	struct stat sbuf;
 
 rd.connection = connection;
@@ -373,7 +373,7 @@ return ret;
 
 int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	int ret;
-	char dmsg[512];
+	char dmsg[PATH_MAX];
 	struct stat buf;
 	MHD_ResponsePtr response;
 	FILE *file;
@@ -408,6 +408,8 @@ int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
 
+(void)pthread_mutex_lock( &mutex );
+
 rd.session = session;
 rd.connection = connection;
 rd.cookies.num = 0;
@@ -436,6 +438,8 @@ ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
 
+(void)pthread_mutex_unlock( &mutex );
+
 return ret;
 }
 
@@ -444,6 +448,8 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 	int ret, a;
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
+
+(void)pthread_mutex_lock( &mutex );
 
 rd.session = session;
 rd.connection = connection;
@@ -467,6 +473,8 @@ ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
 
+(void)pthread_mutex_unlock( &mutex );
+
 return ret;
 }
 
@@ -475,7 +483,7 @@ int file_page( int id, const void *cls, const char *mime, SessionPtr session, MH
 	struct stat buf;
 	MHD_ResponsePtr response;
 	const char *fname = cls;
-	char filename[512];
+	char filename[PATH_MAX];
 
 	strcpy(filename,sysconfig.httpfiles);
 	strcat(filename,fname);
@@ -721,7 +729,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	ssize_t got;
 	#endif
 	const char *mime;
-	char *filename, filebuffer[512];
+	char *filename, filebuffer[PATH_MAX];
 
 	filename = strrchr(url,'/');
 	strcpy(filebuffer,sysconfig.httpimages);
@@ -764,7 +772,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( strdup(iohttpMime[ iohttpMimeFind( filename ) ].def ), ' ')+1 ) );
 
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
-	strftime(filebuffer,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
+	strftime(filebuffer,PATH_MAX,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filebuffer );
 
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );

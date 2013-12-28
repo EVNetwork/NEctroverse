@@ -363,21 +363,23 @@ return;
 
 
 void cmdTickEnd() {
-
+	char buffer[512];
 
 
 cmdTickGenRanks();
 
 savetickconfig();
 
+(void)pthread_mutex_unlock( &mutex );
+
 #if IRCBOT_SUPPORT
 if( irccfg.bot ) {
-	if( ( irccfg.announcetick ) && ( ticks.status ) )
-		irc_send_raw( irccfg.session, "NOTICE %s :Game has Ticked -- Week %d, Year %d (Tick #%d)", irccfg.channel, ticks.number % 52, ticks.number / 52, ticks.number );
+	if( ( irccfg.announcetick ) && ( ticks.status ) ) {
+		snprintf( buffer, sizeof(buffer), "Game has Ticked -- Week %d, Year %d (Tick #%d)", ticks.number % 52, ticks.number / 52, ticks.number );
+		irc_cmd_notice( irccfg.session, irccfg.channel, buffer );
+	}
 }
 #endif
-
-(void)pthread_mutex_unlock( &mutex );
 
 return;
 }

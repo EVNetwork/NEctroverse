@@ -32,7 +32,7 @@ return ( lntime.tv_sec * 1000 ) + ( lntime.tv_usec / 1000 );
 }
 
 void cleanUp(int type) {
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 
 if( type ) {
 	close(options.serverpipe);
@@ -143,7 +143,6 @@ if( irc_is_connected(irccfg.session) ) {
 	if( irc_cmd_quit( irccfg.session, "Server Saftey Triped... Shutting down!" ) ) {
 		error("Quitting IRC");
 	}
-	ircbot_select();
 	irc_disconnect( irccfg.session );
 }
 #endif
@@ -224,7 +223,7 @@ int svPipeSend(int pipedirection, char *message, ...){
 	int num;
 	va_list ap;
 	FILE *pipefile;
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	char formatuffer[SERVER_RECV_BUFSIZE] = {0};
 
 va_start(ap, message);
@@ -258,25 +257,22 @@ return 1;
 int daemonloop() {
 	int curtime;
 
-//Start HTTP/1.1 Server
+//Start HTTP Server(s)
 if( http_prep() )
 	return 1;
+
 if( http_start() )
 	return 1;
+
 #if HTTPS_SUPPORT
-https_start();
+if( https_start() )
+	return 1;
 #endif
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
 	/* Expire HTTP Sessions */
 	expire_sessions();
-
-	#if IRCBOT_SUPPORT
-	if( irccfg.bot ) {
-		ircbot_select();
-	}
-	#endif
 
 	#if PIPEFILE_SUPPORT
 	svPipeScan( options.serverpipe );
@@ -319,7 +315,6 @@ if( irc_is_connected(irccfg.session) ) {
 	if( irc_cmd_quit( irccfg.session, "Server Shutdown has been iniated" ) ) {
 		error("Quitting IRC");
 	}
-	ircbot_select();
 	irc_disconnect( irccfg.session );
 }
 #endif
@@ -332,7 +327,7 @@ return 0;
 //begin upgrade to daemon, I don't like shell dependancy!
 int daemon_init() {
 	int binfo[MAP_TOTAL_INFO];
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	pid_t pid, sid;
 
 info( "Server process iniating...");
@@ -433,12 +428,8 @@ loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." );
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 #if IRCBOT_SUPPORT
-if( ircbot_prepare() ) {
-	irccfg.bot = false;
-	irccfg.session = NULL;
-}
 if( irccfg.bot ) {
-	ircbot_connect();
+	pthread_create(&irccfg.thread,NULL,ircbot_connect,NULL);
 }
 #endif
 
@@ -505,7 +496,7 @@ return ret;
 //Does not check for existance, but ignores error for existing dir, other errors are loged.
 void dirstructurecheck(char *directory) {
 	int i, num, check;
-	char mkthisdir[256];
+	char mkthisdir[PATH_MAX];
  	char* strCpy;
 	char** split;
 
@@ -540,7 +531,7 @@ return;
 int loadconfig( char *file, int type ) {
 	int a, i;
 	int logfac = LOG_SYSLOG;
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	inikey ini;
 
 if( firstload ) {
@@ -702,45 +693,36 @@ if( type == CONFIG_SYSTEM ) {
 		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
 	}
 } else if( type == CONFIG_BANNED ){
-	/*if( banlist.ini )
-		iniparser_freedict(banlist.ini);
-	banlist.ini = iniparser_load(file);*/
 	if( ( banlist.ip ) && ( banlist.number ) ) {
 		free( banlist.ip );
 	}
-	banlist.number = iniparser_getint(/*banlist.*/ini, "banned_ips:number", 0);
+	banlist.number = iniparser_getint(ini, "banned_ips:number", 0);
 	if( banlist.number > 0 ) {
 		banlist.ip = malloc( banlist.number * sizeof(*banlist.ip));
 	}
 	for(a = 0; a < banlist.number; a++) {
 		sprintf(DIRCHECKER,"banned_ips:ip%d",(a+1));
-		banlist.ip[a] = strdup(iniparser_getstring(/*banlist.*/ini, DIRCHECKER, "0.0.0.0"));
+		banlist.ip[a] = strdup(iniparser_getstring(ini, DIRCHECKER, "0.0.0.0"));
 	}
 } else if( type == CONFIG_TICKS ) {
-	if( ticks.ini )
-		iniparser_freedict(ticks.ini);
-	ticks.ini = iniparser_load(file);
-	ticks.status = iniparser_getboolean(ticks.ini, "ticks:status", false);
-	ticks.locked = iniparser_getboolean(ticks.ini, "ticks:locked", false);
-	ticks.number = iniparser_getint(ticks.ini, "ticks:number", 0);
-	ticks.round = iniparser_getint(ticks.ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
-	ticks.speed = iniparser_getint(ticks.ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
-	ticks.next = iniparser_getint(ticks.ini, "ticks:next", 0);
+	ticks.status = iniparser_getboolean(ini, "ticks:status", false);
+	ticks.locked = iniparser_getboolean(ini, "ticks:locked", false);
+	ticks.number = iniparser_getint(ini, "ticks:number", 0);
+	ticks.round = iniparser_getint(ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
+	ticks.speed = iniparser_getint(ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
+	ticks.next = iniparser_getint(ini, "ticks:next", 0);
 }
 #if IRCBOT_SUPPORT
 else if( type == CONFIG_IRC ) {
-	/*if( irccfg.ini )
-		iniparser_freedict(irccfg.ini);
-	irccfg.ini = iniparser_load(file);*/
-	irccfg.host = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:host", "irc.freenode.net") );
-	irccfg.port = atoi( iniparser_getstring(/*irccfg.*/ini, "irc:port", "6667") );
+	irccfg.host = strdup( iniparser_getstring(ini, "irc:host", "irc.freenode.net") );
+	irccfg.port = atoi( iniparser_getstring(ini, "irc:port", "6667") );
 	strcpy(DIRCHECKER,"#");
-	strcat(DIRCHECKER,strdup( iniparser_getstring(/*irccfg.*/ini, "irc:channel", "ectroverse") ) );
+	strcat(DIRCHECKER,strdup( iniparser_getstring(ini, "irc:channel", "ectroverse") ) );
 	irccfg.channel = strdup(DIRCHECKER);
-	irccfg.botnick = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:bot_nick", "EVBot") );
-	irccfg.botpass = strdup( iniparser_getstring(/*irccfg.*/ini, "irc:bot_pass", "botpass") );
-	irccfg.bot = iniparser_getboolean(/*irccfg.*/ini, "irc:bot_enable", false);
-	irccfg.announcetick = iniparser_getboolean(/*irccfg.*/ini, "irc:bot_announcetick", false);
+	irccfg.botnick = strdup( iniparser_getstring(ini, "irc:bot_nick", "EVBot") );
+	irccfg.botpass = strdup( iniparser_getstring(ini, "irc:bot_pass", "botpass") );
+	irccfg.bot = iniparser_getboolean(ini, "irc:bot_enable", false);
+	irccfg.announcetick = iniparser_getboolean(ini, "irc:bot_announcetick", false);
 }
 #endif
 
@@ -895,7 +877,8 @@ return strdup(p);
 }
 
 int savetickconfig() {
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
+	inikey ini;
 	FILE *file;
 
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
@@ -904,19 +887,21 @@ if(!file)
 	file = fopen( DIRCHECKER, "w" );
 if(file) {
 	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
-	iniparser_set(ticks.ini,"ticks",NULL);
-	iniparser_set(ticks.ini,"ticks:status",ticks.status ? "true" : "false");
-	iniparser_set(ticks.ini,"ticks:locked",ticks.locked ? "true" : "false");
-	iniparser_set(ticks.ini,"ticks:number",itoa(ticks.number));
-	iniparser_set(ticks.ini,"ticks:round",itoa(ticks.round));
-	iniparser_set(ticks.ini,"ticks:speed",itoa(ticks.speed));
-	iniparser_set(ticks.ini,"ticks:next",itoa(ticks.next));
-	iniparser_set(ticks.ini,"ticks:debug_id",itoa(ticks.debug_id));
-	iniparser_set(ticks.ini,"ticks:debug_pass",itoa(ticks.debug_pass));
-	iniparser_set(ticks.ini,"ticks:uonline",itoa(ticks.uonline));
-	iniparser_set(ticks.ini,"ticks:uactive",itoa(ticks.uactive));
-	iniparser_set(ticks.ini,"ticks:uregist",itoa(ticks.uregist));
-	iniparser_dump_ini(ticks.ini,file);
+	ini = dictionary_new(0);
+	iniparser_set(ini,"ticks",NULL);
+	iniparser_set(ini,"ticks:status",ticks.status ? "true" : "false");
+	iniparser_set(ini,"ticks:locked",ticks.locked ? "true" : "false");
+	iniparser_set(ini,"ticks:number",itoa(ticks.number));
+	iniparser_set(ini,"ticks:round",itoa(ticks.round));
+	iniparser_set(ini,"ticks:speed",itoa(ticks.speed));
+	iniparser_set(ini,"ticks:next",itoa(ticks.next));
+	iniparser_set(ini,"ticks:debug_id",itoa(ticks.debug_id));
+	iniparser_set(ini,"ticks:debug_pass",itoa(ticks.debug_pass));
+	iniparser_set(ini,"ticks:uonline",itoa(ticks.uonline));
+	iniparser_set(ini,"ticks:uactive",itoa(ticks.uactive));
+	iniparser_set(ini,"ticks:uregist",itoa(ticks.uregist));
+	iniparser_dump_ini(ini,file);
+	iniparser_freedict(ini);
 	fflush( file );
 	fclose( file );
 }
@@ -1003,7 +988,7 @@ return result;
 }
 
 int main( int argc, char *argv[] ) {
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	#if PIPEFILE_SUPPORT
 	int num;
 	#endif

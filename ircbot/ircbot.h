@@ -16,11 +16,11 @@ typedef struct {
 
 extern float ircbot_version;
 
-int ircbot_prepare();
+/*int ircbot_prepare();
 
-int ircbot_connect();
+void ircbot_select();*/
 
-void ircbot_select();
+void *ircbot_connect();
 
 #if PIPEFILE_SUPPORT
 int ircbot_command( char *command );

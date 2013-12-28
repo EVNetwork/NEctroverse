@@ -122,15 +122,24 @@ void dump_event (irc_session_t * irc_session, const char * event, const char * o
 
 
 void event_join( irc_session_t *irc_session, const char *event, const char *origin, const char **params, unsigned int count ) {
+	char nickbuf[128];
 	char buffer[512];
 
 dump_event( irc_session, event, origin, params, count );
 irc_cmd_user_mode( irc_session, "+i" );
-irc_target_get_nick( origin, buffer, sizeof(buffer) );
-if( !strncmp( origin, irccfg.botnick, strlen(irccfg.botnick) ) ) {
-	sprintf( logString, "IRC Bot Joined Channel: %s", params[0] );
+irc_target_get_nick( origin, nickbuf, sizeof(nickbuf) );
+
+if( !strcmp( nickbuf, irccfg.botnick ) ) {
+	snprintf(logString, sizeof(logString), "IRC Bot Joined Channel: %s", params[0] );
 	info( logString );
-	sprintf( buffer, "op %s", params[0] );	
+	snprintf(buffer, sizeof(buffer), "op %s", params[0] );	
+	irc_cmd_msg( irc_session, "ChanServ", buffer );
+} else if( !strcmp( nickbuf, "ChanServ" ) ) {
+	if( irccfg.botpass ){
+		snprintf(buffer, sizeof(buffer), "identify %s", irccfg.botpass);
+		irc_cmd_msg(irccfg.session, "NickServ", buffer);
+	}
+	snprintf(buffer, sizeof(buffer), "op %s", params[0] );	
 	irc_cmd_msg( irc_session, "ChanServ", buffer );
 }
 
@@ -141,14 +150,15 @@ return;
 void event_connect( irc_session_t *irc_session, const char *event, const char *origin, const char **params, unsigned int count ) {
 	char buffer[512];
 dump_event (irc_session, event, origin, params, count);
-sprintf( logString, "IRC Bot Connected to server: %s", origin );
+snprintf(logString, sizeof(logString), "IRC Bot Connected to server: %s", origin );
 info( logString );
 
-irc_cmd_join (irc_session, irccfg.channel, 0);
 if( irccfg.botpass ){
-	sprintf(buffer, "identify %s", irccfg.botpass);
+	snprintf(buffer, sizeof(buffer), "identify %s", irccfg.botpass);
 	irc_cmd_msg(irccfg.session, "NickServ", buffer);
 }
+
+irc_cmd_join( irc_session, irccfg.channel, 0 );
 
 return;
 }
@@ -256,9 +266,9 @@ session = get_session( SESSION_IRC, str2md5(origin) );
 
 if ( !strcmp (params[1], "help") ) {
 	if( ( session->dbuser ) && ( session->dbuser->level >= LEVEL_MODERATOR ) )
-		sprintf( buffer, "%s", irc_color_convert_to_mirc( "[B]Usage[/B] - quit, help, dcc send, topic, mode, whois, nick" ) );
+		snprintf(buffer, sizeof(buffer), "%s", irc_color_convert_to_mirc( "[B]Usage[/B] - quit, help, dcc send, topic, mode, whois, nick" ) );
 	else
-		sprintf( buffer, "%s", irc_color_convert_to_mirc( "[B]Usage[/B] - help, dcc send, login" ) );
+		snprintf(buffer, sizeof(buffer), "%s", irc_color_convert_to_mirc( "[B]Usage[/B] - help, dcc send, login" ) );
 	irc_cmd_notice( irc_session, params[0], buffer );
 }
 
@@ -279,10 +289,11 @@ if ( !strcmp (params[1], "help") ) {
 if ( !strcmp (params[1], "dcc send") ) {
 		irc_dcc_t dccid;
 		
-	sprintf(buffer, "%s/cookie.gif", sysconfig.httpimages );
+	snprintf(buffer, sizeof(buffer), "%s/cookie.gif", sysconfig.httpimages );
 	irc_dcc_sendfile (irc_session, 0, nickbuf, buffer, dcc_file_send_callback, &dccid);
 	addlog ("DCC send ID: %d", dccid);
 }
+
 
 if( ( session->dbuser ) && ( session->dbuser->level >= LEVEL_MODERATOR ) ) {
 
@@ -343,7 +354,7 @@ return;
 int ircbot_prepare( ) {
 	irc_callbacks_t	callbacks;
 
-memset (&callbacks, 0, sizeof(callbacks));
+memset( &callbacks, 0, sizeof(callbacks) );
 
 callbacks.event_connect = event_connect;
 callbacks.event_join = event_join;
@@ -376,22 +387,10 @@ if ( !irccfg.session ) {
 return 0;
 }
 
-int ircbot_connect() {
-
-// Initiate the IRC server connection
-if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
-	error("Connecting to IRC Network");
-	return 1;
-} 
-
-return 0;
-}
-
-
 void ircbot_select() {
 
 // Make sure that all the IRC sessions are connected
-if ( !irc_is_connected(irccfg.session) ) {
+if( !irc_is_connected(irccfg.session) ) {
 	return;
 }
 
@@ -429,3 +428,25 @@ if ( irc_process_select_descriptors(irccfg.session, &in_set, &out_set) ) {
 
 return;
 }
+
+
+void *ircbot_connect() {
+
+if( ircbot_prepare() ) {
+	irccfg.bot = false;
+	irccfg.session = NULL;
+	goto EXIT;
+}
+// Initiate the IRC server connection
+if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
+	error("Connecting to IRC Network");
+	goto EXIT;
+}
+
+irc_run( irccfg.session );
+
+EXIT:
+return NULL;
+}
+
+

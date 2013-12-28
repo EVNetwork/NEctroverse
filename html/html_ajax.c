@@ -46,7 +46,7 @@ if( ( typestring ) && ( refer ) ) {
 		httpPrintf( cnt, "<page>%s</page>", refer  );
 		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
 		if( !strcmp(refer,"status") ) {
-			sprintf(CHECKER,"%lu bytes ( %5.1f mb )", pinfod.stvsize, pinfod.stvsize  / megabyte );
+			snprintf( CHECKER, sizeof(CHECKER), "%lu bytes ( %5.1f mb )", pinfod.stvsize, pinfod.stvsize  / megabyte );
 			httpString( cnt, "<general>" );
 			httpPrintf( cnt, "<servpriority>%ld</servpriority>", pinfod.stpriority );
 			httpPrintf( cnt, "<servthreads>%ld</servthreads>", pinfod.threads );
@@ -84,9 +84,12 @@ if( ( typestring ) && ( refer ) ) {
 			
 			#if IRCBOT_SUPPORT
 			if( irccfg.bot ) {
-				sprintf(CHECKER,"Enabled (Host:%s, Channel:%s)",irccfg.host, irccfg.channel );
+				if( irc_is_connected(irccfg.session) )
+					snprintf( CHECKER, sizeof(CHECKER), "Enabled (Host:%s, Channel:%s)", irccfg.host, irccfg.channel );
+				else
+					snprintf( CHECKER, sizeof(CHECKER), "%s", "Enabled but not connected" );
 			} else {
-				sprintf(CHECKER,"%s", "Disabled");
+				snprintf( CHECKER, sizeof(CHECKER), "%s", "Disabled");
 			}
 			httpPrintf( cnt, "<botstatus>%s</botstatus>", CHECKER );
 			#endif
@@ -107,7 +110,7 @@ if( ( typestring ) && ( refer ) ) {
 		httpString( cnt, "</notification>" );
 		httpString( cnt, "<ressources>" );
 		for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
-			sprintf(CHECKER,"%s",cmdRessourceName[a]);
+			snprintf( CHECKER, sizeof(CHECKER),"%s",cmdRessourceName[a]);
 			for(b = 0; CHECKER[b]; b++){
 				CHECKER[b] = tolower(CHECKER[b]);
 			}
@@ -121,7 +124,7 @@ if( ( typestring ) && ( refer ) ) {
 		if( !strcmp(refer,"hq") ) {
 			httpString( cnt, "<readiness>" );
 			for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
-				sprintf(CHECKER,"%s",cmdReadyName[a]);
+				snprintf( CHECKER, sizeof(CHECKER), "%s",cmdReadyName[a]);
 				for(b = 0; CHECKER[b]; b++){
 					CHECKER[b] = tolower(CHECKER[b]);
 				}
@@ -308,7 +311,7 @@ if( refer ) {
 	httpString( cnt, "\t\t\tvar networth = getnodevar(xmlhttp.responseXML,\"networth\");\n" );
 	httpString( cnt, "\t\t\tvar population = getnodevar(xmlhttp.responseXML,\"population\");\n" );
 	for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
-		sprintf(CHECKER,"%s",cmdRessourceName[a]);
+		snprintf( CHECKER, sizeof(CHECKER),"%s",cmdRessourceName[a]);
 		for(b = 0; CHECKER[b]; b++){
 			CHECKER[b] = tolower(CHECKER[b]);
 		}
@@ -320,7 +323,7 @@ if( refer ) {
 	httpString( cnt, "\n" );
 	if( !strcmp(refer,"hq") ) {
 		for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
-			sprintf(CHECKER,"%s",cmdReadyName[a]);
+			snprintf( CHECKER, sizeof(CHECKER),"%s",cmdReadyName[a]);
 			for(b = 0; CHECKER[b]; b++){
 				CHECKER[b] = tolower(CHECKER[b]);
 			}
