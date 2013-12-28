@@ -1,5 +1,5 @@
 #ifndef GLOBALINCLUDED
-#include "global.h"
+#include "config/global.h"
 #endif
 
 
@@ -1570,6 +1570,7 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
 
 int cmdInit() {
 	int id, a;
+	char string[2][128];
 	dbUserPtr user;
 	dbUserInfoDef infod;
 
@@ -1594,21 +1595,21 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	dbUserInfoSet(id, &infod);
 
 	if( user->level >= LEVEL_MODERATOR ) { 
-	sprintf(logString, "Placing Administrator account: \"%s\"", infod.name );
-	info( logString );
-	if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
-		sprintf(logString, "Failure Placing Administrator account: \"%s\"", infod.name );
+		sprintf(logString, "Placing Administrator account: \"%s\"", infod.name );
 		info( logString );
-		continue;
-	}
+		if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
+			sprintf(logString, "Failure Placing Administrator account: \"%s\"", infod.name );
+			info( logString );
+			continue;
+		}
 	} else {
-	sprintf(logString, "Placing Non Administrator account: \"%s\"", infod.name );
-	info( logString );
-	if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
-		sprintf(logString, "Failure Placing Administrator account: \"%s\"", infod.name );
+		sprintf(logString, "Placing Non Administrator account: \"%s\"", infod.name );
 		info( logString );
-		continue;
-	}
+		if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
+			sprintf(logString, "Failure Placing Non Administrator account: \"%s\"", infod.name );
+			info( logString );
+			continue;
+		}
 	}
 }
 //exit(0);
@@ -1622,6 +1623,39 @@ if( admincfg.numadmins < 0 ) {
 }
 free(admincfg.ename);
 free(admincfg.epassword);
+
+if( ( admincfg.numfakes > 0 ) ) {
+	for( a = 0; a < admincfg.numfakes; a++ ) {
+		sprintf(string[0], "fake%05duser", a );
+		sprintf(string[1], "Fake Faction %d", a );
+		if( ( id = dbUserSearch( string[0] ) ) >= 0 )
+			continue;
+		sprintf(logString, "Creating Fake account named: \"%s\"", string[0] );
+		info( logString );
+		if( ( id = cmdExecNewUser( string[0], "password", string[1] ) ) < 0 ) {
+			sprintf(logString, "Failure Creating account: \"%s\"", string[0] );
+			info( logString );
+			continue;
+		}
+		user = dbUserLinkID( id );
+		user->flags = 0;
+		user->level = 0;
+		dbUserSave( id, user );
+		dbUserInfoRetrieve(id, &infod);
+		strncpy( infod.forumtag,"Fake Account", sizeof(infod.forumtag) );
+		dbUserInfoSet(id, &infod);
+
+			sprintf(logString, "Placing fake account: \"%s\"", infod.name );
+			info( logString );
+			if( cmdExecNewUserEmpire( id, -1, NULL, rand()%CMD_RACE_TOTAL, user->level ) < 0 ) {
+				sprintf(logString, "Failure Placing fake account: \"%s\"", infod.name );
+				info( logString );
+				continue;
+			}
+	}
+	
+}
+
 dbFlush();
 
 return 1;

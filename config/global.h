@@ -1,7 +1,7 @@
 #ifndef GLOBALINCLUDED
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
-#include "config/config.h"
+#include "depreciated.h"
 #include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -68,23 +68,6 @@
 
 
 // 0 = Off | 1 = On
-#ifndef SERVER_REPORT_CONNECT
-#define SERVER_REPORT_CONNECT 1
-#endif
-
-
-#ifndef SERVER_REPORT_CLOSE
-#define SERVER_REPORT_CLOSE 1
-#endif
-
-#ifndef SERVER_REPORT_IGNOREDHEADER
-#define SERVER_REPORT_IGNOREDHEADER 1
-#endif
-
-#ifndef SERVER_RECV_BUFSIZE
-#define SERVER_RECV_BUFSIZE 32768
-#endif
-
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
@@ -127,33 +110,34 @@
 static const long minute = 60;
 static const long hour = (60 * 60);
 static const long day = ((60*60) * 24);
+static const long week = (((60*60) * 24) * 7);
 static const double megabyte = (1024 * 1024);
 #endif
 
 
-#include "enum.h"
-#include "artefact.h"
-#include "db.h"
+#include "../enum.h"
+#include "../artefact.h"
+#include "../db.h"
 
-#include "http/platform.h"
-#include "extras/extras.h"
+#include "../http/platform.h"
+#include "../extras/extras.h"
 
 
 #if IRCBOT_SUPPORT
-#include "ircbot/ircbot.h"
+#include "../ircbot/ircbot.h"
 #endif
 
 
 
-#include "battle.h"
-#include "main.h"
-#include "io.h"
-#include "iohttpvars.h"
-#include "iohttpmime.h"
-#include "iohttp.h"
-#include "html/html.h"
-#include "cmd.h"
-#include "map.h"
+#include "../battle.h"
+#include "../main.h"
+#include "../io.h"
+#include "../iohttpvars.h"
+#include "../iohttpmime.h"
+#include "../iohttp.h"
+#include "../html/html.h"
+#include "../cmd.h"
+#include "../map.h"
 
 
 #define info(msg) loghandle(LOG_INFO, false, "%s", msg )

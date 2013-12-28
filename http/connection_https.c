@@ -26,9 +26,6 @@
  * @author Christian Grothoff
  */
 
-#include "../global.h"
-#include "connection_https.h"
-
 
 /**
  * Give gnuTLS chance to work on the TLS handshake.  

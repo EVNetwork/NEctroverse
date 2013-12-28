@@ -28,7 +28,7 @@
  *        to be adjusted depending on the number of available cores.
  * @author Christian Grothoff
  */
-#include "../global.h"
+#include "../config/global.h"
 #include "memorypool.c"
 #include "internal.c"
 #include "response.c"

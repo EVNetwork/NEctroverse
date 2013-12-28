@@ -221,7 +221,7 @@ typedef struct
   int owner;
   int size;
   int flags;
-  int population;
+  double population;
   int maxpopulation;
   int special[3];
   int building[CMD_BLDG_NUMUSED];

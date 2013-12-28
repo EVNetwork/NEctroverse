@@ -27,9 +27,6 @@ typedef struct {
 	int victory;
 	int ticktime;
 	int round;
-	//evmap
-	bool evmpactv;
-	int evmpport;
 	//syslog
 	char* syslog_tagname;
 	char* syslog_facility;
@@ -40,7 +37,6 @@ typedef struct {
 	bool autostop;
 	struct tm start;
 	struct tm stop;
-	pthread_t h_thread;
 } configDef, *configPtr;
 
 extern configDef sysconfig;
@@ -49,6 +45,7 @@ typedef struct {
 	//admin
 	int empire;
 	int numadmins;
+	int numfakes;
 	bool rankommit;
 	int *race;
 	int *level;
@@ -83,14 +80,13 @@ typedef struct {
 	//startup options
 	int mode;
 	int port[PORT_TOTAL];
-	int interfaces;
 	int serverpipe;
 	int clientpipe;
 	int botconn;
 	bool verbose;
-	char sysini[512];
-	char mapini[512];
-	char pipefile[512];
+	char sysini[PATH_MAX];
+	char mapini[PATH_MAX];
+	char pipefile[PATH_MAX];
 	char pipestring[128];
 } optionsDef, *optionsPtr;
 
@@ -115,6 +111,7 @@ typedef struct {
 	int number;
 	int round;
 	int speed;
+	int last;
 	int next;
 	int debug_id;
 	int debug_pass;
@@ -135,47 +132,6 @@ typedef struct
 } svBufferDef, *svBufferPtr;
 
 
-typedef struct
-{
-// server
-  int socket;
-  struct sockaddr_in sockaddr;
-  void *next;
-  void **previous;
-
-  char *recv;
-  char recv_buf[SERVER_RECV_BUFSIZE+1];
-  int recv_pos;
-  int recv_max;
-  int time;
-  int flags;
-
-  svBufferPtr sendbuf;
-  svBufferPtr sendbufpos;
-  int sendpos;
-  int sendsize;
-
-  svBufferPtr sendflushbuf;
-  int sendflushpos;
-
-
-  char *sendstatic;
-  int sendstaticsize;
-
-// ioInterfacePtr
-  void *io;
-
-// pointer for the interface to allocate its data
-  void *iodata;
-
-// database
-  dbUserPtr dbuser;
-
-} svConnectionDef, *svConnectionPtr;
-
-
-int svTime();
-
 int file_exist(char *filename);
 int loadconfig( char *file, int type );
 
@@ -188,25 +144,8 @@ void cleanUp(int type);
 void svPipeScan(int pipefileid);
 int svPipeSend(int pipedirection, char *message, ...);
 
-// Functions used by the Output interface
-void svSend( svConnectionPtr cnt, void *data, int size );
-//void svSendString( svConnectionPtr cnt, char *string );
-
 void httpString( ReplyDataPtr rd, char *string );
-__attribute__ ((format (printf, 2, 3))) void httpPrintf( ReplyDataPtr rd, char *string, ... );
-
-
-//__attribute__ ((format (printf, 2, 3))) void svSendPrintf( svConnectionPtr cnt, char *string, ... );
-
-//void svSendStatic( svConnectionPtr cnt, void *data, int size );
-
-
-#define SV_FLAGS_NEED_WRITE (0x1)
-#define SV_FLAGS_WRITE_BUFFERED (0x2)
-#define SV_FLAGS_WRITE_STATIC (0x4)
-#define SV_FLAGS_TO_CLOSE (0x8)
-#define SV_FLAGS_WAIT_CLOSE (0x10)
-#define SV_FLAGS_TIMEOUT (0x20)
+void httpPrintf( ReplyDataPtr rd, char *string, ... );
 
 
 typedef struct {
@@ -225,8 +164,6 @@ extern char logString[MAXLOGSTRING];
 extern bool firstload;
 char *itoa(int i);
 
-//void svSignal( int signal );
-
-//typedef void (*svSignal) ( int signal, const char *file, unsigned int line );
+void svSignal( int signal );
 
 #endif

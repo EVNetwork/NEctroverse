@@ -1,5 +1,5 @@
 #ifndef GLOBALINCLUDED
-#include "global.h"
+#include "config/global.h"
 #endif
 
 enum 
@@ -7,14 +7,16 @@ enum
 DB_FILE_USERS,
 DB_FILE_MAP,
 DB_FILE_MARKET,
+DB_FILE_FORUM,
 DB_FILE_TOTAL,
 };
 
 char dbFileUsersName[] = "%s/userdb";
 char dbFileMapName[] = "map";
 char dbFileMarketName[] = "market";
+char dbFileForumName[] = "%s/forums";
 
-char *dbFileList[DB_FILE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName };
+char *dbFileList[DB_FILE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName, dbFileForumName };
 FILE *dbFilePtr[DB_FILE_TOTAL];
 
 char *dbImageDirs[HTTP_DIR_TOTAL] = {
@@ -395,6 +397,7 @@ void dbUserFree( dbUserPtr user )
 /*
 users
   4:next user ID
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -478,20 +481,19 @@ if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
 	array[2] = -1;
 	for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
 		fwrite( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
-
-	dbFileGenClose( DB_FILE_MARKET );
 }
 
-snprintf( COREDIR, sizeof(COREDIR), "%s/forums", sysconfig.directory );
-if( !( file = fopen( COREDIR, "rb+" ) ) ) {
-	if( options.verbose )
+snprintf( COREDIR, sizeof(COREDIR), dbFileList[DB_FILE_FORUM], sysconfig.directory );
+if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	info("Forum database not found, creating...");
-	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
+	
+	if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "wb+" ) ) ) {
+		info( logString );
 		critical( "Error, could not create forum database!" );
 		return 0;
 	}
 	a = 0;
-	fwrite( &a, 1, sizeof(int), file );
+	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_FORUM] );
 	forumd.threads = 0;
 	forumd.time = 0;
 	forumd.tick = 0;
@@ -505,9 +507,8 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	}
 	snprintf(logString, sizeof(logString), "Created Forums for %d Empires.", a-1 );
 	info(logString);
-
 }
-fclose( file );
+
 
 snprintf( COREDIR, sizeof(COREDIR), "%s/forums", sysconfig.pubforum );
 if( !( file = fopen( COREDIR, "rb+" ) ) ) {
@@ -536,7 +537,6 @@ if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
 	a = 0;
 	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-	dbFileGenClose( DB_FILE_USERS );
 	return 1;
 } else {
 	dbInitUsersReset();
@@ -568,6 +568,7 @@ for( a = 0 ; a < b ; a++ ) {
 	strncpy( user->forumtag, infod.forumtag, sizeof(user->forumtag) );
 	strncpy( user->http_session, infod.http_session, sizeof(user->http_session) );
 	user->lasttime = infod.lasttime;
+	fclose( file );
 }
 
 dbFlush();

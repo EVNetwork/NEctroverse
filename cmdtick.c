@@ -1,4 +1,4 @@
-int cmdTickProduction[CMD_BLDG_NUMUSED];
+int64_t cmdTickProduction[CMD_BLDG_NUMUSED];
 
 int dbUsersOnline;
 int dbUsersRegist;
@@ -239,8 +239,6 @@ dbArtefactMax = artmax;
   fclose( filep );
 
 
-
-
 // player rankings
   sprintf( COREDIR, "%s/rankings/round%dranks.txt", sysconfig.directory, sysconfig.round );
   if( !( file = fopen( COREDIR, "wb" ) ) )
@@ -387,186 +385,173 @@ return;
 
 
 
-int cmdTickPlanets( int usrid, dbUserMainPtr mainp )
-{
-  int a, b, num, nump, population, nInfection;
-  int *buffer;
-  int *portals;
-  dbMainPlanetDef planetd;
-  dbMainEmpireDef empired;
-  dbUserFleetPtr fleetd;
-  dbUserSpecOpPtr specopd;
+int cmdTickPlanets( int usrid, dbUserMainPtr mainp ) {
+	int a, b, num, nump, nInfection;
+	int *buffer;
+	int *portals;
+	int64_t population;
+	dbMainPlanetDef planetd;
+	dbMainEmpireDef empired;
+	dbUserFleetPtr fleetd;
+	dbUserSpecOpPtr specopd;
 
 ticks.debug_pass = 0 + 10000;
 
 
-  memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
-  memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
-  memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
+memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
+memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
 
 
-  nInfection = 0;
-  if( ( b = dbUserSpecOpList( usrid, &specopd ) ) >= 0 )
-  {
-  	for(a = 0; a < b; a++)
-  	{
-  			if (specopd[a].type == (CMD_OPER_BIOINFECTION|0x10000))
-  			{
-  				nInfection++;
-  			}
+nInfection = 0;
+if( ( b = dbUserSpecOpList( usrid, &specopd ) ) >= 0 ) {
+	for(a = 0; a < b; a++) {
+		if (specopd[a].type == (CMD_OPER_BIOINFECTION|0x10000)) {
+			nInfection++;
+		}
   	}
-  }
+}
 
-  if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )
-    return 0;
-  portals = 0;
-  nump = 0;
-  if( ( nump = dbUserPortalsListCoords( usrid, &portals ) ) < 0 )
-  {
-    free( buffer );
-    return 0;
-  }
+if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )
+	return 0;
+
+portals = 0;
+nump = 0;
+
+if( ( nump = dbUserPortalsListCoords( usrid, &portals ) ) < 0 ) {
+	free( buffer );
+	return 0;
+}
 
 ticks.debug_pass = 1 + 10000;
+population = 0;
 
-  population = 0;
-  for( a = 0 ; a < num ; a++ )
-  {
-    dbMapRetrievePlanet( buffer[a], &planetd );
-
-		planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * CMD_POPULATION_CITIES ) );
+for( a = 0 ; a < num ; a++ ) {
+	dbMapRetrievePlanet( buffer[a], &planetd );
+	planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * CMD_POPULATION_CITIES ) );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
 			planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * (CMD_POPULATION_CITIES+1000) ) );
 	*/
-ticks.debug_pass = 2 + 10000;
+	ticks.debug_pass = 2 + 10000;
 
-		//No more pop grow bonus it will count as upkeep reducer multiplier
-		//Planet grow pop is 2% each tick
-		planetd.population += ceil(planetd.maxpopulation * 0.02 * pow(0.75, (float)nInfection));
-
-
-    if( planetd.population > planetd.maxpopulation )
-      planetd.population = planetd.maxpopulation;
+	//No more pop grow bonus it will count as upkeep reducer multiplier
+	//Planet grow pop is 2% each tick -- of current population, not max
+	planetd.population += ceil( planetd.population * 0.02 * pow(0.75, (float)nInfection) );
+	if( planetd.population > planetd.maxpopulation )
+		planetd.population = planetd.maxpopulation;
 
 
-    if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
-      planetd.protection = 100;
-    else
-    {
-      planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_PORTALS] ) );
-
-    }
-
-  	if( planetd.construction < 0 ) {
-	sprintf(logString, "Warning : negative construction count : %d", planetd.construction );
-	error( logString );
-      planetd.construction = 0;
-    }
+	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
+		planetd.protection = 100;
+	else
+      		planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_PORTALS] ) );
 
 
-ticks.debug_pass = 3 + 10000;
+	if( planetd.construction < 0 ) {
+		sprintf(logString, "Warning : negative construction count : %d", planetd.construction );
+		error( logString );
+		planetd.construction = 0;
+	}
 
 
-    /* CRAP */
-    for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ )
-    {
-      if( planetd.building[b] < 0 )
-        planetd.building[b] = 0;
-    }
+	ticks.debug_pass = 3 + 10000;
 
 
-    dbMapSetPlanet( buffer[a], &planetd );
+	/* CRAP */
+	for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ ) {
+		if( planetd.building[b] < 0 ) {
+				sprintf(logString, "Warning : negative building count : %d", planetd.building[b] );
+				error( logString );
+				planetd.building[b] = 0;
+			}
+	}
+
+	dbMapSetPlanet( buffer[a], &planetd );
+
+	ticks.debug_pass = 4 + 10000;
+
+	population += planetd.population;
+
+	for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ ) {
+		mainp->totalbuilding[b] += planetd.building[b];
+		cmdTickProduction[b] += planetd.building[b];
+	}
+
+	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
+		mainp->totalunit[b] += planetd.unit[b];
+
+	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
+		mainp->totalbuilding[CMD_BLDG_NUMUSED]++;
 
 
-ticks.debug_pass = 4 + 10000;
+	ticks.debug_pass = 5 + 10000;
+
+	if( planetd.special[1] ) {
+		if( planetd.special[0] == 0 ) {
+			cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * planetd.building[CMD_BUILDING_SOLAR] ) / 100;
+		} else if( planetd.special[0] == CMD_BONUS_ENERGY ) {
+			cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * planetd.building[CMD_BUILDING_MINING] ) / 100;
+		} else if( planetd.special[0] == CMD_BONUS_CRYSTAL ) {
+			cmdTickProduction[CMD_BUILDING_CRYSTAL] += ( planetd.special[1] * planetd.building[CMD_BUILDING_CRYSTAL] ) / 100;
+		} else if( planetd.special[0] == CMD_BONUS_ECTROLIUM ) {
+			cmdTickProduction[CMD_BUILDING_REFINEMENT] += ( planetd.special[1] * planetd.building[CMD_BUILDING_REFINEMENT] ) / 100;
+		} else if( planetd.special[0] == CMD_BONUS_FISSION ) {
+			cmdTickProduction[CMD_BUILDING_FISSION] += ( planetd.special[1] * planetd.building[CMD_BUILDING_FISSION] ) / 100;
+		}
+	}
 
 
-
-    population += planetd.population;
-    for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ )
-    {
-      mainp->totalbuilding[b] += planetd.building[b];
-      cmdTickProduction[b] += planetd.building[b];
-    }
-    for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
-      mainp->totalunit[b] += planetd.unit[b];
-    if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
-      mainp->totalbuilding[CMD_BLDG_NUMUSED]++;
+	ticks.debug_pass = 6 + 10000;
 
 
-ticks.debug_pass = 5 + 10000;
+	if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
+		continue;
 
-		if( planetd.special[1] )
-    {
-      if( planetd.special[0] == 0 )
-        cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * planetd.building[CMD_BUILDING_SOLAR] ) / 100;
+	if( dbMapRetrieveEmpire( mainp->empire, &empired ) < 0 )
+		continue;
 
-      else if( planetd.special[0] == CMD_BONUS_ENERGY )
-        cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * planetd.building[CMD_BUILDING_MINING] ) / 100;
-
-      else if( planetd.special[0] == CMD_BONUS_CRYSTAL )
-        cmdTickProduction[CMD_BUILDING_CRYSTAL] += ( planetd.special[1] * planetd.building[CMD_BUILDING_CRYSTAL] ) / 100;
-
-      else if( planetd.special[0] == CMD_BONUS_ECTROLIUM )
-        cmdTickProduction[CMD_BUILDING_REFINEMENT] += ( planetd.special[1] * planetd.building[CMD_BUILDING_REFINEMENT] ) / 100;
-
-      else if( planetd.special[0] == CMD_BONUS_FISSION )
-        cmdTickProduction[CMD_BUILDING_FISSION] += ( planetd.special[1] * planetd.building[CMD_BUILDING_FISSION] ) / 100;
-
-    }
+	empired.artefacts |= 1 << b;
+	dbMapSetEmpire( mainp->empire, &empired );
 
 
-ticks.debug_pass = 6 + 10000;
+	ticks.debug_pass = 7 + 10000;
+}
 
-
-    if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
-      continue;
-    if( dbMapRetrieveEmpire( mainp->empire, &empired ) < 0 )
-      continue;
-    empired.artefacts |= 1 << b;
-
-    dbMapSetEmpire( mainp->empire, &empired );
-
-
-ticks.debug_pass = 7 + 10000;
-
-  }
-  mainp->planets = num;
-  mainp->ressource[CMD_RESSOURCE_POPULATION] = (int64_t)population;
+mainp->planets = num;
+mainp->ressource[CMD_RESSOURCE_POPULATION] = population;
 
 
 ticks.debug_pass = 8 + 10000;
 
-
-  free( buffer );
+free( buffer );
 
 ticks.debug_pass = 9 + 10000;
 
-  if( portals )
-    free( portals );
+if( portals )
+	free( portals );
 
 ticks.debug_pass = 10 + 10000;
 
-  if( ( num = dbUserFleetList( usrid, &fleetd ) ) < 0 )
-    return 0;
+if( ( num = dbUserFleetList( usrid, &fleetd ) ) < 0 )
+	return 0;
 
 ticks.debug_pass = 11 + 10000;
 
-  for( a = 0 ; a < num ; a++ )
-  {
-    for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
-      mainp->totalunit[b] += fleetd[a].unit[b];
-  }
+for( a = 0 ; a < num ; a++ ) {
+	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
+		mainp->totalunit[b] += fleetd[a].unit[b];
+}
 
 ticks.debug_pass = 12 + 10000;
 
-  free( fleetd );
+free( fleetd );
 
 ticks.debug_pass = 13 + 10000;
 
-  return 1;
+
+return 1;
 }
 
 

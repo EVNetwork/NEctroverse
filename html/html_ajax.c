@@ -199,8 +199,8 @@ if( refer ) {
 	httpString( cnt, "//Time to use this to more of its potential!!.\n" );
 	httpString( cnt, "var page;\n" );
 	httpString( cnt, "var login = false;\n" );
-	httpPrintf( cnt, "var sec = %ld;\n", javatime.seconds );
-	httpPrintf( cnt, "var min = %ld;\n", javatime.minutes );
+	httpPrintf( cnt, "var sec = %02ld;\n", javatime.seconds );
+	httpPrintf( cnt, "var min = %02ld;\n", javatime.minutes );
 	if( !strcmp(refer,"status") ) {
 		getsys_infos( &pinfod );
 		if( sysinfo(&sysajaxd) != 0 ) {

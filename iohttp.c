@@ -1,5 +1,3 @@
-#include "global.h"
-
 #include "iohttpvars.c"
 #include "iohttpmime.c"
 

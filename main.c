@@ -1,8 +1,8 @@
-#include "global.h"
+#include "config/global.h"
 
 pthread_mutex_t mutex;
 
-optionsDef options = { MODE_DAEMON, { false, false }, 0, -1, -1, -1, true, "", "", "", "status" };
+optionsDef options = { MODE_DAEMON, { false, false }, -1, -1, -1, true, "", "", "", "status" };
 
 configDef sysconfig;
 #if MYSQL_SUPPORT
@@ -19,17 +19,7 @@ char logString[MAXLOGSTRING];
 
 bool firstload = false;
 
-int svListenSocket[PORT_TOTAL];
-
 svbanDef banlist = { 0 };
-
-int svTime() {
-	struct timeval lntime;
-
-gettimeofday( &lntime, 0 );
-
-return ( lntime.tv_sec * 1000 ) + ( lntime.tv_usec / 1000 );
-}
 
 void cleanUp(int type) {
 	char DIRCHECKER[PATH_MAX];
@@ -224,10 +214,10 @@ int svPipeSend(int pipedirection, char *message, ...){
 	va_list ap;
 	FILE *pipefile;
 	char DIRCHECKER[PATH_MAX];
-	char formatuffer[SERVER_RECV_BUFSIZE] = {0};
+	char formatuffer[128] = {0};
 
 va_start(ap, message);
-vsnprintf(formatuffer, SERVER_RECV_BUFSIZE, message, ap);
+vsnprintf(formatuffer, 128, message, ap);
 va_end(ap);
 
 sprintf( DIRCHECKER, "%s/%d.%s", TMPDIR, options.port[PORT_HTTP], ( pipedirection ? "pipe" : "client.pipe" ) );
@@ -296,10 +286,10 @@ while( sysconfig.shutdown == false ) {
 		ticks.status = true;
 	}
 
-
 	cmdTickInit();
 	if( ticks.status ) {
 		cmdTick();
+		ticks.last = curtime;
 		ticks.number++;
 	}
 	cmdTickEnd();
@@ -571,8 +561,6 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:publicforum", sysconfig.directory ) );
 
 	sysconfig.httpport = iniparser_getint(ini, "system:port", 9990);
-	sysconfig.evmpactv = iniparser_getboolean(ini, "evmap:enable", false);
-	sysconfig.evmpport = iniparser_getint(ini, "evmap:port", 9991);
 
 	sysconfig.stockpile = iniparser_getint(ini, "system:stockpile", 0);
 	sysconfig.warend = iniparser_getint(ini, "system:auto_victory_afterticks", 0);
@@ -602,6 +590,8 @@ if( type == CONFIG_SYSTEM ) {
 	mysqlcfg.password = iniparser_getstring(ini, "mysql:password", NULL) ? strdup( iniparser_getstring(ini, "mysql:password", "") ) : NULL;
 	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
 	#endif
+
+	admincfg.numfakes = iniparser_getint(ini, "debug:create_accounts", 0);
 
 	admincfg.numadmins = iniparser_getint(ini, "admin:number", 0);
 	if( admincfg.numadmins > 0 ) {
@@ -658,12 +648,6 @@ if( type == CONFIG_SYSTEM ) {
 
 
 //End config scanning... handle variables.
-	if( sysconfig.evmpactv ) {
-		options.interfaces = 2;
-		options.port[PORT_EVMP] = sysconfig.evmpport;
-	} else {
-		options.interfaces = 1;
-	}
 	if( sysconfig.httpport )
 		options.port[PORT_HTTP] = options.port[PORT_HTTP] ? options.port[PORT_HTTP] : sysconfig.httpport;
 
@@ -710,6 +694,7 @@ if( type == CONFIG_SYSTEM ) {
 	ticks.number = iniparser_getint(ini, "ticks:number", 0);
 	ticks.round = iniparser_getint(ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
 	ticks.speed = iniparser_getint(ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
+	ticks.last = iniparser_getint(ini, "ticks:last", 0);
 	ticks.next = iniparser_getint(ini, "ticks:next", 0);
 }
 #if IRCBOT_SUPPORT
@@ -744,11 +729,6 @@ if( firstload ) {
 		iniparser_set(ini,"system:auto_endwar_afterticks","26");
 		iniparser_set(ini,"system:tick_time","3600");
 		iniparser_set(ini,"system:round","0");
-	}
-	if( !( iniparser_find_entry(ini,"evmap") ) ){
-		iniparser_set(ini,"evmap",NULL);
-		iniparser_set(ini,"evmap:enable", sysconfig.evmpactv ? "true" : "false" );
-		iniparser_set(ini,"evmap:port", itoa(sysconfig.evmpport) );
 	}
 	if( !( iniparser_find_entry(ini,"syslog") ) ){
 		iniparser_set(ini,"syslog",NULL);
@@ -894,6 +874,7 @@ if(file) {
 	iniparser_set(ini,"ticks:number",itoa(ticks.number));
 	iniparser_set(ini,"ticks:round",itoa(ticks.round));
 	iniparser_set(ini,"ticks:speed",itoa(ticks.speed));
+	iniparser_set(ini,"ticks:last",itoa(ticks.last));
 	iniparser_set(ini,"ticks:next",itoa(ticks.next));
 	iniparser_set(ini,"ticks:debug_id",itoa(ticks.debug_id));
 	iniparser_set(ini,"ticks:debug_pass",itoa(ticks.debug_pass));

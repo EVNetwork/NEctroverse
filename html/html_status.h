@@ -24,8 +24,6 @@ typedef struct {
 
 char *TimeToString( long eltime );
 
-void iohttpFunc_status( svConnectionPtr cnt );
-
 void iohtmlFunc_status( ReplyDataPtr cnt );
 
 void connverttime_todef( timeDef *statime, long stime );

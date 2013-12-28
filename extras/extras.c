@@ -1,4 +1,4 @@
-#include "../global.h"
+#include "../config/global.h"
 
 #include "encrypt.c"
 

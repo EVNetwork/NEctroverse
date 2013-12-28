@@ -1,5 +1,3 @@
-#include "../global.h"
-
 #include "md5.c"
 #include "base64.c"
 

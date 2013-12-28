@@ -7,7 +7,7 @@ sec--;
 if (sec < 0 ) {
 	if ( min > 0 ) {
 		sec = 59;
-		min = min - 1;
+		min--;
 	} else {
 		sec = 00;
 		getInfo("ticker");
@@ -19,7 +19,7 @@ if (sec < 0 ) {
 	min = min;
 }
 
-time = (min < 0 ? min + " minute"+( (min > 1) ? "s" : "" )+" and " : "" ) + sec + " second"+( (sec > 1) ? "s" : "" );
+time = ( ( min > 0 ) ? min + " minute"+( (min > 1) ? "s" : "" )+" and " : "" ) + sec + " second"+( (sec > 1) ? "s" : "" );
 updatehtml('headerTime',time);
 updatehtml('hqTime',time);
 updatehtml('sstatsTime',time);

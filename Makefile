@@ -4,7 +4,7 @@ CC = gcc
 else
 CC = colorgcc
 endif
-CONFIGS := $(shell cat config/config.h)
+CONFIGS := $(shell cat config/depreciated.h)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
@@ -35,7 +35,7 @@ else
 LIBS += -lm -pthread
 endif
 
-HEAD = *.h config/config.h
+HEAD = *.h config/*.h
 
 # Right then, now we know all of that... lets build something!
 server: $(LIBDIR)main.o $(LIBDIR)io.o $(LIBDIR)http.o $(LIBDIR)db.o $(LIBDIR)cmd.o $(LIBDIR)html.o $(LIBDIR)map.o $(LIBDIR)extras.o $(MODLIBS)

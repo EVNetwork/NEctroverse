@@ -1998,7 +1998,7 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
   {
   	sprintf(szColor, "FFFF66");
   }
-  httpPrintf( cnt, "</td><td><font color=\"#%s\">%d0 / %d0</font></td><td><a href=\"build?id=%d\">Build</a>", szColor, planetd.population, planetd.maxpopulation, buffer[a] );
+  httpPrintf( cnt, "</td><td><font color=\"#%s\">%.0f0 / %d0</font></td><td><a href=\"build?id=%d\">Build</a>", szColor, planetd.population, planetd.maxpopulation, buffer[a] );
   if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
   {
    httpString( cnt, " Portal" );
@@ -3831,7 +3831,7 @@ httpPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a href
  else if( planetd.owner == id )
  {
   httpString( cnt, "This planet is yours.<br>" );
-  httpPrintf( cnt, "Population : %d0<br>", planetd.population );
+  httpPrintf( cnt, "Population : %.0f0<br>", planetd.population );
  b = (int)artefactPrecense( &planetd );
   if( b >= 0 )
    httpPrintf( cnt, "<br><img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );

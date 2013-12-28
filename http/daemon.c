@@ -26,8 +26,6 @@
  * @author Daniel Pittman
  * @author Christian Grothoff
  */
-#include "../global.h"
-
 #ifndef HAVE_ACCEPT4
 #define HAVE_ACCEPT4 0
 #endif
