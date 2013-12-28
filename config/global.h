@@ -66,8 +66,10 @@
 #endif
 
 
+#ifndef ARRAY_MAX
+#define ARRAY_MAX 16384
+#endif
 
-// 0 = Off | 1 = On
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif

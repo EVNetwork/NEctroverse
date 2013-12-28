@@ -64,7 +64,7 @@ char dbFileUserGameFlags[] = "%s/user%d/flags";
 char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserGameFlags };
 
 int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
-int dbFileUserListDat1[] = { 0, 8 };
+int64_t dbFileUserListDat1[] = { 0, 8 };
 
 int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
 int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
@@ -354,29 +354,29 @@ FILE *dbFileFamOpen( int id, int num )
 
 
 dbUserPtr dbUserList;
-dbUserPtr dbUserTable[16384];
+dbUserPtr dbUserTable[ARRAY_MAX];
 
 
 
-dbUserPtr dbUserAllocate( int id )
-{
-  char pass[128];
-  dbUserPtr user;
+dbUserPtr dbUserAllocate( int id ) {
+	dbUserPtr user;
+
 if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
 	critical("Database Malloc Failed");
 	return 0;
 }
-  memset( user, 0, sizeof(dbUserDef) );
-  user->prev = (void **)&(dbUserList);
-  user->next = dbUserList;
-  if( dbUserList )
-    dbUserList->prev = &(user->next);
-  dbUserList = user;
-  user->id = id;
-  user->lasttime = 0;
-  dbUserRetrievePassword( id, pass );
-  dbUserTable[id] = user;
-  return user;
+
+memset( user, 0, sizeof(dbUserDef) );
+user->prev = (void **)&(dbUserList);
+user->next = dbUserList;
+if( dbUserList )
+	dbUserList->prev = &(user->next);
+dbUserList = user;
+user->id = id;
+user->lasttime = 0;
+dbUserTable[id] = user;
+
+return user;
 }
 
 void dbUserFree( dbUserPtr user )
@@ -387,7 +387,7 @@ void dbUserFree( dbUserPtr user )
   if( next )
     next->prev = user->prev;
   free( user );
-  if( (unsigned int)user->id >= 16384 )
+  if( (unsigned int)user->id >= ARRAY_MAX )
     return;
   dbUserTable[user->id] = 0;
   return;
@@ -410,7 +410,7 @@ int dbInitUsersReset()
   if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
     return -3;
   last = 0;
-  for( a = 0 ; a < 16384 ; a++ )
+  for( a = 0 ; a < ARRAY_MAX ; a++ )
   {
     if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_MAIN ) ) )
       continue;
@@ -463,7 +463,7 @@ if( chdir( COREDIR ) == -1 ) {
 if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
 	return 0;
 
-if( !( dbFileGenOpen( DB_FILE_MARKET ) ) ) {
+if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "rb+" ) ) ) {
 	info( "Market database not found, creating..." );
 
 	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
@@ -505,7 +505,7 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( &forumd, 1, 100+a );
 	}
-	snprintf(logString, sizeof(logString), "Created Forums for %d Empires.", a-1 );
+	snprintf(logString, sizeof(logString), "Created Forums for %d Empires.", a );
 	info(logString);
 }
 
@@ -522,13 +522,11 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 }
 fclose( file );
 
-
-if( !( dbFileGenOpen( DB_FILE_USERS ) ) ) {
+snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );
+sprintf( fname, dbFileList[DB_FILE_USERS], COREDIR );
+if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "rb+" ) ) ) {
 	info( "User database not found, creating..." );
 
-    // Create a path to the users file in the same way as dbFileGenOpen
-	snprintf( COREDIR, sizeof(COREDIR), "%s/users", sysconfig.directory );
-	sprintf( fname, dbFileList[DB_FILE_USERS], COREDIR );
 	if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "wb+" ) ) ) {
 		critical( "Error, could not create user database!" );
 		return 0;
@@ -672,7 +670,7 @@ return -1;
 
 dbUserPtr dbUserLinkID( int id ) {
 
-if( (unsigned int)id >= 16384 )
+if( (unsigned int)id >= ARRAY_MAX )
 	return 0;
 
 return dbUserTable[id];
@@ -716,9 +714,23 @@ if( !( user = dbUserAllocate( id ) ) ) {
 //create both folder for player
 sprintf( dname, "%s/data/user%d", sysconfig.directory, id );
 sprintf( uname, "%s/users/user%d", sysconfig.directory, id );
-  
-mkdir( dname, S_IRWXU );
-mkdir( uname, S_IRWXU );
+if( mkdir( dname, S_IRWXU ) == -1 ) {
+	dbUserFree( user );
+	snprintf( logString, sizeof(logString), "mkdir %s\n", dname );
+	return -3;
+}  
+if( mkdir( uname, S_IRWXU ) == -1 ) {
+	dbUserFree( user );
+	snprintf( logString, sizeof(logString), "mkdir %s\n", dname );
+	return -3;
+}  
+
+sprintf( user->name, "%s", adduser->name );
+sprintf( user->faction, "%s", adduser->faction );
+sprintf( user->forumtag, "%s", adduser->forumtag );
+user->id = id;
+user->flags = 0;
+user->level = 0;
   
 //Create a db Database in the db other server
 for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
@@ -738,7 +750,7 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
 	fclose( file );
 }
-adduser->id = id;
+adduser->id = user->id;
 fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
   
@@ -756,16 +768,14 @@ for( a = DB_FILE_USER_TOTAL-1 ;  ; a-- ) {
 	}
 	if( a == 0 )
 		break;
-	if( dbFileUserListBase[a] ) {
-//		printf("write base of %s\n", fname);
+	if( dbFileUserListBase[a] )
 		fwrite( dbFileUserListData[a], 1, dbFileUserListBase[a], file );
-	}
 	fclose( file );
 }
-adduser->id = id;
+
 fwrite( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
-	
+
 if( !( freenum ) ) {
 	fseek( dbFilePtr[DB_FILE_USERS], 0, SEEK_SET );
 	a = id + 1;
@@ -775,10 +785,6 @@ if( !( freenum ) ) {
 	fseek( dbFilePtr[DB_FILE_USERS], 4, SEEK_SET );
 	fwrite( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 }
-
-
-dbEnd();
-dbInit();
 
 return id;
 }
@@ -3808,185 +3814,221 @@ if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
 
 
 
-int dbMailList( int id, int type, int base, int end, dbMailPtr *mails, int *rtnum )
-{
-  int a, b, offset, num;
-  FILE *file;
-  dbMailPtr mailsp;
-  if( ( type & 0xFFFFFFE ) )
-    return -3;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
-    return -3;
-if( fread( &num, 1, sizeof(int), file ) < 1 ) {
+int dbMailList( int id, int type, int base, int end, dbMailPtr *mails, int *rtnum ) {
+	int a, b;
+	int64_t num, offset;
+	dbMailPtr mailsp;
+	FILE *file;
+
+if( ( type & 0xFFFFFFE ) )
+	return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+	return -3;
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
+	error( "Failure reading file" );
+	fclose( file );
+	return -1;
+}
+
+if( rtnum )
+	*rtnum = (int)num;
+if( end < num )
+	num = end;
+if( base > num ) {
+	fclose( file );
+	return -3;
+}
+
+if( !( mailsp = malloc( num * sizeof(dbMailDef) ) ) )
+	return -3;
+
+if( base == num ) {
+	fclose( file );
+	*mails = mailsp;
+	return 0;
+}
+
+offset = 2 * sizeof(int64_t);
+
+for( a = 0 ; a < base ; a++ ) {
+	fseek( file, offset, SEEK_SET );
+	if( fread( &offset, 1, sizeof(int64_t), file ) < 1 ) {
+		error( "Failure reading file" );
+		fclose( file );
+		return -1;
+	}
+}
+
+for( b = 0 ; a < num ; a++, b++ ) {
+	fseek( file, offset, SEEK_SET );
+	if( fread( &offset, 1, sizeof(int64_t), file ) < 1 ) {
+		error( "Failure reading file" );
+		fclose( file );
+		return -1;
+	}
+	if( fread( &mailsp[b].mail, 1, sizeof(dbMailInDef), file ) < 1 ) {
+		error( "Failure reading file" );
+		fclose( file );
+		return -1;
+	}
+	mailsp[b].text = 0;
+	if( (unsigned int)((mailsp[b].mail).length) >= 65536 )
+		continue;
+	if( !( mailsp[b].text = malloc( (mailsp[b].mail).length + 1 ) ) )
+		continue;
+	if( fread( mailsp[b].text, 1, (mailsp[b].mail).length, file ) < 1 ) {
+		error( "Failure reading file" );
+		fclose( file );
+		return -1;
+	}
+	mailsp[b].text[ (mailsp[b].mail).length ] = 0;
+}
+
+*mails = mailsp;
+fclose( file );
+
+return b;
+}
+
+int dbMailAdd( int id, int type, dbMailPtr maild ) {
+	int64_t a, num, offset;
+	FILE *file;
+
+if( ( type & 0xFFFFFFE ) )
+	return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+	return -3;
+
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
+	error( "Failure reading file" );
+	fclose( file );
+	return -1;
+}
+if( fread( &offset, 1, sizeof(int64_t), file ) < 1 ) {
+	//error( "Failure reading file" ); //disabled due to offset not currently setting on creation
+	offset = 2 * sizeof(int64_t);
+}
+
+num++;
+fseek( file, 0, SEEK_SET );
+fwrite( &num, 1, sizeof(int64_t), file );
+
+
+
+fseek( file, offset, SEEK_SET );
+a = offset + ( sizeof(int64_t) + sizeof(dbMailInDef) + (maild->mail).length );
+fwrite( &a, 1, sizeof(int64_t), file );
+fwrite( &(maild->mail), 1, sizeof(dbMailInDef), file );
+fwrite( maild->text, 1, (maild->mail).length, file );
+
+fseek( file, sizeof(int64_t), SEEK_SET );
+fwrite( &a, 1, sizeof(int64_t), file );
+fclose( file );
+
+
+return 1;
+}
+
+int dbMailRemove( int id, int type, int message ) {
+	int a;
+	int64_t num, offset, offset2;
+	dbMailDef maild;
+	FILE *file;
+
+if( ( type & 0xFFFFFFE ) )
+	return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+	return -3;
+if( fread( &num, 1, sizeof(int64_t), file ) < 1 ) {
  	error( "Failure reading file" );
+ 	fclose( file );
+ 	return -1;
 }
-	if( rtnum )
-    *rtnum = num;
-  if( end < num )
-    num = end;
-  if( base > num )
-  {
-    fclose( file );
-    return -3;
-  }
-
-  if( !( mailsp = malloc( num * sizeof(dbMailDef) ) ) )
-    return -3;
-  if( base == num )
-  {
-    fclose( file );
-    *mails = mailsp;
-    return 0;
-  }
-  offset = 8;
-  for( a = 0 ; a < base ; a++ )
-  {
-    fseek( file, offset, SEEK_SET );
-    if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
+if( fread( &offset, 1, sizeof(int64_t), file ) < 1 ) {
  	error( "Failure reading file" );
-}
-  }
-
-  for( b = 0 ; a < num ; a++, b++ )
-  {
-    fseek( file, offset, SEEK_SET );
-    if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-    if( fread( &mailsp[b].mail, 1, sizeof(dbMailInDef), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-    mailsp[b].text = 0;
-    if( (unsigned int)((mailsp[b].mail).length) >= 65536 )
-      continue;
-    if( !( mailsp[b].text = malloc( (mailsp[b].mail).length + 1 ) ) )
-      continue;
-    if( fread( mailsp[b].text, 1, (mailsp[b].mail).length, file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-    mailsp[b].text[ (mailsp[b].mail).length ] = 0;
-  }
-
-  *mails = mailsp;
-  fclose( file );
-
-  return b;
+ 	fclose( file );
+ 	return -1;
 }
 
-int dbMailAdd( int id, int type, dbMailPtr maild )
-{
-  int a, num, offset;
-  FILE *file;
-  if( ( type & 0xFFFFFFE ) )
-    return -3;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
-    return -3;
-  if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-  num++;
-  fseek( file, 0, SEEK_SET );
-  fwrite( &num, 1, sizeof(int), file );
-if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
+if( (unsigned int)message >= num ) {
+	fclose( file );
+	return -3;
 }
 
-  fseek( file, offset, SEEK_SET );
-  a = offset + ( 4 + sizeof(dbMailInDef) + (maild->mail).length );
-  fwrite( &a, 1, sizeof(int), file );
-  fwrite( &(maild->mail), 1, sizeof(dbMailInDef), file );
-  fwrite( maild->text, 1, (maild->mail).length, file );
+offset = 2 * sizeof(int64_t);
+fseek( file, offset, SEEK_SET );
 
-  fseek( file, 4, SEEK_SET );
-  fwrite( &a, 1, sizeof(int), file );
-  fclose( file );
-  return 1;
+for( a = 0 ; a < num ; a++ ) {
+	if( a != message ) {
+		if( fread( &offset, 1, sizeof(int64_t), file ) < 1 ) {
+			error( "Failure reading file" );
+			fclose( file );
+			return -1;
+		}
+		fseek( file, offset, SEEK_SET );
+		continue;
+	}
+
+	if( fread( &offset2, 1, sizeof(int64_t), file ) < 1 ) {
+		error( "Failure reading file" );
+		fclose( file );
+		return -1;
+	}
+	
+	for( a++ ; a < num ; a++ ) {
+		fseek( file, offset2, SEEK_SET );
+		if( fread( &offset2, 1, sizeof(int64_t), file ) < 1 ) {
+			error( "Failure reading file" );
+			fclose( file );
+			return -1;
+		}
+		if( fread( &maild.mail, 1, sizeof(dbMailInDef), file ) < 1 ) {
+			error( "Failure reading file" );
+			fclose( file );
+			return -1;
+		}
+		if( !( maild.text = malloc( (maild.mail).length ) ) )
+			(maild.mail).length = 0;
+		if( fread( maild.text, 1, (maild.mail).length, file ) < 1 ) {
+			error( "Failure reading file" );
+			fclose( file );
+			return -1;
+		}
+
+		fseek( file, offset, SEEK_SET );
+		offset += sizeof(int64_t) + sizeof(dbMailInDef) + (maild.mail).length;
+		fwrite( &offset, 1, sizeof(int64_t), file );
+		fwrite( &maild.mail, 1, sizeof(dbMailInDef), file );
+		fwrite( maild.text, 1, (maild.mail).length, file );
+		if( maild.text )
+			free( maild.text );
+	}
+
+	fseek( file, 0, SEEK_SET );
+	num--;
+	fwrite( &num, 1, sizeof(int64_t), file );
+	fwrite( &offset, 1, sizeof(int64_t), file );
+
+	fclose( file );
+	return num;
 }
 
-int dbMailRemove( int id, int type, int message )
-{
-  int a, num, offset, offset2;
-  FILE *file;
-  dbMailDef maild;
 
-  if( ( type & 0xFFFFFFE ) )
-    return -3;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
-    return -3;
-if( fread( &num, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-  if( (unsigned int)message >= num )
-  {
-    fclose( file );
-    return -3;
-  }
-
-  fseek( file, 8, SEEK_SET );
-  offset = 8;
-  for( a = 0 ; a < num ; a++ )
-  {
-    if( a != message )
-    {
-      if( fread( &offset, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-      fseek( file, offset, SEEK_SET );
-      continue;
-    }
-
-    if( fread( &offset2, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-    for( a++ ; a < num ; a++ )
-    {
-      fseek( file, offset2, SEEK_SET );
-      if( fread( &offset2, 1, sizeof(int), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-      if( fread( &maild.mail, 1, sizeof(dbMailInDef), file ) < 1 ) {
- 	error( "Failure reading file" );
-}
-      if( !( maild.text = malloc( (maild.mail).length ) ) )
-        (maild.mail).length = 0;
-      if( fread( maild.text, 1, (maild.mail).length, file ) < 1 ) {
- 	error( "Failure reading file" );
+return -3;
 }
 
-      fseek( file, offset, SEEK_SET );
-      offset += 4 + sizeof(dbMailInDef) + (maild.mail).length;
-      fwrite( &offset, 1, sizeof(int), file );
-      fwrite( &maild.mail, 1, sizeof(dbMailInDef), file );
-      fwrite( maild.text, 1, (maild.mail).length, file );
-      if( maild.text )
-        free( maild.text );
-    }
+int dbMailEmpty( int id, int type ) {
+	FILE *file;
 
-    fseek( file, 0, SEEK_SET );
-    num--;
-    fwrite( &num, 1, sizeof(int), file );
-    fwrite( &offset, 1, sizeof(int), file );
+if( ( type & 0xFFFFFFE ) )
+	return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+	return -3;
 
-    fclose( file );
-    return num;
-  }
-
-  return -3;
-}
-
-int dbMailEmpty( int id, int type )
-{
-  FILE *file;
-  if( ( type & 0xFFFFFFE ) )
-    return -3;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
-    return -3;
-  fwrite( dbFileUserListData[DB_FILE_USER_MAILIN+type], 1, dbFileUserListBase[DB_FILE_USER_MAILIN+type], file );
-  fclose( file );
-  return 1;
+fwrite( dbFileUserListData[DB_FILE_USER_MAILIN+type], 1, dbFileUserListBase[DB_FILE_USER_MAILIN+type], file );
+fclose( file );
+  
+return 1;
 }
 
 

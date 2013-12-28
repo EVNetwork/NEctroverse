@@ -3,6 +3,7 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
 {
   int a, b;
   dbUserInfoDef newuser;
+  dbUserMainDef maind;
 
 	cmdErrorString = 0;
 	if( !( cmdCheckName( name ) ) )
@@ -42,20 +43,16 @@ newuser.createtime = b;
 newuser.lasttime = b;
 a = dbUserAdd( &newuser );
 
-  strncpy( cmdUserMainDefault.faction, faction, sizeof(cmdUserMainDefault.faction) );
-  cmdUserMainDefault.empire = -1;
-  b = time( 0 );
+memcpy( &maind, &cmdUserMainDefault, sizeof(dbUserMainDef) );
+strncpy( maind.faction, faction, sizeof(maind.faction) );
+
+if( ( dbUserMainSet( a, &maind ) < 0 ) ) {
+	cmdUserDelete( a );
+	return -2;
+}
 
 
- 	//This create the main file in the server db not in User one
-  if( ( dbUserMainSet( a, &cmdUserMainDefault ) < 0 ) )
-  {
-    cmdUserDelete( a );
-    return -2;
-  }
-
-
-  return a;
+return a;
 }
 
 int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int level )
@@ -1247,6 +1244,7 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
 
   if( type == CMD_RELATION_ALLY )
   {	
+
   	
     if( a >= 1 )
     {

@@ -6849,248 +6849,226 @@ if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
 
 #define IOHTTP_MAIL_MAXMESSAGES (256)
 
-void iohtmlFunc_mail( ReplyDataPtr cnt )
-{
- int a, b, skip, id, cmd[2], type, msent;
- dbUserMainDef maind, main2d;
- dbMailPtr mails;
- dbMailDef maild;
- char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
- char timebuf[256];
- char *text;
- int64_t newd[DB_USER_NEWS_BASE];
+void iohtmlFunc_mail( ReplyDataPtr cnt ) {
+	int a, b, skip, id, type, msent;
+	dbUserMainDef maind, main2d;
+	dbMailPtr mails;
+	dbMailDef maild;
+	char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
+	char timebuf[256];
+	int64_t newd[DB_USER_NEWS_BASE];
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-  return;
- iohtmlBase( cnt, 1 );
+	return;
+
+iohtmlBase( cnt, 1 );
 
 
- tostring = iohtmlVarsFind( cnt, "to" );
- mailstring = iohtmlVarsFind( cnt, "mail" );
- typestring = iohtmlVarsFind( cnt, "type" );
- deletestring = iohtmlVarsFind( cnt, "delete" );
- deleteallstring = iohtmlVarsFind( cnt, "deleteall" );
- skipstring = iohtmlVarsFind( cnt, "skip" );
+tostring = iohtmlVarsFind( cnt, "to" );
+mailstring = iohtmlVarsFind( cnt, "mail" );
+typestring = iohtmlVarsFind( cnt, "type" );
+deletestring = iohtmlVarsFind( cnt, "delete" );
+deleteallstring = iohtmlVarsFind( cnt, "deleteall" );
+skipstring = iohtmlVarsFind( cnt, "skip" );
 
- if( !( iohtmlHeader( cnt, id, &maind ) ) )
-  return;
- iohtmlBodyInit( cnt, "Mail" );
+if( !( iohtmlHeader( cnt, id, &maind ) ) )
+	return;
 
- httpString( cnt, "<a href=\"mail?type=0\">Received messages</a> - <a href=\"mail?type=1\">Sent messages</a> - <a href=\"mail\">Write a message</a>" );
- if( typestring )
- {
-  type = 0;
-  sscanf( typestring, "%d", &type );
-  httpPrintf( cnt, " - <a href=\"mail?type=%d&deleteall=1\">Delete all</a>", type );
- }
- httpString( cnt, "<br><br>" );
+iohtmlBodyInit( cnt, "Mail" );
 
- skip = 0;
- if( ( skipstring ) )
-  sscanf( skipstring, "%d", &skip );
+httpString( cnt, "<a href=\"mail?type=0\">Received messages</a> - <a href=\"mail?type=1\">Sent messages</a> - <a href=\"mail\">Write a message</a>" );
 
- msent = 0;
- maild.text = 0;
- if( ( tostring ) && ( mailstring ) )
- {
-  if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) )
-  {
-	  a = 0;
-	  if(id != -1 )
-	  {
-	  	if((cnt->session)->dbuser)
-  		{
-		  	if(((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
-		   		a = 1;
-		  }
-	  }
-	  iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
-	  (maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
+if( typestring ) {
+	type = 0;
+	sscanf( typestring, "%d", &type );
+	httpPrintf( cnt, " - <a href=\"mail?type=%d&deleteall=1\">Delete all</a>", type );
+}
 
-	  a = -1;
-	  if( ( tostring[0] >= '0' ) && ( tostring[0] <= '9' ) )
-	   sscanf( tostring, "%d", &a );
-	  else
-	  {
-	   for( a = 0 ; tostring[a] ; a++ )
-	   {
-	    if( tostring[a] == '+' )
-	     tostring[a] = ' ';
-	    else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
-	     tostring[a] = 0;
-	   }
-	   cmd[0] = CMD_SEARCH_EMPIRE;
-	   cmd[1] = id;
-	   a = cmdExecute( cnt, cmd, tostring, 0 );
-	  }
-	  if( a < 0 )
-	  {
-	   httpPrintf( cnt, "<i>The faction %s does not seem to exist, the syntax must be exact or use the user ID.</i><br><br>", tostring );
-	  }
-	  else
-	  {
-		  cmd[0] = CMD_RETRIEVE_USERMAIN;
-		  cmd[1] = a;
-		  if( cmdExecute( cnt, cmd, &main2d, 0 ) < 0 )
-		  {
-		   httpString( cnt, "<i>Are you sure this user exist?</i><br><br>" );
-		  }
-				else
-				{
-			  (maild.mail).authorid = id;
-			  sprintf( (maild.mail).authorname, "%s", ((cnt->session)->dbuser)->faction );
-			  (maild.mail).authorempire = maind.empire;
-			  (maild.mail).time = time( 0 );
-			  (maild.mail).tick = ticks.number;
-			  (maild.mail).flags = 0;
-			  if( dbMailAdd( a, 0, &maild ) < 0 )
-			  {
-			   httpString( cnt, "<i>Error while sending message</i><br><br>" );
-			  }
-			  else
-			  httpPrintf( cnt, "<i>Message sent to <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></i><br><br>", a, main2d.faction, main2d.empire, main2d.empire );
+httpString( cnt, "<br><br>" );
 
-			  newd[0] = ticks.number;
-			  newd[1] = CMD_NEWS_FLAGS_NEW;
-			  newd[2] = CMD_NEWS_MAIL;
-			  newd[3] = 0;
-			  newd[4] = id;
-			  newd[5] = maind.empire;
-			  memcpy( &newd[6], maind.faction, 64 );
-			  cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
+skip = 0;
+if( ( skipstring ) )
+	sscanf( skipstring, "%d", &skip );
 
-			  (maild.mail).authorid = a;
-			  sprintf( (maild.mail).authorname, "%s", main2d.faction );
-			  (maild.mail).authorempire = main2d.empire;
-			  dbMailAdd( id, 1, &maild );
+msent = 0;
+maild.text = 0;
 
-			  msent = 1;
-			 }
+if( ( tostring ) && ( mailstring ) ) {
+	if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) ) {
+		a = 0;
+		if(id != -1 ) {
+			if((cnt->session)->dbuser) {
+				if(((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
+					a = 1;
 			}
 		}
- }
- if( maild.text )
-  free( maild.text );
+		iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
+		(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
 
- if( typestring )
- {
- 	if( deleteallstring )
-  {
-   dbMailEmpty( id, type );
-   deletestring = 0;
-  }
-  if( type == 0 )
-  {
-   if( ( deletestring ) && ( sscanf( deletestring, "%d", &a ) == 1 ) )
-   {
-    if( dbMailRemove( id, type, a ) >= 0 )
-     httpString( cnt, "<i>Message deleted</i><br><br>" );
-    else
-     httpString( cnt, "<i>Error while deleting message</i><br><br>" );
-   }
+		a = -1;
+		if( ( tostring[0] >= '0' ) && ( tostring[0] <= '9' ) ) {
+			sscanf( tostring, "%d", &a );
+		} else {
+			for( a = 0 ; tostring[a] ; a++ ) {
+				if( tostring[a] == '+' )
+					tostring[a] = ' ';
+				else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
+					tostring[a] = 0;
+			}
+			a = dbUserSearchFaction( tostring );
+		}
+		if( a < 0 ) {
+			httpPrintf( cnt, "<i>The faction %s does not seem to exist, the syntax must be exact or use the user ID.</i><br><br>", tostring );
+		} else {
+			if( dbUserMainRetrieve( a, &main2d ) < 0 ) {
+				httpString( cnt, "<i>Are you sure this user exist?</i><br><br>" );
+			} else {
+				(maild.mail).authorid = id;
+				sprintf( (maild.mail).authorname, "%s", ((cnt->session)->dbuser)->faction );
+				(maild.mail).authorempire = maind.empire;
+				(maild.mail).time = time( 0 );
+				(maild.mail).tick = ticks.number;
+				(maild.mail).flags = 0;
+				if( dbMailAdd( a, MAIL_IN, &maild ) < 0 ) {
+					httpString( cnt, "<i>Error while sending message</i><br><br>" );
+				} else {
+					httpPrintf( cnt, "<i>Message sent to <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></i><br><br>", a, main2d.faction, main2d.empire, main2d.empire );
+				}
+				newd[0] = ticks.number;
+				newd[1] = CMD_NEWS_FLAGS_NEW;
+				newd[2] = CMD_NEWS_MAIL;
+				newd[3] = 0;
+				newd[4] = id;
+				newd[5] = maind.empire;
+				memcpy( &newd[6], maind.faction, 64 );
+				cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
+				(maild.mail).authorid = a;
+				sprintf( (maild.mail).authorname, "%s", main2d.faction );
+				(maild.mail).authorempire = main2d.empire;
+				dbMailAdd( id, MAIL_OUT, &maild );
+				msent = 1;
+			}
+		}
+	}
+}
 
-   b = dbMailList( id, 0, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
-   if( a > IOHTTP_MAIL_MAXMESSAGES )
-    httpPrintf( cnt, "<i>Your mailbox seems crowded! You have %d messages waiting that won't be displayed until you delete some old messages.</i><br><br>", a - b );
-   if( b < 0 )
-   {
-    httpString( cnt, "Error retrieving mailbox" );
-    iohtmlBodyEnd( cnt );
-    return;
-   }
-   if( b == 0 )
-    httpString( cnt, "<br><b>No messages</b><br>" );
-   for( b-- ; b >= 0 ; b-- )
-   {
-    strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(mails[b].mail).time ) );
-    httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=0&delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
-    httpString( cnt, mails[b].text );
-    httpString( cnt, "</td></tr></table><br><br>" );
-    if( mails[b].text )
-     free( mails[b].text );
-   }
-   if( mails )
-    free( mails );
-  }
-  else
-  {
-   if( ( deletestring ) && ( sscanf( deletestring, "%d", &a ) == 1 ) )
-   {
-    if( dbMailRemove( id, type, a ) >= 0 )
-     httpString( cnt, "<i>Message deleted</i><br><br>" );
-    else
-     httpString( cnt, "<i>Error while deleting message</i><br><br>" );
-   }
-   b = dbMailList( id, 1, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
-   if( a > IOHTTP_MAIL_MAXMESSAGES )
-    httpPrintf( cnt, "<i>Your mailbox seems crowded! There are %d sent messages that won't be displayed until you delete some old messages.</i><br><br>", a - b );
-   if( b < 0 )
-   {
-    httpString( cnt, "Error retrieving mailbox" );
-    iohtmlBodyEnd( cnt );
-    return;
-   }
-   if( b == 0 )
-    httpString( cnt, "<br><b>No messages</b><br>" );
-   for( b-- ; b >= 0 ; b-- )
-   {
-    strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(mails[b].mail).time ) );
-    httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>To</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=1&delete=%d\">Delete</a></td></tr><tr><td><b>Sent</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
-    httpString( cnt, mails[b].text );
-    httpString( cnt, "</td></tr></table><br><br>" );
-    if( mails[b].text )
-     free( mails[b].text );
-   }
-   if( mails )
-    free( mails );
-  }
- }
- else
- {
- 	httpString( cnt, "To specify the player to send the message to, enter either the exact faction name or the user ID.<br><br>" );
-  httpString( cnt, "<form action=\"mail\" method=\"POST\"><table width=\"50%%\" cellspacing=\"3\"><tr><td width=\"20%%\">Recipient</td><td>" );
-  if( tostring )
-  {
-   for( a = 0 ; ( a < 31 ) && ( tostring[a] ) ; a++ )
-//   for( a = 0 ; ( a < 31 ) && ( tostring[a] ) ; a++ )
-   {
-    if( tostring[a] == '+' )
-     tostring[a] = ' ';
-//         if( tostring[a] == '+' )
-  //            tostring[a] = ' ';
-    else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
-     tostring[a] = 0;
-  //    else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
-   //        tostring[a] = 0;
+if( maild.text )
+	free( maild.text );
 
-   }
-   tostring[a] = 0;
-   httpPrintf( cnt, "<input type=\"text\" name=\"to\" size=\"32\" value=\"%s\">", tostring );
-  }
-  else
-   httpString( cnt, "<input type=\"text\" name=\"to\" size=\"32\">" );
-  httpString( cnt, "</td></tr><tr><td>Message</td><td><textarea name=\"mail\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
-  if( ( msent == 0 ) && ( mailstring ) )
-  {
-   if( ( text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) )
-   {
-    a = 0;
-    if((cnt->session)->dbuser)
-    {
-    	if(id != -1 )
-     	a = 1;
-    }
-    iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
-    (maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
-    httpString( cnt, text );
-    free( text );
-   }
-  }
-  httpString( cnt, "</textarea></td></tr><tr><td></td><td><input type=\"submit\" value=\"Send\"></td></tr></table></form>" );
- }
+if( typestring ) {
+ 	if( deleteallstring ) {
+		dbMailEmpty( id, ( type ? MAIL_OUT : MAIL_IN ) );
+		deletestring = 0;
+	}
+	if( type == MAIL_IN ) {
+		if( ( deletestring ) && ( sscanf( deletestring, "%d", &a ) == 1 ) ) {
+			if( dbMailRemove( id, MAIL_IN, a ) >= 0 )
+				httpString( cnt, "<i>Message deleted</i><br><br>" );
+			else
+				httpString( cnt, "<i>Error while deleting message</i><br><br>" );
+		}
+		b = dbMailList( id, MAIL_IN, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
+		//httpPrintf( cnt, "<i>%d / %d Messages Displayed</i><br><br>", b, a );
+		if( a > IOHTTP_MAIL_MAXMESSAGES )
+			httpPrintf( cnt, "<i>Your mailbox seems crowded! You have %d messages waiting that won't be displayed until you delete some old messages.</i><br><br>", a - b );
+		if( b < 0 ) {
+			httpString( cnt, "Error retrieving mailbox" );
+			iohtmlBodyEnd( cnt );
+			return;
+		}
+		if( b == 0 )
+			httpString( cnt, "<br><b>No messages</b><br>" );
+		for( b-- ; b >= 0 ; b-- ) {
+			strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(mails[b].mail).time ) );
+			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=0&delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
+			httpString( cnt, mails[b].text );
+			httpString( cnt, "</td></tr></table><br><br>" );
+			if( mails[b].text )
+				free( mails[b].text );
+		}
+		if( mails )
+			free( mails );
+	} else if( type == MAIL_OUT ) {
+		if( ( deletestring ) && ( sscanf( deletestring, "%d", &a ) == 1 ) ) {
+			if( dbMailRemove( id, MAIL_OUT, a ) >= 0 )
+				httpString( cnt, "<i>Message deleted</i><br><br>" );
+			else
+				httpString( cnt, "<i>Error while deleting message</i><br><br>" );
+		}
+		b = dbMailList( id, MAIL_OUT, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
+		if( a > IOHTTP_MAIL_MAXMESSAGES )
+			httpPrintf( cnt, "<i>Your mailbox seems crowded! There are %d sent messages that won't be displayed until you delete some old messages.</i><br><br>", a - b );
+		if( b < 0 ) {
+			httpString( cnt, "Error retrieving mailbox" );
+			iohtmlBodyEnd( cnt );
+			return;
+		}
+		if( b == 0 )
+			httpString( cnt, "<br><b>No messages</b><br>" );
+		for( b-- ; b >= 0 ; b-- ) {
+			strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(mails[b].mail).time ) );
+			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>To</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=1&delete=%d\">Delete</a></td></tr><tr><td><b>Sent</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
+			httpString( cnt, mails[b].text );
+			httpString( cnt, "</td></tr></table><br><br>" );
+			if( mails[b].text )
+				free( mails[b].text );
+		}
+		if( mails )
+			free( mails );
+	}
+} else if( msent == 1 ) { 
+	if( ( mailstring ) ) {
+		if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) ) {
+			a = 0;
+			if((cnt->session)->dbuser) {
+				if(id != -1 )
+					a = 1;
+			}
+			iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
+			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
+			httpString( cnt, maild.text );
+			free( maild.text );
+			httpString( cnt, "<br>" );
+		}
+	} else {
+		httpString( cnt, "Strange, you sent a blank message?" );
+	}
+} else {
+	httpString( cnt, "To specify the player to send the message to, enter either the exact faction name or the user ID.<br><br>" );
+	httpString( cnt, "<form action=\"mail\" method=\"POST\"><table width=\"50%%\" cellspacing=\"3\"><tr><td width=\"20%%\">Recipient</td><td>" );
+	if( tostring ) {
+		for( a = 0 ; ( a < 31 ) && ( tostring[a] ) ; a++ ) {
+			if( tostring[a] == '+' )
+				tostring[a] = ' ';
+			else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
+				tostring[a] = 0;
+		}
+		tostring[a] = 0;
+		httpPrintf( cnt, "<input type=\"text\" name=\"to\" size=\"32\" value=\"%s\">", tostring );
+	} else {
+		httpString( cnt, "<input type=\"text\" name=\"to\" size=\"32\">" );
+	}
+	httpString( cnt, "</td></tr><tr><td>Message</td><td><textarea name=\"mail\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
+	if( ( mailstring ) ) {
+		if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) ) {
+			a = 0;
+			if((cnt->session)->dbuser) {
+				if(id != -1 )
+					a = 1;
+			}
+			iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
+			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
+			httpString( cnt, maild.text );
+			free( maild.text );
+		}
+	}
+	httpString( cnt, "</textarea></td></tr><tr><td></td><td><input type=\"submit\" value=\"Send\"></td></tr></table></form>" );
+}
 
- iohtmlBodyEnd( cnt );
- return;
+iohtmlBodyEnd( cnt );
+
+
+return;
 }
 
 

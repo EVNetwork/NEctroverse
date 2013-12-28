@@ -1101,7 +1101,7 @@ server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 if(NULL == server_https)
 	return 1;
 
-sprintf( logString, "HTTPS Server live with %d thread(s) on port: %d", THREADS, ports[1] );
+sprintf( logString, "HTTPS Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), ports[1] );
 info( logString );
 
 return 0;
@@ -1126,7 +1126,7 @@ server_http = MHD_start_daemon (flags,
 if(NULL == server_http)
 	return 1;
 
-sprintf( logString, "HTTP Server live with %d thread(s) on port: %d", THREADS, ports[0] );
+sprintf( logString, "HTTP Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), ports[0] );
 info( logString );
 
 return 0;

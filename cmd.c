@@ -467,7 +467,7 @@ dbUserMainDef cmdUserMainDefault =
 {
   { },
   { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ },
-  0,
+  -1,
   { },
   { 0, 0, 0, 0, 0, 0, 0/*, 0*/ },
   { 100*65536, 100*65536, 100*65536 },
@@ -1569,7 +1569,7 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
 
 
 int cmdInit() {
-	int id, a;
+	int id, a, pass, exist;
 	char string[2][128];
 	dbUserPtr user;
 	dbUserInfoDef infod;
@@ -1625,13 +1625,14 @@ free(admincfg.ename);
 free(admincfg.epassword);
 
 if( ( admincfg.numfakes > 0 ) ) {
+	pass = exist = 0;
 	for( a = 0; a < admincfg.numfakes; a++ ) {
 		sprintf(string[0], "fake%05duser", a );
 		sprintf(string[1], "Fake Faction %d", a );
-		if( ( id = dbUserSearch( string[0] ) ) >= 0 )
+		if( ( id = dbUserSearch( string[0] ) ) >= 0 ) {
+			exist++;
 			continue;
-		sprintf(logString, "Creating Fake account named: \"%s\"", string[0] );
-		info( logString );
+		}
 		if( ( id = cmdExecNewUser( string[0], "password", string[1] ) ) < 0 ) {
 			sprintf(logString, "Failure Creating account: \"%s\"", string[0] );
 			info( logString );
@@ -1644,16 +1645,23 @@ if( ( admincfg.numfakes > 0 ) ) {
 		dbUserInfoRetrieve(id, &infod);
 		strncpy( infod.forumtag,"Fake Account", sizeof(infod.forumtag) );
 		dbUserInfoSet(id, &infod);
-
-			sprintf(logString, "Placing fake account: \"%s\"", infod.name );
+		srand( a + rand() );
+		if( cmdExecNewUserEmpire( id, -1, NULL, ( rand() % CMD_RACE_TOTAL ) , user->level ) < 0 ) {
+			sprintf(logString, "Failure Placing fake account: \"%s\"", infod.name );
 			info( logString );
-			if( cmdExecNewUserEmpire( id, -1, NULL, rand()%CMD_RACE_TOTAL, user->level ) < 0 ) {
-				sprintf(logString, "Failure Placing fake account: \"%s\"", infod.name );
-				info( logString );
-				continue;
-			}
+			continue;
+		}
+	pass++;
 	}
-	
+	if( exist ) {
+		sprintf(logString, "%d fake account%s exist on server...", exist, ( exist > 1 ? "s" : "" ) );
+		info( logString );
+	}
+	if( pass ) {
+		sprintf(logString, "Created %d fake account%s...", pass, ( pass > 1 ? "s" : "" ) );
+		info( logString );
+	}
+	srand( time(NULL) );
 }
 
 dbFlush();

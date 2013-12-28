@@ -502,7 +502,7 @@ if ( split == NULL ) {
 		if( !( i == (int)(intptr_t)NULL ) ) {
 			strcat(mkthisdir, "/");
 			strcat(mkthisdir, split[i]);
-			check = mkdir(mkthisdir,0755);
+			check = mkdir( mkthisdir, S_IRWXU );
 			if (!check) {
 				loghandle(LOG_INFO, false, "Directory \"%s\" created.", mkthisdir );
 			} else if ( errno != 17 ) {

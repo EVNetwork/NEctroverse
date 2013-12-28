@@ -82,7 +82,7 @@ typedef struct
   int empire;
   int64_t infos[INFOS_TOTAL_NUMUSED];
   int64_t research[CMD_RESEARCH_NUMUSED];
-  int readiness[3];
+  int readiness[CMD_READY_NUMUSED];
   int home; // ( y << 20 ) + ( x << 8 ) + planet
   int64_t totalbuilding[CMD_BLDG_NUMUSED+1];
   int64_t totalunit[CMD_UNIT_NUMUSED];
@@ -253,6 +253,7 @@ typedef struct
   int artefacts;
   int construction;
   int building[8];
+  int readiness[CMD_READY_NUMUSED];
   float taxation;
   int64_t fund[CMD_RESSOURCE_NUMUSED];
   int64_t infos[CMD_RESSOURCE_NUMUSED];
