@@ -182,7 +182,7 @@ mapd.fmembers = mapcfg.fmembers;
 mapd.capacity = mapcfg.families * mapcfg.fmembers;
 mapd.artitimer = -1;
 mapd.timempire = -1;
-fwrite( &mapd, 1, sizeof(dbMainMapDef), file ); 
+file_w( &mapd, 1, sizeof(dbMainMapDef), file ); 
 
 // New system generation, based on defaults.
 p = 0;
@@ -197,7 +197,7 @@ for( a = 0 ; a < mapcfg.systems ; a++ ) {
 	} else {
 		systemd.unexplored = mapstore.planets[a];
 	}
-	fwrite( &systemd, 1, sizeof(dbMainSystemDef), file );
+	file_w( &systemd, 1, sizeof(dbMainSystemDef), file );
 }
 //End system generation
 
@@ -261,7 +261,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 		break;
 	}
 	planetd.special[2] = i;
-	fwrite( &planetd, 1, sizeof(dbMainPlanetDef), file );
+	file_w( &planetd, 1, sizeof(dbMainPlanetDef), file );
 }
 //End planet generation
 
@@ -281,18 +281,18 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	}
 	empired.homeid = mapstore.system[a];
 	empired.homepos = mapstore.pos[ mapstore.system[a] ];
-	fwrite( &empired, 1, sizeof(dbMainEmpireDef), file );
+	file_w( &empired, 1, sizeof(dbMainEmpireDef), file );
 // FIXME: Well duh... we got all the other stuff nice and flexible... what about this!
 	sprintf( fname, "%s/data/fam%dnews", sysconfig.directory, a );
 	file2 = fopen( fname, "wb" );
 	j = 0;
-	fwrite( &j, 1, sizeof(int64_t), file2 );
+	file_w( &j, 1, sizeof(int64_t), file2 );
 	j = -1;
-	fwrite( &j, 1, sizeof(int64_t), file2 );
-	fwrite( &j, 1, sizeof(int64_t), file2 );
+	file_w( &j, 1, sizeof(int64_t), file2 );
+	file_w( &j, 1, sizeof(int64_t), file2 );
 	j = 0;
-	fwrite( &j, 1, sizeof(int64_t), file2 );
-	fwrite( &j, 1, sizeof(int64_t), file2 );
+	file_w( &j, 1, sizeof(int64_t), file2 );
+	file_w( &j, 1, sizeof(int64_t), file2 );
 	fclose( file2 );
 }
 fclose( file );

@@ -327,10 +327,6 @@ int dbUserMarketRemove( int id, int bidid );
 
 
 
-
-
-
-
 typedef struct
 {
   int length;

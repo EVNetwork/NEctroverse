@@ -141,6 +141,9 @@ static const double megabyte = (1024 * 1024);
 #include "../cmd.h"
 #include "../map.h"
 
+#define file_r( data, size, count, file ) { if( fread( data, size, count, file ) < 1 ) error( "Reading File" ); }
+#define file_w( data, size, count, file ) { if( fwrite( data, size, count, file ) < 1 ) error( "Writing File" ); }
+#define file_s( file, offset ) { if( fseek( file, offset, SEEK_SET ) ) error( "File Seek" ); }
 
 #define info(msg) loghandle(LOG_INFO, false, "%s", msg )
 #define error(msg) loghandle(LOG_ERR, errno, "Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )

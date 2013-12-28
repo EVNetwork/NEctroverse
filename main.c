@@ -530,7 +530,8 @@ if( firstload ) {
 	ini = iniparser_load(file);
 	if( ini == NULL ) {
 		sprintf( logString, "Loading INI File: %s", file );
-		error( logString );
+		if( type != CONFIG_TICKS )
+			error( logString );
 		return -1;
 	}
 }
@@ -967,6 +968,10 @@ for( index = optind; index < argc; index++ ) {
 
 return result;
 }
+#define CLEARSCR {\
+if( system( "clear" ) )\
+error( "clearing screen" );\
+}
 
 int main( int argc, char *argv[] ) {
 	char DIRCHECKER[PATH_MAX];
@@ -974,7 +979,7 @@ int main( int argc, char *argv[] ) {
 	int num;
 	#endif
 	int test;
-
+//CLEARSCR;
 if( checkops(argc,argv) ) {
 	printf ("Error: Invalid usage detected...\n");
 	exit(true);
