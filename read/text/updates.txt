@@ -1,3 +1,6 @@
+29 December 2013
+Population growth formula changed, its now based on existing population... so the larger it gets the faster it grows.
+
 18 November 2013
 Homeless again. Everything suspended... see you all again when I can =(
 

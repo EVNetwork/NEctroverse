@@ -667,9 +667,7 @@ void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	char *data;
 	char DIRCHECKER[256];
 	FILE *file;
-	int id;
-
-	int len;
+	int id, len, notices = 0;
 	char output[1024];
 	va_list ap;
 
@@ -705,6 +703,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
 						iohtmlFunc_boxstart( cnt, trimwhitespace(data) );
 						boxopen = true;
+						notices++;
 					} else if ( strlen( trimwhitespace(data) ) ) {
 						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
 					}
@@ -712,6 +711,8 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						iohtmlFunc_boxend( cnt );
 						boxopen = false;
 						httpString( cnt, "<br><br>" );
+						if( notices == sysconfig.notices )
+							break;
 					}
 				}
 			if(boxopen)
@@ -842,28 +843,6 @@ void iohtmlFunc_gettingstarted( ReplyDataPtr cnt ) {
 iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_GSTART );
 
-
-/*
-httpString( cnt, "<h1>Upload</h1>\n" );
-httpString( cnt, "<form method=\"POST\" enctype=\"multipart/form-data\" >\n" );
-httpString( cnt, "<dl><dt>Content type:</dt><dd>" );
-httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"books\">Book</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"images\">Image</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"music\">Music</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"software\">Software</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"videos\">Videos</input>\n" );
-httpString( cnt, "<input type=\"radio\" name=\"category\" value=\"other\" checked>Other</input></dd>" );
-httpString( cnt, "<dt>Language:</dt><dd>" );
-httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"no-lang\" checked>none</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"en\">English</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"de\">German</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"fr\">French</input>" );
-httpString( cnt, "<input type=\"radio\" name=\"language\" value=\"es\">Spanish</input></dd>\n" );
-httpString( cnt, "<dt>File:</dt><dd>" );
-httpString( cnt, "<input type=\"file\" name=\"upload\"/></dd></dl>" );
-httpString( cnt, "<input type=\"submit\" value=\"Send!\"/>\n" );
-httpString( cnt, "</form>\n" );
-*/
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 

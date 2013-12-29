@@ -566,7 +566,8 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.stockpile = iniparser_getint(ini, "system:stockpile", 0);
 	sysconfig.warend = iniparser_getint(ini, "system:auto_victory_afterticks", 0);
 	sysconfig.victory = iniparser_getint(ini, "system:auto_endwar_afterticks", 0);
-	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 0);
+	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 600);
+	sysconfig.notices = iniparser_getint(ini, "system:notices", 5);
 
 	sysconfig.round = iniparser_getint(ini, "system:round", 0); //FIXME -- Needs moving to a different function set.
 
@@ -729,6 +730,7 @@ if( firstload ) {
 		iniparser_set(ini,"system:auto_victory_afterticks","52");
 		iniparser_set(ini,"system:auto_endwar_afterticks","26");
 		iniparser_set(ini,"system:tick_time","3600");
+		iniparser_set(ini,"system:notices","5");
 		iniparser_set(ini,"system:round","0");
 	}
 	if( !( iniparser_find_entry(ini,"syslog") ) ){

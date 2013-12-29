@@ -21,6 +21,7 @@ typedef struct {
 	char *httpfiles;
 	char *httpread;
 	char *pubforum;
+	int notices;
 	int httpport;
 	int stockpile;
 	int warend;
