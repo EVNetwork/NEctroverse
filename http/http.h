@@ -35,6 +35,8 @@ typedef struct Cookies
 
 } CookiesDef, *CookiesPtr;
 
+#define MAX_POST_VALUES 64
+
 /**
  * State we keep for each user/session/browser.
  */

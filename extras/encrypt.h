@@ -1,7 +1,9 @@
 #ifndef ENCRYPT_H
 #define ENCRYPT_H
 
-char *saltgen();
+#define SALT_SIZE 128
+
+void saltgen( char salt[SALT_SIZE] );
 
 char *hashencrypt( char *pass2hash );
 
