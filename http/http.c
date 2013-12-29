@@ -1059,8 +1059,6 @@ struct MHD_OptionItem ops[] = {
 
 static int THREADS;
 static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
-unsigned int ports[2] = { 8880, 8881 };
-
 
 
 int http_prep(){
@@ -1107,7 +1105,7 @@ return 0;
 int https_start() {
 
 server_https = MHD_start_daemon (flags | MHD_USE_SSL,
-				ports[1],
+				options.port[PORT_HTTPS],
 				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
@@ -1120,7 +1118,7 @@ server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 if(NULL == server_https)
 	return 1;
 
-sprintf( logString, "HTTPS Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), ports[1] );
+sprintf( logString, "HTTPS Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), options.port[PORT_HTTPS] );
 info( logString );
 
 return 0;
@@ -1130,7 +1128,7 @@ return 0;
 int http_start() {
 
 server_http = MHD_start_daemon (flags,
-				ports[0],
+				options.port[PORT_HTTP],
 				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
@@ -1145,7 +1143,7 @@ server_http = MHD_start_daemon (flags,
 if(NULL == server_http)
 	return 1;
 
-sprintf( logString, "HTTP Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), ports[0] );
+sprintf( logString, "HTTP Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), options.port[PORT_HTTP] );
 info( logString );
 
 return 0;

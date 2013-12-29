@@ -23,6 +23,9 @@ typedef struct {
 	char *pubforum;
 	int notices;
 	int httpport;
+	#if HTTPS_SUPPORT
+	int httpsport;
+	#endif
 	int stockpile;
 	int warend;
 	int victory;

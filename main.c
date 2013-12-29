@@ -561,12 +561,15 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.httpread = strdup( iniparser_getstring(ini, "system:httpread", "/tmp/evcore/html/read") );
 	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:publicforum", sysconfig.directory ) );
 
-	sysconfig.httpport = iniparser_getint(ini, "system:port", 9990);
+	sysconfig.httpport = iniparser_getint(ini, "system:http_port", 9990);
+	#if HTTPS_SUPPORT
+	sysconfig.httpsport = iniparser_getint(ini, "system:https_port", 9991);
+	#endif
 
 	sysconfig.stockpile = iniparser_getint(ini, "system:stockpile", 0);
 	sysconfig.warend = iniparser_getint(ini, "system:auto_victory_afterticks", 0);
 	sysconfig.victory = iniparser_getint(ini, "system:auto_endwar_afterticks", 0);
-	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 600);
+	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 3600);
 	sysconfig.notices = iniparser_getint(ini, "system:notices", 5);
 
 	sysconfig.round = iniparser_getint(ini, "system:round", 0); //FIXME -- Needs moving to a different function set.
@@ -652,6 +655,10 @@ if( type == CONFIG_SYSTEM ) {
 //End config scanning... handle variables.
 	if( sysconfig.httpport )
 		options.port[PORT_HTTP] = options.port[PORT_HTTP] ? options.port[PORT_HTTP] : sysconfig.httpport;
+	#if HTTPS_SUPPORT
+	if( sysconfig.httpsport )
+		options.port[PORT_HTTPS] = options.port[PORT_HTTPS] ? options.port[PORT_HTTPS] : sysconfig.httpsport;
+	#endif
 
 	if( strlen(sysconfig.syslog_facility) && strcmp(sysconfig.syslog_facility,"LOG_SYSLOG") ){
 		closelog();
@@ -725,7 +732,10 @@ if( firstload ) {
 		iniparser_set(ini,"system:httpfiles",sysconfig.httpfiles);
 		iniparser_set(ini,"system:httpread",sysconfig.httpread);
 		iniparser_set(ini,"system:pubforum",sysconfig.pubforum);
-		iniparser_set(ini,"system:port",itoa(sysconfig.httpport));
+		iniparser_set(ini,"system:http_port",itoa(sysconfig.httpport));
+		#if HTTPS_SUPPORT
+		iniparser_set(ini,"system:https_port",itoa(sysconfig.httpsport));
+		#endif
 		iniparser_set(ini,"system:stockpile","14");
 		iniparser_set(ini,"system:auto_victory_afterticks","52");
 		iniparser_set(ini,"system:auto_endwar_afterticks","26");
@@ -903,7 +913,11 @@ int checkops(int argc, char **argv) {
      
 opterr = 0;
 result = false;
+#if HTTPS_SUPPORT
+while( (option = getopt(argc, argv, "c:fm:p:e:qs:") ) != -1) {
+#else
 while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
+#endif
 	switch(option) {
 		case 'c':
 			sprintf(options.sysini, "%s", optarg);
@@ -915,9 +929,15 @@ while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
 		case 'm':
 			sprintf(options.mapini, "%s", optarg);
 			break;
+
 		case 'p':
 			options.port[PORT_HTTP] = atoi(optarg);
 			break;
+		#if HTTPS_SUPPORT
+		case 'e':
+			options.port[PORT_HTTPS] = atoi(optarg);
+			break;
+		#endif
 		case 'q':
 			options.verbose = false;
 			break;
