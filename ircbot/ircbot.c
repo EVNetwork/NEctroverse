@@ -165,7 +165,7 @@ return;
 
 
 void event_privmsg (irc_session_t * irc_session, const char * event, const char * origin, const char ** params, unsigned int count) {
-	char nickbuf[128];
+	char nickbuf[128], md5sum[MD5_HASHSUM_SIZE];
 	SessionPtr session;
 
 //dump_event (irc_session, event, origin, params, count);
@@ -176,7 +176,8 @@ if ( !origin )
 	return;
 
 irc_target_get_nick( origin, nickbuf, sizeof(nickbuf) );
-session = get_session( SESSION_IRC, str2md5(origin) );
+md5_string( origin, md5sum );
+session = get_session( SESSION_IRC, md5sum );
 
 if( !( session->dbuser ) ) {
 	irc_cmd_notice( irccfg.session, nickbuf, "You must be loged in to use any features." );
@@ -246,8 +247,7 @@ void dcc_file_send_callback (irc_session_t * irc_session, irc_dcc_t id, int stat
 
 
 void event_channel (irc_session_t * irc_session, const char * event, const char * origin, const char ** params, unsigned int count) {
-	char buffer[512];
-	char nickbuf[128];
+	char buffer[512], nickbuf[128], md5sum[MD5_HASHSUM_SIZE];
 	SessionPtr session;
 
 if ( count != 2 )
@@ -261,7 +261,8 @@ if ( !origin )
 
 irc_target_get_nick( origin, nickbuf, sizeof(nickbuf) );
 
-session = get_session( SESSION_IRC, str2md5(origin) );
+md5_string( origin, md5sum );
+session = get_session( SESSION_IRC, md5sum );
 
 
 if ( !strcmp (params[1], "help") ) {

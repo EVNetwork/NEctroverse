@@ -22,8 +22,9 @@ PageDef pages[] =
     //Generic
     { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },
     { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },
-    { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
+    { "/status.js", "text/javascript",  &file_page, NULL, "/status.js" },
     { "/javascript.js", "text/javascript",  &file_page, NULL, "/javascript.js" },
+    { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
     { "/stats", "text/html",  &file_page, NULL, "/stats.html" },
     { "/chat", "text/html",  &file_page, NULL, "/chat.html" },
     //Game Pages

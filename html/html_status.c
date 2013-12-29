@@ -108,7 +108,7 @@ if( sysinfo(&sysinfod) != 0 ) {
 
 
 
-iohtmlBase( cnt, 8 );
+iohtmlBase( cnt, 8 | 16 );
 iohtmlFunc_frontmenu( cnt, FMENU_SERVER );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );

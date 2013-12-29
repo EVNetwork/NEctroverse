@@ -980,6 +980,7 @@ int main( int argc, char *argv[] ) {
 	#endif
 	int test;
 //CLEARSCR;
+
 if( checkops(argc,argv) ) {
 	printf ("Error: Invalid usage detected...\n");
 	exit(true);

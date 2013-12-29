@@ -84,6 +84,8 @@ httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
 httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
 httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
+if( flags & 16 )
+	httpString( cnt, "<script type=\"text/javascript\" src=\"status.js\"></script>" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
 
 
@@ -101,7 +103,7 @@ httpString( cnt, "</head>" );
 httpString( cnt, "<body" );
 
 if( flags & 8 )
-	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown(); gametimer(); hosttimer();\" " );
+	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
 
 
 httpString( cnt, "><center>" );

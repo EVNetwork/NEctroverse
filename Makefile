@@ -11,7 +11,7 @@ SQLFLAG := $(shell mysql_config --cflags)
 LIBDIR = .libs/
 MODLIBS = 
 #The standard config needed to compile basic server, withought these it won't work.
-FLAGS = --fast-math -Wall -fno-strict-aliasing -O2 -O3
+FLAGS = -O2 -O3 --fast-math -Wall #-fno-strict-aliasing
 LIBS = -lcrypt -lpng
 
 ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)

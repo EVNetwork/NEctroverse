@@ -293,7 +293,7 @@ return MHD_YES;
 static void update_directory( MHD_ConnectionPtr connection ) {
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
-	char dir_name[PATH_MAX];
+	char dir_name[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 	struct stat sbuf;
 
 rd.connection = connection;
@@ -318,7 +318,8 @@ if( 0 == stat (dir_name, &sbuf) ) {
 rd.response.off += snprintf (&rd.response.buf[rd.response.off], rd.response.buf_len - rd.response.off, "%s", UPLOAD_DIR_PAGE_FOOTER );
 dir_buf_allocation = rd.response.buf_len; /* remember for next time */
 response = MHD_create_response_from_buffer (rd.response.off, rd.response.buf, MHD_RESPMEM_MUST_FREE );
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
+md5_string( rd.response.buf, md5sum );
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 mark_as( response, "text/html" );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONNECTION, "close");
 
@@ -359,11 +360,13 @@ return ret;
  */
 int not_found_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	int ret;
+	char md5sum[MD5_HASHSUM_SIZE];
 	MHD_ResponsePtr response;
 
   /* unsupported HTTP method */
 response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( NOT_FOUND_ERROR ) );
+md5_string( NOT_FOUND_ERROR, md5sum );
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
 MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
 MHD_destroy_response (response);
@@ -404,6 +407,7 @@ return ret;
 
 int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	const char *pname = cls;
+	char md5sum[MD5_HASHSUM_SIZE];
 	int ret, a;
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
@@ -433,7 +437,8 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 		error( "Failed to set session cookie header!" );
 	}
 }
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
+md5_string( rd.response.buf, md5sum );
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
@@ -446,6 +451,7 @@ return ret;
 
 int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
 	int ret, a;
+	char md5sum[MD5_HASHSUM_SIZE];
 	MHD_ResponsePtr response;
 	ReplyDataDef rd;
 
@@ -468,7 +474,8 @@ for( a = 0; a < rd.cookies.num ; a++  ) {
 		error( "Failed to set session cookie header!" );
 	}
 }
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5(rd.response.buf) );
+md5_string( rd.response.buf, md5sum );
+(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
@@ -483,7 +490,7 @@ int file_page( int id, const void *cls, const char *mime, SessionPtr session, MH
 	struct stat buf;
 	MHD_ResponsePtr response;
 	const char *fname = cls;
-	char filename[PATH_MAX];
+	char filename[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 
 	strcpy(filename,sysconfig.httpfiles);
 	strcat(filename,fname);
@@ -494,7 +501,8 @@ int file_page( int id, const void *cls, const char *mime, SessionPtr session, MH
 		fd = -1;
 	if (-1 == fd) {
 		response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE );
-		(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( NOT_FOUND_ERROR ) );
+		md5_string( NOT_FOUND_ERROR, md5sum );
+		(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 		add_session_cookie( session, response );
 		ret = MHD_queue_response( connection, MHD_HTTP_NOT_FOUND, response );
 		MHD_destroy_response( response );
@@ -511,7 +519,8 @@ int file_page( int id, const void *cls, const char *mime, SessionPtr session, MH
 	if (NULL != mime)
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
 
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
+	md5_file( filename, md5sum );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 	
 	strftime(filename,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filename );
@@ -729,7 +738,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	ssize_t got;
 	#endif
 	const char *mime;
-	char *filename, filebuffer[PATH_MAX];
+	char *filename, filebuffer[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 
 	filename = strrchr(url,'/');
 	strcpy(filebuffer,sysconfig.httpimages);
@@ -771,7 +780,8 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	else
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( strdup(iohttpMime[ iohttpMimeFind( filename ) ].def ), ' ')+1 ) );
 
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5file(filename));
+	md5_file( filename, md5sum );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 	strftime(filebuffer,PATH_MAX,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filebuffer );
 
@@ -1048,6 +1058,7 @@ unsigned int ports[2] = { 8880, 8881 };
 
 
 int http_prep(){
+	char md5sum[MD5_HASHSUM_SIZE];
 	cpuInfo cpuinfo;
 
 cpuGetInfo( &cpuinfo );
@@ -1065,10 +1076,12 @@ internal_error_response = MHD_create_response_from_buffer( strlen( INTERNAL_ERRO
 mark_as(file_not_found_response, "text/html" );
 mark_as(request_refused_response, "text/html" );
 mark_as(internal_error_response, "text/html" );
-
-(void)MHD_add_response_header(request_refused_response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( METHOD_ERROR ) );
-(void)MHD_add_response_header(file_not_found_response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( NOT_FOUND_ERROR ) );
-(void)MHD_add_response_header(internal_error_response, MHD_HTTP_HEADER_CONTENT_MD5, str2md5( INTERNAL_ERROR_PAGE ) );
+md5_string( METHOD_ERROR, md5sum );
+(void)MHD_add_response_header(request_refused_response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+md5_string(NOT_FOUND_ERROR, md5sum );
+(void)MHD_add_response_header(file_not_found_response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+md5_string( INTERNAL_ERROR_PAGE, md5sum );
+(void)MHD_add_response_header(internal_error_response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;
