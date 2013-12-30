@@ -1220,13 +1220,25 @@ char *cmdSignalNames[SIGNALS_NUMUSED] =
 
 
 void loghandle( int flag, int error, char *fmt, ... ) {
-	va_list ap;
+	char fname[PATH_MAX];
 	char font[32];
 	char ebuffer[MAXLOGSTRING];
+	char fbuffer[MAXLOGSTRING];
+	va_list ap;
+	FILE *file;
+
 
 va_start(ap, fmt);
 vsnprintf(ebuffer, MAXLOGSTRING, fmt, ap);
 va_end(ap);
+
+sprintf( fname, "%s/evserver.log", TMPDIR );
+if( !( file = fopen( fname, "a" ) ) ) {
+	if( !( file = fopen( fname, "w+" ) ) ) {
+		printf("Failed opening default log file: %s\n", fname);
+		exit(false);
+	}
+}
 
 switch(flag) {
 	case LOG_INFO:
@@ -1243,16 +1255,25 @@ switch(flag) {
 			break;
 }
 
+strcpy( logString, trimwhitespace( asctime( gettime( time(NULL), true) ) ) );
+strncat( logString, " -- ", sizeof(logString)-strlen(logString) );
 
 if ( error ) {
 	if( options.verbose ) {
 		printf("%s%s"RESET,font, ebuffer);
 		printf(" -- "BOLDBLUE"#%d, %s"RESET"\n", error, strerror(error) );
 	}
+
+	sprintf( fbuffer, "%s -- #%d, %s", ebuffer, error, strerror(error)  );
+	strncat( logString, fbuffer, sizeof(logString)-strlen(logString) );
+
 	syslog(flag, "%s -- #%d, %s", ebuffer, error, strerror(error) );
 } else {
-	if( options.verbose )
+	if( options.verbose ) {
 		printf("%s%s\n"RESET,font, ebuffer);
+	}
+
+	strncat( logString, ebuffer, sizeof(logString)-strlen(logString) );
 	syslog(flag, "%s", ebuffer );
 }
 
@@ -1260,6 +1281,12 @@ if( options.verbose ) {
 	printf(RESET);
 	fflush(stdout);
 }
+
+fputs( logString, file );
+fputs( "\n", file );
+
+fflush( file );
+fclose( file );
 
 memset( logString, 0, sizeof(logString) );
 
