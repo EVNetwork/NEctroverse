@@ -608,23 +608,26 @@ if( type == CONFIG_SYSTEM ) {
 		admincfg.forumtag = malloc( admincfg.numadmins * sizeof(*admincfg.forumtag) );
 	}
 	for( a = 0; a < admincfg.numadmins ; a++ ){
-		sprintf(DIRCHECKER,"admin:race%d",(a+1));
+		sprintf(DIRCHECKER,"admin%d",(a+1));
+		if( !( iniparser_find_entry(ini,DIRCHECKER) ) )
+			continue;
+		sprintf(DIRCHECKER,"admin%d:race",(a+1));
 		admincfg.race[a] = iniparser_getint(ini, DIRCHECKER, 0);
-		sprintf(DIRCHECKER,"admin:level%d",(a+1));
+		sprintf(DIRCHECKER,"admin%d:level",(a+1));
 		admincfg.level[a] = iniparser_getint(ini, DIRCHECKER, 0);
-		sprintf(DIRCHECKER,"admin:name%d",(a+1));
+		sprintf(DIRCHECKER,"admin%d:name",(a+1));
 		admincfg.name[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
-		sprintf(DIRCHECKER,"admin:password%d",(a+1));
+		sprintf(DIRCHECKER,"admin%d:password",(a+1));
 		admincfg.password[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
-		sprintf(DIRCHECKER,"admin:faction%d",(a+1));
+		sprintf(DIRCHECKER,"admin%d:faction",(a+1));
 		admincfg.faction[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
-		sprintf(DIRCHECKER,"admin:forumtag%d",(a+1));
+		sprintf(DIRCHECKER,"admin%d:forumtag",(a+1));
 		admincfg.forumtag[a] = strdup( iniparser_getstring(ini, DIRCHECKER, "Helper") );
 	}
-	admincfg.empire = iniparser_getint(ini, "admin_empire:number", 0);
-	admincfg.ename = strdup( iniparser_getstring(ini, "admin_empire:name", "Administration") );
-	admincfg.epassword = strdup( iniparser_getstring(ini, "admin_empire:password", "password") );
-	admincfg.rankommit = iniparser_getboolean(ini, "admin_empire:ommit_from_ranks", false);
+	admincfg.empire = iniparser_getint(ini, "admin:empire", 0);
+	admincfg.ename = strdup( iniparser_getstring(ini, "admin:empire_name", "Administration") );
+	admincfg.epassword = strdup( iniparser_getstring(ini, "admin:empire_password", "password") );
+	admincfg.rankommit = iniparser_getboolean(ini, "admin:ommit_from_ranks", false);
 
 	mapcfg.sizex = iniparser_getint(ini, "map:sizex", 100);
 	mapcfg.sizey = iniparser_getint(ini, "map:sizey", mapcfg.sizex);
@@ -834,7 +837,7 @@ if( firstload ) {
 		fclose( dumpfile );
 
 	} else {
-		loghandle(LOG_CRIT, errno, "Unable to spawn defaul config file into: \'%s\'",file);
+		loghandle(LOG_CRIT, errno, "Unable to spawn default config file into: \'%s\'",file);
 		loghandle(LOG_CRIT, false, "%s", "You may have specified an invalid path...");	
 	}
 	sysconfig.shutdown = true;
@@ -868,6 +871,7 @@ do{
     
 return strdup(p);
 }
+
 
 int savetickconfig() {
 	char DIRCHECKER[PATH_MAX];

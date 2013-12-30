@@ -1612,7 +1612,7 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 		}
 	}
 }
-//exit(0);
+
 if( admincfg.numadmins < 0 ) {
 	free(admincfg.name);
 	free(admincfg.password);
