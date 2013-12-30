@@ -1661,7 +1661,7 @@ if( ( admincfg.numfakes > 0 ) ) {
 		sprintf(logString, "Created %d fake account%s...", pass, ( pass > 1 ? "s" : "" ) );
 		info( logString );
 	}
-	srand( time(NULL) );
+	srand( (unsigned int)time(NULL) );
 }
 
 dbFlush();

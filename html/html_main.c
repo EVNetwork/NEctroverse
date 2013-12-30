@@ -460,7 +460,7 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 	(maild.mail).authorid = 0;
 	sprintf( (maild.mail).authorname, "Admin" );
 	(maild.mail).authorempire = 0;
-	(maild.mail).time = time( 0 );
+	(maild.mail).time = *gettime( time(0),true );
 	(maild.mail).tick = ticks.number;
 	(maild.mail).flags = 0;
 	if( dbMailAdd( id, 0, &maild ) < 0 )
@@ -711,8 +711,12 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						iohtmlFunc_boxend( cnt );
 						boxopen = false;
 						httpString( cnt, "<br><br>" );
-						if( notices == sysconfig.notices )
+						if( notices == sysconfig.notices ) {
+							httpString( cnt, "<table align=\"right\">" );
+							httpString( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"/notices\">See full list...</a></td></tr>" );
+							httpString( cnt, "</table>" );
 							break;
+						}
 					}
 				}
 			if(boxopen)
@@ -996,7 +1000,7 @@ httpPrintf( cnt, "%sEmpires%s - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKST
 sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", sysconfig.directory, a );
 sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d\">", a );
 httpPrintf( cnt, "%sPlayers%s", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
-httpString( cnt, "</tr></td>" );
+httpString( cnt, "</td></tr>" );
 
 }
 
@@ -1006,5 +1010,68 @@ httpString( cnt, "</td></tr></table><br><br><br><br><br><br><br><br></td><td wid
 iohtmlFunc_endhtml( cnt );
 return;
 }
+
+
+void iohtmlFunc_notices( ReplyDataPtr cnt ) {
+	dbUserMainDef maind;
+	struct stat stdata;
+	bool boxopen = false;
+	char *data;
+	char DIRCHECKER[256];
+	FILE *file;
+	int id;
+
+iohtmlBase( cnt, 8 );
+
+if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
+	if( dbUserMainRetrieve( id, &maind ) < 0 )
+	return;
+}
+
+iohtmlFunc_frontmenu( cnt, FMENU_NOTICES );
+
+httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+httpString( cnt, "<tr><td class=\"center\"><div class=\"genlarge\"><b>Listing of all Server Notices</b></span></td></tr>" );
+httpString( cnt, "<tr><td></td></tr>" );
+httpString( cnt, "<tr><td>" );
+
+//read notices from updates.txt and format for display. -- If this file is missing, or empty it is skipped.
+sprintf( DIRCHECKER, "%s/updates.txt", sysconfig.httpread );
+if( stat( DIRCHECKER, &stdata ) != -1 ) {
+	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+		data[stdata.st_size] = 0;
+		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
+			if( stdata.st_size > 0 ) {
+				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
+						httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tbody><tr>" );
+						httpPrintf( cnt, "<td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", trimwhitespace(data) );
+						httpString( cnt, "</tr><tr><td><font size=\"2\">" );
+						boxopen = true;
+					} else if ( strlen( trimwhitespace(data) ) ) {
+						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
+					}
+					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
+						httpString( cnt, "</font></td></tr></tbody></table><br>" );
+						boxopen = false;
+					}
+				}
+				if(boxopen) {
+					httpString( cnt, "</font></td></tr></tbody></table>" );
+				}
+			}
+			fclose( file );
+		}
+	free( data );
+	}
+}
+//end notices
+
+httpString( cnt, "</td></tr></table></td><td width=\"7%\">&nbsp;</td></tr>" );
+
+iohtmlFunc_endhtml( cnt );
+return;
+}
+
 
 

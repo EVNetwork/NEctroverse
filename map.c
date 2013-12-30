@@ -103,7 +103,7 @@ memset( &mapd, 0, sizeof(dbMainMapDef) );
 sprintf( fname, "%s/data", sysconfig.directory );
 dirstructurecheck(fname);
 
-srand( time( 0 ) );
+srand( (unsigned int)time(NULL) );
 
 mapgen.width = mapcfg.sizex;
 mapgen.height = mapcfg.sizey;

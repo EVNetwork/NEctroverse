@@ -10,6 +10,7 @@ PageDef pages[] =
     //Basic/Main pages
     { "/", "text/html", &key_page, NULL, NULL },
     { "/login", "text/html",  &key_page, NULL, "login" },
+    { "/notices", "text/html",  &page_render, iohtmlFunc_notices, NULL },
     { "/halloffame", "text/html",  &page_render, iohtmlFunc_halloffame, NULL },
     { "/gettingstarted", "text/html",  &page_render, iohtmlFunc_gettingstarted, NULL },
     { "/faq", "text/html",  &page_render, iohtmlFunc_faq, NULL },

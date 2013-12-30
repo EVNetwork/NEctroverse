@@ -7,10 +7,9 @@ typedef struct
   int id;
   int level;
   int flags;
-  int reserved;
+  int newmail;
   char name[64];
 
-  //fast access informations -- copied from maind for now. FIXME
   char faction[32];
   char forumtag[256];
   char http_session[129];
@@ -330,13 +329,12 @@ int dbUserMarketRemove( int id, int bidid );
 typedef struct
 {
   int length;
-  int authorid;
-  char authorname[64];
-  int authorempire;
-  int time;
   int tick;
   int flags;
-  int reserved[2];
+  int authorid;
+  int authorempire;
+  char authorname[64];
+  struct tm time;
 } dbMailInDef, *dbMailInPtr;
 
 typedef struct

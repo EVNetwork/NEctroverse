@@ -6855,7 +6855,6 @@ void iohtmlFunc_mail( ReplyDataPtr cnt ) {
 	dbMailPtr mails;
 	dbMailDef maild;
 	char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
-	char timebuf[256];
 	int64_t newd[DB_USER_NEWS_BASE];
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
@@ -6926,7 +6925,7 @@ if( ( tostring ) && ( mailstring ) ) {
 				(maild.mail).authorid = id;
 				sprintf( (maild.mail).authorname, "%s", ((cnt->session)->dbuser)->faction );
 				(maild.mail).authorempire = maind.empire;
-				(maild.mail).time = time( 0 );
+				(maild.mail).time = *gettime( time(0),true );
 				(maild.mail).tick = ticks.number;
 				(maild.mail).flags = 0;
 				if( dbMailAdd( a, MAIL_IN, &maild ) < 0 ) {
@@ -6979,8 +6978,7 @@ if( typestring ) {
 		if( b == 0 )
 			httpString( cnt, "<br><b>No messages</b><br>" );
 		for( b-- ; b >= 0 ; b-- ) {
-			strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(mails[b].mail).time ) );
-			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=0&delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
+			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=0&delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, asctime( &(mails[b].mail).time ), (mails[b].mail).authorid );
 			httpString( cnt, mails[b].text );
 			httpString( cnt, "</td></tr></table><br><br>" );
 			if( mails[b].text )
@@ -7006,8 +7004,7 @@ if( typestring ) {
 		if( b == 0 )
 			httpString( cnt, "<br><b>No messages</b><br>" );
 		for( b-- ; b >= 0 ; b-- ) {
-			strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&(mails[b].mail).time ) );
-			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>To</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=1&delete=%d\">Delete</a></td></tr><tr><td><b>Sent</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
+			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>To</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=1&delete=%d\">Delete</a></td></tr><tr><td><b>Sent</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, asctime( &(mails[b].mail).time ), (mails[b].mail).authorid );
 			httpString( cnt, mails[b].text );
 			httpString( cnt, "</td></tr></table><br><br>" );
 			if( mails[b].text )

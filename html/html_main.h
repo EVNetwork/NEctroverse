@@ -24,6 +24,7 @@ void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... );
 void iohtmlFunc_faq( ReplyDataPtr cnt );
 void iohtmlFunc_races( ReplyDataPtr cnt );
 void iohtmlFunc_rules( ReplyDataPtr cnt );
+void iohtmlFunc_notices( ReplyDataPtr cnt );
 void iohtmlFunc_gettingstarted( ReplyDataPtr cnt );
 void iohtmlFunc_halloffame( ReplyDataPtr cnt );
 

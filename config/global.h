@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <execinfo.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <inttypes.h>
 #include <libgen.h>
 #include <limits.h>

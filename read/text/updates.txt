@@ -9,11 +9,11 @@ Well, that was epic... The server has now been upgraded to full HTTP/1.1 support
 Hopefully you will all see it paying off with improved load/responce times =)
 
 12 November 2013
-<center><i>All Function development placed on hold, Alpha stage postponed.
+<div class="center"><i>All Function development placed on hold, Alpha stage postponed.
 Upgrade from HTTP/1.0 to HTTP/1.1 in progress. Nothing changes untill this is finished.<br>
 What is HTTP/1.1, and Why is it needed? -- Simply put, its majorly superiour in many ways.
 First and foremost, a connection with HTTP/1.0 must close and re-open with every transmission.
-With HTTP/1.1 a connection stays open untill it is no longer needed, therfore much more efficent.</i></center>
+With HTTP/1.1 a connection stays open untill it is no longer needed, therfore much more efficent.</i></div>
 
 22nd October 2013
 Coming soon... NEctroverse Alpha!

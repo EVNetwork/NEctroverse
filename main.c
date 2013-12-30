@@ -378,7 +378,7 @@ signal( SIGABRT, &svSignal );
 signal( SIGUSR1, &svSignal);
 signal( SIGUSR2, &svSignal);
 	
-srand( time(NULL) ); //Random Init
+srand( (unsigned int)time(NULL) ); //Random Init
 
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
 	loghandle(LOG_CRIT, false, "%s", "Server Database Initation Failed, now exiting..." );
@@ -906,19 +906,38 @@ return 1;
 
 
 int checkops(int argc, char **argv) {
+	int opt_index;
 	char DIRCHECKER[512] = {0};
 	bool result;
 	int index;
-	int option;
-     
+	int opt;
+#if HTTPS_SUPPORT
+static char short_opt[] = "c:fm:p:e:qs:";
+#else
+static char short_opt[] = "c:fm:p:e:qs:";
+#endif
+static struct option long_opt[] =
+   {
+      {"config", required_argument, 0, 'c'},
+      {"forked", no_argument, 0, 'f'},
+      {"mapini", required_argument, 0, 'm'},
+      {"port", required_argument, 0, 'p'},
+      #if HTTPS_SUPPORT
+      {"https", required_argument, 0, 'e'},
+      #endif
+      {"quiet", no_argument, 0, 'q'},
+      {"send", optional_argument, 0, 's'},
+      {NULL, 0, 0, 0 }
+   };
+
 opterr = 0;
 result = false;
-#if HTTPS_SUPPORT
-while( (option = getopt(argc, argv, "c:fm:p:e:qs:") ) != -1) {
-#else
-while( (option = getopt(argc, argv, "c:fm:p:qs:") ) != -1) {
-#endif
-	switch(option) {
+while( (opt = getopt_long(argc, argv, short_opt, long_opt, &opt_index)) != -1) {
+	switch(opt) {
+		case -1: // no more arguments
+         		break;
+         	case 0: // long options toggles
+            		break;
 		case 'c':
 			sprintf(options.sysini, "%s", optarg);
 			break;
@@ -990,18 +1009,14 @@ for( index = optind; index < argc; index++ ) {
 
 return result;
 }
-#define CLEARSCR {\
-if( system( "clear" ) )\
-error( "clearing screen" );\
-}
 
 int main( int argc, char *argv[] ) {
+	int a;
 	char DIRCHECKER[PATH_MAX];
 	#if PIPEFILE_SUPPORT
 	int num;
 	#endif
 	int test;
-//CLEARSCR;
 
 if( checkops(argc,argv) ) {
 	printf ("Error: Invalid usage detected...\n");
@@ -1067,81 +1082,40 @@ dirstructurecheck(DIRCHECKER);
 sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
 dirstructurecheck(DIRCHECKER);
 
-if( !( file_exist(sysconfig.httpread) ) ) {
-	dirstructurecheck(sysconfig.httpread);
-	if( !(file_exist(sysconfig.httpread) ) ) {
-		loghandle(LOG_INFO, false, "%s", "Directory creation failed, unable to continue.");
-		return 1;
-	}
-	printf("Doc base not found, fetching \"%s/text.tar.gz\" with wget ...", sysconfig.downfrom );
-	fflush(stdout);
-	syslog(LOG_INFO, "Doc base not found, fetching \"%s/read.tar.gz\" with wget.\n", sysconfig.downfrom );
-	sprintf(DIRCHECKER,"wget -q \"%s/text.tar.gz\" -O %s/text.tar.gz", sysconfig.downfrom, TMPDIR);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-	printf("Extracting files to: \"%s\" ...", sysconfig.httpread);
-	fflush(stdout);
-	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpread);
-	sprintf(DIRCHECKER,"tar -xzf %s/text.tar.gz -C %s", TMPDIR, sysconfig.httpread);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-}
-if( !( file_exist(sysconfig.httpfiles) ) ) {
-	dirstructurecheck(sysconfig.httpfiles);
-	if( !(file_exist(sysconfig.httpfiles) ) ) {
-		loghandle(LOG_INFO, false, "%s", "Directory creation failed, unable to continue.");
-		return 1;
-	}
-	printf("Doc base not found, fetching \"%s/files.tar.gz\" with wget ...", sysconfig.downfrom );
-	fflush(stdout);
-	syslog(LOG_INFO, "Doc base not found, fetching \"%s/files.tar.gz\" with wget.\n", sysconfig.downfrom );
-	sprintf(DIRCHECKER,"wget -q \"%s/files.tar.gz\" -O %s/files.tar.gz", sysconfig.downfrom, TMPDIR);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-	printf("Extracting files to: \"%s\" ...", sysconfig.httpfiles);
-	fflush(stdout);
-	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpfiles);
+#define SPAWNABLE_DIRS 3
+	char *location[SPAWNABLE_DIRS] = { sysconfig.httpread, sysconfig.httpfiles, sysconfig.httpimages };
+	char *getfile[SPAWNABLE_DIRS] = { "text.tar.gz", "files.tar.gz", "images.tar.gz" };
 
-	sprintf(DIRCHECKER,"tar -xzf %s/files.tar.gz -C %s", TMPDIR, sysconfig.httpfiles);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-}
-if( !( file_exist(sysconfig.httpimages) ) ) {
-	dirstructurecheck(sysconfig.httpimages);
-	if( !(file_exist(sysconfig.httpimages) ) ) {
-		loghandle(LOG_INFO, false, "%s", "Directory creation failed, unable to continue.");
-		return 1;
+for( a = 0; a < SPAWNABLE_DIRS; a++ ) {
+	
+	if( !( file_exist( location[a] ) ) ) {
+		dirstructurecheck(location[a]);
+		if( !(file_exist(location[a]) ) ) {
+			loghandle(LOG_INFO, false, "%s", "Directory creation failed, unable to continue.");
+			return 1;
+		}
+		printf("Doc base not found, fetching \"%s/%s\" with wget ...", sysconfig.downfrom, getfile[a]);
+		fflush(stdout);
+		syslog(LOG_INFO, "Doc base not found, fetching \"%s/%s\" with wget.\n", sysconfig.downfrom, getfile[a]);
+		sprintf(DIRCHECKER,"wget -q \"%s/%s\" -O %s/%s", sysconfig.downfrom, getfile[a], TMPDIR, getfile[a]);
+		test = system(DIRCHECKER);
+		printf(" %s!\n", test ? "Fail" : "Done");
+		fflush(stdout);
+		
+		if(test)
+			return 1;
+		printf("Extracting files to: \"%s\" ...", location[a]);
+		fflush(stdout);
+		syslog(LOG_INFO, "Extracting files to: \"%s\"\n", location[a]);
+		sprintf(DIRCHECKER,"tar -xzf %s/%s -C %s", TMPDIR, getfile[a], location[a]);
+		test = system(DIRCHECKER);
+		printf(" %s!\n", test ? "Fail" : "Done");
+		fflush(stdout);
+		
+		if(test)
+			return 1;
 	}
-	printf("Image base not found, fetching \"%s/images.tar.gz\" with wget ...", sysconfig.downfrom );
-	fflush(stdout);
-	syslog(LOG_INFO, "Image base not found, fetching \"%s/images.tar.gz\" with wget.\n", sysconfig.downfrom);
-	sprintf(DIRCHECKER,"wget -q \"%s/images.tar.gz\" -O %s/images.tar.gz", sysconfig.downfrom, TMPDIR);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
-	printf("Extracting images to: \"%s\" ...", sysconfig.httpimages);
-	fflush(stdout);
-	syslog(LOG_INFO, "Extracting files to: \"%s\"\n", sysconfig.httpimages);
-	sprintf(DIRCHECKER,"tar -xzf %s/images.tar.gz -C %s", TMPDIR, sysconfig.httpimages);
-	test = system(DIRCHECKER);
-	printf(" %s!\n", test ? "Fail" : "Done");
-	fflush(stdout);
-	if(test)
-	return 1;
+
 }
 
 printf("\n");
