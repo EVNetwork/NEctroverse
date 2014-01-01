@@ -3,6 +3,28 @@
 
 #define SERVERALLOCATION (256 * 1024)
 
+/**
+ * Context keeping the data for the response we're building.
+ */
+typedef struct ResponseDataContext
+{
+  /**
+   * Response data string.
+   */
+  char *buf;
+  
+  /**
+   * Number of bytes allocated for 'buf'.
+   */
+  size_t buf_len;
+
+  /**
+   * Current position where we append to 'buf'. Must be smaller or equal to 'buf_len'.
+   */
+  size_t off;
+
+} ResponseDataDef, *ResponseDataPtr;
+
 
 enum UploadState {
 
@@ -95,7 +117,7 @@ typedef struct Session
 
 } SessionDef, *SessionPtr;
 
-extern SessionPtr sessions;
+extern struct Session *sessions;
 extern SessionPtr get_session( int type, void *cls );
 
 /**
@@ -122,7 +144,7 @@ typedef struct Request
   /**
    * Associated session.
    */
-  SessionPtr session;
+  struct Session *session;
 
    /**
    * Post processor we're using to process the upload.
@@ -132,12 +154,12 @@ typedef struct Request
   /**
    * Handle to connection that we're processing the upload for.
    */
-  MHD_ConnectionPtr connection;
+  struct MHD_Connection *connection;
 
   /**
    * Response to generate, NULL to use directory.
    */
-  MHD_ResponsePtr response;
+  struct MHD_Response *response;
 
 } RequestDef, *RequestPtr;
 
@@ -155,7 +177,7 @@ typedef struct ReplyData
   /**
    * Associated session.
    */
-  SessionPtr session;
+  struct Session *session;
 
   /**
    * Post processor handling form data (IF this is
@@ -167,7 +189,7 @@ typedef struct ReplyData
    * URL to serve in response to this POST (if this request
    * was a 'POST')
    */
-  MHD_ConnectionPtr connection;
+  struct MHD_Connection *connection;
 
 } ReplyDataDef, *ReplyDataPtr;
 
@@ -183,7 +205,7 @@ typedef struct ReplyData
  */
 typedef void (*PageFunction)( ReplyDataPtr cnt );
 
-typedef int (*PageHandler)( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection );
+typedef int (*PageHandler)( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection );
 
 /**
  * Entry we generate for each page served.
@@ -217,8 +239,8 @@ typedef struct Page
 
 extern PageDef pages[];
 
-extern MHD_DaemonPtr server_http;
-extern MHD_DaemonPtr server_https;
+extern struct MHD_Daemon *server_http;
+extern struct MHD_Daemon *server_https;
 
 int http_prep();
 int http_start();
@@ -228,7 +250,7 @@ int https_start();
 void server_stop();
 void server_shutdown();
 
-extern void mark_as( MHD_ResponsePtr response, const char *type );
+extern void mark_as( struct MHD_Response *response, const char *type );
 
 extern size_t initial_allocation;
 
@@ -237,15 +259,15 @@ extern void expire_sessions ();
 extern int remove_session( const char *sid );
 
 
-extern int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);
+extern int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);
 
-extern void request_completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe);
+extern void request_completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe);
 
-extern int not_found_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
-extern int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
-extern int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
-extern int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
-extern int file_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection);
+extern int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+extern int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+extern int key_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+extern int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+extern int file_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 
 #define INTERNAL_ERROR_PAGE "<html><head><title>Server Error</title></head><body>An internal error has occured....</body></html>"
 

@@ -121,7 +121,7 @@ extern "C"
  * Current version of the library.
  * 0x01093001 = 1.9.30-1.
  */
-#define MHD_VERSION 0x00093100
+#define MHD_VERSION 0x00093300
 
 /**
  * MHD-internal return code for "YES".
@@ -518,7 +518,13 @@ enum MHD_FLAG
    * Enalbed always on W32 as winsock does not properly behave
    * with `shutdown()` and this then fixes potential problems.
    */
-  MHD_USE_EPOLL_TURBO = 4096
+  MHD_USE_EPOLL_TURBO = 4096,
+
+  /**
+   * Enable suspend/resume functions, which also implies setting up
+   * pipes to signal resume.
+   */
+  MHD_USE_SUSPEND_RESUME = 8192 | MHD_USE_PIPE_FOR_SHUTDOWN
 
 };
 
@@ -768,7 +774,24 @@ enum MHD_OPTION
    * Increment to use for growing the read buffer (followed by a
    * `size_t`). Must fit within #MHD_OPTION_CONNECTION_MEMORY_LIMIT.
    */
-  MHD_OPTION_CONNECTION_MEMORY_INCREMENT = 21
+  MHD_OPTION_CONNECTION_MEMORY_INCREMENT = 21,
+
+  /**
+   * Use a callback to determine which X.509 certificate should be
+   * used for a given HTTPS connection.  This option should be
+   * followed by a argument of type `gnutls_certificate_retrieve_function2 *`.
+   * This option provides an
+   * alternative to #MHD_OPTION_HTTPS_MEM_KEY,
+   * #MHD_OPTION_HTTPS_MEM_CERT.  You must use this version if
+   * multiple domains are to be hosted at the same IP address using
+   * TLS's Server Name Indication (SNI) extension.  In this case,
+   * the callback is expected to select the correct certificate
+   * based on the SNI information provided.  The callback is expected
+   * to access the SNI data using `gnutls_server_name_get()`.
+   * Using this option requires GnuTLS 3.0 or higher.
+   */
+  MHD_OPTION_HTTPS_CERT_CALLBACK = 22
+
 };
 
 
@@ -1157,12 +1180,9 @@ typedef int
  * total number of bytes that has been placed into @a buf should be
  * returned.
  *
- * Note that returning zero will cause libmicrohttpd to try again,
- * either "immediately" if in multi-threaded mode (in which case the
- * callback may want to do blocking operations) or in the next round
- * if #MHD_run is used.  Returning 0 for a daemon that runs in internal
- * select mode is an error (since it would result in busy waiting) and
- * will cause the program to be aborted (via `abort()`).
+ * Note that returning zero will cause libmicrohttpd to try again.
+ * Thus, returning zero should only be used in conjunction
+ * with MHD_suspend_connection() to avoid busy waiting.
  *
  * @param cls extra argument to the callback
  * @param pos position in the datastream to access;
@@ -1562,6 +1582,49 @@ int
 MHD_queue_response (struct MHD_Connection *connection,
                     unsigned int status_code,
 		    struct MHD_Response *response);
+
+
+/**
+ * Suspend handling of network data for a given connection.  This can
+ * be used to dequeue a connection from MHD's event loop (external
+ * select, internal select or thread pool; not applicable to
+ * thread-per-connection!) for a while.
+ *
+ * If you use this API in conjunction with a internal select or a
+ * thread pool, you must set the option #MHD_USE_PIPE_FOR_SHUTDOWN to
+ * ensure that a resumed connection is immediately processed by MHD.
+ *
+ * Suspended connections continue to count against the total number of
+ * connections allowed (per daemon, as well as per IP, if such limits
+ * are set).  Suspended connections will NOT time out; timeouts will
+ * restart when the connection handling is resumed.  While a
+ * connection is suspended, MHD will not detect disconnects by the
+ * client.
+ *
+ * The only safe time to suspend a connection is from the
+ * #MHD_AccessHandlerCallback.
+ *
+ * Finally, it is an API violation to call #MHD_stop_daemon while
+ * having suspended connections (this will at least create memory and
+ * socket leaks or lead to undefined behavior).  You must explicitly
+ * resume all connections before stopping the daemon.
+ *
+ * @param connection the connection to suspend
+ */
+void
+MHD_suspend_connection (struct MHD_Connection *connection);
+
+
+/**
+ * Resume handling of network data for suspended connection.  It is
+ * safe to resume a suspended connection at any time.  Calling this
+ * function on a connection that was not previously suspended will
+ * result in undefined behavior.
+ *
+ * @param connection the connection to resume
+ */
+void
+MHD_resume_connection (struct MHD_Connection *connection);
 
 
 /* **************** Response manipulation functions ***************** */

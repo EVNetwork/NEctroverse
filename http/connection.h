@@ -27,6 +27,9 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include "internal.h"
+
+
 /**
  * Set callbacks for this connection to those for HTTP.
  *

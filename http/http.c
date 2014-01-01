@@ -28,6 +28,8 @@
  *        to be adjusted depending on the number of available cores.
  * @author Christian Grothoff
  */
+#define PACKAGE_VERSION "NEctroverse microhttpd Bridge"
+
 #include "../config/global.h"
 #include "memorypool.c"
 #include "internal.c"
@@ -42,8 +44,8 @@
 
 #include "pagelist.c"
 
-MHD_DaemonPtr server_http;
-MHD_DaemonPtr server_https;
+struct MHD_Daemon *server_http;
+struct MHD_Daemon *server_https;
 
 char *cmdUploadState[4] = {
 "No Upload",
@@ -64,22 +66,22 @@ static size_t dir_buf_allocation = 256 * 1024;
 /**
  * Response returned if the requested file does not exist (or is not accessible).
  */
-static MHD_ResponsePtr file_not_found_response;
+static struct MHD_Response *file_not_found_response;
 
 /**
  * Response returned for internal errors.
  */
-static MHD_ResponsePtr internal_error_response;
+static struct MHD_Response *internal_error_response;
 
 /**
  * Response returned for '/' (GET) to list the contents of the directory and allow upload.
  */
-static MHD_ResponsePtr cached_directory_response;
+static struct MHD_Response *cached_directory_response;
 
 /**
  * Response returned for refused uploads.
  */
-static MHD_ResponsePtr request_refused_response;
+static struct MHD_Response *request_refused_response;
 
 /**
  * Global handle to MAGIC data.
@@ -88,7 +90,7 @@ static MHD_ResponsePtr request_refused_response;
 static magic_t magic;
 #endif
 
-void mark_as( MHD_ResponsePtr response, const char *type ) {
+void mark_as( struct MHD_Response *response, const char *type ) {
 
 (void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, type);
 
@@ -116,7 +118,7 @@ return;
  * Linked list of all active sessions.  Yes, O(n) but a
  * hash table would be overkill for a simple example...
  */
-SessionPtr sessions;
+struct Session *sessions;
 
 
 
@@ -124,14 +126,14 @@ SessionPtr sessions;
  * Return the session handle for this connection, or
  * create one if this is a new user.
  */
-SessionPtr get_session( int type, void *cls ) {
-	SessionPtr ret;
+struct Session *get_session( int type, void *cls ) {
+	struct Session *ret;
 	int id, now;
 	char buffer[129];
 	const char *cookie;
 
 if( type == SESSION_HTTP ) {
-	MHD_ConnectionPtr connection = cls;
+	struct MHD_Connection *connection = cls;
 	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
 } else if( type == SESSION_IRC ) {
 	cookie = cls;
@@ -203,7 +205,7 @@ return ret;
  * @param session session to use
  * @param response response to modify
  */
-static void add_session_cookie( SessionPtr session, MHD_ResponsePtr response ) {
+static void add_session_cookie( struct Session *session, struct MHD_Response *response ) {
 	char cstr[256];
 if( strlen(sysconfig.cookdomain) )
 snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s; max-age=%d", COOKIE_NAME, session->sid, sysconfig.cookdomain, SESSION_TIME );
@@ -238,7 +240,7 @@ fclose (file);
  *
  * @param response new directory response
  */
-void update_cached_response(MHD_ResponsePtr response) {
+void update_cached_response(struct MHD_Response *response) {
 
 (void) pthread_mutex_lock (&mutex);
 
@@ -289,8 +291,8 @@ return MHD_YES;
 /**
  * Re-scan our local directory and re-build the index.
  */
-static void update_directory( MHD_ConnectionPtr connection ) {
-	MHD_ResponsePtr response;
+static void update_directory( struct MHD_Connection *connection ) {
+	struct MHD_Response *response;
 	ReplyDataDef rd;
 	char dir_name[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 	struct stat sbuf;
@@ -333,7 +335,7 @@ update_cached_response (response);
  * @param connection connection to return the directory for
  * @return MHD_YES on success, MHD_NO on error
  */
-static int return_directory_response( MHD_ConnectionPtr connection ) {
+static int return_directory_response( struct MHD_Connection *connection ) {
 	int ret;
 
 (void) pthread_mutex_lock( &mutex );
@@ -357,10 +359,10 @@ return ret;
  * @param session session handle
  * @param connection connection to use
  */
-int not_found_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	int ret;
 	char md5sum[MD5_HASHSUM_SIZE];
-	MHD_ResponsePtr response;
+	struct MHD_Response *response;
 
   /* unsupported HTTP method */
 response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
@@ -373,11 +375,11 @@ MHD_destroy_response (response);
 return ret;
 }
 
-int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	int ret;
 	char dmsg[PATH_MAX];
 	struct stat buf;
-	MHD_ResponsePtr response;
+	struct MHD_Response *response;
 	FILE *file;
 
 snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", sysconfig.directory, &connection->url[7] );
@@ -404,11 +406,11 @@ return ret;
 }
 
 
-int key_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int key_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	const char *pname = cls;
 	char md5sum[MD5_HASHSUM_SIZE];
 	int ret, a;
-	MHD_ResponsePtr response;
+	struct MHD_Response *response;
 	ReplyDataDef rd;
 
 (void)pthread_mutex_lock( &mutex );
@@ -448,10 +450,10 @@ return ret;
 }
 
 
-int page_render( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	int ret, a;
 	char md5sum[MD5_HASHSUM_SIZE];
-	MHD_ResponsePtr response;
+	struct MHD_Response *response;
 	ReplyDataDef rd;
 
 (void)pthread_mutex_lock( &mutex );
@@ -484,10 +486,10 @@ MHD_destroy_response (response);
 return ret;
 }
 
-int file_page( int id, const void *cls, const char *mime, SessionPtr session, MHD_ConnectionPtr connection) {
+int file_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	int ret, fd;
 	struct stat buf;
-	MHD_ResponsePtr response;
+	struct MHD_Response *response;
 	const char *fname = cls;
 	char filename[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 
@@ -717,11 +719,11 @@ return MHD_YES;
  */
 #define MAGIC_HEADER_SIZE (16 * 1024)
 
-int create_response (void *cls, MHD_ConnectionPtr connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
+int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
 {
-  MHD_ResponsePtr response;
+  struct MHD_Response *response;
   RequestPtr request;
-  SessionPtr session;
+  struct Session *session;
   int ret, fd;
   unsigned int i;
   bool local;
@@ -899,7 +901,7 @@ return ret;
  *            not an upload
  * @param toe reason for request termination
  */
-void completed_callback (void *cls, MHD_ConnectionPtr connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
+void completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
 	RequestPtr request = *con_cls;
 
 if (NULL == request)
@@ -949,9 +951,9 @@ void expire_sessions () {
 	int id;
 	char buffer[129];
 	dbUserPtr user;
-	SessionPtr pos;
-	SessionPtr prev;
-	SessionPtr next;
+	struct Session *pos;
+	struct Session *prev;
+	struct Session *next;
 	time_t now;
 
 now = time(NULL);
@@ -988,9 +990,9 @@ int remove_session( const char *sid ) {
 	char buffer[129];
 	bool donenothing = true;
 	dbUserPtr user;
-	SessionPtr pos;
-	SessionPtr prev;
-	SessionPtr next;
+	struct Session *pos;
+	struct Session *prev;
+	struct Session *next;
 
 prev = NULL;
 pos = sessions;

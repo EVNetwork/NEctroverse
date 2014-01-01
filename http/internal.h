@@ -1,17 +1,17 @@
 /*
   This file is part of libmicrohttpd
   (C) 2007-2013 Daniel Pittman and Christian Grothoff
-  
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
-  
+
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
-  
+
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -27,6 +27,17 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
+#include "platform.h"
+#include "microhttpd.h"
+#if HTTPS_SUPPORT
+#include <gnutls/gnutls.h>
+#if GNUTLS_VERSION_MAJOR >= 3
+#include <gnutls/abstract.h>
+#endif
+#endif
+#if EPOLL_SUPPORT
+#include <sys/epoll.h>
+#endif
 
 
 /**
@@ -62,19 +73,17 @@ extern void *mhd_panic_cls;
 #if HAVE_MESSAGES
 /**
  * Trigger 'panic' action based on fatal errors.
- * 
+ *
  * @param msg error message (const char *)
  */
- #define MHD_PANIC(msg) loghandle(LOG_ERR, errno, "%s in: %s, on line: %d", msg, __FILE__, __LINE__ )
-//#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, msg)
+#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, msg)
 #else
 /**
  * Trigger 'panic' action based on fatal errors.
- * 
+ *
  * @param msg error message (const char *)
  */
-#define MHD_PANIC(msg) loghandle(LOG_ERR, errno, "Error in: %s, on line: %d", __FILE__, __LINE__ )
-//#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, NULL)
+#define MHD_PANIC(msg) mhd_panic (mhd_panic_cls, __FILE__, __LINE__, NULL)
 #endif
 
 
@@ -110,8 +119,12 @@ enum MHD_EpollState
     /**
      * Is this connection currently in the 'epoll' set?
      */
-    MHD_EPOLL_STATE_IN_EPOLL_SET = 8
+    MHD_EPOLL_STATE_IN_EPOLL_SET = 8,
 
+    /**
+     * Is this connection currently suspended?
+     */
+    MHD_EPOLL_STATE_SUSPENDED = 16
   };
 
 
@@ -132,12 +145,12 @@ enum MHD_ConnectionEventLoopInfo
 
     /**
      * We are waiting for the application to provide data.
-     */ 
+     */
     MHD_EVENT_LOOP_INFO_BLOCK = 2,
 
     /**
      * We are finished and are awaiting cleanup.
-     */ 
+     */
     MHD_EVENT_LOOP_INFO_CLEANUP = 3
   };
 
@@ -155,9 +168,9 @@ enum MHD_ConnectionEventLoopInfo
  * A structure representing the internal holder of the
  * nonce-nc map.
  */
-typedef struct MHD_NonceNc 
+struct MHD_NonceNc
 {
-  
+
   /**
    * Nonce counter, a value that increases for each subsequent
    * request for the same nonce.
@@ -165,19 +178,19 @@ typedef struct MHD_NonceNc
   unsigned long int nc;
 
   /**
-   * Nonce value: 
+   * Nonce value:
    */
   char nonce[MAX_NONCE_LENGTH];
 
-} MHD_NonceNcDef, *MHD_NonceNcPtr;
+};
 
 #if HAVE_MESSAGES
 /**
  * fprintf-like helper function for logging debug
  * messages.
  */
-void 
-MHD_DLOG (const struct MHD_Daemon *daemon, 
+void
+MHD_DLOG (const struct MHD_Daemon *daemon,
 	  const char *format, ...);
 #endif
 
@@ -192,7 +205,7 @@ MHD_DLOG (const struct MHD_Daemon *daemon,
  * @return length of the resulting val (strlen(val) maybe
  *  shorter afterwards due to elimination of escape sequences)
  */
-size_t 
+size_t
 MHD_http_unescape (void *cls,
 		   struct MHD_Connection *connection,
 		   char *val);
@@ -201,7 +214,7 @@ MHD_http_unescape (void *cls,
 /**
  * Header or cookie in HTTP request or response.
  */
-typedef struct MHD_HTTP_Header
+struct MHD_HTTP_Header
 {
   /**
    * Headers are kept in a linked list.
@@ -225,13 +238,13 @@ typedef struct MHD_HTTP_Header
    */
   enum MHD_ValueKind kind;
 
-} MHD_HTTP_HeaderDef, *MHD_HTTP_HeaderPtr;
+};
 
 
 /**
  * Representation of a response.
  */
-typedef struct MHD_Response
+struct MHD_Response
 {
 
   /**
@@ -308,30 +321,7 @@ typedef struct MHD_Response
    */
   int fd;
 
-} MHD_ResponseDef, *MHD_ResponsePtr;
-
-/**
- * Context keeping the data for the response we're building.
- */
-typedef struct ResponseDataContext
-{
-  /**
-   * Response data string.
-   */
-  char *buf;
-  
-  /**
-   * Number of bytes allocated for 'buf'.
-   */
-  size_t buf_len;
-
-  /**
-   * Current position where we append to 'buf'. Must be smaller or equal to 'buf_len'.
-   */
-  size_t off;
-
-} ResponseDataDef, *ResponseDataPtr;
-
+};
 
 
 /**
@@ -469,7 +459,7 @@ enum MHD_CONNECTION_STATE
    * Handshake messages will be processed in this state & while
    * in the 'MHD_TLS_HELLO_REQUEST' state
    */
-  MHD_TLS_CONNECTION_INIT = MHD_CONNECTION_CLOSED + 1
+  MHD_TLS_CONNECTION_INIT = MHD_CONNECTION_IN_CLEANUP + 1
 
 };
 
@@ -513,7 +503,7 @@ typedef ssize_t (*TransmitCallback) (struct MHD_Connection * conn,
 /**
  * State kept for each HTTP request.
  */
-typedef struct MHD_Connection
+struct MHD_Connection
 {
 
 #if EPOLL_SUPPORT
@@ -846,9 +836,18 @@ typedef struct MHD_Connection
    * even though the socket is not?
    */
   int tls_read_ready;
-
 #endif
-} MHD_ConnectionDef, *MHD_ConnectionPtr;
+
+  /**
+   * Is the connection suspended?
+   */
+  int suspended;
+
+  /**
+   * Is the connection wanting to resume?
+   */
+  int resuming;
+};
 
 /**
  * Signature of function called to log URI accesses.
@@ -858,7 +857,7 @@ typedef struct MHD_Connection
  * @param con connection handle
  * @return new closure
  */
-typedef void * (*LogCallback)(void * cls, 
+typedef void * (*LogCallback)(void * cls,
 			      const char * uri,
 			      struct MHD_Connection *con);
 
@@ -883,7 +882,7 @@ typedef size_t (*UnescapeCallback)(void *cls,
  * write, locally blocked, cleanup) whereas the second is about its
  * timeout state (default or custom).
  */
-typedef struct MHD_Daemon
+struct MHD_Daemon
 {
 
   /**
@@ -905,6 +904,16 @@ typedef struct MHD_Daemon
    * Tail of doubly-linked list of our current, active connections.
    */
   struct MHD_Connection *connections_tail;
+
+  /**
+   * Head of doubly-linked list of our current but suspended connections.
+   */
+  struct MHD_Connection *suspended_connections_head;
+
+  /**
+   * Tail of doubly-linked list of our current but suspended connections.
+   */
+  struct MHD_Connection *suspended_connections_tail;
 
   /**
    * Head of doubly-linked list of connections to clean up.
@@ -1082,7 +1091,7 @@ typedef struct MHD_Daemon
   int epoll_fd;
 
   /**
-   * MHD_YES if the listen socket is in the 'epoll' set, 
+   * MHD_YES if the listen socket is in the 'epoll' set,
    * MHD_NO if not.
    */
   int listen_socket_in_epoll;
@@ -1100,6 +1109,11 @@ typedef struct MHD_Daemon
    * Are we shutting down?
    */
   int shutdown;
+
+  /*
+   * Do we need to process resuming connections?
+   */
+  int resuming;
 
   /**
    * Limit on the number of parallel connections.
@@ -1149,6 +1163,14 @@ typedef struct MHD_Daemon
    * Diffie-Hellman parameters
    */
   gnutls_dh_params_t dh_params;
+
+#if GNUTLS_VERSION_MAJOR >= 3
+  /**
+   * Function that can be used to obtain the certificate.  Needed
+   * for SNI support.  See #MHD_OPTION_HTTPS_CERT_CALLBACK.
+   */
+  gnutls_certificate_retrieve_function2 *cert_callback;
+#endif
 
   /**
    * Pointer to our SSL/TLS key (in ASCII) in memory.
@@ -1204,7 +1226,7 @@ typedef struct MHD_Daemon
 
 #endif
 
-} MHD_DaemonDef, *MHD_DaemonPtr;
+};
 
 
 #if EXTRA_CHECKS

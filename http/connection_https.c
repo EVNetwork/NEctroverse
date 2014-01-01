@@ -26,6 +26,13 @@
  * @author Christian Grothoff
  */
 
+#include "internal.h"
+#include "connection.h"
+#include "memorypool.h"
+#include "response.h"
+#include "reason_phrase.h"
+#include <gnutls/gnutls.h>
+
 
 /**
  * Give gnuTLS chance to work on the TLS handshake.  
@@ -59,7 +66,7 @@ run_tls_handshake (struct MHD_Connection *connection)
       /* handshake failed */
 #if HAVE_MESSAGES
       MHD_DLOG (connection->daemon,
-		"Error: received handshake message out of context");
+		"Error: received handshake message out of context\n");
 #endif
       MHD_connection_close (connection,
 			    MHD_REQUEST_TERMINATED_WITH_ERROR);
@@ -127,7 +134,7 @@ MHD_tls_connection_handle_idle (struct MHD_Connection *connection)
   unsigned int timeout;
 
 #if DEBUG_STATES
-  MHD_DLOG (connection->daemon, "%s: state: %s",
+  MHD_DLOG (connection->daemon, "%s: state: %s\n",
             __FUNCTION__, MHD_state_to_string (connection->state));
 #endif
   timeout = connection->connection_timeout;

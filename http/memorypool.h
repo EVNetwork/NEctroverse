@@ -28,6 +28,7 @@
 #ifndef MEMORYPOOL_H
 #define MEMORYPOOL_H
 
+#include "internal.h"
 
 /**
  * Opaque handle for a memory pool.
