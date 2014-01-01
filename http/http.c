@@ -360,16 +360,16 @@ return ret;
  */
 int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	int ret;
-	char md5sum[MD5_HASHSUM_SIZE];
-	struct MHD_Response *response;
+//	char md5sum[MD5_HASHSUM_SIZE];
+//	struct MHD_Response *response;
 
   /* unsupported HTTP method */
-response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
-md5_string( NOT_FOUND_ERROR, md5sum );
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
-MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
-MHD_destroy_response (response);
+//response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
+//md5_string( NOT_FOUND_ERROR, md5sum );
+//(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
+//MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
+//MHD_destroy_response (response);
 
 return ret;
 }
@@ -500,12 +500,12 @@ int file_page( int id, const void *cls, const char *mime, struct Session *sessio
 	else
 		fd = -1;
 	if (-1 == fd) {
-		response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE );
-		md5_string( NOT_FOUND_ERROR, md5sum );
-		(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-		add_session_cookie( session, response );
-		ret = MHD_queue_response( connection, MHD_HTTP_NOT_FOUND, response );
-		MHD_destroy_response( response );
+		//response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE );
+		//md5_string( NOT_FOUND_ERROR, md5sum );
+		//(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+		//add_session_cookie( session, response );
+		ret = MHD_queue_response( connection, MHD_HTTP_NOT_FOUND, file_not_found_response );
+		//MHD_destroy_response( response );
 		return ret;
 	}
 
@@ -758,9 +758,9 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	else
 		fd = -1;
 	if (-1 == fd) {
-		response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
-		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
-		MHD_destroy_response (response);
+		//response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
+		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
+		//MHD_destroy_response (response);
 		return ret;
 	}
 
@@ -881,10 +881,10 @@ if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HT
 }
 
 /* unsupported HTTP method */
-response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_MUST_FREE);
-(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
-ret = MHD_queue_response (connection, MHD_HTTP_METHOD_NOT_ACCEPTABLE, response);
-MHD_destroy_response (response);
+//response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_MUST_FREE);
+//(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
+ret = MHD_queue_response (connection, MHD_HTTP_METHOD_NOT_ACCEPTABLE, request_refused_response);
+//MHD_destroy_response (response);
 
 return ret;
 }
