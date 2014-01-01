@@ -768,7 +768,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
   int resources[CMD_RESSOURCE_NUMUSED];
 
   newd[2] = CMD_NEWS_SPCANCEL;
-  if( (unsigned int)specop > CMD_PSYCHICOP_NUMUSED )
+  if( specop > CMD_PSYCHICOP_NUMUSED )
     return;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return;
@@ -776,7 +776,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
     return;
   if( !( dbUserFleetRetrieve( id, 0, &fleetd ) ) )
     return;
-  if( ( (unsigned int)psychics > fleetd.unit[CMD_UNIT_WIZARD] ) || ( maind.readiness[CMD_READY_PSYCH] < 0 ) ||  !( ticks.status ) )
+  if( ( psychics > fleetd.unit[CMD_UNIT_WIZARD] ) || ( maind.readiness[CMD_READY_PSYCH] < 0 ) ||  !( ticks.status ) )
   {
     cmdUserNewsAdd( id, newd, 0 );
     return;

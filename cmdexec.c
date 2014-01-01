@@ -665,7 +665,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     cmdErrorString = "The price must be between 1 and 250";
     return -3;
   }
-  if( (unsigned int)quantity > (2000000000/price) )
+  if( quantity > (2000000000/price) )
   {
     cmdErrorString = "Your bid is too large";
     return -3;

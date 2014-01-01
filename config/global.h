@@ -125,6 +125,9 @@ static const double megabyte = (1024 * 1024);
 #include "../http/platform.h"
 #include "../extras/extras.h"
 
+#if MEMLEAK_DETECT
+#include "../extras/leak_detector.h"
+#endif
 
 #if IRCBOT_SUPPORT
 #include "../ircbot/ircbot.h"

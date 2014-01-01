@@ -132,8 +132,7 @@ SessionPtr get_session( int type, void *cls ) {
 
 if( type == SESSION_HTTP ) {
 	MHD_ConnectionPtr connection = cls;
-	
-cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
+	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
 } else if( type == SESSION_IRC ) {
 	cookie = cls;
 }

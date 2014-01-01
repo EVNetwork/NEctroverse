@@ -2,7 +2,11 @@
 
 pthread_mutex_t mutex;
 
-optionsDef options = { MODE_DAEMON, { false, false }, -1, -1, -1, true, "", "", "", "status" };
+optionsDef options = { MODE_DAEMON, { false
+#if HTTPS_SUPPORT
+, false
+#endif
+ }, -1, -1, -1, true, "", "", "", "status" };
 
 configDef sysconfig;
 #if MYSQL_SUPPORT
@@ -36,6 +40,8 @@ if( type ) {
 	sprintf( DIRCHECKER, "%s/%d.client.pipe", TMPDIR, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
 }
+
+
 
 return;
 }
@@ -268,7 +274,7 @@ while( sysconfig.shutdown == false ) {
 	svPipeScan( options.serverpipe );
 	#endif
 
-	loadconfig(options.sysini,CONFIG_BANNED);
+	//loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
 	curtime = time( 0 );
@@ -915,11 +921,14 @@ int checkops(int argc, char **argv) {
 	bool result;
 	int index;
 	int opt;
-#if HTTPS_SUPPORT
-static char short_opt[] = "c:fm:p:e:qs:";
-#else
-static char short_opt[] = "c:fm:p:e:qs:";
-#endif
+
+	static char short_opt[] =
+	#if HTTPS_SUPPORT
+	"c:fm:p:e:qs:";
+	#else
+	"c:fm:p:qs:";
+	#endif
+
 static struct option long_opt[] =
    {
       {"config", required_argument, 0, 'c'},
@@ -1021,6 +1030,10 @@ int main( int argc, char *argv[] ) {
 	int num;
 	#endif
 	int test;
+
+#if MEMLEAK_DETECT
+atexit(report_mem_leak);
+#endif
 
 if( checkops(argc,argv) ) {
 	printf ("Error: Invalid usage detected...\n");

@@ -11,7 +11,7 @@ SQLFLAG := $(shell mysql_config --cflags)
 LIBDIR = .libs/
 MODLIBS = 
 #The standard config needed to compile basic server, withought these it won't work.
-FLAGS = -O2 -O3 --fast-math -Wall #-fno-strict-aliasing
+FLAGS = -O2 -O3 --fast-math -Wall #-Wextra #-fno-strict-aliasing
 LIBS = -lcrypt -lpng
 
 ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)
@@ -19,13 +19,22 @@ LIBS += -lgcrypt -lgnutls
 endif
 
 ifneq ($(findstring DEBUG_SUPPORT 1,$(CONFIGS)),)
-DEFS = -ggdb -rdynamic
+
+ifneq ($(findstring MYSQL_SUPPORT 1,$(CONFIGS)),)
+DEFS = -rdynamic
+else
+DEFS = -g -rdynamic
+endif
+
 endif
 
 ifneq ($(findstring IRCBOT_SUPPORT 1,$(CONFIGS)),)
 MODLIBS += $(LIBDIR)ircbot.o
 endif
 
+ifneq ($(findstring MEMLEAK_DETECT 1,$(CONFIGS)),)
+MODLIBS += $(LIBDIR)leak_detector.o
+endif
 
 ifneq ($(findstring MYSQL_SUPPORT 1,$(CONFIGS)),)
 FLAGS += $(SQLFLAG)
@@ -73,6 +82,9 @@ $(LIBDIR)html.o: $(HEAD) html/*.h html/*.c
 $(LIBDIR)extras.o: $(HEAD) extras/*.h extras/*.c
 	$(CC) extras/extras.c $(DEFS) -o $(LIBDIR)extras.o -c $(FLAGS)
 
+$(LIBDIR)leak_detector.o: $(HEAD) extras/leak_detector.h extras/leak_detector.c
+	$(CC) extras/leak_detector.c $(DEFS) -o $(LIBDIR)leak_detector.o -c $(FLAGS)
+
 $(LIBDIR)ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
 	$(CC) ircbot/ircbot.c $(DEFS) -o $(LIBDIR)ircbot.o -c $(FLAGS)
 
@@ -90,7 +102,7 @@ blank: clean
 	rm /tmp/evcore -rf
 
 #Not yet in deployment. This is just my testing section.
-mysql.o: test_modules/mysql.c test_modules/*.h *.h
+$(LIBDIR)mysql.o: test_modules/mysql.c test_modules/*.h *.h
 	$(CC) test_modules/mysql.c $(DEFS) -o $(LIBDIR)mysql.o -c $(FLAGS) $(LIBS)
 
 mysqltest: mysql.o extras.o

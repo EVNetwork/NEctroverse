@@ -465,28 +465,36 @@ char cmdErrorBuffer[1024];
 
 dbUserMainDef cmdUserMainDefault =
 {
-  { },
-  { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ },
-  -1,
-  { },
-  { 0, 0, 0, 0, 0, 0, 0/*, 0*/ },
-  { 100*65536, 100*65536, 100*65536 },
-  0,
-  { },
-  { },
-  { },
-  1250,
-  { },
-  0,
-  0,
-  1,
-  { 200, 200, 250, 250 },
-  15|0x10000, { 0x1|(0x1<<4), 0x2|(0x0<<4), -1, -1, -1, -1, -1, -1 }
+  { }, //Faction
+  { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ }, //ressource
+  -1, //Empire
+  { }, //infos
+  { 0, 0, 0, 0, 0, 0, 0/*, 0*/ }, //Research
+  { 100*65536, 100*65536, 100*65536 }, //readiness
+  0, //home
+  { }, //totalbuilding
+  { }, //totalunit
+  { }, //totalresearch
+  1250, //networth
+  { }, //allocresearch
+  0, //fundresearch
+  0, //planets
+  1, //config_fleet
+  { 200, 200, 250, 250 }, //config_flee
+  15|0x10000, //config_mapsize
+  { 0x1|(0x1<<4), 0x2|(0x0<<4), -1, -1, -1, -1, -1, -1 }, //config_map
+  -1, //RaceID
+  0, //Artefacts
+  -1, //rank
+  -1, //Aidaccess
+  0, //flags
 };
 
 dbUserFleetDef cmdUserFleetDefault =
 {
   { 0, 40, 0, 0, 0, 80, 0, 0, 0, 50, 50, 0, 4 },
+  0,
+  0,
   0,
   0,
   0,
@@ -1613,7 +1621,7 @@ for( a = 0; a < admincfg.numadmins; a++ ) {
 	}
 }
 
-if( admincfg.numadmins < 0 ) {
+if( admincfg.numadmins ) {
 	free(admincfg.name);
 	free(admincfg.password);
 	free(admincfg.faction);

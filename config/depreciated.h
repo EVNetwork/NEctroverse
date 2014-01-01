@@ -9,6 +9,9 @@
 /* disable debugging symbols support */
 #define DEBUG_SUPPORT 1
 
+/* disable debugging memory leaks support */
+#define MEMLEAK_DETECT 1
+
 /* disable HTTPS support */
 #define HTTPS_SUPPORT 1
 
@@ -20,6 +23,8 @@
 
 /* disable mysql support */
 #define MYSQL_SUPPORT 0
+
+#define ENABLE_IPV6 0
 
 /* disable digest Auth support */
 #define DAUTH_SUPPORT 1
