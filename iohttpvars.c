@@ -89,35 +89,6 @@ if ( (tokens) && (num) ) {
 }
 
 
-int remove_key( SessionPtr session, const char *key ) {
-	bool donenothing = true;
-	PostDataPtr pos;
-	PostDataPtr prev;
-	PostDataPtr next;
-
-prev = NULL;
-pos = session->postdata;
-
-while( NULL != pos ) {
-	next = pos->next;
-	if( 0 == strcmp( key, pos->key ) ) {
-		if (NULL == prev) {
-			session->postdata = pos->next;
-		} else {
-			prev->next = next;
-		}
-		donenothing = false;
-		free( pos );
-	} else {
-	        prev = pos;
-        }
-	pos = next;
-}
-
-
-return donenothing;
-}
-
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
 	char *value;
 	PostDataPtr data;
@@ -125,7 +96,6 @@ char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
 for( data = (cnt->session)->postdata ; data ; data = data->next ) {
 	if( ( strcmp( id, data->key ) == 0 ) ) {
 		value = data->value;
-		remove_key( cnt->session, data->key );
 		return value;
 	}
 }

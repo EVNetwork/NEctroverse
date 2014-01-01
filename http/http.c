@@ -148,6 +148,8 @@ if (cookie != NULL) {
 	if (NULL != ret) {
 		ret->rc++;
 		ret->active = time(NULL);
+		if( ret->postdata != NULL )
+			postdata_wipe( ret );
 		return ret;
 	}
 }
@@ -551,7 +553,7 @@ buf[old_len + size] = '\0';
 return MHD_YES;
 }
 
-int set_sessionpost( SessionPtr session, const char *key, const char *value ) {
+int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
 	PostDataPtr data;
 
@@ -584,6 +586,52 @@ session->postdata = data;
 return MHD_YES;
 }
 
+int remove_key( SessionPtr session, const char *key ) {
+	bool donenothing = true;
+	PostDataPtr pos;
+	PostDataPtr prev;
+	PostDataPtr next;
+
+prev = NULL;
+pos = session->postdata;
+
+while( NULL != pos ) {
+	next = pos->next;
+	if( 0 == strcmp( key, pos->key ) ) {
+		if (NULL == prev) {
+			session->postdata = pos->next;
+		} else {
+			prev->next = next;
+		}
+		donenothing = false;
+		free( pos->key );
+		free( pos->value );		
+		free( pos );
+	} else {
+	        prev = pos;
+        }
+	pos = next;
+}
+
+
+return donenothing;
+}
+
+
+int postdata_wipe( SessionPtr session ) {
+	PostDataPtr data;
+
+if( !( session->postdata == NULL ) ) {
+	for( data = session->postdata ; data ; data = data->next )
+		remove_key( session, data->key );
+	
+}
+
+
+
+return MHD_YES;
+}
+
 /**
  * Iterator over key-value pairs where the value
  * maybe made available in increments and/or may
@@ -611,7 +659,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
 	if( ( data ) ) {
-		set_sessionpost( uc->session, key, data );
+		postdata_set( uc->session, key, data );
 	} else {
 		sprintf( logString, "Ignoring unexpected form value \'%s\'", key );
 		info( logString ); 
@@ -913,6 +961,8 @@ if (NULL != request->filename) {
 	free (request->filename);
 }
 
+if( (request->session)->postdata != NULL )
+	postdata_wipe( request->session );
 
 free(request);
 }
@@ -1054,8 +1104,6 @@ int http_prep(){
 	char md5sum[MD5_HASHSUM_SIZE];
 	cpuInfo cpuinfo;
 
-
-
 cpuGetInfo( &cpuinfo );
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
@@ -1068,15 +1116,20 @@ file_not_found_response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERR
 request_refused_response = MHD_create_response_from_buffer( strlen( METHOD_ERROR ), (void *)METHOD_ERROR, MHD_RESPMEM_PERSISTENT );
 internal_error_response = MHD_create_response_from_buffer( strlen( INTERNAL_ERROR_PAGE ), (void *)INTERNAL_ERROR_PAGE, MHD_RESPMEM_PERSISTENT );
 
-mark_as(file_not_found_response, "text/html" );
-mark_as(request_refused_response, "text/html" );
-mark_as(internal_error_response, "text/html" );
 md5_string( METHOD_ERROR, md5sum );
 (void)MHD_add_response_header(request_refused_response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+(void)MHD_add_response_header(request_refused_response, MHD_HTTP_HEADER_CONNECTION, "close");
+mark_as(request_refused_response, "text/html" );
+
 md5_string(NOT_FOUND_ERROR, md5sum );
 (void)MHD_add_response_header(file_not_found_response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+(void)MHD_add_response_header(file_not_found_response, MHD_HTTP_HEADER_CONNECTION, "close");
+mark_as(file_not_found_response, "text/html" );
+
 md5_string( INTERNAL_ERROR_PAGE, md5sum );
 (void)MHD_add_response_header(internal_error_response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+(void)MHD_add_response_header(internal_error_response, MHD_HTTP_HEADER_CONNECTION, "close");
+mark_as(internal_error_response, "text/html" );
 
 if( options.verbose )
 	flags |=  MHD_USE_DEBUG;

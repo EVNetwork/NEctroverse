@@ -250,14 +250,15 @@ extern void mark_as( struct MHD_Response *response, const char *type );
 
 extern size_t initial_allocation;
 
-extern int set_postvalue(char **ret, const char *data, size_t size);
+extern int postdata_wipe( SessionPtr session );
+
 extern void expire_sessions ();
 extern int remove_session( const char *sid );
 
 
 extern int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);
 
-extern void request_completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe);
+extern void completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe);
 
 extern int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 extern int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
