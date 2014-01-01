@@ -356,15 +356,13 @@ void cmdTickInit(){
 
 (void)pthread_mutex_lock( &mutex );
 
+RANDOMIZE_SEED;
+
 return;
 }
 
 
 void cmdTickEnd() {
-	#if IRCBOT_SUPPORT
-	char buffer[512];
-	#endif
-
 
 cmdTickGenRanks();
 
@@ -373,6 +371,8 @@ savetickconfig();
 (void)pthread_mutex_unlock( &mutex );
 
 #if IRCBOT_SUPPORT
+	char buffer[512];
+	
 if( irccfg.bot ) {
 	if( ( irccfg.announcetick ) && ( ticks.status ) ) {
 		snprintf( buffer, sizeof(buffer), "Game has Ticked -- Week %d, Year %d (Tick #%d)", ticks.number % 52, ticks.number / 52, ticks.number );

@@ -145,6 +145,8 @@ static const double megabyte = (1024 * 1024);
 #include "../cmd.h"
 #include "../map.h"
 
+#define RANDOMIZE_SEED srand( ( ANG_SIN( time(NULL) ) * ( time(NULL) / DEF_PI ) ) )
+
 #define file_r( data, size, count, file ) { if( fread( data, size, count, file ) < 1 ) error( "Reading File" ); }
 #define file_w( data, size, count, file ) { if( fwrite( data, size, count, file ) < 1 ) error( "Writing File" ); }
 #define file_s( file, offset ) { if( fseek( file, offset, SEEK_SET ) ) error( "File Seek" ); }

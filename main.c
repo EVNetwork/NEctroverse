@@ -384,7 +384,7 @@ signal( SIGABRT, &svSignal );
 signal( SIGUSR1, &svSignal);
 signal( SIGUSR2, &svSignal);
 	
-srand( (unsigned int)time(NULL) ); //Random Init
+RANDOMIZE_SEED;
 
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
 	loghandle(LOG_CRIT, false, "%s", "Server Database Initation Failed, now exiting..." );

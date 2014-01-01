@@ -3397,6 +3397,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
    i += dbMapBInfoStatic[MAP_SIZEX] - ( zoomsize << 1 );
   httpPrintf( cnt, "<td>%d</tr>", y );
  }
+ RANDOMIZE_SEED;
  httpString( cnt, "<tr><td>&nbsp;</td>" );
  for( x = basex ; x < endx ; x++ )
   httpPrintf( cnt, "<td align=\"center\">%d</td>", x );

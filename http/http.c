@@ -592,13 +592,12 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
-	if( ( data ) && strlen( data ) ) {
+	if( ( data ) ) {
 		//sprintf( logString, "Ignoring unexpected form value \'%s\' - \'%s\'", key, data);
 		//info( logString );
 		if( (uc->session)->posts >= MAX_POST_VALUES ) {
 			sprintf( logString, "Ignoring post value, due to over-load limit \'%s\'", key );
 			info( logString );
-			return MHD_NO;
 		} else {
 			set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
 			set_postvalue(&(uc->session)->value[(uc->session)->posts], data, strlen(data) );

@@ -398,6 +398,7 @@ void dbUserFree( dbUserPtr user )
 users
   4:next user ID
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -720,6 +721,7 @@ if( mkdir( uname, S_IRWXU ) == -1 ) {
 sprintf( user->name, "%s", adduser->name );
 sprintf( user->faction, "%s", adduser->faction );
 sprintf( user->forumtag, "%s", adduser->forumtag );
+user->lasttime = adduser->lasttime;
 user->id = id;
 user->flags = 0;
 user->level = 0;
