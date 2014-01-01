@@ -274,7 +274,7 @@ while( sysconfig.shutdown == false ) {
 	svPipeScan( options.serverpipe );
 	#endif
 
-	//loadconfig(options.sysini,CONFIG_BANNED);
+	loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
 	curtime = time( 0 );

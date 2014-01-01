@@ -11,8 +11,10 @@ SQLFLAG := $(shell mysql_config --cflags)
 LIBDIR = .libs/
 MODLIBS = 
 #The standard config needed to compile basic server, withought these it won't work.
-FLAGS = -O2 -O3 --fast-math -Wall #-Wextra #-fno-strict-aliasing
+FLAGS = -O2 -O3 --fast-math -Wall #-Wextra
 LIBS = -lcrypt -lpng
+
+#FLAGS += -fno-strict-aliasing
 
 ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)
 LIBS += -lgcrypt -lgnutls
@@ -26,14 +28,14 @@ else
 DEFS = -g -rdynamic
 endif
 
+ifneq ($(findstring MEMLEAK_DETECT 1,$(CONFIGS)),)
+MODLIBS += $(LIBDIR)leak_detector.o
+endif
+
 endif
 
 ifneq ($(findstring IRCBOT_SUPPORT 1,$(CONFIGS)),)
 MODLIBS += $(LIBDIR)ircbot.o
-endif
-
-ifneq ($(findstring MEMLEAK_DETECT 1,$(CONFIGS)),)
-MODLIBS += $(LIBDIR)leak_detector.o
 endif
 
 ifneq ($(findstring MYSQL_SUPPORT 1,$(CONFIGS)),)
