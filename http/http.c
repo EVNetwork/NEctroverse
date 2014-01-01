@@ -185,7 +185,6 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 
 MAKECOOKIE:
 
-
 ret->rc++;
 ret->active = time(NULL);
 ret->start = time(NULL);
@@ -365,7 +364,7 @@ int not_found_page ( int id, const void *cls, const char *mime, struct Session *
 	struct MHD_Response *response;
 
   /* unsupported HTTP method */
-response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_PERSISTENT);
+response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
 md5_string( NOT_FOUND_ERROR, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
@@ -607,7 +606,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
-	if( ( data ) ) {
+	if( ( data ) && strlen( data ) ) {
 		//sprintf( logString, "Ignoring unexpected form value \'%s\' - \'%s\'", key, data);
 		//info( logString );
 		if( (uc->session)->posts >= MAX_POST_VALUES ) {
@@ -882,7 +881,7 @@ if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HT
 }
 
 /* unsupported HTTP method */
-response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_PERSISTENT);
+response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_MUST_FREE);
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
 ret = MHD_queue_response (connection, MHD_HTTP_METHOD_NOT_ACCEPTABLE, response);
 MHD_destroy_response (response);
@@ -1066,6 +1065,8 @@ int http_prep(){
 	char md5sum[MD5_HASHSUM_SIZE];
 	cpuInfo cpuinfo;
 
+
+
 cpuGetInfo( &cpuinfo );
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
@@ -1151,36 +1152,18 @@ return 0;
 }
 
 
-void server_stop( int flag ) {
-
-if( flag == 1 ) {
-	if( server_http ) {
-		MHD_stop_daemon(server_http);
-	info( "HTTP  Server has been gracefully shutdown!" );
-	}
-} else if( flag == 2 ) {
-	if( server_https ) {
-		MHD_stop_daemon(server_https);
-	info( "HTTPS Server has been gracefully shutdown!" );
-	}
-} else {
-	if( server_http ) {
-		MHD_stop_daemon(server_http);
-	info( "HTTP Server has been gracefully shutdown!" );
-	}
-	if( server_https ) {
-		MHD_stop_daemon(server_https);
-	info("HTTPS Server has been gracefully shutdown!");
-	}
-}
-
-return;
-}
-
-
 void server_shutdown(){
 
-server_stop(0);
+if( server_http ) {
+	MHD_stop_daemon(server_http);
+	info( "HTTP Server has been gracefully shutdown!" );
+}
+#if HTTPS_SUPPORT
+if( server_https ) {
+	MHD_stop_daemon(server_https);
+	info("HTTPS Server has been gracefully shutdown!");
+}
+#endif
 
 MHD_destroy_response (file_not_found_response);
 MHD_destroy_response (request_refused_response);

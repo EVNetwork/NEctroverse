@@ -547,11 +547,12 @@ if( iniparser_find_entry(ini,"NEED_TO_DELETE_ME") ) {
 	info( logString );
 	info( "You must edit this file before the game server is able to run correctly!");
 	sysconfig.shutdown = true;
-	return -1;
 }
 
-if( sysconfig.shutdown )
+if( sysconfig.shutdown ) {
+	iniparser_freedict(ini);
 	return -1;
+}
 
 if( type == CONFIG_SYSTEM ) {
 //Enter new scaner.
@@ -714,9 +715,8 @@ if( type == CONFIG_SYSTEM ) {
 	ticks.speed = iniparser_getint(ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
 	ticks.last = iniparser_getint(ini, "ticks:last", 0);
 	ticks.next = iniparser_getint(ini, "ticks:next", 0);
-}
 #if IRCBOT_SUPPORT
-else if( type == CONFIG_IRC ) {
+} else if( type == CONFIG_IRC ) {
 	irccfg.host = strdup( iniparser_getstring(ini, "irc:host", "irc.freenode.net") );
 	irccfg.port = atoi( iniparser_getstring(ini, "irc:port", "6667") );
 	strcpy(DIRCHECKER,"#");
@@ -726,8 +726,9 @@ else if( type == CONFIG_IRC ) {
 	irccfg.botpass = strdup( iniparser_getstring(ini, "irc:bot_pass", "botpass") );
 	irccfg.bot = iniparser_getboolean(ini, "irc:bot_enable", false);
 	irccfg.announcetick = iniparser_getboolean(ini, "irc:bot_announcetick", false);
-}
 #endif
+}
+
 
 if( firstload ) {
 	FILE *dumpfile;

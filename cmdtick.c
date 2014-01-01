@@ -361,7 +361,9 @@ return;
 
 
 void cmdTickEnd() {
+	#if IRCBOT_SUPPORT
 	char buffer[512];
+	#endif
 
 
 cmdTickGenRanks();

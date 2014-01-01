@@ -247,7 +247,7 @@ int http_start();
 #if HTTPS_SUPPORT
 int https_start();
 #endif
-void server_stop();
+
 void server_shutdown();
 
 extern void mark_as( struct MHD_Response *response, const char *type );
