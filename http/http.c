@@ -125,8 +125,8 @@ struct Session *sessions;
  * Return the session handle for this connection, or
  * create one if this is a new user.
  */
-struct Session *get_session( int type, void *cls ) {
-	struct Session *ret;
+SessionPtr get_session( int type, void *cls ) {
+	SessionPtr ret;
 	int id, now;
 	char buffer[129];
 	const char *cookie;
@@ -183,6 +183,7 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 }
 
 MAKECOOKIE:
+ret->postdata = NULL;
 
 ret->rc++;
 ret->active = time(NULL);
@@ -203,7 +204,7 @@ return ret;
  * @param session session to use
  * @param response response to modify
  */
-static void add_session_cookie( struct Session *session, struct MHD_Response *response ) {
+static void add_session_cookie( SessionPtr session, struct MHD_Response *response ) {
 	char cstr[256];
 if( strlen(sysconfig.cookdomain) )
 snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s; max-age=%d", COOKIE_NAME, session->sid, sysconfig.cookdomain, SESSION_TIME );
@@ -357,7 +358,7 @@ return ret;
  * @param session session handle
  * @param connection connection to use
  */
-int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
+int not_found_page ( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret;
 
 ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
@@ -365,7 +366,7 @@ ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_respons
 return ret;
 }
 
-int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
+int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret;
 	char dmsg[PATH_MAX];
 	struct stat buf;
@@ -396,7 +397,7 @@ return ret;
 }
 
 
-int key_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
+int key_page( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	const char *pname = cls;
 	char md5sum[MD5_HASHSUM_SIZE];
 	int ret, a;
@@ -440,7 +441,7 @@ return ret;
 }
 
 
-int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
+int page_render( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret, a;
 	char md5sum[MD5_HASHSUM_SIZE];
 	struct MHD_Response *response;
@@ -476,7 +477,7 @@ MHD_destroy_response (response);
 return ret;
 }
 
-int file_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
+int file_page( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret, fd;
 	struct stat buf;
 	struct MHD_Response *response;
@@ -550,18 +551,35 @@ buf[old_len + size] = '\0';
 return MHD_YES;
 }
 
-int set_postvalue(char **ret, const char *data, size_t size) {
-	char *buf;
+int set_sessionpost( SessionPtr session, const char *key, const char *value ) {
+	int a;
+	PostDataPtr data;
 
-if (NULL != *ret) {
-	free( *ret );
+if( !( session->postdata == NULL ) ) {
+	for( a = 1, data = session->postdata ; data ; data = data->next, a++ ) {
+		if( a >= MAX_POST_VALUES ) {
+			sprintf( logString, "Ignoring post value, due to over-load limit \'%s\'", key );
+			info( logString );
+			return MHD_NO;
+		}
+		if( ( strcmp( key, data->key ) == 0 ) ) {
+			return MHD_NO; //Key already exists
+		}
+	}
 }
-buf = malloc( size );
-if (NULL == buf)
+
+
+
+data = (PostDataPtr) malloc( sizeof(PostDataDef) );
+
+if (NULL == data)
 	return MHD_NO;
-memcpy(&buf[0], data, size);
-buf[size] = '\0';
-*ret = buf;
+
+data->key = strdup( key );
+data->value = strdup( value );
+data->next = session->postdata;
+
+session->postdata = data;
 
 return MHD_YES;
 }
@@ -593,16 +611,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
 	if( ( data ) ) {
-		//sprintf( logString, "Ignoring unexpected form value \'%s\' - \'%s\'", key, data);
-		//info( logString );
-		if( (uc->session)->posts >= MAX_POST_VALUES ) {
-			sprintf( logString, "Ignoring post value, due to over-load limit \'%s\'", key );
-			info( logString );
-		} else {
-			set_postvalue(&(uc->session)->key[(uc->session)->posts], key, strlen(key) );
-			set_postvalue(&(uc->session)->value[(uc->session)->posts], data, strlen(data) );
-			(uc->session)->posts++;
-		}
+		set_sessionpost( uc->session, key, data );
 	} else {
 		sprintf( logString, "Ignoring unexpected form value \'%s\'", key );
 		info( logString ); 
@@ -706,7 +715,7 @@ int create_response (void *cls, struct MHD_Connection *connection, const char *u
 {
   struct MHD_Response *response;
   RequestPtr request;
-  struct Session *session;
+  SessionPtr session;
   int ret, fd;
   unsigned int i;
   bool local;
@@ -792,7 +801,6 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 			error( logString );
 			return MHD_NO; /* internal error */
 		}
-		request->session->posts = 0;
 		request->session->upload = UPLOAD_STATE_START;
 		request->post_url = url;
 		request->fd = -1;
@@ -845,7 +853,7 @@ if( ( request ) && ( request->session ) ) {
 	session->upload = UPLOAD_STATE_NULL;
 }
 
-session->posts = 0;
+
 if ( ( strncmp(url,"/files",6) == false ) ) {
 	return files_dir_page( false, cls, "text/html", session, connection);
 }
@@ -929,9 +937,9 @@ void expire_sessions () {
 	int id;
 	char buffer[129];
 	dbUserPtr user;
-	struct Session *pos;
-	struct Session *prev;
-	struct Session *next;
+	SessionPtr pos;
+	SessionPtr prev;
+	SessionPtr next;
 	time_t now;
 
 now = time(NULL);
@@ -968,9 +976,9 @@ int remove_session( const char *sid ) {
 	char buffer[129];
 	bool donenothing = true;
 	dbUserPtr user;
-	struct Session *pos;
-	struct Session *prev;
-	struct Session *next;
+	SessionPtr pos;
+	SessionPtr prev;
+	SessionPtr next;
 
 prev = NULL;
 pos = sessions;
@@ -1001,6 +1009,8 @@ while( NULL != pos ) {
 
 return donenothing;
 }
+
+
 
 #if HTTPS_SUPPORT
 char *loadsslfile( char *filename ) {

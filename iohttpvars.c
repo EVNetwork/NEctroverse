@@ -89,27 +89,49 @@ if ( (tokens) && (num) ) {
 }
 
 
+int remove_key( SessionPtr session, const char *key ) {
+	bool donenothing = true;
+	PostDataPtr pos;
+	PostDataPtr prev;
+	PostDataPtr next;
+
+prev = NULL;
+pos = session->postdata;
+
+while( NULL != pos ) {
+	next = pos->next;
+	if( 0 == strcmp( key, pos->key ) ) {
+		if (NULL == prev) {
+			session->postdata = pos->next;
+		} else {
+			prev->next = next;
+		}
+		donenothing = false;
+		free( pos );
+	} else {
+	        prev = pos;
+        }
+	pos = next;
+}
+
+
+return donenothing;
+}
 
 char *iohtmlVarsFind( ReplyDataPtr cnt, char *id ) {
-	int a;
 	char *value;
+	PostDataPtr data;
 
-
-for( a = 0; a < (cnt->session)->posts; a++ ) {
-	if( ( (cnt->session)->key[a] ) && ( strcmp( id, (cnt->session)->key[a] ) == 0 ) ) {
-		value = (cnt->session)->value[a];
-		(cnt->session)->key[a] = NULL;
-		(cnt->session)->value[a] = NULL;
+for( data = (cnt->session)->postdata ; data ; data = data->next ) {
+	if( ( strcmp( id, data->key ) == 0 ) ) {
+		value = data->value;
+		remove_key( cnt->session, data->key );
 		return value;
 	}
 }
 
-value = (char *)MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id);
-if( ( value ) && strlen(value) ) {
-	return value;
-}
 
-return 0;
+return (char *)MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, id);
 }
 
 char *iohtmlHeaderFind( ReplyDataPtr cnt, char *id ) {

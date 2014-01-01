@@ -59,16 +59,17 @@ typedef struct Cookies
 
 #define MAX_POST_VALUES 64
 
+typedef struct _POST_DATA_STORAGE {
+	char *key;
+	char *value;
+	struct _POST_DATA_STORAGE *next;
+} PostDataDef, *PostDataPtr;
+
 /**
  * State we keep for each user/session/browser.
  */
 typedef struct Session
 {
-  /**
-   * Number of keys.
-   */
-  int posts;
-
   /**
    * Upload Status key.
    */
@@ -86,16 +87,6 @@ typedef struct Session
   char sid[129];
 
   /**
-   * Pointers for keys.
-   */
-  char *key[128];
-
-  /**
-   * Pointers for values.
-   */
-  char *value[1024];
-
-  /**
    * Time when this session was last active.
    */
   time_t active;
@@ -106,15 +97,20 @@ typedef struct Session
   time_t start;
 
    /**
-   * We keep all sessions in a linked list.
-   */
-  struct Session *next;
+   * We keep all posted key/values in this struct.
+   */  
+  PostDataPtr postdata;
  
    /**
    * Database user Linkage
    */
   dbUserPtr dbuser;
 
+   /**
+   * We keep all sessions in a linked list.
+   */
+  struct Session *next;
+  
 } SessionDef, *SessionPtr;
 
 extern struct Session *sessions;
