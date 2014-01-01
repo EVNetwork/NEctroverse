@@ -9,7 +9,7 @@
 /* disable debugging symbols support */
 #define DEBUG_SUPPORT 1
 
-/* disable debugging memory leaks support */
+/* disable debugging memory leaks support -- Warning: This creates a memory drain in itself*/
 #define MEMLEAK_DETECT 0
 
 /* disable HTTPS support */

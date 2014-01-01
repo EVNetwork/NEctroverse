@@ -58,8 +58,6 @@ char *cmdUploadState[4] = {
 
 size_t initial_allocation = 256 * 1024;
 
-
-
 static size_t dir_buf_allocation = 256 * 1024;
 
 
@@ -87,6 +85,7 @@ static struct MHD_Response *request_refused_response;
  * Global handle to MAGIC data.
  */
 #if HAVE_MAGIC_H
+#define MAGIC_HEADER_SIZE (16 * 1024)
 static magic_t magic;
 #endif
 
@@ -360,16 +359,8 @@ return ret;
  */
 int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection) {
 	int ret;
-//	char md5sum[MD5_HASHSUM_SIZE];
-//	struct MHD_Response *response;
 
-  /* unsupported HTTP method */
-//response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
-//md5_string( NOT_FOUND_ERROR, md5sum );
-//(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
-//MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_ENCODING, mime);
-//MHD_destroy_response (response);
 
 return ret;
 }
@@ -500,12 +491,7 @@ int file_page( int id, const void *cls, const char *mime, struct Session *sessio
 	else
 		fd = -1;
 	if (-1 == fd) {
-		//response = MHD_create_response_from_buffer( strlen( NOT_FOUND_ERROR ), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_FREE );
-		//md5_string( NOT_FOUND_ERROR, md5sum );
-		//(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-		//add_session_cookie( session, response );
 		ret = MHD_queue_response( connection, MHD_HTTP_NOT_FOUND, file_not_found_response );
-		//MHD_destroy_response( response );
 		return ret;
 	}
 
@@ -716,7 +702,6 @@ return MHD_YES;
  *         MHS_NO if the socket must be closed due to a serios
  *         error while handling the request
  */
-#define MAGIC_HEADER_SIZE (16 * 1024)
 
 int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
 {
@@ -758,9 +743,7 @@ if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) )
 	else
 		fd = -1;
 	if (-1 == fd) {
-		//response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR), (void *) NOT_FOUND_ERROR, MHD_RESPMEM_MUST_COPY);
 		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
-		//MHD_destroy_response (response);
 		return ret;
 	}
 
@@ -881,10 +864,7 @@ if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HT
 }
 
 /* unsupported HTTP method */
-//response = MHD_create_response_from_buffer (strlen (METHOD_ERROR), (void *) METHOD_ERROR, MHD_RESPMEM_MUST_FREE);
-//(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
 ret = MHD_queue_response (connection, MHD_HTTP_METHOD_NOT_ACCEPTABLE, request_refused_response);
-//MHD_destroy_response (response);
 
 return ret;
 }

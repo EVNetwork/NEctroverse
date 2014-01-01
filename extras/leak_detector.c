@@ -14,7 +14,7 @@ static MEM_LEAK * ptr_next =  NULL;
  * adds allocated memory info. into the list
  *
  */
-void add(MEM_INFO alloc_info)
+void leakdetector_add(MEM_INFO alloc_info)
 {
 
 	MEM_LEAK * mem_leak_info = NULL;
@@ -42,7 +42,7 @@ void add(MEM_INFO alloc_info)
  * erases memory info. from the list
  *
  */
-void erase(unsigned pos)
+void leakdetector_erase(unsigned pos)
 {
 
 	unsigned index = 0;
@@ -73,7 +73,7 @@ void erase(unsigned pos)
 /*
  * deletes all the elements from the list
  */
-void clear()
+void leakdetector_clear()
 {
 	MEM_LEAK * temp = ptr_start;
 	MEM_LEAK * alloc_info = ptr_start;
@@ -140,7 +140,7 @@ void add_mem_info (void * mem_ref, unsigned int size,  const char * file, unsign
 	strncpy(mem_alloc_info.function, function, FILE_NAME_LENGTH);
 	mem_alloc_info.line = line;
 	/* add the above info to a list */
-	add(mem_alloc_info);
+	leakdetector_add(mem_alloc_info);
 }
 
 /*
@@ -157,7 +157,7 @@ void remove_mem_info (void * mem_ref)
 	{
 		if ( leak_info->mem_info.address == mem_ref )
 		{
-			erase ( index );
+			leakdetector_erase ( index );
 			break;
 		}
 	}
@@ -194,7 +194,7 @@ if( a == 0 ) {
 	info( logString );
 }
 
-clear();
+leakdetector_clear();
 
 return;
 }
