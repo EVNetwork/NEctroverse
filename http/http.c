@@ -586,7 +586,7 @@ session->postdata = data;
 return MHD_YES;
 }
 
-int remove_key( SessionPtr session, const char *key ) {
+int postdata_remove( SessionPtr session, const char *key ) {
 	bool donenothing = true;
 	PostDataPtr pos;
 	PostDataPtr prev;
@@ -623,7 +623,7 @@ int postdata_wipe( SessionPtr session ) {
 
 if( !( session->postdata == NULL ) ) {
 	for( data = session->postdata ; data ; data = data->next )
-		remove_key( session, data->key );
+		postdata_remove( session, data->key );
 	
 }
 
