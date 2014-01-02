@@ -843,7 +843,7 @@ httpString( cnt, "\n" );
 httpString( cnt, "<br>\n" );
 */
 
-httpString( cnt, "<div class=\"fb-like\" data-send=\"true\" data-width=\"450\" data-show-faces=\"true\"></div>" );
+httpString(cnt, "<div class=\"fb-like\" data-href=\"https://developers.facebook.com/docs/plugins/\" data-layout=\"button_count\" data-action=\"like\" data-show-faces=\"true\" data-share=\"false\" data-colorscheme=\"dark\"></div>");
 //httpString( cnt, "<fb:like send=\"true\" width=\"450\" show_faces=\"true\"></fb:like>" );
 iohtmlFunc_endhtml( cnt );
 return;
