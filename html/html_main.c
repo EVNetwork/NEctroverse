@@ -73,7 +73,7 @@ if( action & 1 ) {
 return -1;
 }
 
-
+#if FACEBOOK_SUPPORT
 void iohtmlFBSDK( ReplyDataPtr cnt ) {
 
 httpString( cnt, "<div id=\"fb-root\"></div>\n" );
@@ -111,6 +111,7 @@ httpString( cnt, "</script>\n" );
 
 return;
 }
+#endif
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
 httpString( cnt, "<!DOCTYPE xhtml>");
@@ -145,8 +146,9 @@ if( flags & 8 )
 	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
 
 httpString( cnt, ">" );
-
+#if FACEBOOK_SUPPORT
 iohtmlFBSDK( cnt );
+#endif
 httpString( cnt, "<center>" );
 
 return;
@@ -816,35 +818,15 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	}
 }
 //end todo list
+#if FACEBOOK_SUPPORT
+//httpString( cnt, "<div class=\"fb-like\" data-layout=\"button_count\" data-action=\"like\" data-show-faces=\"true\" data-share=\"false\" data-colorscheme=\"dark\"></div>" );
+httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
+httpString( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"110861965600284\">" );
+httpString( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"http://localhost:8880/facebook\">" );
+httpString( cnt, "<input type=\"submit\" value=\"FB Log in\">" );
+httpString( cnt, "</form>" );
+#endif
 
-/*
-httpString( cnt, "<iframe src=\"http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FEctroverse%2F133044593518078&amp;send=false&amp;layout=box_count&amp;width=450&amp;show_faces=false&amp;font=segoe+ui&amp;colorscheme=dark&amp;action=like&amp;height=90\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:450px; height:90px;\" allowTransparency=\"true\"></iframe>\n" );
-
-httpString( cnt, "<br>\n" );
-httpString( cnt, "<br>\n" );
-httpString( cnt, "<script type=\"text/javascript\">\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "  var _gaq = _gaq || [];\n" );
-httpString( cnt, "  _gaq.push(['_setAccount', 'UA-38148306-1']);\n" );
-httpString( cnt, "  _gaq.push(['_trackPageview']);\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "    (function() {\n" );
-httpString( cnt, "    var ga = document.createElement('script'); ga.type =\n" );
-httpString( cnt, "    'text/javascript'; ga.async = true;\n" );
-httpString( cnt, "      ga.src = ('https:' == document.location.protocol ?\n" );
-httpString( cnt, "      'https://ssl' : 'http://www') +\n" );
-httpString( cnt, "      '.google-analytics.com/ga.js';\n" );
-httpString( cnt, "        var s = document.getElementsByTagName('script')[0];\n" );
-httpString( cnt, "        s.parentNode.insertBefore(ga, s);\n" );
-httpString( cnt, "        })();\n" );
-httpString( cnt, "        \n" );
-httpString( cnt, "        </script>\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "<br>\n" );
-*/
-
-httpString( cnt, "<div class=\"fb-like\" data-layout=\"button_count\" data-action=\"like\" data-show-faces=\"true\" data-share=\"false\" data-colorscheme=\"dark\"></div>" );
-//httpString( cnt, "<fb:like send=\"true\" width=\"450\" show_faces=\"true\"></fb:like>" );
 iohtmlFunc_endhtml( cnt );
 return;
 }

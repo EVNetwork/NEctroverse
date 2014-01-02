@@ -21,6 +21,10 @@ typedef struct {
 	char *httpfiles;
 	char *httpread;
 	char *pubforum;
+	#if FACEBOOK_SUPPORT
+	char *fb_appid;
+	char *fb_secret;	
+	#endif
 	int notices;
 	int httpport;
 	#if HTTPS_SUPPORT

@@ -17,6 +17,10 @@
 
 #include "html_ajax.c"
 
+#if FACEBOOK_SUPPORT
+#include "html_facebook.c"
+#endif
+
 
 /*This function will be use to approve file uploaded by player to our image server*/
 void iohttpFunc_Approve( ReplyDataPtr cnt )

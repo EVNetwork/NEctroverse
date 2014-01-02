@@ -10,6 +10,11 @@
 #include "html_forum.h"
 #include "html_ajax.h"
 
+#if FACEBOOK_SUPPORT
+#include "html_facebook.h"
+#endif
+
+
 void iohttpFunc_Approve( ReplyDataPtr cnt );
 
 #endif

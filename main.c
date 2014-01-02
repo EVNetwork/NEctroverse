@@ -576,6 +576,10 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.httpfiles = strdup( iniparser_getstring(ini, "system:httpfiles", "/tmp/evcore/html/files") );
 	sysconfig.httpread = strdup( iniparser_getstring(ini, "system:httpread", "/tmp/evcore/html/read") );
 	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:publicforum", sysconfig.directory ) );
+	#if FACEBOOK_SUPPORT
+	sysconfig.fb_appid = strdup( iniparser_getstring(ini, "system:facebook_application", "" ) );
+	sysconfig.fb_secret = strdup( iniparser_getstring(ini, "system:facebook_secret", "" ) );
+	#endif
 
 	sysconfig.httpport = iniparser_getint(ini, "system:http_port", 9990);
 	#if HTTPS_SUPPORT

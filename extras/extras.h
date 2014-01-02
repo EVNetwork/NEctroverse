@@ -14,4 +14,10 @@
 
 #include "imgpng.h"
 
+#include "urlencode.h"
+
+#if FACEBOOK_SUPPORT
+#include "cJSON.h"
+#endif
+
 #endif

@@ -9,3 +9,10 @@
 #include "imgpng.c"
 
 #include "cpuinfo.c"
+
+#include "urlencode.c"
+
+#if FACEBOOK_SUPPORT
+#include "cJSON.c"
+#endif
+

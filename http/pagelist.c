@@ -87,6 +87,9 @@ PageDef pages[] =
     { "/delete", "text/html",  &page_render, iohtmlFunc_delete, NULL },
     { "/logout", "text/html",  &page_render, iohtmlFunc_logout, NULL },
     { "/changepass", "text/html",  &page_render, iohtmlFunc_changepass, NULL },
+    #if FACEBOOK_SUPPORT
+    { "/facebook", "text/html",  &page_render, iohtmlFunc_facebook, NULL },
+    #endif
     //Administration Pages
     { "/administration", "text/html",  &page_render, iohtmlFunc_adminframe, NULL },
     { "/adminmenu", "text/html",  &page_render, iohtmlFunc_adminmenu, NULL },
