@@ -50,13 +50,18 @@ return;
 
 
 void httpString( ReplyDataPtr rd, char *string ) {
+	int buffer = (rd->response.buf_len - rd->response.off);
 
-rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", string);
+if( ( buffer - strlen( string ) ) < 0 )
+	error( "Insufficent buffer for string" );
+
+rd->response.off += snprintf( &rd->response.buf[rd->response.off], buffer, "%s", string );
 
 return;
 }
 
 void httpPrintf( ReplyDataPtr rd, char *string, ... ) {
+	int buffer = (rd->response.buf_len - rd->response.off);
 	char text[4096];
 	va_list ap;
 	va_start( ap, string );
@@ -64,7 +69,11 @@ void httpPrintf( ReplyDataPtr rd, char *string, ... ) {
 vsnprintf( text, 4096, string, ap );
 va_end( ap );
 
-rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "%s", text);
+if( ( buffer - strlen( text ) ) < 0 )
+	error( "Insufficent buffer for string" );
+
+
+rd->response.off += snprintf( &rd->response.buf[rd->response.off], buffer, "%s", text );
 
 return;
 }
@@ -1232,6 +1241,33 @@ char *cmdSignalNames[SIGNALS_NUMUSED] =
 "Bad system call"
 };
 
+int bitflag( int dest, int flag ) {
+
+return ( ( flag & dest ) ? true : false );
+}
+
+int bitflag_add( int dest, int flag ) {
+
+if( bitflag( dest, flag ) == false ) {
+	dest |= flag;
+}
+
+return dest;
+}
+
+int bitflag_remove( int dest, int flag ) {
+
+if( bitflag( dest, flag ) == true ) {
+        dest = dest & ~flag;
+}
+
+
+return dest;
+}
+
+int bitflag_toggle( int dest, int flag ) {
+    return (dest ^= flag);
+}
 
 void loghandle( int flag, int error, char *fmt, ... ) {
 	char fname[PATH_MAX];
@@ -1240,8 +1276,7 @@ void loghandle( int flag, int error, char *fmt, ... ) {
 	char fbuffer[MAXLOGSTRING];
 	va_list ap;
 	FILE *file;
-
-
+	
 va_start(ap, fmt);
 vsnprintf(ebuffer, MAXLOGSTRING, fmt, ap);
 va_end(ap);
@@ -1306,7 +1341,6 @@ memset( logString, 0, sizeof(logString) );
 
 return;
 }
-
 
 
 

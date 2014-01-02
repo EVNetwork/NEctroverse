@@ -208,10 +208,11 @@ return ret;
  */
 static void add_session_cookie( SessionPtr session, struct MHD_Response *response ) {
 	char cstr[256];
+
 if( strlen(sysconfig.cookdomain) )
-snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s; max-age=%d", COOKIE_NAME, session->sid, sysconfig.cookdomain, SESSION_TIME );
+	snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s; max-age=%d", COOKIE_NAME, session->sid, sysconfig.cookdomain, SESSION_TIME );
 else
-snprintf( cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid );
+	snprintf( cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
 	error( "Failed to set session cookie header!" );

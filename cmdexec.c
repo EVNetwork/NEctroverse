@@ -182,7 +182,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   if( !( user = dbUserLinkID( id ) ) )
     return -1;
-  user->flags = cmdUserFlags[CMD_FLAGS_ACTIVATED];
+  user->flags = bitflag_add(user->flags, cmdUserFlags[CMD_FLAGS_ACTIVATED]);
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -370,7 +370,8 @@ int cmdExecUserDeactivate( int id, int flags )
   if( !( dbUserInfoSet( id, &infod ) ) )
     return -1;
 
-  user->flags = flags;
+  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_FLAGS_ACTIVATED] );
+  user->flags = bitflag_add(user->flags, flags );
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -1249,6 +1250,7 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
     if( a >= 1 )
     {
       cmdErrorString = "You can't send more than 1 alliance offer!";
+
       return -3;
     }
     rel[0] = ticks.number;

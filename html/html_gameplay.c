@@ -16,14 +16,14 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
   
  if( ( name ) && ( pass ) )
  {
- sprintf( COREDIR, "%s/logs/login", sysconfig.directory );
- if( ( file = fopen( COREDIR, "ab" ) ) )
+ sprintf( COREDIR, "%s/logs/login.log", sysconfig.directory );
+ if( ( file = fopen( COREDIR, "a" ) ) )
  {
   a = time( 0 );
   strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&a ) );
   fprintf( file, "Time: %s;\n", timebuf );
   fprintf( file, "Name: %s;\n", name );
-  fprintf( file, "Password: %s;\n", pass );
+  //fprintf( file, "Password: %s;\n", pass );
   if( (cnt->connection)->addr->sa_family == AF_INET )
   fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
 
@@ -172,7 +172,8 @@ void iohtmlFunc_menu( ReplyDataPtr cnt )
  char szFaction[32];
  dbUserMainDef maind;
 
- httpString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"images/mbg.gif\">" );
+ iohtmlBase( cnt, 1|2 );
+ 
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
 if( dbUserMainRetrieve( id, &maind ) < 0 ) {

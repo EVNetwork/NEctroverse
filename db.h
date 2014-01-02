@@ -98,7 +98,6 @@ typedef struct
   int artefacts;
   int rank;
   int aidaccess;
-  int flags;
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );

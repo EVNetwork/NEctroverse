@@ -161,6 +161,11 @@ typedef struct {
 
 extern svbanDef banlist;
 
+int bitflag( int dest, int flag );
+int bitflag_add( int dest, int flag );
+int bitflag_remove( int dest, int flag );
+int bitflag_toggle( int dest, int flag );
+
 #define MAXLOGSTRING 1024
 void loghandle( int flag, int error, char *fmt, ... );
 extern char logString[MAXLOGSTRING];

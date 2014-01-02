@@ -479,14 +479,14 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 
 	httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
 
-	sprintf( COREDIR, "%s/logs/register", sysconfig.directory );
-	if( ( file = fopen( COREDIR, "ab" ) ) ) {
+	sprintf( COREDIR, "%s/logs/register.log", sysconfig.directory );
+	if( ( file = fopen( COREDIR, "a" ) ) ) {
 		fprintf( file, "Register ID %d ( %x )\n", id, id );
 		a = time(0);
 		strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
 		fprintf( file, "Time %s\n", timebuf );
 		fprintf( file, "Name %s;\n", name );
-		fprintf( file, "Password %s;\n", pass );
+		//fprintf( file, "Password %s;\n", pass );
 		fprintf( file, "Faction %s;\n", faction );
 		if( (cnt->connection)->addr->sa_family == AF_INET )
 			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );

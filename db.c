@@ -399,6 +399,7 @@ users
   4:next user ID
 
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -1831,6 +1832,7 @@ file_r( &numnext, 1, sizeof(int64_t), file );
   file_s( file, 40+lcur*DB_USER_NEWS_SIZE );
   a = -1;
   file_w( &a, 1, sizeof(int64_t), file );
+
 
   file_w( &lused, 1, sizeof(int64_t), file );
 

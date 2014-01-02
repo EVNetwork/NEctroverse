@@ -58,6 +58,11 @@ body,td{
 	background-image : url(images/mbg.gif);
 	background-attachment:fixed;
 }
+.bodyraw	{
+	margin:auto;
+	background-image : url(images/mbg.gif);
+	background-attachment:fixed;
+}
 
 .genlarge { 
 	font-size : 25px;

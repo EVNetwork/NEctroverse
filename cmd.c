@@ -487,7 +487,6 @@ dbUserMainDef cmdUserMainDefault =
   0, //Artefacts
   -1, //rank
   -1, //Aidaccess
-  0, //flags
 };
 
 dbUserFleetDef cmdUserFleetDefault =
