@@ -12,6 +12,9 @@ configDef sysconfig;
 #if MYSQL_SUPPORT
 mySqlDef mysqlcfg;
 #endif
+#if FACEBOOK_SUPPORT
+FBCfgDef fbcfg;
+#endif
 adminDef admincfg;
 mapcfgDef mapcfg;
 tickDef ticks;
@@ -429,7 +432,13 @@ sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 #endif
-loghandle(LOG_INFO, false, "%s", "All Checks passed, begining server loop..." ); 
+info( "All Checks passed, begining server loop..." ); 
+
+#if FACEBOOK_SUPPORT
+facebook_apptoken( &fbcfg.app_token );
+sprintf( logString, "Loading the Facebook Session Token... %s", ( fbcfg.app_token ) ? "Sucessfull" : "Failed" );
+info( logString );
+#endif
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 #if IRCBOT_SUPPORT
@@ -576,10 +585,7 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.httpfiles = strdup( iniparser_getstring(ini, "system:httpfiles", "/tmp/evcore/html/files") );
 	sysconfig.httpread = strdup( iniparser_getstring(ini, "system:httpread", "/tmp/evcore/html/read") );
 	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:publicforum", sysconfig.directory ) );
-	#if FACEBOOK_SUPPORT
-	sysconfig.fb_appid = strdup( iniparser_getstring(ini, "system:facebook_application", "" ) );
-	sysconfig.fb_secret = strdup( iniparser_getstring(ini, "system:facebook_secret", "" ) );
-	#endif
+	
 
 	sysconfig.httpport = iniparser_getint(ini, "system:http_port", 9990);
 	#if HTTPS_SUPPORT
@@ -607,6 +613,14 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.stop.tm_mday = iniparser_getint(ini, "auto_stop:day", -1);
 	sysconfig.stop.tm_mon = (( iniparser_getint(ini, "auto_stop:month", -1) ) - 1);
 	sysconfig.stop.tm_year = (( iniparser_getint(ini, "auto_stop:year", -1) ) + 100);
+	
+	#if FACEBOOK_SUPPORT
+	fbcfg.app_id = strdup( iniparser_getstring(ini, "facebook:app_id", "" ) );
+	fbcfg.app_secret = strdup( iniparser_getstring(ini, "facebook:app_secret", "" ) );
+	fbcfg.reply_to = strdup( iniparser_getstring(ini, "facebook:reply_domain", "" ) );
+	//fbcfg.secret = strdup( iniparser_getstring(ini, "facebook:app_secret", "" ) );
+	#endif
+	
 	#if MYSQL_SUPPORT
 	mysqlcfg.enable = iniparser_getboolean(ini, "mysql:enable", false);
 	mysqlcfg.host = strdup( iniparser_getstring(ini, "mysql:host", "localhost") );
@@ -615,6 +629,7 @@ if( type == CONFIG_SYSTEM ) {
 	mysqlcfg.password = iniparser_getstring(ini, "mysql:password", NULL) ? strdup( iniparser_getstring(ini, "mysql:password", "") ) : NULL;
 	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
 	#endif
+	
 
 	admincfg.numfakes = iniparser_getint(ini, "debug:create_accounts", 0);
 
@@ -1070,6 +1085,9 @@ if( file_exist(options.sysini) == 0 ) {
 dirstructurecheck(TMPDIR);
 
 memset( &sysconfig, 0, sizeof(configDef) );
+#if FACEBOOK_SUPPORT
+memset( &fbcfg, 0, sizeof(FBCfgDef) );
+#endif
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 

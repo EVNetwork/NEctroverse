@@ -21,10 +21,6 @@ typedef struct {
 	char *httpfiles;
 	char *httpread;
 	char *pubforum;
-	#if FACEBOOK_SUPPORT
-	char *fb_appid;
-	char *fb_secret;	
-	#endif
 	int notices;
 	int httpport;
 	#if HTTPS_SUPPORT
@@ -66,6 +62,29 @@ typedef struct {
 } adminDef, *adminPtr;
 
 extern adminDef admincfg;
+
+#if FACEBOOK_SUPPORT
+
+typedef struct {
+	//Facebook UserData
+	long long id;
+	char full_name[1024+32];
+	char first_name[512];
+	char last_name[512];
+	double timezone;
+} FBUserDef, *FBUserPtr;
+
+typedef struct {
+	//Facebook UserData
+	char *app_id;
+	char *app_secret;
+	char *reply_to;
+	char *app_token;
+} FBCfgDef, *FBCfgPtr;
+
+extern FBCfgDef fbcfg;
+
+#endif
 
 #if IRCBOT_SUPPORT
 typedef struct {
