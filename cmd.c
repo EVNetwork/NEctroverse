@@ -445,17 +445,21 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
 {
 0x1,
+0x2,
+0x4,
+0x6,
+
 0x10,
 0x20,
 0x40,
+0x60,
 0x80,
 
-0x10000,
-0x20000,
-0x40000,
-0x80000,
-0x100000,
-0x200000,
+0x100,
+0x200,
+
+0x1000,
+0x2000,
 };
 
 
@@ -606,7 +610,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
   }
 
 /*
-  if( ( user = dbUserLinkID( empired->player[b] ) ) && ( user->flags & cmdUserFlags[CMD_FLAGS_LEADER] ) )
+  if( ( user = dbUserLinkID( empired->player[b] ) ) && ( user->flags & cmdUserFlags[CMD_USER_FLAGS_LEADER] ) )
   {
     user->flags &= 0xFFFF;
     dbUserSave( empired->player[b], user );
@@ -625,7 +629,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
     if( ( user = dbUserLinkID( empired->leader ) ) )
     {
       user->flags &= 0xFFFF;
-      user->flags |= cmdUserFlags[CMD_FLAGS_LEADER];
+      user->flags |= cmdUserFlags[CMD_USER_FLAGS_LEADER];
       dbUserSave( empired->leader, user );
     }
   }
@@ -640,7 +644,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
   {
     if( a == b )
       continue;
-    if( ( user = dbUserLinkID( empired->player[a] ) ) && ( user->flags & cmdUserFlags[CMD_FLAGS_LEADER] ) )
+    if( ( user = dbUserLinkID( empired->player[a] ) ) && ( user->flags & cmdUserFlags[CMD_USER_FLAGS_LEADER] ) )
     {
       user->flags &= 0xFFFF;
       dbUserSave( empired->player[a], user );

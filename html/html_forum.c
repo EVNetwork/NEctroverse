@@ -238,7 +238,7 @@ int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, 
   	return 1;
   }
 
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_INDEPENDENT] )
    return 0;
   if( maind->empire+100 == forum )
    return 1;
@@ -255,7 +255,7 @@ int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, 
  {
  	if( id == -1 )
    return 0;
-  if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_COMMINISTER] ) ) )
+  if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_VICELEADER] | cmdUserFlags[CMD_USER_FLAGS_COMMINISTER] ) ) )
    return 1;
   if( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR )
    return 0;

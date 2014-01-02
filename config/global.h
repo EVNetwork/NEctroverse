@@ -66,6 +66,9 @@
 #include <gcrypt.h>
 #endif
 
+#if FACEBOOK_SUPPORT
+#include <curl/curl.h>
+#endif
 
 #ifndef ARRAY_MAX
 #define ARRAY_MAX 16384
@@ -125,15 +128,9 @@ static const double megabyte = (1024 * 1024);
 #include "../http/platform.h"
 #include "../extras/extras.h"
 
-#if MEMLEAK_DETECT
-#include "../extras/leak_detector.h"
-#endif
-
 #if IRCBOT_SUPPORT
 #include "../ircbot/ircbot.h"
 #endif
-
-
 
 #include "../battle.h"
 #include "../main.h"
@@ -155,5 +152,9 @@ static const double megabyte = (1024 * 1024);
 #define error(msg) loghandle(LOG_ERR, errno, "Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
 #define critical(msg) loghandle(LOG_CRIT, errno, "Critical Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
 
+
+#if MEMLEAK_DETECT
+#include "../extras/leak_detector.h"
 #endif
 
+#endif //END OF FILE

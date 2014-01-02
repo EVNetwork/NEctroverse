@@ -175,6 +175,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
   planetd.building[CMD_BUILDING_SOLAR] = 50;
   planetd.building[CMD_BUILDING_MINING] = 20;
+  planetd.building[CMD_BUILDING_CRYSTAL] = 5;
   planetd.building[CMD_BUILDING_REFINEMENT] = 10;
   if( dbMapSetPlanet( b, &planetd ) < 0 )
     return -1;
@@ -182,7 +183,10 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   if( !( user = dbUserLinkID( id ) ) )
     return -1;
-  user->flags = bitflag_add(user->flags, cmdUserFlags[CMD_FLAGS_ACTIVATED]);
+  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_KILLED]);
+  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_DELETED]);
+  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_NEWROUND]);
+  user->flags = bitflag_add(user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED]);
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -218,7 +222,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( maind.empire != -1 )
     dbMapRetrieveEmpire( maind.empire, &empired );
 
-  if( ( flags == cmdUserFlags[CMD_FLAGS_NEWROUND] ) && ( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( maind.empire != -1 ) )
+  if( ( flags == cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) && ( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) && ( maind.empire != -1 ) )
   {
     recordd.roundid = sysconfig.round;
     recordd.planets = maind.planets;
@@ -370,7 +374,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( !( dbUserInfoSet( id, &infod ) ) )
     return -1;
 
-  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_FLAGS_ACTIVATED] );
+  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
   user->flags = bitflag_add(user->flags, flags );
   if( dbUserSave( id, user ) < 0 )
     return -2;
@@ -1011,9 +1015,9 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   /* Check access rights - maind is giver */
   if( maind.aidaccess == 3 )
     goto access;
-  if( ( maind.aidaccess == 2 ) && ( user2->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) )
+  if( ( maind.aidaccess == 2 ) && ( user2->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_DEVMINISTER] ) ) )
     goto access;
-  if( ( maind.aidaccess == 1 ) && ( user2->flags & cmdUserFlags[CMD_FLAGS_LEADER] ) )
+  if( ( maind.aidaccess == 1 ) && ( user2->flags & cmdUserFlags[CMD_USER_FLAGS_LEADER] ) )
     goto access;
   cmdErrorString = "You are not authorized to request aid from this faction.";
   return -3;

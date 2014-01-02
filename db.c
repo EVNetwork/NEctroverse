@@ -400,6 +400,7 @@ users
 
 
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -1489,6 +1490,7 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
       sortlist( num, listp, list2p );
     }
   else if (sort == 5)
+
     {
       for( b = 0; b < num; b++)
 	{
@@ -2236,7 +2238,7 @@ if ( empired->numplayers == 1) {
 	empired->leader = empired->player[0];
 	if(( user = dbUserLinkID( empired->leader ) )) {
 		user->flags &= 0xFFFF;
-		user->flags |= cmdUserFlags[CMD_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED;
+		user->flags |= cmdUserFlags[CMD_USER_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED;
 		dbUserSave( empired->leader, user);
 	}
 }
@@ -2671,6 +2673,10 @@ int dbUserMarketList( int id, int **list )
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*5*sizeof(int) ) ) )
     return -1;
+  if( num == 0 ) {
+  	fclose( file );
+  	return num;
+  }
   file_s( file, 8 );
   file_r( listp, 1, num*5*sizeof(int), file );
   fclose( file );
@@ -2782,6 +2788,10 @@ int dbForumListForums( int perms, dbForumForumPtr *forums )
   file_r( &num, 1, sizeof(int), file );
   if( !( forumsp = malloc( num * sizeof(dbForumForumDef) ) ) )
     return -3;
+  if( num == 0 ) {
+  	fclose( file );
+  	return num;
+  }
   file_r( forumsp, 1, num*sizeof(dbForumForumDef), file );
   *forums = forumsp;
   fclose( file );
@@ -3803,6 +3813,7 @@ if( !( user = dbUserLinkID( id ) ) )
 	return -3;
 
 strncpy( user->faction, infod->faction, sizeof(user->faction) );
+
 strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
 
 

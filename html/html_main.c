@@ -37,7 +37,7 @@ if( dbUserSave( id, (cnt->session)->dbuser ) < 0 )
 	error( "Database UserSave" );
 
 if(( action & 2 )&&((cnt->session)->dbuser)) {
-	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
+	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
 			if( action & 8 )
 			iohtmlBase( cnt, 1|2 );
@@ -48,7 +48,7 @@ if(( action & 2 )&&((cnt->session)->dbuser)) {
 }
 
 if( action & 4 ) {
-	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) {
+	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) {
 		if( action & 1 ) {
 			if( action & 8 )
 				iohtmlBase( cnt, 1|2 );
@@ -71,6 +71,45 @@ if( action & 1 ) {
 
 
 return -1;
+}
+
+
+void iohtmlFBSDK( ReplyDataPtr cnt ) {
+
+httpString( cnt, "<div id=\"fb-root\"></div>\n" );
+httpString( cnt, "<script>\n" );
+httpString( cnt, "  window.fbAsyncInit = function() {\n" );
+httpString( cnt, "    // init the FB JS SDK\n" );
+httpString( cnt, "    FB.init({\n" );
+httpString( cnt, "      appId      : '110861965600284',                        // App ID from the app dashboard\n" );
+httpString( cnt, "      status     : true,                                 // Check Facebook Login status\n" );
+httpString( cnt, "      xfbml      : true                                  // Look for social plugins on the page\n" );
+httpString( cnt, "    });\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "    // Additional initialization code such as adding Event Listeners goes here\n" );
+httpString( cnt, "  };\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "  // Load the SDK asynchronously\n" );
+httpString( cnt, "  (function(){\n" );
+httpString( cnt, "     // If we've already installed the SDK, we're done\n" );
+httpString( cnt, "     if (document.getElementById('facebook-jssdk')) {return;}\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Get the first script element, which we'll use to find the parent node\n" );
+httpString( cnt, "     var firstScriptElement = document.getElementsByTagName('script')[0];\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Create a new script element and set its id\n" );
+httpString( cnt, "     var facebookJS = document.createElement('script');\n" );
+httpString( cnt, "     facebookJS.id = 'facebook-jssdk';\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Set the new script's source to the source of the Facebook JS SDK\n" );
+httpString( cnt, "     facebookJS.src = '//connect.facebook.net/en_US/all.js';\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Insert the Facebook JS SDK into the DOM\n" );
+httpString( cnt, "     firstScriptElement.parentNode.insertBefore(facebookJS, firstScriptElement);\n" );
+httpString( cnt, "   }());\n" );
+httpString( cnt, "</script>\n" );
+
+return;
 }
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
@@ -105,8 +144,10 @@ httpString( cnt, "<body" );
 if( flags & 8 )
 	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
 
+httpString( cnt, ">" );
 
-httpString( cnt, "><center>" );
+iohtmlFBSDK( cnt );
+httpString( cnt, "<center>" );
 
 return;
 }
@@ -801,6 +842,9 @@ httpString( cnt, "        </script>\n" );
 httpString( cnt, "\n" );
 httpString( cnt, "<br>\n" );
 */
+
+httpString( cnt, "<div class=\"fb-like\" data-send=\"true\" data-width=\"450\" data-show-faces=\"true\"></div>" );
+//httpString( cnt, "<fb:like send=\"true\" width=\"450\" show_faces=\"true\"></fb:like>" );
 iohtmlFunc_endhtml( cnt );
 return;
 }

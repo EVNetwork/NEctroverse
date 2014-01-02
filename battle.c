@@ -237,7 +237,7 @@ int battle( int id, int fltid, int *results )
   {
     if( !( user = dbUserLinkID( defid ) ) )
       return -3;
-    if( !( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) || ( main2d.planets > 1 ) || ( infod.createtime+3600*24 > time( 0 ) ) )
+    if( !( user->flags & cmdUserFlags[CMD_USER_FLAGS_INDEPENDENT] ) || ( main2d.planets > 1 ) || ( infod.createtime+3600*24 > time( 0 ) ) )
     {
       cmdErrorString = "You can attack a home planet only if the faction is declared independent, does not own any other planet and the account has been created since more than 24 hours.";
       return -3;
@@ -1026,7 +1026,7 @@ int battle( int id, int fltid, int *results )
     dbUserMainSet( id, &maind );
     dbUserMainSet( defid, &main2d );
     if( !( main2d.planets ) )
-      cmdExecUserDeactivate( defid, cmdUserFlags[CMD_FLAGS_KILLED] );
+      cmdExecUserDeactivate( defid, cmdUserFlags[CMD_USER_FLAGS_KILLED] );
     return 1;
   }
   planetd.owner = id;

@@ -14,10 +14,13 @@ MODLIBS =
 FLAGS = -O2 -O3 --fast-math -Wall #-Wextra
 LIBS = -lcrypt -lpng
 
-#FLAGS += -fno-strict-aliasing
 
 ifneq ($(findstring HTTPS_SUPPORT 1,$(CONFIGS)),)
 LIBS += -lgcrypt -lgnutls
+endif
+
+ifneq ($(findstring FACEBOOK_SUPPORT 1,$(CONFIGS)),)
+LIBS += -lcurl
 endif
 
 ifneq ($(findstring DEBUG_SUPPORT 1,$(CONFIGS)),)

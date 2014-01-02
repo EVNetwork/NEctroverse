@@ -31,10 +31,11 @@ typedef struct
   int lasttime;
   int tagpoints;
   int forumtagtype;
+  char fbid[32];
   char name[64];
-  char password[128];
-  char email[128];
   char faction[32];
+  char email[128];
+  char password[128];
   char http_session[129];
   char irc_session[129];
   char forumtag[256];

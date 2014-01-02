@@ -75,14 +75,14 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
   memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
   dbUserInfoSet( id, &infod );
 
-  if( ( file ) && ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_KILLED] | cmdUserFlags[CMD_FLAGS_DELETED] | cmdUserFlags[CMD_FLAGS_NEWROUND] ) ) )
+  if( ( file ) )
   {
-   fprintf( file, "ID : %d ( %x ) deactivated\n\n\n", id, id );
+   fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_KILLED] | cmdUserFlags[CMD_USER_FLAGS_DELETED] | cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) ) ? "Deactivated" : "Active") );
    fclose( file );
    file = 0;
   }
 
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_KILLED] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_KILLED] )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
@@ -90,7 +90,7 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    num = dbUserNewsList( id, &newsp );
    newsd = newsp;
    if( !( num ) )
-    httpString( cnt, "<b>No reports</b>" );
+    httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
    for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE )
    {
     iohtmlNewsString( cnt, newsd );
@@ -99,14 +99,14 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
     free( newsp );
    goto iohtmlFunc_mainL1;
   }
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_DELETED] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_DELETED] )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
    httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
    goto iohtmlFunc_mainL1;
   }
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_NEWROUND] )
+  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_NEWROUND] )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
@@ -114,7 +114,7 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    goto iohtmlFunc_mainL1;
   }
 
-  if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
+  if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
   {
    iohtmlBase( cnt, 8 );
    iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
@@ -131,18 +131,10 @@ void iohtmlFunc_main( ReplyDataPtr cnt )
    iohtmlFunc_endhtml( cnt );
    return;
   }
- if( file )
- {
-  fprintf( file, "ID : %d ( %x )\n\n\n", id, id );
-  fclose( file );
-  file = 0;
- }
- }
- else
- {
-  if( ( id = iohtmlIdentify( cnt, 0 ) ) < 0 )
-   goto iohtmlFunc_mainL0;
- }
+} else {
+	if( ( id = iohtmlIdentify( cnt, 0 ) ) < 0 )
+		goto iohtmlFunc_mainL0;
+}
 
 
  httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"images/favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
@@ -168,8 +160,8 @@ iohtmlFunc_login( cnt, 0, "Name or password incorrect!" );
 
 void iohtmlFunc_menu( ReplyDataPtr cnt )
 {
- int id, i, j;
- char szFaction[32];
+ int id/*, i, j;
+ char szFaction[32]*/;
  dbUserMainDef maind;
 
  iohtmlBase( cnt, 1|2 );
@@ -187,7 +179,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  httpPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
 
  httpString( cnt, "<a href=\"fleets\" target=\"main\">Fleets</a><br>" );
- httpString( cnt, "<a href=\"mappick\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- <a href=\"map\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- <a href=\"mapadv\" target=\"main\">Map generation</a><br>" );
+ httpString( cnt, "<a href=\"mappick\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- <a href=\"map\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- <a href=\"mapadv\" target=\"main\">Map Gen</a><br>" );
  httpString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
  httpString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
 
@@ -197,8 +189,8 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  httpString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
  httpString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
 
- httpString( cnt, "<form action=\"search\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form><br>" );
-
+ httpString( cnt, "<form action=\"search\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>" );
+/*
  strcpy(szFaction, maind.faction);
  for(i=0;i<strlen(szFaction);i++)
 	{
@@ -216,7 +208,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 	}
  httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
  httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
-
+*/
  if( (cnt->session)->dbuser )
  {
   if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
@@ -984,27 +976,35 @@ void iohtmlFamNews( ReplyDataPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr e
 {
  int a, b, c;
  dbUserMainDef maind;
- dbUserMainDef mfamd[32];
+ dbUserMainDef *mfamd;
  dbUserPtr user;
 
- memset( mfamd, 0, 32*sizeof(dbUserMainDef) );
- for( a = 0 ; a < empired->numplayers ; a++ )
- {
-  if( dbUserMainRetrieve( empired->player[a], &mfamd[a] ) < 0 )
-   continue;
- }
+ 
+
  httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
  if( ticks.status )
   httpPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
  else
   httpPrintf( cnt, "Time frozen<br>" );
 
- if( !( num ) )
+if( !( num ) )
  {
-  httpString( cnt, "<b>No reports</b>" );
+  httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
   return;
  }
 
+ mfamd = malloc( empired->numplayers * sizeof(dbUserMainDef) );
+ if( mfamd == NULL ) {
+ 	critical("Family News Malloc");
+ 	return;
+ }
+
+ for( a = 0 ; a < empired->numplayers ; a++ )
+ {
+  if( dbUserMainRetrieve( empired->player[a], &mfamd[a] ) < 0 )
+   continue;
+ }
+ 
  iohtmlFamNewsEntryCount = 0;
  httpString( cnt, "<table cellspacing=\"4\" cellpadding=\"4\">" );
  for( c = 0 ; c < num ; c++, newsd += DB_USER_NEWS_BASE )
@@ -1313,6 +1313,8 @@ void iohtmlFamNews( ReplyDataPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr e
  }
  httpString( cnt, "</table>" );
 
+ free(mfamd);
+
  return;
 }
 
@@ -1447,7 +1449,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  num = dbUserNewsList( id, &newsp );
  newsd = newsp;
  if( !( num ) )
-  httpString( cnt, "<b>No reports</b>" );
+  httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
  else
  {
   httpString( cnt, "<table><tr><td>" );
@@ -2217,22 +2219,22 @@ if ( curfam == maind.empire ) {
   b = a >> 1;
   c = empired.player[b];
   user = dbUserLinkID( c );
-  user->flags |= cmdUserFlags[CMD_FLAGS_ACTIVATED];
+  user->flags |= cmdUserFlags[CMD_USER_FLAGS_ACTIVATED];
   dbUserSave( c, user);
   httpString( cnt, "<tr>" );
   if( !( user ) )
    httpString( cnt, "<td>&nbsp;</td>" );
-  else if( user->flags & cmdUserFlags[CMD_FLAGS_LEADER] )
+  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_LEADER] )
    httpString( cnt, "<td><i>Leader</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_FLAGS_VICELEADER] )
+  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_VICELEADER] )
    httpString( cnt, "<td><i>Vice-leader</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_FLAGS_COMMINISTER] )
+  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_COMMINISTER] )
    httpString( cnt, "<td><i>Minister of Communications</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_FLAGS_DEVMINISTER] )
+  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_DEVMINISTER] )
    httpString( cnt, "<td><i>Minister of Development</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_FLAGS_WARMINISTER] )
+  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_WARMINISTER] )
    httpString( cnt, "<td><i>Minister of War</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] )
+  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_INDEPENDENT] )
    httpString( cnt, "<td><i>Independent</i></td>" );
   else
    httpString( cnt, "<td>&nbsp;</td>" );
@@ -2251,7 +2253,7 @@ if ( curfam == maind.empire ) {
    b = curtime - user->lasttime;
    if( b < 5*60 )
     httpString( cnt, "[online]" );
-   else if( ( (cnt->session)->dbuser->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_COMMINISTER] ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( ( (cnt->session)->dbuser->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_VICELEADER] | cmdUserFlags[CMD_USER_FLAGS_COMMINISTER] ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
@@ -2274,7 +2276,7 @@ if ( curfam == maind.empire ) {
 }
  httpString( cnt, "</table><br>" );
 if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
-	if( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_FLAGS_LEADER] | cmdUserFlags[CMD_FLAGS_VICELEADER] | cmdUserFlags[CMD_FLAGS_DEVMINISTER] ) ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
+	if( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_VICELEADER] | cmdUserFlags[CMD_USER_FLAGS_DEVMINISTER] ) ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
 		if( empired.taxation ) {
 			httpPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
@@ -2581,6 +2583,7 @@ void iohtmlFunc_vote( ReplyDataPtr cnt ) {
 	int a, b, id, fampos, vote;
 	dbUserMainDef maind, main2d;
 	dbMainEmpireDef empired;
+	dbUserPtr user;
 	char *votestring, *typestring;
 	bool evote = false;
 
@@ -2618,7 +2621,9 @@ if( evote ) {
 		}
 	}
 	if( ( votestring ) && ( sscanf( votestring, "%d", &vote ) == 1 ) ) {
-		if( cmdExecChangeVote( id, vote ) < 0 ) {
+		if( ( user = dbUserLinkID( vote ) ) && ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) ) {
+			httpPrintf( cnt, "<i>Unable to vote for %s, as they have been Frozen by Administration!</i><br><br>", user->faction );
+		} else if( cmdExecChangeVote( id, vote ) < 0 ) {
 			httpString( cnt, "<i>Failed to change vote...?!</i><br><br>" );
 		} else {
 			httpString( cnt, "<i>Vote changed</i><br><br>" );
@@ -2649,7 +2654,9 @@ if( evote ) {
 			httpString( cnt, main2d.faction );
 		}
 		httpPrintf( cnt, "</a></td><td>%lld</td><td>%d</td><td align=\"center\"><input type=\"radio\" value=\"%d\" name=\"id\"", (long long)main2d.networth, main2d.planets, empired.player[a] );
-		if( empired.vote[fampos] == a ) {
+		if( ( user = dbUserLinkID( empired.player[a] ) ) && ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) ) {
+			httpString( cnt, " disabled" );
+		} else if( empired.vote[fampos] == a ) {
 			httpString( cnt, " checked" );
 			b = 1;
 		}
@@ -5584,7 +5591,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   iohtmlBodyEnd( cnt );
   return;
  }
- else if( ( planetd.flags & CMD_PLANET_FLAGS_HOME ) && !( user->flags & cmdUserFlags[CMD_FLAGS_INDEPENDENT] ) )
+ else if( ( planetd.flags & CMD_PLANET_FLAGS_HOME ) && !( user->flags & cmdUserFlags[CMD_USER_FLAGS_INDEPENDENT] ) )
  {
   httpString( cnt, "You can't attack a home planet!</body></html>" );
   iohtmlBodyEnd( cnt );
@@ -7192,7 +7199,7 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
    a = 0;
    for( user = dbUserList ; user ; user = user->next )
    {
-    if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
+    if( !( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
      continue;
     if( a == 256 )
     {

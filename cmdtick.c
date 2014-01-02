@@ -261,7 +261,7 @@ dbArtefactMax = artmax;
 
   for( b = c = 0, user = dbUserList ; user ; user = user->next )
   {
-    if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
+    if( !( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
 	{
 	  //printf("user %d not activated\n", user->id );
       continue;
@@ -611,12 +611,11 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 	error( "Tick error: Retriving Map Info!" );
 }
 
-  for( user = dbUserList ; user ; user = user->next )
-  {
-ticks.uregist++;
+for( user = dbUserList ; user ; user = user->next ) {
+	ticks.uregist++;
 
-    if( !( user->flags & cmdUserFlags[CMD_FLAGS_ACTIVATED] ) )
-      continue;
+	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) ) || ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) )
+		continue;
 
 ticks.uactive++;
 ticks.debug_id = user->id;
