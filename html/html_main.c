@@ -830,7 +830,7 @@ char *host;
 host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 #if HTTPS_SUPPORT
-access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : false;
+access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
 #else
 access = false;
 #endif

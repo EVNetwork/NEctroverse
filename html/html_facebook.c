@@ -201,7 +201,7 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 #if HTTPS_SUPPORT
-is_http = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : false;
+is_http = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
 #endif
 
 snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_http ? "https" : "http"), host  );
