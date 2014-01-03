@@ -16,6 +16,7 @@ Additional Librarys needed for optinal components:
 * libmysqlclient-dev -- needed for mySql addition.
 * libpng-dev & imagemagick (ImageMagick is only needed because I don't know how to scale the image in lib)
 * libgnutls-dev -- For HTTPs support.
+* libcurl4-gnutls-dev -- For Facebook support.
 
 Run:
 * make 

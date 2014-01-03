@@ -13,7 +13,7 @@
 #define MEMLEAK_DETECT 0
 
 /* disable HTTPS support */
-#define FACEBOOK_SUPPORT 1
+#define FACEBOOK_SUPPORT 0
 
 /* disable HTTPS support */
 #define HTTPS_SUPPORT 1
