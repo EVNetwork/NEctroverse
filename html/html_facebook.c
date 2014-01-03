@@ -1,8 +1,6 @@
 
-typedef struct {
-	size_t len;
-	char *ptr;
-} CurlStringDef, *CurlStringPtr;
+static bool is_http;
+static char do_redi[1024];
 
 void init_string( CurlStringPtr curl_str ) {
 
@@ -68,7 +66,7 @@ if( curl ) {
 return;
 }
 
-void facebook_usertoken( char **dest, char *code ) {
+void facebook_usertoken( FBTokenPtr token, char *code ) {
 	int offset = 0, maxlen = 1024;
 	int i, num;
 	char **split;
@@ -79,7 +77,7 @@ void facebook_usertoken( char **dest, char *code ) {
 offset = 0;
 offset += snprintf( &post[offset], (maxlen - offset), "client_id=%s", fbcfg.app_id );
 offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
-offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", "http://localhost:8880/facebook" );
+offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", do_redi );
 offset += snprintf( &post[offset], (maxlen - offset), "&code=%s", code );
 
 curl = curl_easy_init();
@@ -106,7 +104,9 @@ if( curl ) {
 	} else {
 		for ( i = 0; i < num; i++ ) {
 			if( strncmp( split[i], "access_token", strlen("access_token") ) == 0 ) {
-				*dest = strdup( (strstr( split[i], "=" )+1) );
+				token->val = strdup( (strstr( split[i], "=" )+1) );
+			} else if( strncmp( split[i], "expires", strlen("expires") ) == 0 ) {
+				token->expire = atoi( (strstr( split[i], "=" )+1) );
 			}
 		}
 	}
@@ -117,7 +117,7 @@ if( curl ) {
 return;
 }
 
-void facebook_getdata( FBUserPtr data, char *token ) {
+void facebook_getdata( FBUserPtr data, FBTokenDef token ) {
 	int offset = 0, maxlen = 1024;
 	char post[1024];
 	CURL *curl;
@@ -129,14 +129,14 @@ void facebook_getdata( FBUserPtr data, char *token ) {
 		offset += snprintf( &post[offset], (maxlen - offset), "&client_id=%s", fbcfg.app_id );
 		offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
 		offset += snprintf( &post[offset], (maxlen - offset), "&fb_exchange_token=%s", token );
-		offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", "http://localhost:8880/facebook" );
+		offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", do_redi );
 		*/
 
 
 offset = 0;
 offset += snprintf( &post[offset], (maxlen - offset), "%s", "https://graph.facebook.com/me" );
-offset += snprintf( &post[offset], (maxlen - offset), "?access_token=%s", token );
-	
+offset += snprintf( &post[offset], (maxlen - offset), "?access_token=%s", token.val );
+
 
 curl = curl_easy_init();
 if( curl ) {
@@ -194,33 +194,48 @@ return;
 
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
-	char *code;
-	char *token = NULL;
+	char *code, *host;
 	FBUserDef data;
+	FBTokenDef token;
+
+host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+
+#if HTTPS_SUPPORT
+is_http = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : false;
+#endif
+
+snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_http ? "https" : "http"), host  );
+
 
 code = iohtmlVarsFind( cnt, "code" );
 
 if( code ) {
 	facebook_usertoken( &token, code );
 	memset( &data, 0, sizeof(FBUserDef) );
-	if( token ) {
+	if( token.val ) {
 		facebook_getdata( &data, token );
+		if( !( data.id ) ) {
+			error( "No ID in Responce" );
+			goto BAILOUT;
+		}
 	} else {
 		httpString( cnt, "Invalid Login, Did you just reload this page?" );
 		goto BAILOUT;
 	}
-	if( data.id ) {
-		httpPrintf( cnt, "Welcome %s, %lld, %.01f", data.full_name, data.id, data.timezone );
-	}
 } else {
 	httpString( cnt, "Invalid" );
+	goto BAILOUT;
 }
+
+
+httpPrintf( cnt, "Welcome %s, %lld, %.01f", data.full_name, data.id, data.timezone );
+httpPrintf( cnt, "<br> Token Expires in: %s", TimeToString(token.expire) );
 
 
 BAILOUT:
 
-if( token )
-	free( token );
+if( token.val )
+	free( token.val );
 
 return;
 }

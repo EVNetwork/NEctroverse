@@ -343,8 +343,8 @@ void iohtmlFunc_forum( ReplyDataPtr cnt )
  char timebuf[512];
  char COREDIR[512];
  char timetemp[512];
- char *text;
-	FILE *fFile;
+ char *text = NULL;
+ FILE *fFile;
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	iohtmlBase( cnt, 1 );
@@ -418,7 +418,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, asctime( gettime(forums[a].time, true) ), forums[a].tick % 52, forums[a].tick / 52 );
   }
   httpString( cnt, "</table>" );
-
+if( forums )
   free( forums );
  }
  else if( action == 1 )
@@ -727,6 +727,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpPrintf( cnt, "Post added!<br><br>" );
   else
    httpPrintf( cnt, "Error while adding post<br><br>" );
+   if( postd.text )
   free( postd.text );
   goto iohttpForumL1;
  }
@@ -758,11 +759,13 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpString( cnt, "You are not authorized to delete this post</center></body></html>" );
    if( posts[0].text )
     free( posts[0].text );
+    if( posts )
    free( posts );
    return;
   }
   if( posts[0].text )
    free( posts[0].text );
+   if( posts )
   free( posts );
   a = dbForumRemovePost( forum, thread, post );
   if( a >= 0 )
@@ -788,6 +791,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
    if( posts[0].text )
     free( posts[0].text );
+    if( posts )
    free( posts );
    return;
   }
@@ -799,6 +803,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   {
    if( posts[0].text )
     free( posts[0].text );
+    if( posts )
    free( posts );
    httpString( cnt, "</center></body></html>" );
    return;
@@ -808,7 +813,9 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 
   if( posts[0].text )
    free( posts[0].text );
+   if( posts )
   free( posts );
+  if( text )
   free( text );
   httpString( cnt, "</textarea><br><br><input type=\"submit\" value=\"Post\"></form>" );
  }
@@ -825,6 +832,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
    if( posts[0].text )
     free( posts[0].text );
+    if( posts )
    free( posts );
    return;
   }
@@ -836,6 +844,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   postd.post.flags = posts[0].post.flags;
   if( posts[0].text )
    free( posts[0].text );
+   if( posts )
   free( posts );
 
   if( !( postd.text = malloc( 3 * IOHTTP_FORUM_BUFFER ) ) )
@@ -858,6 +867,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpPrintf( cnt, "Post edited!<br><br>" );
   else
    httpPrintf( cnt, "Error while editing post<br><br>" );
+   if( postd.text )
   free( postd.text );
   goto iohttpForumL1;
  }

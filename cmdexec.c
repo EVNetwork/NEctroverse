@@ -183,10 +183,10 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   if( !( user = dbUserLinkID( id ) ) )
     return -1;
-  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_KILLED]);
-  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_DELETED]);
-  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_NEWROUND]);
-  user->flags = bitflag_add(user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED]);
+  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_KILLED]);
+  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_DELETED]);
+  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_NEWROUND]);
+  bitflag_add(&user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED]);
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -374,8 +374,8 @@ int cmdExecUserDeactivate( int id, int flags )
   if( !( dbUserInfoSet( id, &infod ) ) )
     return -1;
 
-  user->flags = bitflag_remove(user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
-  user->flags = bitflag_add(user->flags, flags );
+  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
+  bitflag_add(&user->flags, flags );
   if( dbUserSave( id, user ) < 0 )
     return -2;
 

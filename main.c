@@ -617,7 +617,6 @@ if( type == CONFIG_SYSTEM ) {
 	#if FACEBOOK_SUPPORT
 	fbcfg.app_id = strdup( iniparser_getstring(ini, "facebook:app_id", "" ) );
 	fbcfg.app_secret = strdup( iniparser_getstring(ini, "facebook:app_secret", "" ) );
-	fbcfg.reply_to = strdup( iniparser_getstring(ini, "facebook:reply_domain", "" ) );
 	//fbcfg.secret = strdup( iniparser_getstring(ini, "facebook:app_secret", "" ) );
 	#endif
 	
@@ -1268,27 +1267,31 @@ int bitflag( int dest, int flag ) {
 return ( ( flag & dest ) ? true : false );
 }
 
-int bitflag_add( int dest, int flag ) {
+void bitflag_add( int *dest, int flag ) {
 
-if( bitflag( dest, flag ) == false ) {
-	dest |= flag;
+if( bitflag( *dest, flag ) == false ) {
+	*dest |= flag;
 }
 
-return dest;
-}
-
-int bitflag_remove( int dest, int flag ) {
-
-if( bitflag( dest, flag ) == true ) {
-        dest = dest & ~flag;
+return;
 }
 
 
-return dest;
+void bitflag_remove( int *dest, int flag ) {
+
+if( bitflag( *dest, flag ) == true ) {
+	 *dest = *dest & ~flag;
 }
 
-int bitflag_toggle( int dest, int flag ) {
-    return (dest ^= flag);
+return;
+}
+
+
+void bitflag_toggle( int *dest, int flag ) {
+
+*dest ^= flag;
+
+return;
 }
 
 void loghandle( int flag, int error, char *fmt, ... ) {
@@ -1298,7 +1301,7 @@ void loghandle( int flag, int error, char *fmt, ... ) {
 	char fbuffer[MAXLOGSTRING];
 	va_list ap;
 	FILE *file;
-	
+
 va_start(ap, fmt);
 vsnprintf(ebuffer, MAXLOGSTRING, fmt, ap);
 va_end(ap);

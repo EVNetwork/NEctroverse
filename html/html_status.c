@@ -10,9 +10,11 @@ statime->seconds = ( stime % minute );
 return;
 }
 
+#define MAX_TIME_STRING 1024
 char *TimeToString( long eltime ) {
+	int offset = 0;
 	bool bdays, bhours, bmins;
-	char timeline[32], buffer[1024];
+	char buffer[MAX_TIME_STRING];
 	char *ret;
 	timeDef deftime;
 
@@ -20,34 +22,31 @@ converttime_todef(&deftime, eltime);
 
 bdays = bhours = bmins = false;
 
-strcpy(buffer,"");
+memset( &buffer, 0, MAX_TIME_STRING );
+
 if( deftime.days ) {
-	sprintf( timeline, "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
-	strcat(buffer, timeline);
+	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
 	bdays = true;
 }
 
 if ( deftime.hours ) {
 	if( bdays )
-		strcat(buffer, " ");
-	sprintf( timeline, "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
-	strcat(buffer, timeline);
+		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
 	bhours = true;
 }
 
 if ( deftime.minutes ) {
 	if( ( bdays ) || ( bhours ) )
-		strcat(buffer, " ");
-	sprintf( timeline, "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
-	strcat(buffer, timeline);
+		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
 	bmins = true;
 }
 
 if ( deftime.seconds ) {
 	if( ( bdays ) || ( bhours ) || ( bmins ) )
-		strcat(buffer, " ");
-	sprintf( timeline, "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
-	strcat(buffer, timeline);
+		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
 }
 
 if( !( strlen( buffer ) ) ) {
@@ -133,7 +132,7 @@ if( irccfg.bot ) {
 }
 #endif
 
-httpPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"gameuptime\">%s</td></tr>", TimeToString(pinfod.runtime) );
+httpPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"gameuptime\">%s</td></tr>", TimeToString( pinfod.runtime ) );
 httpPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span id=\"sstatweeks\">%d</span>, year <span id=\"sstatyears\">%d</span></td></tr>", ticks.number % 52, ticks.number / 52 );
 httpPrintf( cnt, "<tr><td>Tick time</td><td>&nbsp;:&nbsp;</td><td>%d seconds</td></tr>", sysconfig.ticktime );
 

@@ -401,6 +401,7 @@ users
 
 
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -2650,7 +2651,7 @@ int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   file_r( &pos, 1, sizeof(int), file );
-  file_s( file, 8+(pos*20) );
+  file_s( file, (2*sizeof(int))+(pos*sizeof(dbMarketUserDef)) );
   file_w( &action, 1, sizeof(int), file );
   file_w( &resource, 1, sizeof(int), file );
   file_w( &price, 1, sizeof(int), file );
@@ -2671,14 +2672,13 @@ int dbUserMarketList( int id, int **list )
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
     return -3;
   file_r( &num, 1, sizeof(int), file );
-  if( !( listp = malloc( num*5*sizeof(int) ) ) )
+  if( !( listp = malloc( num*sizeof(dbMarketUserDef) ) ) )
     return -1;
-  if( num == 0 ) {
-  	fclose( file );
-  	return num;
-  }
-  file_s( file, 8 );
-  file_r( listp, 1, num*5*sizeof(int), file );
+  if( num == 0 )
+	goto RETURN;
+  file_s( file, 2*sizeof(int) );
+  file_r( listp, 1, num*sizeof(dbMarketUserDef), file );
+  RETURN:
   fclose( file );
   *list = listp;
   return num;
@@ -2693,11 +2693,11 @@ int dbUserMarketQuantity( int id, int bidid, int quantity )
   file_r( &num, 1, sizeof(int), file );
   for( a = 0 ; a < num ; a++ )
   {
-    file_s( file, 8+(a*20)+16 );
+    file_s( file, (2*sizeof(int))+(a*sizeof(dbMarketUserDef))+16 );
     file_r( &b, 1, sizeof(int), file );
     if( b != bidid )
       continue;
-    file_s( file, 8+(a*20)+12 );
+    file_s( file, (2*sizeof(int))+(a*sizeof(dbMarketUserDef))+12 );
     file_w( &quantity, 1, sizeof(int), file );
     fclose( file );
     return 1;
@@ -2715,20 +2715,20 @@ int dbUserMarketRemove( int id, int bidid )
   file_r( &num, 1, sizeof(int), file );
   if( num >= 2 )
   {
-    file_s( file, 8+(num*20)-20 );
-    file_r( data, 1, 20, file );
+    file_s( file, (2*sizeof(int))+(num*sizeof(dbMarketUserDef))-sizeof(dbMarketUserDef) );
+    file_r( data, 1, sizeof(dbMarketUserDef), file );
   }
-  file_s( file, 8 );
+  file_s( file, (2*sizeof(int)) );
   for( a = 0 ; a < num ; a++ )
   {
-    file_s( file, 8+(a*20)+16 );
+    file_s( file, (2*sizeof(int))+(a*sizeof(dbMarketUserDef))+16 );
     file_r( &b, 1, sizeof(int), file );
     if( b != bidid )
       continue;
     if( ( num >= 2 ) && ( a+1 < num ) )
     {
-      file_s( file, 8+(a*20) );
-      file_w( data, 1, 20, file );
+      file_s( file, (2*sizeof(int))+(a*sizeof(dbMarketUserDef)) );
+      file_w( data, 1, sizeof(dbMarketUserDef), file );
     }
     file_s( file, 0 );
     num--;
@@ -2788,11 +2788,10 @@ int dbForumListForums( int perms, dbForumForumPtr *forums )
   file_r( &num, 1, sizeof(int), file );
   if( !( forumsp = malloc( num * sizeof(dbForumForumDef) ) ) )
     return -3;
-  if( num == 0 ) {
-  	fclose( file );
-  	return num;
-  }
+  if( num == 0 )
+	goto RETURN;
   file_r( forumsp, 1, num*sizeof(dbForumForumDef), file );
+  RETURN:
   *forums = forumsp;
   fclose( file );
   return num;

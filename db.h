@@ -21,6 +21,22 @@ typedef struct
   void **prev;
 } dbUserDef, *dbUserPtr;
 
+#if FACEBOOK_SUPPORT
+
+typedef struct {
+	//Facebook UserData
+	long long id;
+	char full_name[1024+32];
+	char first_name[512];
+	char last_name[512];
+	double timezone;
+	//Access Token Data
+	int expires;
+	char *access_token;
+} FBUserDef, *FBUserPtr;
+
+#endif
+
 typedef struct
 {
   int id;
@@ -41,6 +57,9 @@ typedef struct
   char forumtag[256];
   char desc[4096];
   struct in_addr sin_addr[MAXIPRECORD];
+  #if FACEBOOK_SUPPORT
+  FBUserDef fbinfo;
+  #endif
 } dbUserInfoDef, *dbUserInfoPtr;
 
 

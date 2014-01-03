@@ -67,18 +67,8 @@ extern adminDef admincfg;
 
 typedef struct {
 	//Facebook UserData
-	long long id;
-	char full_name[1024+32];
-	char first_name[512];
-	char last_name[512];
-	double timezone;
-} FBUserDef, *FBUserPtr;
-
-typedef struct {
-	//Facebook UserData
 	char *app_id;
 	char *app_secret;
-	char *reply_to;
 	char *app_token;
 } FBCfgDef, *FBCfgPtr;
 
@@ -151,14 +141,6 @@ extern tickDef ticks;
 extern int savetickconfig();
 
 
-typedef struct
-{
-  char *data;
-  void *next;
-  void **prev;
-} svBufferDef, *svBufferPtr;
-
-
 int file_exist(char *filename);
 int loadconfig( char *file, int type );
 
@@ -185,9 +167,9 @@ typedef struct {
 extern svbanDef banlist;
 
 int bitflag( int dest, int flag );
-int bitflag_add( int dest, int flag );
-int bitflag_remove( int dest, int flag );
-int bitflag_toggle( int dest, int flag );
+void bitflag_add( int *dest, int flag );
+void bitflag_remove( int *dest, int flag );
+void bitflag_toggle( int *dest, int flag );
 
 #define MAXLOGSTRING 1024
 void loghandle( int flag, int error, char *fmt, ... );

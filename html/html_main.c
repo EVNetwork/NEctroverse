@@ -146,9 +146,11 @@ if( flags & 8 )
 	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
 
 httpString( cnt, ">" );
+/*
 #if FACEBOOK_SUPPORT
 iohtmlFBSDK( cnt );
 #endif
+*/
 httpString( cnt, "<center>" );
 
 return;
@@ -822,7 +824,20 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 //httpString( cnt, "<div class=\"fb-like\" data-layout=\"button_count\" data-action=\"like\" data-show-faces=\"true\" data-share=\"false\" data-colorscheme=\"dark\"></div>" );
 httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
 httpString( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"110861965600284\">" );
-httpString( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"http://localhost:8880/facebook\">" );
+bool access; 
+char *host;
+
+host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+
+#if HTTPS_SUPPORT
+access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : false;
+#else
+access = false;
+#endif
+
+sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
+
+httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
 httpString( cnt, "<input type=\"submit\" value=\"FB Log in\">" );
 httpString( cnt, "</form>" );
 #endif
