@@ -19,7 +19,13 @@ if (sec < 0 ) {
 	min = min;
 }
 
-time = ( ( min > 0 ) ? min + " minute"+( (min > 1) ? "s" : "" )+" and " : "" ) + sec + " second"+( (sec > 1) ? "s" : "" );
+if( (sec == 0) && (min == 0) ) {
+	time = "Now...";
+} else {
+	time = ( ( min > 0 ) ? min + " minute"+( (min > 1) ? "s" : "" )+( ( sec > 0 ) ? " and " : "" ) : "" );
+	time += ( ( sec > 0 ) ? sec + " second"+( (sec > 1) ? "s" : "" ) : "" );
+}
+
 updatehtml('headerTime',time);
 updatehtml('hqTime',time);
 updatehtml('sstatsTime',time);

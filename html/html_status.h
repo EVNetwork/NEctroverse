@@ -6,6 +6,7 @@ typedef struct {
 	long minutes;
 	long hours;
 	long days;
+	long weeks;
 } timeDef, *timePtr;
 
 typedef struct {

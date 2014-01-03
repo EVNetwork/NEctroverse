@@ -2,6 +2,11 @@
 #define MAININCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+#if PIPEFILE_SUPPORT
+#include "pipefile.h"
+#endif
+
+
 /**
  * Mutex used when we update stuff.
  */

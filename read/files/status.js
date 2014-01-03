@@ -22,7 +22,7 @@ stime += (ghour > 0 ? ghour + " hour" : "" ) + (ghour > 1 ? "s " : ( ghour > 0 ?
 
 stime += (gmin > 0 ? gmin + " minute" : "" ) + (gmin > 1 ? "s " : ( gmin > 0 ? " " : "" ) );
 
-stime += gsec + " second"+ (gsec > 1 ? "s" : ( gsec > 0 ? " " : "" ) );
+stime += (gsec > 0 ? gsec + " second" : "" ) + (gsec > 1 ? "s " : ( gsec > 0 ? " " : "" ) );
 
 
 	updatehtml("gameuptime",stime);
@@ -53,7 +53,7 @@ htime += (hhour > 0 ? hhour + " hour" : "" ) + (hhour > 1 ? "s " : ( hhour > 0 ?
 
 htime += (hmin > 0 ? hmin + " minute" : "" ) + (hmin > 1 ? "s " : ( hmin > 0 ? " " : "" ) );
 
-htime += hsec + " second"+ (hsec > 1 ? "s" : ( hsec > 0 ? " " : "" ) );
+htime += (hsec > 0 ? hsec + " second" : "" ) + (hsec > 1 ? "s " : ( hsec > 0 ? " " : "" ) );
 
 
 	updatehtml("hostuptime",htime);

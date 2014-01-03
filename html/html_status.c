@@ -2,7 +2,8 @@
 
 void converttime_todef( timeDef *statime, long stime ) {
 
-statime->days = ( stime / day );
+statime->weeks = ( stime / week );
+statime->days = ( ( stime % week ) / day );
 statime->hours = ( ( stime % day ) / hour );
 statime->minutes = ( ( stime % hour ) / minute );
 statime->seconds = ( stime % minute );
@@ -13,18 +14,25 @@ return;
 #define MAX_TIME_STRING 1024
 char *TimeToString( long eltime ) {
 	int offset = 0;
-	bool bdays, bhours, bmins;
+	bool bweeks, bdays, bhours, bmins;
 	char buffer[MAX_TIME_STRING];
 	char *ret;
 	timeDef deftime;
 
 converttime_todef(&deftime, eltime);
 
-bdays = bhours = bmins = false;
+bweeks = bdays = bhours = bmins = false;
 
 memset( &buffer, 0, MAX_TIME_STRING );
 
+if( deftime.weeks ) {
+	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.weeks, ( ( deftime.weeks == 1 ) ? "week" : "weeks" ) );
+	bweeks = true;
+}
+
 if( deftime.days ) {
+	if( bweeks )
+		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
 	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
 	bdays = true;
 }

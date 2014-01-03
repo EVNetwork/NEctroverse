@@ -106,7 +106,7 @@ if( curl ) {
 			if( strncmp( split[i], "access_token", strlen("access_token") ) == 0 ) {
 				token->val = strdup( (strstr( split[i], "=" )+1) );
 			} else if( strncmp( split[i], "expires", strlen("expires") ) == 0 ) {
-				token->expire = atoi( (strstr( split[i], "=" )+1) );
+				sscanf( (strstr( split[i], "=" )+1), "%d", &token->expire );
 			}
 		}
 	}
@@ -198,6 +198,9 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	FBUserDef data;
 	FBTokenDef token;
 
+if( !(strlen(fbcfg.app_id)) || !(strlen(fbcfg.app_secret)) )
+	goto BAILOUT;
+
 host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 #if HTTPS_SUPPORT
@@ -230,6 +233,8 @@ if( code ) {
 
 httpPrintf( cnt, "Welcome %s, %lld, %.01f", data.full_name, data.id, data.timezone );
 httpPrintf( cnt, "<br> Token Expires in: %s", TimeToString(token.expire) );
+//httpPrintf( cnt, "<br> Token Expires in: %d", token.expire );
+//httpPrintf( cnt, "<br> Token : %s", token.val );
 
 
 BAILOUT:
@@ -239,4 +244,44 @@ if( token.val )
 
 return;
 }
+
+
+void iohtmlFBSDK( ReplyDataPtr cnt ) {
+
+httpString( cnt, "<div id=\"fb-root\"></div>\n" );
+httpString( cnt, "<script>\n" );
+httpString( cnt, "  window.fbAsyncInit = function() {\n" );
+httpString( cnt, "    // init the FB JS SDK\n" );
+httpString( cnt, "    FB.init({\n" );
+httpString( cnt, "      appId      : '110861965600284',                        // App ID from the app dashboard\n" );
+httpString( cnt, "      status     : true,                                 // Check Facebook Login status\n" );
+httpString( cnt, "      xfbml      : true                                  // Look for social plugins on the page\n" );
+httpString( cnt, "    });\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "    // Additional initialization code such as adding Event Listeners goes here\n" );
+httpString( cnt, "  };\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "  // Load the SDK asynchronously\n" );
+httpString( cnt, "  (function(){\n" );
+httpString( cnt, "     // If we've already installed the SDK, we're done\n" );
+httpString( cnt, "     if (document.getElementById('facebook-jssdk')) {return;}\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Get the first script element, which we'll use to find the parent node\n" );
+httpString( cnt, "     var firstScriptElement = document.getElementsByTagName('script')[0];\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Create a new script element and set its id\n" );
+httpString( cnt, "     var facebookJS = document.createElement('script');\n" );
+httpString( cnt, "     facebookJS.id = 'facebook-jssdk';\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Set the new script's source to the source of the Facebook JS SDK\n" );
+httpString( cnt, "     facebookJS.src = '//connect.facebook.net/en_US/all.js';\n" );
+httpString( cnt, "\n" );
+httpString( cnt, "     // Insert the Facebook JS SDK into the DOM\n" );
+httpString( cnt, "     firstScriptElement.parentNode.insertBefore(facebookJS, firstScriptElement);\n" );
+httpString( cnt, "   }());\n" );
+httpString( cnt, "</script>\n" );
+
+return;
+}
+
 

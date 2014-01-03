@@ -236,7 +236,8 @@ if( refer ) {
 	httpString( cnt, "\t\t//Fetch uinfos tick data, and check if user is loged in... this controls weither we will call more data.\n" );
 	httpString( cnt, "\t\tif( getnodevar(xmlhttp.responseXML,\"pass\") > 0 ) { login = true; } else { login = false; }\n" );
 	httpString( cnt, "\n" );
-	httpString( cnt, "\t\tsec = getnodevar(xmlhttp.responseXML,\"next\");\n" );
+	httpString( cnt, "\t\tsec = ( getnodevar(xmlhttp.responseXML,\"next\") % 60 );\n" );
+	httpString( cnt, "\t\tmin = Math.floor( ( getnodevar(xmlhttp.responseXML,\"next\") / 60 ) );\n" );
 	httpString( cnt, "\t\tpage = getnodevar(xmlhttp.responseXML,\"page\");\n" );
 	httpString( cnt, "\n" );
 	httpString( cnt, "\t\tvar week = getnodevar(xmlhttp.responseXML,\"week\");\n" );

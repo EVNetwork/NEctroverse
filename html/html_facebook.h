@@ -16,4 +16,6 @@ void facebook_apptoken( char **token );
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt );
 
+void iohtmlFBSDK( ReplyDataPtr cnt );
+
 #endif
