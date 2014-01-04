@@ -585,7 +585,7 @@ if( race ) {
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
 	httpString( cnt, "<br><br><br><a href=\"/main\">Click here if not redirected</a>" );
-	strcpy( (cnt->session)->redirect, "/main" );
+	redirect( cnt, "/main" );
 	iohtmlFunc_endhtml( cnt );
 	return;
 } else {
@@ -762,7 +762,7 @@ goto LOGIN_END;
 
 LOGIN_SUCESS:
 
-strcpy( (cnt->session)->redirect, "/main" );
+redirect( cnt, "/main" );
 
 httpString( cnt, "<b>Login sucess, you should be redirected into game shortly...</b><br>" );
 httpString( cnt, "<br>" );

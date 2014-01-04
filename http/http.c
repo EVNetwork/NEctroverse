@@ -935,7 +935,7 @@ if( ( request ) && ( request->session ) ) {
 	session = get_session( SESSION_HTTP, connection );
 	session->upload = UPLOAD_STATE_NULL;
 }
-if( strcmp( url, session->redirect) == 0 )
+if( strcmp( url, session->redirect ) == 0 )
 	memset( &session->redirect, 0, MAXREDIRECT );
 	
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {

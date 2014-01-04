@@ -153,6 +153,8 @@ static const double megabyte = (1024 * 1024);
 #define critical(msg) loghandle(LOG_CRIT, errno, "Critical Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
 
 
+#define redirect(cnt, url) strncpy( (cnt->session)->redirect, url, MAXREDIRECT )
+
 #if MEMLEAK_DETECT
 #include "../extras/leak_detector.h"
 #endif

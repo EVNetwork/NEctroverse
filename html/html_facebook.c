@@ -376,7 +376,7 @@ if( id >= 0 ) {
 	}
 	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
 	dbUserInfoSet( id, &infod );
-	strcpy( (cnt->session)->redirect, "/" );
+	redirect( cnt, "/" );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
 	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
 	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
@@ -394,9 +394,13 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	bitflag_add( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] );
 	strcpy( user->fbid, data.id );
 	dbUserSave( user->id, user );
-	httpPrintf( cnt, "Facebook ID %s now linked with User %s<br>", user->fbid, user->name );
-	httpPrintf( cnt, "Has Bit %s<br>", bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) ? "TRUE" : "FALSE" );
+	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br>", user->fbid, user->name );
+	
 } else {
+
+
+
+
 	httpPrintf( cnt, "<br>Valid, but no linked account: %s", data.id );
 }
 
