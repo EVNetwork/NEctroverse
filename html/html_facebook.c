@@ -211,7 +211,7 @@ void facebook_getdata_id( FBUserPtr data, char *userid ) {
 offset = 0;
 offset += snprintf( &post[offset], (maxlen - offset), "https://graph.facebook.com/%s", userid  );
 offset += snprintf( &post[offset], (maxlen - offset), "?%s", fbcfg.app_token );
-offset += snprintf( &post[offset], (maxlen - offset), "&fields=%s", "name,id" );
+//offset += snprintf( &post[offset], (maxlen - offset), "&fields=%s", "name,id" );
 
 
 curl = curl_easy_init();
@@ -247,14 +247,8 @@ if( curl ) {
 		if( ( message ) ) {
 			strncpy( data->last_name, message->valuestring, sizeof( data->last_name ) );
 		}
-		message = cJSON_GetObjectItem(root,"timezone");
-		if( ( message ) ) {
-			data->timezone = message->valuedouble;
-		}
-		message = cJSON_GetObjectItem(root,"name");
-		if( ( message ) ) {
-			strncpy( data->full_name, message->valuestring, sizeof( data->full_name ) );
-		}
+		message = cJSON_GetObjectItem(root,"languages");
+		data->connected = ( message ) ? true : false;
 	} else {
 		error( "Bad Responce" );
 	}
@@ -268,8 +262,47 @@ return;
 }
 
 
+int facebook_unlink_id( char *userid ) {
+	bool result = false;
+	int offset = 0, maxlen = 1024;
+	char post[1024];
+	CURL *curl;
+	CURLcode res;
+
+offset = 0;
+offset += snprintf( &post[offset], (maxlen - offset), "https://graph.facebook.com/%s/permissions", userid  );
+offset += snprintf( &post[offset], (maxlen - offset), "?%s", fbcfg.app_token );
+
+curl = curl_easy_init();
+if( curl ) {
+	CurlStringDef curl_str;
+	init_string(&curl_str);
+	curl_easy_setopt(curl, CURLOPT_URL, post );
+	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	res = curl_easy_perform(curl);
+	/* Check for errors */
+	if(res != CURLE_OK)
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+
+	/* always cleanup */
+	curl_easy_cleanup(curl);
+	result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;//printf( curl_str.ptr );
+	free(curl_str.ptr);
+}
+
+	
+return result;
+}
+
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
-	char *error, *code, *host, *fbid;
+	int a, id, offset = 0;
+	char *error, *code, *host, *fbtoke;
+	char buffer[1024];
+	dbUserPtr user;
+	dbUserInfoDef infod;
 	FBUserDef data;
 	FBTokenDef token;
 
@@ -286,22 +319,20 @@ snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_http ? "https" : "
 
 memset( &data, 0, sizeof(FBUserDef) );
 memset( &token, 0, sizeof(FBTokenDef) );
+memset( &buffer, 0, sizeof(buffer) );
+
+iohtmlBase( cnt, 8 );
+iohtmlFunc_frontmenu( cnt, FMENU_FACEBOOK );
 
 error = iohtmlVarsFind( cnt, "error" );
 code = iohtmlVarsFind( cnt, "code" );
-fbid = iohtmlVarsFind( cnt, "fb_id" );
+fbtoke = iohtmlVarsFind( cnt, "fblogin_token" );
 
-if( error) {
-	iohtmlBase( cnt, 8 );
-	iohtmlFunc_frontmenu( cnt, FMENU_FACEBOOK );
-	httpString( cnt, "Error Detected<br>" );
-	httpPrintf( cnt, "%s<br>", error );
-	httpPrintf( cnt, "%s<br>", iohtmlVarsFind( cnt, "error_reason" ) );
-	httpPrintf( cnt, "%s<br>", iohtmlVarsFind( cnt, "error_description" ) );
-	iohtmlFunc_endhtml( cnt );
-	goto BAILOUT;
-} else if( code ) {
-	facebook_usertoken( &token, code );
+if( ( code ) || ( fbtoke ) ){
+	if( code )
+		facebook_usertoken( &token, code );
+	else
+		token.val = strdup( fbtoke );
 	if( token.val ) {
 		facebook_getdata_token( &data, token );
 		if( !( data.id ) ) {
@@ -309,26 +340,69 @@ if( error) {
 			goto BAILOUT;
 		}
 	} else {
-		httpString( cnt, "Invalid Login, Did you just reload this page?" );
-		goto BAILOUT;
+		offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s", "Invalid Login, Did you just reload this page?" );
 	}
-} else if( fbid ){
-	facebook_getdata_id( &data, fbid );
-	httpPrintf( cnt, "Valid Login for: %s", data.full_name );
-	goto BAILOUT;
+} else if( error) {
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s", "Error Detected<br>" );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", error );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_reason" ) );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_description" ) );
 } else {
 	httpString( cnt, "Invalid" );
 	goto BAILOUT;
 }
 
 
-httpPrintf( cnt, "Welcome %s, %lld, %.01f", data.full_name, data.id, data.timezone );
-httpPrintf( cnt, "<br> Token Expires in: %s", TimeToString(token.expire) );
-//httpPrintf( cnt, "<br> Token Expires in: %d", token.expire );
-//httpPrintf( cnt, "<br> Token : %s", token.val );
+id = dbUserFBSearch( data.id );
 
+if( buffer[0] )
+	httpString( cnt, buffer );
+
+if( id >= 0 ) {
+	user = dbUserLinkID( id );
+	if( dbUserLinkDatabase( cnt, id ) < 0 )
+		goto BAILOUT;
+
+	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
+		goto BAILOUT;
+
+	dbUserInfoRetrieve( id, &infod );
+	infod.lasttime = time( 0 );
+	if( (cnt->connection)->addr->sa_family == AF_INET )
+	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
+		if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
+			memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+		}
+	}
+	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
+	dbUserInfoSet( id, &infod );
+	strcpy( (cnt->session)->redirect, "/" );
+	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
+	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
+	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
+} else if( data.id[0] ) {
+	goto LINKWITHFB;
+} else {
+	httpString( cnt, "Invalid Request" );
+}
+
+goto BAILOUT;
+
+LINKWITHFB:
+
+if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
+	bitflag_add( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] );
+	strcpy( user->fbid, data.id );
+	dbUserSave( user->id, user );
+	httpPrintf( cnt, "Facebook ID %s now linked with User %s<br>", user->fbid, user->name );
+	httpPrintf( cnt, "Has Bit %s<br>", bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) ? "TRUE" : "FALSE" );
+} else {
+	httpPrintf( cnt, "<br>Valid, but no linked account: %s", data.id );
+}
 
 BAILOUT:
+
+iohtmlFunc_endhtml( cnt );
 
 if( token.val )
 	free( token.val );
@@ -389,8 +463,8 @@ httpString( cnt, "  }(document));\n" );
 
 httpString( cnt, "function testAPI() {\n" );
 httpString( cnt, "	FB.api('/me', function(response) {\n" );
-httpString( cnt, "      location.href = \"/facebook?fb_id=\"+response.id;\n" );
-httpString( cnt, " 	console.log('Good to see you, ' + response.name + '.');\n" );
+httpString( cnt, "	var access_token =   FB.getAuthResponse()['accessToken'];\n" );
+httpString( cnt, "      location.href = \"/facebook?fblogin_id=\"+response.id+\"&fblogin_token=\"+access_token;\n" );
 httpString( cnt, "	});\n" );
 httpString( cnt, "}\n" );
 httpString( cnt, "</script>\n" );

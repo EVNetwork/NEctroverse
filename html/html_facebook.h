@@ -18,4 +18,8 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt );
 
 void iohtmlFBSDK( ReplyDataPtr cnt );
 
+void facebook_getdata_id( FBUserPtr data, char *userid );
+
+int facebook_unlink_id( char *userid );
+
 #endif

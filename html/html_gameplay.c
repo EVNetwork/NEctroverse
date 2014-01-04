@@ -1,160 +1,18 @@
 
-void iohtmlFunc_main( ReplyDataPtr cnt )
-{
- int a, i, id, num;
- char *name, *pass;
- char rtpass[128];
- FILE *file = NULL;
- char timebuf[256];
- char COREDIR[256];
- int64_t *newsp, *newsd;
- dbUserInfoDef infod;
- 
- name = iohtmlVarsFind( cnt, "name" );
- pass = iohtmlVarsFind( cnt, "pass" );
+void iohtmlFunc_main( ReplyDataPtr cnt ) {
+	int id;
 
-  
- if( ( name ) && ( pass ) )
- {
- sprintf( COREDIR, "%s/logs/login.log", sysconfig.directory );
- if( ( file = fopen( COREDIR, "a" ) ) )
- {
-  a = time( 0 );
-  strftime( timebuf, 256, "%T, %b %d %Y", localtime( (time_t *)&a ) );
-  fprintf( file, "Time: %s;\n", timebuf );
-  fprintf( file, "Name: %s;\n", name );
-  //fprintf( file, "Password: %s;\n", pass );
-  if( (cnt->connection)->addr->sa_family == AF_INET )
-  fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+	return;
 
-  strcpy(timebuf, iohtmlHeaderFind( cnt, "User-Agent" ) );
-  for(i=0;i<strlen(timebuf);i++)
-  {
-  	if(timebuf[i] == ';')
-  		timebuf[i] = ',';
-  }
-  fprintf( file, "User Agent: %s;\n", timebuf );
-  //fprintf( file, "Cookie: %s;\n", iohttp->cookie );
- }
- 
-  for( a = 0 ; name[a] ; a++ )
-  {
-   if( name[a] == '+' )
-    name[a] = ' ';
-   else if( ( name[a] == 10 ) || ( name[a] == 13 ) )
-    name[a] = 0;
-  }
-  for( a = 0 ; pass[a] ; a++ )
-  {
-   if( pass[a] == '+' )
-    pass[a] = ' ';
-   else if( ( pass[a] == 10 ) || ( pass[a] == 13 ) )
-    pass[a] = 0;
-  }
-  if( ( id = dbUserSearch( name ) ) < 0 )
-   goto iohtmlFunc_mainL0;
-  if( dbUserRetrievePassword( id, rtpass ) < 0 )
-   goto iohtmlFunc_mainL0;
-  if( !( checkencrypt( pass, rtpass ) ) )
-   goto iohtmlFunc_mainL0;
-  if( dbUserLinkDatabase( cnt, id ) < 0 )
-   goto iohtmlFunc_mainL0;
+httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"images/favicon.ico\"></head>", sysconfig.servername );
+httpString( cnt, "<frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
+httpString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
+httpString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
+httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
+httpString( cnt, "</frameset></html>" );
 
-
-  if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
-   goto iohtmlFunc_mainL0;
-
-  dbUserInfoRetrieve( id, &infod );
-  infod.lasttime = time( 0 );
-  if( (cnt->connection)->addr->sa_family == AF_INET )
-  for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
-	if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
-		memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
-	}
-  }
-  memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
-  dbUserInfoSet( id, &infod );
-
-  if( ( file ) )
-  {
-   fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_KILLED] | cmdUserFlags[CMD_USER_FLAGS_DELETED] | cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) ) ? "Deactivated" : "Active") );
-   fclose( file );
-   file = 0;
-  }
-
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_KILLED] )
-  {
-   iohtmlBase( cnt, 8 );
-   iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
-   httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
-   num = dbUserNewsList( id, &newsp );
-   newsd = newsp;
-   if( !( num ) )
-    httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
-   for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE )
-   {
-    iohtmlNewsString( cnt, newsd );
-   }
-   if( newsp )
-    free( newsp );
-   goto iohtmlFunc_mainL1;
-  }
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_DELETED] )
-  {
-   iohtmlBase( cnt, 8 );
-   iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
-   httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
-   goto iohtmlFunc_mainL1;
-  }
-  if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_NEWROUND] )
-  {
-   iohtmlBase( cnt, 8 );
-   iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
-   httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"register2\">Complete account registration</a><br><br>" );
-   goto iohtmlFunc_mainL1;
-  }
-
-  if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
-  {
-   iohtmlBase( cnt, 8 );
-   iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
-   httpString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
-   iohtmlFunc_mainL1:
-   httpString( cnt, "<a href=\"forum\">Public Forums</a>" );
-   if((cnt->session)->dbuser)
-   {
-	   if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
-	    httpString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
-	   if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
-	    httpString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
-	  }
-   iohtmlFunc_endhtml( cnt );
-   return;
-  }
-} else {
-	if( ( id = iohtmlIdentify( cnt, 0 ) ) < 0 )
-		goto iohtmlFunc_mainL0;
-}
-
-
- httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"images/favicon.ico\"></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
- httpString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
- httpString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
- httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
- httpString( cnt, "</frameset></html>" );
- return;
-
- iohtmlFunc_mainL0:
-
- if( file )
- {
-  fprintf( file, "Failed!\n\n\n" );
-  fclose( file );
-  file = 0;
- }
-
-iohtmlFunc_login( cnt, 0, "Name or password incorrect!" );
- return;
+return;
 }
 
 

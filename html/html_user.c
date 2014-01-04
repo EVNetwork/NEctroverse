@@ -245,6 +245,7 @@ if( remove_session( (cnt->session)->sid ) ) {
 		cnt->session = NULL;
 	iohtmlFunc_front( cnt, "%s", "An error, has occured with the logout. To be safe please close your browser.!" );
 } else {
+	cnt->session = get_session( SESSION_HTTP, NULL );
 	iohtmlFunc_front( cnt, "%s", "You have safley loged out!" );
 }
 

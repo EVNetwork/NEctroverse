@@ -202,7 +202,7 @@ httpString( cnt, "<td align=\"right\"><b>" );
 if( !( flags == FMENU_MAIN ) ) {
 	httpString( cnt, "<a href=\"/\">Main</a>" );
 }
-if( !( flags == FMENU_REGISTER ) ) {
+if( !( (cnt->session)->dbuser ) && !( flags == FMENU_REGISTER ) ) {
 	if( !( flags == FMENU_MAIN ) )
 		httpString( cnt, " | " );
 	httpString( cnt, "<a href=\"register\">Register</a>" );
@@ -212,7 +212,8 @@ if( !( flags == FMENU_REGISTER ) ) {
 	//httpString( cnt, "<a href=\"forum\">Forums</a>" );
 //}
 if( !( flags == FMENU_FAQ ) ) {
-	httpString( cnt, " | " );
+	if( !( (cnt->session)->dbuser ) || ( ( (cnt->session)->dbuser ) && !( flags == FMENU_MAIN ) ) )
+		httpString( cnt, " | " );
 	httpString( cnt, "<a href=\"faq\">FAQ</a>" );
 }
 if( !( flags == FMENU_GSTART ) ) {
@@ -436,7 +437,14 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  faction = NULL;//iohtmlVarsFind( cnt, "faction" );
 
 if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
-	  if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
+	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
+		iohtmlBase( cnt, 8 );
+		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
+		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
+		goto iohtmlFunc_register2L0;
+	}
+	
+	if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
 		iohtmlBase( cnt, 8 );
 		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
@@ -576,7 +584,8 @@ if( race ) {
  		goto iohtmlFunc_register3L0;
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
-	httpString( cnt, "<br><br><br><a href=\"/main\">Log in</a>" );
+	httpString( cnt, "<br><br><br><a href=\"/main\">Click here if not redirected</a>" );
+	strcpy( (cnt->session)->redirect, "/main" );
 	iohtmlFunc_endhtml( cnt );
 	return;
 } else {
@@ -593,19 +602,133 @@ return;
 
 
 void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
+	int a, i, id, num;
+	char rtpass[129];
+	int64_t *newsp, *newsd;
+	dbUserInfoDef infod;
 	struct stat stdata;
-	char *data;
-	char DIRCHECKER[256];
-	FILE *file;
+	char *data, *name, *pass;
+	char DIRCHECKER[PATH_MAX];
+	FILE *file = NULL;
+
+name = iohtmlVarsFind( cnt, "name" );
+pass = iohtmlVarsFind( cnt, "pass" );
 
 iohtmlBase( cnt, 8 );
-
 #if FACEBOOK_SUPPORT
+if( !(name) && !(pass) )
 iohtmlFBSDK( cnt );
 #endif
-
 iohtmlFunc_frontmenu( cnt, FMENU_NONE );
 
+id = iohtmlIdentify( cnt, 0 );
+
+if( ( id >= 0 ) )
+	goto LOGIN_SUCESS;
+
+if( ( name ) && ( pass ) ) {
+	sprintf( DIRCHECKER, "%s/logs/login.log", sysconfig.directory );
+	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
+		a = time( 0 );
+		fprintf( file, "Time: %s;\n", asctime( gettime( time(0),true ) ) );
+		fprintf( file, "Name: %s;\n", name );
+		if( (cnt->connection)->addr->sa_family == AF_INET )
+			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+		strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
+		for(i=0;i<strlen(DIRCHECKER);i++) {
+			if(DIRCHECKER[i] == ';')
+				DIRCHECKER[i] = ',';
+		}
+		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
+	}
+ 
+	for( a = 0 ; name[a] ; a++ ) {
+		if( name[a] == '+' )
+			name[a] = ' ';
+		else if( ( name[a] == 10 ) || ( name[a] == 13 ) )
+			name[a] = 0;
+	}
+	for( a = 0 ; pass[a] ; a++ ) {
+		if( pass[a] == '+' )
+			pass[a] = ' ';
+		else if( ( pass[a] == 10 ) || ( pass[a] == 13 ) )
+    			pass[a] = 0;
+	}
+	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
+		info( "ban match" );
+		goto LOGIN_FAIL;
+	}
+	if( ( id = dbUserSearch( name ) ) < 0 )
+		goto LOGIN_FAIL;
+	if( dbUserRetrievePassword( id, rtpass ) < 0 )
+		goto LOGIN_FAIL;
+	if( !( checkencrypt( pass, rtpass ) ) )
+		goto LOGIN_FAIL;
+	if( dbUserLinkDatabase( cnt, id ) < 0 )
+		goto LOGIN_FAIL;
+
+	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
+		goto LOGIN_FAIL;
+
+	dbUserInfoRetrieve( id, &infod );
+	infod.lasttime = time( 0 );
+	if( (cnt->connection)->addr->sa_family == AF_INET )
+	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
+		if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
+			memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+		}
+	}
+	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
+	dbUserInfoSet( id, &infod );
+
+	if( ( file ) ) {
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_KILLED] | cmdUserFlags[CMD_USER_FLAGS_DELETED] | cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) ) ? "Deactivated" : "Active") );
+		fclose( file );
+	}
+
+	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_KILLED] ) {
+		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
+		num = dbUserNewsList( id, &newsp );
+		newsd = newsp;
+		if( !( num ) )
+			httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
+		for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
+			iohtmlNewsString( cnt, newsd );
+		}
+		if( newsp )
+			free( newsp );
+		goto iohtmlFunc_mainL1;
+	}
+	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_DELETED] ) {
+		httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
+		goto iohtmlFunc_mainL1;
+	}
+	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) {
+		httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"register2\">Complete account registration</a><br><br>" );
+		goto iohtmlFunc_mainL1;
+	}
+
+	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) ) {
+		httpString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
+		iohtmlFunc_mainL1:
+		httpString( cnt, "<a href=\"forum\">Public Forums</a>" );
+		if((cnt->session)->dbuser) {
+			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
+				httpString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
+			if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
+				httpString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
+		}
+	iohtmlFunc_endhtml( cnt );
+	return;
+	}
+	goto LOGIN_SUCESS;
+}
+LOGIN_FAIL:
+
+if( file ) {
+	fprintf( file, "Failed!\n\n\n" );
+	fclose( file );
+}
 
 if( text ) {
 	httpPrintf( cnt, "<br>%s", text );
@@ -629,14 +752,24 @@ if( text ) {
 	}
 	httpString( cnt, "<br><br>" );
 } else {
-httpString( cnt, "<br><h3>Login</h3><br>" );
+	httpString( cnt, "<br><h3>Login</h3><br>" );
 }
-httpString( cnt, "<form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
-httpString( cnt, "</center></body></html>" );
+httpString( cnt, "<form action=\"/login\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
 
+
+goto LOGIN_END;
+
+LOGIN_SUCESS:
+
+strcpy( (cnt->session)->redirect, "/main" );
+
+httpString( cnt, "<b>Login sucess, you should be redirected into game shortly...</b><br>" );
+httpString( cnt, "<br>" );
+httpString( cnt, "<a href=\"/main\">Click here is not redirected</a><br>" );
+
+LOGIN_END:
 iohtmlFunc_endhtml( cnt );
-
 return;
 }
 
@@ -686,14 +819,15 @@ va_end( ap );
 
 iohtmlBase( cnt, 8 );
 
-#if FACEBOOK_SUPPORT
-iohtmlFBSDK( cnt );
-#endif
-
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
 	return;
 }
+
+#if FACEBOOK_SUPPORT
+if( (id < 0) && !( len > 0 ) )
+	iohtmlFBSDK( cnt );
+#endif
 
 iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
 
@@ -753,32 +887,10 @@ httpString( cnt, "<tr><td>" );
 httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 
 if( (id < 0) ) {
-	httpString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">" );
+	httpString( cnt, "<font size=\"2\"><form action=\"login\" method=\"POST\">" );
 	httpString( cnt, "Name<br><input type=\"text\" name=\"name\" size=\"24\"><br>" );
 	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br>" );
 	httpString( cnt, "<br><input type=\"submit\" value=\"Log in\"></form>" );
-	#if FACEBOOK_SUPPORT
-
-	if( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) {
-		bool access; 
-		char *host;
-
-		httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
-		httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
-
-		host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
-
-		#if HTTPS_SUPPORT
-		access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
-		#endif
-
-		sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
-
-		httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
-		httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
-		httpString( cnt, "</form>" );
-	}
-	#endif
 } else {
 	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", (cnt->session)->dbuser->name );
 	httpString( cnt, "<br>" );
@@ -789,6 +901,36 @@ if( (id < 0) ) {
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<br>" );
 }
+#if FACEBOOK_SUPPORT
+if( ( (cnt->session)->dbuser ) && bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) ) {
+	FBUserDef fbdata;
+	facebook_getdata_id( &fbdata, ((cnt->session)->dbuser)->fbid );
+	if( !( fbdata.connected ) ) {
+		memset( &((cnt->session)->dbuser)->fbid, 0, sizeof(((cnt->session)->dbuser)->fbid) );
+		bitflag_remove( &((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] );
+		dbUserSave( ((cnt->session)->dbuser)->id, (cnt->session)->dbuser );
+	}
+}
+if( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) )) ) ) {
+	bool access; 
+	char *host;
+
+	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
+
+	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+
+	#if HTTPS_SUPPORT
+	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
+	#endif
+
+	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
+
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
+	httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
+	httpString( cnt, "</form>" );
+}
+#endif
 httpString( cnt, "</td></tr></table>" );
 
 //read the todo list from todo.txt and format for display. -- If this file is missing, or empty it is skipped.

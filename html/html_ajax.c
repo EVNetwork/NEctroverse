@@ -41,6 +41,9 @@ if( ( typestring ) && ( refer ) ) {
 	httpPrintf( cnt, "<xml>" );
 	//Begin XML generation, we only make one request now... so we have to structure carefully!
 	if( !strcmp(typestring,"ticker") ) {
+		if( (cnt->session)->redirect[0] ) {
+			httpPrintf( cnt, "<redirect_url>%s</redirect_url>", (cnt->session)->redirect );
+		}
 		//Send basic tick info, and check if user is loged in.
 		httpPrintf( cnt, "<pass>%d</pass>", ( id != -1 ) ? ( ( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) ? true : false ) : false );
 		httpPrintf( cnt, "<page>%s</page>", refer  );
@@ -242,6 +245,9 @@ if( refer ) {
 	httpString( cnt, "\n" );
 	httpString( cnt, "\t\tvar week = getnodevar(xmlhttp.responseXML,\"week\");\n" );
 	httpString( cnt, "\t\tvar year = getnodevar(xmlhttp.responseXML,\"year\");\n" );
+	httpString( cnt, "\t\tvar redirect_url = getnodevar(xmlhttp.responseXML,\"redirect_url\");\n" );
+	httpString( cnt, "\t\tif( redirect_url )\n" );
+	httpString( cnt, "\t\ttop.location.replace(redirect_url);\n" );
 	httpString( cnt, "\n" );
 	if( !strcmp(refer,"hq") ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"hqweeks\",week);\n" );

@@ -647,12 +647,15 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 return -1;
 }
-
+#if FACEBOOK_SUPPORT
 int dbUserFBSearch( char *FBid ) {
 	dbUserPtr user;
+if( !(FBid) )
+	return -1;
+
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( ioCompareExact( FBid, user->name ) ) )
+	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK]) ) || !( ioCompareExact( FBid, user->fbid ) ) )
 		continue;
 
 	return user->id;
@@ -660,7 +663,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 return -1;
 }
-
+#endif
 
 // Users functions
 int dbUserSessionSearch( char *session ) {
@@ -691,7 +694,7 @@ return -1;
 
 dbUserPtr dbUserLinkID( int id ) {
 
-if( (unsigned int)id >= ARRAY_MAX )
+if( ( id >= ARRAY_MAX ) || ( id < 0 ) )
 	return 0;
 
 return dbUserTable[id];
@@ -865,7 +868,14 @@ strcpy(uinfo.name,user->name);
 uinfo.flags = user->flags;
 strcpy(uinfo.http_session,user->http_session);
 uinfo.lasttime = user->lasttime;
-
+#if FACEBOOK_SUPPORT
+if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) ) {
+	strcpy( uinfo.fbinfo.id, user->fbid );
+} else {
+	memset( &user->fbid, 0, sizeof(user->fbid) );
+	memset( &uinfo.fbinfo, 0, sizeof(FBUserDef) );
+}
+#endif
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	error( "Error in user save, getting setting info" );
 	return -3;

@@ -18,7 +18,7 @@ typedef struct
 
   //Facebook Linkage
   #if FACEBOOK_SUPPORT
-  char fbid[128];
+  char fbid[64];
   #endif
 
   //Pointers for next/last user in list.
@@ -29,8 +29,9 @@ typedef struct
 #if FACEBOOK_SUPPORT
 
 typedef struct {
+	bool connected;
 	//Facebook UserData
-	char id[128];
+	char id[64];
 	char full_name[1024+32];
 	char first_name[512];
 	char last_name[512];
@@ -82,6 +83,7 @@ int dbMapFindValid( int x, int y );
 
 
 int dbUserSearch( char *name );
+int dbUserFBSearch( char *name );
 int dbUserSessionSearch( char *cookie );
 int dbUserSearchFaction( char *name );
 int dbUserAdd( dbUserInfoPtr adduser );

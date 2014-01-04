@@ -1,6 +1,8 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+#define MAXREDIRECT 128
+
 /**
  * Context keeping the data for the response we're building.
  */
@@ -85,6 +87,11 @@ typedef struct Session
   char sid[129];
 
   /**
+   * url to redirect if needed.
+   */
+  char redirect[MAXREDIRECT];
+  
+  /**
    * Time when this session was last active.
    */
   time_t active;
@@ -108,7 +115,7 @@ typedef struct Session
    * We keep all sessions in a linked list.
    */
   struct Session *next;
-  
+   
 } SessionDef, *SessionPtr;
 
 

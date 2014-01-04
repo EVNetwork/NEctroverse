@@ -915,6 +915,8 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL != request->response) {
 		return MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, request->response);
 	} else {
+	if( strcmp( url, (request->session)->redirect) == 0 )
+		memset( &(request->session)->redirect, 0, MAXREDIRECT );
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
@@ -933,7 +935,9 @@ if( ( request ) && ( request->session ) ) {
 	session = get_session( SESSION_HTTP, connection );
 	session->upload = UPLOAD_STATE_NULL;
 }
-
+if( strcmp( url, session->redirect) == 0 )
+	memset( &session->redirect, 0, MAXREDIRECT );
+	
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )

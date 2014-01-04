@@ -459,7 +459,9 @@ int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
 0x200,
 
 0x1000,
+#if FACEBOOK_SUPPORT
 0x2000,
+#endif
 };
 
 
