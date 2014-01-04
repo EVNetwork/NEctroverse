@@ -240,10 +240,10 @@ return;
 
 void iohtmlBodyInit( ReplyDataPtr cnt, char *title, ... )
 {
- char text[4096];
+ char text[ARRAY_MAX];
  va_list ap;
  va_start( ap, title );
- vsnprintf( text, 4096, title, ap );
+ vsnprintf( text, ARRAY_MAX, title, ap );
  httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
  httpString( cnt, text );
  httpString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table>" );
@@ -889,49 +889,30 @@ httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 if( (id < 0) ) {
 	httpString( cnt, "<font size=\"2\"><form action=\"login\" method=\"POST\">" );
 	httpString( cnt, "Name<br><input type=\"text\" name=\"name\" size=\"24\"><br>" );
-	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br>" );
-	httpString( cnt, "<br><input type=\"submit\" value=\"Log in\"></form>" );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br>" );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "<input type=\"submit\" value=\"Log in\"></form>" );
 } else {
 	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", (cnt->session)->dbuser->name );
 	httpString( cnt, "<br>" );
-	httpString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a>" );
+	httpString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a><br>" );
 	httpString( cnt, "<br>" );
-	httpString( cnt, "<br>" );
-	httpString( cnt, "<a href=\"/logout\" target=\"_top\">Log out</a>" );
+	httpString( cnt, "<a href=\"/logout\" target=\"_top\">Log out</a><br>" );
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<br>" );
 }
+
 #if FACEBOOK_SUPPORT
-if( ( (cnt->session)->dbuser ) && bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) ) {
-	FBUserDef fbdata;
-	facebook_getdata_id( &fbdata, ((cnt->session)->dbuser)->fbid );
-	if( !( fbdata.connected ) ) {
-		memset( &((cnt->session)->dbuser)->fbid, 0, sizeof(((cnt->session)->dbuser)->fbid) );
-		bitflag_remove( &((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] );
-		dbUserSave( ((cnt->session)->dbuser)->id, (cnt->session)->dbuser );
-	}
-}
-if( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) )) ) ) {
-	bool access; 
-	char *host;
-
-	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
-
-	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
-
-	#if HTTPS_SUPPORT
-	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
-	#endif
-
-	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
-
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
-	httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
-	httpString( cnt, "</form>" );
+httpString( cnt, "</td><td>&nbsp;</td><td valign=\"bottom\">" );
+facebook_update_user( (cnt->session)->dbuser );
+iohtmlFBConnect( cnt );
+if( (id >= 0) ) {
+	httpString( cnt, "<br>" );
 }
 #endif
-httpString( cnt, "</td></tr></table>" );
+
+httpString( cnt, "</td></table></td></tr>" );
 
 //read the todo list from todo.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/todo.txt", sysconfig.httpread );
@@ -940,13 +921,14 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
-				httpString( cnt, "<i>Items on the admins to-do list :</i>" );
-				httpString( cnt, "<br>" );
+				httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><i>Items on the admins to-do list :</i></font></td></tr>" );
+				httpString( cnt, "<tr><td>" );
+				httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( strlen(data) > 1 )
 						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
 				}
-				httpString( cnt, "<br>" );
+				httpString( cnt, "</td></tr></table></td></tr>" );
 			}
 			fclose( file );
 		}
@@ -955,6 +937,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 }
 //end todo list
 
+httpString( cnt, "</table>" );
 
 iohtmlFunc_endhtml( cnt );
 return;

@@ -1,105 +1,111 @@
 
 
 
-void iohtmlFunc_account( ReplyDataPtr cnt )
-{
-  int a, id;
-  dbUserMainDef maind;
-  dbUserInfoDef infod;
-  char *faction, *race, *desc;
-  char description[4096];
+void iohtmlFunc_account( ReplyDataPtr cnt ) {
+	int a, id;
+	char *faction, *race, *desc;
+	char description[DESCRIPTION_SIZE];
+	dbUserMainDef maind;
+	dbUserInfoDef infod;
 
-  faction = iohtmlVarsFind( cnt, "newname" );
-  race = iohtmlVarsFind( cnt, "race" );
-  desc = iohtmlVarsFind( cnt, "desc" );
+faction = iohtmlVarsFind( cnt, "newname" );
+race = iohtmlVarsFind( cnt, "race" );
+desc = iohtmlVarsFind( cnt, "desc" );
 
-  iohtmlBase( cnt, 1 );
-  if( ( id = iohtmlIdentify( cnt, 1 ) ) < 0 )
-    return;
-  if( !( iohtmlHeader( cnt, id, &maind ) ) )
-    return;
+iohtmlBase( cnt, 1 );
+
+if( ( id = iohtmlIdentify( cnt, 1 ) ) < 0 )
+	return;
+if( !( iohtmlHeader( cnt, id, &maind ) ) )
+	return;
 
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 	error( "Error in user html info, getting real info" );
 	return;
 }
-  iohtmlBodyInit( cnt, "Account Options" );
 
-  if( !( ticks.status | ticks.number ) )
-  {
-    if( faction )
-    {
-      if( cmdExecChangeName( id, faction ) < 0 )
-      {
-        if( cmdErrorString )
-          httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
-        else
-          httpString( cnt, "<i>Error encountered while changing faction name</i><br><br>" );
-      }
-      else
-      {
-        httpString( cnt, "<i>Faction name has been changed</i><br><br>" );
-        dbUserMainRetrieve( id, &maind );
-      }
-    }
-    if( race )
-    {
-      if( ( sscanf( race, "%d", &a ) == 1 ) && ( (unsigned int)a < CMD_RACE_NUMUSED ) )
-      {
-      		maind.raceid = a;
-        httpString( cnt, "<i>Race changed</i><br><br>" );
-        dbUserMainSet( id, &maind );
-      }
-    }
-  }
+iohtmlBodyInit( cnt, "Account Options" );
 
-  if( desc )
-  {
-      iohttpForumFilter( description, desc, 4096, 0 );
-      iohttpForumFilter2( infod.desc, description, 4096 );
-      if( dbUserInfoSet( id, &infod ) )
-      	httpString( cnt, "<i>Description Updated</i><br><br>" );
-      else
-      	httpString( cnt, "<i>Error encountered while changing Description</i><br><br>" );
-  }
+if( !( ticks.status | ticks.number ) ) {
+	if( faction ) {
+		if( cmdExecChangeName( id, faction ) < 0 ) {
+			if( cmdErrorString )
+				httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+			else
+				httpString( cnt, "<i>Error encountered while changing faction name</i><br><br>" );
+		} else {
+			httpString( cnt, "<i>Faction name has been changed</i><br><br>" );
+			dbUserMainRetrieve( id, &maind );
+		}
+	}
+	if( race ) {
+		if( ( sscanf( race, "%d", &a ) == 1 ) && ( (unsigned int)a < CMD_RACE_NUMUSED ) ) {
+			maind.raceid = a;
+			httpString( cnt, "<i>Race changed</i><br><br>" );
+			dbUserMainSet( id, &maind );
+		}
+	}
+}
 
-  httpString( cnt, "<table border=\"0\"><tr><td>" );
-  httpPrintf( cnt, "User name : <b>%s</b><br>", ((cnt->session)->dbuser)->name );
-  httpPrintf( cnt, "Faction name : <b>%s</b><br>", maind.faction );
-  httpPrintf( cnt, "Faction race : <b>%s</b><br>", cmdRaceName[maind.raceid] );
-  httpPrintf( cnt, "Forum tag : <b>%s</b><br>", infod.forumtag );
-  httpPrintf( cnt, "Tag points : <b>%d</b><br>", infod.tagpoints );
-  httpPrintf( cnt, "Account ID : <b>%d</b><br>", id );
+if( desc ) {
+	iohttpForumFilter( description, desc, DESCRIPTION_SIZE, 0 );
+	iohttpForumFilter2( infod.desc, description, DESCRIPTION_SIZE );
+	if( dbUserInfoSet( id, &infod ) )
+      		httpString( cnt, "<i>Description Updated</i><br><br>" );
+	else
+		httpString( cnt, "<i>Error encountered while changing Description</i><br><br>" );
+}
 
-  if( !( ticks.status | ticks.number ) )
-  {
-    httpString( cnt, "<br>Change Faction name<br><i>Only available before time starts.</i><br>" );
-    httpPrintf( cnt, "<form action=\"account\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", maind.faction );
-    httpString( cnt, "<form action=\"account\">Faction race - <a href=\"races\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">" );
-    for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ )
-    {
-      httpPrintf( cnt, "<option value=\"%d\"", a );
-      if( a == maind.raceid )
-        httpString( cnt, " selected" );
-      httpPrintf( cnt, ">%s", cmdRaceName[a] );
-    }
-    httpString( cnt, "</select><input type=\"submit\" value=\"Change\"></form>" );
-  }
+httpString( cnt, "<table border=\"0\"><tr><td>" );
+httpPrintf( cnt, "Account ID : <b>%d</b><br>", id );
+httpPrintf( cnt, "User name : <b>%s</b><br>", ((cnt->session)->dbuser)->name );
+httpPrintf( cnt, "Faction name : <b>%s</b><br>", maind.faction );
+httpPrintf( cnt, "Faction race : <b>%s</b><br>", cmdRaceName[maind.raceid] );
+httpPrintf( cnt, "Tag points : <b>%d</b><br>", infod.tagpoints );
 
-  iohttpForumFilter3( description, infod.desc, 4096 );
+httpPrintf( cnt, "Forum tag : <b>%s</b><br>", infod.forumtag );
 
-  httpString( cnt, "<form action=\"account\" method=\"POST\"><i>Faction description</i><br>" );
-  httpString( cnt, "<textarea name=\"desc\" wrap=\"soft\" rows=\"4\" cols=\"64\">" );
-  httpString( cnt, description );
-  httpString( cnt, "</textarea><br>" );
-  httpString( cnt, "<input type=\"submit\" value=\"Change\"></form><br>" );
+if( !( ticks.status | ticks.number ) ) {
+	httpString( cnt, "<br>Change Faction name<br><i>Only available before time starts.</i><br>" );
+	httpPrintf( cnt, "<form action=\"account\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", maind.faction );
+	httpString( cnt, "<form action=\"account\">Faction race - <a href=\"races\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">" );
 
-  httpString( cnt, "<br><a href=\"changepass\">Change your password</a>" );
-  httpString( cnt, "<br><br><a href=\"delete\">Delete your Faction</a>" );
-  httpString( cnt, "</td></tr></table>" );
+	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
+		httpPrintf( cnt, "<option value=\"%d\"", a );
+		if( a == maind.raceid )
+			httpString( cnt, " selected" );
+		httpPrintf( cnt, ">%s", cmdRaceName[a] );
+	}
+	httpString( cnt, "</select><input type=\"submit\" value=\"Change\"></form>" );
+}
 
-  iohtmlBodyEnd( cnt );
-  return;
+iohttpForumFilter3( description, infod.desc, DESCRIPTION_SIZE );
+httpString( cnt, "<br>" );
+httpString( cnt, "<form action=\"account\" method=\"POST\"><i>Faction description</i><br>" );
+httpString( cnt, "<textarea name=\"desc\" wrap=\"soft\" rows=\"4\" cols=\"64\">" );
+httpString( cnt, description );
+httpString( cnt, "</textarea><br>" );
+httpString( cnt, "<input type=\"submit\" value=\"Change\"></form><br>" );
+#if FACEBOOK_SUPPORT
+facebook_update_user( (cnt->session)->dbuser );
+iohtmlFBConnect( cnt );
+if( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
+httpString( cnt, "<table><tr><td>" );
+httpPrintf( cnt, "<img src=\"%s\" alt=\"Facebook Icon\">", infod.fbinfo.pic );
+httpString( cnt, "</td><td>" );
+	httpPrintf( cnt, "Facebook ID : <b>%s</b><br>", infod.fbinfo.id );
+	httpPrintf( cnt, "Facebook Name : <b>%s</b><br>", infod.fbinfo.full_name );
+httpString( cnt, "</td></tr></table>" );
+}
+#endif
+
+httpString( cnt, "<br><a href=\"changepass\">Change your password</a>" );
+httpString( cnt, "<br><br><a href=\"delete\">Delete your Faction</a>" );
+httpString( cnt, "</td></tr></table>" );
+
+
+iohtmlBodyEnd( cnt );
+return;
 }
 
 

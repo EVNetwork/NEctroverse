@@ -2,6 +2,8 @@
 #define DATABASEINCLUDES
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+#define DESCRIPTION_SIZE 4096
+
 typedef struct
 {
   int id;
@@ -29,16 +31,23 @@ typedef struct
 #if FACEBOOK_SUPPORT
 
 typedef struct {
+	int expire;
+	char val[512];
+} FBTokenDef, *FBTokenPtr;
+
+typedef struct {
 	bool connected;
 	//Facebook UserData
+	double timezone;
 	char id[64];
+	char gender[16];
 	char full_name[1024+32];
 	char first_name[512];
 	char last_name[512];
-	double timezone;
+	char pic[PATH_MAX];
+	char bio[DESCRIPTION_SIZE];
 	//Access Token Data
-	int expires;
-	char *access_token;
+	FBTokenDef token;
 } FBUserDef, *FBUserPtr;
 
 #endif
@@ -60,7 +69,7 @@ typedef struct
   char password[128];
   char http_session[129];
   char forumtag[256];
-  char desc[4096];
+  char desc[DESCRIPTION_SIZE];
   struct in_addr sin_addr[MAXIPRECORD];
   #if FACEBOOK_SUPPORT
   FBUserDef fbinfo;
@@ -283,7 +292,7 @@ typedef struct
   int64_t infos[CMD_RESSOURCE_NUMUSED];
   char name[64];
   char password[128];
-  char message[2][4096];
+  char message[2][DESCRIPTION_SIZE];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
 typedef struct

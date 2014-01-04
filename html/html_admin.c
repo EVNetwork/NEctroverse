@@ -1370,7 +1370,7 @@ sysconfig.shutdown = true;
     for( user = dbUserList ; user ; user = user->next )
     {
       dbUserInfoRetrieve( user->id, &infod );
-      for( a = 0 ; ( a < 4096 ) && ( infod.desc[a] ) ; a++ )
+      for( a = 0 ; ( a < DESCRIPTION_SIZE ) && ( infod.desc[a] ) ; a++ )
       {
         if( infod.desc[a] >= 128 )
         {

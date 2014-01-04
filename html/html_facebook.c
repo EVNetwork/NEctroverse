@@ -1,4 +1,6 @@
 
+#define MAX_FB_STRING 4096
+
 static bool is_http;
 static char do_redi[1024];
 
@@ -33,14 +35,15 @@ return size*nmemb;
 
 
 void facebook_apptoken( char **token ) {
-	int offset = 0, maxlen = 1024;
-	char post[1024];
+	int offset;
+	char post[MAX_FB_STRING];
 	CURL *curl;
 	CURLcode res;
 
-offset += snprintf( &post[offset], (maxlen - offset), "client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
-offset += snprintf( &post[offset], (maxlen - offset), "%s", "&grant_type=client_credentials" );
+offset = 0;
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "client_id=%s", fbcfg.app_id );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", "&grant_type=client_credentials" );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -67,18 +70,17 @@ return;
 }
 
 void facebook_usertoken( FBTokenPtr token, char *code ) {
-	int offset = 0, maxlen = 1024;
-	int i, num;
+	int i, num, offset;
 	char **split;
-	char post[1024];
+	char post[MAX_FB_STRING];
 	CURL *curl;
 	CURLcode res;
 
 offset = 0;
-offset += snprintf( &post[offset], (maxlen - offset), "client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
-offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", do_redi );
-offset += snprintf( &post[offset], (maxlen - offset), "&code=%s", code );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "client_id=%s", fbcfg.app_id );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&redirect_uri=%s", do_redi );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&code=%s", code );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -104,7 +106,7 @@ if( curl ) {
 	} else {
 		for ( i = 0; i < num; i++ ) {
 			if( strncmp( split[i], "access_token", strlen("access_token") ) == 0 ) {
-				token->val = strdup( (strstr( split[i], "=" )+1) );
+				memcpy( token->val, (strstr( split[i], "=" )+1), sizeof(token->val) );
 			} else if( strncmp( split[i], "expires", strlen("expires") ) == 0 ) {
 				sscanf( (strstr( split[i], "=" )+1), "%d", &token->expire );
 			}
@@ -117,36 +119,18 @@ if( curl ) {
 return;
 }
 
-void facebook_getdata_token( FBUserPtr data, FBTokenDef token ) {
-	int offset = 0, maxlen = 1024;
-	char post[1024];
+void facebook_getdata( FBUserPtr fbdata, char *urlstring, int offset ) {
 	CURL *curl;
 	CURLcode res;
 
-		/*
-		offset = 0;
-		offset += snprintf( &post[offset], (maxlen - offset), "%s", "grant_type=fb_exchange_token" );
-		offset += snprintf( &post[offset], (maxlen - offset), "&client_id=%s", fbcfg.app_id );
-		offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
-		offset += snprintf( &post[offset], (maxlen - offset), "&fb_exchange_token=%s", token );
-		offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", do_redi );
-		*/
-
-
-offset = 0;
-offset += snprintf( &post[offset], (maxlen - offset), "%s", "https://graph.facebook.com/me" );
-offset += snprintf( &post[offset], (maxlen - offset), "?access_token=%s", token.val );
-
+offset += snprintf( &urlstring[offset], (MAX_FB_STRING - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,languages" );
 
 curl = curl_easy_init();
 if( curl ) {
 	CurlStringDef curl_str;
 	init_string(&curl_str);
-	curl_easy_setopt(curl, CURLOPT_URL, post );
-	//curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token" );
-	//curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
+	curl_easy_setopt(curl, CURLOPT_URL, urlstring );
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-	//curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
 	res = curl_easy_perform(curl);
@@ -159,26 +143,57 @@ if( curl ) {
 
 	cJSON *root = cJSON_Parse(curl_str.ptr);
 	if( root ) {
-		cJSON *message = cJSON_GetObjectItem(root,"id");
-		if( ( message ) ) {
-			strncpy( data->id, message->valuestring, sizeof( data->id ) );
-		}
-		message = cJSON_GetObjectItem(root,"first_name");
-		if( ( message ) ) {
-			strncpy(data->first_name, message->valuestring, sizeof( data->first_name ) );
-		}
-		message = cJSON_GetObjectItem(root,"last_name");
-		if( ( message ) ) {
-			strncpy(data->last_name, message->valuestring, sizeof( data->last_name ) );
-		}
+		cJSON *message;
+		
+		message = cJSON_GetObjectItem(root,"languages");
+		fbdata->connected = ( message ) ? true : false;
+		
 		message = cJSON_GetObjectItem(root,"timezone");
 		if( ( message ) ) {
-			data->timezone = message->valuedouble;
+			fbdata->timezone = message->valuedouble;
 		}
+		
+		message = cJSON_GetObjectItem(root,"id");
+		if( ( message ) ) {
+			strncpy( fbdata->id, message->valuestring, sizeof( fbdata->id ) );
+		}
+		
+		message = cJSON_GetObjectItem(root,"gender");
+		if( ( message ) ) {
+			strncpy( fbdata->gender, message->valuestring, sizeof( fbdata->gender ) );
+		}
+		
 		message = cJSON_GetObjectItem(root,"name");
 		if( ( message ) ) {
-			strncpy(data->full_name, message->valuestring, sizeof( data->full_name ) );
+			strncpy(fbdata->full_name, message->valuestring, sizeof( fbdata->full_name ) );
 		}
+		
+		message = cJSON_GetObjectItem(root,"first_name");
+		if( ( message ) ) {
+			strncpy(fbdata->first_name, message->valuestring, sizeof( fbdata->first_name ) );
+		}
+		
+		message = cJSON_GetObjectItem(root,"last_name");
+		if( ( message ) ) {
+			strncpy(fbdata->last_name, message->valuestring, sizeof( fbdata->last_name ) );
+		}
+		
+		message = cJSON_GetObjectItem(root,"bio");
+		if( ( message ) ) {
+			strncpy(fbdata->bio, message->valuestring, sizeof( fbdata->last_name ) );
+		}
+		
+		message = cJSON_GetObjectItem(root,"picture");
+		if( ( message ) ) {
+			message = cJSON_GetObjectItem(message,"data");
+			if( ( message ) ) {
+				message = cJSON_GetObjectItem(message,"url");
+				if( ( message ) ) {
+					strncpy(fbdata->pic, message->valuestring, sizeof( fbdata->pic ) );
+				}
+			}
+		}
+		
 	} else {
 		error( "Bad Responce" );
 	}
@@ -186,92 +201,63 @@ if( curl ) {
 	//printf( curl_str.ptr );
 	free(curl_str.ptr);
 }
+
+
+
+return;
+}
+
+
+void facebook_getdata_token( FBUserPtr fbdata, FBTokenDef token ) {
+	int offset;
+	char post[MAX_FB_STRING];
+
+/*
+offset = 0;
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", "grant_type=fb_exchange_token" );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_id=%s", fbcfg.app_id );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&fb_exchange_token=%s", token );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&redirect_uri=%s", do_redi );
+*/
+
+
+offset = 0;
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", "https://graph.facebook.com/me" );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "?access_token=%s", token.val );
+
+facebook_getdata( fbdata, post, offset );
 
 	
 return;
 }	
 
 
-void facebook_getdata_id( FBUserPtr data, char *userid ) {
-	int offset = 0, maxlen = 1024;
-	char post[1024];
-	CURL *curl;
-	CURLcode res;
-
-		/*
-		offset = 0;
-		offset += snprintf( &post[offset], (maxlen - offset), "%s", "grant_type=fb_exchange_token" );
-		offset += snprintf( &post[offset], (maxlen - offset), "&client_id=%s", fbcfg.app_id );
-		offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
-		offset += snprintf( &post[offset], (maxlen - offset), "&fb_exchange_token=%s", token );
-		offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", do_redi );
-		*/
-
+void facebook_getdata_id( FBUserPtr fbdata, char *userid ) {
+	int offset;
+	char post[MAX_FB_STRING];
 
 offset = 0;
-offset += snprintf( &post[offset], (maxlen - offset), "https://graph.facebook.com/%s", userid  );
-offset += snprintf( &post[offset], (maxlen - offset), "?%s", fbcfg.app_token );
-//offset += snprintf( &post[offset], (maxlen - offset), "&fields=%s", "name,id" );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "https://graph.facebook.com/%s", userid  );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "?%s", fbcfg.app_token );
 
-
-curl = curl_easy_init();
-if( curl ) {
-	CurlStringDef curl_str;
-	init_string(&curl_str);
-	curl_easy_setopt(curl, CURLOPT_URL, post );
-	//curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token" );
-	//curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-	//curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
-	res = curl_easy_perform(curl);
-	/* Check for errors */
-	if(res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
-
-	/* always cleanup */
-	curl_easy_cleanup(curl);
-
-	cJSON *root = cJSON_Parse(curl_str.ptr);
-	if( root ) {
-		cJSON *message = cJSON_GetObjectItem(root,"id");
-		if( ( message ) ) {
-			strncpy( data->id, message->valuestring, sizeof( data->id ) );
-		}
-		message = cJSON_GetObjectItem(root,"first_name");
-		if( ( message ) ) {
-			strncpy( data->first_name, message->valuestring, sizeof( data->first_name ) );
-		}
-		message = cJSON_GetObjectItem(root,"last_name");
-		if( ( message ) ) {
-			strncpy( data->last_name, message->valuestring, sizeof( data->last_name ) );
-		}
-		message = cJSON_GetObjectItem(root,"languages");
-		data->connected = ( message ) ? true : false;
-	} else {
-		error( "Bad Responce" );
-	}
-	cJSON_Delete(root);
-	//printf( curl_str.ptr );
-	free(curl_str.ptr);
-}
+facebook_getdata( fbdata, post, offset );
 
 	
 return;
 }
 
 
-int facebook_unlink_id( char *userid ) {
+int facebook_unlink_app( char *userid ) {
 	bool result = false;
-	int offset = 0, maxlen = 1024;
-	char post[1024];
+	int offset;
+	char post[MAX_FB_STRING];
 	CURL *curl;
 	CURLcode res;
 
 offset = 0;
-offset += snprintf( &post[offset], (maxlen - offset), "https://graph.facebook.com/%s/permissions", userid  );
-offset += snprintf( &post[offset], (maxlen - offset), "?%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "https://graph.facebook.com/%s/permissions", userid  );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "?%s", fbcfg.app_token );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -303,7 +289,7 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	char buffer[1024];
 	dbUserPtr user;
 	dbUserInfoDef infod;
-	FBUserDef data;
+	FBUserDef fbdata;
 	FBTokenDef token;
 
 if( !(strlen(fbcfg.app_id)) || !(strlen(fbcfg.app_secret)) )
@@ -317,7 +303,7 @@ is_http = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host
 
 snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_http ? "https" : "http"), host  );
 
-memset( &data, 0, sizeof(FBUserDef) );
+memset( &fbdata, 0, sizeof(FBUserDef) );
 memset( &token, 0, sizeof(FBTokenDef) );
 memset( &buffer, 0, sizeof(buffer) );
 
@@ -332,10 +318,10 @@ if( ( code ) || ( fbtoke ) ){
 	if( code )
 		facebook_usertoken( &token, code );
 	else
-		token.val = strdup( fbtoke );
+		strncpy( token.val, fbtoke, sizeof( token.val ) );
 	if( token.val ) {
-		facebook_getdata_token( &data, token );
-		if( !( data.id ) ) {
+		facebook_getdata_token( &fbdata, token );
+		if( !( fbdata.id ) ) {
 			error( "No ID in Responce" );
 			goto BAILOUT;
 		}
@@ -353,7 +339,7 @@ if( ( code ) || ( fbtoke ) ){
 }
 
 
-id = dbUserFBSearch( data.id );
+id = dbUserFBSearch( fbdata.id );
 
 if( buffer[0] )
 	httpString( cnt, buffer );
@@ -375,12 +361,14 @@ if( id >= 0 ) {
 		}
 	}
 	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
+	fbdata.token = token;
+	infod.fbinfo = fbdata;
 	dbUserInfoSet( id, &infod );
 	redirect( cnt, "/" );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
 	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
 	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
-} else if( data.id[0] ) {
+} else if( fbdata.id[0] ) {
 	goto LINKWITHFB;
 } else {
 	httpString( cnt, "Invalid Request" );
@@ -391,29 +379,78 @@ goto BAILOUT;
 LINKWITHFB:
 
 if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
-	bitflag_add( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] );
-	strcpy( user->fbid, data.id );
+	bitflag_add( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] );
+	strcpy( user->fbid, fbdata.id );
 	dbUserSave( user->id, user );
-	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br>", user->fbid, user->name );
-	
+	dbUserInfoRetrieve( user->id, &infod );
+	fbdata.token = token;
+	infod.fbinfo = fbdata;
+	dbUserInfoSet( user->id, &infod );
+	redirect( cnt, "/main?page=account" );
+	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
+	httpString( cnt, "You should be redirected back to your account screen shortly<br>" );
+	httpString( cnt, "<a href=\"/main?page=account\">Click here if it takes too long</a><br>" );
 } else {
 
+	facebook_unlink_app( fbdata.id );
 
-
-
-	httpPrintf( cnt, "<br>Valid, but no linked account: %s", data.id );
+	httpPrintf( cnt, "<br>Valid, but no linked account: %s", fbdata.id );
 }
 
 BAILOUT:
 
 iohtmlFunc_endhtml( cnt );
 
-if( token.val )
-	free( token.val );
+return;
+}
+
+void iohtmlFBConnect( ReplyDataPtr cnt ) {
+	bool access; 
+	char *host;
+
+if( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
+
+	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
+
+	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+
+	#if HTTPS_SUPPORT
+	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
+	#endif
+
+	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
+
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
+	httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
+	httpString( cnt, "</form>" );
+} else if ( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
+	httpString( cnt, "<b>This Account is linked with Facebook.</b><br>" );
+}
+
 
 return;
 }
 
+void facebook_update_user( dbUserPtr user ) {
+	dbUserInfoDef infod;
+	FBUserDef fbdata;
+
+if( ( user ) && bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
+	facebook_getdata_id( &fbdata, user->fbid );
+	if( !( fbdata.connected ) ) {
+		memset( &user->fbid, 0, sizeof(user->fbid) );
+		bitflag_remove( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] );
+		dbUserSave( user->id, user );
+	} else {
+		dbUserInfoRetrieve( user->id, &infod );
+		infod.fbinfo = fbdata;
+		dbUserInfoSet( user->id, &infod );	
+	}
+}
+
+return;
+}
 
 void iohtmlFBSDK( ReplyDataPtr cnt ) {
 

@@ -7,19 +7,18 @@ typedef struct {
 	char *ptr;
 } CurlStringDef, *CurlStringPtr;
 
-typedef struct {
-	int expire;
-	char *val;
-} FBTokenDef, *FBTokenPtr;
-
 void facebook_apptoken( char **token );
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt );
 
 void iohtmlFBSDK( ReplyDataPtr cnt );
 
-void facebook_getdata_id( FBUserPtr data, char *userid );
+void iohtmlFBConnect( ReplyDataPtr cnt );
 
-int facebook_unlink_id( char *userid );
+void facebook_getdata_id( FBUserPtr fbdata, char *userid );
+
+int facebook_unlink_app( char *userid );
+
+void facebook_update_user( dbUserPtr user );
 
 #endif

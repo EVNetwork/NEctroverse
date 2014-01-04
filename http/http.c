@@ -800,8 +800,9 @@ static int create_response (void *cls, struct MHD_Connection *connection, const 
   struct MHD_Response *response;
   RequestPtr request;
   SessionPtr session;
-  int ret, fd;
+  int ret, fd, roof;
   unsigned int i;
+  char *find;
   bool local;
   struct stat buf;
   ReplyDataDef rd;
@@ -915,8 +916,15 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL != request->response) {
 		return MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, request->response);
 	} else {
-	if( strcmp( url, (request->session)->redirect) == 0 )
-		memset( &(request->session)->redirect, 0, MAXREDIRECT );
+	if( strlen( (request->session)->redirect ) ) {
+		find = strchr( (request->session)->redirect, '?' );
+		if( find ) {
+			roof = strlen( find );
+			if( ( strncmp( url, (request->session)->redirect, strlen( (request->session)->redirect ) - roof ) == 0 ) )
+				memset( &(request->session)->redirect, 0, MAXREDIRECT );
+		} else if( strcmp( url, (request->session)->redirect ) == 0 )
+			memset( &(request->session)->redirect, 0, MAXREDIRECT );
+	}
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
@@ -935,9 +943,15 @@ if( ( request ) && ( request->session ) ) {
 	session = get_session( SESSION_HTTP, connection );
 	session->upload = UPLOAD_STATE_NULL;
 }
-if( strcmp( url, session->redirect ) == 0 )
-	memset( &session->redirect, 0, MAXREDIRECT );
-	
+if( strlen( session->redirect ) ) {
+	find = strchr( session->redirect, '?' );
+	if( find ) {
+		roof = strlen( find );
+		if( ( strncmp( url, session->redirect, strlen( session->redirect ) - roof ) == 0 ) )
+			memset( &session->redirect, 0, MAXREDIRECT );
+	} else if( strcmp( url, session->redirect ) == 0 )
+		memset( &session->redirect, 0, MAXREDIRECT );
+}
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )

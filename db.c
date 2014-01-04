@@ -403,6 +403,7 @@ users
 
 
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -566,7 +567,7 @@ for( a = 0 ; a < b ; a++ ) {
 	user->flags = infod.flags;
 	user->lasttime = infod.lasttime;
 	#if FACEBOOK_SUPPORT
-	if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) )
+	if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )
 		strncpy( user->fbid, infod.fbinfo.id, sizeof(user->fbid) );
 	#endif
 	strncpy( user->name, infod.name, sizeof(user->name) );
@@ -655,7 +656,7 @@ if( !(FBid) )
 
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK]) ) || !( ioCompareExact( FBid, user->fbid ) ) )
+	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK]) ) || !( ioCompareExact( FBid, user->fbid ) ) )
 		continue;
 
 	return user->id;
@@ -869,7 +870,7 @@ uinfo.flags = user->flags;
 strcpy(uinfo.http_session,user->http_session);
 uinfo.lasttime = user->lasttime;
 #if FACEBOOK_SUPPORT
-if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) ) {
+if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
 	strcpy( uinfo.fbinfo.id, user->fbid );
 } else {
 	memset( &user->fbid, 0, sizeof(user->fbid) );
@@ -3843,7 +3844,7 @@ if( !( user = dbUserLinkID( id ) ) )
 strncpy( user->faction, infod->faction, sizeof(user->faction) );
 strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
 #if FACEBOOK_SUPPORT
-if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) )
+if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )
 	strncpy( user->fbid, infod->fbinfo.id, sizeof(user->fbid) );
 #endif
 

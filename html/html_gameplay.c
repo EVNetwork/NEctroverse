@@ -1,14 +1,17 @@
 
 void iohtmlFunc_main( ReplyDataPtr cnt ) {
 	int id;
+	char *page;
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 	return;
 
+page = iohtmlVarsFind( cnt, "page" );
+
 httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"images/favicon.ico\"></head>", sysconfig.servername );
 httpString( cnt, "<frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
 httpString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
-httpString( cnt, "<frame src=\"hq\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
+httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>", ( page ? page : "hq" ) );
 httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
 httpString( cnt, "</frameset></html>" );
 
@@ -2687,7 +2690,7 @@ void iohtmlFunc_famleader( ReplyDataPtr cnt )
  char fname[256];
  dbUserPtr user;
  int *rel;
- char message[4096], message2[4096];
+ char message[DESCRIPTION_SIZE], message2[DESCRIPTION_SIZE];
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2817,8 +2820,8 @@ httpPrintf( cnt, "<i>Upload %s</i><br><br>", cmdUploadState[(cnt->session)->uplo
  }
 
 if( hqmesstring ) {
-	iohttpForumFilter( message, hqmesstring, 4096, 0 );
-	iohttpForumFilter2( message2, message, 4096 );
+	iohttpForumFilter( message, hqmesstring, DESCRIPTION_SIZE, 0 );
+	iohttpForumFilter2( message2, message, DESCRIPTION_SIZE );
 	strcpy(empired.message[0],message2);
 	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
@@ -2828,8 +2831,8 @@ if( hqmesstring ) {
 }
 
 if( relsmesstring ) {
-	iohttpForumFilter( message, relsmesstring, 4096, 0 );
-	iohttpForumFilter2( message2, message, 4096 );
+	iohttpForumFilter( message, relsmesstring, DESCRIPTION_SIZE, 0 );
+	iohttpForumFilter2( message2, message, DESCRIPTION_SIZE );
 	strcpy(empired.message[1],message2);
 	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
@@ -2933,12 +2936,12 @@ httpString( cnt, "</div>" );
  httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
  httpString( cnt, "</table></td></tr>" );
 
- iohttpForumFilter3( message2, empired.message[0], 4096 );
+ iohttpForumFilter3( message2, empired.message[0], DESCRIPTION_SIZE );
  httpString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Leader message</td></tr>" );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- iohttpForumFilter3( message2, empired.message[1], 4096 );
+ iohttpForumFilter3( message2, empired.message[1], DESCRIPTION_SIZE );
  httpString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Relations message</td></tr>" );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
