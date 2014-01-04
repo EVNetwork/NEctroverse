@@ -1,8 +1,6 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#define SERVERALLOCATION (256 * 1024)
-
 /**
  * Context keeping the data for the response we're building.
  */
@@ -113,7 +111,7 @@ typedef struct Session
   
 } SessionDef, *SessionPtr;
 
-extern struct Session *sessions;
+
 extern SessionPtr get_session( int type, void *cls );
 
 /**
@@ -233,10 +231,6 @@ typedef struct Page
   const void *handler_cls;
 } PageDef, *PagePtr;
 
-extern PageDef pages[];
-
-extern struct MHD_Daemon *server_http;
-extern struct MHD_Daemon *server_https;
 
 int http_prep();
 int http_start();
@@ -246,40 +240,17 @@ int https_start();
 
 void server_shutdown();
 
-extern void mark_as( struct MHD_Response *response, const char *type );
+int postdata_wipe( SessionPtr session );
 
-extern size_t initial_allocation;
-
-extern int postdata_wipe( SessionPtr session );
-
-extern void expire_sessions ();
-extern int remove_session( const char *sid );
+void expire_sessions ();
+int remove_session( const char *sid );
 
 
-extern int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);
+int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+int key_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+int file_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 
-extern void completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe);
 
-extern int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-extern int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-extern int key_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-extern int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-extern int file_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-
-#define INTERNAL_ERROR_PAGE "<html><head><title>Server Error</title></head><body>An internal error has occured....</body></html>"
-
-/**
- * Invalid method page.
- */
-#define METHOD_ERROR "<html><head><title>Illegal request</title></head><body>Bad request.</body></html>"
-
-/**
- * Invalid URL page.
- */
-#define NOT_FOUND_ERROR "<html><head><title>Not found</title></head><body>The item you are looking for was not found...</body></html>"
-
-/**
- * Name of our cookie.
- */
-#define COOKIE_NAME "evsid"
 #endif

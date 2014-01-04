@@ -16,6 +16,11 @@ typedef struct
   char irc_session[129];
   int lasttime;
 
+  //Facebook Linkage
+  #if FACEBOOK_SUPPORT
+  char fbid[128];
+  #endif
+
   //Pointers for next/last user in list.
   void *next;
   void **prev;
@@ -25,7 +30,7 @@ typedef struct
 
 typedef struct {
 	//Facebook UserData
-	long long id;
+	char id[128];
 	char full_name[1024+32];
 	char first_name[512];
 	char last_name[512];
@@ -53,7 +58,6 @@ typedef struct
   char email[128];
   char password[128];
   char http_session[129];
-  char irc_session[129];
   char forumtag[256];
   char desc[4096];
   struct in_addr sin_addr[MAXIPRECORD];

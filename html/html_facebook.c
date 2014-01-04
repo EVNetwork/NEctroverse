@@ -117,7 +117,7 @@ if( curl ) {
 return;
 }
 
-void facebook_getdata( FBUserPtr data, FBTokenDef token ) {
+void facebook_getdata_token( FBUserPtr data, FBTokenDef token ) {
 	int offset = 0, maxlen = 1024;
 	char post[1024];
 	CURL *curl;
@@ -161,7 +161,7 @@ if( curl ) {
 	if( root ) {
 		cJSON *message = cJSON_GetObjectItem(root,"id");
 		if( ( message ) ) {
-			sscanf( message->valuestring, "%lld", &data->id );
+			strncpy( data->id, message->valuestring, sizeof( data->id ) );
 		}
 		message = cJSON_GetObjectItem(root,"first_name");
 		if( ( message ) ) {
@@ -192,9 +192,84 @@ return;
 }	
 
 
+void facebook_getdata_id( FBUserPtr data, char *userid ) {
+	int offset = 0, maxlen = 1024;
+	char post[1024];
+	CURL *curl;
+	CURLcode res;
+
+		/*
+		offset = 0;
+		offset += snprintf( &post[offset], (maxlen - offset), "%s", "grant_type=fb_exchange_token" );
+		offset += snprintf( &post[offset], (maxlen - offset), "&client_id=%s", fbcfg.app_id );
+		offset += snprintf( &post[offset], (maxlen - offset), "&client_secret=%s", fbcfg.app_secret );
+		offset += snprintf( &post[offset], (maxlen - offset), "&fb_exchange_token=%s", token );
+		offset += snprintf( &post[offset], (maxlen - offset), "&redirect_uri=%s", do_redi );
+		*/
+
+
+offset = 0;
+offset += snprintf( &post[offset], (maxlen - offset), "https://graph.facebook.com/%s", userid  );
+offset += snprintf( &post[offset], (maxlen - offset), "?%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (maxlen - offset), "&fields=%s", "name,id" );
+
+
+curl = curl_easy_init();
+if( curl ) {
+	CurlStringDef curl_str;
+	init_string(&curl_str);
+	curl_easy_setopt(curl, CURLOPT_URL, post );
+	//curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token" );
+	//curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	//curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	res = curl_easy_perform(curl);
+	/* Check for errors */
+	if(res != CURLE_OK)
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+
+	/* always cleanup */
+	curl_easy_cleanup(curl);
+
+	cJSON *root = cJSON_Parse(curl_str.ptr);
+	if( root ) {
+		cJSON *message = cJSON_GetObjectItem(root,"id");
+		if( ( message ) ) {
+			strncpy( data->id, message->valuestring, sizeof( data->id ) );
+		}
+		message = cJSON_GetObjectItem(root,"first_name");
+		if( ( message ) ) {
+			strncpy( data->first_name, message->valuestring, sizeof( data->first_name ) );
+		}
+		message = cJSON_GetObjectItem(root,"last_name");
+		if( ( message ) ) {
+			strncpy( data->last_name, message->valuestring, sizeof( data->last_name ) );
+		}
+		message = cJSON_GetObjectItem(root,"timezone");
+		if( ( message ) ) {
+			data->timezone = message->valuedouble;
+		}
+		message = cJSON_GetObjectItem(root,"name");
+		if( ( message ) ) {
+			strncpy( data->full_name, message->valuestring, sizeof( data->full_name ) );
+		}
+	} else {
+		error( "Bad Responce" );
+	}
+	cJSON_Delete(root);
+	//printf( curl_str.ptr );
+	free(curl_str.ptr);
+}
+
+	
+return;
+}
+
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
-	char *code, *host;
+	char *error, *code, *host, *fbid;
 	FBUserDef data;
 	FBTokenDef token;
 
@@ -209,14 +284,26 @@ is_http = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host
 
 snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_http ? "https" : "http"), host  );
 
+memset( &data, 0, sizeof(FBUserDef) );
+memset( &token, 0, sizeof(FBTokenDef) );
 
+error = iohtmlVarsFind( cnt, "error" );
 code = iohtmlVarsFind( cnt, "code" );
+fbid = iohtmlVarsFind( cnt, "fb_id" );
 
-if( code ) {
+if( error) {
+	iohtmlBase( cnt, 8 );
+	iohtmlFunc_frontmenu( cnt, FMENU_FACEBOOK );
+	httpString( cnt, "Error Detected<br>" );
+	httpPrintf( cnt, "%s<br>", error );
+	httpPrintf( cnt, "%s<br>", iohtmlVarsFind( cnt, "error_reason" ) );
+	httpPrintf( cnt, "%s<br>", iohtmlVarsFind( cnt, "error_description" ) );
+	iohtmlFunc_endhtml( cnt );
+	goto BAILOUT;
+} else if( code ) {
 	facebook_usertoken( &token, code );
-	memset( &data, 0, sizeof(FBUserDef) );
 	if( token.val ) {
-		facebook_getdata( &data, token );
+		facebook_getdata_token( &data, token );
 		if( !( data.id ) ) {
 			error( "No ID in Responce" );
 			goto BAILOUT;
@@ -225,6 +312,10 @@ if( code ) {
 		httpString( cnt, "Invalid Login, Did you just reload this page?" );
 		goto BAILOUT;
 	}
+} else if( fbid ){
+	facebook_getdata_id( &data, fbid );
+	httpPrintf( cnt, "Valid Login for: %s", data.full_name );
+	goto BAILOUT;
 } else {
 	httpString( cnt, "Invalid" );
 	goto BAILOUT;
@@ -255,30 +346,53 @@ httpString( cnt, "    // init the FB JS SDK\n" );
 httpString( cnt, "    FB.init({\n" );
 httpString( cnt, "      appId      : '110861965600284',                        // App ID from the app dashboard\n" );
 httpString( cnt, "      status     : true,                                 // Check Facebook Login status\n" );
+httpString( cnt, "      cookie     : true, // enable cookies to allow the server to access the session\n" );
 httpString( cnt, "      xfbml      : true                                  // Look for social plugins on the page\n" );
 httpString( cnt, "    });\n" );
 httpString( cnt, "\n" );
-httpString( cnt, "    // Additional initialization code such as adding Event Listeners goes here\n" );
+httpString( cnt, " FB.Event.subscribe('auth.authResponseChange', function(response) {\n" );
+    // Here we specify what we do with the response anytime this event occurs. 
+httpString( cnt, "    if (response.status === 'connected') {\n" );
+      // The response object is returned with a status field that lets the app know the current
+      // login status of the person. In this case, we're handling the situation where they 
+      // have logged in to the app.
+httpString( cnt, "      testAPI();\n" );
+httpString( cnt, "    } else if (response.status === 'not_authorized') {\n" );
+      // In this case, the person is logged into Facebook, but not into the app, so we call
+      // FB.login() to prompt them to do so. 
+      // In real-life usage, you wouldn't want to immediately prompt someone to login 
+      // like this, for two reasons:
+      // (1) JavaScript created popup windows are blocked by most browsers unless they 
+      // result from direct interaction from people using the app (such as a mouse click)
+      // (2) it is a bad experience to be continually prompted to login upon page load.
+httpString( cnt, "      FB.login();\n" );
+httpString( cnt, "    } else {\n" );
+      // In this case, the person is not logged into Facebook, so we call the login() 
+      // function to prompt them to do so. Note that at this stage there is no indication
+      // of whether they are logged into the app. If they aren't then they'll see the Login
+      // dialog right after they log in to Facebook. 
+      // The same caveats as above apply to the FB.login() call here.
+httpString( cnt, "      FB.login();\n" );
+httpString( cnt, "    }\n" );
+httpString( cnt, "  });\n" );
 httpString( cnt, "  };\n" );
 httpString( cnt, "\n" );
-httpString( cnt, "  // Load the SDK asynchronously\n" );
-httpString( cnt, "  (function(){\n" );
-httpString( cnt, "     // If we've already installed the SDK, we're done\n" );
-httpString( cnt, "     if (document.getElementById('facebook-jssdk')) {return;}\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "     // Get the first script element, which we'll use to find the parent node\n" );
-httpString( cnt, "     var firstScriptElement = document.getElementsByTagName('script')[0];\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "     // Create a new script element and set its id\n" );
-httpString( cnt, "     var facebookJS = document.createElement('script');\n" );
-httpString( cnt, "     facebookJS.id = 'facebook-jssdk';\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "     // Set the new script's source to the source of the Facebook JS SDK\n" );
-httpString( cnt, "     facebookJS.src = '//connect.facebook.net/en_US/all.js';\n" );
-httpString( cnt, "\n" );
-httpString( cnt, "     // Insert the Facebook JS SDK into the DOM\n" );
-httpString( cnt, "     firstScriptElement.parentNode.insertBefore(facebookJS, firstScriptElement);\n" );
-httpString( cnt, "   }());\n" );
+// Load the SDK asynchronously
+
+httpString( cnt, "  (function(d){\n" );
+httpString( cnt, "   var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];\n" );
+httpString( cnt, "   if (d.getElementById(id)) {return;}\n" );
+httpString( cnt, "   js = d.createElement('script'); js.id = id; js.async = true;\n" );
+httpString( cnt, "   js.src = \"//connect.facebook.net/en_US/all.js\";\n" );
+httpString( cnt, "   ref.parentNode.insertBefore(js, ref);\n" );
+httpString( cnt, "  }(document));\n" );
+
+httpString( cnt, "function testAPI() {\n" );
+httpString( cnt, "	FB.api('/me', function(response) {\n" );
+httpString( cnt, "      location.href = \"/facebook?fb_id=\"+response.id;\n" );
+httpString( cnt, " 	console.log('Good to see you, ' + response.name + '.');\n" );
+httpString( cnt, "	});\n" );
+httpString( cnt, "}\n" );
 httpString( cnt, "</script>\n" );
 
 return;

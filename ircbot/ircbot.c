@@ -247,7 +247,9 @@ void dcc_file_send_callback (irc_session_t * irc_session, irc_dcc_t id, int stat
 
 
 void event_channel (irc_session_t * irc_session, const char * event, const char * origin, const char ** params, unsigned int count) {
-	char buffer[512], nickbuf[128], md5sum[MD5_HASHSUM_SIZE];
+	char buffer[512];
+	char nickbuf[128];
+	char md5sum[MD5_HASHSUM_SIZE];
 	SessionPtr session;
 
 if ( count != 2 )
@@ -273,19 +275,19 @@ if ( !strcmp (params[1], "help") ) {
 	irc_cmd_notice( irc_session, params[0], buffer );
 }
 
-/*if ( !strcmp (params[1], "ctcp") ) {
+if ( !strcmp (params[1], "ctcp") ) {
 	irc_cmd_ctcp_request (irc_session, nickbuf, "PING 223");
 	irc_cmd_ctcp_request (irc_session, nickbuf, "FINGER");
 	irc_cmd_ctcp_request (irc_session, nickbuf, "VERSION");
 	irc_cmd_ctcp_request (irc_session, nickbuf, "TIME");
-}*/
+}
 
-/*if ( !strcmp (params[1], "dcc chat") ) {
+if ( !strcmp (params[1], "dcc chat") ) {
 		irc_dcc_t dccid;
 	
 	irc_dcc_chat (irc_session, 0, nickbuf, dcc_recv_callback, &dccid);
 	addlog ("DCC chat ID: %d", dccid);
-}*/
+}
 
 if ( !strcmp (params[1], "dcc send") ) {
 		irc_dcc_t dccid;

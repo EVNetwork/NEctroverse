@@ -107,10 +107,6 @@ if( flags & 8 )
 
 httpString( cnt, ">" );
 
-#if FACEBOOK_SUPPORT
-iohtmlFBSDK( cnt );
-#endif
-
 httpString( cnt, "<center>" );
 
 return;
@@ -199,7 +195,9 @@ httpString( cnt, "</tr></table></tr></td>" );
 
 httpString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
 httpString( cnt, "<tr><td background=\"images/ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_13.jpg\" align=\"right\" valign=\"middle\"><b>" );
+httpString( cnt, "<tr><td background=\"images/ectro_13.jpg\" valign=\"middle\"><table style=\"width:100%;border-width:0;\"><tr>" );
+httpPrintf( cnt, "<td align=\"left\">%d of %d players online</td>", ticks.uonline, ticks.uactive );
+httpString( cnt, "<td align=\"right\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
 	httpString( cnt, "<a href=\"/\">Main</a>" );
@@ -230,7 +228,7 @@ if( !( flags == FMENU_SERVER ) ) {
 	httpString( cnt, "<a href=\"status\">Server Status</a>" );
 }
 
-httpString( cnt, "</b></td></tr>" );
+httpString( cnt, "</b></td></tr></table></td></tr>" );
 
 httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
@@ -601,6 +599,11 @@ void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
 	FILE *file;
 
 iohtmlBase( cnt, 8 );
+
+#if FACEBOOK_SUPPORT
+iohtmlFBSDK( cnt );
+#endif
+
 iohtmlFunc_frontmenu( cnt, FMENU_NONE );
 
 
@@ -683,6 +686,10 @@ va_end( ap );
 
 iohtmlBase( cnt, 8 );
 
+#if FACEBOOK_SUPPORT
+iohtmlFBSDK( cnt );
+#endif
+
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
 	return;
@@ -746,7 +753,32 @@ httpString( cnt, "<tr><td>" );
 httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 
 if( (id < 0) ) {
-	httpString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">Name<br><input type=\"text\" name=\"name\" size=\"24\"><br><br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br><br><input type=\"submit\" value=\"Log in\"></form>" );
+	httpString( cnt, "<font size=\"2\"><form action=\"main\" method=\"POST\">" );
+	httpString( cnt, "Name<br><input type=\"text\" name=\"name\" size=\"24\"><br>" );
+	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br>" );
+	httpString( cnt, "<br><input type=\"submit\" value=\"Log in\"></form>" );
+	#if FACEBOOK_SUPPORT
+
+	if( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) {
+		bool access; 
+		char *host;
+
+		httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
+
+		host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+
+		#if HTTPS_SUPPORT
+		access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
+		#endif
+
+		sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
+
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
+		httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
+		httpString( cnt, "</form>" );
+	}
+	#endif
 } else {
 	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", (cnt->session)->dbuser->name );
 	httpString( cnt, "<br>" );
@@ -780,29 +812,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	}
 }
 //end todo list
-#if FACEBOOK_SUPPORT
-httpString( cnt, "<fb:login-button show-faces=\"true\" width=\"200\" max-rows=\"1\"></fb:login-button>" );
-//httpString( cnt, "<div class=\"fb-like\" data-layout=\"button_count\" data-action=\"like\" data-show-faces=\"true\" data-share=\"false\" data-colorscheme=\"dark\"></div>" );
-if( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) {
-	bool access; 
-	char *host;
 
-	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\">" );
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
-
-	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
-
-	#if HTTPS_SUPPORT
-	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
-	#endif
-
-	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
-
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
-	httpString( cnt, "<input type=\"submit\" value=\"FB Log in\">" );
-	httpString( cnt, "</form>" );
-}
-#endif
 
 iohtmlFunc_endhtml( cnt );
 return;

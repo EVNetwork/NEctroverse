@@ -96,6 +96,8 @@ PageDef pages[] =
     { "/adminforum", "text/html",  &page_render, iohtmlFunc_adminforum, NULL },
     { "/moderator", "text/html",  &page_render, iohtmlFunc_moderator, NULL },
     { "/admin", "text/html",  &page_render, iohtmlFunc_oldadmin, NULL },
+    //Extras
+    { "/files", "text/html",  &files_dir_page, NULL, NULL },
     //Not Found.
     { NULL, NULL, &not_found_page, NULL, NULL } /* 404 */
   };

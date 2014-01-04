@@ -22,7 +22,7 @@
 #define PIPEFILE_SUPPORT 0
 
 /* disable ircbot support */
-#define IRCBOT_SUPPORT 1
+#define IRCBOT_SUPPORT 0
 
 /* disable mysql support */
 #define MYSQL_SUPPORT 0

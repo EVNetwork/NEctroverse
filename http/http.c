@@ -45,8 +45,10 @@
 
 #include "pagelist.c"
 
-struct MHD_Daemon *server_http;
-struct MHD_Daemon *server_https;
+static struct MHD_Daemon *server_http;
+#if HTTPS_SUPPORT
+static struct MHD_Daemon *server_https;
+#endif
 
 char *cmdUploadState[4] = {
 "No Upload",
@@ -55,11 +57,13 @@ char *cmdUploadState[4] = {
 "Failed"
 };
 
-#define SESSION_TIME ( 15 * 60 )
+//15min
+#define SESSION_TIME ( 15 * minute )
 
-size_t initial_allocation = 256 * 1024;
+//256k
+#define SERVERALLOCATION (256 * 1024)
 
-static size_t dir_buf_allocation = 256 * 1024;
+static size_t dir_buf_allocation = 32 * 1024;
 
 
 /**
@@ -90,7 +94,7 @@ static struct MHD_Response *request_refused_response;
 static magic_t magic;
 #endif
 
-void mark_as( struct MHD_Response *response, const char *type ) {
+static void mark_as( struct MHD_Response *response, const char *type ) {
 
 (void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, type);
 
@@ -111,14 +115,27 @@ return;
 
 #define FILE_EXISTS_ERROR "File already exists"
 
+#define INTERNAL_ERROR_PAGE "<html><head><title>Server Error</title></head><body>An internal error has occured....</body></html>"
 
+/**
+ * Invalid method page.
+ */
+#define METHOD_ERROR "<html><head><title>Illegal request</title></head><body>Bad request.</body></html>"
 
+/**
+ * Invalid URL page.
+ */
+#define NOT_FOUND_ERROR "<html><head><title>Not found</title></head><body>The item you are looking for was not found...</body></html>"
+
+/**
+ * Name of our cookie.
+ */
 
 /**
  * Linked list of all active sessions.  Yes, O(n) but a
  * hash table would be overkill for a simple example...
  */
-struct Session *sessions;
+static struct Session *sessions;
 
 
 
@@ -129,12 +146,15 @@ struct Session *sessions;
 SessionPtr get_session( int type, void *cls ) {
 	SessionPtr ret;
 	int id, now;
-	char buffer[129];
+	char buffer[256];
+	char md5sum[MD5_HASHSUM_SIZE];
 	const char *cookie;
 
 if( type == SESSION_HTTP ) {
 	struct MHD_Connection *connection = cls;
-	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, COOKIE_NAME);
+	snprintf( buffer, sizeof(buffer), "%d;%s", sysconfig.ticktime, sysconfig.servername );
+	md5_string( buffer, md5sum );
+	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, md5sum );
 } else if( type == SESSION_IRC ) {
 	cookie = cls;
 }
@@ -208,17 +228,29 @@ return ret;
  * @param response response to modify
  */
 static void add_session_cookie( SessionPtr session, struct MHD_Response *response ) {
-	char cstr[256];
+	time_t time_r;
+	int offset = 0;
+	char md5sum[MD5_HASHSUM_SIZE];
+	char buffer[256];
+
+snprintf( buffer, sizeof(buffer), "%d;%s", sysconfig.ticktime, sysconfig.servername );
+md5_string( buffer, md5sum );
+
+offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s; Path=/;", md5sum, session->sid );
 
 if( strlen(sysconfig.cookdomain) )
-	snprintf( cstr, sizeof (cstr), "%s=%s; Path=/; Domain=.%s; max-age=%d", COOKIE_NAME, session->sid, sysconfig.cookdomain, SESSION_TIME );
-else
-	snprintf( cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid );
+	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", sysconfig.cookdomain );
 
-if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, cstr)) {
+time_r = ( time(0) + SESSION_TIME );
+
+offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s;", SESSION_TIME, trimwhitespace(asctime( gmtime( &time_r ) )) );
+
+if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, buffer)) {
 	error( "Failed to set session cookie header!" );
 }
 
+
+return;
 }
 
 static ssize_t file_read( void *cls, uint64_t pos, char *buf, size_t max ){
@@ -243,7 +275,7 @@ fclose (file);
  *
  * @param response new directory response
  */
-void update_cached_response(struct MHD_Response *response) {
+static void update_cached_response(struct MHD_Response *response) {
 
 (void) pthread_mutex_lock (&mutex);
 
@@ -388,7 +420,7 @@ if (file == NULL) {
 	update_directory( connection );
 	ret = return_directory_response( connection );
 } else {
-	response = MHD_create_response_from_callback( buf.st_size, 32 * 1024, &file_read, file, &file_free_callback );
+	response = MHD_create_response_from_callback( buf.st_size, ( SERVERALLOCATION / 8 ), &file_read, file, &file_free_callback );
 	if (response == NULL) {
 		fclose (file);
 		return MHD_NO;
@@ -414,7 +446,7 @@ rd.session = session;
 rd.connection = connection;
 rd.cookies.num = 0;
   /* unsupported HTTP method */
-rd.response.buf_len = initial_allocation;
+rd.response.buf_len = SERVERALLOCATION;
 if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
 	return -1;
 }
@@ -456,7 +488,7 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 rd.session = session;
 rd.connection = connection;
 rd.cookies.num = 0;
-rd.response.buf_len = initial_allocation;
+rd.response.buf_len = SERVERALLOCATION;
 if( NULL == ( rd.response.buf = malloc( rd.response.buf_len ) ) ) {
 	return -1;
 }
@@ -533,6 +565,7 @@ return ret;
  * @param size number of bytes in 'data'
  * @return MHD_NO on allocation failure, MHD_YES on success
  */
+ /*
 int do_append (char **ret, const char *data, size_t size) {
 	char *buf;
 	size_t old_len;
@@ -554,8 +587,9 @@ buf[old_len + size] = '\0';
 
 return MHD_YES;
 }
+*/
 
-int postdata_set( SessionPtr session, const char *key, const char *value ) {
+static int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
 	PostDataPtr data;
 
@@ -588,7 +622,7 @@ session->postdata = data;
 return MHD_YES;
 }
 
-int postdata_remove( SessionPtr session, const char *key ) {
+static int postdata_remove( SessionPtr session, const char *key ) {
 	bool donenothing = true;
 	PostDataPtr pos;
 	PostDataPtr prev;
@@ -761,7 +795,7 @@ return MHD_YES;
  *         error while handling the request
  */
 
-int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
+static int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
 {
   struct MHD_Response *response;
   RequestPtr request;
@@ -855,7 +889,7 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		request->post_url = url;
 		request->fd = -1;
 		request->connection = connection;
-		request->pp = MHD_create_post_processor (connection, 64 * 1024 /* buffer size */, &process_upload_data, request);
+		request->pp = MHD_create_post_processor (connection, ( SERVERALLOCATION / 4 ), &process_upload_data, request);
 		if (NULL == request->pp) {
 			/* out of memory, close connection */
 			free (request);
@@ -881,9 +915,6 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL != request->response) {
 		return MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, request->response);
 	} else {
-		if ( ( strncmp(request->post_url,"/files",6) == false ) ) {
-			return files_dir_page( false, cls, "text/html", request->session, request->connection);
-		}
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
 		i++;
@@ -901,11 +932,6 @@ if( ( request ) && ( request->session ) ) {
 } else {
 	session = get_session( SESSION_HTTP, connection );
 	session->upload = UPLOAD_STATE_NULL;
-}
-
-
-if ( ( strncmp(url,"/files",6) == false ) ) {
-	return files_dir_page( false, cls, "text/html", session, connection);
 }
 
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
@@ -937,7 +963,7 @@ return ret;
  *            not an upload
  * @param toe reason for request termination
  */
-void completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
+static void completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
 	RequestPtr request = *con_cls;
 
 if (NULL == request)
@@ -1013,6 +1039,7 @@ while( NULL != pos ) {
 				dbUserSave( id, user );
 			}
 		}
+		postdata_wipe( pos );
 		free( pos );
 	} else {
 	        prev = pos;
@@ -1050,6 +1077,7 @@ while( NULL != pos ) {
 				dbUserSave( id, user );
 			}
 		}
+		postdata_wipe( pos );
 		donenothing = false;
 		free( pos );
 	} else {

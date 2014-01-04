@@ -402,6 +402,7 @@ users
 
 
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -563,11 +564,15 @@ for( a = 0 ; a < b ; a++ ) {
 	}
 	user->level = infod.level;
 	user->flags = infod.flags;
-	strncpy(user->name, infod.name, sizeof(user->name) );
+	user->lasttime = infod.lasttime;
+	#if FACEBOOK_SUPPORT
+	if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) )
+		strncpy( user->fbid, infod.fbinfo.id, sizeof(user->fbid) );
+	#endif
+	strncpy( user->name, infod.name, sizeof(user->name) );
 	strncpy( user->faction, infod.faction, sizeof(user->faction) );
 	strncpy( user->forumtag, infod.forumtag, sizeof(user->forumtag) );
 	strncpy( user->http_session, infod.http_session, sizeof(user->http_session) );
-	user->lasttime = infod.lasttime;
 	fclose( file );
 }
 
@@ -642,6 +647,20 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 return -1;
 }
+
+int dbUserFBSearch( char *FBid ) {
+	dbUserPtr user;
+
+for( user = dbUserList ; user ; user = user->next ) {
+	if( !( ioCompareExact( FBid, user->name ) ) )
+		continue;
+
+	return user->id;
+}
+
+return -1;
+}
+
 
 // Users functions
 int dbUserSessionSearch( char *session ) {
@@ -3812,9 +3831,11 @@ if( !( user = dbUserLinkID( id ) ) )
 	return -3;
 
 strncpy( user->faction, infod->faction, sizeof(user->faction) );
-
 strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
-
+#if FACEBOOK_SUPPORT
+if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FACEBOOK] ) )
+	strncpy( user->fbid, infod->fbinfo.id, sizeof(user->fbid) );
+#endif
 
 return 1;
 }
