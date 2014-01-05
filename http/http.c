@@ -57,9 +57,6 @@ char *cmdUploadState[4] = {
 "Failed"
 };
 
-//15min
-#define SESSION_TIME ( 15 * minute )
-
 //256k
 #define SERVERALLOCATION (256 * 1024)
 

@@ -404,6 +404,7 @@ users
 
 
 
+
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -1839,7 +1840,6 @@ file_r( &num, 1, sizeof(int64_t), file );
 file_r( &lused, 1, sizeof(int64_t), file );
 file_r( &lfree, 1, sizeof(int64_t), file );
 file_r( &cflags, 1, sizeof(int64_t), file );
-
 cflags |= flags;
 file_s( file, 24 );
 file_w( &cflags, 1, sizeof(int64_t), file );

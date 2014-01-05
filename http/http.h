@@ -1,7 +1,9 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#define MAXREDIRECT 128
+#define MAXREDIRECT 1024
+
+#define SESSION_TIME ( 15 * minute )
 
 /**
  * Context keeping the data for the response we're building.

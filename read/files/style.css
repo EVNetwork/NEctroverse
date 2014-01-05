@@ -142,4 +142,6 @@ body,td{
   font-size : 11px;
 }
 
-
+.hidebox {
+  display: none;
+}

@@ -87,7 +87,9 @@ httpString( cnt, description );
 httpString( cnt, "</textarea><br>" );
 httpString( cnt, "<input type=\"submit\" value=\"Change\"></form><br>" );
 #if FACEBOOK_SUPPORT
-facebook_update_user( (cnt->session)->dbuser );
+if( -timediff( infod.fbinfo.updated ) >= day ) {
+	facebook_update_user( (cnt->session)->dbuser );
+}
 iohtmlFBConnect( cnt );
 if( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
 httpString( cnt, "<table><tr><td>" );

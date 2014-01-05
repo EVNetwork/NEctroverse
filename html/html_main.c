@@ -65,7 +65,7 @@ iohtmlIdentifyL0:
 
 if( action & 1 ) {
 
-	iohtmlFunc_login( cnt, 1, "If you were playing just a few seconds ago, the server program was probably updated and restarted." );
+	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, the server program was probably updated and restarted." );
 
 }
 
@@ -74,25 +74,26 @@ return -1;
 }
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
+
 httpString( cnt, "<!DOCTYPE xhtml>");
-httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en-gb\" xml:lang=\"en-gb\"><head>");
+httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en\" xml:lang=\"en\"><head>");
 httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
-httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en-gb\">" );
+httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
 httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
 httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
 httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+httpString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
+httpString( cnt, "<script type=\"text/javascript\" src=\"jquery.js\"></script>" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
+
 if( flags & 16 )
 	httpString( cnt, "<script type=\"text/javascript\" src=\"status.js\"></script>" );
-httpString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
-
-
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
 if( flags & 1 ) {
-httpString( cnt, "<style type=\"text/css\">" );
+	httpString( cnt, "<style type=\"text/css\">" );
 	httpString( cnt, "body{background-image:url(images/mbg.gif);" );
 	if( !( flags & 2 ) )
 		httpString( cnt, "background-attachment:fixed;" );
@@ -608,15 +609,20 @@ void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
 	dbUserInfoDef infod;
 	struct stat stdata;
 	char *data, *name, *pass;
+	char *token = NULL;
 	char DIRCHECKER[PATH_MAX];
 	FILE *file = NULL;
 
 name = iohtmlVarsFind( cnt, "name" );
 pass = iohtmlVarsFind( cnt, "pass" );
 
+#if FACEBOOK_SUPPORT
+token = iohtmlVarsFind( cnt, "fblogin_token" );
+#endif
+
 iohtmlBase( cnt, 8 );
 #if FACEBOOK_SUPPORT
-if( !(name) && !(pass) )
+if( ( !(name) && !(pass) ) && !(token) )
 iohtmlFBSDK( cnt );
 #endif
 iohtmlFunc_frontmenu( cnt, FMENU_NONE );
@@ -630,7 +636,7 @@ if( ( name ) && ( pass ) ) {
 	sprintf( DIRCHECKER, "%s/logs/login.log", sysconfig.directory );
 	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
 		a = time( 0 );
-		fprintf( file, "Time: %s;\n", asctime( gettime( time(0),true ) ) );
+		fprintf( file, "Time: %s", asctime( gettime( time(0),true ) ) );
 		fprintf( file, "Name: %s;\n", name );
 		if( (cnt->connection)->addr->sa_family == AF_INET )
 			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
@@ -755,14 +761,24 @@ if( text ) {
 	httpString( cnt, "<br><h3>Login</h3><br>" );
 }
 
-httpString( cnt, "<form action=\"/login\" method=\"POST\">Name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
+httpPrintf( cnt, "<form action=\"/login%s%s\" method=\"POST\">", ( token ? "?fblogin_token=" : "" ), ( token ? token : "" ) );
+
+httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
+httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
 
 
 goto LOGIN_END;
 
 LOGIN_SUCESS:
-
+#if FACEBOOK_SUPPORT
+if( token ) {
+	sprintf( DIRCHECKER, "/facebook?fblogin_token=%s", token );
+	redirect( cnt, DIRCHECKER );
+} else
+#endif
 redirect( cnt, "/main" );
+
 
 httpString( cnt, "<b>Login sucess, you should be redirected into game shortly...</b><br>" );
 httpString( cnt, "<br>" );
@@ -803,6 +819,9 @@ return;
 
 void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	dbUserMainDef maind;
+	#if FACEBOOK_SUPPORT
+	dbUserInfoDef infod;
+	#endif
 	struct stat stdata;
 	bool boxopen = false;
 	char *data;
@@ -905,7 +924,12 @@ if( (id < 0) ) {
 
 #if FACEBOOK_SUPPORT
 httpString( cnt, "</td><td>&nbsp;</td><td valign=\"bottom\">" );
-facebook_update_user( (cnt->session)->dbuser );
+if( ((cnt->session)->dbuser) ) {
+	dbUserInfoRetrieve( ((cnt->session)->dbuser)->id, &infod );
+	if( -timediff( infod.fbinfo.updated ) >= day ) {
+		facebook_update_user( (cnt->session)->dbuser );
+	}
+}
 iohtmlFBConnect( cnt );
 if( (id >= 0) ) {
 	httpString( cnt, "<br>" );

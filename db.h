@@ -37,16 +37,22 @@ typedef struct {
 
 typedef struct {
 	bool connected;
+	//Facebook Notifications
+	bool notice_mail;
+	bool notice_build;
+	bool notice_fleet;
+	bool notice_trade;
 	//Facebook UserData
 	double timezone;
 	char id[64];
 	char gender[16];
-	char full_name[1024+32];
-	char first_name[512];
-	char last_name[512];
+	char full_name[512+32];
+	char first_name[256];
+	char last_name[256];
 	char pic[PATH_MAX];
 	char bio[DESCRIPTION_SIZE];
 	//Access Token Data
+	struct tm updated;
 	FBTokenDef token;
 } FBUserDef, *FBUserPtr;
 

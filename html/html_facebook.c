@@ -248,6 +248,48 @@ return;
 }
 
 
+int facebook_post_notice( char *fbid, char *fmt, ... ) {
+	bool result = false;
+	int offset;
+	char post[MAX_FB_STRING];
+	char template[MAX_FB_STRING];
+	CURL *curl;
+	CURLcode res;
+	va_list ap;
+
+va_start( ap, fmt );
+vsnprintf( template, MAX_FB_STRING, fmt, ap );
+va_end( ap );
+
+offset = 0;
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&template=%s", template );
+
+curl = curl_easy_init();
+if( curl ) {
+	CurlStringDef curl_str;
+	init_string(&curl_str);
+	sprintf( template, "https://graph.facebook.com/%s/notifications", fbid  );
+	curl_easy_setopt(curl, CURLOPT_URL, template);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	res = curl_easy_perform(curl);
+	/* Check for errors */
+	if(res != CURLE_OK)
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+
+	/* always cleanup */
+	curl_easy_cleanup(curl);
+	result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;
+	free(curl_str.ptr);
+}
+
+return result;
+}
+
 int facebook_unlink_app( char *userid ) {
 	bool result = false;
 	int offset;
@@ -275,7 +317,7 @@ if( curl ) {
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
-	result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;//printf( curl_str.ptr );
+	result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;
 	free(curl_str.ptr);
 }
 
@@ -285,7 +327,8 @@ return result;
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	int a, id, offset = 0;
-	char *error, *code, *host, *fbtoke;
+	char *error, *remove, *host;
+	char *code, *fbtoke;
 	char buffer[1024];
 	dbUserPtr user;
 	dbUserInfoDef infod;
@@ -313,6 +356,7 @@ iohtmlFunc_frontmenu( cnt, FMENU_FACEBOOK );
 error = iohtmlVarsFind( cnt, "error" );
 code = iohtmlVarsFind( cnt, "code" );
 fbtoke = iohtmlVarsFind( cnt, "fblogin_token" );
+remove = iohtmlVarsFind( cnt, "remove" );
 
 if( ( code ) || ( fbtoke ) ){
 	if( code )
@@ -369,9 +413,15 @@ if( id >= 0 ) {
 	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
 	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
 } else if( fbdata.id[0] ) {
-	goto LINKWITHFB;
+	if( remove ) {
+		goto REMOVELINK;
+	} else {
+		goto LINKWITHFB;
+	}
 } else {
-	httpString( cnt, "Invalid Request" );
+	redirect( cnt, "/" );
+	httpString( cnt, "Invalid Request, reloading to main screen.<br>" );
+	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
 }
 
 goto BAILOUT;
@@ -386,15 +436,78 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	fbdata.token = token;
 	infod.fbinfo = fbdata;
 	dbUserInfoSet( user->id, &infod );
+	facebook_post_notice( fbdata.id, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
 	redirect( cnt, "/main?page=account" );
 	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
 	httpString( cnt, "You should be redirected back to your account screen shortly<br>" );
 	httpString( cnt, "<a href=\"/main?page=account\">Click here if it takes too long</a><br>" );
 } else {
+	httpString( cnt, "<script type=\"text/javascript\">" );
+	httpString( cnt, "$(document).ready(function(){" );
+	httpString( cnt, "$(\"select\").change(function(){" );
+	httpString( cnt, "$( \"select option:selected\").each(function(){" );
+	httpString( cnt, "if($(this).attr(\"value\")==\"login\"){" );
+	httpString( cnt, "$(\".hidebox\").hide();" );
+	httpString( cnt, "$(\".login\").show();" );
+	httpString( cnt, "}" );
+	httpString( cnt, "if($(this).attr(\"value\")==\"create\"){" );
+	httpString( cnt, "$(\".hidebox\").hide();" );
+	httpString( cnt, "$(\".create\").show();" );
+	httpString( cnt, "}" );
+	httpString( cnt, "if($(this).attr(\"value\")==\"remove\"){" );
+	httpString( cnt, "$(\".hidebox\").hide();" );
+	httpString( cnt, "$(\".remove\").show();" );
+	httpString( cnt, "}" );
+	httpString( cnt, "});" );
+	httpString( cnt, "}).change();" );
+	httpString( cnt, "});" );
+	httpString( cnt, "</script>" );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "You have authorised this game to access your Facebook data<br>" );
+	httpString( cnt, "However no account was found for this ID... what would you like to do?<br>" );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "<div><select>" );
+	httpString( cnt, "<option>Select Option...</option>" );
+	httpString( cnt, "<option value=\"create\">Create New Account</option>" );
+	httpString( cnt, "<option value=\"login\">Login to Existing</option>" );
+	httpString( cnt, "<option value=\"remove\">Remove Game from Facebook</option>" );
+        httpString( cnt, "</select></div>" );
 
-	facebook_unlink_app( fbdata.id );
+	httpString( cnt, "<div class=\"login hidebox\">" );
+	httpString( cnt, "<form action=\"/login\" method=\"POST\">" );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
+	httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
+	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+	httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
+	httpString( cnt, "</div>" );
 
-	httpPrintf( cnt, "<br>Valid, but no linked account: %s", fbdata.id );
+	httpString( cnt, "<div class=\"create hidebox\">" );
+	httpString( cnt, "<form action=\"/register\" method=\"POST\">" );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
+	httpString( cnt, "Please choose a Faction name<br>" );
+	httpString( cnt, "<input type=\"text\" name=\"Faction\"><br>" );
+	httpString( cnt, "(This is what others will see you as in-game)<br>" );
+	httpString( cnt, "<br><input type=\"submit\" value=\"Proceed\"></form>" );
+	httpString( cnt, "</div>" );
+
+	httpString( cnt, "<div class=\"remove hidebox\">" );
+	httpString( cnt, "<form action=\"/facebook\" method=\"POST\">" );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"remove\" value=\"%s\">", fbdata.id );
+	httpString( cnt, "<input type=\"submit\" value=\"Remove Facebook Permissions\"></form>" );
+	httpString( cnt, "</div>" );
+}
+goto BAILOUT;
+
+REMOVELINK:
+
+if( facebook_unlink_app( fbdata.id ) ) {
+	httpString( cnt, "As requested, your link with Facebook has been removed.<br>" );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "<a href=\"https://www.facebook.com\">Goto Facebook</a> - <a href=\"http://www.google.com\">Goto Google<br>" );
+} else {
+	httpString( cnt, "Oh dear, Facebook didn't respond as we'd expect...<br>" );
+	httpString( cnt, "You'll have to manually check to ensure permissions were removed." );
 }
 
 BAILOUT:
@@ -408,7 +521,10 @@ void iohtmlFBConnect( ReplyDataPtr cnt ) {
 	bool access; 
 	char *host;
 
-if( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
+if( ( strlen( fbcfg.app_id ) <= 0 ) || ( strlen( fbcfg.app_secret ) <= 0 ) )
+	return;
+
+if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
 
 	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
@@ -424,7 +540,7 @@ if( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( !( (cnt->sessi
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
 	httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
-} else if ( ( strlen( fbcfg.app_id ) && strlen( fbcfg.app_secret ) ) && ( ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
+} else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) ) {
 	httpString( cnt, "<b>This Account is linked with Facebook.</b><br>" );
 }
 
@@ -438,6 +554,7 @@ void facebook_update_user( dbUserPtr user ) {
 
 if( ( user ) && bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
 	facebook_getdata_id( &fbdata, user->fbid );
+	fbdata.updated = *gettime( time(0), false );
 	if( !( fbdata.connected ) ) {
 		memset( &user->fbid, 0, sizeof(user->fbid) );
 		bitflag_remove( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] );
@@ -454,60 +571,35 @@ return;
 
 void iohtmlFBSDK( ReplyDataPtr cnt ) {
 
-httpString( cnt, "<div id=\"fb-root\"></div>\n" );
-httpString( cnt, "<script>\n" );
-httpString( cnt, "  window.fbAsyncInit = function() {\n" );
-httpString( cnt, "    // init the FB JS SDK\n" );
-httpString( cnt, "    FB.init({\n" );
-httpString( cnt, "      appId      : '110861965600284',                        // App ID from the app dashboard\n" );
-httpString( cnt, "      status     : true,                                 // Check Facebook Login status\n" );
-httpString( cnt, "      cookie     : true, // enable cookies to allow the server to access the session\n" );
-httpString( cnt, "      xfbml      : true                                  // Look for social plugins on the page\n" );
-httpString( cnt, "    });\n" );
-httpString( cnt, "\n" );
-httpString( cnt, " FB.Event.subscribe('auth.authResponseChange', function(response) {\n" );
-    // Here we specify what we do with the response anytime this event occurs. 
-httpString( cnt, "    if (response.status === 'connected') {\n" );
-      // The response object is returned with a status field that lets the app know the current
-      // login status of the person. In this case, we're handling the situation where they 
-      // have logged in to the app.
-httpString( cnt, "      testAPI();\n" );
-httpString( cnt, "    } else if (response.status === 'not_authorized') {\n" );
-      // In this case, the person is logged into Facebook, but not into the app, so we call
-      // FB.login() to prompt them to do so. 
-      // In real-life usage, you wouldn't want to immediately prompt someone to login 
-      // like this, for two reasons:
-      // (1) JavaScript created popup windows are blocked by most browsers unless they 
-      // result from direct interaction from people using the app (such as a mouse click)
-      // (2) it is a bad experience to be continually prompted to login upon page load.
-httpString( cnt, "      FB.login();\n" );
-httpString( cnt, "    } else {\n" );
-      // In this case, the person is not logged into Facebook, so we call the login() 
-      // function to prompt them to do so. Note that at this stage there is no indication
-      // of whether they are logged into the app. If they aren't then they'll see the Login
-      // dialog right after they log in to Facebook. 
-      // The same caveats as above apply to the FB.login() call here.
-httpString( cnt, "      FB.login();\n" );
-httpString( cnt, "    }\n" );
-httpString( cnt, "  });\n" );
-httpString( cnt, "  };\n" );
-httpString( cnt, "\n" );
-// Load the SDK asynchronously
-
-httpString( cnt, "  (function(d){\n" );
-httpString( cnt, "   var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];\n" );
-httpString( cnt, "   if (d.getElementById(id)) {return;}\n" );
-httpString( cnt, "   js = d.createElement('script'); js.id = id; js.async = true;\n" );
-httpString( cnt, "   js.src = \"//connect.facebook.net/en_US/all.js\";\n" );
-httpString( cnt, "   ref.parentNode.insertBefore(js, ref);\n" );
-httpString( cnt, "  }(document));\n" );
-
-httpString( cnt, "function testAPI() {\n" );
-httpString( cnt, "	FB.api('/me', function(response) {\n" );
-httpString( cnt, "	var access_token =   FB.getAuthResponse()['accessToken'];\n" );
-httpString( cnt, "      location.href = \"/facebook?fblogin_id=\"+response.id+\"&fblogin_token=\"+access_token;\n" );
-httpString( cnt, "	});\n" );
-httpString( cnt, "}\n" );
+httpString( cnt, "<div id=\"fb-root\"></div>" );
+httpString( cnt, "<script>" );
+httpString( cnt, "window.fbAsyncInit=function(){" );
+httpString( cnt, "FB.init({" );
+httpString( cnt, "appId:'110861965600284'," );
+httpString( cnt, "status:true," );
+httpString( cnt, "cookie:true," );
+httpString( cnt, "xfbml:true" );
+httpString( cnt, "});" );
+/*
+httpString( cnt, "FB.Event.subscribe('auth.authResponseChange',function(response){" );
+httpString( cnt, "if(response.status==='connected'){" );
+httpString( cnt, "redirect_forlink();" );
+httpString( cnt, "}" );
+httpString( cnt, "});" );
+httpString( cnt, "};" );
+*/
+httpString( cnt, "(function(d){" );
+httpString( cnt, "var js,id='facebook-jssdk',ref=d.getElementsByTagName('script')[0];" );
+httpString( cnt, "if(d.getElementById(id)){return;}" );
+httpString( cnt, "js=d.createElement('script');js.id=id;js.async=true;" );
+httpString( cnt, "js.src=\"//connect.facebook.net/en_US/all.js\";" );
+httpString( cnt, "ref.parentNode.insertBefore(js,ref);" );
+httpString( cnt, "}(document));" );
+/*
+httpString( cnt, "function redirect_forlink(){" );
+httpString( cnt, "location.href=\"/facebook?fblogin_token=\"+FB.getAuthResponse()['accessToken'];" );
+httpString( cnt, "}" );
+*/
 httpString( cnt, "</script>\n" );
 
 return;

@@ -280,7 +280,7 @@ seconds = (int)difftime(mktime(&variable),now);
 
 //printf("dif: %d\n",seconds);
 
-return ( (seconds < 0) ? 0 : seconds );
+return seconds;
 }
 
 
