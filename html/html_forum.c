@@ -131,7 +131,7 @@ int iohttpForumFilter2( char *dest, char *string, int size )
     if( !( string2 = ioCompareWords( string, iohttpForumSmileys[a].string ) ) )
      continue;
     string = string2;
-    b += sprintf( &dest[b], "<img src=\"images/f%02d.gif\">", iohttpForumSmileys[a].id );
+    b += sprintf( &dest[b], "<img src=\"images/smilies/f%02d.gif\">", iohttpForumSmileys[a].id );
     goto iohttpForumFilter2L0;
    }
    if( string[0] == ':' )
@@ -141,7 +141,7 @@ int iohttpForumFilter2( char *dest, char *string, int size )
      if( !( string2 = ioCompareWords( string, iohttpForumSmileys[a].string ) ) )
       continue;
      string = string2;
-     b += sprintf( &dest[b], "<img src=\"images/f%02d.gif\">", iohttpForumSmileys[a].id );
+     b += sprintf( &dest[b], "<img src=\"images/smilies/f%02d.gif\">", iohttpForumSmileys[a].id );
      goto iohttpForumFilter2L0;
     }
    }

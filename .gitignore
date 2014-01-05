@@ -5,7 +5,7 @@
 
 #Program files
 read/images/fampic*
-read/images/galaxy*.*
+read/images/galax*
 data_core/
 evserver
 map

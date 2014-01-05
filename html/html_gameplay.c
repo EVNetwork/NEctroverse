@@ -1885,7 +1885,7 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   httpPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+   httpPrintf( cnt, " <img src=\"images/artifacts/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
   else if(planetd.special[1])
   	httpPrintf( cnt, " <img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
@@ -2176,7 +2176,7 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
    {
    	if( empired.artefacts & b )
    	{
-   		httpPrintf( cnt, " <img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
+   		httpPrintf( cnt, " <img src=\"images/artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
    	}
    }
    httpString( cnt, "</td></tr></table>" );
@@ -3319,7 +3319,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"images/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", sysconfig.round, mapcfg.sizex *IOHTTP_MAPPICK_DIVIDE, mapcfg.sizey *IOHTTP_MAPPICK_DIVIDE );
+ httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"images/galaxies/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", sysconfig.round, mapcfg.sizex *IOHTTP_MAPPICK_DIVIDE, mapcfg.sizey *IOHTTP_MAPPICK_DIVIDE );
 
 httpString( cnt, "<map name=\"systemmap\">" );
 for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
@@ -3704,7 +3704,7 @@ httpPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a href
   httpPrintf( cnt, "Population : %.0f0<br>", planetd.population );
  b = (int)artefactPrecense( &planetd );
   if( b >= 0 )
-   httpPrintf( cnt, "<br><img src=\"images/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
+   httpPrintf( cnt, "<br><img src=\"images/artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
   else if(planetd.special[1])
    httpPrintf( cnt, "<br><img src=\"images/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
@@ -5929,7 +5929,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
-      httpPrintf( cnt, "  <img src=\"images/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+      httpPrintf( cnt, "  <img src=\"images/artifacts/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
 
      if(planetd.special[1])
      	httpPrintf( cnt, " <img src=\"images/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
@@ -6041,7 +6041,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpPrintf( cnt, "Size : %d<br>", planetd.size );
     d = (int)artefactPrecense( &planetd );
     if( d >= 0 )
-     httpPrintf( cnt, "Artefact :  <img src=\"images/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
+     httpPrintf( cnt, "Artefact :  <img src=\"images/artifacts/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
     if( planetd.special[1] )
     {
      httpPrintf( cnt, "%s : <img src=\"images/pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );

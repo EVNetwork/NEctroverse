@@ -353,7 +353,7 @@ iohtmlBodyEnd( cnt );
 void iohtmlFunc_rules( ReplyDataPtr cnt ) {
 	struct stat stdata;
 	char *data;
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	FILE *file;
 
 iohtmlBase( cnt, 8 );
@@ -825,14 +825,14 @@ void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	struct stat stdata;
 	bool boxopen = false;
 	char *data;
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
+	char DATAPOOL[DESCRIPTION_SIZE];
 	FILE *file;
 	int id, len, notices = 0;
-	char output[1024];
 	va_list ap;
 
 va_start( ap, text );
-len = vsnprintf( output, 1024, text, ap );
+len = vsnprintf( DATAPOOL, DESCRIPTION_SIZE, text, ap );
 va_end( ap );
 
 
@@ -851,7 +851,7 @@ if( (id < 0) && !( len > 0 ) )
 iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
 
 if( len > 0 )
-	httpPrintf( cnt, "<b>%s</b><br><br>", output );
+	httpPrintf( cnt, "<b>%s</b><br><br>", DATAPOOL );
 else
 httpString( cnt, "<br>" );
 
@@ -866,11 +866,13 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
-						iohtmlFunc_boxstart( cnt, trimwhitespace(data) );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						iohtmlFunc_boxstart( cnt, DATAPOOL );
 						boxopen = true;
 						notices++;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
 						iohtmlFunc_boxend( cnt );
@@ -950,7 +952,8 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( strlen(data) > 1 )
-						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", DATAPOOL );
 				}
 				httpString( cnt, "</td></tr></table></td></tr>" );
 			}
@@ -971,7 +974,7 @@ return;
 void iohtmlFunc_faq( ReplyDataPtr cnt ) {
 	struct stat stdata;
 	char *data;
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	FILE *file;
 
 iohtmlBase( cnt, 8 );
@@ -1138,7 +1141,7 @@ return;
 void iohtmlFunc_halloffame( ReplyDataPtr cnt ) {
 	int a;
 	struct stat stdata;
-	char DIRCHECKER[256];
+	char DIRCHECKER[PATH_MAX];
 	char LINKSTRING[256];
 
 
@@ -1179,7 +1182,8 @@ void iohtmlFunc_notices( ReplyDataPtr cnt ) {
 	struct stat stdata;
 	bool boxopen = false;
 	char *data;
-	char DIRCHECKER[256];
+	char DATAPOOL[DESCRIPTION_SIZE];
+	char DIRCHECKER[PATH_MAX];
 	FILE *file;
 	int id;
 
@@ -1187,7 +1191,7 @@ iohtmlBase( cnt, 8 );
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
-	return;
+		return;
 }
 
 iohtmlFunc_frontmenu( cnt, FMENU_NOTICES );
@@ -1207,11 +1211,13 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
 						httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tbody><tr>" );
-						httpPrintf( cnt, "<td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", trimwhitespace(data) );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						httpPrintf( cnt, "<td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", DATAPOOL );
 						httpString( cnt, "</tr><tr><td><font size=\"2\">" );
 						boxopen = true;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", trimwhitespace(data) );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
 						httpString( cnt, "</font></td></tr></tbody></table><br>" );

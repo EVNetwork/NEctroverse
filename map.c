@@ -340,7 +340,10 @@ if( mapgen.width > mapcfg.sizex ) {
 	mapgen.data = pixels;
 }
 
-sprintf( fname, "%s/galaxyr%d.png", sysconfig.httpimages, sysconfig.round );
+sprintf( fname, "%s/galaxies", sysconfig.httpimages );
+dirstructurecheck(fname);
+
+sprintf( fname, "%s/galaxies/galaxyr%d.png", sysconfig.httpimages, sysconfig.round );
 //imgConvertGrayscale(&mapgen,IMG_IMAGE_FORMAT_RGB24);
 imgWritePngFile( fname, &mapgen );
 free(pixels);

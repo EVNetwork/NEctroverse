@@ -58,7 +58,7 @@ if( curl ) {
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+		error( "Facebook Curl" );
 	/* always cleanup */
 	curl_easy_cleanup(curl);
 	*token = strdup(curl_str.ptr);
@@ -95,7 +95,7 @@ if( curl ) {
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+		error( "Facebook Curl" );
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
@@ -136,7 +136,7 @@ if( curl ) {
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+		error( "Facebook Curl" );
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
@@ -279,7 +279,7 @@ if( curl ) {
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+		error( "Facebook Curl" );
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
@@ -313,7 +313,7 @@ if( curl ) {
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res) );
+		error( "Facebook Curl" );
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
@@ -600,7 +600,7 @@ httpString( cnt, "function redirect_forlink(){" );
 httpString( cnt, "location.href=\"/facebook?fblogin_token=\"+FB.getAuthResponse()['accessToken'];" );
 httpString( cnt, "}" );
 */
-httpString( cnt, "</script>\n" );
+httpString( cnt, "</script>" );
 
 return;
 }
