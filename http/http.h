@@ -254,12 +254,9 @@ int postdata_wipe( SessionPtr session );
 void expire_sessions ();
 int remove_session( const char *sid );
 
-
 int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-int files_dir_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-int key_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
+int file_render ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
-int file_page( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 
 
 #endif

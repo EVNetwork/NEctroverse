@@ -543,7 +543,7 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
 
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
-	httpString( cnt, "<input type=\"image\" src=\"images/facebook.gif\" alt=\"Facebook Connect\">" );
+	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
 } else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) ) {
 	httpString( cnt, "<b>This Account is linked with Facebook.</b><br>" );

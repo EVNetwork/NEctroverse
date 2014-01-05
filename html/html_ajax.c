@@ -309,11 +309,11 @@ if( refer ) {
 	httpString( cnt, "\t\t//Okie, Update uinfos user infos...\n" );
 	httpString( cnt, "\t\tif( login ) {\n" );
 	httpString( cnt, "\t\t\t//Here we set images for mail, build etc...\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"mail\") == 1 ) { changeimage(\"headermail\", \"images/i09a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"build\") == 1 ) { changeimage(\"headerbuild\", \"images/i10a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"aid\") == 1 ) { changeimage(\"headeraid\", \"images/i11a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"fleet\") == 1 ) { changeimage(\"headerfleet\", \"images/i12a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\telse if( getnodevar(xmlhttp.responseXML,\"fleet\") == 2 ) { changeimage(\"headerfleet\", \"images/i12b.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"mail\") == 1 ) { changeimage(\"headermail\", \"files?type=image&name=i09a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"build\") == 1 ) { changeimage(\"headerbuild\", \"files?type=image&name=i10a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"aid\") == 1 ) { changeimage(\"headeraid\", \"files?type=image&name=i11a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"fleet\") == 1 ) { changeimage(\"headerfleet\", \"files?type=image&name=i12a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\telse if( getnodevar(xmlhttp.responseXML,\"fleet\") == 2 ) { changeimage(\"headerfleet\", \"files?type=image&name=i12b.jpg\"); }\n" );
 	httpString( cnt, "\n" );
 	httpString( cnt, "\t\t\tvar networth = getnodevar(xmlhttp.responseXML,\"networth\");\n" );
 	httpString( cnt, "\t\t\tvar population = getnodevar(xmlhttp.responseXML,\"population\");\n" );

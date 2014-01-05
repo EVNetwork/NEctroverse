@@ -387,7 +387,7 @@ void dbUserFree( dbUserPtr user )
   if( next )
     next->prev = user->prev;
   free( user );
-  if( ( user ) && ( user->id >= ARRAY_MAX ) )
+  if( (unsigned int)user->id >= ARRAY_MAX )
     return;
   dbUserTable[user->id] = 0;
   return;

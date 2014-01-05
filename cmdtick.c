@@ -170,7 +170,7 @@ if( artsnum == ARTEFACT_NUMUSED ) {
       for( c = 0, d = 1 ; c < ARTEFACT_NUMUSED ; c++, d <<= 1 )
       {
         if( empirep[stats[a+0]].artefacts & d )
-          fprintf( file, "<img src=\"images/artifacts/%s\">", artefactImage[c] );
+          fprintf( file, "<img src=\"files?type=image&name=artifacts/%s\">", artefactImage[c] );
       }
     }
 
@@ -228,7 +228,7 @@ if( artsnum ) {
 	fprintf( file, "<table><tr><td>" );
 	for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ ) {
 		if( artefacts[c] )
-			fprintf( file, "<img src=\"images/artifacts/%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
+			fprintf( file, "<img src=\"files?type=image&name=artifacts/%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
 	}
 	fprintf( file, "</td></tr></table><br>" );
 }

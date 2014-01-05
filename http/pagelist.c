@@ -5,11 +5,19 @@
  * Most pages will just use "page_render", but a few with variable input will use "key_page"
  * As page_render simply calls the function listed, and will cause issues if the function requires paramaters
  */
+ 
+void front_define( ReplyDataPtr rd ) {
+	iohtmlFunc_front( rd, NULL, NULL );
+}
+void login_define( ReplyDataPtr rd ) {
+	iohtmlFunc_login( rd, false, NULL );
+}
+
 PageDef pages[] =
   {
     //Basic/Main pages
-    { "/", "text/html", &key_page, NULL, NULL },
-    { "/login", "text/html",  &key_page, NULL, "login" },
+    { "/", "text/html", &page_render, front_define, NULL },
+    { "/login", "text/html",  &page_render, login_define, NULL },
     { "/notices", "text/html",  &page_render, iohtmlFunc_notices, NULL },
     { "/halloffame", "text/html",  &page_render, iohtmlFunc_halloffame, NULL },
     { "/gettingstarted", "text/html",  &page_render, iohtmlFunc_gettingstarted, NULL },
@@ -20,15 +28,9 @@ PageDef pages[] =
     { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
     { "/register2", "text/html",  &page_render, iohtmlFunc_register2, NULL },
     { "/register3", "text/html",  &page_render, iohtmlFunc_register3, NULL },
-    //Generic
+    //Ajax pages
     { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },
     { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },
-    { "/status.js", "text/javascript",  &file_page, NULL, "/status.min.js" },
-    { "/jquery.js", "text/javascript",  &file_page, NULL, "/jquery-1.10.2.min.js" },
-    { "/javascript.js", "text/javascript",  &file_page, NULL, "/javascript.min.js" },
-    { "/style.css", "text/css",  &file_page, NULL, "/style.css" },
-    { "/stats", "text/html",  &file_page, NULL, "/stats.html" },
-    { "/chat", "text/html",  &file_page, NULL, "/chat.html" },
     //Game Pages
     { "/rankings", "text/html",  &page_render, iohtmlFunc_rankings, NULL },
     { "/hq", "text/html",  &page_render, iohtmlFunc_hq, NULL },
@@ -98,7 +100,7 @@ PageDef pages[] =
     { "/moderator", "text/html",  &page_render, iohtmlFunc_moderator, NULL },
     { "/admin", "text/html",  &page_render, iohtmlFunc_oldadmin, NULL },
     //Extras
-    { "/files", "text/html",  &files_dir_page, NULL, NULL },
+    { "/files", "text/html",  &file_render, NULL, NULL },
     //Not Found.
     { NULL, NULL, &not_found_page, NULL, NULL } /* 404 */
   };

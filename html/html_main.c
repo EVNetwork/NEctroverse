@@ -82,19 +82,19 @@ httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">"
 httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
 httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
-httpString( cnt, "<link rel=\"icon\" href=\"images/favicon.ico\">" );
-httpString( cnt, "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
-httpString( cnt, "<script type=\"text/javascript\" src=\"javascript.js\"></script>" );
-httpString( cnt, "<script type=\"text/javascript\" src=\"jquery.js\"></script>" );
+httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&name=favicon.ico\">" );
+httpString( cnt, "<link href=\"files?type=server&name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=javascript.min.js\"></script>" );
+httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=jquery-1.10.2.min.js\"></script>" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
 
 if( flags & 16 )
-	httpString( cnt, "<script type=\"text/javascript\" src=\"status.js\"></script>" );
+	httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=status.js\"></script>" );
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
 if( flags & 1 ) {
 	httpString( cnt, "<style type=\"text/css\">" );
-	httpString( cnt, "body{background-image:url(images/mbg.gif);" );
+	httpString( cnt, "body{background-image:url(files?type=image&name=mbg.gif);" );
 	if( !( flags & 2 ) )
 		httpString( cnt, "background-attachment:fixed;" );
 	httpString( cnt, "}</style>" );
@@ -125,57 +125,57 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
 
  httpString( cnt, "<tr>" );
- httpString( cnt, "<td width=\"35\" rowspan=\"2\"><img height=\"63\" src=\"images/i02.jpg\" width=\"35\"></td>" );
+ httpString( cnt, "<td width=\"35\" rowspan=\"2\"><img height=\"63\" src=\"files?type=image&name=i02.jpg\" width=\"35\"></td>" );
  httpString( cnt, "<td width=\"100%\" height=\"21\" align=\"center\">" );
 
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i05.jpg\" border=\"0\" align=\"center\">" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"files?type=image&name=i05.jpg\" border=\"0\" align=\"center\">" );
  httpString( cnt, "<tr>" );
- httpString( cnt, "<td width=\"41\"><img height=\"21\" src=\"images/i03.jpg\" width=\"41\"></td>" );
- httpString( cnt, "<td background=\"images/i05.jpg\">" );
+ httpString( cnt, "<td width=\"41\"><img height=\"21\" src=\"files?type=image&name=i03.jpg\" width=\"41\"></td>" );
+ httpString( cnt, "<td background=\"files?type=image&name=i05.jpg\">" );
 
  if( ticks.status )
  httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Next tick : <span id=\"headerTime\">%d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", (long long)mainp->networth, (int)( ticks.next - time(0) ), (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
  else
  httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", (long long)mainp->networth, (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
 
- httpString( cnt, "</td><td width=\"78\"><img height=\"21\" src=\"images/i07.jpg\" width=\"78\"></td></tr></table>" );
+ httpString( cnt, "</td><td width=\"78\"><img height=\"21\" src=\"files?type=image&name=i07.jpg\" width=\"78\"></td></tr></table>" );
  httpString( cnt, "</td></tr>" );
 
  httpString( cnt, "<tr><td width=\"100%\" align=\"center\">" );
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"images/i15.jpg\" border=\"0\" align=\"center\"><tr>" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" background=\"files?type=image&name=i15.jpg\" border=\"0\" align=\"center\"><tr>" );
 
  a = dbUserNewsGetFlags( id );
- httpString( cnt, "<td width=\"41\"><a href=\"hq\"><img id=\"headermail\" height=\"42\" title=\"mail\" src=\"images/i09" );
+ httpString( cnt, "<td width=\"41\"><a href=\"hq\"><img id=\"headermail\" height=\"42\" title=\"mail\" src=\"files?type=image&name=i09" );
  if( a & CMD_NEWS_FLAGS_MAIL )
   httpString( cnt, "a" );
  httpString( cnt, ".jpg\" width=\"41\" border=\"0\"></a></td>" );
 
- httpString( cnt, "<td width=\"40\"><a href=\"hq\"><img id=\"headerbuild\" height=\"42\" title=\"reports\" src=\"images/i10" );
+ httpString( cnt, "<td width=\"40\"><a href=\"hq\"><img id=\"headerbuild\" height=\"42\" title=\"reports\" src=\"files?type=image&name=i10" );
  if( a & CMD_NEWS_FLAGS_BUILD )
   httpString( cnt, "a" );
  httpString( cnt, ".jpg\" width=\"40\" border=\"0\"></a></td>" );
 
- httpString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headeraid\" height=\"42\" title=\"economy\" src=\"images/i11" );
+ httpString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headeraid\" height=\"42\" title=\"economy\" src=\"files?type=image&name=i11" );
  if( a & CMD_NEWS_FLAGS_AID )
   httpString( cnt, "a" );
  httpString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
 
- httpString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headerfleet\" height=\"42\" title=\"fleets\" src=\"images/i12" );
+ httpString( cnt, "<td width=\"39\"><a href=\"hq\"><img id=\"headerfleet\" height=\"42\" title=\"fleets\" src=\"files?type=image&name=i12" );
  if( a & CMD_NEWS_FLAGS_ATTACK )
   httpString( cnt, "a" );
  else if( a & CMD_NEWS_FLAGS_FLEET )
   httpString( cnt, "b" );
  httpString( cnt, ".jpg\" width=\"39\" border=\"0\"></a></td>" );
 
- httpString( cnt, "<td width=\"18\"><img height=\"42\" src=\"images/i13.jpg\" width=\"18\"></td>" );
- httpString( cnt, "<td width=\"100%\" background=\"images/i15.jpg\" align=\"left\">" );
+ httpString( cnt, "<td width=\"18\"><img height=\"42\" src=\"files?type=image&name=i13.jpg\" width=\"18\"></td>" );
+ httpString( cnt, "<td width=\"100%\" background=\"files?type=image&name=i15.jpg\" align=\"left\">" );
 
  httpString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
  httpString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
  httpPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
  httpString( cnt, "</td></tr></table>" );
 
- httpString( cnt, "</td><td width=\"49\"><img height=\"42\" src=\"images/i17.jpg\" width=\"49\"></td></tr></table>" );
+ httpString( cnt, "</td><td width=\"49\"><img height=\"42\" src=\"files?type=image&name=i17.jpg\" width=\"49\"></td></tr></table>" );
 
  httpString( cnt, "</td></tr></table><br>" );
 
@@ -186,17 +186,17 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_03.jpg\" width=\"350\" height=\"80\" alt=\"ect Top\"></td></tr>" );
+httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&name=ectro_03.jpg\" width=\"350\" height=\"80\" alt=\"ect Top\"></td></tr>" );
 
 httpString( cnt, "<tr><td><table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
-httpString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
-httpString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"images/ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
-httpString( cnt, "<td background=\"images/ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
+httpString( cnt, "<td background=\"files?type=image&name=ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
+httpString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"files?type=image&name=ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
+httpString( cnt, "<td background=\"files?type=image&name=ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
 httpString( cnt, "</tr></table></tr></td>" );
 
-httpString( cnt, "<tr><td align=\"center\"><img src=\"images/ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
-httpString( cnt, "<tr><td background=\"images/ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_13.jpg\" valign=\"middle\"><table style=\"width:100%;border-width:0;\"><tr>" );
+httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&name=ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_13.jpg\" valign=\"middle\"><table style=\"width:100%;border-width:0;\"><tr>" );
 httpPrintf( cnt, "<td align=\"left\">%d of %d players online</td>", ticks.uonline, ticks.uactive );
 httpString( cnt, "<td align=\"right\"><b>" );
 
@@ -245,16 +245,16 @@ void iohtmlBodyInit( ReplyDataPtr cnt, char *title, ... )
  va_list ap;
  va_start( ap, title );
  vsnprintf( text, ARRAY_MAX, title, ap );
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"files?type=image&name=i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"files?type=image&name=i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
  httpString( cnt, text );
- httpString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table>" );
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"center\"><br>" );
+ httpString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"files?type=image&name=i30.jpg\" width=\"62\"></td></tr></table>" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"files?type=image&name=i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"center\"><br>" );
  return;
 }
 
 void iohtmlBodyEnd( ReplyDataPtr cnt )
 {
- httpString( cnt, "<br></td><td width=\"7\" background=\"images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"images/i47.jpg\"><img height=\"12\" src=\"images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"images/i49.jpg\" width=\"62\"></td></tr></table></center><br><br><br></body></html>" );
+ httpString( cnt, "<br></td><td width=\"7\" background=\"files?type=image&name=i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"files?type=image&name=i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"files?type=image&name=i47.jpg\"><img height=\"12\" src=\"files?type=image&name=i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"files?type=image&name=i49.jpg\" width=\"62\"></td></tr></table></center><br><br><br></body></html>" );
  return;
 }
 
@@ -363,7 +363,7 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpPrintf( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>General Rules for %s.</b></font></td></tr>", sysconfig.servername );
+httpPrintf( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>General Rules for %s.</b></font></td></tr>", sysconfig.servername );
 httpString( cnt, "<tr><td><font size=\"2\">" );
 
 
@@ -803,16 +803,16 @@ return;
 
 void iohtmlFunc_boxstart( ReplyDataPtr cnt, char *title ) {
 
-httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"images/i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"images/i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
+httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"files?type=image&name=i27.jpg\"><tr><td width=\"10%\"><img height=\"24\" src=\"files?type=image&name=i25.jpg\" width=\"22\"></td><td width=\"80%\" align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
 httpPrintf( cnt, "%s", title);
-httpString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"images/i30.jpg\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"images/i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\"><br>" );
+httpString( cnt, "</font></b></td><td width=\"10%\" align=\"right\"><img height=\"24\" src=\"files?type=image&name=i30.jpg\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"files?type=image&name=i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\"><br>" );
 
 return;
 }
 
 void iohtmlFunc_boxend( ReplyDataPtr cnt ) {
 
-httpString( cnt, "<br><br></td><td width=\"7\" background=\"images/i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"images/i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"images/i47.jpg\"><img height=\"12\" src=\"images/i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"images/i49.jpg\" width=\"62\"></td></tr></table>" );
+httpString( cnt, "<br><br></td><td width=\"7\" background=\"files?type=image&name=i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"files?type=image&name=i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"files?type=image&name=i47.jpg\"><img height=\"12\" src=\"files?type=image&name=i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"files?type=image&name=i49.jpg\" width=\"62\"></td></tr></table>" );
 
 return;
 }
@@ -903,7 +903,7 @@ httpString( cnt, "&nbsp;" );
 httpString( cnt, "</td><td width=\"40%\" valign=\"top\">" );
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Log in</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Log in</b></font></td></tr>" );
 httpString( cnt, "<tr><td>" );
 httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 
@@ -947,7 +947,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
-				httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><i>Items on the admins to-do list :</i></font></td></tr>" );
+				httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><i>Items on the admins to-do list :</i></font></td></tr>" );
 				httpString( cnt, "<tr><td>" );
 				httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
@@ -983,7 +983,7 @@ iohtmlFunc_frontmenu( cnt, FMENU_FAQ );
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
 httpString( cnt, "<tr><td>" );
 sprintf( DIRCHECKER, "%s/faq.html", sysconfig.httpread );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
@@ -1017,7 +1017,7 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
 httpString( cnt, "<tr><td><font size=\"2\">" );
 httpString( cnt, "<center>This page is a basic guide to new players on how to get started.<br>It is important to read this to get the best possible experience when first playing!</center>" );
 
@@ -1046,7 +1046,7 @@ httpString( cnt, "</td></tr></table><br><br>" );
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
 httpString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 httpString( cnt, "<a name=\"a0\"><b><i>0. Registering the account.</i></b></a><br>" );
@@ -1082,7 +1082,7 @@ httpString( cnt, "<br>" );
 httpString( cnt, "</td></tr></table><br><br>" );
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
 httpString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 httpString( cnt, "<a name=\"b0\"><b><i>0. Resources & Buildings.</i></b></a><br>" );
@@ -1112,7 +1112,7 @@ httpString( cnt, "</td></tr></table><br><br>" );
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
 httpString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 httpString( cnt, "<a name=\"c0\"><b><i>0. Map generation</i></b></a><br>" );
@@ -1149,7 +1149,7 @@ iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_RANKS );
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 httpString( cnt, "<tr><td>" );
 
 httpPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", sysconfig.round );
@@ -1212,7 +1212,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
 						httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tbody><tr>" );
 						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
-						httpPrintf( cnt, "<td background=\"images/ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", DATAPOOL );
+						httpPrintf( cnt, "<td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", DATAPOOL );
 						httpString( cnt, "</tr><tr><td><font size=\"2\">" );
 						boxopen = true;
 					} else if ( strlen( trimwhitespace(data) ) ) {

@@ -29,6 +29,8 @@
  * @author Christian Grothoff
  */
 #define PACKAGE_VERSION "NEctroverse microhttpd Bridge"
+#define MHD_HTTP_HEADER_CONTENT_DISPOSITION "Content-Disposition"
+
 
 #include "../config/global.h"
 #include "memorypool.c"
@@ -166,8 +168,6 @@ if (cookie != NULL) {
 	if (NULL != ret) {
 		ret->rc++;
 		ret->active = time(NULL);
-		if( ret->postdata != NULL )
-			postdata_wipe( ret );
 		return ret;
 	}
 }
@@ -240,7 +240,7 @@ if( strlen(sysconfig.cookdomain) )
 
 time_r = ( time(0) + SESSION_TIME );
 
-offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s;", SESSION_TIME, trimwhitespace(asctime( gmtime( &time_r ) )) );
+offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s;", SESSION_TIME, trimwhitespace( asctime( gmtime( &time_r ) ) ) );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, buffer)) {
 	error( "Failed to set session cookie header!" );
@@ -285,7 +285,7 @@ cached_directory_response = response;
 }
 
 
-static int list_directory( ReplyDataPtr rd, const char *dirname ) {
+static int list_directory( ResponseDataPtr rd, const char *dirname ) {
 	char fullname[PATH_MAX];
 	struct stat sbuf;
 	struct dirent *de;
@@ -303,16 +303,16 @@ while (NULL != (de = readdir (dir))) {
 		continue;
 	if (! S_ISREG (sbuf.st_mode))
 		continue;
-	if (rd->response.off + 1024 > rd->response.buf_len) {
+	if (rd->off + 1024 > rd->buf_len) {
 			void *r;
-		if ( (2 * rd->response.buf_len + 1024) < rd->response.buf_len)
+		if ( (2 * rd->buf_len + 1024) < rd->buf_len)
 			    break; /* more than SIZE_T _index_ size? Too big for us */
-		rd->response.buf_len = 2 * rd->response.buf_len + 1024;
-		if( NULL == ( r = realloc(rd->response.buf, rd->response.buf_len) ) )
+		rd->buf_len = 2 * rd->buf_len + 1024;
+		if( NULL == ( r = realloc(rd->buf, rd->buf_len) ) )
 			break; /* out of memory */
-		rd->response.buf = r;
+		rd->buf = r;
 	}
-	rd->response.off += snprintf (&rd->response.buf[rd->response.off], rd->response.buf_len - rd->response.off, "<li><a href=\"/files/%s\">%s</a></li>\n", de->d_name, de->d_name );
+	rd->off += snprintf (&rd->buf[rd->off], rd->buf_len - rd->off, "<li><a href=\"/files?type=download&name=%s\">%s</a></li>\n", de->d_name, de->d_name );
 }
 (void)closedir( dir );
 
@@ -325,33 +325,30 @@ return MHD_YES;
  */
 static void update_directory( struct MHD_Connection *connection ) {
 	struct MHD_Response *response;
-	ReplyDataDef rd;
+	ResponseDataDef rd;
 	char dir_name[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 	struct stat sbuf;
 
-rd.connection = connection;
-
-
-rd.response.buf_len = dir_buf_allocation; 
-if( NULL == ( rd.response.buf = malloc(rd.response.buf_len) ) ) {
+rd.buf_len = dir_buf_allocation; 
+if( NULL == ( rd.buf = malloc(rd.buf_len) ) ) {
 	update_cached_response (NULL);
 	return; 
 }
-rd.response.off = snprintf (rd.response.buf, rd.response.buf_len, "%s", UPLOAD_DIR_PAGE_HEADER );
+rd.off = snprintf (rd.buf, rd.buf_len, "%s", UPLOAD_DIR_PAGE_HEADER );
 
 snprintf (dir_name, sizeof (dir_name), "%s/uploads", sysconfig.directory);
 if( 0 == stat (dir_name, &sbuf) ) {  
 	if (MHD_NO == list_directory (&rd, dir_name)) {
-		free (rd.response.buf);
+		free (rd.buf);
 		update_cached_response (NULL);
 		return;
 	}
 }
 
-rd.response.off += snprintf (&rd.response.buf[rd.response.off], rd.response.buf_len - rd.response.off, "%s", UPLOAD_DIR_PAGE_FOOTER );
-dir_buf_allocation = rd.response.buf_len; /* remember for next time */
-response = MHD_create_response_from_buffer (rd.response.off, rd.response.buf, MHD_RESPMEM_MUST_FREE );
-md5_string( rd.response.buf, md5sum );
+rd.off += snprintf (&rd.buf[rd.off], rd.buf_len - rd.off, "%s", UPLOAD_DIR_PAGE_FOOTER );
+dir_buf_allocation = rd.buf_len; /* remember for next time */
+response = MHD_create_response_from_buffer (rd.off, rd.buf, MHD_RESPMEM_MUST_FREE );
+md5_string( rd.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 mark_as( response, "text/html" );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONNECTION, "close");
@@ -399,80 +396,83 @@ ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_respons
 return ret;
 }
 
-int files_dir_page ( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
+int file_render ( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
+	#if HAVE_MAGIC_H
+	char file_data[MAGIC_HEADER_SIZE];
+	ssize_t got;
+	#endif
 	int ret;
 	char dmsg[PATH_MAX];
+	char md5sum[MD5_HASHSUM_SIZE];
+	char *type, *fname, *temp;
 	struct stat buf;
 	struct MHD_Response *response;
 	FILE *file;
 
-snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", sysconfig.directory, &connection->url[7] );
+memset( &dmsg, 0, PATH_MAX );
+
+type = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "type");
+fname = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "name");
+
+if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
+	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", sysconfig.directory, fname );
+} else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
+	snprintf(dmsg, sizeof (dmsg), "%s/%s", sysconfig.httpimages, fname );
+} else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
+	snprintf(dmsg, sizeof (dmsg), "%s/%s", sysconfig.httpfiles, fname );
+} else {
+	memset( &dmsg, 0, PATH_MAX );
+}
+
 if( (0 == stat (dmsg, &buf)) && (S_ISREG (buf.st_mode)) ) {
 	file = fopen (dmsg, "rb");
 } else {
 	file = NULL;
 }
+
    
 if (file == NULL) { 
 	update_directory( connection );
 	ret = return_directory_response( connection );
 } else {
+	#if HAVE_MAGIC_H
+	got = read (file, file_data, sizeof (file_data));
+	if (-1 != got)
+		mime = magic_buffer (magic, file_data, got);
+	else
+	#endif
+	mime = NULL;
+
 	response = MHD_create_response_from_callback( buf.st_size, ( SERVERALLOCATION / 8 ), &file_read, file, &file_free_callback );
 	if (response == NULL) {
 		fclose (file);
 		return MHD_NO;
 	}
+	if( strcmp( type, "download" ) == 0 ) {
+		snprintf(dmsg, sizeof (dmsg), "filename=%s", fname );
+		(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_DISPOSITION, dmsg );
+	}
+	if (NULL != mime) {
+		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
+	} else {
+		temp = strdup(iohttpMime[ iohttpMimeFind( fname ) ].def );
+		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( temp, ' ')+1 ) );
+		free( temp );
+	}
+	md5_file( dmsg, md5sum );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
+
+	strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
+
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
+	
 	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
 	MHD_destroy_response( response );
 }
 	
 return ret;
 }
-
-
-int key_page( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
-	const char *pname = cls;
-	char md5sum[MD5_HASHSUM_SIZE];
-	int ret, a;
-	struct MHD_Response *response;
-	ReplyDataDef rd;
-
-(void)pthread_mutex_lock( &mutex );
-
-rd.session = session;
-rd.connection = connection;
-rd.cookies.num = 0;
-  /* unsupported HTTP method */
-rd.response.buf_len = SERVERALLOCATION;
-if (NULL == (rd.response.buf = malloc (rd.response.buf_len))) {
-	return -1;
-}
-rd.response.off = 0;
-
-if( ( pname ) && strcmp( pname, "login" ) == false  ) {
-	iohtmlFunc_login( &rd, false, NULL );
-} else {
-	iohtmlFunc_front( &rd, NULL );
-}
-
-response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
-add_session_cookie(session, response);
-for( a = 0; a < rd.cookies.num ; a++  ) {
-	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
-		error( "Failed to set session cookie header!" );
-	}
-}
-md5_string( rd.response.buf, md5sum );
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-mark_as( response, mime );
-MHD_destroy_response (response);
-
-(void)pthread_mutex_unlock( &mutex );
-
-return ret;
-}
-
 
 int page_render( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret, a;
@@ -481,15 +481,13 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 	ReplyDataDef rd;
 
 (void)pthread_mutex_lock( &mutex );
-
+memset( &rd, 0, sizeof(ReplyDataDef) );
 rd.session = session;
 rd.connection = connection;
-rd.cookies.num = 0;
 rd.response.buf_len = SERVERALLOCATION;
 if( NULL == ( rd.response.buf = malloc( rd.response.buf_len ) ) ) {
 	return -1;
 }
-rd.response.off = 0;
 
 pages[id].function( &rd );
 response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
@@ -509,82 +507,6 @@ MHD_destroy_response (response);
 
 return ret;
 }
-
-int file_page( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
-	int ret, fd;
-	struct stat buf;
-	struct MHD_Response *response;
-	const char *fname = cls;
-	char filename[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
-
-	strcpy(filename,sysconfig.httpfiles);
-	strcat(filename,fname);
-
-	if ( (0 == stat (filename, &buf)) && (NULL == strstr (filename, "..")) && ('/' != filename[1]) )
-		fd = open (filename, O_RDONLY);
-	else
-		fd = -1;
-	if (-1 == fd) {
-		ret = MHD_queue_response( connection, MHD_HTTP_NOT_FOUND, file_not_found_response );
-		return ret;
-	}
-
-	if (NULL == ( response = MHD_create_response_from_fd(buf.st_size,fd) ) ) {
-		/* internal error (i.e. out of memory) */
-		(void) close (fd);
-		return MHD_NO;
-	}
-
-      /* add mime type if we had one */
-	if (NULL != mime)
-		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
-
-	md5_file( filename, md5sum );
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-	
-	strftime(filename,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filename );
-
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
-	//add_session_cookie(session, response);
-	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-	MHD_destroy_response (response);
-
-return ret;
-}
-
-/**
- * Append the 'size' bytes from 'data' to '*ret', adding
- * 0-termination.  If '*ret' is NULL, allocate an empty string first.
- *
- * @param ret string to update, NULL or 0-terminated
- * @param data data to append
- * @param size number of bytes in 'data'
- * @return MHD_NO on allocation failure, MHD_YES on success
- */
- /*
-int do_append (char **ret, const char *data, size_t size) {
-	char *buf;
-	size_t old_len;
-
-if (NULL == *ret) {
-	old_len = 0;
-} else {
-	old_len = strlen (*ret);
-}
-buf = malloc (old_len + size + 1);
-if (NULL == buf)
-	return MHD_NO;
-memcpy (buf, *ret, old_len);
-if (NULL != *ret)
-	free (*ret);
-memcpy (&buf[old_len], data, size);
-buf[old_len + size] = '\0';
-*ret = buf;
-
-return MHD_YES;
-}
-*/
 
 static int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
@@ -620,7 +542,7 @@ return MHD_YES;
 }
 
 static int postdata_remove( SessionPtr session, const char *key ) {
-	bool donenothing = true;
+	bool result = MHD_NO;
 	PostDataPtr pos;
 	PostDataPtr prev;
 	PostDataPtr next;
@@ -636,7 +558,7 @@ while( NULL != pos ) {
 		} else {
 			prev->next = next;
 		}
-		donenothing = false;
+		result = MHD_YES;
 		free( pos->key );
 		free( pos->value );		
 		free( pos );
@@ -647,7 +569,7 @@ while( NULL != pos ) {
 }
 
 
-return donenothing;
+return result;
 }
 
 
@@ -659,8 +581,6 @@ if( !( session->postdata == NULL ) ) {
 		postdata_remove( session, data->key );
 	
 }
-
-
 
 return MHD_YES;
 }
@@ -691,13 +611,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 
 if( ( !( filename ) ) ) {
 	(uc->session)->upload = UPLOAD_STATE_NULL;
-	if( ( data ) ) {
-		postdata_set( uc->session, key, data );
-	} else {
-		sprintf( logString, "Ignoring unexpected form value \'%s\'", key );
-		info( logString ); 
-	}
-	return MHD_YES;
+	return postdata_set( uc->session, key, data );
 }
 if (NULL == filename) {
 	error( "No filename, aborting upload" );
@@ -794,83 +708,22 @@ return MHD_YES;
 
 static int create_response (void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data,  size_t *upload_data_size, void **ptr)
 {
-  struct MHD_Response *response;
   RequestPtr request;
   SessionPtr session;
-  int ret, fd, roof;
+  int ret, roof;
   unsigned int i;
   char *find;
   bool local;
-  struct stat buf;
   ReplyDataDef rd;
 
 rd.connection = connection;
 
-    if( ( iohtmlHeaderFind(&rd, "Referer") ) && ( iohtmlHeaderFind(&rd, "Host") ) ) {
-      local = strstr( iohtmlHeaderFind(&rd, "Referer"), iohtmlHeaderFind(&rd, "Host") ) ? true : false;
-    } else {
-    	local = false;
-    }
-
-if ( ( strncmp(url,"/images/",8) == false ) && ( strcmp("/",strrchr(url,'/') ) ) ) {
-	/* should be file download */
-	#if HAVE_MAGIC_H
-	char file_data[MAGIC_HEADER_SIZE];
-	ssize_t got;
-	#endif
-	const char *mime;
-	char *filename, filebuffer[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
-
-	filename = strrchr(url,'/');
-	strcpy(filebuffer,sysconfig.httpimages);
-	strcat(filebuffer,&url[7]);
-	filename = filebuffer;
-
-	if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
-		return MHD_NO;  /* unexpected method (we're not polite...) */
-	if ( (0 == stat (filename, &buf)) && (NULL == strstr (filename, "..")) && ('/' != filename[1]) )
-		fd = open (filename, O_RDONLY);
-	else
-		fd = -1;
-	if (-1 == fd) {
-		ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
-		return ret;
-	}
-
-      /* read beginning of the file to determine mime type  */
-#if HAVE_MAGIC_H
-	got = read (fd, file_data, sizeof (file_data));
-	if (-1 != got)
-		mime = magic_buffer (magic, file_data, got);
-	else
-#endif
-		mime = NULL;
-	(void) lseek (fd, 0, SEEK_SET);
-
-	if (NULL == (response = MHD_create_response_from_fd(buf.st_size,fd)) ) {
-		/* internal error (i.e. out of memory) */
-		(void) close (fd);
-		return MHD_NO;
-	}
-
-      /* add mime type if we had one */
-	if (NULL != mime)
-		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
-	else
-		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( strdup(iohttpMime[ iohttpMimeFind( filename ) ].def ), ' ')+1 ) );
-
-	md5_file( filename, md5sum );
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-	strftime(filebuffer,PATH_MAX,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, filebuffer );
-
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
-	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-	MHD_destroy_response (response);
-
-	return ret;
+if( ( iohtmlHeaderFind(&rd, "Referer") ) && ( iohtmlHeaderFind(&rd, "Host") ) ) {
+	local = strstr( iohtmlHeaderFind(&rd, "Referer"), iohtmlHeaderFind(&rd, "Host") ) ? true : false;
+} else {
+	local = false;
 }
-//end images
+
 request = *ptr;
 if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL == request) {
@@ -961,6 +814,7 @@ if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HT
 	return ret;
 }
 
+
 /* unsupported HTTP method */
 ret = MHD_queue_response (connection, MHD_HTTP_METHOD_NOT_ACCEPTABLE, request_refused_response);
 
@@ -1004,8 +858,7 @@ if (NULL != request->filename) {
 	free (request->filename);
 }
 
-if( (request->session)->postdata != NULL )
-	postdata_wipe( request->session );
+postdata_wipe( request->session );
 
 free(request);
 }
