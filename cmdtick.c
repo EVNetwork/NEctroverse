@@ -412,6 +412,8 @@ if( ( b = dbUserSpecOpList( usrid, &specopd ) ) >= 0 ) {
 			nInfection++;
 		}
   	}
+  	if( specopd )
+		free( specopd );
 }
 
 if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )

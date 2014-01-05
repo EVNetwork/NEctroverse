@@ -59,7 +59,7 @@ int spawn_map() {
 	int a, b, c, d, e, i, p, x, y, x2, y2;
 	int64_t j;
 	float dist, distmax;
-	char fname[256];
+	char fname[PATH_MAX];
 	char imgsizer[2048];
 	uint8_t *pixels, *bigpixies; 
 	FILE *file;
@@ -72,28 +72,17 @@ int spawn_map() {
 	dbMainEmpireDef empired;
 
 memset( &mapstore, 0, sizeof(mapstoreDef) ); // ahaha... holy cow this is gonna be hectic =P
-mapstore.factor = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
-memset( mapstore.factor, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
-mapstore.data = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
-memset( mapstore.data, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
-mapstore.posx = malloc( sizeof(int)*mapcfg.bonusnum );
-memset( mapstore.posx, 0, sizeof(int)*mapcfg.bonusnum );
-mapstore.posy = malloc( sizeof(int)*mapcfg.bonusnum );
-memset( mapstore.posy, 0, sizeof(int)*mapcfg.bonusnum );
-mapstore.type = malloc( sizeof(int)*mapcfg.bonusnum );
-memset( mapstore.type, 0, sizeof(int)*mapcfg.bonusnum );
-mapstore.pos = malloc( sizeof(int)*mapcfg.systems );
-memset( mapstore.pos, 0, sizeof(int)*mapcfg.systems );
-mapstore.planets = malloc( sizeof(int)*mapcfg.systems );
-memset( mapstore.planets, 0, sizeof(int)*mapcfg.systems );
-mapstore.pbase = malloc( sizeof(int)*mapcfg.systems );
-memset( mapstore.pbase, 0, sizeof(int)*mapcfg.systems );
-mapstore.home = malloc( sizeof(int)*mapcfg.systems );
-memset( mapstore.home, 0, sizeof(int)*mapcfg.systems );
-mapstore.system = malloc( sizeof(int)*mapcfg.families );
-memset( mapstore.system, 0, sizeof(int)*mapcfg.families );
-mapstore.arti = malloc( sizeof(int)*ARTEFACT_NUMUSED );
-memset( mapstore.arti, 0, sizeof(int)*ARTEFACT_NUMUSED );
+mapstore.factor = calloc( sizeof(int), mapcfg.sizex*mapcfg.sizey );
+mapstore.data = calloc( sizeof(int), mapcfg.sizex*mapcfg.sizey );
+mapstore.posx = calloc( sizeof(int), mapcfg.bonusnum );
+mapstore.posy = calloc( sizeof(int), mapcfg.bonusnum );
+mapstore.type = calloc( sizeof(int), mapcfg.bonusnum );
+mapstore.pos = calloc( sizeof(int), mapcfg.systems );
+mapstore.planets = calloc( sizeof(int), mapcfg.systems );
+mapstore.pbase = calloc( sizeof(int), mapcfg.systems );
+mapstore.home = calloc( sizeof(int), mapcfg.systems );
+mapstore.system = calloc( sizeof(int), mapcfg.families );
+mapstore.arti = calloc( sizeof(int), ARTEFACT_NUMUSED );
 
 mapCalcFactors(&mapstore);
 
@@ -299,8 +288,7 @@ fclose( file );
 //End family generation
 
 //Arightyz, we've got all the data... now lets put it to some use and spalt a image out.
-pixels = malloc( sizeof(int)*mapcfg.sizex*mapcfg.sizey );
-memset( pixels, 0, sizeof(int)*mapcfg.sizex*mapcfg.sizey );
+pixels = calloc( sizeof(int), mapcfg.sizex*mapcfg.sizey );
 
 for( y = 0 ; y < mapcfg.sizey ; y++ ) { 
 	for( x = 0 ; x < mapcfg.sizex ; x++ )  {
@@ -315,7 +303,7 @@ bigpixies = NULL;
 /*
 mapgen.width = MAP_DEFINE_SIZEX *3;
 mapgen.height = MAP_DEFINE_SIZEY *3;
-bigpixies = malloc( mapgen.height * mapgen.width );
+bigpixies = calloc( sizeof(int), mapgen.height*mapgen.width );
 
 for( y = 0 ; y < mapgen.height ; y++ ) { 
 	for( x = 0 ; x < mapgen.width ; x++ )  {

@@ -1192,18 +1192,28 @@ return 0;
 
 #if HTTPS_SUPPORT
 int https_start() {
+	char *key;
+	char *cert;
+	char *bundle;
+
+key = loadsslfile( "/home/stephen/.ssl/certificate.key" );
+cert = loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt");
+bundle = loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt");
 
 server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 				options.port[PORT_HTTPS],
 				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
-				MHD_OPTION_HTTPS_MEM_KEY, loadsslfile( "/home/stephen/.ssl/certificate.key" ),
-				MHD_OPTION_HTTPS_MEM_CERT, loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt"),
-				MHD_OPTION_HTTPS_MEM_TRUST, loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt"),
+				MHD_OPTION_HTTPS_MEM_KEY, key,
+				MHD_OPTION_HTTPS_MEM_CERT, cert,
+				MHD_OPTION_HTTPS_MEM_TRUST, bundle,
 				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
 				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 				MHD_OPTION_END);
+free( key );
+free( cert );
+free( bundle );
 if(NULL == server_https)
 	return 1;
 

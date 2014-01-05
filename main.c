@@ -67,16 +67,17 @@ rd->response.off += snprintf( &rd->response.buf[rd->response.off], buffer, "%s",
 return;
 }
 
-void httpPrintf( ReplyDataPtr rd, char *string, ... ) {
+void httpPrintf( ReplyDataPtr rd, char *fmt, ... ) {
 	int buffer = (rd->response.buf_len - rd->response.off);
-	char text[4096];
+	int len;
+	char text[ARRAY_MAX];
 	va_list ap;
-	va_start( ap, string );
 
-vsnprintf( text, 4096, string, ap );
+va_start( ap, fmt );
+len = vsnprintf( text, ARRAY_MAX, fmt, ap );
 va_end( ap );
 
-if( ( buffer - strlen( text ) ) < 0 )
+if( ( buffer - len ) < 0 )
 	error( "Insufficent buffer for string" );
 
 
@@ -837,6 +838,7 @@ return strdup(p);
 
 
 int savetickconfig() {
+	char *temp;
 	char DIRCHECKER[PATH_MAX];
 	inikey ini;
 	FILE *file;
@@ -851,16 +853,27 @@ if(file) {
 	iniparser_set(ini,"ticks",NULL);
 	iniparser_set(ini,"ticks:status",ticks.status ? "true" : "false");
 	iniparser_set(ini,"ticks:locked",ticks.locked ? "true" : "false");
-	iniparser_set(ini,"ticks:number",itoa(ticks.number));
-	iniparser_set(ini,"ticks:round",itoa(ticks.round));
-	iniparser_set(ini,"ticks:speed",itoa(ticks.speed));
-	iniparser_set(ini,"ticks:last",itoa(ticks.last));
-	iniparser_set(ini,"ticks:next",itoa(ticks.next));
-	iniparser_set(ini,"ticks:debug_id",itoa(ticks.debug_id));
-	iniparser_set(ini,"ticks:debug_pass",itoa(ticks.debug_pass));
-	iniparser_set(ini,"ticks:uonline",itoa(ticks.uonline));
-	iniparser_set(ini,"ticks:uactive",itoa(ticks.uactive));
-	iniparser_set(ini,"ticks:uregist",itoa(ticks.uregist));
+	temp = itoa(ticks.number);
+	iniparser_set(ini,"ticks:number",temp);
+	temp = itoa(ticks.round);
+	iniparser_set(ini,"ticks:round",temp);
+	temp = itoa(ticks.speed);
+	iniparser_set(ini,"ticks:speed",temp);
+	temp = itoa(ticks.last);
+	iniparser_set(ini,"ticks:last",temp);
+	temp = itoa(ticks.next);
+	iniparser_set(ini,"ticks:next",temp);
+	temp = itoa(ticks.debug_id);
+	iniparser_set(ini,"ticks:debug_id",temp);
+	temp = itoa(ticks.debug_pass);
+	iniparser_set(ini,"ticks:debug_pass",temp);
+	temp = itoa(ticks.uonline);
+	iniparser_set(ini,"ticks:uonline",temp);
+	temp = itoa(ticks.uactive);
+	iniparser_set(ini,"ticks:uactive",temp);
+	temp = itoa(ticks.uregist);
+	iniparser_set(ini,"ticks:uregist",temp);
+	free( temp );
 	iniparser_dump_ini(ini,file);
 	iniparser_freedict(ini);
 	fflush( file );

@@ -520,6 +520,9 @@ return;
 void iohtmlFBConnect( ReplyDataPtr cnt ) {
 	bool access; 
 	char *host;
+	#if HTTPS_SUPPORT
+	char *temp;
+	#endif
 
 if( ( strlen( fbcfg.app_id ) <= 0 ) || ( strlen( fbcfg.app_secret ) <= 0 ) )
 	return;
@@ -532,7 +535,9 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 	#if HTTPS_SUPPORT
-	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
+	temp = itoa(options.port[PORT_HTTP]);
+	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, temp ) ? false : true );
+	free( temp );
 	#endif
 
 	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );

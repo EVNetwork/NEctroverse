@@ -387,7 +387,7 @@ void dbUserFree( dbUserPtr user )
   if( next )
     next->prev = user->prev;
   free( user );
-  if( (unsigned int)user->id >= ARRAY_MAX )
+  if( ( user ) && ( user->id >= ARRAY_MAX ) )
     return;
   dbUserTable[user->id] = 0;
   return;
@@ -397,6 +397,9 @@ void dbUserFree( dbUserPtr user )
 /*
 users
   4:next user ID
+
+
+
 
 
 
@@ -1836,6 +1839,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 	return -3;
 }
   
+
 file_r( &num, 1, sizeof(int64_t), file );
 file_r( &lused, 1, sizeof(int64_t), file );
 file_r( &lfree, 1, sizeof(int64_t), file );
