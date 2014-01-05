@@ -967,10 +967,6 @@ int main( int argc, char *argv[] ) {
 	#endif
 	int test;
 
-#if MEMLEAK_DETECT
-atexit(report_mem_leak);
-#endif
-
 if( checkops(argc,argv) ) {
 	printf ("Error: Invalid usage detected...\n");
 	exit(true);

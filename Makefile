@@ -31,10 +31,6 @@ else
 DEFS = -g -rdynamic
 endif
 
-ifneq ($(findstring MEMLEAK_DETECT 1,$(CONFIGS)),)
-MODLIBS += $(LIBDIR)leak_detector.o
-endif
-
 endif
 
 ifneq ($(findstring IRCBOT_SUPPORT 1,$(CONFIGS)),)
@@ -86,9 +82,6 @@ $(LIBDIR)html.o: $(HEAD) html/*.h html/*.c
 
 $(LIBDIR)extras.o: $(HEAD) extras/*.h extras/*.c
 	$(CC) extras/extras.c $(DEFS) -o $(LIBDIR)extras.o -c $(FLAGS)
-
-$(LIBDIR)leak_detector.o: $(HEAD) extras/leak_detector.h extras/leak_detector.c
-	$(CC) extras/leak_detector.c $(DEFS) -o $(LIBDIR)leak_detector.o -c $(FLAGS)
 
 $(LIBDIR)ircbot.o: $(HEAD) ircbot/*.h ircbot/*.c
 	$(CC) ircbot/ircbot.c $(DEFS) -o $(LIBDIR)ircbot.o -c $(FLAGS)

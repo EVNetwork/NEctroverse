@@ -2,6 +2,7 @@
 #define GLOBALINCLUDED
 //The above line MUST STAY HERE! -- This prevents double calling.
 #include "depreciated.h"
+
 #include <crypt.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -158,9 +159,5 @@ static const double megabyte = (1024 * 1024);
 
 
 #define redirect(cnt, url) strncpy( (cnt->session)->redirect, url, MAXREDIRECT )
-
-#if MEMLEAK_DETECT
-#include "../extras/leak_detector.h"
-#endif
 
 #endif //END OF FILE

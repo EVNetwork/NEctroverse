@@ -145,7 +145,7 @@ httpPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span 
 httpPrintf( cnt, "<tr><td>Tick time</td><td>&nbsp;:&nbsp;</td><td>%d seconds</td></tr>", sysconfig.ticktime );
 
 if( ticks.status ) {
-	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"sstatsTime\">%s</td></tr>", TimeToString( ticks.next - time(0) ) );
+	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"sstatsTime\">%s</td></tr>", ((ticks.next - time(0)) > 0) ? TimeToString( ticks.next - time(0) ) : "Now..." );
 } else {
 	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>Time Frozen!</td></tr>" );
 }

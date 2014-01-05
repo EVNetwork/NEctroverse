@@ -7,13 +7,10 @@
 #define _GNU_SOURCE  1
 
 /* disable debugging symbols support */
-#define DEBUG_SUPPORT 1
-
-/* disable debugging memory leaks support -- Warning: This creates a memory drain in itself*/
-#define MEMLEAK_DETECT 0
+#define DEBUG_SUPPORT 0
 
 /* disable HTTPS support */
-#define FACEBOOK_SUPPORT 0
+#define FACEBOOK_SUPPORT 1
 
 /* disable HTTPS support */
 #define HTTPS_SUPPORT 1
