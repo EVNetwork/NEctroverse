@@ -407,7 +407,7 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	char *type, *fname, *temp;
 	struct stat buf;
 	struct MHD_Response *response;
-	FILE *file;
+	int file;
 
 memset( &dmsg, 0, PATH_MAX );
 
@@ -425,13 +425,13 @@ if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 }
 
 if( (0 == stat (dmsg, &buf)) && (S_ISREG (buf.st_mode)) ) {
-	file = fopen (dmsg, "rb");
+	file = open (dmsg, O_RDONLY);
 } else {
-	file = NULL;
+	file = false;
 }
 
    
-if (file == NULL) { 
+if (file == false) { 
 	update_directory( connection );
 	ret = return_directory_response( connection );
 } else {
@@ -442,11 +442,18 @@ if (file == NULL) {
 	else
 	#endif
 	mime = NULL;
-
+	/*
 	response = MHD_create_response_from_callback( buf.st_size, ( SERVERALLOCATION / 8 ), &file_read, file, &file_free_callback );
 	if (response == NULL) {
 		fclose (file);
 		return MHD_NO;
+	}*/
+	if (NULL == (response = MHD_create_response_from_fd (buf.st_size,
+							   file)))
+	{
+	  /* internal error (i.e. out of memory) */
+	  (void) close (file);
+	  return MHD_NO;
 	}
 	if( strcmp( type, "download" ) == 0 ) {
 		snprintf(dmsg, sizeof (dmsg), "filename=%s", fname );
