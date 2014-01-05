@@ -178,7 +178,7 @@ int iohttpForumFilter3( char *dest, char *string, int size )
    string = string2;
    continue;
   }
-  if( !( string2 = ioCompareWords( string, "<img src=\"images/f" ) ) )
+  if( !( string2 = ioCompareWords( string, "<img src=\"images/smilies/f" ) ) )
    goto iohttpForumFilter3L0;
   if( !( string2[0] ) || !( string2[1] ) )
    goto iohttpForumFilter3L0;
