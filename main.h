@@ -37,8 +37,8 @@ typedef struct {
 	int ticktime;
 	int round;
 	//syslog
-	char* syslog_tagname;
-	char* syslog_facility;
+	char *syslog_tagname;
+	char *syslog_facility;
 	//emergency breaker
 	bool shutdown;
 	//Auto Toggles
@@ -181,7 +181,6 @@ void loghandle( int flag, int error, char *fmt, ... );
 extern char logString[MAXLOGSTRING];
 
 extern bool firstload;
-char *itoa(int i);
 
 void svSignal( int signal );
 

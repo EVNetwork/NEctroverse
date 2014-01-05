@@ -26,6 +26,8 @@ tickDef ticks;
 ircDef irccfg;
 #endif
 
+inikey config;
+
 char logString[MAXLOGSTRING];
 
 bool firstload = false;
@@ -48,7 +50,7 @@ if( type ) {
 	unlink(DIRCHECKER);
 }
 
-
+iniparser_freedict( config );
 
 return;
 }
@@ -699,9 +701,9 @@ if( firstload ) {
 		iniparser_set(ini,"system:httpfiles",sysconfig.httpfiles);
 		iniparser_set(ini,"system:httpread",sysconfig.httpread);
 		iniparser_set(ini,"system:pubforum",sysconfig.pubforum);
-		iniparser_set(ini,"system:http_port",itoa(sysconfig.httpport));
+		iniparser_set_string(ini,"system:http_port","%d", sysconfig.httpport );
 		#if HTTPS_SUPPORT
-		iniparser_set(ini,"system:https_port",itoa(sysconfig.httpsport));
+		iniparser_set_string(ini,"system:https_port","%d", sysconfig.httpsport );
 		#endif
 		iniparser_set(ini,"system:stockpile","14");
 		iniparser_set(ini,"system:auto_victory_afterticks","52");
@@ -743,29 +745,29 @@ if( firstload ) {
 	}
 	if( !( iniparser_find_entry(ini,"admin_empire") ) ){
 		iniparser_set(ini,"admin_empire",NULL);
-		iniparser_set(ini,"admin_empire:number", itoa(admincfg.empire) );
+		iniparser_set_string(ini,"admin_empire:number", "%d", admincfg.empire );
 		iniparser_set(ini,"admin_empire:name", admincfg.ename );
 		iniparser_set(ini,"admin_empire:password", admincfg.epassword );
 		iniparser_set(ini,"admin_empire:ommit_from_rank", admincfg.rankommit ? "true" : "false" );
 	}
 	if( !( iniparser_find_entry(ini,"map") ) ){
 		iniparser_set(ini,"map",NULL);
-		iniparser_set(ini,"map:sizex", itoa(mapcfg.sizex) );
-		iniparser_set(ini,"map:systems", itoa(mapcfg.systems) );
-		iniparser_set(ini,"map:families", itoa(mapcfg.families) );
-		iniparser_set(ini,"map:members_perfamily", itoa(mapcfg.fmembers) );
-		iniparser_set(ini,"map:border", itoa(mapcfg.border) );
-		iniparser_set(ini,"map:anglevar", itoa(mapcfg.anglevar) );
-		iniparser_set(ini,"map:linknum", itoa(mapcfg.linknum) );
-		iniparser_set(ini,"map:linkradius", itoa(mapcfg.linkradius) );
-		iniparser_set(ini,"map:lenghtbase", itoa(mapcfg.lenghtbase) );
-		iniparser_set(ini,"map:lenghtvar", itoa(mapcfg.lenghtvar) );
+		iniparser_set_string(ini,"map:sizex", "%d", mapcfg.sizex );
+		iniparser_set_string(ini,"map:systems", "%d", mapcfg.systems );
+		iniparser_set_string(ini,"map:families", "%d", mapcfg.families );
+		iniparser_set_string(ini,"map:members_perfamily", "%d", mapcfg.fmembers );
+		iniparser_set_string(ini,"map:border", "%d", mapcfg.border );
+		iniparser_set_string(ini,"map:anglevar", "%d", mapcfg.anglevar );
+		iniparser_set_string(ini,"map:linknum", "%d", mapcfg.linknum );
+		iniparser_set_string(ini,"map:linkradius", "%d", mapcfg.linkradius );
+		iniparser_set_string(ini,"map:lenghtbase", "%d", mapcfg.lenghtbase );
+		iniparser_set_string(ini,"map:lenghtvar", "%d", mapcfg.lenghtvar );
 		for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
 			sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);
 			for(i = 0; DIRCHECKER[i]; i++){
 				DIRCHECKER[i] = tolower(DIRCHECKER[i]);
 			}
-			iniparser_set(ini,DIRCHECKER, itoa( (rand() % 35) ) );
+			iniparser_set_string(ini,DIRCHECKER, "%d", (rand() % 35) );
 		}
 	}
 	if( !( iniparser_find_entry(ini,"banned_ips") ) ){
@@ -812,70 +814,34 @@ iniparser_freedict(ini);
 return 1;
 }
 
-char *itoa(int i){
-    char const digit[] = "0123456789";
-    char buffer[1024];
-    char *p = buffer;
-
-if(i<0){
-	*p++ = '-';
-	i = -1;
-}
-
-int shifter = i;
-do{
-	++p;
-	shifter = shifter/10;
-}while(shifter);
-*p = '\0';
-do{
-	*--p = digit[i%10];
-	i = i/10;
-}while(i);
-    
-return strdup(p);
-}
-
 
 int savetickconfig() {
-	char *temp;
 	char DIRCHECKER[PATH_MAX];
-	inikey ini;
 	FILE *file;
 
 sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
-file = fopen( DIRCHECKER, "r+" );
+file = fopen( DIRCHECKER, "rb+" );
 if(!file)
-	file = fopen( DIRCHECKER, "w" );
+	file = fopen( DIRCHECKER, "wb" );
 if(file) {
 	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
-	ini = dictionary_new(0);
-	iniparser_set(ini,"ticks",NULL);
-	iniparser_set(ini,"ticks:status",ticks.status ? "true" : "false");
-	iniparser_set(ini,"ticks:locked",ticks.locked ? "true" : "false");
-	temp = itoa(ticks.number);
-	iniparser_set(ini,"ticks:number",temp);
-	temp = itoa(ticks.round);
-	iniparser_set(ini,"ticks:round",temp);
-	temp = itoa(ticks.speed);
-	iniparser_set(ini,"ticks:speed",temp);
-	temp = itoa(ticks.last);
-	iniparser_set(ini,"ticks:last",temp);
-	temp = itoa(ticks.next);
-	iniparser_set(ini,"ticks:next",temp);
-	temp = itoa(ticks.debug_id);
-	iniparser_set(ini,"ticks:debug_id",temp);
-	temp = itoa(ticks.debug_pass);
-	iniparser_set(ini,"ticks:debug_pass",temp);
-	temp = itoa(ticks.uonline);
-	iniparser_set(ini,"ticks:uonline",temp);
-	temp = itoa(ticks.uactive);
-	iniparser_set(ini,"ticks:uactive",temp);
-	temp = itoa(ticks.uregist);
-	iniparser_set(ini,"ticks:uregist",temp);
-	free( temp );
-	iniparser_dump_ini(ini,file);
-	iniparser_freedict(ini);
+	iniparser_set(config,"ticks",NULL);
+	iniparser_set(config,"ticks:status",ticks.status ? "true" : "false");
+	iniparser_set(config,"ticks:locked",ticks.locked ? "true" : "false");
+	iniparser_set_string(config,"ticks:number", "%d", ticks.number);
+	iniparser_set_string(config,"ticks:round", "%d", ticks.round);
+	iniparser_set_string(config,"ticks:speed", "%d", ticks.speed);
+	iniparser_set_string(config,"ticks:last", "%d", ticks.last);
+	iniparser_set_string(config,"ticks:next", "%d", ticks.next);
+	
+	iniparser_set_string(config,"ticks:debug_id", "%d", ticks.debug_id);
+	iniparser_set_string(config,"ticks:debug_pass", "%d", ticks.debug_pass);
+	
+	iniparser_set_string(config,"ticks:uonline", "%d", ticks.uonline);
+	iniparser_set_string(config,"ticks:uactive", "%d", ticks.uactive);
+	iniparser_set_string(config,"ticks:uregist", "%d", ticks.uregist);
+
+	iniparser_dumpsection_ini( config, "ticks", file);
 	fflush( file );
 	fclose( file );
 }
@@ -1023,6 +989,9 @@ if( file_exist(options.sysini) == 0 ) {
 }
 
 (void)pthread_mutex_init (&mutex, NULL);
+
+config = iniparser_load( options.sysini );
+
 dirstructurecheck(TMPDIR);
 
 memset( &sysconfig, 0, sizeof(configDef) );

@@ -1,8 +1,8 @@
 
 #define MAX_FB_STRING 4096
 
-static bool is_http;
-static char do_redi[1024];
+static bool is_https = false;
+static char do_redi[MAXREDIRECT];
 
 void init_string( CurlStringPtr curl_str ) {
 
@@ -330,6 +330,7 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	char *error, *remove, *host;
 	char *code, *fbtoke;
 	char buffer[1024];
+	char temp[2][32];
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
@@ -341,10 +342,12 @@ if( !(strlen(fbcfg.app_id)) || !(strlen(fbcfg.app_secret)) )
 host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 #if HTTPS_SUPPORT
-is_http = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, itoa(options.port[PORT_HTTP]) ) ? false : true );
+sprintf(temp[0], "%d", options.port[PORT_HTTP]);
+sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
+is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
 #endif
 
-snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_http ? "https" : "http"), host  );
+snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_https ? "https" : "http"), host  );
 
 memset( &fbdata, 0, sizeof(FBUserDef) );
 memset( &token, 0, sizeof(FBTokenDef) );
@@ -518,10 +521,9 @@ return;
 }
 
 void iohtmlFBConnect( ReplyDataPtr cnt ) {
-	bool access; 
 	char *host;
 	#if HTTPS_SUPPORT
-	char *temp;
+	char temp[2][32];
 	#endif
 
 if( ( strlen( fbcfg.app_id ) <= 0 ) || ( strlen( fbcfg.app_secret ) <= 0 ) )
@@ -535,12 +537,12 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 	#if HTTPS_SUPPORT
-	temp = itoa(options.port[PORT_HTTP]);
-	access = strstr( host, itoa(options.port[PORT_HTTPS]) ) ? true : ( strstr( host, temp ) ? false : true );
-	free( temp );
+	sprintf(temp[0], "%d", options.port[PORT_HTTP]);
+	sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
+	is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
 	#endif
 
-	sprintf( logString, "%s://%s/facebook", (access ? "https" : "http"), host  );
+	sprintf( logString, "%s://%s/facebook", (is_https ? "https" : "http"), host  );
 
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );

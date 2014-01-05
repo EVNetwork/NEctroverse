@@ -11,7 +11,7 @@
 #include "dictionary.c"
 
 /*---------------------------- Defines -------------------------------------*/
-#define ASCIILINESZ         (1024)
+#define ASCIILINESZ         INI_MAX
 #define INI_INVALID_KEY     ((char*)-1)
 
 /*---------------------------------------------------------------------------
@@ -526,6 +526,18 @@ int iniparser_set(dictionary * ini, const char * entry, const char * val)
 {
     return dictionary_set(ini, strlwc(entry), val) ;
 }
+
+int iniparser_set_string(dictionary * ini, const char *entry, char *fmt, ...) {
+    const char val[INI_MAX];
+	va_list ap;
+
+va_start( ap, fmt );
+vsnprintf( (char *)val, INI_MAX, fmt, ap );
+va_end( ap );
+
+return dictionary_set(ini, strlwc(entry), val) ;
+}
+
 
 /*-------------------------------------------------------------------------*/
 /**

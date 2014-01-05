@@ -74,6 +74,10 @@
 #define ARRAY_MAX 16384
 #endif
 
+#ifndef INI_MAX
+#define INI_MAX 1024
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
