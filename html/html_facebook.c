@@ -1,8 +1,6 @@
 
-#define MAX_FB_STRING 4096
-
 static bool is_https = false;
-static char do_redi[MAXREDIRECT];
+static char do_redi[REDIRECT_MAX];
 
 void init_string( CurlStringPtr curl_str ) {
 
@@ -36,14 +34,14 @@ return size*nmemb;
 
 void facebook_apptoken( char **token ) {
 	int offset;
-	char post[MAX_FB_STRING];
+	char post[DEFAULT_BUFFER];
 	CURL *curl;
 	CURLcode res;
 
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_secret=%s", fbcfg.app_secret );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", "&grant_type=client_credentials" );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", fbcfg.app_id );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", "&grant_type=client_credentials" );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -72,15 +70,15 @@ return;
 void facebook_usertoken( FBTokenPtr token, char *code ) {
 	int i, num, offset;
 	char **split;
-	char post[MAX_FB_STRING];
+	char post[DEFAULT_BUFFER];
 	CURL *curl;
 	CURLcode res;
 
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_secret=%s", fbcfg.app_secret );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&redirect_uri=%s", do_redi );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&code=%s", code );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", fbcfg.app_id );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&redirect_uri=%s", do_redi );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&code=%s", code );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -123,7 +121,7 @@ void facebook_getdata( FBUserPtr fbdata, char *urlstring, int offset ) {
 	CURL *curl;
 	CURLcode res;
 
-offset += snprintf( &urlstring[offset], (MAX_FB_STRING - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,languages" );
+offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,languages" );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -210,21 +208,21 @@ return;
 
 void facebook_getdata_token( FBUserPtr fbdata, FBTokenDef token ) {
 	int offset;
-	char post[MAX_FB_STRING];
+	char post[DEFAULT_BUFFER];
 
 /*
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", "grant_type=fb_exchange_token" );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&client_secret=%s", fbcfg.app_secret );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&fb_exchange_token=%s", token );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&redirect_uri=%s", do_redi );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", "grant_type=fb_exchange_token" );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_id=%s", fbcfg.app_id );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&fb_exchange_token=%s", token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&redirect_uri=%s", do_redi );
 */
 
 
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", "https://graph.facebook.com/me" );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "?access_token=%s", token.val );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", "https://graph.facebook.com/me" );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?access_token=%s", token.val );
 
 facebook_getdata( fbdata, post, offset );
 
@@ -235,11 +233,11 @@ return;
 
 void facebook_getdata_id( FBUserPtr fbdata, char *userid ) {
 	int offset;
-	char post[MAX_FB_STRING];
+	char post[DEFAULT_BUFFER];
 
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "https://graph.facebook.com/%s", userid  );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "?%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "https://graph.facebook.com/%s", userid  );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", fbcfg.app_token );
 
 facebook_getdata( fbdata, post, offset );
 
@@ -251,19 +249,19 @@ return;
 int facebook_post_notice( char *fbid, char *fmt, ... ) {
 	bool result = false;
 	int offset;
-	char post[MAX_FB_STRING];
-	char template[MAX_FB_STRING];
+	char post[DEFAULT_BUFFER];
+	char template[DEFAULT_BUFFER];
 	CURL *curl;
 	CURLcode res;
 	va_list ap;
 
 va_start( ap, fmt );
-vsnprintf( template, MAX_FB_STRING, fmt, ap );
+vsnprintf( template, DEFAULT_BUFFER, fmt, ap );
 va_end( ap );
 
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "%s", fbcfg.app_token );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "&template=%s", template );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&template=%s", template );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -293,13 +291,13 @@ return result;
 int facebook_unlink_app( char *userid ) {
 	bool result = false;
 	int offset;
-	char post[MAX_FB_STRING];
+	char post[DEFAULT_BUFFER];
 	CURL *curl;
 	CURLcode res;
 
 offset = 0;
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "https://graph.facebook.com/%s/permissions", userid  );
-offset += snprintf( &post[offset], (MAX_FB_STRING - offset), "?%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "https://graph.facebook.com/%s/permissions", userid  );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", fbcfg.app_token );
 
 curl = curl_easy_init();
 if( curl ) {

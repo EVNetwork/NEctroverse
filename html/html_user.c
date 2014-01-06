@@ -115,7 +115,7 @@ void iohtmlFunc_changepass( ReplyDataPtr cnt )
 {
   int a, b, id;
   dbUserMainDef maind;
-  char oldpass[128];
+  char oldpass[PASSWORD_MAX];
   char *newpass[3];
 
 

@@ -9,7 +9,7 @@ void mapCalcFactors(mapstoreDef *mapstore) {
 	float fpos[2];
 	float angle, anglevar;
 	float fdir[2];
-	float pts[65536][2];
+	float pts[ARRAY_MAX][2];
 	int ptsnum;
 
 ptsnum = 0;

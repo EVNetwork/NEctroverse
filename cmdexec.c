@@ -58,9 +58,9 @@ return a;
 int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int level )
 {
   int a, b, c, x, y;
-  int binfo[MAP_TOTAL_INFO], fam[1024];
+  int binfo[MAP_TOTAL_INFO], *fam;
   //Max 200 emp
-  char epass[128];
+  char epass[PASSWORD_MAX];
   dbUserMainDef maind;
   dbMainEmpireDef empired;
   dbMainSystemDef systemd;
@@ -81,6 +81,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   //This is for random emp
   if( famnum == -1 )
   {
+    fam = calloc( mapcfg.families * mapcfg.fmembers, sizeof(int) );
     for( a = b = 0 ; a < binfo[MAP_EMPIRES] ; a++ )
     {
       fam[a] = 0;
@@ -106,6 +107,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
         break;
     }
     maind.empire = a;
+    free( fam );
   }
   else
   {
@@ -117,7 +119,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
     }
     cmdExecGetFamPass( famnum, epass );
 
-    if( ( strlen(epass) ) && !( checkencrypt( fampass, epass ) ) )
+    if( ( epass[0] ) && !( checkencrypt( fampass, epass ) ) )
     {
       cmdErrorString = "The empire password is incorrect!";
       return -1;
@@ -1101,7 +1103,7 @@ int cmdExecChangFamName( int fam, char *name )
   cmdErrorString = 0;
   if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
     return -3;
-  for( a = 0 ; ( a < 63 ) && ( name[a] ) ; a++ )
+  for( a = 0 ; ( a < NAME_MAX ) && ( name[a] ) ; a++ )
     empired.name[a] = name[a];
   empired.name[a] = 0;
 
@@ -1150,7 +1152,7 @@ cmdErrorString = 0;
 if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
 	return -3;
 
-for( a = 0 ; a < 127 ; a++ ) {
+for( a = 0 ; a < PASSWORD_MAX-1 ; a++ ) {
 	if( ( empired.password[a] == 10 ) || ( empired.password[a] == 13 ) )
 		break;
 	empired.password[a] = pass[a];

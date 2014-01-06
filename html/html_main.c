@@ -19,7 +19,7 @@ int iohttpIdentifyHex( char *num )
 
 int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
 	int id;
-	char sess[129];
+	char sess[SESSION_SIZE];
 
 if( NULL == (cnt->session)->dbuser )
 	goto iohtmlIdentifyL0;
@@ -427,7 +427,7 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  int a, i, id;
  FILE *file;
  char timebuf[256];
- char COREDIR[256];
+ char COREDIR[PATH_MAX];
  char *name, *pass, *faction;
  int64_t newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
@@ -604,7 +604,7 @@ return;
 
 void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
 	int a, i, id, num;
-	char rtpass[129];
+	char rtpass[PASSWORD_MAX];
 	int64_t *newsp, *newsd;
 	dbUserInfoDef infod;
 	struct stat stdata;

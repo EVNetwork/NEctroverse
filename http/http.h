@@ -1,10 +1,6 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#define MAXREDIRECT 1024
-
-#define SESSION_TIME ( 15 * minute )
-
 /**
  * Context keeping the data for the response we're building.
  */
@@ -59,8 +55,6 @@ typedef struct Cookies
 
 } CookiesDef, *CookiesPtr;
 
-#define MAX_POST_VALUES 64
-
 typedef struct _POST_DATA_STORAGE {
 	char *key;
 	char *value;
@@ -86,12 +80,12 @@ typedef struct Session
   /**
    * Unique ID for this session.
    */
-  char sid[129];
+  char sid[SESSION_SIZE];
 
   /**
    * url to redirect if needed.
    */
-  char redirect[MAXREDIRECT];
+  char redirect[REDIRECT_MAX];
   
   /**
    * Time when this session was last active.

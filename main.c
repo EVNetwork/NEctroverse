@@ -91,7 +91,8 @@ return;
 
 void svSignal( int signal ) {
 //	int a, size;
- 
+
+info( cmdSignalNames[signal]  ); 
 if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
 	if( options.verbose ) {
 		printf("\n");
@@ -1135,7 +1136,7 @@ return 0;
 
 char *cmdSignalNames[SIGNALS_NUMUSED] =
 {
-"MISSING",
+NULL,
 "Hangup",
 "Interrupt",
 "Quit",

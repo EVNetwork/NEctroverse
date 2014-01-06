@@ -572,7 +572,7 @@ int cmdCheckName( char *name )
     return 0;
   for( a = b = 0 ; name[a] ; a++ )
   {
-    if( a == 31 )
+    if( a == NAME_MAX )
       return 0;
     else if( ( name[a] == 13 ) || ( name[a] == 10 ) )
       name[a] = 0;
@@ -601,10 +601,11 @@ int cmdCheckName( char *name )
 void cmdEmpireLeader( dbMainEmpirePtr empired )
 {
   int a, b;
-  int parray[128];
+  int *parray;
   dbUserPtr user;
 
-  memset( parray, 0, 128*sizeof(int) );
+  if( ( parray = calloc( mapcfg.families * mapcfg.fmembers, sizeof(int) ) ) == NULL )
+  	error( "Malloc Failed" );
   for( a = b = 0 ; a < empired->numplayers ; a++ )
   {
     if( empired->vote[a] == -1 )
@@ -656,7 +657,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
     }
   }
 
-
+  free( parray );
   return;
 }
 
@@ -1586,7 +1587,7 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
 
 int cmdInit() {
 	int id, a, pass, exist;
-	char string[2][128];
+	char string[2][NAME_MAX];
 	dbUserPtr user;
 	dbUserInfoDef infod;
 

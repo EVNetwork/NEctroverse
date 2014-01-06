@@ -2937,7 +2937,7 @@ file_r( threadd, 1, sizeof(dbForumThreadDef), file );
     file_r( &offset, 1, sizeof(int), file );
     file_r( &postsp[b].post, 1, sizeof(dbForumPostInDef), file );
     postsp[b].text = 0;
-    if( (unsigned int)((postsp[b].post).length) >= 65536 )
+    if( (unsigned int)((postsp[b].post).length) >= ARRAY_MAX )
     {
       (postsp[b].post).flags |= DB_FORUM_FLAGS_POSTERROR;
       continue;
@@ -3469,11 +3469,11 @@ int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd )
   dbForumThreadDef threadd;
   dbForumPostPtr posts;
 /*
-  if( dbForumListPosts( forum, thread, post+1, 65536, &threadd, &posts ) < 0 )
+  if( dbForumListPosts( forum, thread, post+1, ARRAY_MAX, &threadd, &posts ) < 0 )
     return -3;
 */
   posts = 0;
-  dbForumListPosts( forum, thread, post+1, 65536, &threadd, &posts );
+  dbForumListPosts( forum, thread, post+1, ARRAY_MAX, &threadd, &posts );
 
 	if(forum > 100)
   	snprintf( fname, sizeof(fname), "forum%d/thread%d", forum, thread );
@@ -3579,7 +3579,7 @@ for( b = 0 ; a < num ; a++, b++ ) {
 	file_r( &offset, 1, sizeof(int64_t), file );
 	file_r( &mailsp[b].mail, 1, sizeof(dbMailInDef), file );
 	mailsp[b].text = 0;
-	if( (unsigned int)((mailsp[b].mail).length) >= 65536 )
+	if( (unsigned int)((mailsp[b].mail).length) >= ARRAY_MAX )
 		continue;
 	if( !( mailsp[b].text = malloc( (mailsp[b].mail).length + 1 ) ) )
 		continue;

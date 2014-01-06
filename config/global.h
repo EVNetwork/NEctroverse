@@ -71,16 +71,53 @@
 #include <curl/curl.h>
 #endif
 
+#ifndef DEFAULT_BUFFER
+#define DEFAULT_BUFFER 4096
+#endif
+
 #ifndef ARRAY_MAX
-#define ARRAY_MAX 16384
+#define ARRAY_MAX 65536
 #endif
 
 #ifndef INI_MAX
 #define INI_MAX 1024
 #endif
 
+#ifndef REDIRECT_MAX
+#define REDIRECT_MAX 1024
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 4096
+#endif
+
+#ifndef SESSION_TIME
+#define SESSION_TIME ( 15 * minute )
+#endif
+
+#ifndef SESSION_SIZE
+#define SESSION_SIZE 129
+#endif
+
+#ifndef DESCRIPTION_SIZE
+#define DESCRIPTION_SIZE 4096
+#endif
+
+#ifndef PASSWORD_MAX
+#define PASSWORD_MAX 129
+#endif
+
+#ifndef NAME_MAX
+#define NAME_MAX 129
+#endif
+
+#ifndef FTAG_MAX
+#define FTAG_MAX 256
+#endif
+
+
+#ifndef MAX_POST_VALUES
+#define MAX_POST_VALUES 64
 #endif
 
 #ifndef CT_TO_SECS
@@ -89,6 +126,14 @@
 
 #ifndef DEF_PI
 #define DEF_PI 3.14159265358979323846
+#endif
+
+#ifndef ANG_SIN
+#define ANG_SIN(x) sin((x*2*DEF_PI)/360.0)
+#endif
+
+#ifndef ANG_COS
+#define ANG_COS(x) cos((x*2*DEF_PI)/360.0)
 #endif
 
 #ifndef TRUE
@@ -101,15 +146,6 @@
 
 #ifndef null
 #define null NULL
-#endif
-
-
-#ifndef ANG_SIN
-#define ANG_SIN(x) sin((x*2*DEF_PI)/360.0)
-#endif
-
-#ifndef ANG_COS
-#define ANG_COS(x) cos((x*2*DEF_PI)/360.0)
 #endif
 
 #ifndef TMPDIR
@@ -158,6 +194,6 @@ static const double megabyte = (1024 * 1024);
 #define critical(msg) loghandle(LOG_CRIT, errno, "Critical Error \'%s\' in: %s, on line: %d", msg, __FILE__, __LINE__ )
 
 
-#define redirect(cnt, url) strncpy( (cnt->session)->redirect, url, MAXREDIRECT )
+#define redirect(cnt, url) strncpy( (cnt->session)->redirect, url, REDIRECT_MAX )
 
 #endif //END OF FILE

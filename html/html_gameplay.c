@@ -1190,7 +1190,7 @@ void iohtmlFunc_hq( ReplyDataPtr cnt )
  FILE *file;
  struct stat stdata;
  char *data;
- char DIRCHECKER[256];
+ char DIRCHECKER[PATH_MAX];
 
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2546,7 +2546,7 @@ void iohtmlFunc_famnews( ReplyDataPtr cnt )
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *empirestring;
- char COREDIR[256];
+ char COREDIR[PATH_MAX];
  int64_t *newsp, *newsd;
 	FILE *fFile;
 
@@ -2750,7 +2750,7 @@ if( taxstring ){
 
  if( fnamestring )
  {
-  a = iohttpForumFilter( fname, fnamestring, 63, 0 );
+  a = iohttpForumFilter( fname, fnamestring, NAME_MAX, 0 );
   if( cmdExecChangFamName( curfam, fname ) < 0 )
   {
    if( cmdErrorString )
@@ -6715,8 +6715,6 @@ if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
 
 
 
-#define IOHTTP_MAIL_BUFFER (65536)
-
 #define IOHTTP_MAIL_MAXMESSAGES (256)
 
 void iohtmlFunc_mail( ReplyDataPtr cnt ) {
@@ -6763,7 +6761,7 @@ msent = 0;
 maild.text = 0;
 
 if( ( tostring ) && ( mailstring ) ) {
-	if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) ) {
+	if( ( maild.text = malloc( 2*ARRAY_MAX ) ) ) {
 		a = 0;
 		if(id != -1 ) {
 			if((cnt->session)->dbuser) {
@@ -6771,8 +6769,8 @@ if( ( tostring ) && ( mailstring ) ) {
 					a = 1;
 			}
 		}
-		iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
-		(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
+		iohttpForumFilter( &maild.text[ARRAY_MAX], mailstring, ARRAY_MAX, a );
+		(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[ARRAY_MAX], ARRAY_MAX );
 
 		a = -1;
 		if( ( tostring[0] >= '0' ) && ( tostring[0] <= '9' ) ) {
@@ -6809,7 +6807,8 @@ if( ( tostring ) && ( mailstring ) ) {
 				newd[3] = 0;
 				newd[4] = id;
 				newd[5] = maind.empire;
-				memcpy( &newd[6], maind.faction, 64 );
+				int __damn_overflows = NAME_MAX / 2 + 3 * 2;
+				memcpy( &newd[6], maind.faction, __damn_overflows );
 				cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
 				(maild.mail).authorid = a;
 				sprintf( (maild.mail).authorname, "%s", main2d.faction );
@@ -6885,14 +6884,14 @@ if( typestring ) {
 	}
 } else if( msent == 1 ) { 
 	if( ( mailstring ) ) {
-		if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) ) {
+		if( ( maild.text = malloc( 2*ARRAY_MAX ) ) ) {
 			a = 0;
 			if((cnt->session)->dbuser) {
 				if(id != -1 )
 					a = 1;
 			}
-			iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
-			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
+			iohttpForumFilter( &maild.text[ARRAY_MAX], mailstring, ARRAY_MAX, a );
+			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[ARRAY_MAX], ARRAY_MAX );
 			httpString( cnt, maild.text );
 			free( maild.text );
 			httpString( cnt, "<br>" );
@@ -6904,7 +6903,7 @@ if( typestring ) {
 	httpString( cnt, "To specify the player to send the message to, enter either the exact faction name or the user ID.<br><br>" );
 	httpString( cnt, "<form action=\"mail\" method=\"POST\"><table width=\"50%%\" cellspacing=\"3\"><tr><td width=\"20%%\">Recipient</td><td>" );
 	if( tostring ) {
-		for( a = 0 ; ( a < 31 ) && ( tostring[a] ) ; a++ ) {
+		for( a = 0 ; ( a < NAME_MAX-1 ) && ( tostring[a] ) ; a++ ) {
 			if( tostring[a] == '+' )
 				tostring[a] = ' ';
 			else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
@@ -6917,14 +6916,14 @@ if( typestring ) {
 	}
 	httpString( cnt, "</td></tr><tr><td>Message</td><td><textarea name=\"mail\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 	if( ( mailstring ) ) {
-		if( ( maild.text = malloc( 2*IOHTTP_MAIL_BUFFER ) ) ) {
+		if( ( maild.text = malloc( 2*ARRAY_MAX ) ) ) {
 			a = 0;
 			if((cnt->session)->dbuser) {
 				if(id != -1 )
 					a = 1;
 			}
-			iohttpForumFilter( &maild.text[IOHTTP_MAIL_BUFFER], mailstring, IOHTTP_MAIL_BUFFER, a );
-			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[IOHTTP_MAIL_BUFFER], IOHTTP_MAIL_BUFFER );
+			iohttpForumFilter( &maild.text[ARRAY_MAX], mailstring, ARRAY_MAX, a );
+			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[ARRAY_MAX], ARRAY_MAX );
 			httpString( cnt, maild.text );
 			free( maild.text );
 		}
@@ -6947,7 +6946,7 @@ void iohtmlFunc_rankings( ReplyDataPtr cnt ) {
 	FILE *file;
 	struct stat stdata;
 	char *data, *roundstring, *typestring, *formatstring;
-	char COREDIR[256];
+	char COREDIR[PATH_MAX];
 	dbUserMainDef maind;
 
 type = format = 0;

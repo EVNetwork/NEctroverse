@@ -1,5 +1,3 @@
-#define IOHTTP_FORUM_BUFFER (65536)
-
 #define IOHTTP_FORUM_THREADSNUM (40)
 
 #define IOHTTP_FORUM_POSTSNUM (40)
@@ -691,7 +689,7 @@ if( forums )
 
   iohttpForumL0:
 
-  if( !( postd.text = malloc( 3 * IOHTTP_FORUM_BUFFER ) ) )
+  if( !( postd.text = malloc( 3 * ARRAY_MAX ) ) )
   {
    httpString( cnt, "</center></body></html>" );
    return;
@@ -702,8 +700,8 @@ if( forums )
 	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
 	   a = 1;
 	 }
-  iohttpForumFilter( &postd.text[2*IOHTTP_FORUM_BUFFER], poststring, IOHTTP_FORUM_BUFFER, a );
-  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*IOHTTP_FORUM_BUFFER], IOHTTP_FORUM_BUFFER );
+  iohttpForumFilter( &postd.text[2*ARRAY_MAX], poststring, ARRAY_MAX, a );
+  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*ARRAY_MAX], ARRAY_MAX );
   postd.post.authorid = id;
   if( id != -1 )
   {
@@ -799,7 +797,7 @@ if( forums )
   httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><input type=\"hidden\" name=\"editpost\" value=\"%d\">", forum, thread, post );
   httpString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 
-  if( !( text = malloc( 2 * IOHTTP_FORUM_BUFFER ) ) )
+  if( !( text = malloc( 2 * ARRAY_MAX ) ) )
   {
    if( posts[0].text )
     free( posts[0].text );
@@ -808,7 +806,7 @@ if( forums )
    httpString( cnt, "</center></body></html>" );
    return;
   }
-  iohttpForumFilter3( text, posts[0].text, 2*IOHTTP_FORUM_BUFFER - 512 );
+  iohttpForumFilter3( text, posts[0].text, 2*ARRAY_MAX - 512 );
   httpString( cnt, text );
 
   if( posts[0].text )
@@ -847,7 +845,7 @@ if( forums )
    if( posts )
   free( posts );
 
-  if( !( postd.text = malloc( 3 * IOHTTP_FORUM_BUFFER ) ) )
+  if( !( postd.text = malloc( 3 * ARRAY_MAX ) ) )
   {
    httpString( cnt, "</center></body></html>" );
    return;
@@ -858,8 +856,8 @@ if( forums )
 	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
 	 	 a = 1;
 	 }
-  iohttpForumFilter( &postd.text[2*IOHTTP_FORUM_BUFFER], poststring, IOHTTP_FORUM_BUFFER, a );
-  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*IOHTTP_FORUM_BUFFER], 2*IOHTTP_FORUM_BUFFER - 512 );
+  iohttpForumFilter( &postd.text[2*ARRAY_MAX], poststring, ARRAY_MAX, a );
+  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*ARRAY_MAX], 2*ARRAY_MAX - 512 );
   postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, asctime( gettime(time(0), true)) );
 
   a = dbForumEditPost( forum, thread, post, &postd );

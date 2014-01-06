@@ -182,9 +182,9 @@ if (NULL == ret) {
 ret->dbuser = NULL;
 if( type == SESSION_HTTP ) {
 	snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-	snprintf(ret->sid, sizeof(ret->sid), "%s", hashencrypt( buffer ) );
+	snprintf(ret->sid, SESSION_SIZE, "%s", hashencrypt( buffer ) );
 } else if( type == SESSION_IRC ) {
-	snprintf(ret->sid, sizeof(ret->sid), "%s", cookie );
+	snprintf(ret->sid, SESSION_SIZE, "%s", cookie );
 }
 
 if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
@@ -772,9 +772,9 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		if( find ) {
 			roof = strlen( find );
 			if( ( strncmp( url, (request->session)->redirect, strlen( (request->session)->redirect ) - roof ) == 0 ) )
-				memset( &(request->session)->redirect, 0, MAXREDIRECT );
+				memset( &(request->session)->redirect, 0, REDIRECT_MAX );
 		} else if( strcmp( url, (request->session)->redirect ) == 0 )
-			memset( &(request->session)->redirect, 0, MAXREDIRECT );
+			memset( &(request->session)->redirect, 0, REDIRECT_MAX );
 	}
 	i=0;
 	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
@@ -799,9 +799,9 @@ if( strlen( session->redirect ) ) {
 	if( find ) {
 		roof = strlen( find );
 		if( ( strncmp( url, session->redirect, strlen( session->redirect ) - roof ) == 0 ) )
-			memset( &session->redirect, 0, MAXREDIRECT );
+			memset( &session->redirect, 0, REDIRECT_MAX );
 	} else if( strcmp( url, session->redirect ) == 0 )
-		memset( &session->redirect, 0, MAXREDIRECT );
+		memset( &session->redirect, 0, REDIRECT_MAX );
 }
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
