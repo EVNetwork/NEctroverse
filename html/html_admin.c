@@ -1176,6 +1176,7 @@ sysconfig.shutdown = true;
 
   if( action[8] )
   {
+    ticks.locked = ticks.status ? true : false;
     ticks.status = !ticks.status;
     httpPrintf( cnt, "Time flow status : %d<br><br>", ticks.status );
   }

@@ -563,24 +563,24 @@ return 1;
 
 
 
-int cmdTick()
-{
-  int a, c, d, e, num, now, last, specopnum, opvirus /*,cmd[3], i*/;
-  float fb, phdecay;
-  double fa, fc;
-  int64_t newd[DB_USER_NEWS_BASE],/* nIllusion,*/ b;
-  //int nChicks = 0, penalty;
-  int marketbid[DB_MARKETBID_NUMUSED];
-  int bidresult[2];
-  int *plist;
-  dbUserPtr user;
-  dbUserMainDef maind;
-  dbUserBuildPtr build;
-  dbMainPlanetDef planetd;
-  dbUserFleetDef fleetd;
-  dbUserFleetPtr fleetp;
-  dbUserSpecOpPtr specopd;
-  dbMainEmpireDef empired;
+int cmdTick() {
+	int a, c, d, e, num, specopnum, opvirus /*,cmd[3], i*/;
+	float fb, phdecay;
+	double fa, fc;
+	int64_t newd[DB_USER_NEWS_BASE],/* nIllusion,*/ b;
+	//int nChicks = 0, penalty;
+	int marketbid[DB_MARKETBID_NUMUSED];
+	int bidresult[2];
+	int *plist;
+	time_t now;
+	dbUserPtr user;
+	dbUserMainDef maind;
+	dbUserBuildPtr build;
+	dbMainPlanetDef planetd;
+	dbUserFleetDef fleetd;
+	dbUserFleetPtr fleetp;
+	dbUserSpecOpPtr specopd;
+	dbMainEmpireDef empired;
 
 
 ticks.uonline = 0;
@@ -588,10 +588,7 @@ ticks.uactive = 0;
 ticks.uregist = 0;
 ticks.debug_pass = 0;
 ticks.debug_id = 0;
-now = time(NULL);
-
-	//Maybe useless but can t cause trouble only set the news buffer to 0
-	memset(&newd, 0, sizeof(int64_t)*DB_USER_NEWS_BASE);
+time(&now);
 
 for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 	if( dbMapRetrieveEmpire( a, &empired ) < 0 )
@@ -620,122 +617,114 @@ for( user = dbUserList ; user ; user = user->next ) {
 	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) ) || ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) )
 		continue;
 
-ticks.uactive++;
-ticks.debug_id = user->id;
-last = (now - user->lasttime);
-if( last < 5*60 )
-ticks.uonline++;
+	ticks.uactive++;
+	ticks.debug_id = user->id;
+	ticks.uonline += ( (now - user->lasttime) < (SESSION_TIME / 4) );
 
-if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
-	sprintf( logString, "Tick error: Retriving User %d", user->id );
-	error( logString );
-	continue;
-}
-
-
-ticks.debug_pass = 2;
-
-
-if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
-	sprintf( logString, "Tick error: SpecOps User %d", user->id );
-	error( logString );
-	continue;
-}
-    opvirus = 0;
- /*
- //WAR  ILLUSION we recalcul each tick
-for(i=0;i<specopnum;i++) {
-	if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000)) {
-		fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
-		nChicks = maind.totalunit[CMD_UNIT_WIZARD];
-		nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_WARILLUSIONS] );
-		penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_WARILLUSIONS] );
-		if( penalty )
-		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
-		fa = 100.0 * (float)nIllusion / (float)maind.networth;
-    		a = (int)( fa * 4.5 );
-    		a += a * rand()%20;
-    		if (a<0)
-    			a = 0;
-    		specopd[i].vars[0] = a;
-	} else if (specopd[i].type == (CMD_SPELL_DARKWEB | 0x1000)) {
-		fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
-		nChicks = maind.totalunit[CMD_UNIT_WIZARD];
-		nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_DARKWEB] );
-		penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_DARKWEB] );
-		if( penalty )
-		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
-		fa = 100.0 * (float)nIllusion / (float)maind.networth;
-		a = (int)( fa * 3.5 );
-    		if (a<0)
-    			a = 0;
-    		specopd[i].vars[0] = a;
+	if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
+		sprintf( logString, "Tick error: Retriving User %d", user->id );
+		error( logString );
+		continue;
 	}
-}
-*/
-for( a = specopnum-1 ; a >= 0 ; a-- ) {
-	if( specopd[a].type == ( CMD_OPER_NETWORKVIRUS | 0x10000 ) )
-		opvirus++;
-}
 
 
-ticks.debug_pass = 3;
+	ticks.debug_pass = 2;
 
 
-    num = dbUserBuildListReduceTime( user->id, &build );
-    newd[0] = ticks.number;
-    newd[1] = CMD_NEWS_FLAGS_NEW;
-    for( a = num-1 ; a >= 0 ; a-- )
-    {
-      if( build[a].time > 0 )
-        continue;
-      if( !( build[a].type >> 16 ) )
-      {
-        dbMapRetrievePlanet( build[a].plnid, &planetd );
-        if( build[a].type == CMD_BLDG_NUMUSED )
-        {
-          // portal
-          planetd.flags &= 0xFFFFFFFF - CMD_PLANET_FLAGS_PORTAL_BUILD;
-          planetd.flags |= CMD_PLANET_FLAGS_PORTAL;
-          dbUserPlanetSetFlags( user->id, build[a].plnid, planetd.flags );
-          planetd.construction--;
-        }
-        else
-        {
-          planetd.building[ build[a].type ] += build[a].quantity;
-          planetd.construction -= build[a].quantity;
-        }
-        dbMapSetPlanet( build[a].plnid, &planetd );
-        newd[2] = CMD_NEWS_BUILDING;
-        newd[5] = build[a].plnid;
-        newd[6] = build[a].plnpos;
-      }
-      else
-      {
-        if( !( dbUserFleetRetrieve( user->id, 0, &fleetd ) ) )
-          continue;
-        fleetd.unit[ build[a].type & 0xFFFF ] += build[a].quantity;
-        if( !( dbUserFleetSet( user->id, 0, &fleetd ) ) )
-          continue;
-        newd[2] = CMD_NEWS_UNIT;
-      }
-      dbUserBuildRemove( user->id, a );
-      newd[3] = build[a].type;
-      newd[4] = build[a].quantity;
-      cmdUserNewsAdd( user->id, newd, CMD_NEWS_FLAGS_BUILD );
-    }
-    free( build );
+	if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
+		sprintf( logString, "Tick error: SpecOps User %d", user->id );
+		error( logString );
+		continue;
+	}
+	opvirus = 0;
+	/*
+	//WAR  ILLUSION we recalcul each tick
+	for(i=0;i<specopnum;i++) {
+		if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000)) {
+			fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
+			nChicks = maind.totalunit[CMD_UNIT_WIZARD];
+			nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_WARILLUSIONS] );
+			penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_WARILLUSIONS] );
+			if( penalty )
+		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
+			fa = 100.0 * (float)nIllusion / (float)maind.networth;
+    			a = (int)( fa * 4.5 );
+    			a += a * rand()%20;
+    			if (a<0)
+    				a = 0;
+    			specopd[i].vars[0] = a;
+		} else if (specopd[i].type == (CMD_SPELL_DARKWEB | 0x1000)) {
+			fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
+			nChicks = maind.totalunit[CMD_UNIT_WIZARD];
+			nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_DARKWEB] );
+			penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_DARKWEB] );
+			if( penalty )
+			    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
+			fa = 100.0 * (float)nIllusion / (float)maind.networth;
+			a = (int)( fa * 3.5 );
+    			if (a<0)
+    				a = 0;
+    			specopd[i].vars[0] = a;
+		}
+	}
+	*/
+	for( a = specopnum-1 ; a >= 0 ; a-- ) {
+		if( specopd[a].type == ( CMD_OPER_NETWORKVIRUS | 0x10000 ) )
+			opvirus++;
+	}
 
 
-ticks.debug_pass = 4;
-
-// calc total of buildings, units, artefacts
-    cmdTickPlanets( user->id, &maind );
-
-ticks.debug_pass = 5;
+	ticks.debug_pass = 3;
 
 
-// add research
+	num = dbUserBuildListReduceTime( user->id, &build );
+	for( a = num-1 ; a >= 0 ; a-- ) {
+		memset(&newd, 0, sizeof(int64_t)*DB_USER_NEWS_BASE);
+		newd[0] = ticks.number;
+		newd[1] = CMD_NEWS_FLAGS_NEW;
+		if( build[a].time > 0 )
+			continue;
+		if( !( build[a].type >> 16 ) ) {
+			dbMapRetrievePlanet( build[a].plnid, &planetd );
+			if( build[a].type == CMD_BLDG_NUMUSED ) {
+				// portal
+				planetd.flags &= 0xFFFFFFFF - CMD_PLANET_FLAGS_PORTAL_BUILD;
+				planetd.flags |= CMD_PLANET_FLAGS_PORTAL;
+				dbUserPlanetSetFlags( user->id, build[a].plnid, planetd.flags );
+				planetd.construction--;
+			} else {
+				planetd.building[ build[a].type ] += build[a].quantity;
+				planetd.construction -= build[a].quantity;
+			}
+			dbMapSetPlanet( build[a].plnid, &planetd );
+			newd[2] = CMD_NEWS_BUILDING;
+			newd[5] = build[a].plnid;
+			newd[6] = build[a].plnpos;
+		} else {
+			if( !( dbUserFleetRetrieve( user->id, 0, &fleetd ) ) )
+				continue;
+			fleetd.unit[ build[a].type & 0xFFFF ] += build[a].quantity;
+			if( !( dbUserFleetSet( user->id, 0, &fleetd ) ) )
+				continue;
+			newd[2] = CMD_NEWS_UNIT;
+		}
+		dbUserBuildRemove( user->id, a );
+		newd[3] = build[a].type;
+		newd[4] = build[a].quantity;
+		cmdUserNewsAdd( user->id, newd, CMD_NEWS_FLAGS_BUILD );
+	}
+	free( build );
+
+
+	ticks.debug_pass = 4;
+
+	// calc total of buildings, units, artefacts
+	cmdTickPlanets( user->id, &maind );
+
+	ticks.debug_pass = 5;
+
+
+	// add research
 
     for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
     {

@@ -782,7 +782,7 @@ redirect( cnt, "/main" );
 
 httpString( cnt, "<b>Login sucess, you should be redirected into game shortly...</b><br>" );
 httpString( cnt, "<br>" );
-httpString( cnt, "<a href=\"/main\">Click here is not redirected</a><br>" );
+httpString( cnt, "<a href=\"/main\">Click here if not redirected</a><br>" );
 
 LOGIN_END:
 iohtmlFunc_endhtml( cnt );

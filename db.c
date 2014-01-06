@@ -72,7 +72,7 @@ int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, db
 
 int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
-int dbRegisteredInfo[3];
+int dbRegisteredInfo[DB_TOTALS_USERS_NUMUSED];
 
 int dbArtefactPos[ARTEFACT_NUMUSED];
 
@@ -457,6 +457,7 @@ int dbInitUsersReset()
 int dbInit() {
 	int a, b;
 	int array[4];
+	time_t now;
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	dbMainPlanetDef planetd;
@@ -464,7 +465,8 @@ int dbInit() {
 	FILE *file;
 	char fname[PATH_MAX];
 	char COREDIR[PATH_MAX];
-	
+
+time( &now );	
 snprintf( COREDIR, sizeof(COREDIR), "%s/data", sysconfig.directory );
 if( chdir( COREDIR ) == -1 ) {
 	critical( "Change DIR" );
@@ -554,7 +556,9 @@ if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "rb+" ) ) ) {
 
 file_s( dbFilePtr[DB_FILE_USERS], 0 );
 file_r( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-
+dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED] = b;
+dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] = 0;
+dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] = 0;
 for( a = 0 ; a < b ; a++ ) {
 	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) )
 		continue;
@@ -571,6 +575,8 @@ for( a = 0 ; a < b ; a++ ) {
 	user->level = infod.level;
 	user->flags = infod.flags;
 	user->lasttime = infod.lasttime;
+	dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] += bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
+	dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] += ( (now - user->lasttime) < (SESSION_TIME / 4) );
 	#if FACEBOOK_SUPPORT
 	if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )
 		strncpy( user->fbid, infod.fbinfo.id, sizeof(user->fbid) );
@@ -581,6 +587,9 @@ for( a = 0 ; a < b ; a++ ) {
 	strncpy( user->http_session, infod.http_session, sizeof(user->http_session) );
 	fclose( file );
 }
+ticks.uregist = dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED];
+ticks.uactive = dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED];
+ticks.uonline= dbRegisteredInfo[DB_TOTALS_USERS_ONLINE];
 
 dbFlush();
 
@@ -599,6 +608,7 @@ return 1;
 void dbEnd() {
 	dbUserPtr user, next;
 
+dbFlush();
 for( user = dbUserList ; user ; user = next ) {
 	next = user->next;
 	dbUserFree( user );
@@ -656,9 +666,6 @@ return -1;
 #if FACEBOOK_SUPPORT
 int dbUserFBSearch( char *FBid ) {
 	dbUserPtr user;
-if( !(FBid) )
-	return -1;
-
 
 for( user = dbUserList ; user ; user = user->next ) {
 	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK]) ) || !( ioCompareExact( FBid, user->fbid ) ) )

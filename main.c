@@ -50,7 +50,10 @@ if( type ) {
 	unlink(DIRCHECKER);
 }
 
-iniparser_freedict( config );
+if( config != NULL ) {
+	iniparser_freedict( config );
+	config = NULL;
+}
 
 return;
 }
@@ -128,11 +131,8 @@ if( irc_is_connected(irccfg.session) ) {
 	irc_disconnect( irccfg.session );
 }
 #endif
-
 sysconfig.shutdown = true;
 server_shutdown();
-cleanUp(1);
-cleanUp(0);
 
 exit(1);
 }
@@ -158,7 +158,7 @@ return str;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 int daemonloop() {
-	int curtime;
+	time_t curtime;
 
 //Start HTTP Server(s)
 if( http_prep() )
@@ -184,7 +184,13 @@ while( sysconfig.shutdown == false ) {
 	loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
-	curtime = time( 0 );
+	 time( &curtime );
+
+	if( ( ticks.locked ) || ( ( sysconfig.autostop ) && ( timediff( sysconfig.stop ) < 1 ) ) ) {
+		ticks.status = false;
+	} else if( ( sysconfig.autostart ) && ( timediff(sysconfig.start) < 1 ) ) {
+		ticks.status = true;
+	}
 
 	if( curtime < ticks.next ) {
 		nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
@@ -193,12 +199,6 @@ while( sysconfig.shutdown == false ) {
 
 	ticks.next = ( curtime + sysconfig.ticktime );
 	
-	if( ( sysconfig.autostop ) && ( timediff(sysconfig.stop) < 1 ) ) {
-		ticks.status = false;
-	} else if( ( sysconfig.autostart ) && ( timediff(sysconfig.start) < 1 ) ) {
-		ticks.status = true;
-	}
-
 	cmdTickInit();
 	if( ticks.status ) {
 		cmdTick();
@@ -503,6 +503,7 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.autostart = iniparser_getboolean(ini, "auto_start:enable", false);
 	sysconfig.start.tm_sec = iniparser_getint(ini, "auto_start:second", -1);
 	sysconfig.start.tm_min = iniparser_getint(ini, "auto_start:minute", -1);
+	sysconfig.start.tm_hour = iniparser_getint(ini, "auto_start:hour", -1);
 	sysconfig.start.tm_mday = iniparser_getint(ini, "auto_start:day", -1);
 	sysconfig.start.tm_mon = (( iniparser_getint(ini, "auto_start:month", -1) ) - 1);
 	sysconfig.start.tm_year = (( iniparser_getint(ini, "auto_start:year", -1) ) + 100);
@@ -510,6 +511,7 @@ if( type == CONFIG_SYSTEM ) {
 	sysconfig.autostop = iniparser_getboolean(ini, "auto_stop:enable", false);
 	sysconfig.stop.tm_sec = iniparser_getint(ini, "auto_stop:second", -1);
 	sysconfig.stop.tm_min = iniparser_getint(ini, "auto_stop:minute", -1);
+	sysconfig.stop.tm_hour = iniparser_getint(ini, "auto_stop:hour", -1);
 	sysconfig.stop.tm_mday = iniparser_getint(ini, "auto_stop:day", -1);
 	sysconfig.stop.tm_mon = (( iniparser_getint(ini, "auto_stop:month", -1) ) - 1);
 	sysconfig.stop.tm_year = (( iniparser_getint(ini, "auto_stop:year", -1) ) + 100);

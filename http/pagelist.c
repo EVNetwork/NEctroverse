@@ -13,7 +13,7 @@ void login_define( ReplyDataPtr rd ) {
 	iohtmlFunc_login( rd, false, NULL );
 }
 
-PageDef pages[] =
+PageDef html_page[] =
   {
     //Basic/Main pages
     { "/", "text/html", &page_render, front_define, NULL },

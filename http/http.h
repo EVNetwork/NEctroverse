@@ -38,23 +38,6 @@ enum UploadState {
 
 extern char *cmdUploadState[]; 
 
-/**
- * State we keep for each page build... in case we need to set cookies.
- */
-typedef struct Cookies
-{
-  /**
-   * Number of cookies.
-   */
-  int num;
-
-  /**
-   * Pointers for cookie values.
-   */
-  char value[4][512];
-
-} CookiesDef, *CookiesPtr;
-
 typedef struct _POST_DATA_STORAGE {
 	char *key;
 	char *value;
@@ -167,11 +150,6 @@ typedef struct Request
 typedef struct ReplyData
 {
   /**
-   * Associated cookies to be set with responce.
-   */
-  CookiesDef cookies;
-
-  /**
    * Post processor handling form data (IF this is
    * a POST request).
    */
@@ -252,7 +230,7 @@ int not_found_page ( int id, const void *cls, const char *mime, struct Session *
 int file_render ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 
-void *buffer_realloc( ResponseCachePtr rd, size_t fitsize, int type );
+void *buffer_realloc( ResponseCachePtr rd, int type, size_t fitsize, int *newsize );
 
 void httpString( ReplyDataPtr rd, char *string );
 void httpPrintf( ReplyDataPtr rd, char *string, ... );

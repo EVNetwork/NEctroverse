@@ -21,25 +21,6 @@ char *iohtmlCookieFind( ReplyDataPtr cnt, char *id ) {
 return (char *)MHD_lookup_connection_value(cnt->connection, MHD_COOKIE_KIND, id);
 }
 
-int iohtmlCookieAdd( ReplyDataPtr cnt, char *name, char *value, ... ) {
-	char cstr[256];
-	char text[256];
-	va_list ap;
-
-va_start( ap, value );
-vsnprintf( text, 256, value, ap );
-va_end( ap );
-
-snprintf(cstr, sizeof (cstr), "%s=%s", name, text);
-
-strncpy((cnt->cookies).value[(cnt->cookies).num], cstr, sizeof(cstr) );
-(cnt->cookies).num = (cnt->cookies).num + 1;
-	
-
-return (cnt->cookies).num;
-}
-
-
 
 int iohtmlVarsMapcoords( ReplyDataPtr cnt, int *coords )
 {

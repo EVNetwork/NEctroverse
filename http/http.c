@@ -176,9 +176,7 @@ if (cookie != NULL) {
 }
 
 //No Cookie, Make a new one.
-ret = calloc( 1, sizeof(SessionDef) );
-
-if (NULL == ret) {
+if( NULL == ( ret = calloc( 1, sizeof(SessionDef) ) ) ) {
 	critical( "HTTP session allocation error!" );
 	return NULL;
 }
@@ -232,6 +230,7 @@ static void add_session_cookie( SessionPtr session, struct MHD_Response *respons
 	int offset = 0;
 	char md5sum[MD5_HASHSUM_SIZE];
 	char buffer[256];
+	char timebuf[512];
 
 snprintf( buffer, sizeof(buffer), "%d;%s", sysconfig.ticktime, sysconfig.servername );
 md5_string( buffer, md5sum );
@@ -242,8 +241,9 @@ if( strlen(sysconfig.cookdomain) )
 	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", sysconfig.cookdomain );
 
 time_r = ( time(0) + SESSION_TIME );
+strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
 
-offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s;", SESSION_TIME, trimwhitespace( asctime( gmtime( &time_r ) ) ) );
+offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s", SESSION_TIME, timebuf );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, buffer)) {
 	error( "Failed to set session cookie header!" );
@@ -287,24 +287,30 @@ cached_directory_response = response;
 
 }
 
-void *buffer_realloc( ResponseCachePtr rd, size_t fitsize, int type ) {
+void *buffer_realloc( ResponseCachePtr rd, int type, size_t fitsize, int *newsize ) {
 	void *r;
-	size_t newsize;
+	size_t ajust;
 //Always add 1k at the end of new buffer, as "slack space"
-newsize = ( ( rd->buf_len + fitsize ) + 1024 );
+ajust = ( ( rd->buf_len + fitsize ) + 1024 );
+if( type )
+	buf_size_allocation[type-1] = ajust;
 
-snprintf( logString, sizeof(logString), "Insufficent buffer for %s string, reallocating from %d bytes to %d bytes!", ( type ? "HTML" : "DIR" ), (int)rd->buf_len, (int)newsize );
+snprintf( logString, sizeof(logString), "Insufficent buffer for %s string, reallocating from %d bytes to %d bytes!", ( type ? "HTML" : "DIR" ), (int)rd->buf_len, (int)ajust );
 info( logString );
 
-if ( newsize < rd->buf_len )
-	    critical( "Size too large" );
+if( ajust < rd->buf_len ) {
+	critical( "Size too large" );
+	server_shutdown();
+}
 
-rd->buf_len = newsize;
+rd->buf_len = ajust;
 
-buf_size_allocation[type] = rd->buf_len;
+*newsize = (rd->buf_len - rd->off);
 
-if( NULL == ( r = realloc( rd->buf, rd->buf_len ) ) )
+if( NULL == ( r = realloc( rd->buf, rd->buf_len ) ) ) {
 	critical( "Realloc Failed" );
+	*newsize = 0;
+}
 
 return r;
 }
@@ -315,8 +321,7 @@ void httpString( ReplyDataPtr rd, char *text ) {
 	int buf_len = strlen( text );
 	
 if( ( buf_max - buf_len ) < 0 ) {
-	rd->cache.buf = buffer_realloc( &rd->cache, buf_size_allocation[true], true );
-	buf_max = (rd->cache.buf_len - rd->cache.off);
+	rd->cache.buf = buffer_realloc( &rd->cache, 2, buf_len, &buf_max );
 }
 
 rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", text );
@@ -335,16 +340,16 @@ buf_len = vsnprintf( text, ARRAY_MAX, fmt, ap );
 va_end( ap );
 
 if( ( buf_max - buf_len ) < 0 ) {
-	rd->cache.buf = buffer_realloc( &rd->cache, buf_size_allocation[true], true );
-	buf_max = (rd->cache.buf_len - rd->cache.off);
+	rd->cache.buf = buffer_realloc( &rd->cache, 2, buf_len, &buf_max );
 }
 
-rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", text );
+rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], rd->cache.buf_len - rd->cache.off, "%s", text );
 
 return;
 }
 
 static int list_directory( ResponseCachePtr rd, const char *dirname ) {
+	int buf_max = (rd->buf_len - rd->off);
 	char fullname[PATH_MAX];
 	struct stat sbuf;
 	struct dirent *de;
@@ -363,9 +368,9 @@ while (NULL != (de = readdir (dir))) {
 	if (! S_ISREG (sbuf.st_mode))
 		continue;
 	if (rd->off + 1024 > rd->buf_len) {
-		rd->buf = buffer_realloc( rd, rd->buf_len, false );
+		rd->buf = buffer_realloc( rd, 1, DEFAULT_BUFFER, &buf_max );
 	}
-	rd->off += snprintf (&rd->buf[rd->off], rd->buf_len - rd->off, "<li><a href=\"/files?type=download&name=%s\">%s</a></li>\n", de->d_name, de->d_name );
+	rd->off += snprintf (&rd->buf[rd->off], buf_max, "<li><a href=\"/files?type=download&name=%s\">%s</a></li>\n", de->d_name, de->d_name );
 }
 (void)closedir( dir );
 
@@ -391,6 +396,7 @@ if( NULL == ( rd.buf = malloc(rd.buf_len) ) ) {
 rd.off = snprintf (rd.buf, rd.buf_len, "%s", UPLOAD_DIR_PAGE_HEADER );
 
 snprintf (dir_name, sizeof (dir_name), "%s/uploads", sysconfig.directory);
+
 if( 0 == stat (dir_name, &sbuf) ) {  
 	if (MHD_NO == list_directory (&rd, dir_name)) {
 		free (rd.buf);
@@ -520,7 +526,6 @@ if (file == NULL) {
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
 
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
-	
 	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
 	MHD_destroy_response( response );
 }
@@ -529,7 +534,7 @@ return ret;
 }
 
 int page_render( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
-	int ret, a;
+	int ret;
 	char md5sum[MD5_HASHSUM_SIZE];
 	struct MHD_Response *response;
 	ReplyDataPtr rd;
@@ -547,20 +552,16 @@ if( NULL == ( rd->cache.buf = malloc( rd->cache.buf_len ) ) ) {
 }
 
 (void)pthread_mutex_lock( &mutex );
-pages[id].function( rd );
+html_page[id].function( rd );
 (void)pthread_mutex_unlock( &mutex );
 
 response = MHD_create_response_from_buffer( strlen(rd->cache.buf), (void *)rd->cache.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(rd->session, response);
-for( a = 0; a < rd->cookies.num ; a++  ) {
-	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd->cookies.value[a])) {
-		error( "Failed to set session cookie header!" );
-	}
-}
 md5_string( rd->cache.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-ret = MHD_queue_response (rd->connection, MHD_HTTP_OK, response);
+
 mark_as( response, mime );
+ret = MHD_queue_response (rd->connection, MHD_HTTP_OK, response);
 MHD_destroy_response (response);
 free( rd );
 
@@ -771,20 +772,20 @@ static int create_response (void *cls, struct MHD_Connection *connection, const 
   SessionPtr session;
   int ret, roof;
   unsigned int i;
-  char *find;
+  const char *find, *temp_x[2];
   bool local;
-  ReplyDataDef rd;
 
-rd.connection = connection;
+temp_x[0] = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "Referer");
+temp_x[1] = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "Host");
 
-if( ( iohtmlHeaderFind(&rd, "Referer") ) && ( iohtmlHeaderFind(&rd, "Host") ) ) {
-	local = strstr( iohtmlHeaderFind(&rd, "Referer"), iohtmlHeaderFind(&rd, "Host") ) ? true : false;
+if( ( temp_x[0] ) && ( temp_x[1] ) ) {
+	local = strstr( temp_x[0], temp_x[1] ) ? true : false;
 } else {
 	local = false;
 }
 
 request = *ptr;
-if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
+if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL == request) {
 		if (NULL == (request = malloc (sizeof (RequestDef))))
 			return MHD_NO; /* out of memory, close connection */
@@ -835,9 +836,9 @@ if( (0 == strcmp (method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 			memset( &(request->session)->redirect, 0, REDIRECT_MAX );
 	}
 	i=0;
-	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, request->post_url)) )
+	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, request->post_url)) )
 		i++;
-	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, request->session, request->connection );
+	ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, request->session, request->connection );
 	if (ret != MHD_YES) {
 		sprintf( logString, "Failed to create page for \'%s\'", request->post_url);
 		error( logString );
@@ -863,9 +864,9 @@ if( strlen( session->redirect ) ) {
 }
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
-	while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
+	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, url)) )
 		i++;
-	ret = pages[i].handler( i, pages[i].handler_cls, pages[i].mime, session, connection );
+	ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, session, connection );
 	if (ret != MHD_YES) {
 		sprintf( logString, "Failed to create page for \'%s\'", url);
 		error( logString );
@@ -1161,7 +1162,9 @@ return 0;
 }
 
 
-void server_shutdown(){
+void server_shutdown() {
+
+sysconfig.shutdown = true;
 
 if( server_http ) {
 	MHD_stop_daemon(server_http);
@@ -1183,6 +1186,10 @@ MHD_destroy_response (internal_error_response);
 #if HAVE_MAGIC_H
 magic_close (magic);
 #endif
+
+dbFlush();
+cleanUp(0);
+cleanUp(1);
 
 return;
 }
