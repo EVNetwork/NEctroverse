@@ -158,9 +158,6 @@ void cleanUp(int type);
 void svPipeScan(int pipefileid);
 int svPipeSend(int pipedirection, char *message, ...);
 
-void httpString( ReplyDataPtr rd, char *string );
-void httpPrintf( ReplyDataPtr rd, char *string, ... );
-
 
 typedef struct {
 	//new ban listing

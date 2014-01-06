@@ -72,7 +72,7 @@ int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, db
 
 int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
-
+int dbRegisteredInfo[3];
 
 int dbArtefactPos[ARTEFACT_NUMUSED];
 
@@ -397,6 +397,7 @@ void dbUserFree( dbUserPtr user )
 /*
 users
   4:next user ID
+
 
 
 

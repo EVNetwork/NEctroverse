@@ -4,7 +4,7 @@
 /**
  * Context keeping the data for the response we're building.
  */
-typedef struct ResponseDataContext
+typedef struct ResponseCacheContext
 {
   /**
    * Response data string.
@@ -21,7 +21,7 @@ typedef struct ResponseDataContext
    */
   size_t off;
 
-} ResponseDataDef, *ResponseDataPtr;
+} ResponseCacheDef, *ResponseCachePtr;
 
 
 enum UploadState {
@@ -172,15 +172,15 @@ typedef struct ReplyData
   CookiesDef cookies;
 
   /**
-   * Associated session.
-   */
-  struct Session *session;
-
-  /**
    * Post processor handling form data (IF this is
    * a POST request).
    */
-  ResponseDataDef response;
+  ResponseCacheDef cache;
+
+  /**
+   * Associated session.
+   */
+  struct Session *session;
 
   /**
    * URL to serve in response to this POST (if this request
@@ -252,5 +252,9 @@ int not_found_page ( int id, const void *cls, const char *mime, struct Session *
 int file_render ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 
+void *buffer_realloc( ResponseCachePtr rd, size_t fitsize, int type );
+
+void httpString( ReplyDataPtr rd, char *string );
+void httpPrintf( ReplyDataPtr rd, char *string, ... );
 
 #endif

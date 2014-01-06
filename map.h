@@ -40,9 +40,7 @@ typedef struct {
 	//data for map image.
 	int *data;
 	int *factor;
-} mapstoreDef, *mapstorePtr;
-
-extern mapstoreDef mapstg;
+} MapStorageDef, *MapStoragePtr;
 
 
 int spawn_map();

@@ -1103,7 +1103,7 @@ int cmdExecChangFamName( int fam, char *name )
   cmdErrorString = 0;
   if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
     return -3;
-  for( a = 0 ; ( a < NAME_MAX ) && ( name[a] ) ; a++ )
+  for( a = 0 ; ( a < NAME_MAX-1 ) && ( name[a] ) ; a++ )
     empired.name[a] = name[a];
   empired.name[a] = 0;
 

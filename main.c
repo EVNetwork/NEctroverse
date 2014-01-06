@@ -55,47 +55,13 @@ iniparser_freedict( config );
 return;
 }
 
-
-
-
-void httpString( ReplyDataPtr rd, char *string ) {
-	int buffer = (rd->response.buf_len - rd->response.off);
-
-if( ( buffer - strlen( string ) ) < 0 )
-	error( "Insufficent buffer for string" );
-
-rd->response.off += snprintf( &rd->response.buf[rd->response.off], buffer, "%s", string );
-
-return;
-}
-
-void httpPrintf( ReplyDataPtr rd, char *fmt, ... ) {
-	int buffer = (rd->response.buf_len - rd->response.off);
-	int len;
-	char text[ARRAY_MAX];
-	va_list ap;
-
-va_start( ap, fmt );
-len = vsnprintf( text, ARRAY_MAX, fmt, ap );
-va_end( ap );
-
-if( ( buffer - len ) < 0 )
-	error( "Insufficent buffer for string" );
-
-
-rd->response.off += snprintf( &rd->response.buf[rd->response.off], buffer, "%s", text );
-
-return;
-}
-
-
 void svSignal( int signal ) {
 //	int a, size;
 
-info( cmdSignalNames[signal]  ); 
+
 if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
 	if( options.verbose ) {
-		printf("\n");
+		printf("%d\n", signal);
 		fflush(stdout);
 	}
 	sprintf(logString, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);
@@ -328,6 +294,7 @@ signal( SIGUSR2, &svSignal);
 RANDOMIZE_SEED;
 
 if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
+
 	loghandle(LOG_CRIT, false, "%s", "Server Database Initation Failed, now exiting..." );
 	return 0;
 }
@@ -596,8 +563,8 @@ if( type == CONFIG_SYSTEM ) {
 	admincfg.epassword = strdup( iniparser_getstring(ini, "admin:empire_password", "password") );
 	admincfg.rankommit = iniparser_getboolean(ini, "admin:ommit_from_ranks", false);
 
-	mapcfg.sizex = iniparser_getint(ini, "map:sizex", 100);
-	mapcfg.sizey = iniparser_getint(ini, "map:sizey", mapcfg.sizex);
+	mapcfg.sizex = iniparser_getint(ini, "map:size", 100);
+	mapcfg.sizey = iniparser_getint(ini, "map:size", mapcfg.sizex);
 
 	mapcfg.systems = iniparser_getint(ini, "map:systems", 250);
 	mapcfg.families = iniparser_getint(ini, "map:families", 10);
@@ -1073,7 +1040,10 @@ for( a = 0; a < SPAWNABLE_DIRS; a++ ) {
 	}
 
 }
-
+/*
+spawn_map();
+exit(0);
+*/
 printf("\n");
 sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
 if( !( file_exist(DIRCHECKER) ) ) {

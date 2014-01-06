@@ -62,7 +62,10 @@ char *cmdUploadState[4] = {
 //256k
 #define SERVERALLOCATION (256 * 1024)
 
-static size_t dir_buf_allocation = 32 * 1024;
+static size_t buf_size_allocation[2] = { 
+	( 4 * 1024 ), //Directory
+	( 8 * 1024 ), //HTML Page Generation.
+};
 
 
 /**
@@ -284,8 +287,64 @@ cached_directory_response = response;
 
 }
 
+void *buffer_realloc( ResponseCachePtr rd, size_t fitsize, int type ) {
+	void *r;
+	size_t newsize;
+//Always add 1k at the end of new buffer, as "slack space"
+newsize = ( ( rd->buf_len + fitsize ) + 1024 );
 
-static int list_directory( ResponseDataPtr rd, const char *dirname ) {
+snprintf( logString, sizeof(logString), "Insufficent buffer for %s string, reallocating from %d bytes to %d bytes!", ( type ? "HTML" : "DIR" ), (int)rd->buf_len, (int)newsize );
+info( logString );
+
+if ( newsize < rd->buf_len )
+	    critical( "Size too large" );
+
+rd->buf_len = newsize;
+
+buf_size_allocation[type] = rd->buf_len;
+
+if( NULL == ( r = realloc( rd->buf, rd->buf_len ) ) )
+	critical( "Realloc Failed" );
+
+return r;
+}
+
+
+void httpString( ReplyDataPtr rd, char *text ) {
+	int buf_max = (rd->cache.buf_len - rd->cache.off);
+	int buf_len = strlen( text );
+	
+if( ( buf_max - buf_len ) < 0 ) {
+	rd->cache.buf = buffer_realloc( &rd->cache, buf_size_allocation[true], true );
+	buf_max = (rd->cache.buf_len - rd->cache.off);
+}
+
+rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", text );
+
+return;
+}
+
+void httpPrintf( ReplyDataPtr rd, char *fmt, ... ) {
+	int buf_max = (rd->cache.buf_len - rd->cache.off);
+	int buf_len;
+	char text[ARRAY_MAX];
+	va_list ap;
+
+va_start( ap, fmt );
+buf_len = vsnprintf( text, ARRAY_MAX, fmt, ap );
+va_end( ap );
+
+if( ( buf_max - buf_len ) < 0 ) {
+	rd->cache.buf = buffer_realloc( &rd->cache, buf_size_allocation[true], true );
+	buf_max = (rd->cache.buf_len - rd->cache.off);
+}
+
+rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", text );
+
+return;
+}
+
+static int list_directory( ResponseCachePtr rd, const char *dirname ) {
 	char fullname[PATH_MAX];
 	struct stat sbuf;
 	struct dirent *de;
@@ -304,13 +363,7 @@ while (NULL != (de = readdir (dir))) {
 	if (! S_ISREG (sbuf.st_mode))
 		continue;
 	if (rd->off + 1024 > rd->buf_len) {
-			void *r;
-		if ( (2 * rd->buf_len + 1024) < rd->buf_len)
-			    break; /* more than SIZE_T _index_ size? Too big for us */
-		rd->buf_len = 2 * rd->buf_len + 1024;
-		if( NULL == ( r = realloc(rd->buf, rd->buf_len) ) )
-			break; /* out of memory */
-		rd->buf = r;
+		rd->buf = buffer_realloc( rd, rd->buf_len, false );
 	}
 	rd->off += snprintf (&rd->buf[rd->off], rd->buf_len - rd->off, "<li><a href=\"/files?type=download&name=%s\">%s</a></li>\n", de->d_name, de->d_name );
 }
@@ -325,12 +378,13 @@ return MHD_YES;
  */
 static void update_directory( struct MHD_Connection *connection ) {
 	struct MHD_Response *response;
-	ResponseDataDef rd;
+	ResponseCacheDef rd;
 	char dir_name[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 	struct stat sbuf;
 
-rd.buf_len = dir_buf_allocation; 
+rd.buf_len = buf_size_allocation[0]; 
 if( NULL == ( rd.buf = malloc(rd.buf_len) ) ) {
+	critical( "Malloc Failed" );
 	update_cached_response (NULL);
 	return; 
 }
@@ -346,7 +400,7 @@ if( 0 == stat (dir_name, &sbuf) ) {
 }
 
 rd.off += snprintf (&rd.buf[rd.off], rd.buf_len - rd.off, "%s", UPLOAD_DIR_PAGE_FOOTER );
-dir_buf_allocation = rd.buf_len; /* remember for next time */
+
 response = MHD_create_response_from_buffer (rd.off, rd.buf, MHD_RESPMEM_MUST_FREE );
 md5_string( rd.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
@@ -478,33 +532,37 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 	int ret, a;
 	char md5sum[MD5_HASHSUM_SIZE];
 	struct MHD_Response *response;
-	ReplyDataDef rd;
+	ReplyDataPtr rd;
 
-(void)pthread_mutex_lock( &mutex );
-memset( &rd, 0, sizeof(ReplyDataDef) );
-rd.session = session;
-rd.connection = connection;
-rd.response.buf_len = SERVERALLOCATION;
-if( NULL == ( rd.response.buf = malloc( rd.response.buf_len ) ) ) {
-	(void)pthread_mutex_unlock (&mutex);
+if( NULL == ( rd = calloc( 1, sizeof(ReplyDataDef) ) ) )
+	critical( "Calloc Failed" );
+//memset( &rd, 0, sizeof(ReplyDataDef) );
+rd->session = session;
+rd->connection = connection;
+rd->cache.buf_len = buf_size_allocation[1];
+if( NULL == ( rd->cache.buf = malloc( rd->cache.buf_len ) ) ) {
+	critical( "Malloc Failed" );
+	free( rd );
 	return -1;
 }
 
-pages[id].function( &rd );
-response = MHD_create_response_from_buffer (strlen (rd.response.buf), (void *)rd.response.buf, MHD_RESPMEM_MUST_FREE);
-add_session_cookie(session, response);
-for( a = 0; a < rd.cookies.num ; a++  ) {
-	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd.cookies.value[a])) {
+(void)pthread_mutex_lock( &mutex );
+pages[id].function( rd );
+(void)pthread_mutex_unlock( &mutex );
+
+response = MHD_create_response_from_buffer( strlen(rd->cache.buf), (void *)rd->cache.buf, MHD_RESPMEM_MUST_FREE);
+add_session_cookie(rd->session, response);
+for( a = 0; a < rd->cookies.num ; a++  ) {
+	if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, rd->cookies.value[a])) {
 		error( "Failed to set session cookie header!" );
 	}
 }
-md5_string( rd.response.buf, md5sum );
+md5_string( rd->cache.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+ret = MHD_queue_response (rd->connection, MHD_HTTP_OK, response);
 mark_as( response, mime );
 MHD_destroy_response (response);
-
-(void)pthread_mutex_unlock( &mutex );
+free( rd );
 
 return ret;
 }

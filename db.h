@@ -84,7 +84,7 @@ int dbUserInfoSet( int id, dbUserInfoPtr info );
 int dbUserInfoRetrieve( int id, dbUserInfoPtr info );
 
 extern dbUserPtr dbUserList;
-
+extern int dbRegisteredInfo[DB_TOTALS_USERS_NUMUSED];
 
 int dbInit();
 void dbEnd();

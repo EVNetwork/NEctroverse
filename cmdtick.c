@@ -1,8 +1,5 @@
 int64_t cmdTickProduction[CMD_BLDG_NUMUSED];
 
-int dbUsersOnline;
-int dbUsersRegist;
-
 void cmdTickGenRanks()
 {
   int a, b, c, d, first, num, artmax, wa, wnum;
@@ -380,6 +377,10 @@ if( irccfg.bot ) {
 	}
 }
 #endif
+
+dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED] = ticks.uregist;
+dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] = ticks.uactive;
+dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] = ticks.uonline;
 
 return;
 }

@@ -197,7 +197,7 @@ httpString( cnt, "</tr></table></tr></td>" );
 httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&name=ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
 httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_13.jpg\" valign=\"middle\"><table style=\"width:100%;border-width:0;\"><tr>" );
-httpPrintf( cnt, "<td align=\"left\">%d of %d players online</td>", ticks.uonline, ticks.uactive );
+httpPrintf( cnt, "<td align=\"left\">%d of %d players online</td>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
 httpString( cnt, "<td align=\"right\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
