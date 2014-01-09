@@ -1,6 +1,8 @@
 //Ok, so here goes nothing...
 void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
+	#if IRCBOT_SUPPORT
 	ConfigArrayPtr settings[2];
+	#endif
 	int id, a, b;
 	int bsums[CMD_BLDG_NUMUSED+1];
 	int usums[CMD_UNIT_NUMUSED];

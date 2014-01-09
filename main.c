@@ -642,7 +642,6 @@ if( !( strlen(options.sysini) > 0 ) ) {
 	char *input = strdup( options.sysini );
 	char *pointer = strrchr( input, '/' );
 	if( ( options.sysini[0] != '/' ) ) {
-		//free( pointer );
 		pointer = NULL;
 	}
 	if( !( pointer ) ) {
@@ -654,7 +653,6 @@ if( !( strlen(options.sysini) > 0 ) ) {
 		}
 	}
 	free( input );
-	free( pointer );
 }
 
 for( index = optind; index < argc; index++ ) {
@@ -674,13 +672,14 @@ int main( int argc, char *argv[] ) {
 	#endif
 	int test;
 
+
 if( checkops(argc,argv) ) {
 	printf("Error: Invalid usage detected...\n");
 	exit(true);
 }
 
 if( file_exist(options.sysini) == 0 ) {
-	printf("File does not exist: \'%s\'\n",options.sysini);
+	info("File does not exist: \'%s\'\n",options.sysini);
 	//printf("The above file will be created with a default set, please review the file and reload.\n");
 	printf("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
 	fflush(stdout);
