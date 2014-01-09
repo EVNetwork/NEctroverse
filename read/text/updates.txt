@@ -1,3 +1,11 @@
+9 January 2014
+Redirects on this site are contolled by the AJAX Ticker which is controlled by tick speed.
+It may take untill the next tick for them to occur, and they will still take place if you manually change pages.
+
+7 January 2014
+Large over-haul of structure in progress, many buffers have been converted to dynamic.
+The way the server loads its settings has also changed drasticly, hopefully consuming less memory. ::good
+
 5 January 2014
 Facebook base link almost completed, this will enable login/registration from FB account.
 I have to write the interface from scratch, because some of what I'm doing "isn't possible" :P
@@ -27,3 +35,6 @@ Registration is currently disabled, due to pre-alpha stage.
 18th October 2013
 NEctroverse is coming back...
 When... well, I'm not exactly sure yet. I'm still recoding quite a few things.
+
+...Gone
+Oops, I deleted the previous entries... that was before I made this new "full list" page. ::fool

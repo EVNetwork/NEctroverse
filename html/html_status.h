@@ -20,7 +20,7 @@ typedef struct {
 	long unsigned int stvsize;
 	long int strss;
 	long int threads;
-	float loadavg[0];
+	float loadavg[3];
 } proginfoDef, *proginfoPtr;
 
 char *TimeToString( long eltime );
@@ -31,6 +31,6 @@ void connverttime_todef( timeDef *statime, long stime );
 
 void getsys_infos( proginfoDef *proginfo );
 
-struct tm *gettime( int t_in, bool gmt );
+struct tm *gettime( time_t t_in, bool gmt );
 
 int timediff( struct tm t_in  );

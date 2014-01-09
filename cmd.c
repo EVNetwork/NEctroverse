@@ -447,16 +447,16 @@ int cmdUserFlags[CMD_USER_FLAGS_NUMUSED] =
 0x1,
 0x2,
 0x4,
-0x6,
+0x8,
 
 0x10,
 0x20,
 0x40,
-0x60,
 0x80,
-
 0x100,
+
 0x200,
+0x400,
 
 0x1000,
 
@@ -604,7 +604,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
   int *parray;
   dbUserPtr user;
 
-  if( ( parray = calloc( mapcfg.families * mapcfg.fmembers, sizeof(int) ) ) == NULL )
+  if( ( parray = calloc( dbMapBInfoStatic[MAP_CAPACITY], sizeof(int) ) ) == NULL )
   	error( "Malloc Failed" );
   for( a = b = 0 ; a < empired->numplayers ; a++ )
   {
@@ -1590,60 +1590,60 @@ int cmdInit() {
 	char string[2][NAME_MAX];
 	dbUserPtr user;
 	dbUserInfoDef infod;
+	ConfigArrayPtr settings[3];
+	dbUserInfoPtr listarray;
+	ConfigArrayPtr map;
 
-for( a = 0; a < admincfg.numadmins; a++ ) {
+char *list[3] = { "Map Size", "Map Systems", "Map Families" };
+map = ListSettings( list );
+free( map );
 
-	if( !( admincfg.name[a] ) || !( admincfg.password[a] ) || !( admincfg.faction[a] ) || ( ( id = dbUserSearch( admincfg.name[a] ) ) >= 0 ) )
+settings[0] = GetSetting( "Create Admins" );
+settings[1] = GetSetting( "Admin Empire Number" );
+settings[2] = GetSetting( "Admin Empire Password" );
+
+listarray = ListAdmins( settings[0]->num_value );
+for( a = 0; a < settings[0]->num_value; a++ ) {
+
+	if( !( listarray[a].name ) || !( listarray[a].password ) || !( listarray[a].faction ) || ( ( id = dbUserSearch( listarray[a].name ) ) >= 0 ) )
 		continue;
 
-	sprintf(logString, "Creating Administrator account named: \"%s\"", admincfg.name[a] );
-	info( logString );
-	if( ( id = cmdExecNewUser( admincfg.name[a], admincfg.password[a], admincfg.faction[a] ) ) < 0 ) {
-		sprintf(logString, "Failure Creating Administrator account: \"%s\"", admincfg.name[a] );
-		info( logString );
+	info( "Creating %sAdministrator account named: \"%s\"", (( listarray[a].level >= LEVEL_MODERATOR ) ? "" : "Non-"), listarray[a].name );
+	if( ( id = cmdExecNewUser( listarray[a].name, listarray[a].password, listarray[a].faction ) ) < 0 ) {
+		error( "Failure Creating %sAdministrator account: \"%s\"", (( listarray[a].level >= LEVEL_MODERATOR ) ? "" : "Non-"), listarray[a].name );
 		continue;
 	}
 	user = dbUserLinkID( id );
 	user->flags = 0;
-	user->level = (( admincfg.level[a] >= 0 ) ? admincfg.level[a] : 0);
+	user->level = (( listarray[a].level >= 0 ) ? listarray[a].level : 0);
 	dbUserSave( id, user );
 	dbUserInfoRetrieve(id, &infod);
-	strncpy( infod.forumtag,admincfg.forumtag[a], sizeof(infod.forumtag) );
+	strncpy( infod.forumtag,listarray[a].forumtag, sizeof(infod.forumtag) );
 	dbUserInfoSet(id, &infod);
 
 	if( user->level >= LEVEL_MODERATOR ) { 
-		sprintf(logString, "Placing Administrator account: \"%s\"", infod.name );
-		info( logString );
-		if( cmdExecNewUserEmpire( id, admincfg.empire, admincfg.epassword, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
-			sprintf(logString, "Failure Placing Administrator account: \"%s\"", infod.name );
-			info( logString );
+		info( "Placing Administrator account: \"%s\"", infod.name );
+		if( cmdExecNewUserEmpire( id, (int)settings[1]->num_value, settings[2]->string_value, (( listarray[a].flags >= 0 ) ? listarray[a].flags : 0), user->level ) < 0 ) {
+			error( "Failure Placing Administrator account: \"%s\"", infod.name );
 			continue;
 		}
 	} else {
-		sprintf(logString, "Placing Non Administrator account: \"%s\"", infod.name );
-		info( logString );
-		if( cmdExecNewUserEmpire( id, -1, NULL, (( admincfg.race[a] >= 0 ) ? admincfg.race[a] : 0), user->level ) < 0 ) {
-			sprintf(logString, "Failure Placing Non Administrator account: \"%s\"", infod.name );
-			info( logString );
+		info( "Placing Non-Administrator account: \"%s\"", infod.name );
+		if( cmdExecNewUserEmpire( id, -1, NULL, (( listarray[a].flags >= 0 ) ? listarray[a].flags : 0), user->level ) < 0 ) {
+			error( "Failure Placing Non-Administrator account: \"%s\"", infod.name );
 			continue;
 		}
 	}
 }
+free( listarray );
+UnloadSetting( "Create Admins" );
+UnloadSetting( "Admin Empire Password" );
 
-if( admincfg.numadmins ) {
-	free(admincfg.name);
-	free(admincfg.password);
-	free(admincfg.faction);
-	free(admincfg.forumtag);
-	free(admincfg.level);
-	free(admincfg.race);
-}
-free(admincfg.ename);
-free(admincfg.epassword);
 
-if( ( admincfg.numfakes > 0 ) ) {
+settings[0] = GetSetting( "Create Fakes" );
+if( settings[0]->num_value > 0 ) {
 	pass = exist = 0;
-	for( a = 0; a < admincfg.numfakes; a++ ) {
+	for( a = 0; a < settings[0]->num_value; a++ ) {
 		sprintf(string[0], "fake%05duser", a );
 		sprintf(string[1], "Fake Faction %d", a );
 		if( ( id = dbUserSearch( string[0] ) ) >= 0 ) {
@@ -1651,8 +1651,7 @@ if( ( admincfg.numfakes > 0 ) ) {
 			continue;
 		}
 		if( ( id = cmdExecNewUser( string[0], "password", string[1] ) ) < 0 ) {
-			sprintf(logString, "Failure Creating account: \"%s\"", string[0] );
-			info( logString );
+			error( "Failure Creating account: \"%s\"", string[0] );
 			continue;
 		}
 		user = dbUserLinkID( id );
@@ -1664,22 +1663,20 @@ if( ( admincfg.numfakes > 0 ) ) {
 		dbUserInfoSet(id, &infod);
 		srand( a + rand() );
 		if( cmdExecNewUserEmpire( id, -1, NULL, ( rand() % CMD_RACE_TOTAL ) , user->level ) < 0 ) {
-			sprintf(logString, "Failure Placing fake account: \"%s\"", infod.name );
-			info( logString );
+			error( "Failure Placing fake account: \"%s\"", infod.name );
 			continue;
 		}
 	pass++;
 	}
 	if( exist ) {
-		sprintf(logString, "%d fake account%s exist on server...", exist, ( exist > 1 ? "s" : "" ) );
-		info( logString );
+		info( "%d fake account%s exist on server...", exist, ( exist > 1 ? "s" : "" ) );
 	}
 	if( pass ) {
-		sprintf(logString, "Created %d fake account%s...", pass, ( pass > 1 ? "s" : "" ) );
-		info( logString );
+		info( "Created %d fake account%s...", pass, ( pass > 1 ? "s" : "" ) );
 	}
 	RANDOMIZE_SEED;
 }
+UnloadSetting( "Create Fakes" );
 
 dbFlush();
 

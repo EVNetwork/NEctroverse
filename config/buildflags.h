@@ -13,7 +13,10 @@
 #define FACEBOOK_SUPPORT 0
 
 /* disable HTTPS support */
-#define HTTPS_SUPPORT 1
+#define HTTPS_SUPPORT 0
+
+/* disable HTTP/S server threading */
+#define MULTI_THREAD_SUPPORT 0
 
 /* disable pipefile support */
 #define PIPEFILE_SUPPORT 0
@@ -24,6 +27,7 @@
 /* disable mysql support */
 #define MYSQL_SUPPORT 0
 
+/* disable IPv6 support */
 #define ENABLE_IPV6 0
 
 /* disable digest Auth support */

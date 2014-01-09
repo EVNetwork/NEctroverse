@@ -4,7 +4,7 @@ CC = gcc
 else
 CC = colorgcc
 endif
-CONFIGS := $(shell cat config/depreciated.h)
+CONFIGS := $(shell cat config/buildflags.h)
 SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
@@ -59,7 +59,7 @@ stop:
 	
 restart: stop run
 	
-$(LIBDIR)main.o: $(HEAD) main.c
+$(LIBDIR)main.o: $(HEAD) main.c loadini.c
 	$(CC) main.c $(DEFS) -o $(LIBDIR)main.o -c $(FLAGS)
 
 $(LIBDIR)io.o: $(HEAD) io.c iohttpvars.c iohttp.c iohttpmime.c

@@ -99,11 +99,14 @@ proginfo->loadavg[2]=((float)sinfo.loads[2])/shiftfloat;
 return;
 }
 void iohtmlFunc_status( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings[2];
+	char timebuf[512];
 	char addstring[32];
 	struct sysinfo sysinfod;
 	struct utsname stustname;
 	proginfoDef pinfod;
 	cpuInfo cpuinfo;
+	time_t tint;
 
 cpuGetInfo( &cpuinfo );
 getsys_infos( &pinfod );
@@ -122,7 +125,8 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td>" );
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
-sprintf(addstring, "%s status", sysconfig.servername );
+settings[0] = GetSetting( "Server Name" );
+sprintf(addstring, "%s status", settings[0]->string_value );
 iohtmlFunc_boxstart( cnt, addstring);
 httpString( cnt, "<table border=\"0\"><tr><td>" );
 httpString( cnt, "<b>Overall Game Stats</b><br>" );
@@ -130,11 +134,14 @@ httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 httpString( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
 
 #if IRCBOT_SUPPORT
-if( irccfg.bot ) {
-	if( irc_is_connected(irccfg.session) )
-		httpPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", irccfg.host, irccfg.channel );
-	else
+if( sysconfig.irc_enabled ) {
+	if( irc_is_connected(sysconfig.irc_session) ) {
+		settings[0] = GetSetting( "IRC Host" );
+		settings[1] = GetSetting( "IRC Channel" );
+		httpPrintf( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled (Host:%s, Channel:%s)</td></tr>", settings[0]->string_value, settings[1]->string_value );
+	} else {
 		httpString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Enabled but not connected</td></tr>" );
+	}
 } else {
 	httpString( cnt, "<tr><td>IRC Bot status</td><td>&nbsp;:&nbsp;</td><td id=\"botstatus\">Disabled</td></tr>" );
 }
@@ -142,7 +149,8 @@ if( irccfg.bot ) {
 
 httpPrintf( cnt, "<tr><td>Game Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"gameuptime\">%s</td></tr>", TimeToString( pinfod.runtime ) );
 httpPrintf( cnt, "<tr><td>Current date</td><td>&nbsp;:&nbsp;</td><td>Week <span id=\"sstatweeks\">%d</span>, year <span id=\"sstatyears\">%d</span></td></tr>", ticks.number % 52, ticks.number / 52 );
-httpPrintf( cnt, "<tr><td>Tick time</td><td>&nbsp;:&nbsp;</td><td>%d seconds</td></tr>", sysconfig.ticktime );
+settings[0] = GetSetting( "Tick Speed" );
+httpPrintf( cnt, "<tr><td>Tick time</td><td>&nbsp;:&nbsp;</td><td>%.0f seconds</td></tr>", settings[0]->num_value );
 
 if( ticks.status ) {
 	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"sstatsTime\">%s</td></tr>", ((ticks.next - time(0)) > 0) ? TimeToString( ticks.next - time(0) ) : "Now..." );
@@ -171,8 +179,11 @@ httpString( cnt, "<b>System OS</b><br>" );
 uname( &stustname );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 
-httpPrintf( cnt, "<tr><td>Server Time</td><td>&nbsp;:&nbsp;</td><td id=\"timeserver\">%s</td></tr>", asctime( gettime( time(0),false ) ) );
-httpPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td id=\"timegmt\">%s</td></tr>", asctime( gettime( time(0),true ) ) );
+time( &tint );
+strftime(timebuf,512,"%a, %d %b %G %T %Z", localtime( &tint ) );
+httpPrintf( cnt, "<tr><td>Server Time</td><td>&nbsp;:&nbsp;</td><td id=\"timeserver\">%s</td></tr>", timebuf );
+strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+httpPrintf( cnt, "<tr><td>GMT/UTC Time</td><td>&nbsp;:&nbsp;</td><td id=\"timegmt\">%s</td></tr>", timebuf );
 
 httpPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>", stustname.sysname, stustname.release );
 httpPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );
@@ -233,7 +244,7 @@ iohtmlFunc_endhtml( cnt );
 }
 
 
-struct tm *gettime( int t_in, bool gmt ) {
+struct tm *gettime( time_t t_in, bool gmt ) {
 	time_t result;
 
 result = t_in;

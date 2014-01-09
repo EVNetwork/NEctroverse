@@ -4,35 +4,25 @@
 #include "pipefile.c"
 #endif
 
+#include "loadini.c"
+
 pthread_mutex_t mutex;
 
-optionsDef options = { MODE_DAEMON, { false
+ServerOptionsDef options = { MODE_DAEMON, { false
 #if HTTPS_SUPPORT
 , false
 #endif
  }, -1, -1, -1, true, "", "", "", "status" };
 
-configDef sysconfig;
-#if MYSQL_SUPPORT
-mySqlDef mysqlcfg;
-#endif
-#if FACEBOOK_SUPPORT
-FBCfgDef fbcfg;
-#endif
-adminDef admincfg;
-mapcfgDef mapcfg;
-tickDef ticks;
-#if IRCBOT_SUPPORT
-ircDef irccfg;
-#endif
+SystemCoreDef sysconfig;
 
-inikey config;
+TickInfoDef ticks;
 
-char logString[MAXLOGSTRING];
+#define BREAKER_TAG "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>"
 
 bool firstload = false;
 
-svbanDef banlist = { 0 };
+IPBanDef banlist = { 0 };
 
 void cleanUp(int type) {
 	char DIRCHECKER[PATH_MAX];
@@ -41,8 +31,7 @@ if( type ) {
 	close(options.serverpipe);
 	sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	unlink(DIRCHECKER);
-	info( "Server shutdown complete, now cleaning up!" );
-	syslog(LOG_INFO, "%s", "<<<<<BREAKER-FOR-NEW-SERVER-INSTANCE>>>>>" ); //Don't really need this, but meh... why not!
+	info( BREAKER_TAG ); //Don't really need this, but meh... why not!
 	closelog();
 } else {
 	close(options.clientpipe);
@@ -50,89 +39,39 @@ if( type ) {
 	unlink(DIRCHECKER);
 }
 
-if( config != NULL ) {
-	iniparser_freedict( config );
-	config = NULL;
-}
-
 return;
 }
 
 void svSignal( int signal ) {
-//	int a, size;
-
 
 if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
 	if( options.verbose ) {
-		printf("%d\n", signal);
+		printf("%s\n", cmdSignalNames[signal] );
 		fflush(stdout);
 	}
-	sprintf(logString, "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);
-	info( logString );
+	info( "%s Recived; handleing gracefully =)", cmdSignalNames[signal]);
   	sysconfig.shutdown = true;
 	return;
 }
- /* if(signal == SIGUSR2)
-  {
-  	//Free memory db and reload it to have a new member in :P
-  	loghandle(LOG_INFO, false, "%s", "Ask a dbinit");
-  	dbEnd();
-  	dbInit();
-  	return;
-  }*/
-
 
 loghandle(LOG_CRIT, false, "ERROR, signal \'%s\'", cmdSignalNames[signal]);
-//loghandle(LOG_CRIT, false, "cnt : %d", (int)(intptr_t)svDebugConnection);
 loghandle(LOG_CRIT, false, "tick pass : %d", ticks.debug_pass);
 loghandle(LOG_CRIT, false, "tick id : %d", ticks.debug_id);
-/*
-if( svDebugConnection ) {
 
-	iohttp = svDebugConnection->iodata;
-
-	loghandle(LOG_CRIT, false, "iohttp : %d", (int)(intptr_t)iohttp );
-	loghandle(LOG_CRIT, false, "iohttp->path : %s", iohttp->path );
-	loghandle(LOG_CRIT, false, "iottp content lenth: %d", iohttp->content_length );
-	loghandle(LOG_CRIT, false, "iohttp->query_string : %s", iohttp->query_string );
-	loghandle(LOG_CRIT, false, "iohttp->cookie : %s", iohttp->cookie );
-	loghandle(LOG_CRIT, false, "iohttp->referer : %s", iohttp->referer );
-	loghandle(LOG_CRIT, false, "iohttp->user_agent : %s", iohttp->user_agent );
-	loghandle(LOG_CRIT, false, "iohttp->content : <<START>> %s <<END>>", iohttp->content );
-
-	for( ; svDebugConnection->sendflushbuf ; svDebugConnection->sendflushbuf = (svDebugConnection->sendflushbuf)->next ) {
-		if( (svDebugConnection->sendflushbuf)->next )
-			size = svDebugConnection->sendsize - svDebugConnection->sendflushpos;
-		else
-			size = svDebugConnection->sendpos - svDebugConnection->sendflushpos;
-		a = size;
-		if( options.verbose )
-			fwrite( &(svDebugConnection->sendflushbuf)->data[svDebugConnection->sendflushpos], 1, size, stdout ); // hmmz ...
-		if( a == -1 ) {
-			if( errno == EWOULDBLOCK )
-				return;
-			loghandle(LOG_CRIT, errno, "Error %d, send", errno);
-			return;
-		}
-		if( a != size ) {
-			svDebugConnection->sendflushpos += a;
-			break;
-		}
-		svDebugConnection->sendflushpos = 0;
-	}
-}*/
 
 #if IRCBOT_SUPPORT
-if( irc_is_connected(irccfg.session) ) {
-	irc_send_raw( irccfg.session, "NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", irccfg.channel, cmdSignalNames[signal]);
-	if( irc_cmd_quit( irccfg.session, "Server Saftey Triped... Shutting down!" ) ) {
+	ConfigArrayPtr setting;
+if( irc_is_connected(sysconfig.irc_session) ) {
+	setting = GetSetting( "IRC Channel" );
+	irc_send_raw( sysconfig.irc_session, "NOTICE %s :Server recived \'%s\' signal -- Shutdown Iniated!", setting->string_value, cmdSignalNames[signal]);
+	if( irc_cmd_quit( sysconfig.irc_session, "Server Saftey Triped... Shutting down!" ) ) {
 		error("Quitting IRC");
 	}
-	irc_disconnect( irccfg.session );
+	irc_disconnect( sysconfig.irc_session );
 }
 #endif
 sysconfig.shutdown = true;
-server_shutdown();
+Shutdown();
 
 exit(1);
 }
@@ -158,6 +97,7 @@ return str;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 int daemonloop() {
+	ConfigArrayPtr settings;
 	time_t curtime;
 
 //Start HTTP Server(s)
@@ -177,6 +117,13 @@ while( sysconfig.shutdown == false ) {
 	/* Expire HTTP Sessions */
 	expire_sessions();
 
+	#if MULTI_THREAD_SUPPORT == 0
+	WWWSelect(false);
+	#if IRC_BOT_SUPPORT
+	IRCSelect( );
+	#endif
+	#endif
+	
 	#if PIPEFILE_SUPPORT
 	svPipeScan( options.serverpipe );
 	#endif
@@ -184,7 +131,7 @@ while( sysconfig.shutdown == false ) {
 	loadconfig(options.sysini,CONFIG_BANNED);
 
 	//svDebugConnection = 0;
-	 time( &curtime );
+	time( &curtime );
 
 	if( ( ticks.locked ) || ( ( sysconfig.autostop ) && ( timediff( sysconfig.stop ) < 1 ) ) ) {
 		ticks.status = false;
@@ -196,8 +143,8 @@ while( sysconfig.shutdown == false ) {
 		nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
 		continue;
 	}
-
-	ticks.next = ( curtime + sysconfig.ticktime );
+	settings = GetSetting( "Tick Speed" );
+	ticks.next = ( curtime + (int)settings->num_value );
 	
 	cmdTickInit();
 	if( ticks.status ) {
@@ -214,15 +161,15 @@ while( sysconfig.shutdown == false ) {
 }
 
 #if IRCBOT_SUPPORT
-if( irc_is_connected(irccfg.session) ) {
-	if( irc_cmd_quit( irccfg.session, "Server Shutdown has been iniated" ) ) {
+if( irc_is_connected(sysconfig.irc_session) ) {
+	if( irc_cmd_quit( sysconfig.irc_session, "Server Shutdown has been iniated" ) ) {
 		error("Quitting IRC");
 	}
-	irc_disconnect( irccfg.session );
+	irc_disconnect( sysconfig.irc_session );
 }
 #endif
 
-server_shutdown();
+Shutdown();
 
 return 0;
 }
@@ -231,6 +178,7 @@ return 0;
 int daemon_init() {
 	int binfo[MAP_TOTAL_INFO];
 	char DIRCHECKER[PATH_MAX];
+	ConfigArrayPtr settings[2];
 	pid_t pid, sid;
 
 info( "Server process iniating...");
@@ -246,7 +194,8 @@ if(pid < 0) {
 	return 1; // So we forked it, time to return and wait for results on a client pipe.
 }
 
-loghandle(LOG_INFO, false, "Begining initiation of %s daemon...", sysconfig.servername);
+settings[0] = GetSetting( "Server Name" );
+loghandle(LOG_INFO, false, "Begining initiation of %s daemon...", settings[0]->string_value );
 
 // First, start a new session
 if((sid = setsid()) < 0) {
@@ -270,7 +219,8 @@ close(STDERR_FILENO);
 
 }
 
-ticks.next = time(0) + sysconfig.ticktime;
+settings[0] = GetSetting( "Tick Speed" );
+ticks.next = time(0) + (int)settings[0]->num_value;
 	
 //Time to set some signals
 signal( SIGPIPE, SIG_IGN );
@@ -305,7 +255,8 @@ if( !( cmdInit() ) )  {
 	return 0;
 }
 
-sprintf( DIRCHECKER, "%s/data", sysconfig.directory );  
+settings[0] = GetSetting( "Directory" );
+sprintf( DIRCHECKER, "%s/data", settings[0]->string_value );  
 if( chdir( DIRCHECKER ) == -1 ) {
 	if( options.verbose )
 	loghandle(LOG_ERR, errno, "Change into Database Dir \"%s\" Failed, exiting", DIRCHECKER );
@@ -322,7 +273,7 @@ if( ( binfo[MAP_ARTITIMER] == -1 ) || !( (binfo[MAP_ARTITIMER] - ticks.number) <
 #if PIPEFILE_SUPPORT
 sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	if( mkfifo(DIRCHECKER, 0666) < 0 ) {
-	loghandle(LOG_ERR, errno, "Error creating pipe: %sn", DIRCHECKER );
+	error( "Error creating pipe: %s", DIRCHECKER );
 	options.serverpipe = -1;
 } else {
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
@@ -331,10 +282,11 @@ sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 info( "All Checks passed, begining server loop..." ); 
 
 #if FACEBOOK_SUPPORT
-if( strlen(fbcfg.app_id) && strlen(fbcfg.app_secret) ) {
-	facebook_apptoken( &fbcfg.app_token );
-	sprintf( logString, "Loading the Facebook Session Token... %s", ( fbcfg.app_token ) ? "Sucessfull" : "Failed" );
-	info( logString );
+settings[0] = GetSetting( "Facebook Application" );
+settings[1] = GetSetting( "Facebook Secret" );
+if( strlen( settings[0]->string_value ) && strlen( settings[1]->string_value ) ) {
+	facebook_apptoken( &sysconfig.facebook_token );
+	info( "Loading the Facebook Session Token... %s", ( sysconfig.facebook_token ) ? "Sucessfull" : "Failed" );
 } else {
 	info( "Unable to load Facebook Token due to bad ini settings" );
 }
@@ -342,8 +294,12 @@ if( strlen(fbcfg.app_id) && strlen(fbcfg.app_secret) ) {
 
 //Now create the loop, this used to take place in here... but I decided to move it =P
 #if IRCBOT_SUPPORT
-if( irccfg.bot ) {
-	pthread_create(&irccfg.thread,NULL,ircbot_connect,NULL);
+if( sysconfig.irc_enabled ) {
+	#if MULTI_THREAD_SUPPORT
+	pthread_create(&sysconfig.irc_thread,NULL,ircbot_connect,NULL);
+	#else
+	ircbot_connect();
+	#endif
 }
 #endif
 
@@ -428,9 +384,11 @@ if ( split == NULL ) {
 			strcat(mkthisdir, split[i]);
 			check = mkdir( mkthisdir, S_IRWXU );
 			if (!check) {
-				loghandle(LOG_INFO, false, "Directory \"%s\" created.", mkthisdir );
+				info( "Directory \"%s\" created.", mkthisdir );
 			} else if ( errno != 17 ) {
-				loghandle(LOG_ERR, errno, "Error creating directory: \"%s\"", mkthisdir );
+				error( "Error creating directory: \"%s\"", mkthisdir );
+			} else if( errno == 17 ) {
+				errno = 0;
 			}
 		}
 	}
@@ -443,343 +401,116 @@ return;
 }
 
 int loadconfig( char *file, int type ) {
-	int a, i;
+	int a;
 	int logfac = LOG_SYSLOG;
 	char DIRCHECKER[PATH_MAX];
+	ConfigArrayPtr settings;
 	inikey ini;
 
-if( firstload ) {
-	ini = dictionary_new(0);
-} else {
-	ini = iniparser_load(file);
-	if( ini == NULL ) {
-		sprintf( logString, "Loading INI File: %s", file );
-		if( type != CONFIG_TICKS )
-			error( logString );
-		return -1;
-	}
-}
-
-if( iniparser_find_entry(ini,"NEED_TO_DELETE_ME") ) {
-	sprintf(logString, "A default, non-usable version of the evsystem.ini has been detected: %s",file);
-	info( logString );
-	info( "You must edit this file before the game server is able to run correctly!");
-	sysconfig.shutdown = true;
-}
-
 if( sysconfig.shutdown ) {
-	iniparser_freedict(ini);
 	return -1;
 }
 
 if( type == CONFIG_SYSTEM ) {
-//Enter new scaner.
-	sysconfig.syslog_tagname = strdup( iniparser_getstring(ini, "syslog:tag", "EVServer" ) );
-	sysconfig.syslog_facility = strdup( iniparser_getstring(ini, "syslog:facility", "LOG_LOCAL6" ) );
+	//Enter new scaner.
+	settings = GetSetting( "Auto Start" );
+	sysconfig.autostart = settings->num_value;
+	if( settings->num_value ) {
+		settings = GetSetting( "Start Second" );
+		sysconfig.start.tm_sec = (int)settings->num_value;
+		settings = GetSetting( "Start Minute" );
+		sysconfig.start.tm_min = (int)settings->num_value;
+		settings = GetSetting( "Start Hour" );
+		sysconfig.start.tm_hour = (int)settings->num_value;
+		settings = GetSetting( "Start Day" );
+		sysconfig.start.tm_mday = (int)settings->num_value;
+		settings = GetSetting( "Start Month" );
+		sysconfig.start.tm_mon = ( settings->num_value > 0 ) ? (int)( settings->num_value - 1 ) : -1;
+		settings = GetSetting( "Start Year" );
+		sysconfig.start.tm_year = ( settings->num_value > 0 ) ? (int)( settings->num_value + 100 ) : -1;
+	}
+	settings = GetSetting( "Auto Stop" );
+	sysconfig.autostop = settings->num_value;
+	if( settings->num_value ) {
+		settings = GetSetting( "Stop Second" );
+		sysconfig.stop.tm_sec = (int)settings->num_value;
+		settings = GetSetting( "Stop Minute" );
+		sysconfig.stop.tm_min = (int)settings->num_value;
+		settings = GetSetting( "Stop Hour" );
+		sysconfig.stop.tm_hour = (int)settings->num_value;
+		settings = GetSetting( "Stop Day" );
+		sysconfig.stop.tm_mday = (int)settings->num_value;
+		settings = GetSetting( "Stop Month" );
+		sysconfig.stop.tm_mon = ( settings->num_value > 0 ) ? (int)( settings->num_value - 1 ) : -1;
+		settings = GetSetting( "Stop Year" );
+		sysconfig.stop.tm_year = ( settings->num_value > 0 ) ? (int)( settings->num_value + 100 ) : -1;
 
-	sysconfig.servername = strdup( iniparser_getstring(ini, "system:name", "NEctroverse") );
-	sysconfig.cookdomain = strdup( iniparser_getstring(ini, "system:cookiedomain", "") );
-	sysconfig.directory = strdup( iniparser_getstring(ini, "system:directory", "/tmp/evcore/data") );
-	sysconfig.downfrom = strdup( iniparser_getstring(ini, "system:downfrom", "http://www.sknill.com/evbasic") );
-	sysconfig.httpimages = strdup( iniparser_getstring(ini, "system:httpimages", "/tmp/evcore/html/images") );
-	sysconfig.httpfiles = strdup( iniparser_getstring(ini, "system:httpfiles", "/tmp/evcore/html/files") );
-	sysconfig.httpread = strdup( iniparser_getstring(ini, "system:httpread", "/tmp/evcore/html/read") );
-	sysconfig.pubforum = strdup( iniparser_getstring(ini, "system:publicforum", sysconfig.directory ) );
-	
-
-	sysconfig.httpport = iniparser_getint(ini, "system:http_port", 9990);
+	}
+	//End config scanning... handle variables.
+	settings = GetSetting( "HTTP Port" );
+	options.port[PORT_HTTP] = options.port[PORT_HTTP] ? options.port[PORT_HTTP] : (int)settings->num_value;
 	#if HTTPS_SUPPORT
-	sysconfig.httpsport = iniparser_getint(ini, "system:https_port", 9991);
+	settings = GetSetting( "HTTPS Port" );
+	options.port[PORT_HTTPS] = options.port[PORT_HTTPS] ? options.port[PORT_HTTPS] : (int)settings->num_value;
 	#endif
-
-	sysconfig.stockpile = iniparser_getint(ini, "system:stockpile", 0);
-	sysconfig.warend = iniparser_getint(ini, "system:auto_victory_afterticks", 0);
-	sysconfig.victory = iniparser_getint(ini, "system:auto_endwar_afterticks", 0);
-	sysconfig.ticktime = iniparser_getint(ini, "system:tick_time", 3600);
-	sysconfig.notices = iniparser_getint(ini, "system:notices", 5);
-
-	sysconfig.round = iniparser_getint(ini, "system:round", 0); //FIXME -- Needs moving to a different function set.
-
-	sysconfig.autostart = iniparser_getboolean(ini, "auto_start:enable", false);
-	sysconfig.start.tm_sec = iniparser_getint(ini, "auto_start:second", -1);
-	sysconfig.start.tm_min = iniparser_getint(ini, "auto_start:minute", -1);
-	sysconfig.start.tm_hour = iniparser_getint(ini, "auto_start:hour", -1);
-	sysconfig.start.tm_mday = iniparser_getint(ini, "auto_start:day", -1);
-	sysconfig.start.tm_mon = (( iniparser_getint(ini, "auto_start:month", -1) ) - 1);
-	sysconfig.start.tm_year = (( iniparser_getint(ini, "auto_start:year", -1) ) + 100);
-
-	sysconfig.autostop = iniparser_getboolean(ini, "auto_stop:enable", false);
-	sysconfig.stop.tm_sec = iniparser_getint(ini, "auto_stop:second", -1);
-	sysconfig.stop.tm_min = iniparser_getint(ini, "auto_stop:minute", -1);
-	sysconfig.stop.tm_hour = iniparser_getint(ini, "auto_stop:hour", -1);
-	sysconfig.stop.tm_mday = iniparser_getint(ini, "auto_stop:day", -1);
-	sysconfig.stop.tm_mon = (( iniparser_getint(ini, "auto_stop:month", -1) ) - 1);
-	sysconfig.stop.tm_year = (( iniparser_getint(ini, "auto_stop:year", -1) ) + 100);
-	
-	#if FACEBOOK_SUPPORT
-	fbcfg.app_id = strdup( iniparser_getstring(ini, "facebook:app_id", "" ) );
-	fbcfg.app_secret = strdup( iniparser_getstring(ini, "facebook:app_secret", "" ) );
-	//fbcfg.secret = strdup( iniparser_getstring(ini, "facebook:app_secret", "" ) );
-	#endif
-	
-	#if MYSQL_SUPPORT
-	mysqlcfg.enable = iniparser_getboolean(ini, "mysql:enable", false);
-	mysqlcfg.host = strdup( iniparser_getstring(ini, "mysql:host", "localhost") );
-	mysqlcfg.port = iniparser_getint(ini, "mysql:port", 3306);
-	mysqlcfg.user = strdup( iniparser_getstring(ini, "mysql:user", "localhost") );
-	mysqlcfg.password = iniparser_getstring(ini, "mysql:password", NULL) ? strdup( iniparser_getstring(ini, "mysql:password", "") ) : NULL;
-	mysqlcfg.database = strdup( iniparser_getstring(ini, "mysql:database", "evgame") );
-	#endif
-	
-
-	admincfg.numfakes = iniparser_getint(ini, "debug:create_accounts", 0);
-
-	admincfg.numadmins = iniparser_getint(ini, "admin:number", 0);
-	if( admincfg.numadmins > 0 ) {
-		admincfg.race = malloc( admincfg.numadmins * sizeof(*admincfg.race) );
-		admincfg.level = malloc( admincfg.numadmins * sizeof(*admincfg.level) );
-		admincfg.name = malloc( admincfg.numadmins * sizeof(*admincfg.name) );
-		admincfg.password = malloc( admincfg.numadmins * sizeof(*admincfg.password) );
-		admincfg.faction = malloc( admincfg.numadmins * sizeof(*admincfg.faction) );
-		admincfg.forumtag = malloc( admincfg.numadmins * sizeof(*admincfg.forumtag) );
-	}
-	for( a = 0; a < admincfg.numadmins ; a++ ){
-		sprintf(DIRCHECKER,"admin%d",(a+1));
-		if( !( iniparser_find_entry(ini,DIRCHECKER) ) )
-			continue;
-		sprintf(DIRCHECKER,"admin%d:race",(a+1));
-		admincfg.race[a] = iniparser_getint(ini, DIRCHECKER, 0);
-		sprintf(DIRCHECKER,"admin%d:level",(a+1));
-		admincfg.level[a] = iniparser_getint(ini, DIRCHECKER, 0);
-		sprintf(DIRCHECKER,"admin%d:name",(a+1));
-		admincfg.name[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
-		sprintf(DIRCHECKER,"admin%d:password",(a+1));
-		admincfg.password[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
-		sprintf(DIRCHECKER,"admin%d:faction",(a+1));
-		admincfg.faction[a] = iniparser_getstring(ini, DIRCHECKER, NULL ) ? strdup( iniparser_getstring(ini, DIRCHECKER, "") ) : NULL;
-		sprintf(DIRCHECKER,"admin%d:forumtag",(a+1));
-		admincfg.forumtag[a] = strdup( iniparser_getstring(ini, DIRCHECKER, "Helper") );
-	}
-	admincfg.empire = iniparser_getint(ini, "admin:empire", 0);
-	admincfg.ename = strdup( iniparser_getstring(ini, "admin:empire_name", "Administration") );
-	admincfg.epassword = strdup( iniparser_getstring(ini, "admin:empire_password", "password") );
-	admincfg.rankommit = iniparser_getboolean(ini, "admin:ommit_from_ranks", false);
-
-	mapcfg.sizex = iniparser_getint(ini, "map:size", 100);
-	mapcfg.sizey = iniparser_getint(ini, "map:size", mapcfg.sizex);
-
-	mapcfg.systems = iniparser_getint(ini, "map:systems", 250);
-	mapcfg.families = iniparser_getint(ini, "map:families", 10);
-	mapcfg.fmembers = iniparser_getint(ini, "map:members_perfamily", 10);
-
-	mapcfg.border = iniparser_getint(ini, "map:border", 20);
-	mapcfg.anglevar = iniparser_getdouble(ini, "map:anglevar", 1024.0);
-
-	mapcfg.linknum = iniparser_getdouble(ini, "map:linknum", 60);
-	mapcfg.linkradius = iniparser_getdouble(ini, "map:linkradius", 8.0);
-	mapcfg.lenghtbase = iniparser_getint(ini, "map:lenghtbase", 2);
-	mapcfg.lenghtvar = iniparser_getint(ini, "map:lenghtvar", 24);
-
-	mapcfg.bonusnum = 0;
-	for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
-		sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);
-		for(i = 0; DIRCHECKER[i]; i++){
-			DIRCHECKER[i] = tolower(DIRCHECKER[i]);
-		}
-		mapcfg.bonusvar[a] = iniparser_getint(ini, DIRCHECKER, 0);
-		mapcfg.bonusnum += mapcfg.bonusvar[a];
-	}
-
-
-//End config scanning... handle variables.
-	if( sysconfig.httpport )
-		options.port[PORT_HTTP] = options.port[PORT_HTTP] ? options.port[PORT_HTTP] : sysconfig.httpport;
-	#if HTTPS_SUPPORT
-	if( sysconfig.httpsport )
-		options.port[PORT_HTTPS] = options.port[PORT_HTTPS] ? options.port[PORT_HTTPS] : sysconfig.httpsport;
-	#endif
-
-	if( strlen(sysconfig.syslog_facility) && strcmp(sysconfig.syslog_facility,"LOG_SYSLOG") ){
+	settings = GetSetting( "Log Handle" );
+	if( strlen( settings->string_value ) && strcmp( settings->string_value, "LOG_SYSLOG" ) ) {
 		closelog();
-		if( strcmp(sysconfig.syslog_facility,"LOG_DAEMON") == 0 ) {
+		if( strcmp( settings->string_value, "LOG_DAEMON" ) == 0 ) {
 			logfac = LOG_DAEMON;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_USER") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_USER" ) == 0 ) {
 			logfac = LOG_USER;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL0") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL0" ) == 0 ) {
 			logfac = LOG_LOCAL0;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL1") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL1" ) == 0 ) {
 			logfac = LOG_LOCAL1;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL2") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL2" ) == 0 ) {
 			logfac = LOG_LOCAL2;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL3") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL3" ) == 0 ) {
 			logfac = LOG_LOCAL3;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL4") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL4" ) == 0 ) {
 			logfac = LOG_LOCAL4;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL5") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL5" ) == 0 ) {
 			logfac = LOG_LOCAL5;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL6") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL6" ) == 0 ) {
 			logfac = LOG_LOCAL6;
-		} else if( strcmp(sysconfig.syslog_facility,"LOG_LOCAL7") == 0 ) {
+		} else if( strcmp( settings->string_value, "LOG_LOCAL7" ) == 0 ) {
 			logfac = LOG_LOCAL7;
 		}
-		openlog(sysconfig.syslog_tagname, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
+		settings = GetSetting( "Log Tag" );
+		openlog( settings->string_value, LOG_CONS | LOG_PID | LOG_NDELAY, logfac);
 	}
-} else if( type == CONFIG_BANNED ){
-	if( ( banlist.ip ) && ( banlist.number ) ) {
-		free( banlist.ip );
+} else if( type == CONFIG_BANNED ) {
+	if( ( ( ini = iniparser_load(file) ) == NULL ) || ( ini == NULL ) ) {
+			error( "Loading INI File: %s", file );
+		return -1;
 	}
-	banlist.number = iniparser_getint(ini, "banned_ips:number", 0);
-	if( banlist.number > 0 ) {
-		banlist.ip = malloc( banlist.number * sizeof(*banlist.ip));
+	if( ( sysconfig.banlist.ip ) && ( sysconfig.banlist.number ) ) {
+		free( sysconfig.banlist.ip );
 	}
-	for(a = 0; a < banlist.number; a++) {
+	sysconfig.banlist.number = iniparser_getint(ini, "banned_ips:number", 0);
+	if( sysconfig.banlist.number > 0 ) {
+		sysconfig.banlist.ip = calloc( sysconfig.banlist.number, sizeof(*sysconfig.banlist.ip) );
+	}
+	for(a = 0; a < sysconfig.banlist.number; a++) {
 		sprintf(DIRCHECKER,"banned_ips:ip%d",(a+1));
-		banlist.ip[a] = strdup(iniparser_getstring(ini, DIRCHECKER, "0.0.0.0"));
+		sysconfig.banlist.ip[a] = strdup(iniparser_getstring(ini, DIRCHECKER, "0.0.0.0"));
 	}
+	iniparser_freedict(ini);
 } else if( type == CONFIG_TICKS ) {
+	if( ( ( ini = iniparser_load(file) ) == NULL ) || ( ini == NULL ) ) {
+		return -1;
+	}
 	ticks.status = iniparser_getboolean(ini, "ticks:status", false);
 	ticks.locked = iniparser_getboolean(ini, "ticks:locked", false);
 	ticks.number = iniparser_getint(ini, "ticks:number", 0);
-	ticks.round = iniparser_getint(ini, "ticks:round", ( sysconfig.round ? sysconfig.round : 0 ) );
-	ticks.speed = iniparser_getint(ini, "ticks:speed", ( sysconfig.ticktime ? sysconfig.ticktime : 3600 ) );
+	ticks.round = iniparser_getint(ini, "ticks:round", 0 );
+	settings = GetSetting( "Tick Speed" );
+	ticks.speed = iniparser_getint(ini, "ticks:speed", (int)settings->num_value );
 	ticks.last = iniparser_getint(ini, "ticks:last", 0);
 	ticks.next = iniparser_getint(ini, "ticks:next", 0);
-#if IRCBOT_SUPPORT
-} else if( type == CONFIG_IRC ) {
-	irccfg.host = strdup( iniparser_getstring(ini, "irc:host", "irc.freenode.net") );
-	irccfg.port = atoi( iniparser_getstring(ini, "irc:port", "6667") );
-	strcpy(DIRCHECKER,"#");
-	strcat(DIRCHECKER,strdup( iniparser_getstring(ini, "irc:channel", "ectroverse") ) );
-	irccfg.channel = strdup(DIRCHECKER);
-	irccfg.botnick = strdup( iniparser_getstring(ini, "irc:bot_nick", "EVBot") );
-	irccfg.botpass = strdup( iniparser_getstring(ini, "irc:bot_pass", "botpass") );
-	irccfg.bot = iniparser_getboolean(ini, "irc:bot_enable", false);
-	irccfg.announcetick = iniparser_getboolean(ini, "irc:bot_announcetick", false);
-#endif
+	iniparser_freedict(ini);
 }
-
-
-if( firstload ) {
-	FILE *dumpfile;
-	if( !( iniparser_find_entry(ini,"system") ) ){
-		iniparser_set(ini,"system",NULL);
-		iniparser_set(ini,"system:name",sysconfig.servername);
-		iniparser_set(ini,"system:cookiedomain","yourdomain.com");
-		iniparser_set(ini,"system:directory",sysconfig.directory);
-		iniparser_set(ini,"system:downfrom",sysconfig.downfrom);
-		iniparser_set(ini,"system:httpimages",sysconfig.httpimages);
-		iniparser_set(ini,"system:httpfiles",sysconfig.httpfiles);
-		iniparser_set(ini,"system:httpread",sysconfig.httpread);
-		iniparser_set(ini,"system:pubforum",sysconfig.pubforum);
-		iniparser_set_string(ini,"system:http_port","%d", sysconfig.httpport );
-		#if HTTPS_SUPPORT
-		iniparser_set_string(ini,"system:https_port","%d", sysconfig.httpsport );
-		#endif
-		iniparser_set(ini,"system:stockpile","14");
-		iniparser_set(ini,"system:auto_victory_afterticks","52");
-		iniparser_set(ini,"system:auto_endwar_afterticks","26");
-		iniparser_set(ini,"system:tick_time","3600");
-		iniparser_set(ini,"system:notices","5");
-		iniparser_set(ini,"system:round","0");
-	}
-	if( !( iniparser_find_entry(ini,"syslog") ) ){
-		iniparser_set(ini,"syslog",NULL);
-		iniparser_set(ini,"syslog:tag", sysconfig.syslog_tagname);
-		iniparser_set(ini,"syslog:facility", sysconfig.syslog_facility);
-	}
-	#if IRCBOT_SUPPORT
-	if( !( iniparser_find_entry(ini,"irc") ) ){
-		iniparser_set(ini,"irc",NULL);
-		iniparser_set(ini,"irc:host", "irc.freenode.net" );
-		iniparser_set(ini,"irc:port", "6667" );
-		iniparser_set(ini,"irc:channel","ectroverse");
-		iniparser_set(ini,"irc:bot_nick", "EVBot" );
-		iniparser_set(ini,"irc:bot_pass", "botpass" );
-		iniparser_set(ini,"irc:bot_enable", "false" );
-		iniparser_set(ini,"irc:bot_announcetick", "false" );
-	}
-	#endif
-	if( !( iniparser_find_entry(ini,"admin") ) ){
-		iniparser_set(ini,"admin",NULL);
-		iniparser_set(ini,"admin:number", "2" );
-		iniparser_set(ini,"admin:name1", "admin" );
-		iniparser_set(ini,"admin:password1","password");
-		iniparser_set(ini,"admin:faction1", "Admins Faction" );
-		iniparser_set(ini,"admin:forumtag1", "<img src=\"images/admin.gif\">" );
-		iniparser_set(ini,"admin:level1", "3" );
-		iniparser_set(ini,"admin:race1", "2" );
-		iniparser_set(ini,"admin:name2", "help" );
-		iniparser_set(ini,"admin:password2","password");
-		iniparser_set(ini,"admin:faction2", "Admins Helper" );
-		iniparser_set(ini,"admin:forumtag2", "Helper" );
-	}
-	if( !( iniparser_find_entry(ini,"admin_empire") ) ){
-		iniparser_set(ini,"admin_empire",NULL);
-		iniparser_set_string(ini,"admin_empire:number", "%d", admincfg.empire );
-		iniparser_set(ini,"admin_empire:name", admincfg.ename );
-		iniparser_set(ini,"admin_empire:password", admincfg.epassword );
-		iniparser_set(ini,"admin_empire:ommit_from_rank", admincfg.rankommit ? "true" : "false" );
-	}
-	if( !( iniparser_find_entry(ini,"map") ) ){
-		iniparser_set(ini,"map",NULL);
-		iniparser_set_string(ini,"map:sizex", "%d", mapcfg.sizex );
-		iniparser_set_string(ini,"map:systems", "%d", mapcfg.systems );
-		iniparser_set_string(ini,"map:families", "%d", mapcfg.families );
-		iniparser_set_string(ini,"map:members_perfamily", "%d", mapcfg.fmembers );
-		iniparser_set_string(ini,"map:border", "%d", mapcfg.border );
-		iniparser_set_string(ini,"map:anglevar", "%d", mapcfg.anglevar );
-		iniparser_set_string(ini,"map:linknum", "%d", mapcfg.linknum );
-		iniparser_set_string(ini,"map:linkradius", "%d", mapcfg.linkradius );
-		iniparser_set_string(ini,"map:lenghtbase", "%d", mapcfg.lenghtbase );
-		iniparser_set_string(ini,"map:lenghtvar", "%d", mapcfg.lenghtvar );
-		for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
-			sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);
-			for(i = 0; DIRCHECKER[i]; i++){
-				DIRCHECKER[i] = tolower(DIRCHECKER[i]);
-			}
-			iniparser_set_string(ini,DIRCHECKER, "%d", (rand() % 35) );
-		}
-	}
-	if( !( iniparser_find_entry(ini,"banned_ips") ) ){
-		iniparser_set(ini,"banned_ips",NULL);
-		iniparser_set(ini,"banned_ips:number", "3" );
-		iniparser_set(ini,"banned_ips:ip1", "10.0.0.*" );
-		iniparser_set(ini,"banned_ips:ip2","192.168.0.*");
-		iniparser_set(ini,"banned_ips:ip3", "127.0.0.1" );
-	}
-	iniparser_set(ini,"NEED_TO_DELETE_ME",NULL);
-	dumpfile = fopen(file, "w");
-	if( !( dumpfile ) ) {
-		loghandle(LOG_CRIT, false, "Unable to load config file, and unable to spawn in specified location: \'%s\'", file);
-		file = "/tmp/evcore/evsystem.ini";
-		dumpfile = fopen(file, "w");
-		loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You will need to edit and move this file before you can run the server, its best if you use the config directory!");
-	} else {
-		loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You must edit this file according to your needs before you run the game server!");
-	}
-	if( dumpfile ) {
-		fprintf( dumpfile, "%s\n", "; NEctroverse Alpha Config file" );
-		fprintf( dumpfile, "%s\n", "; Why did I change from config.h to config.ini ??" );
-		fprintf( dumpfile, "%s\n", "; Simple, changes here can be implemented without a rebuild!" );
-		fprintf( dumpfile, "%s\n", "; Just change and restart. Simple =D" );
-		fprintf( dumpfile, "%s\n", "; -- Necro" );
-		fprintf( dumpfile, "\n" );
-		iniparser_dump_ini(ini,dumpfile);
-		fprintf( dumpfile, "%s\n", ";Auto generated, You will need to delete the DELETE settings before this file will load.!" );
-		fprintf( dumpfile, "%s\n", ";This file was automaticly generated as no ini file was present!" );
-		fflush( dumpfile );
-		fclose( dumpfile );
-
-	} else {
-		loghandle(LOG_CRIT, errno, "Unable to spawn default config file into: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You may have specified an invalid path...");	
-	}
-	sysconfig.shutdown = true;
-}
-
-iniparser_freedict(ini);
 
 return 1;
 }
@@ -787,9 +518,11 @@ return 1;
 
 int savetickconfig() {
 	char DIRCHECKER[PATH_MAX];
+	ConfigArrayPtr settings;
 	FILE *file;
 
-sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
+settings = GetSetting( "Directory" );
+sprintf( DIRCHECKER, "%s/ticks.ini", settings->string_value );
 file = fopen( DIRCHECKER, "rb+" );
 if(!file)
 	file = fopen( DIRCHECKER, "wb" );
@@ -906,19 +639,22 @@ if( !( strlen(options.sysini) > 0 ) ) {
 		result = true;
 	}
 } else {
-	char *pointer = NULL;
-	pointer = strrchr( strdup(options.sysini), '/' );
-	if( ( options.sysini[0] != '/' ) )
+	char *input = strdup( options.sysini );
+	char *pointer = strrchr( input, '/' );
+	if( ( options.sysini[0] != '/' ) ) {
+		//free( pointer );
 		pointer = NULL;
+	}
 	if( !( pointer ) ) {
-		char *file = strdup(options.sysini);
 		if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
-			sprintf(options.sysini, "%s/%s" ,DIRCHECKER, file);
+			sprintf(options.sysini, "%s/%s" ,DIRCHECKER, input);
 		} else {
 			perror("getcwd() error");
 			result = true;
 		}
 	}
+	free( input );
+	free( pointer );
 }
 
 for( index = optind; index < argc; index++ ) {
@@ -930,6 +666,7 @@ return result;
 }
 
 int main( int argc, char *argv[] ) {
+	ConfigArrayPtr settings;
 	int a;
 	char DIRCHECKER[PATH_MAX];
 	#if PIPEFILE_SUPPORT
@@ -938,7 +675,7 @@ int main( int argc, char *argv[] ) {
 	int test;
 
 if( checkops(argc,argv) ) {
-	printf ("Error: Invalid usage detected...\n");
+	printf("Error: Invalid usage detected...\n");
 	exit(true);
 }
 
@@ -948,28 +685,22 @@ if( file_exist(options.sysini) == 0 ) {
 	printf("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
 	fflush(stdout);
 	firstload = true;
-	//exit(true);
 } else if( options.verbose ) {
-	printf("Loading config from file: \'%s\'\n",options.sysini);
-	fflush(stdout);
+	info("Using config file: \'%s\'",options.sysini);
 }
 
 (void)pthread_mutex_init (&mutex, NULL);
 
-config = iniparser_load( options.sysini );
 
 dirstructurecheck(TMPDIR);
 
-memset( &sysconfig, 0, sizeof(configDef) );
-#if FACEBOOK_SUPPORT
-memset( &fbcfg, 0, sizeof(FBCfgDef) );
-#endif
+memset( &sysconfig, 0, sizeof(SystemCoreDef) );
 
 openlog(argv[0], LOG_CONS | LOG_PID | LOG_NDELAY, LOG_SYSLOG);
 
-memset( &admincfg, 0, sizeof(adminDef) );
+
 if( !(loadconfig(options.sysini,CONFIG_SYSTEM)) ) {
-	loghandle(LOG_CRIT, false, "%s", "Unable to load system config, unable to continue.");
+	critical( "Unable to load system config, unable to continue." );
 	exit(true);
 }
 
@@ -978,51 +709,51 @@ if( ( firstload ) || ( sysconfig.shutdown ) )
 #if PIPEFILE_SUPPORT	
 sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 if ( file_exist(DIRCHECKER) ) {
-	loghandle(LOG_INFO, false, "%s", "Pipe file detected, auto switching to client mode");
+	info( "Pipe file detected, auto switching to client mode" );
 	goto CLIENT;
 }
 #endif
-memset( &ticks, 0, sizeof(tickDef) );
-sprintf( DIRCHECKER, "%s/ticks.ini", sysconfig.directory );
+memset( &ticks, 0, sizeof(TickInfoDef) );
+settings = GetSetting( "Directory" );
+sprintf( DIRCHECKER, "%s/ticks.ini", settings->string_value );
 loadconfig(DIRCHECKER,CONFIG_TICKS);
-
-#if IRCBOT_SUPPORT
-memset( &irccfg, 0, sizeof(ircDef) );
-loadconfig(options.sysini,CONFIG_IRC);
-#endif
 
 loadconfig(options.sysini,CONFIG_BANNED);
 
 //check basic dir structure and create as needed.	
-sprintf( DIRCHECKER, "%s/data", sysconfig.directory );
+sprintf( DIRCHECKER, "%s/data", settings->string_value );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/users", sysconfig.directory );
+sprintf( DIRCHECKER, "%s/users", settings->string_value );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/logs", sysconfig.directory );
+sprintf( DIRCHECKER, "%s/logs", settings->string_value );
 dirstructurecheck(DIRCHECKER);
-sprintf( DIRCHECKER, "%s/rankings", sysconfig.directory );
+sprintf( DIRCHECKER, "%s/rankings", settings->string_value );
 dirstructurecheck(DIRCHECKER);
 
 //well its not really public yet now is it... <<<WORKNEEDED>>>
-sprintf( DIRCHECKER, "%s/forum", sysconfig.directory );
+sprintf( DIRCHECKER, "%s/forum", settings->string_value );
 dirstructurecheck(DIRCHECKER);
 
 #define SPAWNABLE_DIRS 3
-	char *location[SPAWNABLE_DIRS] = { sysconfig.httpread, sysconfig.httpfiles, sysconfig.httpimages };
+	ConfigArrayPtr Files[3];
+Files[0] = GetSetting( "HTTP Files" );
+Files[1] = GetSetting( "HTTP Images" );
+Files[3] = GetSetting( "HTTP Text" );
+	char *location[SPAWNABLE_DIRS] = { Files[3]->string_value, Files[0]->string_value, Files[1]->string_value };
 	char *getfile[SPAWNABLE_DIRS] = { "text.tar.gz", "files.tar.gz", "images.tar.gz" };
-
+settings = GetSetting( "Download Source" );
 for( a = 0; a < SPAWNABLE_DIRS; a++ ) {
 	
 	if( !( file_exist( location[a] ) ) ) {
 		dirstructurecheck(location[a]);
 		if( !(file_exist(location[a]) ) ) {
-			loghandle(LOG_INFO, false, "%s", "Directory creation failed, unable to continue.");
+			info( "Directory creation failed, unable to continue.");
 			return 1;
 		}
-		printf("Doc base not found, fetching \"%s/%s\" with wget ...", sysconfig.downfrom, getfile[a]);
+		printf("Doc base not found, fetching \"%s/%s\" with wget ...", settings->string_value, getfile[a]);
 		fflush(stdout);
-		syslog(LOG_INFO, "Doc base not found, fetching \"%s/%s\" with wget.\n", sysconfig.downfrom, getfile[a]);
-		sprintf(DIRCHECKER,"wget -q \"%s/%s\" -O %s/%s", sysconfig.downfrom, getfile[a], TMPDIR, getfile[a]);
+		syslog(LOG_INFO, "Doc base not found, fetching \"%s/%s\" with wget.\n", settings->string_value, getfile[a]);
+		sprintf(DIRCHECKER,"wget -q \"%s/%s\" -O %s/%s", settings->string_value, getfile[a], TMPDIR, getfile[a]);
 		test = system(DIRCHECKER);
 		printf(" %s!\n", test ? "Fail" : "Done");
 		fflush(stdout);
@@ -1047,23 +778,25 @@ spawn_map();
 exit(0);
 */
 printf("\n");
-sprintf( DIRCHECKER, "%s/data/map", sysconfig.directory );
+settings = GetSetting( "Directory" );
+sprintf( DIRCHECKER, "%s/data/map", settings->string_value );
 if( !( file_exist(DIRCHECKER) ) ) {
-	loghandle(LOG_INFO, false, "%s", "No map detected now generating...");
-	spawn_map();
+	info("No map detected now generating...");
+	if( spawn_map() == NO ) {
+		goto BAILOUT;
+	}
 }
 //Begin deamonization and initate server loop.
 
 if( !( daemon_init( ) ) ) {
-	loghandle(LOG_CRIT, false, "%s", "<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
+	critical("<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
 	return 1;
 }
 
 if( options.mode == MODE_FORKED ) {
-	printf("%s\n", "Returning to shell, daemon has loaded in the background.");
-	printf("\n");
+	info("Returning to shell, daemon has loaded in the background.");
 }
-cleanUp(1);
+
 return 0;
 #if PIPEFILE_SUPPORT
 //OK, so we made it down here... that means we are a client and the pipe is active.
@@ -1174,23 +907,36 @@ void bitflag_toggle( int *dest, int flag ) {
 return;
 }
 
-void loghandle( int flag, int error, char *fmt, ... ) {
-	char fname[PATH_MAX];
-	char font[32];
-	char ebuffer[MAXLOGSTRING];
-	char fbuffer[MAXLOGSTRING];
-	va_list ap;
-	FILE *file;
+//Just a pointer not a define, is memory is needed we assign it dynamicly.
+static StringBufferPtr LogNoFile;
 
+void loghandle( int flag, int error, char *fmt, ... ) {
+	char font[32];
+	char timebuf[512];
+	char fname[PATH_MAX];
+	char ebuffer[MAXLOGSTRING];
+	StringBufferDef internal;
+	ConfigArrayPtr settings;
+	FILE *file = NULL;
+	time_t time_r;
+	va_list ap;
+
+memset( &internal, 0, sizeof(StringBufferDef) );
 va_start(ap, fmt);
 vsnprintf(ebuffer, MAXLOGSTRING, fmt, ap);
 va_end(ap);
 
-sprintf( fname, "%s/evserver.log", TMPDIR );
-if( !( file = fopen( fname, "a" ) ) ) {
-	if( !( file = fopen( fname, "w+" ) ) ) {
-		printf("Failed opening default log file: %s\n", fname);
-		exit(false);
+time_r = ( time(0) + SESSION_TIME );
+strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
+
+settings = GetSetting( "Directory" );
+if( settings->string_value ) {
+	sprintf( fname, "%s/evserver.log", settings->string_value );
+	if( !( file = fopen( fname, "a" ) ) ) {
+		if( !( file = fopen( fname, "w+" ) ) && ( LogNoFile == NULL ) ) {
+			//File unable to be created, probably because the dir doesn't exist yet... so lets start buffering output.
+			LogNoFile = calloc( 1, sizeof(StringBufferDef) );
+		}
 	}
 }
 
@@ -1209,25 +955,21 @@ switch(flag) {
 			break;
 }
 
-strcpy( logString, trimwhitespace( asctime( gettime( time(NULL), true) ) ) );
-strncat( logString, " -- ", sizeof(logString)-strlen(logString) );
+AddBufferString( &internal, timebuf );
+AddBufferString( &internal, " -- " );
 
 if ( error ) {
 	if( options.verbose ) {
 		printf("%s%s"RESET,font, ebuffer);
 		printf(" -- "BOLDBLUE"#%d, %s"RESET"\n", error, strerror(error) );
 	}
-
-	sprintf( fbuffer, "%s -- #%d, %s", ebuffer, error, strerror(error)  );
-	strncat( logString, fbuffer, sizeof(logString)-strlen(logString) );
-
+	AddBufferPrint( &internal, "%s -- #%d, %s", ebuffer, error, strerror(error)  );
 	syslog(flag, "%s -- #%d, %s", ebuffer, error, strerror(error) );
 } else {
-	if( options.verbose ) {
+	if( ( options.verbose ) && ( strcmp(ebuffer, BREAKER_TAG ) == 1 ) ) {
 		printf("%s%s\n"RESET,font, ebuffer);
 	}
-
-	strncat( logString, ebuffer, sizeof(logString)-strlen(logString) );
+	AddBufferString( &internal, ebuffer );
 	syslog(flag, "%s", ebuffer );
 }
 
@@ -1236,13 +978,36 @@ if( options.verbose ) {
 	fflush(stdout);
 }
 
-fputs( logString, file );
-fputs( "\n", file );
+if( file ) {
+	//Check to see if this function was called before the file/folder was ready
+	if( LogNoFile != NULL ) {
+		fputs( LogNoFile->buf, file );
+		free( LogNoFile->buf );
+		free( LogNoFile );
+		//Reset pointer to NULL, this prevents double free.
+		LogNoFile = NULL;
+	}
+	if( internal.buf ) {
+		fputs( internal.buf, file );
+	} else {
+		if( options.verbose ) {
+			printf( "Blank String, how strange...\n" );
+			fflush(stdout);
+		}
+		fputs( "Blank String, how strange...", file );
+	}
+	fputs( "\n", file );
+	fflush( file );
+	fclose( file );
+} else {
+	AddBufferPrint( LogNoFile, "%s\n", internal.buf );
+}
 
-fflush( file );
-fclose( file );
+if( internal.buf != NULL )
+	free( internal.buf );
 
-memset( logString, 0, sizeof(logString) );
+
+errno = 0;
 
 return;
 }

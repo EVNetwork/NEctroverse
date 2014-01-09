@@ -91,7 +91,8 @@ static void libirc_event_ctcp_internal (irc_session_t * session, const char * ev
 			irc_cmd_ctcp_reply (session, nickbuf, params[0]);
 		else if ( !strcmp (params[0], "VERSION") )
 		{
-			sprintf (textbuf, "%s: IRC Bot Addon by Necrolgan - version #%.02f", sysconfig.servername, ircbot_version );
+			ConfigArrayPtr setting = GetSetting( "Server Name" );
+			sprintf (textbuf, "%s: IRC Bot Addon by Necrolgan - version #%.02f", setting->string_value, ircbot_version );
 			irc_cmd_ctcp_reply (session, nickbuf, textbuf);
 		}
 		else if ( !strcmp (params[0], "FINGER") )

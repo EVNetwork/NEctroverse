@@ -338,10 +338,12 @@ void iohtmlFunc_forum( ReplyDataPtr cnt )
  dbForumForumDef forumd;
  dbForumThreadDef threadd;
  dbForumPostDef postd;
+ ConfigArrayPtr settings;
  char timebuf[512];
- char COREDIR[512];
- char timetemp[512];
+ char COREDIR[PATH_MAX];
+ char timetemp[PATH_MAX];
  char *text = NULL;
+ time_t tint;
  FILE *fFile;
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
@@ -405,7 +407,10 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
    httpString( cnt, "Error while retrieving list of forums</center></body></html>" );
    return;
   }
-  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", sysconfig.servername, sysconfig.servername, asctime( gettime(time(0), true) ) );
+  time( &tint );
+  strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+  settings = GetSetting( "Server Name" );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", settings->string_value, settings->string_value, timebuf );
   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
    httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
   httpString( cnt, "</td></tr></table>" );
@@ -413,7 +418,8 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, asctime( gettime(forums[a].time, true) ), forums[a].tick % 52, forums[a].tick / 52 );
+  strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", a, forums[a].time, forums[a].title, forums[a].threads, timebuf, forums[a].tick % 52, forums[a].tick / 52 );
   }
   httpString( cnt, "</table>" );
 if( forums )
@@ -442,7 +448,8 @@ if( forums )
 	  {
 	  	if(forum>100)
 	  	{
-			sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
+	  		settings = GetSetting( "Directory" );
+			sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
 	  		fFile = fopen( COREDIR, "a+t" );
 		  	if( fFile )
 		 		{
@@ -452,16 +459,17 @@ if( forums )
 		 	}
 	  	}
 	 }
-		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forumd.title );
-  if( forum < 100 )
-  {
-   httpString( cnt, asctime( gettime( time(0), true) ) );
-   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
-    httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
-   httpString( cnt, "</td></tr></table>" );
-  }
-  else
-   httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
+	 	settings = GetSetting( "Server Name" );
+		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", settings->string_value, settings->string_value, forumd.title );
+if( forum < 100 ) {
+	time( &tint );
+	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+	httpString( cnt, timebuf );
+	if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
+		httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
+	httpString( cnt, "</td></tr></table>" );
+} else
+	httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
 
   if( forumd.threads > IOHTTP_FORUM_THREADSNUM )
   {
@@ -476,11 +484,10 @@ if( forums )
   }
 
   httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
-  for( a = 0 ; a < b ; a++ )
-  {
-  	sprintf( timebuf, "%s", asctime( gettime( time(0), true) ) );
-   sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
-   strcat( timebuf, timetemp);
+for( a = 0 ; a < b ; a++ ) {
+	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &threads[a].time ) );
+	sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
+	strcat( timebuf, timetemp);
 
    httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"forum?forum=%d&thread=%d&last=%d\">%s</a>", forum, threads[a].id, threads[a].time, threads[a].topic );
    if( threads[a].posts > IOHTTP_FORUM_POSTSNUM )
@@ -556,17 +563,17 @@ if( forums )
    httpString( cnt, "You are not authorized to view this forum</center></body></html>" );
    return;
   }
-
-  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", sysconfig.servername, sysconfig.servername, forum, forumd.title, threadd.topic );
-  if( forum < 100 )
-  {
-   httpString( cnt, asctime( gettime( time(0), true) ) );
-   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
-    httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
-   httpString( cnt, "</td></tr></table>" );
-  }
-  else
-   httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
+settings = GetSetting( "Server Name" );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", settings->string_value, settings->string_value, forum, forumd.title, threadd.topic );
+if( forum < 100 )  {
+	time( &tint );
+	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+	httpString( cnt, timebuf );
+	if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
+	httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
+	httpString( cnt, "</td></tr></table>" );
+} else
+	httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
 
   if( threadd.posts > IOHTTP_FORUM_POSTSNUM )
   {
@@ -587,7 +594,8 @@ if( forums )
     continue;
    c = a + skip;
    if( forum < 100 ) {
-      httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, asctime( gettime( posts[a].post.time, true) ) );
+	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &posts[a].post.time ) );
+      httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, timebuf );
    } else {
    httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
@@ -689,7 +697,7 @@ if( forums )
 
   iohttpForumL0:
 
-  if( !( postd.text = malloc( 3 * ARRAY_MAX ) ) )
+  if( !( postd.text = malloc( 3 * FORUM_MAX ) ) )
   {
    httpString( cnt, "</center></body></html>" );
    return;
@@ -700,8 +708,8 @@ if( forums )
 	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
 	   a = 1;
 	 }
-  iohttpForumFilter( &postd.text[2*ARRAY_MAX], poststring, ARRAY_MAX, a );
-  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*ARRAY_MAX], ARRAY_MAX );
+  iohttpForumFilter( &postd.text[2*FORUM_MAX], poststring, FORUM_MAX, a );
+  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*FORUM_MAX], FORUM_MAX );
   postd.post.authorid = id;
   if( id != -1 )
   {
@@ -797,7 +805,7 @@ if( forums )
   httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><input type=\"hidden\" name=\"editpost\" value=\"%d\">", forum, thread, post );
   httpString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 
-  if( !( text = malloc( 2 * ARRAY_MAX ) ) )
+  if( !( text = malloc( 2 * FORUM_MAX ) ) )
   {
    if( posts[0].text )
     free( posts[0].text );
@@ -806,7 +814,7 @@ if( forums )
    httpString( cnt, "</center></body></html>" );
    return;
   }
-  iohttpForumFilter3( text, posts[0].text, 2*ARRAY_MAX - 512 );
+  iohttpForumFilter3( text, posts[0].text, 2*FORUM_MAX - 512 );
   httpString( cnt, text );
 
   if( posts[0].text )
@@ -845,7 +853,7 @@ if( forums )
    if( posts )
   free( posts );
 
-  if( !( postd.text = malloc( 3 * ARRAY_MAX ) ) )
+  if( !( postd.text = malloc( 3 * FORUM_MAX ) ) )
   {
    httpString( cnt, "</center></body></html>" );
    return;
@@ -856,9 +864,11 @@ if( forums )
 	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
 	 	 a = 1;
 	 }
-  iohttpForumFilter( &postd.text[2*ARRAY_MAX], poststring, ARRAY_MAX, a );
-  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*ARRAY_MAX], 2*ARRAY_MAX - 512 );
-  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, asctime( gettime(time(0), true)) );
+  iohttpForumFilter( &postd.text[2*FORUM_MAX], poststring, FORUM_MAX, a );
+  postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*FORUM_MAX], 2*FORUM_MAX - 512 );
+  time( &tint );
+  strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, timebuf );
 
   a = dbForumEditPost( forum, thread, post, &postd );
   if( a >= 0 )

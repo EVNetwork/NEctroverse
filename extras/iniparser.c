@@ -656,7 +656,7 @@ dictionary * iniparser_load(const char * ininame)
     dictionary * dict ;
 
     if ((in=fopen(ininame, "r"))==NULL) {
-        //sprintf( logString, "iniparser: cannot open %s", ininame );
+        //error( "iniparser: cannot open %s", ininame );
         return NULL ;
     }
 
@@ -679,8 +679,7 @@ dictionary * iniparser_load(const char * ininame)
             continue;
         /* Safety check against buffer overflows */
         if (line[len]!='\n' && !feof(in)) {
-            sprintf( logString, "iniparser: input line too long in %s (%d)",ininame,lineno );
-            error( logString );
+            error( "iniparser: input line too long in %s (%d)",ininame,lineno );
             dictionary_del(dict);
             fclose(in);
             return NULL ;
@@ -714,10 +713,8 @@ dictionary * iniparser_load(const char * ininame)
             break ;
 
             case LINE_ERROR:
-            sprintf( logString, "iniparser: syntax error in %s (%d):", ininame ,lineno );
-            info( logString );
-            sprintf( logString, "-> %s", line );
-            info( logString );
+            info( "iniparser: syntax error in %s (%d):", ininame ,lineno );
+            info( "-> %s", line );
             errs++ ;
             break;
 

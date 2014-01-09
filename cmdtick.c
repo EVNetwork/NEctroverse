@@ -1,28 +1,27 @@
 int64_t cmdTickProduction[CMD_BLDG_NUMUSED];
 
-void cmdTickGenRanks()
-{
-  int a, b, c, d, first, num, artmax, wa, wnum;
-  FILE *file, *filep;
-  dbUserMainDef maind;
-  dbMainEmpirePtr empirep;
-  dbMainEmpireDef empired;
-  dbUserMainPtr mainp;
-  dbUserPtr user;
-  int *stats;
-  int *rels;
-  int artefacts[ARTEFACT_NUMUSED], artsnum;
-  char COREDIR[256];
+void cmdTickGenRanks() {
+	int a, b, c, d, first, num, artmax, wa, wnum;
+	FILE *file, *filep;
+	ConfigArrayPtr settings[2];
+	dbUserMainDef maind;
+	dbMainEmpirePtr empirep;
+	dbMainEmpireDef empired;
+	dbUserMainPtr mainp;
+	dbUserPtr user;
+	int *stats, *rels;
+	int artefacts[ARTEFACT_NUMUSED], artsnum;
+	char COREDIR[PATH_MAX];
 
 
 
   artmax = 0;
-
-  sprintf( COREDIR, "%s/rankings/round%dfamranks.txt", sysconfig.directory, sysconfig.round );
+  settings[0] = GetSetting( "Directory" );
+  sprintf( COREDIR, "%s/rankings/round%dfamranks.txt", settings[0]->string_value, ticks.round );
   memset( artefacts, 0, ARTEFACT_NUMUSED*sizeof(int) );
   if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
-  sprintf( COREDIR, "%s/rankings/round%dfamranksplain.txt", sysconfig.directory, sysconfig.round);
+  sprintf( COREDIR, "%s/rankings/round%dfamranksplain.txt", settings[0]->string_value, ticks.round);
   if( !( filep =fopen( COREDIR, "wb" ) ) )
   {
     fclose( file );
@@ -35,26 +34,33 @@ void cmdTickGenRanks()
   }
   empirep = (void *)&stats[6*dbMapBInfoStatic[MAP_EMPIRES]];
   memset( stats, 0, 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int) );
+settings[0] = GetSetting( "Admin Empire Number" );
+settings[1] = GetSetting( "Admin Empire Ommit" );
   for( b = c = num = 0 ; b < dbMapBInfoStatic[MAP_EMPIRES] ; b++ )
   {
-	if( (b == admincfg.empire) && (admincfg.rankommit) )
+	if( (b == (int)settings[1]->num_value) && ( (int)settings[1]->num_value ) )
 		continue;
     if( dbMapRetrieveEmpire( b, &empirep[b] ) < 0 )
       continue;
     if( !( empirep[b].numplayers ) )
       continue;
 
-if( ( wnum = dbEmpireRelsList( b, &rels ) ) < 0 ) {
+settings[0] = GetSetting( "End Wars" );
+if( ( wnum = dbEmpireRelsList( b, &rels ) ) >= 0 ) {
 	wnum <<= 2;
 	for( wa = 0 ; wa < wnum ; wa += 4 ) {
 		if( rels[wa+1] == CMD_RELATION_WAR ) {
-			if( (rels[wa] + sysconfig.warend) <= ticks.number ) {
+			if( (rels[wa] + (int)settings[0]->num_value) <= ticks.number ) {
 				cmdExecDelRelation( b, wa / 4 );
 			}
 		}
 	}
 	free( rels );
+} else {
+	error( "Getting relations list for Empire:%d", b );
 }
+
+
     stats[c+0] = b;
 // calc NW, planets and empire artefacts
     for( a = 0 ; a < empirep[b].numplayers ; a++ )
@@ -150,7 +156,8 @@ if( artsnum > artmax )
 
 if( artsnum == ARTEFACT_NUMUSED ) {
         if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
-                dbMapBInfoStatic[MAP_ARTITIMER] = ticks.number + sysconfig.victory;
+	        settings[0] = GetSetting( "Auto Victory" );
+                dbMapBInfoStatic[MAP_ARTITIMER] = ticks.number + (int)settings[0]->num_value;
                 dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
                 dbMapSetMain( dbMapBInfoStatic );
         } else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= ticks.number ) ) {
@@ -237,10 +244,11 @@ dbArtefactMax = artmax;
 
 
 // player rankings
-  sprintf( COREDIR, "%s/rankings/round%dranks.txt", sysconfig.directory, sysconfig.round );
+  settings[0] = GetSetting( "Directory" );
+  sprintf( COREDIR, "%s/rankings/round%dranks.txt", settings[0]->string_value, ticks.round );
   if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
-  sprintf( COREDIR, "%s/rankings/round%dranksplain.txt", sysconfig.directory, sysconfig.round );
+  sprintf( COREDIR, "%s/rankings/round%dranksplain.txt", settings[0]->string_value, ticks.round );
   if( !( filep = fopen( COREDIR, "wb" ) ) )
   {
     fclose( file );
@@ -255,7 +263,8 @@ dbArtefactMax = artmax;
   }
   mainp = (void *)&stats[6*num];
   memset( stats, 0, 6*num*sizeof(int) );
-
+settings[0] = GetSetting( "Admin Empire Number" );
+settings[1] = GetSetting( "Admin Empire Ommit" );
   for( b = c = 0, user = dbUserList ; user ; user = user->next )
   {
     if( !( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
@@ -264,11 +273,10 @@ dbArtefactMax = artmax;
       continue;
 	}
     if( dbUserMainRetrieve( user->id, &mainp[b] ) < 0 ) {
-	sprintf( logString, "Error retreiving maind id: %d", user->id );
-	error( logString );
+	error( "Error retreiving maind id: %d", user->id );
       continue;
 	}
-	if( (mainp[b].empire == admincfg.empire) && (admincfg.rankommit) )
+	if( (mainp[b].empire == (int)settings[0]->num_value) && ((int)settings[1]->num_value) )
 		continue;
     stats[c+0] = user->id;
     stats[c+1] = mainp[b].planets;
@@ -368,12 +376,16 @@ savetickconfig();
 (void)pthread_mutex_unlock( &mutex );
 
 #if IRCBOT_SUPPORT
-	char buffer[512];
-	
-if( irccfg.bot ) {
-	if( ( irccfg.announcetick ) && ( ticks.status ) ) {
-		snprintf( buffer, sizeof(buffer), "Game has Ticked -- Week %d, Year %d (Tick #%d)", ticks.number % 52, ticks.number / 52, ticks.number );
-		irc_cmd_notice( irccfg.session, irccfg.channel, buffer );
+	ConfigArrayPtr setting;
+	char buffer[2][512];
+setting = GetSetting( "IRC Enable" );
+if( setting->num_value ) {
+	setting = GetSetting( "IRC Announce" );
+	if( ( setting->num_value ) && ( ticks.status ) ) {
+		snprintf( buffer[0], sizeof(buffer), "Game has Ticked -- Week %d, Year %d (Tick #%d)", ticks.number % 52, ticks.number / 52, ticks.number );
+		setting = GetSetting( "IRC Channel" );
+		snprintf( buffer[1], 512, "#%s", setting->string_value );
+		irc_cmd_notice( sysconfig.irc_session, buffer[1], buffer[0] );
 	}
 }
 #endif
@@ -455,8 +467,7 @@ for( a = 0 ; a < num ; a++ ) {
 
 
 	if( planetd.construction < 0 ) {
-		sprintf(logString, "Warning : negative construction count : %d", planetd.construction );
-		error( logString );
+		error( "Warning : negative construction count : %d", planetd.construction );
 		planetd.construction = 0;
 	}
 
@@ -467,8 +478,7 @@ for( a = 0 ; a < num ; a++ ) {
 	/* CRAP */
 	for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ ) {
 		if( planetd.building[b] < 0 ) {
-				sprintf(logString, "Warning : negative building count : %d", planetd.building[b] );
-				error( logString );
+				error( "Warning : negative building count : %d", planetd.building[b] );
 				planetd.building[b] = 0;
 			}
 	}
@@ -581,6 +591,7 @@ int cmdTick() {
 	dbUserFleetPtr fleetp;
 	dbUserSpecOpPtr specopd;
 	dbMainEmpireDef empired;
+	ConfigArrayPtr settings;
 
 
 ticks.uonline = 0;
@@ -622,18 +633,17 @@ for( user = dbUserList ; user ; user = user->next ) {
 	ticks.uonline += ( (now - user->lasttime) < (SESSION_TIME / 4) );
 
 	if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
-		sprintf( logString, "Tick error: Retriving User %d", user->id );
-		error( logString );
+		error( "Tick error: Retriving User %d", user->id );
 		continue;
 	}
-
+	if( maind.empire < 0 )
+		continue;
 
 	ticks.debug_pass = 2;
 
 
 	if( ( specopnum = dbUserSpecOpList( user->id, &specopd ) )  < 0 ) {
-		sprintf( logString, "Tick error: SpecOps User %d", user->id );
-		error( logString );
+		error( "Tick error: SpecOps User %d", user->id );
 		continue;
 	}
 	opvirus = 0;
@@ -845,9 +855,9 @@ ticks.debug_pass = 7;
 			//maind.infos[INFOS_ENERGY_PRODUCTION] -= maind.infos[INFOS_ENERGY_PRODUCTION]*0.08;  //This line remove the actual funding from the production
   */
 
-  fa = CMD_ENERGY_DECAY;
-
-fc = sysconfig.stockpile * maind.infos[INFOS_ENERGY_PRODUCTION];
+settings = GetSetting( "Stockpile" );
+fc = settings->num_value * maind.infos[INFOS_ENERGY_PRODUCTION];
+fa = CMD_ENERGY_DECAY;
 maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
 
 
@@ -892,13 +902,12 @@ ticks.debug_pass = 8;
 
     maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
-		fa = CMD_CRYSTAL_DECAY;
 
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
-
-fc = sysconfig.stockpile * maind.infos[INFOS_CRYSTAL_PRODUCTION];
+fc = settings->num_value * maind.infos[INFOS_CRYSTAL_PRODUCTION];
+fa = CMD_CRYSTAL_DECAY;
 maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
 
 
@@ -915,8 +924,7 @@ maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSO
 maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
 
 if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
-	sprintf( logString, "Tick error: Retriving empire %d", maind.empire  );
-	error( logString );
+	error( "Tick error: Retriving empire %d", maind.empire  );
 	continue;
 }
 maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * empired.taxation ) );
@@ -938,8 +946,7 @@ empired.fund[CMD_RESSOURCE_CRYSTAL] += maind.infos[INFOS_CRYSTAL_TAX];
 empired.fund[CMD_RESSOURCE_ECTROLIUM] += maind.infos[INFOS_ECTROLIUM_TAX];
 
 if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
-	sprintf( logString, "Tick error: Setting Empire #%d Fund!", maind.empire );
-	error( logString );
+	error( "Tick error: Setting Empire #%d Fund!", maind.empire );
 }
 
 

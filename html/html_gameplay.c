@@ -2,13 +2,15 @@
 void iohtmlFunc_main( ReplyDataPtr cnt ) {
 	int id;
 	char *page;
+	ConfigArrayPtr settings;
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 	return;
 
 page = iohtmlVarsFind( cnt, "page" );
 
-httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"files?type=image&name=favicon.ico\"></head>", sysconfig.servername );
+settings = GetSetting( "Server Name" );
+httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"files?type=image&name=favicon.ico\"></head>", settings->string_value );
 httpString( cnt, "<frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
 httpString( cnt, "<frame src=\"menu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
 httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>", ( page ? page : "hq" ) );
@@ -1186,6 +1188,7 @@ void iohtmlFunc_hq( ReplyDataPtr cnt )
  int id, a, num;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
+ ConfigArrayPtr settings;
  int64_t *newsp, *newsd;
  FILE *file;
  struct stat stdata;
@@ -1236,7 +1239,8 @@ for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
 
  httpPrintf( cnt, "Home planet : %d,%d:%d</td></tr></table><br>", ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
 //read hq message from hq.txt and format for display. -- If this file is missing, or empty it is skipped.
-sprintf( DIRCHECKER, "%s/hq.txt", sysconfig.httpread );
+settings = GetSetting( "HTTP Text" );
+sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
  if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -2545,6 +2549,7 @@ void iohtmlFunc_famnews( ReplyDataPtr cnt )
  int a, id, num, curfam;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
+ ConfigArrayPtr settings;
  char *empirestring;
  char COREDIR[PATH_MAX];
  int64_t *newsp, *newsd;
@@ -2568,7 +2573,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    curfam = maind.empire;
   if((cnt->session)->dbuser->level >= LEVEL_MODERATOR)
  	{
-		sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
+ 		settings = GetSetting( "Directory" );
+		sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
  		fFile = fopen( COREDIR, "a+t" );
  		if( fFile )
  		{
@@ -2690,7 +2696,7 @@ void iohtmlFunc_famleader( ReplyDataPtr cnt )
  char fname[256];
  dbUserPtr user;
  int *rel;
- char message[DESCRIPTION_SIZE], message2[DESCRIPTION_SIZE];
+ char message[USER_DESC_SIZE], message2[USER_DESC_SIZE];
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2750,7 +2756,7 @@ if( taxstring ){
 
  if( fnamestring )
  {
-  a = iohttpForumFilter( fname, fnamestring, NAME_MAX, 0 );
+  a = iohttpForumFilter( fname, fnamestring, USER_NAME_MAX, 0 );
   if( cmdExecChangFamName( curfam, fname ) < 0 )
   {
    if( cmdErrorString )
@@ -2766,7 +2772,7 @@ if( taxstring ){
 
  if( fampassstring )
  {
-  iohttpForumFilter( fname, fampassstring, 32, 0 );
+  iohttpForumFilter( fname, fampassstring, USER_PASS_MAX, 0 );
 
 
   if(cmdExecSetFamPass( curfam, fname) != 1)
@@ -2820,8 +2826,8 @@ httpPrintf( cnt, "<i>Upload %s</i><br><br>", cmdUploadState[(cnt->session)->uplo
  }
 
 if( hqmesstring ) {
-	iohttpForumFilter( message, hqmesstring, DESCRIPTION_SIZE, 0 );
-	iohttpForumFilter2( message2, message, DESCRIPTION_SIZE );
+	iohttpForumFilter( message, hqmesstring, USER_DESC_SIZE, 0 );
+	iohttpForumFilter2( message2, message, USER_DESC_SIZE );
 	strcpy(empired.message[0],message2);
 	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
@@ -2831,8 +2837,8 @@ if( hqmesstring ) {
 }
 
 if( relsmesstring ) {
-	iohttpForumFilter( message, relsmesstring, DESCRIPTION_SIZE, 0 );
-	iohttpForumFilter2( message2, message, DESCRIPTION_SIZE );
+	iohttpForumFilter( message, relsmesstring, USER_DESC_SIZE, 0 );
+	iohttpForumFilter2( message2, message, USER_DESC_SIZE );
 	strcpy(empired.message[1],message2);
 	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
 		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
@@ -2936,12 +2942,12 @@ httpString( cnt, "</div>" );
  httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
  httpString( cnt, "</table></td></tr>" );
 
- iohttpForumFilter3( message2, empired.message[0], DESCRIPTION_SIZE );
+ iohttpForumFilter3( message2, empired.message[0], USER_DESC_SIZE );
  httpString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Leader message</td></tr>" );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- iohttpForumFilter3( message2, empired.message[1], DESCRIPTION_SIZE );
+ iohttpForumFilter3( message2, empired.message[1], USER_DESC_SIZE );
  httpString( cnt, "<tr><td><form action=\"famleader\" method=\"POST\">Relations message</td></tr>" );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
@@ -3319,7 +3325,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"files?type=image&name=galaxies/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", sysconfig.round, mapcfg.sizex *IOHTTP_MAPPICK_DIVIDE, mapcfg.sizey *IOHTTP_MAPPICK_DIVIDE );
+ httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"files?type=image&name=galaxies/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", ticks.round, dbMapBInfoStatic[MAP_SIZEX] *IOHTTP_MAPPICK_DIVIDE, dbMapBInfoStatic[MAP_SIZEY] *IOHTTP_MAPPICK_DIVIDE );
 
 httpString( cnt, "<map name=\"systemmap\">" );
 for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
@@ -6723,6 +6729,7 @@ void iohtmlFunc_mail( ReplyDataPtr cnt ) {
 	dbMailPtr mails;
 	dbMailDef maild;
 	char *tostring, *mailstring, *typestring, *deletestring, *deleteallstring, *skipstring;
+	char timebuf[512];
 	int64_t newd[DB_USER_NEWS_BASE];
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
@@ -6761,7 +6768,7 @@ msent = 0;
 maild.text = 0;
 
 if( ( tostring ) && ( mailstring ) ) {
-	if( ( maild.text = malloc( 2*ARRAY_MAX ) ) ) {
+	if( ( maild.text = malloc( 2*MAIL_MAX ) ) ) {
 		a = 0;
 		if(id != -1 ) {
 			if((cnt->session)->dbuser) {
@@ -6769,8 +6776,8 @@ if( ( tostring ) && ( mailstring ) ) {
 					a = 1;
 			}
 		}
-		iohttpForumFilter( &maild.text[ARRAY_MAX], mailstring, ARRAY_MAX, a );
-		(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[ARRAY_MAX], ARRAY_MAX );
+		iohttpForumFilter( &maild.text[MAIL_MAX], mailstring, MAIL_MAX, a );
+		(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[MAIL_MAX], MAIL_MAX );
 
 		a = -1;
 		if( ( tostring[0] >= '0' ) && ( tostring[0] <= '9' ) ) {
@@ -6793,7 +6800,7 @@ if( ( tostring ) && ( mailstring ) ) {
 				(maild.mail).authorid = id;
 				sprintf( (maild.mail).authorname, "%s", ((cnt->session)->dbuser)->faction );
 				(maild.mail).authorempire = maind.empire;
-				(maild.mail).time = *gettime( time(0),true );
+				(maild.mail).time = time( 0 );
 				(maild.mail).tick = ticks.number;
 				(maild.mail).flags = 0;
 				if( dbMailAdd( a, MAIL_IN, &maild ) < 0 ) {
@@ -6807,7 +6814,7 @@ if( ( tostring ) && ( mailstring ) ) {
 				newd[3] = 0;
 				newd[4] = id;
 				newd[5] = maind.empire;
-				int __damn_overflows = NAME_MAX / 2 + 3 * 2;
+				int __damn_overflows = USER_NAME_MAX / 2 + 3 * 2;
 				memcpy( &newd[6], maind.faction, __damn_overflows );
 				cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
 				(maild.mail).authorid = a;
@@ -6847,7 +6854,8 @@ if( typestring ) {
 		if( b == 0 )
 			httpString( cnt, "<br><b>No messages</b><br>" );
 		for( b-- ; b >= 0 ; b-- ) {
-			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=0&delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, asctime( &(mails[b].mail).time ), (mails[b].mail).authorid );
+			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &(mails[b].mail).time ) );
+			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=0&delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
 			httpString( cnt, mails[b].text );
 			httpString( cnt, "</td></tr></table><br><br>" );
 			if( mails[b].text )
@@ -6873,7 +6881,8 @@ if( typestring ) {
 		if( b == 0 )
 			httpString( cnt, "<br><b>No messages</b><br>" );
 		for( b-- ; b >= 0 ; b-- ) {
-			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>To</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=1&delete=%d\">Delete</a></td></tr><tr><td><b>Sent</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, asctime( &(mails[b].mail).time ), (mails[b].mail).authorid );
+			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &(mails[b].mail).time ) );
+			httpPrintf( cnt, "<table width=\"80%%\"><tr><td><b>To</b> : <a href=\"player?id=%d\">%s</a> of <a href=\"empire?id=%d\">empire #%d</a></td><td align=\"right\"><a href=\"mail?type=1&delete=%d\">Delete</a></td></tr><tr><td><b>Sent</b> : Week %d, Year %d - %s</td><td align=\"right\"><a href=\"mail?to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", (mails[b].mail).authorid, (mails[b].mail).authorname, (mails[b].mail).authorempire, (mails[b].mail).authorempire, b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf, (mails[b].mail).authorid );
 			httpString( cnt, mails[b].text );
 			httpString( cnt, "</td></tr></table><br><br>" );
 			if( mails[b].text )
@@ -6884,14 +6893,14 @@ if( typestring ) {
 	}
 } else if( msent == 1 ) { 
 	if( ( mailstring ) ) {
-		if( ( maild.text = malloc( 2*ARRAY_MAX ) ) ) {
+		if( ( maild.text = malloc( 2*MAIL_MAX ) ) ) {
 			a = 0;
 			if((cnt->session)->dbuser) {
 				if(id != -1 )
 					a = 1;
 			}
-			iohttpForumFilter( &maild.text[ARRAY_MAX], mailstring, ARRAY_MAX, a );
-			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[ARRAY_MAX], ARRAY_MAX );
+			iohttpForumFilter( &maild.text[MAIL_MAX], mailstring, MAIL_MAX, a );
+			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[MAIL_MAX], MAIL_MAX );
 			httpString( cnt, maild.text );
 			free( maild.text );
 			httpString( cnt, "<br>" );
@@ -6903,7 +6912,7 @@ if( typestring ) {
 	httpString( cnt, "To specify the player to send the message to, enter either the exact faction name or the user ID.<br><br>" );
 	httpString( cnt, "<form action=\"mail\" method=\"POST\"><table width=\"50%%\" cellspacing=\"3\"><tr><td width=\"20%%\">Recipient</td><td>" );
 	if( tostring ) {
-		for( a = 0 ; ( a < NAME_MAX-1 ) && ( tostring[a] ) ; a++ ) {
+		for( a = 0 ; ( a < USER_NAME_MAX-1 ) && ( tostring[a] ) ; a++ ) {
 			if( tostring[a] == '+' )
 				tostring[a] = ' ';
 			else if( ( tostring[a] == 10 ) || ( tostring[a] == 13 ) )
@@ -6916,14 +6925,14 @@ if( typestring ) {
 	}
 	httpString( cnt, "</td></tr><tr><td>Message</td><td><textarea name=\"mail\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 	if( ( mailstring ) ) {
-		if( ( maild.text = malloc( 2*ARRAY_MAX ) ) ) {
+		if( ( maild.text = malloc( 2*MAIL_MAX ) ) ) {
 			a = 0;
 			if((cnt->session)->dbuser) {
 				if(id != -1 )
 					a = 1;
 			}
-			iohttpForumFilter( &maild.text[ARRAY_MAX], mailstring, ARRAY_MAX, a );
-			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[ARRAY_MAX], ARRAY_MAX );
+			iohttpForumFilter( &maild.text[MAIL_MAX], mailstring, MAIL_MAX, a );
+			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[MAIL_MAX], MAIL_MAX );
 			httpString( cnt, maild.text );
 			free( maild.text );
 		}
@@ -6948,9 +6957,10 @@ void iohtmlFunc_rankings( ReplyDataPtr cnt ) {
 	char *data, *roundstring, *typestring, *formatstring;
 	char COREDIR[PATH_MAX];
 	dbUserMainDef maind;
+	ConfigArrayPtr settings;
 
 type = format = 0;
-round = sysconfig.round;
+round = ticks.round;
 
 
 formatstring = iohtmlVarsFind( cnt, "fmt" );
@@ -6984,22 +6994,22 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 }
 
 
-if( (round != sysconfig.round) ) {
+if( (round != ticks.round) ) {
 	iohtmlBodyInit( cnt, "%s rankings for Round #%d", ( type ? "Empire" : "Faction" ), round );
 } else {
 	iohtmlBodyInit( cnt, "%s rankings", ( type ? "Empire" : "Faction" ) );
 }
 
 PLAINTEXT:
-sprintf( COREDIR, "%s/rankings/round%d%sranks%s.txt", sysconfig.directory, round, ( type ? "fam" : "" ), ( format ? "plain" : "" )  );
+settings = GetSetting( "Directory" );
+sprintf( COREDIR, "%s/rankings/round%d%sranks%s.txt", settings->string_value, round, ( type ? "fam" : "" ), ( format ? "plain" : "" )  );
 
 if( stat( COREDIR, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( COREDIR, "rb" ) ) ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
-				sprintf( logString, "Failure reading round rankings infomation: %s", COREDIR );
-				error( logString );
+				error( "Failure reading round rankings infomation: %s", COREDIR );
 			} else {
 				httpString( cnt, data );
 			}

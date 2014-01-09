@@ -2,8 +2,24 @@
 #include "config/global.h"
 #endif
 
+typedef struct {
+	//rescource bonus/artefacts
+	int *arti;
+	int *posx;
+	int *posy;
+	int *type;
+	//Systems
+	int *pos;
+	int *planets;
+	int *pbase;
+	int *home;
+	int *system;
+	//data for map image.
+	int *data;
+	int *factor;
+} MapStorageDef, *MapStoragePtr;
 
-void mapCalcFactors( MapStoragePtr mapstore ) {
+static void mapCalcFactors( ConfigArrayPtr map_set, MapStoragePtr mapstore ) {
 	int a, b, c, x, y, index;
 	float fx, fy, dist, mindist;
 	float fpos[2];
@@ -14,13 +30,13 @@ void mapCalcFactors( MapStoragePtr mapstore ) {
 
 ptsnum = 0;
 
-for( a = 0 ; a < mapcfg.linknum ; a++ ) {
-	fpos[0] = (float)( mapcfg.border + ( rand() % ( mapcfg.sizex-2*mapcfg.border ) ) );
-	fpos[1] = (float)( mapcfg.border + ( rand() % ( mapcfg.sizey-2*mapcfg.border ) ) );
+for( a = 0 ; a < map_set[8].num_value ; a++ ) {
+	fpos[0] = (float)( map_set[5].num_value + ( rand() % (int)( map_set[0].num_value-2*map_set[5].num_value ) ) );
+	fpos[1] = (float)( map_set[5].num_value + ( rand() % (int)( map_set[1].num_value-2*map_set[5].num_value ) ) );
 	angle = rand() % 360;
-	anglevar = (float)( ( rand() & 0xFFF ) - 0x800 ) / mapcfg.anglevar;
+	anglevar = (float)( ( rand() & 0xFFF ) - 0x800 ) / map_set[10].num_value;
 
-	c = mapcfg.lenghtbase + ( rand() % mapcfg.lenghtvar );
+	c = map_set[6].num_value + ( rand() % (int)map_set[7].num_value );
 	for( b = 0 ; b < c ; b++ ) {
 		pts[ptsnum+b][0] = fpos[0];
 		pts[ptsnum+b][1] = fpos[1];
@@ -33,16 +49,16 @@ for( a = 0 ; a < mapcfg.linknum ; a++ ) {
 	ptsnum += c;
 }
 
-for( y = index = 0 ; y < mapcfg.sizey ; y++ ) {
-	for( x = 0 ; x < mapcfg.sizey ; x++, index++ ) {
+for( y = index = 0 ; y < map_set[1].num_value ; y++ ) {
+	for( x = 0 ; x < map_set[1].num_value ; x++, index++ ) {
 		mindist = 0;
 		for( a = 0 ; a < ptsnum ; a++ ) {
 			fx = (float)x - pts[a][0];
 			fy = (float)y - pts[a][1];
 			dist = sqrt( fx*fx + fy*fy );
-			if( dist >= mapcfg.linkradius )
+			if( dist >= map_set[9].num_value )
 			continue;
-			mindist += mapcfg.linkradius - dist;
+			mindist += map_set[9].num_value - dist;
 		}
 		mapstore->factor[index] += (int)floor( mindist );
 	}
@@ -56,7 +72,10 @@ return;
 
 
 int spawn_map() {
+	ConfigArrayPtr settings[4];
+	ConfigArrayPtr map_set;
 	int a, b, c, d, e, i, p, x, y, x2, y2;
+	int map_bonus[CMD_BONUS_NUMUSED+1];
 	int64_t j;
 	float dist, distmax;
 	char fname[PATH_MAX];
@@ -71,61 +90,84 @@ int spawn_map() {
 	dbMainPlanetDef planetd;
 	dbMainEmpireDef empired;
 
-mapstore = calloc( 1, sizeof(MapStorageDef) );
+//Yer... I'm so not calling these one-by-one, list calling time!! *sigh* lol =P
+static char *list[] = { "Map Size", "Map Size", "Map Systems", "Map Families", "Map Family Members", "Map Border", "Map Lenght", "Map Lenght Var", "Map Link", "Map Link Radius", "Map Angle Var" };
+map_set = ListSettings( list );
+if( map_set == NULL )
+	goto DIE;
+/*
+for( a = 0; map_set[a].num_value; a++ ) {
+	printf( "%d - ( %d ) %s: %f\n", a, map_set[a].id, map_set[a].name, map_set[a].num_value );
+}
+*/
+if( ( mapstore = calloc( 1, sizeof(MapStorageDef) ) ) == NULL ) {
+	critical( "No memory for map storage" );
+	goto DIE;
+}
 
-mapstore->factor = calloc( mapcfg.sizex*mapcfg.sizey, sizeof(int) );
-mapstore->data = calloc( mapcfg.sizex*mapcfg.sizey, sizeof(int) );
-mapstore->posx = calloc( mapcfg.bonusnum, sizeof(int) );
-mapstore->posy = calloc( mapcfg.bonusnum, sizeof(int) );
-mapstore->type = calloc( mapcfg.bonusnum, sizeof(int) );
-mapstore->pos = calloc( mapcfg.systems, sizeof(int) );
-mapstore->planets = calloc( mapcfg.systems, sizeof(int) );
-mapstore->pbase = calloc( mapcfg.systems, sizeof(int) );
-mapstore->home = calloc( mapcfg.systems, sizeof(int) );
-mapstore->system = calloc( mapcfg.families, sizeof(int) );
+map_bonus[CMD_BONUS_NUMUSED+1] = 0;
+for(a = 0; a < CMD_BONUS_NUMUSED-1; a++) {
+	sprintf(fname,"Map %s Bonus",cmdBonusName[a]);
+	if( ( settings[0] = GetSetting( fname ) ) == NULL )
+		goto DIE;
+	map_bonus[a] = settings[0]->num_value;
+	map_bonus[CMD_BONUS_NUMUSED+1] += map_bonus[a];
+}
+
+//haha, naa... we won't check these... in all my tests they've never failed anyways (and if the above works, theres almost no reason this should fail)
+mapstore->factor = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) );
+mapstore->data = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) );
+mapstore->posx = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
+mapstore->posy = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
+mapstore->type = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
+mapstore->pos = calloc( map_set[2].num_value, sizeof(int) );
+mapstore->planets = calloc( map_set[2].num_value, sizeof(int) );
+mapstore->pbase = calloc( map_set[2].num_value, sizeof(int) );
+mapstore->home = calloc( map_set[2].num_value, sizeof(int) );
+mapstore->system = calloc( map_set[3].num_value, sizeof(int) );
 mapstore->arti = calloc( ARTEFACT_NUMUSED, sizeof(int) );
 
-mapCalcFactors( mapstore );
+mapCalcFactors( map_set, mapstore );
 
-
-sprintf( fname, "%s/data", sysconfig.directory );
+settings[0] = GetSetting( "Directory" );
+sprintf( fname, "%s/data", settings[0]->string_value );
 dirstructurecheck(fname);
 
 RANDOMIZE_SEED;
 
-mapimage.width = mapcfg.sizex;
-mapimage.height = mapcfg.sizey;
+mapimage.width = map_set[0].num_value;
+mapimage.height = map_set[1].num_value;
 mapimage.format = IMG_IMAGE_FORMAT_GRAYSCALE;
 mapimage.bytesperpixel = 1;
 mapimage.bytesperline = mapimage.width;
 
 
-for( a = 0 ; a < mapcfg.families ; a++ ) {
+for( a = 0 ; a < map_set[3].num_value ; a++ ) {
 	mainL1:
-	mapstore->system[a] = rand() % mapcfg.systems;
+	mapstore->system[a] = rand() % (int)map_set[2].num_value;
 	if( mapstore->home[ mapstore->system[a] ] )
 		goto mainL1;
 	mapstore->home[ mapstore->system[a] ] = a+1;
-	mapstore->planets[ mapstore->system[a] ] = mapcfg.fmembers;
+	mapstore->planets[ mapstore->system[a] ] = map_set[4].num_value;
 }
 
-for( a = b = c = 0 ; a < mapcfg.bonusnum ; a++, b++ ) {
-	mapstore->posx[a] = rand() % mapcfg.sizex;
-	mapstore->posy[a] = rand() % mapcfg.sizey;
-	if( b >= mapcfg.bonusvar[c] ) {
-		b -= mapcfg.bonusvar[c];
+for( a = b = c = 0 ; a < map_bonus[CMD_BONUS_NUMUSED+1] ; a++, b++ ) {
+	mapstore->posx[a] = rand() % (int)map_set[0].num_value;
+	mapstore->posy[a] = rand() % (int)map_set[1].num_value;
+	if( b >= map_bonus[c] ) {
+		b -= map_bonus[c];
 		c++;
 	}
 	mapstore->type[a] = c;
 }
 
 p = 0;
-for( a = 0 ; a < mapcfg.systems ; a++ ) {
+for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 	mainL0:
 	for( ; ; ) {
-		x = rand() % mapcfg.sizex;
-		y = rand() % mapcfg.sizey;
-		i = ( y * mapcfg.sizex ) + x;
+		x = rand() % (int)map_set[0].num_value;
+		y = rand() % (int)map_set[1].num_value;
+		i = ( y * map_set[0].num_value ) + x;
 		if( ( rand() & 0xFF ) >= mapstore->factor[i] )
 			continue;
 		break;
@@ -149,35 +191,34 @@ for( a = 0 ; a < mapcfg.systems ; a++ ) {
 
 for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
 	mainL2:
-	b = rand() % mapcfg.systems;
+	b = rand() % (int)map_set[2].num_value;
 	if( mapstore->home[b] )
 		goto mainL2;
 	mapstore->arti[a] = mapstore->pbase[b] + ( rand() % mapstore->planets[b] );
-	sprintf(logString,  "( %d,%d ) ID:%d Holds: %s", mapstore->pos[b] & 0xFFFF, mapstore->pos[b] >> 16, mapstore->arti[a], artefactName[a] );
-	info( logString );
+	info( "( %d,%d ) ID:%d Holds: %s", mapstore->pos[b] & 0xFFFF, mapstore->pos[b] >> 16, mapstore->arti[a], artefactName[a] );
 }
 
 if( NULL == ( mapbase = calloc( 1, sizeof(dbMainMapDef) ) ) ) {
-	critical( "Malloc Failed" );
-	return 0;
+	critical( "Map Base Malloc Failed" );
+	goto DIE;
 }
 // OK, a new headers write.
-sprintf( fname, "%s/data/map", sysconfig.directory );
+sprintf( fname, "%s/data/map", settings[0]->string_value );
 file = fopen( fname, "wb" );
-mapbase->sizex = mapcfg.sizex;
-mapbase->sizey = mapcfg.sizey;
-mapbase->systems = mapcfg.systems;
+mapbase->sizex = map_set[0].num_value;
+mapbase->sizey = map_set[1].num_value;
+mapbase->systems = map_set[2].num_value;
 mapbase->planets = p;
-mapbase->families = mapcfg.families;
-mapbase->fmembers = mapcfg.fmembers;
-mapbase->capacity = mapcfg.families * mapcfg.fmembers;
+mapbase->families = map_set[3].num_value;
+mapbase->fmembers = map_set[4].num_value;
+mapbase->capacity = map_set[3].num_value * map_set[4].num_value;
 mapbase->artitimer = -1;
 mapbase->timempire = -1;
 file_w( mapbase, 1, sizeof(dbMainMapDef), file ); 
 free( mapbase );
 // New system generation, based on defaults.
 p = 0;
-for( a = 0 ; a < mapcfg.systems ; a++ ) {
+for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 	memset( &systemd, -1, sizeof(dbMainSystemDef) );
 	systemd.position = mapstore->pos[a];
 	systemd.indexplanet = p;
@@ -223,7 +264,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	e = i = 0;
 	if( !( mapstore->home[c] ) ) {
 		distmax = (float)0xFFFF;
-		for( d = 0 ; d < mapcfg.bonusnum ; d++ ) {
+		for( d = 0 ; d < map_bonus[CMD_BONUS_NUMUSED+1] ; d++ ) {
 			x2 = x - mapstore->posx[d];
 			y2 = y - mapstore->posy[d];
 			dist = sqrt( x2*x2 + y2*y2 );
@@ -258,23 +299,25 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 
 
 // New families generation, based on defaults.
-for( a = 0 ; a < mapcfg.families ; a++ ) {
+settings[1] = GetSetting( "Admin Empire Number" );
+settings[2] = GetSetting( "Admin Empire Name" );
+settings[3] = GetSetting( "Admin Empire Password" );
+for( a = 0 ; a < map_set[3].num_value ; a++ ) {
 	memset( &empired, 0, sizeof(dbMainEmpireDef) );
-	memset( empired.player, -1, mapcfg.fmembers*sizeof(int) );
-	memset( empired.vote, -1, mapcfg.fmembers*sizeof(int) );
+	memset( empired.player, -1, map_set[4].num_value*sizeof(int) );
+	memset( empired.vote, -1, map_set[4].num_value*sizeof(int) );
 	empired.leader = empired.rank = -1;
 	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
-	if( ( admincfg.empire == a ) ) {
-		strcpy( empired.name, admincfg.ename);
-		strcpy( empired.password, hashencrypt(admincfg.epassword) );
-		sprintf(logString, "Empire %d Claimed for Administration.", a);
-		info( logString );
+	if( ( (int)settings[1]->num_value == a ) ) {
+		strcpy( empired.name, settings[2]->string_value );
+		strcpy( empired.password, hashencrypt(settings[3]->string_value) );
+		info( "Empire %d Claimed for Administration.", a);
 	}
 	empired.homeid = mapstore->system[a];
 	empired.homepos = mapstore->pos[ mapstore->system[a] ];
 	file_w( &empired, 1, sizeof(dbMainEmpireDef), file );
 // FIXME: Well duh... we got all the other stuff nice and flexible... what about this!
-	sprintf( fname, "%s/data/fam%dnews", sysconfig.directory, a );
+	sprintf( fname, "%s/data/fam%dnews", settings[0]->string_value, a );
 	file2 = fopen( fname, "wb" );
 	j = 0;
 	file_w( &j, 1, sizeof(int64_t), file2 );
@@ -287,16 +330,18 @@ for( a = 0 ; a < mapcfg.families ; a++ ) {
 	fclose( file2 );
 }
 fclose( file );
+UnloadSetting( "Admin Empire Password" );
+UnloadSetting( "Admin Empire Name" );
 //End family generation
 
 //Arightyz, we've got all the data... now lets put it to some use and spalt a image out.
-pixels = calloc( mapcfg.sizex*mapcfg.sizey, sizeof(int) );
+pixels = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) );
 
-for( y = 0 ; y < mapcfg.sizey ; y++ ) { 
-	for( x = 0 ; x < mapcfg.sizex ; x++ )  {
-		pixels[(y*mapcfg.sizex)+x] = (mapstore->factor[(y*mapcfg.sizex)+x] >> 3); //here the milk gets set
-		if( mapstore->data[(y*mapcfg.sizex)+x] )
-			pixels[(y*mapcfg.sizex)+x] = mapstore->data[(y*mapcfg.sizex)+x]; //here the dots get pointed
+for( y = 0 ; y < map_set[1].num_value ; y++ ) { 
+	for( x = 0 ; x < map_set[0].num_value ; x++ )  {
+		pixels[(y*((int)map_set[0].num_value))+x] = (mapstore->factor[(y*((int)map_set[0].num_value))+x] >> 3); //here the milk gets set
+		if( mapstore->data[(y*((int)map_set[0].num_value))+x] )
+			pixels[(y*((int)map_set[0].num_value))+x] = mapstore->data[(y*((int)map_set[0].num_value))+x]; //here the dots get pointed
 	}  
 }
 
@@ -323,17 +368,18 @@ for( y = 0 ; y < mapimage.height ; y++ ) {
 */
 
 
-if( mapimage.width > mapcfg.sizex ) {
+if( mapimage.width > map_set[0].num_value ) {
 	mapimage.data = bigpixies;
 	free( pixels );
 } else {
 	mapimage.data = pixels;
 }
-
-sprintf( fname, "%s/galaxies", sysconfig.httpimages );
+settings[0] = GetSetting( "HTTP Images" );
+sprintf( fname, "%s/galaxies", settings[0]->string_value );
 dirstructurecheck(fname);
 
-sprintf( fname, "%s/galaxies/galaxyr%d.png", sysconfig.httpimages, sysconfig.round );
+settings[1] = GetSetting( "Round Number" );
+sprintf( fname, "%s/galaxies/galaxyr%.0f.png", settings[0]->string_value, settings[1]->num_value );
 //imgConvertGrayscale(&mapimage,IMG_IMAGE_FORMAT_RGB24);
 imgWritePngFile( fname, &mapimage );
 imgFree( &mapimage );
@@ -341,7 +387,7 @@ imgFree( &mapimage );
 
 
 //FIXME: Such a dirty fix, but well... it works. =/
-if( mapimage.width == mapcfg.sizex ) {
+if( mapimage.width == map_set[0].num_value ) {
 	sprintf(imgsizer, "convert \"%s\" -resize 300%% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
 		error( "unable to resize map" );
@@ -369,8 +415,11 @@ free(mapstore->arti);
 
 free(mapstore);
 
+free( map_set );
 
-return 1;
+return YES;
+DIE:
+return NO;
 }
 
 

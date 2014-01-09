@@ -16,9 +16,9 @@ typedef struct {
 
 extern float ircbot_version;
 
-/*int ircbot_prepare();
+int ircbot_prepare();
 
-void ircbot_select();*/
+void IRCSelect();
 
 void *ircbot_connect();
 

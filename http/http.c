@@ -47,9 +47,9 @@
 
 #include "pagelist.c"
 
-static struct MHD_Daemon *server_http;
+static struct MHD_Daemon *PlainHTTP;
 #if HTTPS_SUPPORT
-static struct MHD_Daemon *server_https;
+static struct MHD_Daemon *SecureHTTP;
 #endif
 
 char *cmdUploadState[4] = {
@@ -60,11 +60,11 @@ char *cmdUploadState[4] = {
 };
 
 //256k
-#define SERVERALLOCATION (256 * 1024)
+#define SERVERALLOCATION (256 * KB_SIZE)
 
 static size_t buf_size_allocation[2] = { 
-	( 4 * 1024 ), //Directory
-	( 8 * 1024 ), //HTML Page Generation.
+	( 4 * KB_SIZE ), //Directory
+	( 128 * KB_SIZE ), //HTML Page Generation.
 };
 
 
@@ -137,7 +137,8 @@ return;
  * Linked list of all active sessions.  Yes, O(n) but a
  * hash table would be overkill for a simple example...
  */
-static struct Session *sessions;
+static SessionPtr SessionList;
+//static SessionPtr SessionTable[ARRAY_MAX];
 
 
 
@@ -151,10 +152,13 @@ SessionPtr get_session( int type, void *cls ) {
 	char buffer[256];
 	char md5sum[MD5_HASHSUM_SIZE];
 	const char *cookie;
+	ConfigArrayPtr settings[2];
 
 if( type == SESSION_HTTP ) {
 	struct MHD_Connection *connection = cls;
-	snprintf( buffer, sizeof(buffer), "%d;%s", sysconfig.ticktime, sysconfig.servername );
+	settings[0] = GetSetting( "Tick Speed" );
+	settings[1] = GetSetting( "Server Name" );
+	snprintf( buffer, sizeof(buffer), "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
 	md5_string( buffer, md5sum );
 	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, md5sum );
 } else if( type == SESSION_IRC ) {
@@ -162,7 +166,7 @@ if( type == SESSION_HTTP ) {
 }
 
 if (cookie != NULL) {
-	ret = sessions;
+	ret = SessionList;
 	while (NULL != ret) {
 		if( 0 == strcmp( cookie, ret->sid ) )
 			break;
@@ -209,9 +213,9 @@ ret->postdata = NULL;
 ret->rc++;
 ret->active = time(NULL);
 ret->start = time(NULL);
-ret->next = sessions;
+ret->next = SessionList;
 
-sessions = ret;
+SessionList = ret;
 
 return ret;
 }
@@ -231,14 +235,18 @@ static void add_session_cookie( SessionPtr session, struct MHD_Response *respons
 	char md5sum[MD5_HASHSUM_SIZE];
 	char buffer[256];
 	char timebuf[512];
+	ConfigArrayPtr settings[2];
 
-snprintf( buffer, sizeof(buffer), "%d;%s", sysconfig.ticktime, sysconfig.servername );
+settings[0] = GetSetting( "Tick Speed" );
+settings[1] = GetSetting( "Server Name" );
+snprintf( buffer, sizeof(buffer), "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
 md5_string( buffer, md5sum );
 
 offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s; Path=/;", md5sum, session->sid );
 
-if( strlen(sysconfig.cookdomain) )
-	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", sysconfig.cookdomain );
+settings[0] = GetSetting( "Cookie Domain" );
+if( ( settings[0]->string_value ) && ( strlen(settings[0]->string_value) ) )
+	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", settings[0]->string_value );
 
 time_r = ( time(0) + SESSION_TIME );
 strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
@@ -256,9 +264,9 @@ return;
 static ssize_t file_read( void *cls, uint64_t pos, char *buf, size_t max ){
 	FILE *file = cls;
 
-(void) fseek (file, pos, SEEK_SET);
+file_s(file, pos);
 
-return fread (buf, 1, max, file);
+return fread(buf, 1, max, file);
 }
 
 static void file_free_callback( void *cls ) {
@@ -287,32 +295,57 @@ cached_directory_response = response;
 
 }
 
-void *buffer_realloc( ResponseCachePtr rd, int type, size_t fitsize, int *newsize ) {
+void *buffer_realloc( StringBufferPtr buffer, int type, size_t fitsize, int *newsize ) {
 	void *r;
 	size_t ajust;
 //Always add 1k at the end of new buffer, as "slack space"
-ajust = ( ( rd->buf_len + fitsize ) + 1024 );
+ajust = ( ( buffer->buf_len + fitsize ) + KB_SIZE );
 if( type )
 	buf_size_allocation[type-1] = ajust;
 
-snprintf( logString, sizeof(logString), "Insufficent buffer for %s string, reallocating from %d bytes to %d bytes!", ( type ? "HTML" : "DIR" ), (int)rd->buf_len, (int)ajust );
-info( logString );
+//info( "Insufficent buffer for %s string, reallocating from %d bytes to %d bytes!", ( type ? "HTML" : "DIR" ), (int)buffer->buf_len, (int)ajust );
 
-if( ajust < rd->buf_len ) {
+if( ajust < buffer->buf_len ) {
 	critical( "Size too large" );
-	server_shutdown();
+	Shutdown();
 }
 
-rd->buf_len = ajust;
+buffer->buf_len = ajust;
 
-*newsize = (rd->buf_len - rd->off);
+*newsize = (buffer->buf_len - buffer->off);
 
-if( NULL == ( r = realloc( rd->buf, rd->buf_len ) ) ) {
+if( NULL == ( r = realloc( buffer->buf, buffer->buf_len ) ) ) {
 	critical( "Realloc Failed" );
 	*newsize = 0;
 }
 
 return r;
+}
+
+void AddBufferString( StringBufferPtr buffer, char *text ) {
+	int buf_max = (buffer->buf_len - buffer->off);
+	int buf_len = strlen( text );
+
+if( ( buf_max - buf_len ) < 0 ) {
+	buffer->buf = buffer_realloc( buffer, 0, buf_len, &buf_max );
+}
+
+buffer->off += snprintf( &buffer->buf[buffer->off], buf_max, "%s", text );
+
+return;
+}
+
+void AddBufferPrint( StringBufferPtr buffer, char *fmt, ... ) {
+	char text[ARRAY_MAX];
+	va_list ap;
+
+va_start( ap, fmt );
+vsnprintf( text, ARRAY_MAX, fmt, ap );
+va_end( ap );
+
+AddBufferString( buffer, text );
+
+return;
 }
 
 
@@ -330,25 +363,19 @@ return;
 }
 
 void httpPrintf( ReplyDataPtr rd, char *fmt, ... ) {
-	int buf_max = (rd->cache.buf_len - rd->cache.off);
-	int buf_len;
 	char text[ARRAY_MAX];
 	va_list ap;
 
 va_start( ap, fmt );
-buf_len = vsnprintf( text, ARRAY_MAX, fmt, ap );
+vsnprintf( text, ARRAY_MAX, fmt, ap );
 va_end( ap );
 
-if( ( buf_max - buf_len ) < 0 ) {
-	rd->cache.buf = buffer_realloc( &rd->cache, 2, buf_len, &buf_max );
-}
-
-rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], rd->cache.buf_len - rd->cache.off, "%s", text );
+httpString( rd, text );
 
 return;
 }
 
-static int list_directory( ResponseCachePtr rd, const char *dirname ) {
+static int list_directory( StringBufferPtr rd, const char *dirname ) {
 	int buf_max = (rd->buf_len - rd->off);
 	char fullname[PATH_MAX];
 	struct stat sbuf;
@@ -383,7 +410,8 @@ return MHD_YES;
  */
 static void update_directory( struct MHD_Connection *connection ) {
 	struct MHD_Response *response;
-	ResponseCacheDef rd;
+	StringBufferDef rd;
+	ConfigArrayPtr settings;
 	char dir_name[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
 	struct stat sbuf;
 
@@ -394,8 +422,8 @@ if( NULL == ( rd.buf = malloc(rd.buf_len) ) ) {
 	return; 
 }
 rd.off = snprintf (rd.buf, rd.buf_len, "%s", UPLOAD_DIR_PAGE_HEADER );
-
-snprintf (dir_name, sizeof (dir_name), "%s/uploads", sysconfig.directory);
+settings = GetSetting( "Directory" );
+snprintf( dir_name, sizeof(dir_name), "%s/uploads", settings->string_value );
 
 if( 0 == stat (dir_name, &sbuf) ) {  
 	if (MHD_NO == list_directory (&rd, dir_name)) {
@@ -467,6 +495,7 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	char *type, *fname, *temp;
 	struct stat buf;
 	struct MHD_Response *response;
+	ConfigArrayPtr settings;
 	FILE *file;
 
 memset( &dmsg, 0, PATH_MAX );
@@ -475,11 +504,14 @@ type = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "
 fname = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "name");
 
 if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
-	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", sysconfig.directory, fname );
+	settings = GetSetting( "Directory" );
+	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
 } else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
-	snprintf(dmsg, sizeof (dmsg), "%s/%s", sysconfig.httpimages, fname );
+	settings = GetSetting( "HTTP Images" );
+	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
 } else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
-	snprintf(dmsg, sizeof (dmsg), "%s/%s", sysconfig.httpfiles, fname );
+	settings = GetSetting( "HTTP Files" );
+	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
 } else {
 	memset( &dmsg, 0, PATH_MAX );
 }
@@ -524,8 +556,8 @@ if (file == NULL) {
 
 	strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
-
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, sysconfig.servername );
+	settings = GetSetting( "Server Name" );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, settings->string_value );
 	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
 	MHD_destroy_response( response );
 }
@@ -541,7 +573,7 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 
 if( NULL == ( rd = calloc( 1, sizeof(ReplyDataDef) ) ) )
 	critical( "Calloc Failed" );
-//memset( &rd, 0, sizeof(ReplyDataDef) );
+
 rd->session = session;
 rd->connection = connection;
 rd->cache.buf_len = buf_size_allocation[1];
@@ -561,8 +593,8 @@ md5_string( rd->cache.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 
 mark_as( response, mime );
-ret = MHD_queue_response (rd->connection, MHD_HTTP_OK, response);
-MHD_destroy_response (response);
+ret = MHD_queue_response( rd->connection, MHD_HTTP_OK, response );
+MHD_destroy_response( response );
 free( rd );
 
 return ret;
@@ -575,8 +607,7 @@ static int postdata_set( SessionPtr session, const char *key, const char *value 
 if( !( session->postdata == NULL ) ) {
 	for( a = 1, data = session->postdata ; data ; data = data->next, a++ ) {
 		if( a >= MAX_POST_VALUES ) {
-			sprintf( logString, "Ignoring post value, due to over-load limit \'%s\'", key );
-			info( logString );
+			info( "Ignoring post value, due to over-load limit \'%s\'", key );
 			return MHD_NO;
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
@@ -602,7 +633,6 @@ return MHD_YES;
 }
 
 static int postdata_remove( SessionPtr session, const char *key ) {
-	bool result = MHD_NO;
 	PostDataPtr pos;
 	PostDataPtr prev;
 	PostDataPtr next;
@@ -618,10 +648,10 @@ while( NULL != pos ) {
 		} else {
 			prev->next = next;
 		}
-		result = MHD_YES;
 		free( pos->key );
 		free( pos->value );		
 		free( pos );
+		return MHD_YES;
 	} else {
 	        prev = pos;
         }
@@ -629,7 +659,7 @@ while( NULL != pos ) {
 }
 
 
-return result;
+return MHD_NO;
 }
 
 
@@ -666,6 +696,7 @@ return MHD_YES;
  */
 
 static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
+	ConfigArrayPtr settings;
 	RequestPtr uc = cls;
 	int i;
 
@@ -679,6 +710,7 @@ if (NULL == filename) {
 }
 
 if (-1 == uc->fd) {
+	settings = GetSetting( "Directory" );
 	if( !( ( (uc->session)->dbuser ) ) ) {
 		uc->response = request_refused_response;
 		(uc->session)->upload = UPLOAD_STATE_FAIL;
@@ -689,9 +721,9 @@ if (-1 == uc->fd) {
 		uc->response = request_refused_response;
 		return MHD_NO;
 	}
-	snprintf (fn, sizeof (fn), "%s/uploads", sysconfig.directory );
+	snprintf (fn, sizeof (fn), "%s/uploads", settings->string_value );
 	(void) mkdir (fn, S_IRWXU);
-	snprintf (fn, sizeof (fn),"%s/uploads/%s", sysconfig.directory, filename);
+	snprintf (fn, sizeof (fn),"%s/uploads/%s", settings->string_value, filename);
 	for (i=strlen (fn)-1;i>=0;i--) {
 		if( !isprint( (int)fn[i] ) ){
 			fn[i] = '_';
@@ -704,8 +736,7 @@ if (-1 == uc->fd) {
 		     | O_WRONLY,S_IRUSR | S_IWUSR);
 
 	if (-1 == uc->fd) {
-		sprintf( logString, "Error opening file for upload: \'%s\'", fn );
-		error( logString );
+		error( "Error opening file for upload: \'%s\'", fn );
 		uc->response = request_refused_response;
 		(uc->session)->upload = UPLOAD_STATE_FAIL;
 		return MHD_NO;
@@ -714,8 +745,7 @@ if (-1 == uc->fd) {
 }
 
 if ( (0 != size) && (size != write (uc->fd, data, size)) ) {
-	sprintf( logString, "Error writing to file: \'%s\'", uc->filename);
-	error( logString );
+	error( "Error writing to file: \'%s\'", uc->filename);
 	uc->response = internal_error_response;
 	(uc->session)->upload = UPLOAD_STATE_FAIL;
 	close (uc->fd);
@@ -792,8 +822,7 @@ if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		memset (request, 0, sizeof (RequestDef));
 		request->session = get_session( SESSION_HTTP, connection );
 		if (NULL == request->session) {
-			sprintf( logString, "Failed to setup session for \'%s\'", url );
-			error( logString );
+			error( "Failed to setup session for \'%s\'", url );
 			return MHD_NO; /* internal error */
 		}
 		request->session->upload = UPLOAD_STATE_START;
@@ -840,8 +869,7 @@ if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 		i++;
 	ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, request->session, request->connection );
 	if (ret != MHD_YES) {
-		sprintf( logString, "Failed to create page for \'%s\'", request->post_url);
-		error( logString );
+		error( "Failed to create page for \'%s\'", request->post_url);
 	}
 	return ret;
 	}
@@ -868,8 +896,7 @@ if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HT
 		i++;
 	ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, session, connection );
 	if (ret != MHD_YES) {
-		sprintf( logString, "Failed to create page for \'%s\'", url);
-		error( logString );
+		error( "Failed to create page for \'%s\'", url);
 	}
 	return ret;
 }
@@ -908,8 +935,7 @@ if (-1 != request->fd) {
 	(void) close (request->fd);
 	if (NULL != request->filename) {
 		request->session->upload = UPLOAD_STATE_FAIL;
-		sprintf( logString, "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename );
-		error( logString );
+		error( "Upload of file `%s' failed (incomplete or aborted), removing file.", request->filename );
 		(void) unlink (request->filename);
 	}
 }
@@ -926,8 +952,8 @@ free(request);
 int access_check(void *cls, const struct sockaddr *addr, socklen_t addrlen) {
 	int a;
 
-for( a = 0 ; a < banlist.number ; a++ ) {
-	if( ioCompareFindWords( inet_ntoa( ((struct sockaddr_in *)addr)->sin_addr ), banlist.ip[a] ) )
+for( a = 0 ; a < sysconfig.banlist.number ; a++ ) {
+	if( ioCompareFindWords( inet_ntoa( ((struct sockaddr_in *)addr)->sin_addr ), sysconfig.banlist.ip[a] ) )
 		return MHD_NO;
 }
 
@@ -941,7 +967,7 @@ return MHD_YES;
  */
 void expire_sessions () {
 	int id;
-	char buffer[129];
+	char buffer[SESSION_SIZE];
 	dbUserPtr user;
 	SessionPtr pos;
 	SessionPtr prev;
@@ -950,13 +976,13 @@ void expire_sessions () {
 
 now = time(NULL);
 prev = NULL;
-pos = sessions;
+pos = SessionList;
 
 while( NULL != pos ) {
 	next = pos->next;
 	if( (now - pos->active) > ( SESSION_TIME ) ) {
 		if (NULL == prev) {
-			sessions = pos->next;
+			SessionList = pos->next;
 		} else {
 			prev->next = next;
 		}
@@ -980,21 +1006,20 @@ while( NULL != pos ) {
 
 int remove_session( const char *sid ) {
 	int id;
-	char buffer[129];
-	bool donenothing = true;
+	char buffer[SESSION_SIZE];
 	dbUserPtr user;
 	SessionPtr pos;
 	SessionPtr prev;
 	SessionPtr next;
 
 prev = NULL;
-pos = sessions;
+pos = SessionList;
 
 while( NULL != pos ) {
 	next = pos->next;
 	if( 0 == strcmp( sid, pos->sid ) ) {
 		if (NULL == prev) {
-			sessions = pos->next;
+			SessionList = pos->next;
 		} else {
 			prev->next = next;
 		}
@@ -1006,8 +1031,8 @@ while( NULL != pos ) {
 			}
 		}
 		postdata_wipe( pos );
-		donenothing = false;
 		free( pos );
+		return MHD_YES;
 	} else {
 	        prev = pos;
         }
@@ -1015,7 +1040,7 @@ while( NULL != pos ) {
 }
 
 
-return donenothing;
+return MHD_NO;
 }
 
 
@@ -1053,18 +1078,26 @@ struct MHD_OptionItem ops[] = {
 	{ MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int)(120), NULL },
 	{ MHD_OPTION_END, 0, NULL }
 };
-
+#if MULTI_THREAD_SUPPORT
 static int THREADS;
 static int flags = MHD_USE_SELECT_INTERNALLY /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
+#else
+static int flags = 0 /*| MHD_USE_DUAL_STACK*/; //I have no IPv6, so no point dual stacking.
+#endif
+
 
 
 int http_prep(){
 	char md5sum[MD5_HASHSUM_SIZE];
+
+#if MULTI_THREAD_SUPPORT
 	cpuInfo cpuinfo;
 
 cpuGetInfo( &cpuinfo );
 
 THREADS = fmax( 1.0, ( cpuinfo.socketphysicalcores / 2 ) );
+#endif
+
 #if HAVE_MAGIC_H
 magic = magic_open(MAGIC_MIME_TYPE);
 (void) magic_load(magic, NULL);
@@ -1097,7 +1130,9 @@ flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
 #endif
 
 #if HTTPS_SUPPORT
+#if MULTI_THREAD_SUPPORT
 THREADS = fmax( 1.0, ( THREADS / 2 ) );
+#endif
 #endif
 
 return 0;
@@ -1113,7 +1148,7 @@ key = loadsslfile( "/home/stephen/.ssl/certificate.key" );
 cert = loadsslfile("/home/stephen/.ssl/4f2815aefe61ae.crt");
 bundle = loadsslfile("/home/stephen/.ssl/sf_bundle-g2.crt");
 
-server_https = MHD_start_daemon (flags | MHD_USE_SSL,
+SecureHTTP = MHD_start_daemon (flags | MHD_USE_SSL,
 				options.port[PORT_HTTPS],
 				&access_check, NULL,
 				&create_response, NULL,
@@ -1121,17 +1156,23 @@ server_https = MHD_start_daemon (flags | MHD_USE_SSL,
 				MHD_OPTION_HTTPS_MEM_KEY, key,
 				MHD_OPTION_HTTPS_MEM_CERT, cert,
 				MHD_OPTION_HTTPS_MEM_TRUST, bundle,
-				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
+				#if MULTI_THREAD_SUPPORT
+				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, THREADS ),
+				#endif
 				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 				MHD_OPTION_END);
 free( key );
 free( cert );
 free( bundle );
-if(NULL == server_https)
+if(NULL == SecureHTTP)
 	return 1;
 
-sprintf( logString, "HTTPS Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), options.port[PORT_HTTPS] );
-info( logString );
+#if MULTI_THREAD_SUPPORT
+info( "HTTPS Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), options.port[PORT_HTTPS] );
+#else
+info( "HTTPS Server live on port: %d", options.port[PORT_HTTPS] );
+#endif
+
 
 return 0;
 }
@@ -1139,40 +1180,102 @@ return 0;
 
 int http_start() {
 
-server_http = MHD_start_daemon (flags,
+PlainHTTP = MHD_start_daemon (flags,
 				options.port[PORT_HTTP],
 				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
+				#if MULTI_THREAD_SUPPORT
 				#if HTTPS_SUPPORT
-				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, (THREADS / 2) ),
+				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, THREADS ),
 				#else
 				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)THREADS,
+				#endif
 				#endif
 				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 				MHD_OPTION_END);
 
-if(NULL == server_http)
+if(NULL == PlainHTTP)
 	return 1;
 
-sprintf( logString, "HTTP Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), options.port[PORT_HTTP] );
-info( logString );
+#if MULTI_THREAD_SUPPORT
+info( "HTTP Server live with %d thread%s on port: %d", THREADS, ( (THREADS > 1) ? "s" : "" ), options.port[PORT_HTTP] );
+#else
+info( "HTTP Server live on port: %d", options.port[PORT_HTTP] );
+#endif
 
 return 0;
 }
 
+#if MULTI_THREAD_SUPPORT == 0
+fd_set WWWSelectRead;
+fd_set WWWSelectWrite;
+fd_set WWWSelectError;
 
-void server_shutdown() {
+#define SERVER_SELECT_MSEC 1000
+
+void WWWSelect( ) {
+	int max;
+	struct timeval tv;
+	MHD_UNSIGNED_LONG_LONG mhd_timeout;
+
+tv.tv_usec = ( SERVER_SELECT_MSEC % 1000 ) * 1000;
+tv.tv_sec = SERVER_SELECT_MSEC / 1000;
+max = 0;
+FD_ZERO(&WWWSelectRead);
+FD_ZERO(&WWWSelectWrite);
+FD_ZERO(&WWWSelectError);
+
+if (MHD_YES != MHD_get_fdset( PlainHTTP, &WWWSelectRead, &WWWSelectWrite, &WWWSelectError, &max)) {
+	critical( "WWW Select Get" );
+	return; /* fatal internal error */
+}
+if (MHD_get_timeout( PlainHTTP, &mhd_timeout ) == MHD_YES) {
+	if (tv.tv_sec * 1000 < mhd_timeout) {
+		tv.tv_sec = mhd_timeout / 1000;
+		tv.tv_usec = (mhd_timeout - (tv.tv_sec * 1000)) * 1000;
+	}
+}
+
+#if HTTPS_SUPPORT
+max = 2;
+if (MHD_YES != MHD_get_fdset( SecureHTTP, &WWWSelectRead, &WWWSelectWrite, &WWWSelectError, &max)) {
+	critical( "WWW Select Get HTTPS" );
+	return; /* fatal internal error */
+}
+if (MHD_get_timeout( SecureHTTP, &mhd_timeout ) == MHD_YES) {
+	if (tv.tv_sec * 1000 < mhd_timeout) {
+		tv.tv_sec = mhd_timeout / 1000;
+		tv.tv_usec = (mhd_timeout - (tv.tv_sec * 1000)) * 1000;
+	}
+}
+#endif
+
+if( ( select(max + 1, &WWWSelectRead, &WWWSelectWrite, &WWWSelectError, &tv) < 0 ) && ( sysconfig.shutdown == false ) ){
+	error( "WWW Select Apply" );
+}
+
+MHD_run( PlainHTTP );
+
+#if HTTPS_SUPPORT
+MHD_run( SecureHTTP );
+#endif
+
+return;
+}
+#endif
+
+void Shutdown() {
 
 sysconfig.shutdown = true;
 
-if( server_http ) {
-	MHD_stop_daemon(server_http);
+if( PlainHTTP ) {
+	MHD_stop_daemon(PlainHTTP);
 	info( "HTTP Server has been gracefully shutdown!" );
 }
 #if HTTPS_SUPPORT
-if( server_https ) {
-	MHD_stop_daemon(server_https);
+if( SecureHTTP ) {
+	MHD_stop_daemon(SecureHTTP);
 	info("HTTPS Server has been gracefully shutdown!");
 }
 #endif
@@ -1187,9 +1290,11 @@ MHD_destroy_response (internal_error_response);
 magic_close (magic);
 #endif
 
+info( "Server shutdown complete, now cleaning up!" );
 dbFlush();
 cleanUp(0);
 cleanUp(1);
+UnloadConfig();
 
 return;
 }

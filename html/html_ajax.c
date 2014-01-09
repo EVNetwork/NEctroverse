@@ -1,15 +1,18 @@
 //Ok, so here goes nothing...
 void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings[2];
 	int id, a, b;
 	int bsums[CMD_BLDG_NUMUSED+1];
 	int usums[CMD_UNIT_NUMUSED];
 	const char *typestring, *idstring, *refer;
 	char CHECKER[256];
+	char timebuf[512];
 	dbMainEmpireDef empired;
 	dbUserMainDef maind;
 	proginfoDef pinfod;
 	urlinfoPtr urlp;
 	cpuInfo cpuinfo;
+	time_t tint;
 	struct sysinfo sysinfod;
 
 refer = idstring = typestring = NULL;
@@ -72,8 +75,11 @@ if( ( typestring ) && ( refer ) ) {
 			httpPrintf( cnt, "<sharedbytes>%ld bytes</sharedbytes>", sysinfod.sharedram );
 			httpPrintf( cnt, "<sharedmeg>( %5.1f mb )</sharedmeg>", (sysinfod.sharedram  / megabyte ) );
 
-			httpPrintf( cnt, "<timeserver>%s</timeserver>", trimwhitespace( asctime( gettime( time(0),false ) ) ) );
-			httpPrintf( cnt, "<timegmt>%s</timegmt>", trimwhitespace( asctime( gettime( time(0),true ) ) ) );
+			time( &tint );
+			strftime(timebuf,512,"%a, %d %b %G %T %Z", localtime( &tint ) );
+			httpPrintf( cnt, "<timeserver>%s</timeserver>", timebuf );
+			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+			httpPrintf( cnt, "<timegmt>%s</timegmt>", timebuf );
 			
 			httpPrintf( cnt, "<strss>%lu pages</strss>", pinfod.strss );
 			httpPrintf( cnt, "</memory>" );
@@ -86,11 +92,14 @@ if( ( typestring ) && ( refer ) ) {
 			httpString( cnt, "</cpu>" );
 			
 			#if IRCBOT_SUPPORT
-			if( irccfg.bot ) {
-				if( irc_is_connected(irccfg.session) )
-					snprintf( CHECKER, sizeof(CHECKER), "Enabled (Host:%s, Channel:%s)", irccfg.host, irccfg.channel );
-				else
+			if( sysconfig.irc_enabled ) {
+				if( irc_is_connected(sysconfig.irc_session) ) {
+					settings[0] = GetSetting( "IRC Host" );
+					settings[1] = GetSetting( "IRC Channel" );
+					snprintf( CHECKER, sizeof(CHECKER), "Enabled (Host:%s, Channel:%s)", settings[0]->string_value, settings[1]->string_value );
+				} else {
 					snprintf( CHECKER, sizeof(CHECKER), "%s", "Enabled but not connected" );
+				}
 			} else {
 				snprintf( CHECKER, sizeof(CHECKER), "%s", "Disabled");
 			}

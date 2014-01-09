@@ -4,7 +4,7 @@
 void iohtmlFunc_account( ReplyDataPtr cnt ) {
 	int a, id;
 	char *faction, *race, *desc;
-	char description[DESCRIPTION_SIZE];
+	char description[USER_DESC_SIZE];
 	dbUserMainDef maind;
 	dbUserInfoDef infod;
 
@@ -48,8 +48,8 @@ if( !( ticks.status | ticks.number ) ) {
 }
 
 if( desc ) {
-	iohttpForumFilter( description, desc, DESCRIPTION_SIZE, 0 );
-	iohttpForumFilter2( infod.desc, description, DESCRIPTION_SIZE );
+	iohttpForumFilter( description, desc, USER_DESC_SIZE, 0 );
+	iohttpForumFilter2( infod.desc, description, USER_DESC_SIZE );
 	if( dbUserInfoSet( id, &infod ) )
       		httpString( cnt, "<i>Description Updated</i><br><br>" );
 	else
@@ -79,7 +79,7 @@ if( !( ticks.status | ticks.number ) ) {
 	httpString( cnt, "</select><input type=\"submit\" value=\"Change\"></form>" );
 }
 
-iohttpForumFilter3( description, infod.desc, DESCRIPTION_SIZE );
+iohttpForumFilter3( description, infod.desc, USER_DESC_SIZE );
 httpString( cnt, "<br>" );
 httpString( cnt, "<form action=\"account\" method=\"POST\"><i>Faction description</i><br>" );
 httpString( cnt, "<textarea name=\"desc\" wrap=\"soft\" rows=\"4\" cols=\"64\">" );
@@ -87,7 +87,7 @@ httpString( cnt, description );
 httpString( cnt, "</textarea><br>" );
 httpString( cnt, "<input type=\"submit\" value=\"Change\"></form><br>" );
 #if FACEBOOK_SUPPORT
-if( -timediff( infod.fbinfo.updated ) >= day ) {
+if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
 	facebook_update_user( (cnt->session)->dbuser );
 }
 iohtmlFBConnect( cnt );
@@ -115,7 +115,7 @@ void iohtmlFunc_changepass( ReplyDataPtr cnt )
 {
   int a, b, id;
   dbUserMainDef maind;
-  char oldpass[PASSWORD_MAX];
+  char oldpass[USER_PASS_MAX];
   char *newpass[3];
 
 
@@ -247,7 +247,7 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 
 void iohtmlFunc_logout( ReplyDataPtr cnt ) {
 
-if( remove_session( (cnt->session)->sid ) ) {
+if( remove_session( (cnt->session)->sid ) == 0 ) {
 	critical( "Unable to remove user session, this really shoulden't be able to happen." );
 	if( ( cnt->session ) )
 		cnt->session = NULL;

@@ -33,14 +33,17 @@ return size*nmemb;
 
 
 void facebook_apptoken( char **token ) {
+	ConfigArrayPtr settings[2];
 	int offset;
 	char post[DEFAULT_BUFFER];
 	CURL *curl;
 	CURLcode res;
 
+settings[0] = GetSetting( "Facebook Application" );
+settings[1] = GetSetting( "Facebook Secret" );
 offset = 0;
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", settings[0]->string_value );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", settings[1]->string_value );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", "&grant_type=client_credentials" );
 
 curl = curl_easy_init();
@@ -68,15 +71,18 @@ return;
 }
 
 void facebook_usertoken( FBTokenPtr token, char *code ) {
+	ConfigArrayPtr settings[2];
 	int i, num, offset;
 	char **split;
 	char post[DEFAULT_BUFFER];
 	CURL *curl;
 	CURLcode res;
 
+settings[0] = GetSetting( "Facebook Application" );
+settings[1] = GetSetting( "Facebook Secret" );
 offset = 0;
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", fbcfg.app_id );
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", fbcfg.app_secret );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", settings[0]->string_value );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", settings[1]->string_value );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&redirect_uri=%s", do_redi );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&code=%s", code );
 
@@ -237,7 +243,7 @@ void facebook_getdata_id( FBUserPtr fbdata, char *userid ) {
 
 offset = 0;
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "https://graph.facebook.com/%s", userid  );
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", sysconfig.facebook_token );
 
 facebook_getdata( fbdata, post, offset );
 
@@ -260,7 +266,7 @@ vsnprintf( template, DEFAULT_BUFFER, fmt, ap );
 va_end( ap );
 
 offset = 0;
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", sysconfig.facebook_token );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&template=%s", template );
 
 curl = curl_easy_init();
@@ -297,7 +303,7 @@ int facebook_unlink_app( char *userid ) {
 
 offset = 0;
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "https://graph.facebook.com/%s/permissions", userid  );
-offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", fbcfg.app_token );
+offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", sysconfig.facebook_token );
 
 curl = curl_easy_init();
 if( curl ) {
@@ -324,17 +330,23 @@ return result;
 }
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings[2];
 	int a, id, offset = 0;
 	char *error, *remove, *host;
 	char *code, *fbtoke;
 	char buffer[1024];
+	#if HTTPS_SUPPORT
 	char temp[2][32];
+	#endif
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
 	FBTokenDef token;
 
-if( !(strlen(fbcfg.app_id)) || !(strlen(fbcfg.app_secret)) )
+settings[0] = GetSetting( "Facebook Application" );
+settings[1] = GetSetting( "Facebook Secret" );
+
+if( !(strlen( settings[0]->string_value )) || !(strlen( settings[1]->string_value )) )
 	goto BAILOUT;
 
 host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
@@ -519,18 +531,23 @@ return;
 }
 
 void iohtmlFBConnect( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings[2];
 	char *host;
+	char url[REDIRECT_MAX];
 	#if HTTPS_SUPPORT
 	char temp[2][32];
 	#endif
 
-if( ( strlen( fbcfg.app_id ) <= 0 ) || ( strlen( fbcfg.app_secret ) <= 0 ) )
+settings[0] = GetSetting( "Facebook Application" );
+settings[1] = GetSetting( "Facebook Secret" );
+
+if( ( strlen( settings[0]->string_value ) <= 0 ) || ( strlen( settings[1]->string_value ) <= 0 ) )
 	return;
 
 if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
 
 	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", fbcfg.app_id );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", settings[0]->string_value );
 
 	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
@@ -540,9 +557,9 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
 	#endif
 
-	sprintf( logString, "%s://%s/facebook", (is_https ? "https" : "http"), host  );
+	sprintf( url, "%s://%s/facebook", (is_https ? "https" : "http"), host  );
 
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", logString );
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", url );
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
 } else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) ) {
@@ -559,7 +576,7 @@ void facebook_update_user( dbUserPtr user ) {
 
 if( ( user ) && bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
 	facebook_getdata_id( &fbdata, user->fbid );
-	fbdata.updated = *gettime( time(0), false );
+	fbdata.updated = time(0);
 	if( !( fbdata.connected ) ) {
 		memset( &user->fbid, 0, sizeof(user->fbid) );
 		bitflag_remove( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] );

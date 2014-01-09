@@ -74,14 +74,16 @@ return -1;
 }
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
+	ConfigArrayPtr settings;
 
+settings = GetSetting( "Server Name" );
 httpString( cnt, "<!DOCTYPE xhtml>");
 httpString( cnt, "<html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en\" xml:lang=\"en\"><head>");
 httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
 httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
-httpPrintf( cnt, "<title>%s</title>", sysconfig.servername );
+httpPrintf( cnt, "<title>%s</title>", settings->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&name=favicon.ico\">" );
 httpString( cnt, "<link href=\"files?type=server&name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=javascript.min.js\"></script>" );
@@ -262,6 +264,7 @@ void iohtmlFunc_races( ReplyDataPtr cnt ) {
 	int a, b, id;
 	bool c;
 	dbUserMainDef maind;
+	ConfigArrayPtr settings;
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	iohtmlBase( cnt, 1 );
@@ -272,7 +275,8 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	iohtmlFunc_frontmenu( cnt, FMENU_NONE );
 }
 
-iohtmlBodyInit( cnt, "%s: Races", sysconfig.servername );
+settings = GetSetting( "Server Name" );
+iohtmlBodyInit( cnt, "%s: Races", settings->string_value );
 
 for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	httpPrintf( cnt, "<div class=\"genlarge\">%s</div><br>", cmdRaceName[a] );
@@ -354,6 +358,7 @@ void iohtmlFunc_rules( ReplyDataPtr cnt ) {
 	struct stat stdata;
 	char *data;
 	char DIRCHECKER[PATH_MAX];
+	ConfigArrayPtr settings[2];
 	FILE *file;
 
 iohtmlBase( cnt, 8 );
@@ -361,13 +366,13 @@ iohtmlFunc_frontmenu( cnt, FMENU_NONE );
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 
-
+settings[0] = GetSetting( "Server Name" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpPrintf( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>General Rules for %s.</b></font></td></tr>", sysconfig.servername );
+httpPrintf( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>General Rules for %s.</b></font></td></tr>", settings[0]->string_value );
 httpString( cnt, "<tr><td><font size=\"2\">" );
 
-
-sprintf( DIRCHECKER, "%s/rules.txt", sysconfig.httpread );
+settings[1] = GetSetting( "HTTP Text" );
+sprintf( DIRCHECKER, "%s/rules.txt", settings[1]->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -388,7 +393,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 
 
 httpString( cnt, "<br>" );
-httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", sysconfig.servername );
+httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", settings[0]->string_value );
 httpString( cnt, "<br>" );
 httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br>" );
 httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
@@ -431,6 +436,7 @@ void iohtmlFunc_register2( ReplyDataPtr cnt )
  char *name, *pass, *faction;
  int64_t newd[DB_USER_NEWS_BASE];
  dbMailDef maild;
+ ConfigArrayPtr settings;
  char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
  name = NULL;//iohtmlVarsFind( cnt, "name" );
@@ -472,7 +478,7 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 	(maild.mail).authorid = 0;
 	sprintf( (maild.mail).authorname, "Admin" );
 	(maild.mail).authorempire = 0;
-	(maild.mail).time = *gettime( time(0),true );
+	(maild.mail).time = time( 0 );
 	(maild.mail).tick = ticks.number;
 	(maild.mail).flags = 0;
 	if( dbMailAdd( id, 0, &maild ) < 0 )
@@ -490,8 +496,8 @@ if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
 	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
 	httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
-
-	sprintf( COREDIR, "%s/logs/register.log", sysconfig.directory );
+	settings = GetSetting( "Directory" );
+	sprintf( COREDIR, "%s/logs/register.log", settings->string_value );
 	if( ( file = fopen( COREDIR, "a" ) ) ) {
 		fprintf( file, "Register ID %d ( %x )\n", id, id );
 		a = time(0);
@@ -604,13 +610,16 @@ return;
 
 void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
 	int a, i, id, num;
-	char rtpass[PASSWORD_MAX];
+	char rtpass[USER_PASS_MAX];
 	int64_t *newsp, *newsd;
 	dbUserInfoDef infod;
+	ConfigArrayPtr settings;
 	struct stat stdata;
 	char *data, *name, *pass;
 	char *token = NULL;
 	char DIRCHECKER[PATH_MAX];
+	char timebuf[512];
+	time_t tint;
 	FILE *file = NULL;
 
 name = iohtmlVarsFind( cnt, "name" );
@@ -633,10 +642,12 @@ if( ( id >= 0 ) )
 	goto LOGIN_SUCESS;
 
 if( ( name ) && ( pass ) ) {
-	sprintf( DIRCHECKER, "%s/logs/login.log", sysconfig.directory );
+	settings = GetSetting( "Directory" );
+	sprintf( DIRCHECKER, "%s/logs/login.log", settings->string_value );
 	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
-		a = time( 0 );
-		fprintf( file, "Time: %s", asctime( gettime( time(0),true ) ) );
+		time( &tint );
+		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+		fprintf( file, "Time: %s", timebuf );
 		fprintf( file, "Name: %s;\n", name );
 		if( (cnt->connection)->addr->sa_family == AF_INET )
 			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
@@ -739,7 +750,8 @@ if( file ) {
 if( text ) {
 	httpPrintf( cnt, "<br>%s", text );
 	if( flag ) {
-		sprintf( DIRCHECKER, "%s/login.txt", sysconfig.httpread );
+		settings = GetSetting( "HTTP Text" );
+		sprintf( DIRCHECKER, "%s/login.txt", settings->string_value );
 		if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 				data[stdata.st_size] = 0;
@@ -773,8 +785,7 @@ goto LOGIN_END;
 LOGIN_SUCESS:
 #if FACEBOOK_SUPPORT
 if( token ) {
-	sprintf( DIRCHECKER, "/facebook?fblogin_token=%s", token );
-	redirect( cnt, DIRCHECKER );
+	redirect( cnt, "/facebook?fblogin_token=%s", token );
 } else
 #endif
 redirect( cnt, "/main" );
@@ -818,6 +829,7 @@ return;
 }
 
 void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
+	ConfigArrayPtr settings[2];
 	dbUserMainDef maind;
 	#if FACEBOOK_SUPPORT
 	dbUserInfoDef infod;
@@ -826,13 +838,13 @@ void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	bool boxopen = false;
 	char *data;
 	char DIRCHECKER[PATH_MAX];
-	char DATAPOOL[DESCRIPTION_SIZE];
+	char DATAPOOL[USER_DESC_SIZE];
 	FILE *file;
 	int id, len, notices = 0;
 	va_list ap;
 
 va_start( ap, text );
-len = vsnprintf( DATAPOOL, DESCRIPTION_SIZE, text, ap );
+len = vsnprintf( DATAPOOL, USER_DESC_SIZE, text, ap );
 va_end( ap );
 
 
@@ -858,7 +870,9 @@ httpString( cnt, "<br>" );
 httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
 //read notices from updates.txt and format for display. -- If this file is missing, or empty it is skipped.
-sprintf( DIRCHECKER, "%s/updates.txt", sysconfig.httpread );
+settings[0] = GetSetting( "HTTP Text" );
+sprintf( DIRCHECKER, "%s/updates.txt", settings[0]->string_value );
+settings[1] = GetSetting( "Display Notices" );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -866,19 +880,19 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
 						iohtmlFunc_boxstart( cnt, DATAPOOL );
 						boxopen = true;
 						notices++;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
 						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
 						iohtmlFunc_boxend( cnt );
 						boxopen = false;
 						httpString( cnt, "<br><br>" );
-						if( notices == sysconfig.notices ) {
+						if( notices == (int)settings[1]->num_value ) {
 							httpString( cnt, "<table align=\"right\">" );
 							httpString( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"/notices\">See full list...</a></td></tr>" );
 							httpString( cnt, "</table>" );
@@ -928,7 +942,7 @@ if( (id < 0) ) {
 httpString( cnt, "</td><td>&nbsp;</td><td valign=\"bottom\">" );
 if( ((cnt->session)->dbuser) ) {
 	dbUserInfoRetrieve( ((cnt->session)->dbuser)->id, &infod );
-	if( -timediff( infod.fbinfo.updated ) >= day ) {
+	if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
 		facebook_update_user( (cnt->session)->dbuser );
 	}
 }
@@ -941,7 +955,7 @@ if( (id >= 0) ) {
 httpString( cnt, "</td></table></td></tr>" );
 
 //read the todo list from todo.txt and format for display. -- If this file is missing, or empty it is skipped.
-sprintf( DIRCHECKER, "%s/todo.txt", sysconfig.httpread );
+sprintf( DIRCHECKER, "%s/todo.txt", settings[0]->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -952,7 +966,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( strlen(data) > 1 )
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
 						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", DATAPOOL );
 				}
 				httpString( cnt, "</td></tr></table></td></tr>" );
@@ -972,6 +986,7 @@ return;
 
 
 void iohtmlFunc_faq( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings;
 	struct stat stdata;
 	char *data;
 	char DIRCHECKER[PATH_MAX];
@@ -985,7 +1000,8 @@ httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspaci
 
 httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
 httpString( cnt, "<tr><td>" );
-sprintf( DIRCHECKER, "%s/faq.html", sysconfig.httpread );
+settings = GetSetting( "HTTP Text" );
+sprintf( DIRCHECKER, "%s/faq.html", settings->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -1139,6 +1155,7 @@ return;
 
 
 void iohtmlFunc_halloffame( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings;
 	int a;
 	struct stat stdata;
 	char DIRCHECKER[PATH_MAX];
@@ -1152,17 +1169,17 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top
 httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 httpString( cnt, "<tr><td>" );
 
-httpPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", sysconfig.round );
+httpPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"rankings?&typ=1\">Empires</a> - <a href=\"rankings\">Players</a></td></tr>", ticks.round );
 
-for( a = ( sysconfig.round - 1 ); a > -1; a--) {
+for( a = ( ticks.round - 1 ); a > -1; a--) {
 
 httpPrintf( cnt, "<tr><td><br>Round %d<br>", a );
-
-sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", sysconfig.directory, a );
+settings = GetSetting( "Directory" );
+sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", settings->string_value, a );
 sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d&typ=1\">", a );
 httpPrintf( cnt, "%sEmpires%s - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
 
-sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", sysconfig.directory, a );
+sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", settings->string_value, a );
 sprintf( LINKSTRING, "<a href=\"rankings?rnd=%d\">", a );
 httpPrintf( cnt, "%sPlayers%s", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
 httpString( cnt, "</td></tr>" );
@@ -1178,11 +1195,12 @@ return;
 
 
 void iohtmlFunc_notices( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings;
 	dbUserMainDef maind;
 	struct stat stdata;
 	bool boxopen = false;
 	char *data;
-	char DATAPOOL[DESCRIPTION_SIZE];
+	char DATAPOOL[USER_DESC_SIZE];
 	char DIRCHECKER[PATH_MAX];
 	FILE *file;
 	int id;
@@ -1202,7 +1220,8 @@ httpString( cnt, "<tr><td></td></tr>" );
 httpString( cnt, "<tr><td>" );
 
 //read notices from updates.txt and format for display. -- If this file is missing, or empty it is skipped.
-sprintf( DIRCHECKER, "%s/updates.txt", sysconfig.httpread );
+settings = GetSetting( "HTTP Text" );
+sprintf( DIRCHECKER, "%s/updates.txt", settings->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
@@ -1211,12 +1230,12 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
 						httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tbody><tr>" );
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
 						httpPrintf( cnt, "<td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", DATAPOOL );
 						httpString( cnt, "</tr><tr><td><font size=\"2\">" );
 						boxopen = true;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DESCRIPTION_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
 						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {

@@ -6,6 +6,7 @@
 #include "pipefile.h"
 #endif
 
+#include "loadini.h"
 
 /**
  * Mutex used when we update stuff.
@@ -13,32 +14,13 @@
 extern pthread_mutex_t mutex;
 
 
-extern char *cmdSignalNames[SIGNALS_NUMUSED];
-
 //config struct
 typedef struct {
-	//server
-	char *servername;
-	char *cookdomain;
-	char *directory;
-	char *downfrom;
-	char *httpimages;
-	char *httpfiles;
-	char *httpread;
-	char *pubforum;
-	int notices;
-	int httpport;
-	#if HTTPS_SUPPORT
-	int httpsport;
-	#endif
-	int stockpile;
-	int warend;
-	int victory;
-	int ticktime;
-	int round;
-	//syslog
-	char *syslog_tagname;
-	char *syslog_facility;
+	int number;
+	char **ip;
+} IPBanDef, *IPBanPtr;
+
+typedef struct {
 	//emergency breaker
 	bool shutdown;
 	//Auto Toggles
@@ -46,57 +28,21 @@ typedef struct {
 	bool autostop;
 	struct tm start;
 	struct tm stop;
-} configDef, *configPtr;
+	#if IRCBOT_SUPPORT
+	bool irc_enabled;
+	bool irc_announce;
+	#if MULTI_THREAD_SUPPORT
+	pthread_t irc_thread;
+	#endif
+	irc_session_t *irc_session;
+	#endif
+	#if FACEBOOK_SUPPORT
+	char *facebook_token;
+	#endif
+	IPBanDef banlist;
+} SystemCoreDef, *SystemCorePtr;
 
-extern configDef sysconfig;
-
-typedef struct {
-	//admin
-	int empire;
-	int numadmins;
-	int numfakes;
-	bool rankommit;
-	int *race;
-	int *level;
-	char *ename;
-	char *epassword;
-	char **name;
-	char **faction;
-	char **password;
-	char **forumtag;
-} adminDef, *adminPtr;
-
-extern adminDef admincfg;
-
-#if FACEBOOK_SUPPORT
-
-typedef struct {
-	//Facebook UserData
-	char *app_id;
-	char *app_secret;
-	char *app_token;
-} FBCfgDef, *FBCfgPtr;
-
-extern FBCfgDef fbcfg;
-
-#endif
-
-#if IRCBOT_SUPPORT
-typedef struct {
-	//admin
-	bool bot;
-	char *host;
-	unsigned short port;
-	char *botnick;
-	char *botpass;
-	char *channel;
-	bool announcetick;
-	irc_session_t *session;
-	pthread_t thread;
-} ircDef, *ircPtr;
-
-extern ircDef irccfg;
-#endif
+extern SystemCoreDef sysconfig;
 
 typedef struct {
 	//startup options
@@ -110,21 +56,9 @@ typedef struct {
 	char mapini[PATH_MAX];
 	char pipefile[PATH_MAX];
 	char pipestring[128];
-} optionsDef, *optionsPtr;
+} ServerOptionsDef, *ServerOptionsPtr;
 
-extern optionsDef options;
-
-typedef struct {
-	//mysql
-	bool enable;
-	char *host;
-	int port;
-	char *user;
-	char *password;
-	char *database;
-} mySqlDef, *mySqlPtr;
-
-extern mySqlDef mysqlcfg;
+extern ServerOptionsDef options;
 
 
 typedef struct {
@@ -140,9 +74,9 @@ typedef struct {
 	int uonline;
 	int uactive;
 	int uregist;
-} tickDef, *tickPtr;
+} TickInfoDef, *TickInfoPtr;
 
-extern tickDef ticks;
+extern TickInfoDef ticks;
 extern int savetickconfig();
 
 
@@ -159,15 +93,6 @@ void svPipeScan(int pipefileid);
 int svPipeSend(int pipedirection, char *message, ...);
 
 
-typedef struct {
-	//new ban listing
-	int number;
-	char **ip;
-
-} svbanDef, *svbanPtr;
-
-extern svbanDef banlist;
-
 int bitflag( int dest, int flag );
 void bitflag_add( int *dest, int flag );
 void bitflag_remove( int *dest, int flag );
@@ -175,10 +100,11 @@ void bitflag_toggle( int *dest, int flag );
 
 #define MAXLOGSTRING 1024
 void loghandle( int flag, int error, char *fmt, ... );
-extern char logString[MAXLOGSTRING];
 
 extern bool firstload;
 
 void svSignal( int signal );
+
+extern char *cmdSignalNames[SIGNALS_NUMUSED];
 
 #endif

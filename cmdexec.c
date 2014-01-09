@@ -60,7 +60,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   int a, b, c, x, y;
   int binfo[MAP_TOTAL_INFO], *fam;
   //Max 200 emp
-  char epass[PASSWORD_MAX];
+  char epass[USER_PASS_MAX];
   dbUserMainDef maind;
   dbMainEmpireDef empired;
   dbMainSystemDef systemd;
@@ -81,7 +81,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   //This is for random emp
   if( famnum == -1 )
   {
-    fam = calloc( mapcfg.families * mapcfg.fmembers, sizeof(int) );
+    fam = calloc( dbMapBInfoStatic[MAP_CAPACITY], sizeof(int) );
     for( a = b = 0 ; a < binfo[MAP_EMPIRES] ; a++ )
     {
       fam[a] = 0;
@@ -226,7 +226,7 @@ int cmdExecUserDeactivate( int id, int flags )
 
   if( ( flags == cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) && ( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) && ( maind.empire != -1 ) )
   {
-    recordd.roundid = sysconfig.round;
+    recordd.roundid = ticks.round;
     recordd.planets = maind.planets;
     recordd.networth = maind.networth;
     memcpy( recordd.faction, maind.faction, 32 );
@@ -377,7 +377,7 @@ int cmdExecUserDeactivate( int id, int flags )
     return -1;
 
   bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
-  bitflag_add(&user->flags, flags );
+  bitflag_add(&user->flags, cmdUserFlags[flags] );
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -1103,7 +1103,7 @@ int cmdExecChangFamName( int fam, char *name )
   cmdErrorString = 0;
   if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
     return -3;
-  for( a = 0 ; ( a < NAME_MAX-1 ) && ( name[a] ) ; a++ )
+  for( a = 0 ; ( a < USER_NAME_MAX-1 ) && ( name[a] ) ; a++ )
     empired.name[a] = name[a];
   empired.name[a] = 0;
 
@@ -1152,7 +1152,7 @@ cmdErrorString = 0;
 if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
 	return -3;
 
-for( a = 0 ; a < PASSWORD_MAX-1 ; a++ ) {
+for( a = 0 ; a < USER_PASS_MAX-1 ; a++ ) {
 	if( ( empired.password[a] == 10 ) || ( empired.password[a] == 13 ) )
 		break;
 	empired.password[a] = pass[a];

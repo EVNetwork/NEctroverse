@@ -1,6 +1,8 @@
 #ifndef ENCRYPT_H
 #define ENCRYPT_H
 
+#include <crypt.h>
+
 #define SALT_SIZE 128
 
 void saltgen( char salt[SALT_SIZE] );

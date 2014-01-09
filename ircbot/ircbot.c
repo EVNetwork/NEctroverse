@@ -122,6 +122,7 @@ void dump_event (irc_session_t * irc_session, const char * event, const char * o
 
 
 void event_join( irc_session_t *irc_session, const char *event, const char *origin, const char **params, unsigned int count ) {
+	ConfigArrayPtr settings[2];
 	char nickbuf[128];
 	char buffer[512];
 
@@ -129,15 +130,16 @@ dump_event( irc_session, event, origin, params, count );
 irc_cmd_user_mode( irc_session, "+i" );
 irc_target_get_nick( origin, nickbuf, sizeof(nickbuf) );
 
-if( !strcmp( nickbuf, irccfg.botnick ) ) {
-	snprintf(logString, sizeof(logString), "IRC Bot Joined Channel: %s", params[0] );
-	info( logString );
+settings[0] = GetSetting( "IRC Bot Nick" );
+if( !strcmp( nickbuf, settings[0]->string_value ) ) {
+	info( "IRC Bot Joined Channel: %s", params[0] );
 	snprintf(buffer, sizeof(buffer), "op %s", params[0] );	
 	irc_cmd_msg( irc_session, "ChanServ", buffer );
 } else if( !strcmp( nickbuf, "ChanServ" ) ) {
-	if( irccfg.botpass ){
-		snprintf(buffer, sizeof(buffer), "identify %s", irccfg.botpass);
-		irc_cmd_msg(irccfg.session, "NickServ", buffer);
+	settings[0] = GetSetting( "IRC Bot Pass" );
+	if( settings[0]->string_value ){
+		snprintf(buffer, sizeof(buffer), "identify %s", settings[0]->string_value );
+		irc_cmd_msg( irc_session, "NickServ", buffer);
 	}
 	snprintf(buffer, sizeof(buffer), "op %s", params[0] );	
 	irc_cmd_msg( irc_session, "ChanServ", buffer );
@@ -148,17 +150,17 @@ return;
 
 
 void event_connect( irc_session_t *irc_session, const char *event, const char *origin, const char **params, unsigned int count ) {
+	ConfigArrayPtr setting;
 	char buffer[512];
 dump_event (irc_session, event, origin, params, count);
-snprintf(logString, sizeof(logString), "IRC Bot Connected to server: %s", origin );
-info( logString );
-
-if( irccfg.botpass ){
-	snprintf(buffer, sizeof(buffer), "identify %s", irccfg.botpass);
-	irc_cmd_msg(irccfg.session, "NickServ", buffer);
+info( "IRC Bot Connected to server: %s", origin );
+setting = GetSetting( "IRC Bot Pass" );
+if( setting->string_value ){
+	snprintf(buffer, sizeof(buffer), "identify %s", setting->string_value );
+	irc_cmd_msg(sysconfig.irc_session, "NickServ", buffer);
 }
-
-irc_cmd_join( irc_session, irccfg.channel, 0 );
+setting = GetSetting( "IRC Channel" );
+irc_cmd_join( irc_session, setting->string_value, 0 );
 
 return;
 }
@@ -180,9 +182,9 @@ md5_string( origin, md5sum );
 session = get_session( SESSION_IRC, md5sum );
 
 if( !( session->dbuser ) ) {
-	irc_cmd_notice( irccfg.session, nickbuf, "You must be loged in to use any features." );
+	irc_cmd_notice( sysconfig.irc_session, nickbuf, "You must be loged in to use any features." );
 } else {
-	irc_cmd_notice( irccfg.session, nickbuf, "Now just how did you manage that..." );
+	irc_cmd_notice( sysconfig.irc_session, nickbuf, "Now just how did you manage that..." );
 }
 
 return;
@@ -250,6 +252,7 @@ void event_channel (irc_session_t * irc_session, const char * event, const char 
 	char buffer[512];
 	char nickbuf[128];
 	char md5sum[MD5_HASHSUM_SIZE];
+	ConfigArrayPtr setting;
 	SessionPtr session;
 
 if ( count != 2 )
@@ -291,8 +294,8 @@ if ( !strcmp (params[1], "dcc chat") ) {
 
 if ( !strcmp (params[1], "dcc send") ) {
 		irc_dcc_t dccid;
-		
-	snprintf(buffer, sizeof(buffer), "%s/cookie.gif", sysconfig.httpimages );
+	setting = GetSetting( "HTTP Images" );
+	snprintf(buffer, sizeof(buffer), "%s/cookie.gif", setting->string_value );
 	irc_dcc_sendfile (irc_session, 0, nickbuf, buffer, dcc_file_send_callback, &dccid);
 	addlog ("DCC send ID: %d", dccid);
 }
@@ -380,9 +383,9 @@ callbacks.event_numeric = event_numeric;
 callbacks.event_dcc_chat_req = irc_event_dcc_chat;
 callbacks.event_dcc_send_req = irc_event_dcc_send;
 
-irccfg.session = irc_create_session( &callbacks );
+sysconfig.irc_session = irc_create_session( &callbacks );
 
-if ( !irccfg.session ) {
+if ( !sysconfig.irc_session ) {
 	error("Could not create IRC session");
 	return 1;
 }
@@ -390,10 +393,10 @@ if ( !irccfg.session ) {
 return 0;
 }
 
-void ircbot_select() {
+void IRCSelect() {
 
 // Make sure that all the IRC sessions are connected
-if( !irc_is_connected(irccfg.session) ) {
+if( !irc_is_connected( sysconfig.irc_session ) ) {
 	return;
 }
 
@@ -411,20 +414,16 @@ FD_ZERO (&in_set);
 FD_ZERO (&out_set);
 
 // Add the IRC session descriptors - call irc_add_select_descriptors() for each active session
-irc_add_select_descriptors( irccfg.session, &in_set, &out_set, &maxfd );
+irc_add_select_descriptors( sysconfig.irc_session, &in_set, &out_set, &maxfd );
 
 // Call select()
-if( select(maxfd + 1, &in_set, &out_set, 0, &tv) < 0 ) {
-	// Error
-	if( errno != 4 )
-		error("IRC Select error");
+if( ( select(maxfd + 1, &in_set, &out_set, 0, &tv) < 0 ) && ( sysconfig.shutdown == false ) ) {
+	error("IRC Select error");
 	return;
 }
 
 // Call irc_process_select_descriptors() for each session with the descriptor set
-if ( irc_process_select_descriptors(irccfg.session, &in_set, &out_set) ) {
-	// The connection failed, or the server disconnected. Handle it.
-	if( errno != 115 )
+if ( irc_process_select_descriptors(sysconfig.irc_session, &in_set, &out_set) && ( sysconfig.shutdown == false ) ) {
 		error("IRC Session Error");
 }
 
@@ -434,19 +433,27 @@ return;
 
 
 void *ircbot_connect() {
+	char *list[] = { "IRC Host", "IRC Port", "IRC Bot Nick" };
+	ConfigArrayPtr settings;
 
 if( ircbot_prepare() ) {
-	irccfg.bot = false;
-	irccfg.session = NULL;
+	sysconfig.irc_enabled = false;
+	sysconfig.irc_session = NULL;
 	goto EXIT;
 }
 // Initiate the IRC server connection
-if ( irc_connect( irccfg.session, irccfg.host, irccfg.port, 0, irccfg.botnick, irccfg.botnick, irccfg.botnick ) ) {
+settings = ListSettings( list );
+if ( irc_connect( sysconfig.irc_session, settings[0].string_value, (int)settings[1].num_value, 0, settings[2].string_value, settings[2].string_value, settings[2].string_value ) ) {
+	sysconfig.irc_enabled = false;
+	sysconfig.irc_session = NULL;
 	error("Connecting to IRC Network");
+	free( settings );
 	goto EXIT;
 }
-
-irc_run( irccfg.session );
+free( settings );
+#if MULTI_THREAD_SUPPORT
+irc_run( sysconfig.irc_session );
+#endif
 
 EXIT:
 return NULL;

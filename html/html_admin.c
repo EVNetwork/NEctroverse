@@ -1,21 +1,25 @@
 
 
-void iohtmlFunc_adminframe( ReplyDataPtr cnt )
-{
-  int id;
-  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-    return;
-  if( ((cnt->session)->dbuser)->level < LEVEL_ADMINISTRATOR )
-    goto denied;
-  httpPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", sysconfig.servername );
-  httpString( cnt, "<frame src=\"adminmenu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
-  httpString( cnt, "<frame src=\"adminserver\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
-  httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
-  httpString( cnt, "</frameset></html>" );
-  return;
-  denied:
-  httpString( cnt, "You do not have administrator privileges." );
-  return;
+void iohtmlFunc_adminframe( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings;
+	int id;
+
+if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+	return;
+if( ((cnt->session)->dbuser)->level < LEVEL_ADMINISTRATOR )
+	goto denied;
+
+settings = GetSetting( "Server Name" );
+httpPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", settings->string_value );
+httpString( cnt, "<frame src=\"adminmenu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
+httpString( cnt, "<frame src=\"adminserver\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
+httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
+httpString( cnt, "</frameset></html>" );
+return;
+
+denied:
+httpString( cnt, "You do not have administrator privileges." );
+return;
 }
 
 
@@ -182,8 +186,8 @@ iohtmlBodyInit( cnt, "Forums Administration" );
 
 
 
-void iohtmlFunc_moderator( ReplyDataPtr cnt )
-{
+void iohtmlFunc_moderator( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings;
   int id, a, b, c, x, y, num, actionid, i0, numbuild, curtime, cmd[2];
   int64_t i1;
   float fa;
@@ -215,8 +219,8 @@ void iohtmlFunc_moderator( ReplyDataPtr cnt )
     httpString( cnt, "</center></body></html>" );
     return;
   }
-
-sprintf( COREDIR, "%s/logs/modlog.txt", sysconfig.directory );
+settings = GetSetting( "Directory" );
+sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
     if( !( file = fopen( COREDIR, "a+t" ) ) )
         return;
 
@@ -1371,7 +1375,7 @@ sysconfig.shutdown = true;
     for( user = dbUserList ; user ; user = user->next )
     {
       dbUserInfoRetrieve( user->id, &infod );
-      for( a = 0 ; ( a < DESCRIPTION_SIZE ) && ( infod.desc[a] ) ; a++ )
+      for( a = 0 ; ( a < USER_DESC_SIZE ) && ( infod.desc[a] ) ; a++ )
       {
         if( infod.desc[a] >= 128 )
         {
@@ -1388,7 +1392,7 @@ sysconfig.shutdown = true;
   {
     curtime = time( 0 );
     for( user = dbUserList ; user ; user = user->next )
-      cmdExecUserDeactivate( user->id, 0 );
+      cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
     httpPrintf( cnt, "All accounts deactivated<br><br>" );
   }
 

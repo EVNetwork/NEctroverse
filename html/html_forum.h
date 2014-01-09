@@ -13,7 +13,7 @@ typedef struct
   int threads;
   int rperms;
   int wperms;
-  int time;
+  time_t time;
   int tick;
   int flags;
   int reserved[2];
@@ -24,8 +24,8 @@ typedef struct
   char topic[DB_FORUM_NAME_SIZE];
   int posts;
   int authorid;
-  char authorname[32];
-  int time;
+  char authorname[USER_NAME_MAX];
+  time_t time;
   int tick;
   int flags;
 
@@ -45,9 +45,9 @@ typedef struct
 {
   int length;
   int authorid;
-  char authorname[32];
-  char authortag[32];
-  int time;
+  char authorname[USER_NAME_MAX];
+  char authortag[USER_FTAG_MAX];
+  time_t time;
   int tick;
   int flags;
 

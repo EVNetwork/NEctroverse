@@ -1,28 +1,7 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-/**
- * Context keeping the data for the response we're building.
- */
-typedef struct ResponseCacheContext
-{
-  /**
-   * Response data string.
-   */
-  char *buf;
-  
-  /**
-   * Number of bytes allocated for 'buf'.
-   */
-  size_t buf_len;
-
-  /**
-   * Current position where we append to 'buf'. Must be smaller or equal to 'buf_len'.
-   */
-  size_t off;
-
-} ResponseCacheDef, *ResponseCachePtr;
-
+#define MAX_POST_VALUES 64
 
 enum UploadState {
 
@@ -43,6 +22,27 @@ typedef struct _POST_DATA_STORAGE {
 	char *value;
 	struct _POST_DATA_STORAGE *next;
 } PostDataDef, *PostDataPtr;
+
+/**
+ * Context keeping the data for the response we're building.
+ */
+typedef struct StringBufferContext {
+  /**
+   * Current data string.
+   */
+  char *buf;
+  
+  /**
+   * Number of bytes allocated for 'buf'.
+   */
+  size_t buf_len;
+
+  /**
+   * Current position where we append to 'buf'. Must be smaller or equal to 'buf_len'.
+   */
+  size_t off;
+
+} StringBufferDef, *StringBufferPtr;
 
 /**
  * State we keep for each user/session/browser.
@@ -153,7 +153,7 @@ typedef struct ReplyData
    * Post processor handling form data (IF this is
    * a POST request).
    */
-  ResponseCacheDef cache;
+  StringBufferDef cache;
 
   /**
    * Associated session.
@@ -219,7 +219,9 @@ int http_start();
 int https_start();
 #endif
 
-void server_shutdown();
+void WWWSelect( );
+
+void Shutdown();
 
 int postdata_wipe( SessionPtr session );
 
@@ -230,7 +232,11 @@ int not_found_page ( int id, const void *cls, const char *mime, struct Session *
 int file_render ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 int page_render( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
 
-void *buffer_realloc( ResponseCachePtr rd, int type, size_t fitsize, int *newsize );
+void *buffer_realloc( StringBufferPtr buffer, int type, size_t fitsize, int *newsize );
+
+void AddBufferString( StringBufferPtr buffer, char *text );
+
+void AddBufferPrint( StringBufferPtr buffer, char *string, ... );
 
 void httpString( ReplyDataPtr rd, char *string );
 void httpPrintf( ReplyDataPtr rd, char *string, ... );

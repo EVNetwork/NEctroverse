@@ -8,17 +8,17 @@ typedef struct
   int level;
   int flags;
   int newmail;
-  char name[NAME_MAX];
+  char name[USER_NAME_MAX];
 
-  char faction[NAME_MAX];
-  char forumtag[FTAG_MAX];
+  char faction[USER_NAME_MAX];
+  char forumtag[USER_FTAG_MAX];
   char http_session[SESSION_SIZE];
   char irc_session[SESSION_SIZE];
   int lasttime;
 
   //Facebook Linkage
   #if FACEBOOK_SUPPORT
-  char fbid[NAME_MAX];
+  char fbid[USER_NAME_MAX];
   #endif
 
   //Pointers for next/last user in list.
@@ -42,15 +42,15 @@ typedef struct {
 	bool notice_trade;
 	//Facebook UserData
 	double timezone;
-	char id[NAME_MAX];
+	char id[USER_NAME_MAX];
 	char gender[16];
-	char full_name[NAME_MAX*3];
-	char first_name[NAME_MAX];
-	char last_name[NAME_MAX];
+	char full_name[USER_NAME_MAX*3];
+	char first_name[USER_NAME_MAX];
+	char last_name[USER_NAME_MAX];
 	char pic[PATH_MAX];
-	char bio[DESCRIPTION_SIZE];
+	char bio[USER_DESC_SIZE];
 	//Access Token Data
-	struct tm updated;
+	time_t updated;
 	FBTokenDef token;
 } FBUserDef, *FBUserPtr;
 
@@ -66,13 +66,13 @@ typedef struct
   int lasttime;
   int tagpoints;
   int forumtagtype;
-  char name[NAME_MAX];
-  char faction[NAME_MAX];
-  char email[NAME_MAX];
-  char password[PASSWORD_MAX];
+  char name[USER_NAME_MAX];
+  char faction[USER_NAME_MAX];
+  char email[USER_NAME_MAX];
+  char password[USER_PASS_MAX];
   char http_session[SESSION_SIZE];
-  char forumtag[FTAG_MAX];
-  char desc[DESCRIPTION_SIZE];
+  char forumtag[USER_FTAG_MAX];
+  char desc[USER_DESC_SIZE];
   struct in_addr sin_addr[MAXIPRECORD];
   #if FACEBOOK_SUPPORT
   FBUserDef fbinfo;
@@ -114,7 +114,7 @@ int dbSessionRetrieve( dbUserPtr user, char *session );
 
 typedef struct
 {
-  char faction[NAME_MAX];
+  char faction[USER_NAME_MAX];
   int64_t ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
   int64_t infos[INFOS_TOTAL_NUMUSED];
@@ -293,9 +293,9 @@ typedef struct
   float taxation;
   int64_t fund[CMD_RESSOURCE_NUMUSED];
   int64_t infos[CMD_RESSOURCE_NUMUSED];
-  char name[NAME_MAX];
-  char password[PASSWORD_MAX];
-  char message[CMD_EMPIRE_POLOTICS_TOTAL][DESCRIPTION_SIZE];
+  char name[USER_NAME_MAX];
+  char password[USER_PASS_MAX];
+  char message[CMD_EMPIRE_POLOTICS_TOTAL][USER_DESC_SIZE];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
 typedef struct
@@ -370,8 +370,8 @@ typedef struct
   int flags;
   int authorid;
   int authorempire;
-  char authorname[NAME_MAX];
-  struct tm time;
+  char authorname[USER_NAME_MAX];
+  time_t time;
 } dbMailInDef, *dbMailInPtr;
 
 typedef struct
@@ -424,14 +424,14 @@ typedef struct
 
   int planets;
   int networth;
-  char faction[NAME_MAX];
-  char forumtag[FTAG_MAX];
+  char faction[USER_NAME_MAX];
+  char forumtag[USER_FTAG_MAX];
   int rank;
 
   int empire;
   int famplanets;
   int famnetworth;
-  char famname[NAME_MAX];
+  char famname[USER_NAME_MAX];
   int famrank;
   int artefacts;
   int famflags;
