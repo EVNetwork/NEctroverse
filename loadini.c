@@ -348,7 +348,7 @@ iniparser_set(ini,"admin1", NULL );
 iniparser_set(ini,"admin1:name", "admin" );
 iniparser_set(ini,"admin1:password","password");
 iniparser_set(ini,"admin1:faction", "Admins Faction" );
-iniparser_set(ini,"admin1:forumtag", "<img src=\"images/admin.gif\">" );
+iniparser_set(ini,"admin1:forumtag", "<img src=\"/files?type=image&name=admin.gif\">" );
 iniparser_set(ini,"admin1:level", "3" );
 iniparser_set(ini,"admin1:race", "2" );
 iniparser_set(ini,"admin2", NULL );

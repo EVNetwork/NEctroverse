@@ -1,6 +1,8 @@
 
 #define PACKAGE_VERSION "NEctroverse microhttpd Bridge"
+
 #define MHD_HTTP_HEADER_CONTENT_DISPOSITION "Content-Disposition"
+#define MHD_HTTP_HEADER_REFRESH "Refresh"
 
 
 #include "../config/global.h"
@@ -544,6 +546,7 @@ return ret;
 int page_render( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret;
 	char md5sum[MD5_HASHSUM_SIZE];
+	char buffer[REDIRECT_MAX];
 	struct MHD_Response *response;
 	ReplyDataDef rd;
 
@@ -565,8 +568,14 @@ response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, 
 add_session_cookie(rd.session, response);
 md5_string( rd.cache.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
-
 mark_as( response, mime );
+
+if( strlen(rd.session->redirect) ) {
+	snprintf( buffer, REDIRECT_MAX, "0; url=%s", rd.session->redirect );
+	memset( &rd.session->redirect, 0, REDIRECT_MAX );
+	MHD_add_response_header(response, MHD_HTTP_HEADER_REFRESH, buffer );
+}
+
 ret = MHD_queue_response( rd.connection, MHD_HTTP_OK, response );
 MHD_destroy_response( response );
 
@@ -774,9 +783,9 @@ static int create_response (void *cls, struct MHD_Connection *connection, const 
 {
   RequestPtr request;
   SessionPtr session;
-  int ret, roof;
+  int ret;
   unsigned int i;
-  const char *find, *temp_x[2];
+  const char *temp_x[2];
   bool local;
 
 temp_x[0] = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "Referer");
@@ -829,15 +838,6 @@ if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
 	if (NULL != request->response) {
 		return MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, request->response);
 	} else {
-	if( strlen( (request->session)->redirect ) ) {
-		find = strchr( (request->session)->redirect, '?' );
-		if( find ) {
-			roof = strlen( find );
-			if( ( strncmp( url, (request->session)->redirect, strlen( (request->session)->redirect ) - roof ) == 0 ) )
-				memset( &(request->session)->redirect, 0, REDIRECT_MAX );
-		} else if( strcmp( url, (request->session)->redirect ) == 0 )
-			memset( &(request->session)->redirect, 0, REDIRECT_MAX );
-	}
 	i=0;
 	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, request->post_url)) )
 		i++;
@@ -855,15 +855,7 @@ if( ( request ) && ( request->session ) ) {
 	session = get_session( SESSION_HTTP, connection );
 	session->upload = UPLOAD_STATE_NULL;
 }
-if( strlen( session->redirect ) ) {
-	find = strchr( session->redirect, '?' );
-	if( find ) {
-		roof = strlen( find );
-		if( ( strncmp( url, session->redirect, strlen( session->redirect ) - roof ) == 0 ) )
-			memset( &session->redirect, 0, REDIRECT_MAX );
-	} else if( strcmp( url, session->redirect ) == 0 )
-		memset( &session->redirect, 0, REDIRECT_MAX );
-}
+
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
 	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, url)) )
