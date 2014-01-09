@@ -791,9 +791,9 @@ if( token ) {
 redirect( cnt, "/main" );
 
 
-httpString( cnt, "<b>Login sucess, you should be redirected into game shortly...</b><br>" );
+httpString( cnt, "<b>Login sucess, you should be redirected to the game shortly...</b><br>" );
 httpString( cnt, "<br>" );
-httpString( cnt, "<a href=\"/main\">Click here if not redirected</a><br>" );
+httpString( cnt, "<a href=\"/main\">Click here if it takes too long.</a><br>" );
 
 LOGIN_END:
 iohtmlFunc_endhtml( cnt );

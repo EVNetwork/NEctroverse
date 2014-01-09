@@ -407,6 +407,11 @@ int loadconfig( char *file, int type ) {
 	ConfigArrayPtr settings;
 	inikey ini;
 
+if( firstload ) {
+	DumpDefaults( file );
+	return -1;
+}
+
 if( sysconfig.shutdown ) {
 	return -1;
 }
@@ -520,6 +525,7 @@ int savetickconfig() {
 	char DIRCHECKER[PATH_MAX];
 	ConfigArrayPtr settings;
 	FILE *file;
+	inikey ini;
 
 settings = GetSetting( "Directory" );
 sprintf( DIRCHECKER, "%s/ticks.ini", settings->string_value );
@@ -527,24 +533,26 @@ file = fopen( DIRCHECKER, "rb+" );
 if(!file)
 	file = fopen( DIRCHECKER, "wb" );
 if(file) {
+	ini = dictionary_new(0);
 	fprintf( file, "%s\n", ";Auto generated, there should be no need to edit this file!" );
-	iniparser_set(config,"ticks",NULL);
-	iniparser_set(config,"ticks:status",ticks.status ? "true" : "false");
-	iniparser_set(config,"ticks:locked",ticks.locked ? "true" : "false");
-	iniparser_set_string(config,"ticks:number", "%d", ticks.number);
-	iniparser_set_string(config,"ticks:round", "%d", ticks.round);
-	iniparser_set_string(config,"ticks:speed", "%d", ticks.speed);
-	iniparser_set_string(config,"ticks:last", "%d", ticks.last);
-	iniparser_set_string(config,"ticks:next", "%d", ticks.next);
+	iniparser_set( ini,"ticks",NULL);
+	iniparser_set( ini,"ticks:status",ticks.status ? "true" : "false");
+	iniparser_set( ini,"ticks:locked",ticks.locked ? "true" : "false");
+	iniparser_set_string( ini,"ticks:number", "%d", ticks.number);
+	iniparser_set_string( ini,"ticks:round", "%d", ticks.round);
+	iniparser_set_string( ini,"ticks:speed", "%d", ticks.speed);
+	iniparser_set_string( ini,"ticks:last", "%d", ticks.last);
+	iniparser_set_string( ini,"ticks:next", "%d", ticks.next);
 	
-	iniparser_set_string(config,"ticks:debug_id", "%d", ticks.debug_id);
-	iniparser_set_string(config,"ticks:debug_pass", "%d", ticks.debug_pass);
+	iniparser_set_string( ini,"ticks:debug_id", "%d", ticks.debug_id);
+	iniparser_set_string( ini,"ticks:debug_pass", "%d", ticks.debug_pass);
 	
-	iniparser_set_string(config,"ticks:uonline", "%d", ticks.uonline);
-	iniparser_set_string(config,"ticks:uactive", "%d", ticks.uactive);
-	iniparser_set_string(config,"ticks:uregist", "%d", ticks.uregist);
+	iniparser_set_string( ini,"ticks:uonline", "%d", ticks.uonline);
+	iniparser_set_string( ini,"ticks:uactive", "%d", ticks.uactive);
+	iniparser_set_string( ini,"ticks:uregist", "%d", ticks.uregist);
 
-	iniparser_dumpsection_ini( config, "ticks", file);
+	iniparser_dump_ini( ini, file);
+	iniparser_freedict( ini );
 	fflush( file );
 	fclose( file );
 }
@@ -663,6 +671,7 @@ for( index = optind; index < argc; index++ ) {
 return result;
 }
 
+
 int main( int argc, char *argv[] ) {
 	ConfigArrayPtr settings;
 	int a;
@@ -679,9 +688,9 @@ if( checkops(argc,argv) ) {
 }
 
 if( file_exist(options.sysini) == 0 ) {
-	info("File does not exist: \'%s\'\n",options.sysini);
+	printf("File does not exist: \'%s\'\n",options.sysini);
 	//printf("The above file will be created with a default set, please review the file and reload.\n");
-	info("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
+	printf("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
 	firstload = true;
 } else if( options.verbose ) {
 	info("Using config file: \'%s\'",options.sysini);
@@ -964,7 +973,7 @@ if ( error ) {
 	AddBufferPrint( &internal, "%s -- #%d, %s", ebuffer, error, strerror(error)  );
 	syslog(flag, "%s -- #%d, %s", ebuffer, error, strerror(error) );
 } else {
-	if( ( options.verbose ) && ( strcmp(ebuffer, BREAKER_TAG ) == 1 ) ) {
+	if( ( options.verbose ) && strncmp(ebuffer, BREAKER_TAG, strlen( BREAKER_TAG ) ) ) {
 		printf("%s%s\n"RESET,font, ebuffer);
 	}
 	AddBufferString( &internal, ebuffer );

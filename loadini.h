@@ -81,6 +81,8 @@ void UnloadConfig();
 
 int unloadfromconfig( char *name, char *sourcefile, int sourceline );
 
+void DumpDefaults( char *filename );
+
 dbUserInfoPtr ListAdmins( int num );
 ConfigArrayPtr makelistfromconfig( char **list, char *sourcefile, int sourceline );
 

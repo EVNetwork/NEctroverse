@@ -9,7 +9,7 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "syslog:tag", "EVServer", "Log Tag" },
 	
 	{ INI_TYPE_STRING, "system:name", "NEctroverse", "Server Name" },
-	{ INI_TYPE_STRING, "system:cookiedomain", "", "Cookie Domain" },
+	{ INI_TYPE_STRING, "system:cookiedomain", "false", "Cookie Domain" },
 
 	{ INI_TYPE_STRING, "system:directory", "/tmp/evcore/data", "Directory" },
 	{ INI_TYPE_STRING, "system:httpimages", "/tmp/evcore/html/images", "HTTP Images" },
@@ -71,7 +71,7 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_BOOL, "irc:bot_announcetick", "false", "IRC Announce" },
 	#endif
 	
-	{ INI_TYPE_INT, "debug:create_accounts", "0", "Create Fakes" },
+	{ INI_TYPE_INT, "debug:create_fake_accounts", "0", "Create Fakes" },
 	{ INI_TYPE_INT, "admin:number", "0", "Create Admins" },
 	{ INI_TYPE_INT, "admin:empire", "0", "Admin Empire Number" },
 	{ INI_TYPE_STRING, "admin:empire_password", "password", "Admin Empire Password" },
@@ -140,9 +140,9 @@ if( config == NULL )
 
 //Yes, we always check for this line... it means the server has not been configured correctly.
 if( iniparser_find_entry( config,"NEED_TO_DELETE_ME" ) ) {
-	info( "A default, non-usable version of the ini file has been detected: %s", options.sysini );
-	info( "You must edit this file before the game server is able to run correctly!");
-	sysconfig.shutdown = true;
+	printf( RED"A default, non-usable version of the ini file has been detected: %s\n"RESET, options.sysini );
+	printf( RED"You must edit this file before the game server is able to run correctly!\n"RESET );
+	exit(0);
 }
 
 if( ( iniparser_find_entry(config, config_listing[index].origin ) == 0 ) && ( bitflag( faultreported[1], ( index >> 16 ) ) == 0 ) ) {
@@ -316,136 +316,86 @@ if( config != NULL ) {
 	config = NULL;
 }
 
+
 }
 
+//And now to dump a default config to the location specified (since no file was found to exist).
+void DumpDefaults( char *filename ) {
+	int index, count;
+	char **split;
+	FILE *dumpfile = NULL;
+	inikey ini;
 
-
-
-
-//FIXME -- ADD INTO FUNCTION ( And make it cleaner... eh =P )
-
-
-/*
-if( firstload ) {
-	FILE *dumpfile;
-	if( !( iniparser_find_entry(ini,"system") ) ){
-		iniparser_set(ini,"system",NULL);
-		iniparser_set(ini,"system:name",sysconfig.servername);
-		iniparser_set(ini,"system:cookiedomain","yourdomain.com");
-		iniparser_set(ini,"system:directory",GetSetting( config, "Directory", false ));
-		iniparser_set(ini,"system:downfrom",GetSetting( config, "Download Source", false ));
-		iniparser_set(ini,"system:httpimages",sysconfig.httpimages);
-		iniparser_set(ini,"system:httpfiles",sysconfig.httpfiles);
-		iniparser_set(ini,"system:httpread",sysconfig.httpread);
-		iniparser_set(ini,"system:pubforum",sysconfig.pubforum);
-		iniparser_set_string(ini,"system:http_port","%d", sysconfig.httpport );
-		#if HTTPS_SUPPORT
-		iniparser_set_string(ini,"system:https_port","%d", sysconfig.httpsport );
-		#endif
-		iniparser_set(ini,"system:stockpile","14");
-		iniparser_set(ini,"system:auto_victory_afterticks","52");
-		iniparser_set(ini,"system:auto_endwar_afterticks","26");
-		iniparser_set(ini,"system:tick_time","3600");
-		iniparser_set(ini,"system:notices","5");
-		iniparser_set(ini,"system:round","0");
+ini = dictionary_new(0);
+index = 0;
+while( ( config_listing[index].origin != NULL ) ) {
+	char *copy = strdup( config_listing[index].origin );
+	split = str_split( copy, ':', &count );
+	if( ( split == NULL ) || ( count < 2 ) ) {
+		printf( "str_split returned NULL" );
+		continue;
 	}
-	if( !( iniparser_find_entry(ini,"syslog") ) ){
-		iniparser_set(ini,"syslog",NULL);
-		iniparser_set(ini,"syslog:tag", sysconfig.syslog_tagname);
-		iniparser_set(ini,"syslog:facility", sysconfig.syslog_facility);
-	}
-	#if IRCBOT_SUPPORT
-	if( !( iniparser_find_entry(ini,"irc") ) ){
-		iniparser_set(ini,"irc",NULL);
-		iniparser_set(ini,"irc:host", "irc.freenode.net" );
-		iniparser_set(ini,"irc:port", "6667" );
-		iniparser_set(ini,"irc:channel","ectroverse");
-		iniparser_set(ini,"irc:bot_nick", "EVBot" );
-		iniparser_set(ini,"irc:bot_pass", "botpass" );
-		iniparser_set(ini,"irc:bot_enable", "false" );
-		iniparser_set(ini,"irc:bot_announcetick", "false" );
-	}
-	#endif
-	if( !( iniparser_find_entry(ini,"admin") ) ){
-		iniparser_set(ini,"admin",NULL);
-		iniparser_set(ini,"admin:number", "2" );
-		iniparser_set(ini,"admin:name1", "admin" );
-		iniparser_set(ini,"admin:password1","password");
-		iniparser_set(ini,"admin:faction1", "Admins Faction" );
-		iniparser_set(ini,"admin:forumtag1", "<img src=\"images/admin.gif\">" );
-		iniparser_set(ini,"admin:level1", "3" );
-		iniparser_set(ini,"admin:race1", "2" );
-		iniparser_set(ini,"admin:name2", "help" );
-		iniparser_set(ini,"admin:password2","password");
-		iniparser_set(ini,"admin:faction2", "Admins Helper" );
-		iniparser_set(ini,"admin:forumtag2", "Helper" );
-	}
-	if( !( iniparser_find_entry(ini,"admin_empire") ) ){
-		iniparser_set(ini,"admin_empire",NULL);
-		iniparser_set_string(ini,"admin_empire:number", "%d", admincfg.empire );
-		iniparser_set(ini,"admin_empire:name", admincfg.ename );
-		iniparser_set(ini,"admin_empire:password", admincfg.epassword );
-		iniparser_set(ini,"admin_empire:ommit_from_rank", admincfg.rankommit ? "true" : "false" );
-	}
-	if( !( iniparser_find_entry(ini,"map") ) ){
-		iniparser_set(ini,"map",NULL);
-		iniparser_set_string(ini,"map:sizex", "%d", mapcfg.sizex );
-		iniparser_set_string(ini,"map:systems", "%d", mapcfg.systems );
-		iniparser_set_string(ini,"map:families", "%d", mapcfg.families );
-		iniparser_set_string(ini,"map:members_perfamily", "%d", mapcfg.fmembers );
-		iniparser_set_string(ini,"map:border", "%d", mapcfg.border );
-		iniparser_set_string(ini,"map:anglevar", "%d", mapcfg.anglevar );
-		iniparser_set_string(ini,"map:linknum", "%d", mapcfg.linknum );
-		iniparser_set_string(ini,"map:linkradius", "%d", mapcfg.linkradius );
-		iniparser_set_string(ini,"map:lenghtbase", "%d", mapcfg.lenghtbase );
-		iniparser_set_string(ini,"map:lenghtvar", "%d", mapcfg.lenghtvar );
-		for(a = 0; a < CMD_BONUS_NUMUSED; a++) {
-			sprintf(DIRCHECKER,"map:%s",cmdBonusName[a]);
-			for(i = 0; DIRCHECKER[i]; i++){
-				DIRCHECKER[i] = tolower(DIRCHECKER[i]);
-			}
-			iniparser_set_string(ini,DIRCHECKER, "%d", (rand() % 35) );
-		}
-	}
-	if( !( iniparser_find_entry(ini,"banned_ips") ) ){
-		iniparser_set(ini,"banned_ips",NULL);
-		iniparser_set(ini,"banned_ips:number", "3" );
-		iniparser_set(ini,"banned_ips:ip1", "10.0.0.*" );
-		iniparser_set(ini,"banned_ips:ip2","192.168.0.*");
-		iniparser_set(ini,"banned_ips:ip3", "127.0.0.1" );
-	}
-	iniparser_set(ini,"NEED_TO_DELETE_ME",NULL);
-	dumpfile = fopen(file, "w");
-	if( !( dumpfile ) ) {
-		loghandle(LOG_CRIT, false, "Unable to load config file, and unable to spawn in specified location: \'%s\'", file);
-		file = "/tmp/evcore/evsystem.ini";
-		dumpfile = fopen(file, "w");
-		loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You will need to edit and move this file before you can run the server, its best if you use the config directory!");
-	} else {
-		loghandle(LOG_CRIT, false, "A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You must edit this file according to your needs before you run the game server!");
-	}
-	if( dumpfile ) {
-		fprintf( dumpfile, "%s\n", "; NEctroverse Alpha Config file" );
-		fprintf( dumpfile, "%s\n", "; Why did I change from config.h to config.ini ??" );
-		fprintf( dumpfile, "%s\n", "; Simple, changes here can be implemented without a rebuild!" );
-		fprintf( dumpfile, "%s\n", "; Just change and restart. Simple =D" );
-		fprintf( dumpfile, "%s\n", "; -- Necro" );
-		fprintf( dumpfile, "\n" );
-		iniparser_dump_ini(ini,dumpfile);
-		fprintf( dumpfile, "%s\n", ";Auto generated, You will need to delete the DELETE settings before this file will load.!" );
-		fprintf( dumpfile, "%s\n", ";This file was automaticly generated as no ini file was present!" );
-		fflush( dumpfile );
-		fclose( dumpfile );
-
-	} else {
-		loghandle(LOG_CRIT, errno, "Unable to spawn default config file into: \'%s\'",file);
-		loghandle(LOG_CRIT, false, "%s", "You may have specified an invalid path...");	
-	}
-	sysconfig.shutdown = true;
+	if( !( iniparser_find_entry(ini,split[0]) ) )
+		iniparser_set( ini, split[0], NULL);
+	iniparser_set( ini, config_listing[index].origin, config_listing[index].ifblank );
+	free( copy );
+	free( split );
+	index++;
 }
-*/
+
+iniparser_set(ini,"admin:number", "2" );
+iniparser_set(ini,"admin1", NULL );
+iniparser_set(ini,"admin1:name", "admin" );
+iniparser_set(ini,"admin1:password","password");
+iniparser_set(ini,"admin1:faction", "Admins Faction" );
+iniparser_set(ini,"admin1:forumtag", "<img src=\"images/admin.gif\">" );
+iniparser_set(ini,"admin1:level", "3" );
+iniparser_set(ini,"admin1:race", "2" );
+iniparser_set(ini,"admin2", NULL );
+iniparser_set(ini,"admin2:name", "help" );
+iniparser_set(ini,"admin2:password","password");
+iniparser_set(ini,"admin2:faction", "Admins Helper" );
+iniparser_set(ini,"admin2:forumtag", "Helper" );
+
+iniparser_set(ini,"banned_ips",NULL);
+iniparser_set(ini,"banned_ips:number", "3" );
+iniparser_set(ini,"banned_ips:ip1", "10.0.0.*" );
+iniparser_set(ini,"banned_ips:ip2","192.168.0.*");
+iniparser_set(ini,"banned_ips:ip3", "127.0.0.1" );
+iniparser_set(ini,"NEED_TO_DELETE_ME",NULL);
+
+dumpfile = fopen( filename, "w");
+if( !( dumpfile ) ) {
+	printf( RED"Unable to load config file, and unable to spawn in specified location: \'%s\'\n"RESET, filename );
+	//filename = "/tmp/evcore/evsystem.ini";
+	dumpfile = fopen(filename, "w");
+	printf( RED"A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'\n"RESET, filename );
+	printf( RED"You will need to edit and move this file before you can run the server, its best if you use the config directory!\n"RESET );
+} else {
+	printf( RED"A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'\n"RESET, filename );
+	printf( RED"You must edit this file according to your needs before you run the game server!\n"RESET );
+}
+if( dumpfile ) {
+	fprintf( dumpfile, "%s\n", "; NEctroverse Alpha Config file" );
+	fprintf( dumpfile, "%s\n", "; Why did I change from config.h to config.ini ??" );
+	fprintf( dumpfile, "%s\n", "; Simple, changes here can be implemented without a rebuild!" );
+	fprintf( dumpfile, "%s\n", "; Just change and restart. Simple =D" );
+	fprintf( dumpfile, "%s\n", "; -- Necro" );
+	fprintf( dumpfile, "\n" );
+	iniparser_dump_ini( ini, dumpfile );
+	fprintf( dumpfile, "%s\n", ";Auto generated, You will need to delete the DELETE settings before this file will load.!" );
+	fprintf( dumpfile, "%s\n", ";This file was automaticly generated as no ini file was present!" );
+	fflush( dumpfile );
+	fclose( dumpfile );
+} else {
+	printf( RED"Unable to spawn default config file into: \'%s\'\n"RESET, filename );
+	printf( RED"You may have specified an invalid path...\n"RESET );	
+}
+
+iniparser_freedict( ini );
+sysconfig.shutdown = true;
 
 
+return;
+}
 

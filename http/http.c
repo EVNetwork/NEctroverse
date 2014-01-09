@@ -1,38 +1,10 @@
-/*
-     This file is part of libmicrohttpd
-     (C) 2013 Christian Grothoff (and other contributing authors)
 
-     This library is free software; you can redistribute it and/or
-     modify it under the terms of the GNU Lesser General Public
-     License as published by the Free Software Foundation; either
-     version 2.1 of the License, or (at your option) any later version.
-
-     This library is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-     Lesser General Public License for more details.
-
-     You should have received a copy of the GNU Lesser General Public
-     License along with this library; if not, write to the Free Software
-     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-/**
- * @file demo.c
- * @brief complex demonstration site: create directory index, offer
- *        upload via form and HTTP POST, download with mime type detection
- *        and error reporting (403, etc.) --- and all of this with
- *        high-performance settings (large buffers, thread pool).
- *        If you want to benchmark MHD, this code should be used to
- *        run tests against.  Note that the number of threads may need
- *        to be adjusted depending on the number of available cores.
- * @author Christian Grothoff
- */
 #define PACKAGE_VERSION "NEctroverse microhttpd Bridge"
 #define MHD_HTTP_HEADER_CONTENT_DISPOSITION "Content-Disposition"
 
 
 #include "../config/global.h"
+
 #include "memorypool.c"
 #include "internal.c"
 #include "response.c"
@@ -42,10 +14,15 @@
 #if HTTPS_SUPPORT
 #include "connection_https.c"
 #endif
-
 #include "daemon.c"
 
+
+// Our page list is in a seperate file... since it could eventuly get kinda large.
 #include "pagelist.c"
+
+
+
+
 
 static struct MHD_Daemon *PlainHTTP;
 #if HTTPS_SUPPORT
@@ -59,11 +36,14 @@ char *cmdUploadState[4] = {
 "Failed"
 };
 
-//256k
+//Memory allocation for the internal working of the HTTP/S server
 #define SERVERALLOCATION (256 * KB_SIZE)
 
+//Default buffer allocations, no need to have these too large...
+//If needed the server will expand them itself to facilitate page size. 
+//-- Eventully I'd like to add an average formula into the allocations as at the moment it will only grow, not shrink.
 static size_t buf_size_allocation[2] = { 
-	( 4 * KB_SIZE ), //Directory
+	( 64 * KB_SIZE ), //Directory
 	( 128 * KB_SIZE ), //HTML Page Generation.
 };
 
@@ -79,17 +59,17 @@ static struct MHD_Response *file_not_found_response;
 static struct MHD_Response *internal_error_response;
 
 /**
- * Response returned for '/' (GET) to list the contents of the directory and allow upload.
- */
-static struct MHD_Response *cached_directory_response;
-
-/**
  * Response returned for refused uploads.
  */
 static struct MHD_Response *request_refused_response;
 
 /**
- * Global handle to MAGIC data.
+ * Response returned for '/files'
+ */
+static struct MHD_Response *cached_directory_response;
+
+/**
+ * Global handle to MAGIC data. -- If avalible, which on my system it is not... as I don't want yet another linked lib.
  */
 #if HAVE_MAGIC_H
 #define MAGIC_HEADER_SIZE (16 * 1024)
@@ -129,13 +109,9 @@ return;
  */
 #define NOT_FOUND_ERROR "<html><head><title>Not found</title></head><body>The item you are looking for was not found...</body></html>"
 
-/**
- * Name of our cookie.
- */
 
 /**
- * Linked list of all active sessions.  Yes, O(n) but a
- * hash table would be overkill for a simple example...
+ * Linked list of all active sessions.  Yes, O(n)
  */
 static SessionPtr SessionList;
 //static SessionPtr SessionTable[ARRAY_MAX];
@@ -245,7 +221,7 @@ md5_string( buffer, md5sum );
 offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s; Path=/;", md5sum, session->sid );
 
 settings[0] = GetSetting( "Cookie Domain" );
-if( ( settings[0]->string_value ) && ( strlen(settings[0]->string_value) ) )
+if( ( settings[0]->string_value ) && ( strcmp( settings[0]->string_value, "false" ) ) )
 	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", settings[0]->string_value );
 
 time_r = ( time(0) + SESSION_TIME );
