@@ -681,8 +681,7 @@ if( checkops(argc,argv) ) {
 if( file_exist(options.sysini) == 0 ) {
 	info("File does not exist: \'%s\'\n",options.sysini);
 	//printf("The above file will be created with a default set, please review the file and reload.\n");
-	printf("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
-	fflush(stdout);
+	info("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
 	firstload = true;
 } else if( options.verbose ) {
 	info("Using config file: \'%s\'",options.sysini);
