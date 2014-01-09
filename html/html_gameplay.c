@@ -3325,7 +3325,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"files?type=image&name=galaxies/galaxyr%d.png\" width=\"%d\" height=\"%d\" alt=\"Planets\" usemap=\"#systemmap\">", ticks.round, dbMapBInfoStatic[MAP_SIZEX] *IOHTTP_MAPPICK_DIVIDE, dbMapBInfoStatic[MAP_SIZEY] *IOHTTP_MAPPICK_DIVIDE );
+ httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"files?type=image&name=galaxies/galaxyr%d.png\" style=\"width:100%%; height:100%%;\" alt=\"Planets\" usemap=\"#systemmap\">", ticks.round/*, dbMapBInfoStatic[MAP_SIZEX] *IOHTTP_MAPPICK_DIVIDE, dbMapBInfoStatic[MAP_SIZEY] *IOHTTP_MAPPICK_DIVIDE*/ );
 
 httpString( cnt, "<map name=\"systemmap\">" );
 for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {

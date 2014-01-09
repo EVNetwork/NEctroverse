@@ -11,10 +11,11 @@ You can find the original source code at https://github.com/ectroverse/evsource
 To install the game:<br>
 Edit evconfig.ini and change as required.<br>
 
-Additional Librarys needed for optinal components:
+Additional Librarys needed for components:
 * build-essential -- needed, but you should already have that.
+* libpng-dev -- needed to render the galaxy map.
+--Below are Optional's
 * libmysqlclient-dev -- needed for mySql addition.
-* libpng-dev & imagemagick (ImageMagick is only needed because I don't know how to scale the image in lib)
 * libgnutls-dev -- For HTTPs support.
 * libcurl4-gnutls-dev -- For Facebook support.
 

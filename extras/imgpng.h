@@ -33,7 +33,7 @@ int imgReadPngData( imgImage *image, void *data, size_t datasize, int desiredfor
 int imgReadPngFile( imgImage *image, char *filename, int desiredformat );
 int imgWritePngFile( char *filename, imgImage *image );
 
-
+void imgConvertGrayscale( imgImage *image, int desiredformat );
 void imgFree( imgImage *image );
 
 

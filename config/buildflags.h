@@ -7,13 +7,13 @@
 #define _GNU_SOURCE  1
 
 /* disable debugging symbols support */
-#define DEBUG_SUPPORT 1
+#define DEBUG_SUPPORT 0
 
 /* disable HTTPS support */
 #define FACEBOOK_SUPPORT 0
 
 /* disable HTTPS support */
-#define HTTPS_SUPPORT 0
+#define HTTPS_SUPPORT 1
 
 /* disable HTTP/S server threading */
 #define MULTI_THREAD_SUPPORT 0
@@ -62,7 +62,7 @@
 #define HAVE_MEMORY_H 1
 
 /* Disable error messages */
-#define HAVE_MESSAGES 1
+#define HAVE_MESSAGES DEBUG_SUPPORT
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #define HAVE_NETDB_H 1

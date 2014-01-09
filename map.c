@@ -339,7 +339,7 @@ pixels = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) );
 
 for( y = 0 ; y < map_set[1].num_value ; y++ ) { 
 	for( x = 0 ; x < map_set[0].num_value ; x++ )  {
-		pixels[(y*((int)map_set[0].num_value))+x] = (mapstore->factor[(y*((int)map_set[0].num_value))+x] >> 3); //here the milk gets set
+		pixels[(y*((int)map_set[0].num_value))+x] = (mapstore->factor[(y*((int)map_set[0].num_value))+x] >> 1 ); //here the milk gets set
 		if( mapstore->data[(y*((int)map_set[0].num_value))+x] )
 			pixels[(y*((int)map_set[0].num_value))+x] = mapstore->data[(y*((int)map_set[0].num_value))+x]; //here the dots get pointed
 	}  
@@ -348,24 +348,24 @@ for( y = 0 ; y < map_set[1].num_value ; y++ ) {
 
 bigpixies = NULL;
 /*
-mapimage.width = MAP_DEFINE_SIZEX *3;
-mapimage.height = MAP_DEFINE_SIZEY *3;
+mapimage.width = (int)map_set[0].num_value *3;
+mapimage.height = (int)map_set[1].num_value *3;
 bigpixies = calloc( mapimage.height*mapimage.width, sizeof(int) );
+
+
+for( x = 0; x < mapimage.width; x++) {
+	for( y = 0; y < mapimage.height; y++) {
+		bigpixies[(y* mapimage.width)+x] = pixels[((y*((int)map_set[0].num_value))+x)];
+	}
+}
 
 for( y = 0 ; y < mapimage.height ; y++ ) { 
 	for( x = 0 ; x < mapimage.width ; x++ )  {
-		if ( pixels[((y*mapimage.width)+x)] )
-			bigpixies[(y*mapimage.width)+x] = pixels[((y*mapimage.width)+x)];
-
-		if ( pixels[(((y/3)*(mapimage.width/3))+(x/3))] )
-			bigpixies[(y*mapimage.width)+x] = pixels[(((y/3)*(mapimage.width/3))+(x/3))];
-		if ( pixels[(((y/3)*(mapimage.width))+(x/3))] )
-			bigpixies[(y*mapimage.width)+x] = pixels[(((y/3)*(mapimage.width))+(x/3))];
-
+		bigpixies[x+y] = pixels[( x * (int)map_set[0].num_value ) + ( y * mapimage.width )];
 	}  
 }
-
 */
+
 
 
 if( mapimage.width > map_set[0].num_value ) {
@@ -380,11 +380,11 @@ dirstructurecheck(fname);
 
 settings[1] = GetSetting( "Round Number" );
 sprintf( fname, "%s/galaxies/galaxyr%.0f.png", settings[0]->string_value, settings[1]->num_value );
-//imgConvertGrayscale(&mapimage,IMG_IMAGE_FORMAT_RGB24);
+imgConvertGrayscale(&mapimage,IMG_IMAGE_FORMAT_RGB24);
 imgWritePngFile( fname, &mapimage );
 imgFree( &mapimage );
 
-
+/*
 
 //FIXME: Such a dirty fix, but well... it works. =/
 if( mapimage.width == map_set[0].num_value ) {
@@ -394,7 +394,7 @@ if( mapimage.width == map_set[0].num_value ) {
 	}
 
 }
-
+*/
 
 //Ahh yes, I'll free all those malloc's back up now... better safe eh.
 

@@ -46,7 +46,7 @@ static void pngReadChunk( png_structp png_ptr, png_bytep data, png_size_t length
 }
 
 
-static void imgConvertGrayscale( imgImage *image, int desiredformat )
+void imgConvertGrayscale( imgImage *image, int desiredformat )
 {
   int i, pixelcount;
   char *newdata, *src, *dst;

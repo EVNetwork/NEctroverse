@@ -519,7 +519,7 @@ if (file == NULL) {
 		return MHD_NO;
 	}
 	if( strcmp( type, "download" ) == 0 ) {
-		snprintf(dmsg, sizeof (dmsg), "filename=%s", fname );
+		snprintf(dmsg, sizeof (dmsg), "filename=\"%s\"", fname );
 		(void)MHD_add_response_header( response, MHD_HTTP_HEADER_CONTENT_DISPOSITION, dmsg );
 	}
 	if (NULL != mime) {
