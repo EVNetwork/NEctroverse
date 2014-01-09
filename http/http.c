@@ -569,33 +569,31 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 	int ret;
 	char md5sum[MD5_HASHSUM_SIZE];
 	struct MHD_Response *response;
-	ReplyDataPtr rd;
+	ReplyDataDef rd;
 
-if( NULL == ( rd = calloc( 1, sizeof(ReplyDataDef) ) ) )
-	critical( "Calloc Failed" );
-
-rd->session = session;
-rd->connection = connection;
-rd->cache.buf_len = buf_size_allocation[1];
-if( NULL == ( rd->cache.buf = malloc( rd->cache.buf_len ) ) ) {
+rd.session = session;
+rd.connection = connection;
+rd.cache.off = 0;
+rd.cache.buf_len = buf_size_allocation[1];
+if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 	critical( "Malloc Failed" );
-	free( rd );
 	return -1;
 }
 
+//Lock the mutex while we form pages, this is just safer... since it prevents double access of in-game infomation.
 (void)pthread_mutex_lock( &mutex );
-html_page[id].function( rd );
+html_page[id].function( &rd );
 (void)pthread_mutex_unlock( &mutex );
 
-response = MHD_create_response_from_buffer( strlen(rd->cache.buf), (void *)rd->cache.buf, MHD_RESPMEM_MUST_FREE);
-add_session_cookie(rd->session, response);
-md5_string( rd->cache.buf, md5sum );
+response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
+add_session_cookie(rd.session, response);
+md5_string( rd.cache.buf, md5sum );
 (void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 
 mark_as( response, mime );
-ret = MHD_queue_response( rd->connection, MHD_HTTP_OK, response );
+ret = MHD_queue_response( rd.connection, MHD_HTTP_OK, response );
 MHD_destroy_response( response );
-free( rd );
+
 
 return ret;
 }

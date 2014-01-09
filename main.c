@@ -128,7 +128,7 @@ while( sysconfig.shutdown == false ) {
 	svPipeScan( options.serverpipe );
 	#endif
 
-	loadconfig(options.sysini,CONFIG_BANNED);
+	loadconfig(options.sysini,CONFIG_BANNED); //FIXME: Need to create an option to edit internal listing instead... this is too dirty.
 
 	//svDebugConnection = 0;
 	time( &curtime );
@@ -188,24 +188,24 @@ info( "Server process iniating...");
 if( options.mode == MODE_FORKED ) {
 pid = fork();
 if(pid < 0) {
-	loghandle(LOG_ERR, errno, "Forking Error: %d", errno);
+	error( "Forking Error: %d" )
 	return 0;
 } else if(pid > 0) {
 	return 1; // So we forked it, time to return and wait for results on a client pipe.
 }
 
 settings[0] = GetSetting( "Server Name" );
-loghandle(LOG_INFO, false, "Begining initiation of %s daemon...", settings[0]->string_value );
+info( "Begining initiation of %s daemon...", settings[0]->string_value );
 
 // First, start a new session
 if((sid = setsid()) < 0) {
-	loghandle(LOG_ERR, errno, "%s", "setsid has failed, unable to fork into daemon");
+	error( "setsid has failed, unable to fork into daemon" );
 	return 0;
 }
 
 // Next, make /tmp/evcore the current directory. -- I do this, just because I can. (It doesn't matter it changes a lot latter, I need to fix that still).
-if((chdir("/tmp/evcore")) < 0) {
-	loghandle(LOG_ERR, errno, "%s", "chdir has failed, unable to fork into daemon");
+if((chdir(TMPDIR)) < 0) {
+	error( "chdir has failed, unable to fork into daemon" );
 	return 0;
 }
 
