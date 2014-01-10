@@ -389,7 +389,6 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	iohtmlBase( cnt, 8 );
 	iohtmlFunc_frontmenu( cnt, FMENU_FORUM );
 	httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td valign=\"top\">" );
-	httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 }
 
  forumstring = iohtmlVarsFind( cnt, "forum" );
@@ -447,12 +446,14 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   time( &tint );
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
   settings = GetSetting( "Server Name" );
-  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", settings->string_value, settings->string_value, timebuf );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<tr><td><a href=\"/\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", settings->string_value, settings->string_value, timebuf );
   if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
    httpPrintf( cnt, " - <a href=\"forum?forum=%d\">Empire forum</a>", maind.empire + 100 );
   httpString( cnt, "</td></tr></table>" );
 
-  httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
+  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
@@ -497,7 +498,8 @@ if( forums )
 	  	}
 	 }
 	 	settings = GetSetting( "Server Name" );
-		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", settings->string_value, settings->string_value, forumd.title );
+		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
+		httpPrintf( cnt, "<tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - %s</td><td align=\"right\">", settings->string_value, settings->string_value, forumd.title );
 if( forum < 100 ) {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
@@ -520,7 +522,8 @@ if( forum < 100 ) {
    }
   }
 
-  httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\"><tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
+  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
+  httpString( cnt, "<tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
 for( a = 0 ; a < b ; a++ ) {
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &threads[a].time ) );
 	sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
@@ -601,7 +604,8 @@ for( a = 0 ; a < b ; a++ ) {
    return;
   }
 settings = GetSetting( "Server Name" );
-  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"80%%\"><tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", settings->string_value, settings->string_value, forum, forumd.title, threadd.topic );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<tr><td><a href=\"/\" target=\"_top\">%s</a> - <a href=\"forum\">%s public forums</a> - <a href=\"forum?forum=%d\">%s</a> - %s</td><td align=\"right\">", settings->string_value, settings->string_value, forum, forumd.title, threadd.topic );
 if( forum < 100 )  {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
@@ -624,7 +628,7 @@ if( forum < 100 )  {
    }
   }
 
-  httpString( cnt, "<table width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">" );
+  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
   for( a = 0 ; a < b ; a++ )
   {
    if( !( posts[a].text ) )
