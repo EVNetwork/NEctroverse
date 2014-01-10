@@ -523,10 +523,9 @@ if( (id < 0) ) {
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) {
 		dbUserInfoRetrieve( id, &infod );
 		httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", infod.fbinfo.full_name );
-	}
-	#else
-	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
+	} else
 	#endif
+	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
 	httpString( cnt, "<br>" );
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
 		httpString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a><br>" );
@@ -1069,7 +1068,7 @@ void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	FBUserDef fbdata;
 	FBTokenDef token_post;
 	dbUserInfoDef infod;
-	char fbtemp[2][USER_NAME_MAX-1];
+	char fbtemp[2][USER_NAME_MAX];
 	#endif
 	int64_t newd[DB_USER_NEWS_BASE];
 	dbMailDef maild;
@@ -1137,17 +1136,21 @@ if( race ) {
 		goto END;
 	}
 	#if FACEBOOK_SUPPORT
-	strncpy( token_post.val, token, sizeof( token_post.val ) );
-	facebook_getdata_token( &fbdata, token_post );
-	if( strlen( fbdata.id ) == 0 ) {
-		httpString( cnt, "Invalid Token Detected... Aborting!" );
-		redirect( cnt, "/main" );
-		goto END;
+	if( ( name != NULL ) && ( pass != NULL ) ) {
+		snprintf( fbtemp[0], USER_NAME_MAX-1, "%s", name );
+		snprintf( fbtemp[1], USER_NAME_MAX-1, "%s", pass );
+	} else if ( token != NULL ) {
+		strncpy( token_post.val, token, sizeof( token_post.val ) );
+		facebook_getdata_token( &fbdata, token_post );
+		if( strlen( fbdata.id ) == 0 ) {
+			httpString( cnt, "Invalid Token Detected... Aborting!" );
+			redirect( cnt, "/main" );
+			goto END;
+		}
+		snprintf( fbtemp[0], USER_NAME_MAX-1, "FBUSER%s", fbdata.id );
+		RANDOMIZE_SEED;
+		snprintf( fbtemp[1], USER_NAME_MAX-1, "P%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
 	}
-	
-	snprintf( fbtemp[0], USER_NAME_MAX-1, "FBUSER%s", fbdata.id );
-	RANDOMIZE_SEED;
-	snprintf( fbtemp[1], USER_NAME_MAX-1, "P%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
 	if( ( id = cmdExecNewUser( fbtemp[0], fbtemp[1], faction ) ) < 0 ) {
 	#else
 	if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
