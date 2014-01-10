@@ -1104,6 +1104,7 @@ if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
 
 for( a = 0 ; a < num ; a++ ) {
 
+
 	file_s( file, 4+(a*sizeof(dbUserBuildDef)) );
 	file_r( &buildp[a], 1, sizeof(dbUserBuildDef), file );
 }

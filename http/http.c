@@ -188,7 +188,6 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 
 MAKECOOKIE:
 ret->postdata = NULL;
-ret->dbuser = NULL;
 ret->rc++;
 ret->active = time(NULL);
 ret->start = time(NULL);
@@ -221,16 +220,16 @@ settings[1] = GetSetting( "Server Name" );
 snprintf( buffer, sizeof(buffer), "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
 md5_string( buffer, md5sum );
 
-offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s; Path=/;", md5sum, session->sid );
+offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s;", md5sum, session->sid );
 
 settings[0] = GetSetting( "Cookie Domain" );
 if( ( settings[0]->string_value ) && ( strcmp( settings[0]->string_value, "false" ) ) )
 	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", settings[0]->string_value );
 
-time_r = ( time(0) + SESSION_TIME );
-strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
+//time_r = ( time(0) + SESSION_TIME );
+//strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
 
-offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s", SESSION_TIME, timebuf );
+//offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s", SESSION_TIME, timebuf );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, buffer)) {
 	error( "Failed to set session cookie header!" );
