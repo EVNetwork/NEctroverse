@@ -87,7 +87,13 @@ httpString( cnt, "<body" );
 if( flags & 8 )
 	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
 else
-	httpString( cnt, " onload=\"if (window == window.top) { top.location.href=\'main?page=\'+top.location.pathname }; countDown();\" " );
+	httpString( cnt, " onload=\"if (window == window.top) { \
+	if( top.location.search ) { \
+	top.location.href=\'main?page=\'+top.location.pathname+top.location.search;\
+	} else { \
+	top.location.href=\'main?page=\'+top.location.pathname ;\
+	}\
+	}; countDown();\" " );
 
 httpString( cnt, ">" );
 
