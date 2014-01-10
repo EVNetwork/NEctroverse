@@ -107,6 +107,8 @@ httpString( cnt, "<body" );
 
 if( flags & 8 )
 	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
+else
+	httpString( cnt, " onload=\"if (window == window.top) { top.location.href=\'main?page=\'+top.location.pathname }; countDown();\" " );
 
 httpString( cnt, ">" );
 
@@ -210,12 +212,12 @@ if( !( (cnt->session)->dbuser ) && !( flags == FMENU_REGISTER ) ) {
 		httpString( cnt, " | " );
 	httpString( cnt, "<a href=\"register\">Register</a>" );
 }
-//if( !( flags == FMENU_FORUM ) ) {
-	//httpString( cnt, " | " );
-	//httpString( cnt, "<a href=\"forum\">Forums</a>" );
-//}
+if( !( flags == FMENU_FORUM ) ) {
+	httpString( cnt, " | " );
+	httpString( cnt, "<a href=\"forum\">Forums</a>" );
+}
 if( !( flags == FMENU_FAQ ) ) {
-	if( !( (cnt->session)->dbuser ) || ( ( (cnt->session)->dbuser ) && !( flags == FMENU_MAIN ) ) )
+	if( !( (cnt->session)->dbuser ) || ( ( (cnt->session)->dbuser ) && !( flags == FMENU_FORUM ) ) )
 		httpString( cnt, " | " );
 	httpString( cnt, "<a href=\"faq\">FAQ</a>" );
 }

@@ -209,7 +209,7 @@ Accessible to user level >= mod
 
 */
 
-
+/*
 int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, int perms )
 {
 	if( perms >= 4 )
@@ -259,8 +259,43 @@ int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, 
    return 0;
  }
  return 1;
-}
+}*/
 
+
+int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, int perms )
+{
+  if( perms >= 4 )
+    return 1;
+  else if( perms >= 2 )
+  {
+    if( id == -1 )
+      return 0;
+    if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
+      return 1;
+    if( ((cnt->session)->dbuser)->level & CMD_USER_FLAGS_INDEPENDENT )
+      return 0;
+    if( maind->empire+100 == forum )
+      return 1;
+    if( cmdExecFindRelation( maind->empire, forum-100, 0, 0 ) == CMD_RELATION_ALLY )
+      return 1;
+    return 0;
+  }
+  else if( perms >= 1 )
+  {
+    if( id == -1 )
+      return 0;
+  }
+  else
+  {
+    if( id == -1 )
+      return 0;
+    if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( bitflag( ((cnt->session)->dbuser)->level, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_COMMINISTER ) ) ) )
+      return 1;
+    if( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR )
+      return 0;
+  }
+  return 1;
+}
 
 
 
@@ -353,6 +388,8 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 } else {
 	iohtmlBase( cnt, 8 );
 	iohtmlFunc_frontmenu( cnt, FMENU_FORUM );
+	httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td valign=\"top\">" );
+	httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 }
 
  forumstring = iohtmlVarsFind( cnt, "forum" );
@@ -525,8 +562,8 @@ for( a = 0 ; a < b ; a++ ) {
   {
    httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum );
    if( id == -1 )
-//    httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
-   return;
+    httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+   //return;
    else
     httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", ((cnt->session)->dbuser)->faction, ((cnt->session)->dbuser)->faction );
    httpString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
@@ -633,8 +670,8 @@ if( forum < 100 )  {
   {
    httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum, thread );
    if( id == -1 )
-   return;
-  //  httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+    httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+   //return;
    else
     httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", ((cnt->session)->dbuser)->faction, ((cnt->session)->dbuser)->faction );
    httpString( cnt, "</td></tr><tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
@@ -724,7 +761,7 @@ if( forum < 100 )  {
     sprintf( postd.post.authorname, "Anonymous" );
    postd.post.authortag[0] = 0;
   }
-  postd.post.time = time( 0 );  //to be in GMT with the server running anywhere worldwide
+  postd.post.time = time( 0 );
   postd.post.tick = ticks.number;
   postd.post.flags = 0;
   memcpy( &(postd.post.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );

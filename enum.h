@@ -208,12 +208,14 @@ CMD_USER_FLAGS_WARMINISTER,
 CMD_USER_FLAGS_FROZEN,
 CMD_USER_FLAGS_INDEPENDENT,
 
+CMD_USER_FLAGS_EMAIL,
+
+//These should always go last... as they can be flaged on and off with build.
+//Turning them on and re-building can result in false-positives if these are moved.
 #if FACEBOOK_SUPPORT
 CMD_USER_FLAGS_FBLINK,
 CMD_USER_FLAGS_FBMADE,
 #endif
-
-CMD_USER_FLAGS_EMAIL,
 
 CMD_USER_FLAGS_NUMUSED
 };

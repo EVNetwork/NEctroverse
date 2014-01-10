@@ -681,7 +681,6 @@ int main( int argc, char *argv[] ) {
 	#endif
 	int test;
 
-
 if( checkops(argc,argv) ) {
 	printf("Error: Invalid usage detected...\n");
 	exit(true);
@@ -883,14 +882,15 @@ NULL,
 };
 
 int bitflag( int dest, int flag ) {
-
-return ( ( ( 2 << flag ) & dest ) ? true : false );
+	int set;
+set = ( 1 << flag );
+return ( ( set & dest ) ? true : false );
 }
 
 void bitflag_add( int *dest, int flag ) {
 
 if( bitflag( *dest, flag ) == false ) {
-	*dest |= ( 2 << flag );
+	*dest |= ( 1 << flag );
 }
 
 return;
@@ -900,7 +900,7 @@ return;
 void bitflag_remove( int *dest, int flag ) {
 
 if( bitflag( *dest, flag ) == true ) {
-	 *dest = *dest & ~( 2 << flag );
+	 *dest = *dest & ~( 1 << flag );
 }
 
 return;

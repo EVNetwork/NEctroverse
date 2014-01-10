@@ -95,6 +95,7 @@ static const long week = (((60*60) * 24) * 7);
 #define KB_SIZE 1024
 static const double megabyte = (KB_SIZE * KB_SIZE);
 
+#define SERVER_ARTIFACT_MAX 30
 
 #define DEFAULT_BUFFER 4*KB_SIZE
 

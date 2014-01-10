@@ -101,8 +101,6 @@ ConfigListArrayDef config_listing[] = {
 	{ false, NULL, NULL, NULL }, // NULL terminator, just to be "safe"	
 };
 
-static int faultreported[3] = { 0, 0, 0 };
-
 ConfigArrayPtr ConfigList;
 ConfigArrayPtr ConfigTable[ARRAY_MAX];
 
@@ -120,9 +118,10 @@ store = out = 0;
 index = 0;
 while( ( config_listing[index].nicename != NULL ) && ( strcmp(config_listing[index].nicename, name ) != 0 ) )
 	index++;
-//printf( "%s - %s\n", name, bitflag( faultreported[0], index ) ? "true" : "false" );
-if( ( config_listing[index].origin == NULL) && ( bitflag( faultreported[0], index ) == 0 ) ) {
-	bitflag_add( &faultreported[0], index );
+
+if( ( config_listing[index].origin == NULL) ) {
+	if( sysconfig.shutdown == true )
+		return NULL;
 	loghandle(LOG_CRIT, 0, "End of list reached, setting not listed: \'%s\' ( Called from %s on line:%d )", name, sourcefile, sourceline);
 	loghandle(LOG_CRIT, 0, "Shutting down to avoid serious errors, setting has no default so NULL will be returned", name, sourcefile, sourceline);
 	Shutdown();
@@ -145,8 +144,7 @@ if( iniparser_find_entry( config,"NEED_TO_DELETE_ME" ) ) {
 	exit(0);
 }
 
-if( ( iniparser_find_entry(config, config_listing[index].origin ) == 0 ) && ( bitflag( faultreported[1], index ) == 0 ) ) {
-	bitflag_add( &faultreported[1], index );
+if( ( iniparser_find_entry(config, config_listing[index].origin ) == 0 ) ) {
 	info( "Setting: \'%s\' referance to \'%s\' defaulting as: \'%s\' ( Called from %s on line:%d )", config_listing[index].nicename, config_listing[index].origin, config_listing[index].ifblank, sourcefile, sourceline );
 } 
 
@@ -166,9 +164,7 @@ if( config_listing[index].type == INI_TYPE_STRING ) {
 }
 
 //Got all that, so now than lets make it go!
-if( ( ( ConfigTable[index] != NULL ) && ( ConfigTable[index]->id == index ) ) && ( bitflag( faultreported[2], index ) == 0 ) ) {
-	bitflag_add( &faultreported[2], index );
-	errno = 0;
+if( ( ( ConfigTable[index] != NULL ) && ( ConfigTable[index]->id == index ) ) ) {
 	loghandle(LOG_ERR, 0, "Entry already indexed: \'%s\' ( Called from %s on line:%d )", name, sourcefile, sourceline);
 } else {
 	newset = calloc( 1, sizeof(ConfigArrayDef) );
