@@ -185,10 +185,10 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   if( !( user = dbUserLinkID( id ) ) )
     return -1;
-  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_KILLED]);
-  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_DELETED]);
-  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_NEWROUND]);
-  bitflag_add(&user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED]);
+  bitflag_remove( &user->flags, CMD_USER_FLAGS_KILLED );
+  bitflag_remove( &user->flags, CMD_USER_FLAGS_DELETED );
+  bitflag_remove( &user->flags, CMD_USER_FLAGS_NEWROUND );
+  bitflag_add( &user->flags, CMD_USER_FLAGS_ACTIVATED );
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -224,7 +224,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( maind.empire != -1 )
     dbMapRetrieveEmpire( maind.empire, &empired );
 
-  if( ( flags == cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) && ( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) && ( maind.empire != -1 ) )
+  if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( maind.empire != -1 ) )
   {
     recordd.roundid = ticks.round;
     recordd.planets = maind.planets;
@@ -376,8 +376,8 @@ int cmdExecUserDeactivate( int id, int flags )
   if( !( dbUserInfoSet( id, &infod ) ) )
     return -1;
 
-  bitflag_remove(&user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
-  bitflag_add(&user->flags, cmdUserFlags[flags] );
+  bitflag_remove(&user->flags, CMD_USER_FLAGS_ACTIVATED );
+  bitflag_add(&user->flags, flags );
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
@@ -1017,9 +1017,9 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
   /* Check access rights - maind is giver */
   if( maind.aidaccess == 3 )
     goto access;
-  if( ( maind.aidaccess == 2 ) && ( user2->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_DEVMINISTER] ) ) )
+  if( ( maind.aidaccess == 2 ) && ( bitflag( user2->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_DEVMINISTER ) ) ) )
     goto access;
-  if( ( maind.aidaccess == 1 ) && ( user2->flags & cmdUserFlags[CMD_USER_FLAGS_LEADER] ) )
+  if( ( maind.aidaccess == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) )
     goto access;
   cmdErrorString = "You are not authorized to request aid from this faction.";
   return -3;

@@ -91,7 +91,7 @@ if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
 	facebook_update_user( (cnt->session)->dbuser );
 }
 iohtmlFBConnect( cnt );
-if( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
+if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) ) {
 httpString( cnt, "<table><tr><td>" );
 httpPrintf( cnt, "<img src=\"%s\" alt=\"Facebook Icon\">", infod.fbinfo.pic );
 httpString( cnt, "</td><td>" );

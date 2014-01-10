@@ -37,7 +37,7 @@ if( dbUserSave( id, (cnt->session)->dbuser ) < 0 )
 	error( "Database UserSave" );
 
 if(( action & 2 )&&((cnt->session)->dbuser)) {
-	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
+	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
 			if( action & 8 )
 			iohtmlBase( cnt, 1|2 );
@@ -48,7 +48,7 @@ if(( action & 2 )&&((cnt->session)->dbuser)) {
 }
 
 if( action & 4 ) {
-	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) {
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
 		if( action & 1 ) {
 			if( action & 8 )
 				iohtmlBase( cnt, 1|2 );
@@ -699,11 +699,11 @@ if( ( name ) && ( pass ) ) {
 	dbUserInfoSet( id, &infod );
 
 	if( ( file ) ) {
-		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_KILLED] | cmdUserFlags[CMD_USER_FLAGS_DELETED] | cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) ) ? "Deactivated" : "Active") );
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
 		fclose( file );
 	}
 
-	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_KILLED] ) {
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_KILLED ) ) {
 		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
 		num = dbUserNewsList( id, &newsp );
 		newsd = newsp;
@@ -716,16 +716,16 @@ if( ( name ) && ( pass ) ) {
 			free( newsp );
 		goto iohtmlFunc_mainL1;
 	}
-	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_DELETED] ) {
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DELETED ) ) {
 		httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
 		goto iohtmlFunc_mainL1;
 	}
-	if( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_NEWROUND] ) {
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_NEWROUND ) ) {
 		httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"register2\">Complete account registration</a><br><br>" );
 		goto iohtmlFunc_mainL1;
 	}
 
-	if( !( ((cnt->session)->dbuser)->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) ) {
+	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
 		httpString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
 		iohtmlFunc_mainL1:
 		httpString( cnt, "<a href=\"forum\">Public Forums</a>" );

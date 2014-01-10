@@ -267,7 +267,7 @@ settings[0] = GetSetting( "Admin Empire Number" );
 settings[1] = GetSetting( "Admin Empire Ommit" );
   for( b = c = 0, user = dbUserList ; user ; user = user->next )
   {
-    if( !( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
+    if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) )
 	{
 	  //printf("user %d not activated\n", user->id );
       continue;
@@ -625,7 +625,7 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 for( user = dbUserList ; user ; user = user->next ) {
 	ticks.uregist++;
 
-	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) ) || ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) )
+	if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) || ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) )
 		continue;
 
 	ticks.uactive++;

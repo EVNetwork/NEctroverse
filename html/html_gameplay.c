@@ -1535,8 +1535,8 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
    continue;
   httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br>", cmdUnitName[a] );
 
-   if( ( a < CMD_UNIT_SOLDIER ) || ( a == CMD_UNIT_EXPLORATION ) )
-      httpPrintf( cnt, "<img src=\"files?type=image&name=u%d.jpg\">", a );
+   if( ( a < CMD_UNIT_SOLDIER ) || ( a == CMD_UNIT_GHOST ) )
+      httpPrintf( cnt, "<img src=\"files?type=image&name=units/u%d.jpg\">", a );
 
 
   httpString( cnt, "</td><td valign=\"top\" nowrap>" );
@@ -2084,22 +2084,22 @@ if ( curfam == maind.empire ) {
   b = a >> 1;
   c = empired.player[b];
   user = dbUserLinkID( c );
-  user->flags |= cmdUserFlags[CMD_USER_FLAGS_ACTIVATED];
+  bitflag_add( &user->flags, CMD_USER_FLAGS_ACTIVATED );
   dbUserSave( c, user);
   httpString( cnt, "<tr>" );
   if( !( user ) )
    httpString( cnt, "<td>&nbsp;</td>" );
-  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_LEADER] )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_LEADER ) )
    httpString( cnt, "<td><i>Leader</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_VICELEADER] )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_VICELEADER ) )
    httpString( cnt, "<td><i>Vice-leader</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_COMMINISTER] )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_COMMINISTER ) )
    httpString( cnt, "<td><i>Minister of Communications</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_DEVMINISTER] )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_DEVMINISTER ) )
    httpString( cnt, "<td><i>Minister of Development</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_WARMINISTER] )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_WARMINISTER ) )
    httpString( cnt, "<td><i>Minister of War</i></td>" );
-  else if( user->flags & cmdUserFlags[CMD_USER_FLAGS_INDEPENDENT] )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_INDEPENDENT ) )
    httpString( cnt, "<td><i>Independent</i></td>" );
   else
    httpString( cnt, "<td>&nbsp;</td>" );
@@ -2118,7 +2118,7 @@ if ( curfam == maind.empire ) {
    b = curtime - user->lasttime;
    if( b < 5*60 )
     httpString( cnt, "[online]" );
-   else if( ( (cnt->session)->dbuser->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_VICELEADER] | cmdUserFlags[CMD_USER_FLAGS_COMMINISTER] ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( bitflag( (cnt->session)->dbuser->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_COMMINISTER ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
@@ -2141,7 +2141,7 @@ if ( curfam == maind.empire ) {
 }
  httpString( cnt, "</table><br>" );
 if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
-	if( ( ((cnt->session)->dbuser)->flags & ( cmdUserFlags[CMD_USER_FLAGS_LEADER] | cmdUserFlags[CMD_USER_FLAGS_VICELEADER] | cmdUserFlags[CMD_USER_FLAGS_DEVMINISTER] ) ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
+	if( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_DEVMINISTER ) ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
 		if( empired.taxation ) {
 			httpPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
@@ -2486,7 +2486,7 @@ if( evote ) {
 		}
 	}
 	if( ( votestring ) && ( sscanf( votestring, "%d", &vote ) == 1 ) ) {
-		if( ( user = dbUserLinkID( vote ) ) && ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) ) {
+		if( ( user = dbUserLinkID( vote ) ) && ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) ) {
 			httpPrintf( cnt, "<i>Unable to vote for %s, as they have been Frozen by Administration!</i><br><br>", user->faction );
 		} else if( cmdExecChangeVote( id, vote ) < 0 ) {
 			httpString( cnt, "<i>Failed to change vote...?!</i><br><br>" );
@@ -2519,7 +2519,7 @@ if( evote ) {
 			httpString( cnt, main2d.faction );
 		}
 		httpPrintf( cnt, "</a></td><td>%lld</td><td>%d</td><td align=\"center\"><input type=\"radio\" value=\"%d\" name=\"id\"", (long long)main2d.networth, main2d.planets, empired.player[a] );
-		if( ( user = dbUserLinkID( empired.player[a] ) ) && ( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FROZEN] ) ) ) {
+		if( ( user = dbUserLinkID( empired.player[a] ) ) && ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) ) {
 			httpString( cnt, " disabled" );
 		} else if( empired.vote[fampos] == a ) {
 			httpString( cnt, " checked" );
@@ -3492,7 +3492,7 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
 
   httpPrintf( cnt, "<td align=\"center\" width=\"%d%%\">", lns[b] );
   dbMapRetrievePlanet( plnid, &planetd );
-  httpPrintf( cnt, "<a href=\"planet?id=%d\"><img src=\"files?type=image&name=p%02d.gif\" border=\"0\"></a><br>", plnid, pics[a] );
+  httpPrintf( cnt, "<a href=\"planet?id=%d\"><img src=\"files?type=image&name=p%02d.gif\" border=\"0\" alt=\"Planet #%d\"></a><br>", plnid, pics[a], plnid );
 
   if( planetd.owner == -1 )
   {
@@ -3683,7 +3683,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  srand( planetd.system );
  for( a = 0 ; a < b ; a++ )
   rand();
- httpPrintf( cnt, "<img src=\"files?type=image&name=p%02d.gif\" border=\"0\"><br><br>", rand() & 0xF );
+ httpPrintf( cnt, "<img src=\"files?type=image&name=p%02d.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", rand() & 0xF, plnid );
 
  if( unstationstring )
  {
@@ -5458,7 +5458,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   iohtmlBodyEnd( cnt );
   return;
  }
- else if( ( planetd.flags & CMD_PLANET_FLAGS_HOME ) && !( user->flags & cmdUserFlags[CMD_USER_FLAGS_INDEPENDENT] ) )
+ else if( ( planetd.flags & CMD_PLANET_FLAGS_HOME ) && !( bitflag( user->flags, CMD_USER_FLAGS_INDEPENDENT ) ) )
  {
   httpString( cnt, "You can't attack a home planet!</body></html>" );
   iohtmlBodyEnd( cnt );
@@ -7069,7 +7069,7 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
    a = 0;
    for( user = dbUserList ; user ; user = user->next )
    {
-    if( !( user->flags & cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] ) )
+    if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) )
      continue;
     if( a == 256 )
     {

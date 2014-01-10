@@ -884,13 +884,13 @@ NULL,
 
 int bitflag( int dest, int flag ) {
 
-return ( ( flag & dest ) ? true : false );
+return ( ( ( 2 << flag ) & dest ) ? true : false );
 }
 
 void bitflag_add( int *dest, int flag ) {
 
 if( bitflag( *dest, flag ) == false ) {
-	*dest |= flag;
+	*dest |= ( 2 << flag );
 }
 
 return;
@@ -900,7 +900,7 @@ return;
 void bitflag_remove( int *dest, int flag ) {
 
 if( bitflag( *dest, flag ) == true ) {
-	 *dest = *dest & ~flag;
+	 *dest = *dest & ~( 2 << flag );
 }
 
 return;

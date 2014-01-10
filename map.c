@@ -79,7 +79,6 @@ int spawn_map() {
 	int64_t j;
 	float dist, distmax;
 	char fname[PATH_MAX];
-	char imgsizer[2048];
 	uint8_t *pixels, *bigpixies; 
 	FILE *file;
 	FILE *file2;
@@ -388,6 +387,7 @@ imgFree( &mapimage );
 
 //FIXME: Such a dirty fix, but well... it works. =/
 if( mapimage.width == map_set[0].num_value ) {
+	char imgsizer[2048];
 	sprintf(imgsizer, "convert \"%s\" -resize 300%% \"%s\"", fname, fname );
 	if( system(imgsizer) ) {
 		error( "unable to resize map" );

@@ -442,7 +442,7 @@ goto BAILOUT;
 LINKWITHFB:
 
 if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
-	bitflag_add( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] );
+	bitflag_add( &user->flags, CMD_USER_FLAGS_FBLINK );
 	strcpy( user->fbid, fbdata.id );
 	dbUserSave( user->id, user );
 	dbUserInfoRetrieve( user->id, &infod );
@@ -544,7 +544,7 @@ settings[1] = GetSetting( "Facebook Secret" );
 if( ( strlen( settings[0]->string_value ) <= 0 ) || ( strlen( settings[1]->string_value ) <= 0 ) )
 	return;
 
-if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )) ) ) {
+if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) )) ) ) {
 
 	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", settings[0]->string_value );
@@ -562,7 +562,7 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", url );
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
-} else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) ) {
+} else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) ) ) {
 	httpString( cnt, "<b>This Account is linked with Facebook.</b><br>" );
 }
 
@@ -574,12 +574,12 @@ void facebook_update_user( dbUserPtr user ) {
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
 
-if( ( user ) && bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
+if( ( user ) && bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
 	facebook_getdata_id( &fbdata, user->fbid );
 	fbdata.updated = time(0);
 	if( !( fbdata.connected ) ) {
 		memset( &user->fbid, 0, sizeof(user->fbid) );
-		bitflag_remove( &user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] );
+		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
 		dbUserSave( user->id, user );
 	} else {
 		dbUserInfoRetrieve( user->id, &infod );

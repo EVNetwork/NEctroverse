@@ -576,10 +576,10 @@ for( a = 0 ; a < b ; a++ ) {
 	user->level = infod.level;
 	user->flags = infod.flags;
 	user->lasttime = infod.lasttime;
-	dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] += bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_ACTIVATED] );
+	dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] += bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED );
 	dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] += ( (now - user->lasttime) < (SESSION_TIME / 4) );
 	#if FACEBOOK_SUPPORT
-	if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )
+	if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) )
 		strncpy( user->fbid, infod.fbinfo.id, sizeof(user->fbid) );
 	#endif
 	strncpy( user->name, infod.name, sizeof(user->name) );
@@ -668,7 +668,7 @@ int dbUserFBSearch( char *FBid ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK]) ) || !( ioCompareExact( FBid, user->fbid ) ) )
+	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) ) || !( ioCompareExact( FBid, user->fbid ) ) )
 		continue;
 
 	return user->id;
@@ -886,7 +886,7 @@ uinfo.flags = user->flags;
 strcpy(uinfo.http_session,user->http_session);
 uinfo.lasttime = user->lasttime;
 #if FACEBOOK_SUPPORT
-if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) ) {
+if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
 	strcpy( uinfo.fbinfo.id, user->fbid );
 } else {
 	memset( &user->fbid, 0, sizeof(user->fbid) );
@@ -2285,10 +2285,10 @@ if((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES])
 //---------------------
 if ( empired->numplayers == 1) {
 	empired->leader = empired->player[0];
-	if(( user = dbUserLinkID( empired->leader ) )) {
-		user->flags &= 0xFFFF;
-		user->flags |= cmdUserFlags[CMD_USER_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED;
-		dbUserSave( empired->leader, user);
+	if(( user = dbUserLinkID( empired->leader ) ) ) {
+		//user->flags &= 0xFFFF;
+		bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED );
+		dbUserSave( empired->leader, user );
 	}
 }
 //-----------------------
@@ -3919,7 +3919,7 @@ if( !( user = dbUserLinkID( id ) ) )
 strncpy( user->faction, infod->faction, sizeof(user->faction) );
 strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
 #if FACEBOOK_SUPPORT
-if( bitflag( user->flags, cmdUserFlags[CMD_USER_FLAGS_FBLINK] ) )
+if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) )
 	strncpy( user->fbid, infod->fbinfo.id, sizeof(user->fbid) );
 #endif
 

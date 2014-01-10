@@ -137,10 +137,6 @@ extern char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED];
 
 
 
-extern int cmdUserFlags[CMD_USER_FLAGS_NUMUSED];
-
-
-
 extern char *cmdAgentopName[CMD_AGENTOP_NUMUSED];
 extern char *cmdPsychicopName[CMD_PSYCHICOP_NUMUSED];
 extern char *cmdGhostopName[CMD_GHOSTOP_NUMUSED];
