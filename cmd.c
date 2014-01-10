@@ -1307,7 +1307,7 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
       for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
       {
         if( maind.ressource[a] < 0 )
-          d += sprintf( &cmdErrorBuffer[d], "%+lld %s ", (long long)maind.ressource[a], cmdRessourceName[a] );
+          d += sprintf( &cmdErrorBuffer[d], "%lld %s ", -(long long)maind.ressource[a], cmdRessourceName[a] );
       }
       if( !( cmd[2] >> 16 ) )
         sprintf( &cmdErrorBuffer[d], "to build %d %s", b, cmdBuildingName[ cmd[2] & 0xFFF ] );
