@@ -596,7 +596,7 @@ if( !( session->postdata == NULL ) ) {
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
 			int origin = strlen(data->value);
-			int toadd = strlen( value );
+			int toadd = strlen( value ) +1;
 			if( ( r = realloc( data->value, ( origin + toadd ) ) ) == NULL ) {
 				critical( "Out of memory" );
 				return MHD_NO;
@@ -689,6 +689,8 @@ return MHD_YES;
 
 static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *key, const char *filename, const char *content_type, const char *transfer_encoding, const char *data, uint64_t off, size_t size ) {
 	ConfigArrayPtr settings;
+	dbMainEmpireDef empired;
+	dbUserMainDef maind;
 	RequestPtr uc = cls;
 	int i;
 
@@ -702,17 +704,28 @@ if (NULL == filename) {
 }
 
 if (-1 == uc->fd) {
-	settings = GetSetting( "Directory" );
 	if( !( ( (uc->session)->dbuser ) ) ) {
 		uc->response = request_refused_response;
 		(uc->session)->upload = UPLOAD_STATE_FAIL;
 		return MHD_NO;
+	} else if( dbUserMainRetrieve( ((uc->session)->dbuser)->id, &maind ) < 0 ) {
+		error( "User Info Lookup Failed" );
+		return MHD_NO;
 	}
-	char fn[PATH_MAX];
+	/*
+	if( ( maind.empire != -1 ) && ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) )
+		return MHD_NO;
+	
+	if ( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
+		error( "Saving" );
+		return MHD_NO;
+	}*/
 	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
 		uc->response = request_refused_response;
 		return MHD_NO;
 	}
+	char fn[PATH_MAX];
+	settings = GetSetting( "Directory" );
 	snprintf (fn, sizeof (fn), "%s/uploads", settings->string_value );
 	(void) mkdir (fn, S_IRWXU);
 	snprintf (fn, sizeof (fn),"%s/uploads/%s", settings->string_value, filename);

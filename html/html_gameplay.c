@@ -2028,9 +2028,12 @@ if ( curfam == maind.empire ) {
 	httpString( cnt, "<br>" );
 }
 
- sprintf( fname, "/files?type=image&name=fampic%02d%d", curfam, empired.pictime );
- if( /*iohttpFileFind( fname )*/FALSE ) //FIXME
-  httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
+
+
+//sprintf( fname, "/files?type=image&name=%d", empired.reserved[0] );
+//info( fname );
+// if( iohttpFileFind( fname ) ) 
+//  httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
 
  if( !( empired.numplayers ) )
  {

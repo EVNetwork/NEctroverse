@@ -8,14 +8,17 @@ typedef struct
   int level;
   int flags;
   int newmail;
-  char name[USER_NAME_MAX];
-
-  char faction[USER_NAME_MAX];
-  char forumtag[USER_FTAG_MAX];
-  char http_session[SESSION_SIZE];
-  char irc_session[SESSION_SIZE];
   int lasttime;
 
+  char name[USER_NAME_MAX];
+  char faction[USER_NAME_MAX];
+  char forumtag[USER_FTAG_MAX];
+
+  char http_session[SESSION_SIZE];
+
+  #if IRCBOT_SUPPORT
+  char irc_session[SESSION_SIZE];
+  #endif
   //Facebook Linkage
   #if FACEBOOK_SUPPORT
   char fbid[USER_NAME_MAX];
@@ -276,14 +279,13 @@ typedef struct
 {
   int rank;
   int numplayers;
-  int polotics[CMD_EMPIRE_POLOTICS_TOTAL];
+  int politics[CMD_EMPIRE_POLITICS_TOTAL];
   int player[ARRAY_MAX];
   int vote[ARRAY_MAX];
   int leader;
   int homeid;
   int homepos; // ( y << 16 ) + x
-  int picmime;
-  int pictime;
+  int reserved[2];
   int planets;
   int networth;
   int artefacts;
@@ -295,7 +297,7 @@ typedef struct
   int64_t infos[CMD_RESSOURCE_NUMUSED];
   char name[USER_NAME_MAX];
   char password[USER_PASS_MAX];
-  char message[CMD_EMPIRE_POLOTICS_TOTAL][USER_DESC_SIZE];
+  char message[CMD_EMPIRE_POLITICS_TOTAL][USER_DESC_SIZE];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
 typedef struct
