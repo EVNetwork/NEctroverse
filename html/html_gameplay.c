@@ -6348,7 +6348,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
 
  orderstring = iohtmlVarsFind( cnt, "op" );
- ghoststring = iohtmlVarsFind( cnt, "sendghosts" );
+ ghoststring = iohtmlVarsFind( cnt, "ghosts" );
  xstring = iohtmlVarsFind( cnt, "sysx" );
  ystring = iohtmlVarsFind( cnt, "sysy" );
  zstring = iohtmlVarsFind( cnt, "planet" );

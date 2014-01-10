@@ -585,7 +585,6 @@ return ret;
 
 static int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
-	void *r;
 	PostDataPtr data;
 
 if( !( session->postdata == NULL ) ) {
@@ -595,6 +594,7 @@ if( !( session->postdata == NULL ) ) {
 			return MHD_NO;
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
+			void *r;
 			int origin = strlen(data->value);
 			int toadd = strlen( value );
 			if( ( r = realloc( data->value, ( origin + toadd ) ) ) == NULL ) {
@@ -610,10 +610,10 @@ if( !( session->postdata == NULL ) ) {
 
 
 
-data = (PostDataPtr) malloc( sizeof(PostDataDef) );
-
-if (NULL == data)
+if( ( data = malloc( 1*sizeof(PostDataDef) ) ) == NULL ) {
+	critical( "Out of memory" )
 	return MHD_NO;
+}
 
 data->key = strdup( key );
 data->value = strdup( value );
