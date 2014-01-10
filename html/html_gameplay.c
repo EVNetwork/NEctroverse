@@ -6348,7 +6348,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
 
  orderstring = iohtmlVarsFind( cnt, "op" );
- ghoststring = iohtmlVarsFind( cnt, "ghosts" );
+ ghoststring = iohtmlVarsFind( cnt, "sendghosts" );
  xstring = iohtmlVarsFind( cnt, "sysx" );
  ystring = iohtmlVarsFind( cnt, "sysy" );
  zstring = iohtmlVarsFind( cnt, "planet" );
@@ -6366,7 +6366,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( ghoststring ) || ( sscanf( ghoststring, "%d", &ghosts ) != 1 ) )
  {
   iohttpFunc_operationL0:
-  iohtmlBodyInit( cnt, "Ghost ships incantation", x, y, z );
+  iohtmlBodyInit( cnt, "Ghost ships incantation" );
   httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
   iohtmlBodyEnd( cnt );
   return;

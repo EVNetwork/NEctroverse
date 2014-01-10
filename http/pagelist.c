@@ -75,7 +75,7 @@ PageDef html_page[] =
     { "/incant", "text/html",  &page_render, iohtmlFunc_incant, NULL },
     { "/operationsend", "text/html",  &page_render, iohtmlFunc_operationsend, NULL },
     { "/spellsend", "text/html",  &page_render, iohtmlFunc_spellsend, NULL },
-    { "/incantsend", "text/html",  &page_render, iohtmlFunc_spellsend, NULL },
+    { "/incantsend", "text/html",  &page_render, iohtmlFunc_incantsend, NULL },
     { "/research", "text/html",  &page_render, iohtmlFunc_research, NULL },
     { "/mail", "text/html",  &page_render, iohtmlFunc_mail, NULL },
     { "/forum", "text/html",  &page_render, iohtmlFunc_forum, NULL },
