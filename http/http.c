@@ -187,8 +187,8 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 }
 
 MAKECOOKIE:
-ret->postdata = NULL;
 ret->rc++;
+ret->postdata = NULL;
 ret->active = time(NULL);
 ret->start = time(NULL);
 ret->next = SessionList;
@@ -226,10 +226,10 @@ settings[0] = GetSetting( "Cookie Domain" );
 if( ( settings[0]->string_value ) && ( strcmp( settings[0]->string_value, "false" ) ) )
 	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", settings[0]->string_value );
 
-//time_r = ( time(0) + SESSION_TIME );
-//strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
+time_r = ( time(0) + SESSION_TIME );
+strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
 
-//offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s", SESSION_TIME, timebuf );
+offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s", SESSION_TIME, timebuf );
 
 if (MHD_NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, buffer)) {
 	error( "Failed to set session cookie header!" );
@@ -585,6 +585,7 @@ return ret;
 
 static int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
+	void *r;
 	PostDataPtr data;
 
 if( !( session->postdata == NULL ) ) {
@@ -594,7 +595,15 @@ if( !( session->postdata == NULL ) ) {
 			return MHD_NO;
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
-			return MHD_NO; //Key already exists
+			int origin = strlen(data->value);
+			int toadd = strlen( value );
+			if( ( r = realloc( data->value, ( origin + toadd ) ) ) == NULL ) {
+				critical( "Out of memory" );
+				return MHD_NO;
+			}
+			data->value = r;
+			snprintf(&data->value[origin], toadd, "%s", value );
+			return MHD_YES;
 		}
 	}
 }
