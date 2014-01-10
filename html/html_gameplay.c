@@ -1183,17 +1183,19 @@ if( !( num ) )
 
 
 
-void iohtmlFunc_hq( ReplyDataPtr cnt )
-{
- int id, a, num;
- dbUserMainDef maind;
- dbMainEmpireDef empired;
- ConfigArrayPtr settings;
- int64_t *newsp, *newsd;
- FILE *file;
- struct stat stdata;
- char *data;
- char DIRCHECKER[PATH_MAX];
+void iohtmlFunc_hq( ReplyDataPtr cnt ) {
+	int id, a, num;
+	dbUserMainDef maind;
+	dbMainEmpireDef empired;
+	ConfigArrayPtr settings;
+	#if FACEBOOK_SUPPORT
+	dbUserInfoDef infod;
+	#endif
+	int64_t *newsp, *newsd;
+	FILE *file;
+	struct stat stdata;
+	char *data;
+	char DIRCHECKER[PATH_MAX];
 
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -1223,8 +1225,13 @@ if( ticks.status ) {
 	httpString( cnt, "</table>" );
 	httpString( cnt, "Time frozen<br>" );
 }
-
- httpPrintf( cnt, "<br>User <b>%s</b><br>Faction <b>%s</b><br><br>", (cnt->session)->dbuser->name, maind.faction );
+#if FACEBOOK_SUPPORT
+dbUserInfoRetrieve( id, &infod );
+httpPrintf( cnt, "<br>User <b>%s</b>", bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ? infod.fbinfo.full_name : ((cnt->session)->dbuser)->name );
+#else
+ httpPrintf( cnt, "<br>User <b>%s</b>", ((cnt->session)->dbuser)->name );
+#endif
+ httpPrintf( cnt, "<br>Faction <b>%s</b><br><br>", maind.faction );
 
  httpPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
  httpString( cnt, "<td align=\"center\">" );

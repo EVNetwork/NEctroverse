@@ -26,8 +26,6 @@ PageDef html_page[] =
     { "/races", "text/html",  &page_render, iohtmlFunc_races, NULL },
     { "/rules", "text/html",  &page_render, iohtmlFunc_rules, NULL },
     { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
-    { "/register2", "text/html",  &page_render, iohtmlFunc_register2, NULL },
-    { "/register3", "text/html",  &page_render, iohtmlFunc_register3, NULL },
     //Ajax pages
     { "/ajax", "text/xml",  &page_render, iohtmlFunc_ajax, NULL },
     { "/ajax.js", "text/javascript",  &page_render, iohtmlFunc_javaforajax, NULL },

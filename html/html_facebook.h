@@ -21,4 +21,6 @@ int facebook_unlink_app( char *userid );
 
 void facebook_update_user( dbUserPtr user );
 
+void facebook_getdata_token( FBUserPtr fbdata, FBTokenDef token );
+
 #endif

@@ -8,17 +8,20 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
 	cmdErrorString = 0;
 	if( !( cmdCheckName( name ) ) )
 	{
-		cmdErrorString = "Your name must be between 3 and 31 characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.";
+		sprintf( cmdErrorBuffer, "Your name must be between 3 and %d characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.", USER_NAME_MAX-1 );
+		cmdErrorString = cmdErrorBuffer;
 		return -2;
 	}
 	if( !( cmdCheckName( pass ) ) )
 	{
-		cmdErrorString = "Your password must be between 3 and 31 characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.";
+		sprintf( cmdErrorBuffer, "Your password must be between 3 and %d characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.", USER_NAME_MAX-1 );
+		cmdErrorString = cmdErrorBuffer;
 		return -2;
 	}
 	if( !( cmdCheckName( faction ) ) )
 	{
-		cmdErrorString = "Your faction name must be between 3 and 31 characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.";
+		sprintf( cmdErrorBuffer, "Your faction name must be between 3 and %d characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.", USER_NAME_MAX-1 );
+		cmdErrorString = cmdErrorBuffer;
 		return -2;
 	}
 
@@ -34,10 +37,10 @@ int cmdExecNewUser( char *name, char *pass, char *faction )
   }
 
 memset( &newuser, 0, sizeof(dbUserInfoDef) );
-strncpy(newuser.name, name, sizeof(newuser.name) );
-strncpy(newuser.faction, faction, sizeof(newuser.faction) );
-strncpy(newuser.password, hashencrypt(pass), sizeof(newuser.password) );
-strncpy(newuser.forumtag, "Player", sizeof(newuser.forumtag) );
+strncpy(newuser.name, name, USER_NAME_MAX );
+strncpy(newuser.faction, faction, USER_NAME_MAX );
+strncpy(newuser.password, hashencrypt(pass), USER_PASS_MAX );
+strncpy(newuser.forumtag, "Player", USER_FTAG_MAX );
 b = time( 0 );
 newuser.createtime = b;
 newuser.lasttime = b;

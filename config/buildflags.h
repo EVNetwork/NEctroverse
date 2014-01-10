@@ -10,13 +10,13 @@
 #define DEBUG_SUPPORT 0
 
 /* disable HTTPS support */
-#define FACEBOOK_SUPPORT 0
+#define FACEBOOK_SUPPORT 1
 
 /* disable HTTPS support */
 #define HTTPS_SUPPORT 1
 
 /* disable HTTP/S server threading */
-#define MULTI_THREAD_SUPPORT 0
+#define MULTI_THREAD_SUPPORT 1
 
 /* disable pipefile support */
 #define PIPEFILE_SUPPORT 0

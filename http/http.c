@@ -164,6 +164,7 @@ if( NULL == ( ret = calloc( 1, sizeof(SessionDef) ) ) ) {
 }
 ret->dbuser = NULL;
 if( type == SESSION_HTTP ) {
+	RANDOMIZE_SEED;
 	snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
 	snprintf(ret->sid, SESSION_SIZE, "%s", hashencrypt( buffer ) );
 } else if( type == SESSION_IRC ) {
@@ -187,7 +188,7 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 
 MAKECOOKIE:
 ret->postdata = NULL;
-
+ret->dbuser = NULL;
 ret->rc++;
 ret->active = time(NULL);
 ret->start = time(NULL);

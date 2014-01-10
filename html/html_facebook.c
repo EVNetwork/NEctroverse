@@ -498,7 +498,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	httpString( cnt, "<form action=\"/register\" method=\"POST\">" );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
 	httpString( cnt, "Please choose a Faction name<br>" );
-	httpString( cnt, "<input type=\"text\" name=\"Faction\"><br>" );
+	httpString( cnt, "<input type=\"text\" name=\"faction\"><br>" );
 	httpString( cnt, "(This is what others will see you as in-game)<br>" );
 	httpString( cnt, "<br><input type=\"submit\" value=\"Proceed\"></form>" );
 	httpString( cnt, "</div>" );

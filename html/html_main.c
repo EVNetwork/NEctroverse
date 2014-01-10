@@ -1,22 +1,5 @@
 
 
-int iohttpIdentifyHex( char *num )
-{
- int a, b, c;
- for( a = b = 0 ; ; b <<= 4 )
- {
-  if( ( num[a] >= '0' ) && ( num[a] <= '9' ) )
- b += c = num[a] - '0';
-  else if( ( num[a] >= 'a' ) && ( num[a] <= 'z' ) )
- b += c = num[a] - ('a'-10);
-  else if( ( num[a] >= 'A' ) && ( num[a] <= 'Z' ) )
- b += c = num[a] - ('A'-10);
-  if( ++a == 4 )
- break;
- }
- return b;
-}
-
 int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
 	int id;
 	char sess[SESSION_SIZE];
@@ -39,9 +22,7 @@ if( dbUserSave( id, (cnt->session)->dbuser ) < 0 )
 if(( action & 2 )&&((cnt->session)->dbuser)) {
 	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
-			if( action & 8 )
-			iohtmlBase( cnt, 1|2 );
-			httpString( cnt, "This account has not been activated yet.</body></html>" );
+			iohtmlFunc_register( cnt );
 		}
 		return -1;
 	}
@@ -50,9 +31,7 @@ if(( action & 2 )&&((cnt->session)->dbuser)) {
 if( action & 4 ) {
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
 		if( action & 1 ) {
-			if( action & 8 )
-				iohtmlBase( cnt, 1|2 );
-			httpString( cnt, "This account has been activated.</body></html>" );
+			iohtmlFunc_register( cnt );
 		}
 		return -1;
 	}
@@ -207,31 +186,30 @@ httpString( cnt, "<td align=\"right\"><b>" );
 if( !( flags == FMENU_MAIN ) ) {
 	httpString( cnt, "<a href=\"/\">Main</a>" );
 }
-if( !( (cnt->session)->dbuser ) && !( flags == FMENU_REGISTER ) ) {
+if( !( flags == FMENU_REGISTER ) ) {
 	if( !( flags == FMENU_MAIN ) )
 		httpString( cnt, " | " );
-	httpString( cnt, "<a href=\"register\">Register</a>" );
+	httpPrintf( cnt, "<a href=\"/%s\">%s</a>", ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "main" : "register" ) : "register" ), ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "Game" : "Activate" ) : "Register" ) );
 }
 if( !( flags == FMENU_FORUM ) ) {
 	httpString( cnt, " | " );
-	httpString( cnt, "<a href=\"forum\">Forums</a>" );
+	httpString( cnt, "<a href=\"/forum\">Forums</a>" );
 }
 if( !( flags == FMENU_FAQ ) ) {
-	if( !( (cnt->session)->dbuser ) || ( ( (cnt->session)->dbuser ) && !( flags == FMENU_FORUM ) ) )
-		httpString( cnt, " | " );
-	httpString( cnt, "<a href=\"faq\">FAQ</a>" );
+	httpString( cnt, " | " );
+	httpString( cnt, "<a href=\"/faq\">FAQ</a>" );
 }
 if( !( flags == FMENU_GSTART ) ) {
 	httpString( cnt, " | " );
-	httpString( cnt, "<a href=\"gettingstarted\">Getting Started</a>" );
+	httpString( cnt, "<a href=\"/gettingstarted\">Getting Started</a>" );
 }
 if( !( flags == FMENU_RANKS ) ) {
 	httpString( cnt, " | " );
-	httpString( cnt, "<a href=\"halloffame\">Hall of fame</a> " );
+	httpString( cnt, "<a href=\"/halloffame\">Hall of fame</a> " );
 }
 if( !( flags == FMENU_SERVER ) ) {
 	httpString( cnt, " | " );
-	httpString( cnt, "<a href=\"status\">Server Status</a>" );
+	httpString( cnt, "<a href=\"/status\">Server Status</a>" );
 }
 
 httpString( cnt, "</b></td></tr></table></td></tr>" );
@@ -413,396 +391,6 @@ return;
 }
 
 
-void iohtmlFunc_register( ReplyDataPtr cnt ) {
-
-iohtmlBase( cnt, 8 );
-iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-
-httpString ( cnt, "<br><br><h3>Register</h3><br>" );
-httpString ( cnt, "<b>Currently disabled, due to pre-alpha stage.</b>" );
-
-//httpString( cnt, "<form action=\"register2\" method=\"POST\">User name<br><input type=\"text\" name=\"name\"><br><br>Password<br><input type=\"password\" name=\"pass\"><br><br>Faction name<br><input type=\"text\" name=\"faction\"><br><br><input type=\"submit\" value=\"OK\"></form>" );
-
-iohtmlFunc_endhtml( cnt );
-
-
-return;
-}
-
-void iohtmlFunc_register2( ReplyDataPtr cnt )
-{
- int a, i, id;
- FILE *file;
- char timebuf[256];
- char COREDIR[PATH_MAX];
- char *name, *pass, *faction;
- int64_t newd[DB_USER_NEWS_BASE];
- dbMailDef maild;
- ConfigArrayPtr settings;
- char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
-
- name = NULL;//iohtmlVarsFind( cnt, "name" );
- pass = NULL;//iohtmlVarsFind( cnt, "pass" );
- faction = NULL;//iohtmlVarsFind( cnt, "faction" );
-
-if( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) {
-	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
-		iohtmlBase( cnt, 8 );
-		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
-		goto iohtmlFunc_register2L0;
-	}
-	
-	if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
-		iohtmlBase( cnt, 8 );
-		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-
-		if( cmdErrorString )
-			httpString( cnt, cmdErrorString );
-		else
-			httpString( cnt, "Error encountered while registering user" );
-
-		httpString( cnt, "<br><br><a href=\"register\">Try again?</a>" );
-		goto iohtmlFunc_register2L0;
-	}
-  	newd[0] = ticks.number;
-	newd[1] = CMD_NEWS_FLAGS_NEW;
-	newd[2] = CMD_NEWS_MAIL;
-	newd[3] = 0;
-	newd[4] = 0; //From the admin
-	newd[5] = 0; //From the admin team
-	memcpy( &newd[6], "Admin", 6 );
-	cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
-
-
-	(maild.mail).length = strlen(Message);
-	maild.text = Message;
-	(maild.mail).authorid = 0;
-	sprintf( (maild.mail).authorname, "Admin" );
-	(maild.mail).authorempire = 0;
-	(maild.mail).time = time( 0 );
-	(maild.mail).tick = ticks.number;
-	(maild.mail).flags = 0;
-	if( dbMailAdd( id, 0, &maild ) < 0 )
-		error( "Error sending registration email" );
-
-
-	if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) ) {
-		iohtmlBase( cnt, 8 );
-		iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-		httpString( cnt, "Error encountered while registering session" );
-		goto iohtmlFunc_register2L0;
-	}
-
-	iohtmlBase( cnt, 8 );
-	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-
-	httpPrintf( cnt, "New user created<br>User name : %s<br>Password : %s<br>Faction name : %s<br>Account ID : %d<br>", name, pass, faction, id );
-	settings = GetSetting( "Directory" );
-	sprintf( COREDIR, "%s/logs/register.log", settings->string_value );
-	if( ( file = fopen( COREDIR, "a" ) ) ) {
-		fprintf( file, "Register ID %d ( %x )\n", id, id );
-		a = time(0);
-		strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
-		fprintf( file, "Time %s\n", timebuf );
-		fprintf( file, "Name %s;\n", name );
-		//fprintf( file, "Password %s;\n", pass );
-		fprintf( file, "Faction %s;\n", faction );
-		if( (cnt->connection)->addr->sa_family == AF_INET )
-			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
-		strcpy(timebuf, iohtmlHeaderFind( cnt, "User-Agent" ) );
-		for(i=0;i<strlen(timebuf);i++) {
-			if(timebuf[i] == ';')
-				timebuf[i] = ',';
-		}
-		fprintf( file, "User Agent: %s;\n", timebuf );
-		//fprintf( file, "Cookie %s;;\n", iohttp->cookie );
-		fprintf(file, "ID : %d ( %X );\n\n\n", id, id);
-		fclose( file );
-	}
-
-} else if(  ( id = iohtmlIdentify( cnt, 0 ) ) < 0  ) {
-	iohtmlBase( cnt, 8 );
-	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-	httpString( cnt, "Bad input detected... Strange, this shoulden't be able to happen!" );
-	goto iohtmlFunc_register2L0;
-} else {
-	iohtmlBase( cnt, 8 );
-	iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-}
-
-httpString( cnt, "<form action=\"register3\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>" );
-httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
-httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - <a href=\"races\" target=\"_blank\">See races</a><br><select name=\"race\">" );
-	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ )
-		httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRaceName[a] );
-httpString( cnt, "</select><br><br>" );
-
-httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
-
-httpString( cnt, "<br><br><a href=\"rankings?typ=1\" target=\"_blank\">See empire rankings</a>" );
-httpString( cnt, "<br><a href=\"rankings\" target=\"_blank\">See faction rankings</a>" );
-
-iohtmlFunc_register2L0:
-iohtmlFunc_endhtml( cnt );
-
-
-return;
-}
-
-
-
-void iohtmlFunc_register3( ReplyDataPtr cnt )
-{
- int a, id, raceid;
- char *empire;
- char *fampass;
- char *race;
-
- iohtmlBase( cnt, 8 );
- if( ( id = iohtmlIdentify( cnt, 1|4 ) ) < 0 )
-  return;
-iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
-
- race = iohtmlVarsFind( cnt, "race" );
- empire = iohtmlVarsFind( cnt, "empire" );
- fampass = iohtmlVarsFind( cnt, "fampass" );
-
-if( race ) {
-	if( fampass ) {
-		for( a = 0 ; a < 31 ; a++ ) {
-			if( ( fampass[a] == 10 ) || ( fampass[a] == 13 ) )
-				break;
-		}
-	}
-	if( !( empire ) || ( empire[0] == 0 ) )
-		a = -1;
-	else if( empire[0] == '#' )
-		sscanf( &empire[1], "%d", &a );
-	else
-		sscanf( empire, "%d", &a );
-
-	sscanf( race, "%d", &raceid );
-
-	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
- 		if( cmdErrorString )
- 			httpString( cnt, cmdErrorString );
- 		else
-  			httpString( cnt, "Error encountered while registering user" );
- 		httpString( cnt, "<br><br><a href=\"/register2\">Try again</a>" );
- 		goto iohtmlFunc_register3L0;
-  	}
-	httpPrintf( cnt, "<b>Account activated!</b><br>" );
-	httpString( cnt, "<br><br><br><a href=\"/main\">Click here if not redirected</a>" );
-	redirect( cnt, "/main" );
-	iohtmlFunc_endhtml( cnt );
-	return;
-} else {
-	httpString( cnt, "Incorrect query, strange... this really shoulden't happen!" );
-}
-
-iohtmlFunc_register3L0:
-httpString( cnt, "<br><br><a href=\"/\">Main page</a><br><br><a href=\"/login\">Log in</a>" );
-iohtmlFunc_endhtml( cnt );
-
-
-return;
-}
-
-
-void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
-	int a, i, id, num;
-	char rtpass[USER_PASS_MAX];
-	int64_t *newsp, *newsd;
-	dbUserInfoDef infod;
-	ConfigArrayPtr settings;
-	struct stat stdata;
-	char *data, *name, *pass;
-	char *token = NULL;
-	char DIRCHECKER[PATH_MAX];
-	char timebuf[512];
-	time_t tint;
-	FILE *file = NULL;
-
-name = iohtmlVarsFind( cnt, "name" );
-pass = iohtmlVarsFind( cnt, "pass" );
-
-#if FACEBOOK_SUPPORT
-token = iohtmlVarsFind( cnt, "fblogin_token" );
-#endif
-
-iohtmlBase( cnt, 8 );
-#if FACEBOOK_SUPPORT
-if( ( !(name) && !(pass) ) && !(token) )
-iohtmlFBSDK( cnt );
-#endif
-iohtmlFunc_frontmenu( cnt, FMENU_NONE );
-
-id = iohtmlIdentify( cnt, 0 );
-
-if( ( id >= 0 ) )
-	goto LOGIN_SUCESS;
-
-if( ( name ) && ( pass ) ) {
-	settings = GetSetting( "Directory" );
-	sprintf( DIRCHECKER, "%s/logs/login.log", settings->string_value );
-	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
-		time( &tint );
-		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
-		fprintf( file, "Time: %s", timebuf );
-		fprintf( file, "Name: %s;\n", name );
-		if( (cnt->connection)->addr->sa_family == AF_INET )
-			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
-		strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
-		for(i=0;i<strlen(DIRCHECKER);i++) {
-			if(DIRCHECKER[i] == ';')
-				DIRCHECKER[i] = ',';
-		}
-		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
-	}
- 
-	for( a = 0 ; name[a] ; a++ ) {
-		if( name[a] == '+' )
-			name[a] = ' ';
-		else if( ( name[a] == 10 ) || ( name[a] == 13 ) )
-			name[a] = 0;
-	}
-	for( a = 0 ; pass[a] ; a++ ) {
-		if( pass[a] == '+' )
-			pass[a] = ' ';
-		else if( ( pass[a] == 10 ) || ( pass[a] == 13 ) )
-    			pass[a] = 0;
-	}
-	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
-		info( "ban match" );
-		goto LOGIN_FAIL;
-	}
-	if( ( id = dbUserSearch( name ) ) < 0 )
-		goto LOGIN_FAIL;
-	if( dbUserRetrievePassword( id, rtpass ) < 0 )
-		goto LOGIN_FAIL;
-	if( !( checkencrypt( pass, rtpass ) ) )
-		goto LOGIN_FAIL;
-	if( dbUserLinkDatabase( cnt, id ) < 0 )
-		goto LOGIN_FAIL;
-
-	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
-		goto LOGIN_FAIL;
-
-	dbUserInfoRetrieve( id, &infod );
-	infod.lasttime = time( 0 );
-	if( (cnt->connection)->addr->sa_family == AF_INET )
-	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
-		if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
-			memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
-		}
-	}
-	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
-	dbUserInfoSet( id, &infod );
-
-	if( ( file ) ) {
-		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
-		fclose( file );
-	}
-
-	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_KILLED ) ) {
-		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"register2\">Rejoin the Galaxy</a><br><br>" );
-		num = dbUserNewsList( id, &newsp );
-		newsd = newsp;
-		if( !( num ) )
-			httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
-		for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
-			iohtmlNewsString( cnt, newsd );
-		}
-		if( newsp )
-			free( newsp );
-		goto iohtmlFunc_mainL1;
-	}
-	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DELETED ) ) {
-		httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"register2\">Register this account again</a><br><br>" );
-		goto iohtmlFunc_mainL1;
-	}
-	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_NEWROUND ) ) {
-		httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"register2\">Complete account registration</a><br><br>" );
-		goto iohtmlFunc_mainL1;
-	}
-
-	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
-		httpString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"register2\">Continue registration</a><br><br>" );
-		iohtmlFunc_mainL1:
-		httpString( cnt, "<a href=\"forum\">Public Forums</a>" );
-		if((cnt->session)->dbuser) {
-			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
-				httpString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
-			if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
-				httpString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
-		}
-	iohtmlFunc_endhtml( cnt );
-	return;
-	}
-	goto LOGIN_SUCESS;
-}
-LOGIN_FAIL:
-
-if( file ) {
-	fprintf( file, "Failed!\n\n\n" );
-	fclose( file );
-}
-
-if( text ) {
-	httpPrintf( cnt, "<br>%s", text );
-	if( flag ) {
-		settings = GetSetting( "HTTP Text" );
-		sprintf( DIRCHECKER, "%s/login.txt", settings->string_value );
-		if( stat( DIRCHECKER, &stdata ) != -1 ) {
-			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-				data[stdata.st_size] = 0;
-				if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
-					if( stdata.st_size > 0 ) {
-						httpString( cnt, "<br>" );
-						while( fgets( data, stdata.st_size, file ) != NULL ) {
-							httpPrintf( cnt, "%s<br>", trimwhitespace(data) );
-						}
-					}
-					fclose( file );
-				}
-				free( data );
-			}
-		}
-	}
-	httpString( cnt, "<br><br>" );
-} else {
-	httpString( cnt, "<br><h3>Login</h3><br>" );
-}
-
-httpPrintf( cnt, "<form action=\"/login%s%s\" method=\"POST\">", ( token ? "?fblogin_token=" : "" ), ( token ? token : "" ) );
-
-httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
-httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
-httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
-
-
-goto LOGIN_END;
-
-LOGIN_SUCESS:
-#if FACEBOOK_SUPPORT
-if( token ) {
-	redirect( cnt, "/facebook?fblogin_token=%s", token );
-} else
-#endif
-redirect( cnt, "/main" );
-
-
-httpString( cnt, "<b>Login sucess, you should be redirected to the game shortly...</b><br>" );
-httpString( cnt, "<br>" );
-httpString( cnt, "<a href=\"/main\">Click here if it takes too long.</a><br>" );
-
-LOGIN_END:
-iohtmlFunc_endhtml( cnt );
-return;
-}
-
-
 void iohtmlFunc_endhtml( ReplyDataPtr cnt ) {
 
 
@@ -852,7 +440,7 @@ va_end( ap );
 
 iohtmlBase( cnt, 8 );
 
-if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
+if( ( id = iohtmlIdentify( cnt, 0 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
 	return;
 }
@@ -931,9 +519,20 @@ if( (id < 0) ) {
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<input type=\"submit\" value=\"Log in\"></form>" );
 } else {
-	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", (cnt->session)->dbuser->name );
+	#if FACEBOOK_SUPPORT
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) {
+		dbUserInfoRetrieve( id, &infod );
+		httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", infod.fbinfo.full_name );
+	}
+	#else
+	httpPrintf( cnt, "<br><b>You are already loged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
+	#endif
 	httpString( cnt, "<br>" );
-	httpString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a><br>" );
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
+		httpString( cnt, "<a href=\"/main\" target=\"_top\">Proceed to game</a><br>" );
+	} else {
+		httpString( cnt, "<a href=\"/register\" target=\"_top\">Activate Now!</a><br>" );
+	}
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<a href=\"/logout\" target=\"_top\">Log out</a><br>" );
 	httpString( cnt, "<br>" );
@@ -1259,6 +858,408 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 httpString( cnt, "</td></tr></table></td><td width=\"7%\">&nbsp;</td></tr>" );
 
 iohtmlFunc_endhtml( cnt );
+return;
+}
+
+
+void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
+	int a, i, id, num;
+	char rtpass[USER_PASS_MAX];
+	int64_t *newsp, *newsd;
+	dbUserInfoDef infod;
+	ConfigArrayPtr settings;
+	struct stat stdata;
+	char *data, *name, *pass;
+	char *token = NULL;
+	char DIRCHECKER[PATH_MAX];
+	char timebuf[512];
+	time_t tint;
+	FILE *file = NULL;
+
+name = iohtmlVarsFind( cnt, "name" );
+pass = iohtmlVarsFind( cnt, "pass" );
+
+#if FACEBOOK_SUPPORT
+token = iohtmlVarsFind( cnt, "fblogin_token" );
+#endif
+
+iohtmlBase( cnt, 8 );
+#if FACEBOOK_SUPPORT
+if( ( !(name) && !(pass) ) && !(token) )
+iohtmlFBSDK( cnt );
+#endif
+iohtmlFunc_frontmenu( cnt, FMENU_NONE );
+
+id = iohtmlIdentify( cnt, 0 );
+
+if( ( id >= 0 ) )
+	goto LOGIN_SUCESS;
+
+if( ( name ) && ( pass ) ) {
+	settings = GetSetting( "Directory" );
+	sprintf( DIRCHECKER, "%s/logs/login.log", settings->string_value );
+	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
+		time( &tint );
+		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+		fprintf( file, "Time: %s", timebuf );
+		fprintf( file, "Name: %s;\n", name );
+		if( (cnt->connection)->addr->sa_family == AF_INET )
+			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+		strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
+		for(i=0;i<strlen(DIRCHECKER);i++) {
+			if(DIRCHECKER[i] == ';')
+				DIRCHECKER[i] = ',';
+		}
+		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
+	}
+ 
+	for( a = 0 ; name[a] ; a++ ) {
+		if( name[a] == '+' )
+			name[a] = ' ';
+		else if( ( name[a] == 10 ) || ( name[a] == 13 ) )
+			name[a] = 0;
+	}
+	for( a = 0 ; pass[a] ; a++ ) {
+		if( pass[a] == '+' )
+			pass[a] = ' ';
+		else if( ( pass[a] == 10 ) || ( pass[a] == 13 ) )
+    			pass[a] = 0;
+	}
+	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
+		info( "ban match" );
+		goto LOGIN_FAIL;
+	}
+	if( ( id = dbUserSearch( name ) ) < 0 )
+		goto LOGIN_FAIL;
+	if( dbUserRetrievePassword( id, rtpass ) < 0 )
+		goto LOGIN_FAIL;
+	if( !( checkencrypt( pass, rtpass ) ) )
+		goto LOGIN_FAIL;
+	if( dbUserLinkDatabase( cnt, id ) < 0 )
+		goto LOGIN_FAIL;
+
+	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
+		goto LOGIN_FAIL;
+
+	dbUserInfoRetrieve( id, &infod );
+	infod.lasttime = time( 0 );
+	if( (cnt->connection)->addr->sa_family == AF_INET )
+	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
+		if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
+			memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+		}
+	}
+	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
+	dbUserInfoSet( id, &infod );
+
+	if( ( file ) ) {
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
+		fclose( file );
+	}
+
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_KILLED ) ) {
+		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br><a href=\"/register\">Rejoin the Galaxy</a><br><br>" );
+		num = dbUserNewsList( id, &newsp );
+		newsd = newsp;
+		if( !( num ) )
+			httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
+		for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
+			iohtmlNewsString( cnt, newsd );
+		}
+		if( newsp )
+			free( newsp );
+		goto iohtmlFunc_mainL1;
+	}
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DELETED ) ) {
+		httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br><a href=\"/register\">Register this account again</a><br><br>" );
+		goto iohtmlFunc_mainL1;
+	}
+	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_NEWROUND ) ) {
+		httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br><a href=\"/register\">Complete account registration</a><br><br>" );
+		goto iohtmlFunc_mainL1;
+	}
+
+	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
+		httpString( cnt, "<br>The activation of this account was not completed.<br><br><a href=\"/register\">Continue registration</a><br><br>" );
+		iohtmlFunc_mainL1:
+		httpString( cnt, "<a href=\"forum\">Public Forums</a>" );
+		if((cnt->session)->dbuser) {
+			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
+				httpString( cnt, "<br><br><a href=\"moderator\">Moderator panel</a>" );
+			if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
+				httpString( cnt, "<br><a href=\"administration\">Admin panel</a>" );
+		}
+	iohtmlFunc_endhtml( cnt );
+	return;
+	}
+	goto LOGIN_SUCESS;
+}
+LOGIN_FAIL:
+
+if( file ) {
+	fprintf( file, "Failed!\n\n\n" );
+	fclose( file );
+}
+
+if( text ) {
+	httpPrintf( cnt, "<br>%s", text );
+	if( flag ) {
+		settings = GetSetting( "HTTP Text" );
+		sprintf( DIRCHECKER, "%s/login.txt", settings->string_value );
+		if( stat( DIRCHECKER, &stdata ) != -1 ) {
+			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+				data[stdata.st_size] = 0;
+				if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
+					if( stdata.st_size > 0 ) {
+						httpString( cnt, "<br>" );
+						while( fgets( data, stdata.st_size, file ) != NULL ) {
+							httpPrintf( cnt, "%s<br>", trimwhitespace(data) );
+						}
+					}
+					fclose( file );
+				}
+				free( data );
+			}
+		}
+	}
+	httpString( cnt, "<br><br>" );
+} else {
+	httpString( cnt, "<br><h3>Login</h3><br>" );
+}
+
+httpPrintf( cnt, "<form action=\"/login%s%s\" method=\"POST\">", ( token ? "?fblogin_token=" : "" ), ( token ? token : "" ) );
+
+httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
+httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
+
+
+goto LOGIN_END;
+
+LOGIN_SUCESS:
+#if FACEBOOK_SUPPORT
+if( token ) {
+	redirect( cnt, "/facebook?fblogin_token=%s", token );
+} else
+#endif
+if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) )
+redirect( cnt, "/main" );
+else
+redirect( cnt, "/register" );
+
+httpString( cnt, "<b>Login sucess, you should be redirected shortly...</b><br>" );
+httpString( cnt, "<br>" );
+httpPrintf( cnt, "<a href=\"/%s\">Click here if it takes too long.</a><br>", bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "main" : "register" );
+
+LOGIN_END:
+iohtmlFunc_endhtml( cnt );
+return;
+}
+
+#define REGISTER_DISABLE 0
+
+void iohtmlFunc_register( ReplyDataPtr cnt ) {
+	int a, i, id, raceid;
+	FILE *file;
+	char timebuf[256];
+	char COREDIR[PATH_MAX];
+	char *name, *pass, *faction, *race, *empire, *fampass;
+	char *token = NULL;
+	#if FACEBOOK_SUPPORT
+	FBUserDef fbdata;
+	FBTokenDef token_post;
+	dbUserInfoDef infod;
+	char fbtemp[2][USER_NAME_MAX-1];
+	#endif
+	int64_t newd[DB_USER_NEWS_BASE];
+	dbMailDef maild;
+	ConfigArrayPtr settings;
+	char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
+
+
+race = iohtmlVarsFind( cnt, "race" );
+empire = iohtmlVarsFind( cnt, "empire" );
+fampass = iohtmlVarsFind( cnt, "fampass" );
+name = iohtmlVarsFind( cnt, "name" );
+pass = iohtmlVarsFind( cnt, "pass" );
+faction = iohtmlVarsFind( cnt, "faction" );
+#if FACEBOOK_SUPPORT
+token = iohtmlVarsFind( cnt, "fblogin_token" );
+#endif
+
+id = iohtmlIdentify( cnt, 8 );
+
+iohtmlBase( cnt, 8 );
+iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
+
+httpPrintf( cnt, "<h3>%s</h3><br>", ( ( (cnt->session)->dbuser ) ? "Activation" : "Registration" ) );
+
+//Used to skip/disable registration.
+#if REGISTER_DISABLE
+goto DISABLE;
+#endif
+
+if( race ) {
+	if( id < 0 ) {
+		httpString( cnt, "Error encountered while validating user registration..." );
+		goto END;
+	}
+	if( fampass ) {
+		for( a = 0 ; a < 31 ; a++ ) {
+			if( ( fampass[a] == 10 ) || ( fampass[a] == 13 ) )
+				break;
+		}
+	}
+	if( !( empire ) || ( empire[0] == 0 ) )
+		a = -1;
+	else if( empire[0] == '#' )
+		sscanf( &empire[1], "%d", &a );
+	else
+		sscanf( empire, "%d", &a );
+
+	sscanf( race, "%d", &raceid );
+
+	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
+ 		if( cmdErrorString )
+ 			httpString( cnt, cmdErrorString );
+ 		else
+  			httpString( cnt, "Error encountered while registering user" );
+ 		httpString( cnt, "<br><br><a href=\"/register\">Try again</a>" );
+ 		goto END;
+  	}
+	httpPrintf( cnt, "<b>Account activated!</b><br>" );
+	httpString( cnt, "<br><br><br><a href=\"/main\">Click here if not redirected</a>" );
+	redirect( cnt, "/main" );
+	goto END;
+} else if( ( ( token != NULL ) && ( ( faction != NULL ) && ( strlen(faction) > 0 ) ) ) || ( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) ) {
+	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
+		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
+		goto END;
+	}
+	#if FACEBOOK_SUPPORT
+	strncpy( token_post.val, token, sizeof( token_post.val ) );
+	facebook_getdata_token( &fbdata, token_post );
+	if( strlen( fbdata.id ) == 0 ) {
+		httpString( cnt, "Invalid Token Detected... Aborting!" );
+		redirect( cnt, "/main" );
+		goto END;
+	}
+	
+	snprintf( fbtemp[0], USER_NAME_MAX-1, "FBUSER%s", fbdata.id );
+	RANDOMIZE_SEED;
+	snprintf( fbtemp[1], USER_NAME_MAX-1, "P%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+	if( ( id = cmdExecNewUser( fbtemp[0], fbtemp[1], faction ) ) < 0 ) {
+	#else
+	if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
+	#endif
+
+		if( cmdErrorString )
+			httpString( cnt, cmdErrorString );
+		else
+			httpString( cnt, "Error encountered while registering user" );
+
+		httpString( cnt, "<br><br><a href=\"/register\">Try again?</a>" );
+		goto END;
+	}
+  	newd[0] = ticks.number;
+	newd[1] = CMD_NEWS_FLAGS_NEW;
+	newd[2] = CMD_NEWS_MAIL;
+	newd[3] = 0;
+	newd[4] = 0; //From the admin
+	newd[5] = 0; //From the admin team
+	memcpy( &newd[6], "Admin", 6 );
+	cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
+
+	(maild.mail).length = strlen(Message);
+	maild.text = Message;
+	(maild.mail).authorid = 0;
+	sprintf( (maild.mail).authorname, "Admin" );
+	(maild.mail).authorempire = 0;
+	(maild.mail).time = time( 0 );
+	(maild.mail).tick = ticks.number;
+	(maild.mail).flags = 0;
+	if( dbMailAdd( id, 0, &maild ) < 0 )
+		error( "Error sending registration email" );
+
+	if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) ) {
+		httpString( cnt, "Error encountered while registering session" );
+		goto END;
+	}
+	httpString( cnt, "New user created<br>" );
+	#if FACEBOOK_SUPPORT
+	if( ( token != NULL ) && ( strlen( fbdata.id ) ) ) {
+		dbUserInfoRetrieve( id, &infod );
+		snprintf( fbdata.token.val, sizeof(fbdata.token.val), "%s", token );
+		infod.fbinfo = fbdata;
+		dbUserInfoSet( id, &infod );
+		bitflag_add( &((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE );
+		bitflag_add( &((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK );
+		snprintf( ((cnt->session)->dbuser)->fbid, sizeof( ((cnt->session)->dbuser)->fbid ), "%s", fbdata.id );
+		dbUserSave( id, (cnt->session)->dbuser );
+	} else
+	#endif	
+	httpPrintf( cnt, "User name : %s<br>Password : %s<br>", ((cnt->session)->dbuser)->name, pass );
+	httpPrintf( cnt, "Faction name : %s<br>Account ID : %d<br>", ((cnt->session)->dbuser)->faction, id );
+	settings = GetSetting( "Directory" );
+	sprintf( COREDIR, "%s/logs/register.log", settings->string_value );
+	if( ( file = fopen( COREDIR, "a" ) ) ) {
+		fprintf( file, "Register ID %d ( %x )\n", id, id );
+		a = time(0);
+		strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
+		fprintf( file, "Time %s\n", timebuf );
+		fprintf( file, "Name %s;\n", ((cnt->session)->dbuser)->name );
+		fprintf( file, "Faction %s;\n", ((cnt->session)->dbuser)->faction );
+		if( (cnt->connection)->addr->sa_family == AF_INET )
+			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+		strcpy(timebuf, iohtmlHeaderFind( cnt, "User-Agent" ) );
+		for(i=0;i<strlen(timebuf);i++) {
+			if(timebuf[i] == ';')
+				timebuf[i] = ',';
+		}
+		fprintf( file, "User Agent: %s;\n", timebuf );
+		fprintf(file, "ID : %d ( %X );\n\n\n", id, id);
+		fclose( file );
+	}
+
+
+
+} else if ( ( id < 0 ) ) {
+httpString( cnt, "<form action=\"/register\" method=\"POST\">" );
+if( token == NULL ) {
+	httpString( cnt, "User name<br><input type=\"text\" name=\"name\"><br>" );
+	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+} else {
+	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br>", token );
+}
+httpString( cnt, "<br>Faction name<br><input type=\"text\" name=\"faction\"><br>" );
+httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
+goto END;
+}
+
+
+httpString( cnt, "<form action=\"/register\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>" );
+httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
+httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - <a href=\"races\" target=\"_blank\">See races</a><br><select name=\"race\">" );
+	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ )
+		httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRaceName[a] );
+httpString( cnt, "</select><br><br>" );
+
+httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
+
+httpString( cnt, "<br><br><a href=\"rankings?typ=1\" target=\"_blank\">See empire rankings</a>" );
+httpString( cnt, "<br><a href=\"rankings\" target=\"_blank\">See faction rankings</a>" );
+
+//End New functions
+#if REGISTER_DISABLE
+goto END;
+DISABLE:
+httpString ( cnt, "<b>Sorry... Currently disabled</b>" );
+#endif
+
+END:
+iohtmlFunc_endhtml( cnt );
+
+
 return;
 }
 

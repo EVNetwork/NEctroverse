@@ -958,20 +958,12 @@ int dbSessionSet( dbUserPtr user, char *session ) {
 if( !( user ) )
 	return -3;
 
-if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
-	error("Error in user save, getting real info");
-	return -3;
-}
-
-uinfo.lasttime = time(NULL);
 strncpy( user->http_session, session, sizeof(uinfo.http_session) );
-strncpy( uinfo.http_session, session, sizeof(uinfo.http_session) );
 
-if( !( dbUserInfoSet( user->id, &uinfo ) ) ) {
-	error("Error in user save, getting setting info");
-	return -3;
+if( dbUserSave( user->id, user ) < 0 ) {
+	error( "Syncing user #%d session", user->id );
+	return -1;
 }
-
 
 return 1;
 }
@@ -1111,6 +1103,7 @@ if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
 }
 
 for( a = 0 ; a < num ; a++ ) {
+
 	file_s( file, 4+(a*sizeof(dbUserBuildDef)) );
 	file_r( &buildp[a], 1, sizeof(dbUserBuildDef), file );
 }
@@ -3919,7 +3912,7 @@ if( !( user = dbUserLinkID( id ) ) )
 strncpy( user->faction, infod->faction, sizeof(user->faction) );
 strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
 #if FACEBOOK_SUPPORT
-if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) )
+if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) )
 	strncpy( user->fbid, infod->fbinfo.id, sizeof(user->fbid) );
 #endif
 

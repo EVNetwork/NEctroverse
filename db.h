@@ -106,7 +106,7 @@ int dbUserSave( int id, dbUserPtr user );
 
 int dbUserSetPassword( int id, char *pass );
 int dbUserRetrievePassword( int id, char *pass );
-int dbUserLinkDatabase( void *, int id );
+int dbUserLinkDatabase( void *cnt, int id );
 
 int dbSessionSet( dbUserPtr user, char *session );
 int dbSessionRetrieve( dbUserPtr user, char *session );

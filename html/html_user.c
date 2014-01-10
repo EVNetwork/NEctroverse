@@ -58,7 +58,12 @@ if( desc ) {
 
 httpString( cnt, "<table border=\"0\"><tr><td>" );
 httpPrintf( cnt, "Account ID : <b>%d</b><br>", id );
+#if FACEBOOK_SUPPORT
+if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) )
+	httpPrintf( cnt, "User name : <b>%s</b><br>", ((cnt->session)->dbuser)->name );
+#else
 httpPrintf( cnt, "User name : <b>%s</b><br>", ((cnt->session)->dbuser)->name );
+#endif
 httpPrintf( cnt, "Faction name : <b>%s</b><br>", maind.faction );
 httpPrintf( cnt, "Faction race : <b>%s</b><br>", cmdRaceName[maind.raceid] );
 httpPrintf( cnt, "Tag points : <b>%d</b><br>", infod.tagpoints );

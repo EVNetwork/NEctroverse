@@ -444,7 +444,7 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 
 
 char *cmdErrorString;
-char cmdErrorBuffer[1024];
+char cmdErrorBuffer[DEFAULT_BUFFER];
 
 
 dbUserMainDef cmdUserMainDefault =
@@ -547,7 +547,7 @@ int cmdCheckName( char *name )
     return 0;
   for( a = b = 0 ; name[a] ; a++ )
   {
-    if( a == NAME_MAX )
+    if( a == (USER_NAME_MAX-1) )
       return 0;
     else if( ( name[a] == 13 ) || ( name[a] == 10 ) )
       name[a] = 0;
@@ -1555,7 +1555,7 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
 
 int cmdInit() {
 	int id, a, pass, exist;
-	char string[2][NAME_MAX];
+	char string[2][USER_NAME_MAX];
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	ConfigArrayPtr settings[3];
