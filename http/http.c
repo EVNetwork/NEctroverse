@@ -549,7 +549,7 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 	char buffer[REDIRECT_MAX];
 	struct MHD_Response *response;
 	ReplyDataDef rd;
-
+	
 rd.session = session;
 rd.connection = connection;
 rd.cache.off = 0;
@@ -562,6 +562,24 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 //Lock the mutex while we form pages, this is just safer... since it prevents double access of in-game infomation.
 //(void)pthread_mutex_lock( &mutex );
 html_page[id].function( &rd );
+
+
+	ConfigArrayPtr setting;
+	char ajaxdump[PATH_MAX];
+	FILE *ajax;
+
+if( strcmp( html_page[id].url, "/ajax" ) == 0 ) {
+	setting = GetSetting( "Directory" );
+	if( (rd.session)->dbuser ) {
+		sprintf( ajaxdump, "%s/logs/%s.ajax.log", setting->string_value, ((rd.session)->dbuser)->name );
+		if( ( ajax = fopen( ajaxdump, "a" ) ) ) {
+			fputs( rd.cache.buf, ajax );
+			fputs( "\n\n\n", ajax );
+			fclose( ajax );
+		}
+	}
+}
+
 //(void)pthread_mutex_unlock( &mutex );
 
 response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
@@ -599,13 +617,13 @@ if( !( session->postdata == NULL ) ) {
 				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
 				return MHD_YES;
 			}
-			int toadd = ( strlen( value ) + 32 );
+			int toadd = ( strlen( value ) + 32 ); //Ensure at least 32 bytes of "slack space"
 			if( (( data->current - data->offset ) - toadd ) < 0 ) {
 				//Buffer is too small, adding post data will over-flow, so need to re-size -- Add size ( data-in + 1kb )
 				int ajust = ( ( data->current + toadd ) + KB_SIZE );
 				if( ajust < data->current ) {
 					critical( "Size Overflow" );
-					Shutdown();
+					//Shutdown();
 					return MHD_NO;
 				}
 				//And now the actuall ajustment...
