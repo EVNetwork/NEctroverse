@@ -27,7 +27,7 @@ void iohtmlFunc_menu( ReplyDataPtr cnt )
  char szFaction[32]*/;
  dbUserMainDef maind;
 
- iohtmlBase( cnt, 1|2 );
+ iohtmlBase( cnt, 1|2|32 );
  
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;

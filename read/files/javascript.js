@@ -41,7 +41,7 @@ function getnodevar(xmlin,tagvar) {
 	var input;
 
 try {
-	node = xmlin.documentElement.getElementsByTagName(tagvar)[0].childNodes[0];
+	node = xmlin.window.documentElement.getElementsByTagName(tagvar)[0].childNodes[0];
 	if( node.nodeValue != "undefined" ) { input = node.nodeValue; }
 } catch(err) {
 	input = "";
@@ -52,7 +52,7 @@ return input;
 
 
 function _(el){
-	return document.getElementById(el);
+	return window.document.getElementById(el);
 }
 
 function changeimage(img, a) {
@@ -110,12 +110,12 @@ function addLoadEvent(func) {
 
 addLoadEvent(function(){countDown();});
 
-function togglemb(num) { for(i=0;i<document.forms[num].length;i++) if(document.forms[num].elements[i].type == "checkbox") document.forms[num].elements[i].click(); }
+function togglemb(num) { for(i=0;i<window.document.forms[num].length;i++) if(window.document.forms[num].elements[i].type == "checkbox") window.document.forms[num].elements[i].click(); }
 
 function pad ( val ) { return val > 9 ? val : "0" + val; }
 
 function changeslider(newValue,field) {
-	document.getElementById(field).value=newValue;
+	window.document.getElementById(field).value=newValue;
 }
 
 function bytesToSize(bytes) {
@@ -165,7 +165,7 @@ function abortHandler(event){
 }
 
   var toggle = function() {
-  var mydiv = document.getElementById('progblock');
+  var mydiv = window.document.getElementById('progblock');
   if (mydiv.style.display === 'block' || mydiv.style.display === '')
     mydiv.style.display = 'none';
   else

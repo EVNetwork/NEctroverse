@@ -562,24 +562,6 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 //Lock the mutex while we form pages, this is just safer... since it prevents double access of in-game infomation.
 //(void)pthread_mutex_lock( &mutex );
 html_page[id].function( &rd );
-
-
-	ConfigArrayPtr setting;
-	char ajaxdump[PATH_MAX];
-	FILE *ajax;
-
-if( strcmp( html_page[id].url, "/ajax" ) == 0 ) {
-	setting = GetSetting( "Directory" );
-	if( (rd.session)->dbuser ) {
-		sprintf( ajaxdump, "%s/logs/%s.ajax.log", setting->string_value, ((rd.session)->dbuser)->name );
-		if( ( ajax = fopen( ajaxdump, "a" ) ) ) {
-			fputs( rd.cache.buf, ajax );
-			fputs( "\n\n\n", ajax );
-			fclose( ajax );
-		}
-	}
-}
-
 //(void)pthread_mutex_unlock( &mutex );
 
 response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
