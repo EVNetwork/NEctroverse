@@ -488,9 +488,7 @@ if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 } else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
 	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "eimage" ) == 0 ) ) {
-	settings = GetSetting( "Directory" );
-	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
-	//goto IMAGE_BUFFER;
+	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
 	settings = GetSetting( "HTTP Files" );
 	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
@@ -550,19 +548,25 @@ for( ; filelist ; filelist = filelist->next ) {
 		break;
 }
 if( filelist == NULL ) {
-	settings = GetSetting( "HTTP Images" );
-	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
+	if( strcmp( type, "eimage" ) == 0 ) {
+		settings = GetSetting( "Directory" );
+		snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
+	} else {
+		settings = GetSetting( "HTTP Images" );
+		snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
+	}
 	if( (0 == stat( dmsg, &buf)) && (S_ISREG(buf.st_mode)) ) {
 		file = fopen( dmsg, "rb" );
 	} else {
+		(void) pthread_mutex_unlock( &mutex );
 		return MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
 	}
 	if( (filelist = malloc( 1*sizeof(FileStorageDef) ) ) == NULL ) {
 		critical( "Image Memory allocation failed" );
 		fclose( file );
+		(void) pthread_mutex_unlock( &mutex );
 		return MHD_NO;
 	}
-	
 	filelist->data = malloc( buf.st_size );
 	file_r( filelist->data, 1, buf.st_size, file );
 	filelist->name = strdup( fname );
