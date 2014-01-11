@@ -1,3 +1,7 @@
+11 January 2014
+Population upeek reduction has been relabled Population reduction, and now allows off-set of portal and unit costs.
+You are still unable to make a "profit" from population, but this will change things a bit anyway.
+
 10 January 2014
 Registration for pre-alpha debugging is enabled, but be advised that NO RECORDS will be preserved.
 If you register now, you are only doing so to test the system. ::angel

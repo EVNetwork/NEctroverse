@@ -892,9 +892,9 @@ ticks.debug_pass = 8;
 		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;
 		maind.infos[INFOS_POPULATION_REDUCTION] = (1.0/35.0) * (float)maind.ressource[CMD_RESSOURCE_POPULATION]* ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_WELFARE] ) * (cmdRace[maind.raceid].growth);
 
-
-    if( maind.infos[INFOS_POPULATION_REDUCTION] >= maind.infos[INFOS_BUILDING_UPKEEP] )
-      maind.infos[INFOS_POPULATION_REDUCTION] = maind.infos[INFOS_BUILDING_UPKEEP];
+	//Population Reduction changed to include portals + units
+	maind.infos[INFOS_PORTALS_UPKEEP] = fmax( 0.0, ( pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0) );
+	maind.infos[INFOS_POPULATION_REDUCTION] = fmax( maind.infos[INFOS_POPULATION_REDUCTION], ( maind.infos[INFOS_BUILDING_UPKEEP] + maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_PORTALS_UPKEEP] ) );
 
     //virus network mean more upkeep Based on the upkeep of a building with after pop reduction
     for( a = 0 ; a < opvirus ; a++ )
@@ -911,17 +911,12 @@ fa = CMD_CRYSTAL_DECAY;
 maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
 
 
-    maind.infos[INFOS_PORTALS_UPKEEP] = pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0;
-
     //ARTI CODE Mana Gate
 		//if(maind.artefacts & ARTEFACT_MANA_BIT)
 		//	maind.infos[INFOS_PORTALS_UPKEEP] /= 2;
 
-    if( maind.infos[INFOS_PORTALS_UPKEEP] < 0 )
-      maind.infos[INFOS_PORTALS_UPKEEP] = 0;
-
-maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
-maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
+	maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
+	maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
 
 if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
 	error( "Tick error: Retriving empire %d", maind.empire  );
@@ -940,10 +935,11 @@ maind.infos[CMD_RESSOURCE_CRYSTAL] = ( (maind.infos[INFOS_CRYSTAL_PRODUCTION] - 
 
 maind.infos[CMD_RESSOURCE_ECTROLIUM] = (maind.infos[INFOS_ECTROLIUM_PRODUCTION] - maind.infos[INFOS_ECTROLIUM_TAX]);
 
-empired.fund[CMD_RESSOURCE_ENERGY] += maind.infos[INFOS_ENERGY_TAX];
-empired.fund[CMD_RESSOURCE_MINERAL] += maind.infos[INFOS_MINERAL_TAX];
-empired.fund[CMD_RESSOURCE_CRYSTAL] += maind.infos[INFOS_CRYSTAL_TAX];
-empired.fund[CMD_RESSOURCE_ECTROLIUM] += maind.infos[INFOS_ECTROLIUM_TAX];
+
+empired.fund[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ENERGY] + maind.infos[INFOS_ENERGY_TAX] ) );
+empired.fund[CMD_RESSOURCE_MINERAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_MINERAL] + maind.infos[INFOS_MINERAL_TAX] ) );
+empired.fund[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_CRYSTAL] + maind.infos[INFOS_CRYSTAL_TAX] ) );
+empired.fund[CMD_RESSOURCE_ECTROLIUM] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ECTROLIUM] + maind.infos[INFOS_ECTROLIUM_TAX] ) );
 
 if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
 	error( "Tick error: Setting Empire #%d Fund!", maind.empire );

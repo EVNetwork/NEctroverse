@@ -466,9 +466,9 @@ httpString( cnt, "<br>" );
 
 httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
-//read notices from updates.txt and format for display. -- If this file is missing, or empty it is skipped.
+//read notices from notices.txt and format for display. -- If this file is missing, or empty it is skipped.
 settings[0] = GetSetting( "HTTP Text" );
-sprintf( DIRCHECKER, "%s/updates.txt", settings[0]->string_value );
+sprintf( DIRCHECKER, "%s/notices.txt", settings[0]->string_value );
 settings[1] = GetSetting( "Display Notices" );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -826,9 +826,9 @@ httpString( cnt, "<tr><td class=\"center\"><div class=\"genlarge\"><b>Listing of
 httpString( cnt, "<tr><td></td></tr>" );
 httpString( cnt, "<tr><td>" );
 
-//read notices from updates.txt and format for display. -- If this file is missing, or empty it is skipped.
+//read notices from notices.txt and format for display. -- If this file is missing, or empty it is skipped.
 settings = GetSetting( "HTTP Text" );
-sprintf( DIRCHECKER, "%s/updates.txt", settings->string_value );
+sprintf( DIRCHECKER, "%s/notices.txt", settings->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
 		data[stdata.st_size] = 0;
