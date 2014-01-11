@@ -2897,7 +2897,7 @@ httpString( cnt, "</div>" );
    continue;
   httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
  }
- httpString( cnt, "</select>
+ httpString( cnt, "</select>" );
  httpString( cnt, "<select name=\"status\">" );
  httpString( cnt, "<option value=\"0\">No tag</option>" );
  httpPrintf( cnt, "<option value=\"%d\">Vice-leader</option>", CMD_USER_FLAGS_VICELEADER );
