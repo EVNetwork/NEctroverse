@@ -41,7 +41,7 @@ function getnodevar(xmlin,tagvar) {
 	var input;
 
 try {
-	node = xmlin.window.documentElement.getElementsByTagName(tagvar)[0].childNodes[0];
+	node = xmlin.documentElement.getElementsByTagName(tagvar)[0].childNodes[0];
 	if( node.nodeValue != "undefined" ) { input = node.nodeValue; }
 } catch(err) {
 	input = "";
