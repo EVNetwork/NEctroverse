@@ -6676,10 +6676,7 @@ void iohtmlFunc_research( ReplyDataPtr cnt )
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
- iohtmlBase( cnt, 1 );
- if( !( iohtmlHeader( cnt, id, &maind ) ) )
-  return;
- iohtmlBodyInit( cnt, "Research" );
+
 
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
  {
@@ -6702,6 +6699,12 @@ if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
 	}
 }
 
+
+ iohtmlBase( cnt, 1 );
+ if( !( iohtmlHeader( cnt, id, &maind ) ) )
+  return;
+ iohtmlBodyInit( cnt, "Research" );
+ 
 
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
  {
