@@ -66,7 +66,8 @@ httpPrintf( cnt, "<title>%s</title>", settings->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&name=favicon.ico\">" );
 httpString( cnt, "<link href=\"files?type=server&name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=javascript.min.js\"></script>" );
-//httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=jquery-1.10.2.min.js\"></script>" );
+if( flags & 8 )
+httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=jquery-1.10.2.min.js\"></script>" );
 httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
 
 if( flags & 16 )

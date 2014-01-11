@@ -18,6 +18,8 @@ enum UploadState {
 extern char *cmdUploadState[]; 
 
 typedef struct _POST_DATA_STORAGE {
+	int offset;
+	int current;
 	char *key;
 	char *value;
 	struct _POST_DATA_STORAGE *next;

@@ -87,7 +87,7 @@ int iohttpForumFilter( char *dest, char *string, int size, int html )
   if( b >= size-1 )
    break;
   c = string[a];
-  if( c == '+' )
+  /*if( c == '+' )
    c = ' ';
   else if( c == '%' )
   {
@@ -95,7 +95,7 @@ int iohttpForumFilter( char *dest, char *string, int size, int html )
     break;
    c = iohttpInputHex( &string[a+1] );
    a += 2;
-  }
+  }*/
   if( c == 13 )
    continue;
   else if( ( ( c < 32 ) && ( c != 10 ) ) )
@@ -702,7 +702,7 @@ if( forum < 100 )  {
   if( id != -1 )
    sprintf( threadd.authorname, "%s", ((cnt->session)->dbuser)->faction );
   else if( namestring )
-   iohttpForumFilter( threadd.authorname, namestring, 32, 0 );
+   iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
   else
    sprintf( threadd.authorname, "Anonymous" );
   threadd.time = time( 0 );
@@ -760,7 +760,7 @@ if( forum < 100 )  {
   else
   {
    if( namestring )
-    iohttpForumFilter( postd.post.authorname, namestring, 32, 0 );
+    iohttpForumFilter( postd.post.authorname, namestring, USER_NAME_MAX, 0 );
    else
     sprintf( postd.post.authorname, "Anonymous" );
    postd.post.authortag[0] = 0;
@@ -885,6 +885,7 @@ if( forum < 100 )  {
   }
   sprintf( postd.post.authorname, "%s", posts[0].post.authorname );
   sprintf( postd.post.authortag, "%s", posts[0].post.authortag );
+  memcpy( &postd.post.sin_addr, &posts[0].post.sin_addr, sizeof(struct in_addr) );
   postd.post.time = posts[0].post.time;
   postd.post.tick = posts[0].post.tick;
   postd.post.authorid = posts[0].post.authorid;

@@ -595,15 +595,30 @@ if( !( session->postdata == NULL ) ) {
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
-			int origin = strlen(data->value);
-			int toadd = strlen( value ) +1;
-			if( ( r = realloc( data->value, ( origin + toadd ) ) ) == NULL ) {
-				critical( "Out of memory" );
-				return MHD_NO;
+			int toadd = strlen( value );
+			if( toadd == 0 ) {
+				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
+				return MHD_YES;
 			}
-			data->value = r;
-			snprintf(&data->value[origin], toadd, "%s", value );
-			return MHD_YES;
+			if( (( data->current - data->offset ) - toadd ) < 0 ) {
+				//Buffer is too small, adding post data will over-flow, so need to re-size -- Add size ( data-in + 1kb )
+				int ajust = ( ( data->current + toadd ) + KB_SIZE );
+				if( ajust < data->current ) {
+					critical( "Size Overflow" );
+					Shutdown();
+					return MHD_NO;
+				}
+				//And now the actuall ajustment...
+				if( ( r = realloc( data->value, ajust ) ) == NULL ) {
+					critical( "Out of memory" );
+					return MHD_NO;
+				}
+				data->value = r;
+				data->current = ajust;
+			}
+			//And finnaly, if we made it this far... there's data to add and out buffer should have ample capacity.
+			//Return add function, this saves us having to re-check for success;
+			return ( data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value ) );
 		}
 	}
 }
@@ -617,6 +632,8 @@ if( ( data = malloc( 1*sizeof(PostDataDef) ) ) == NULL ) {
 
 data->key = strdup( key );
 data->value = strdup( value );
+data->offset = strlen( value );
+data->current = data->offset;
 data->next = session->postdata;
 
 session->postdata = data;
