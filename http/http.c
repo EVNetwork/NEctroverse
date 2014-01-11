@@ -490,7 +490,9 @@ if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 } else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
 	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "eimage" ) == 0 ) ) {
-	goto IMAGE_BUFFER;
+	settings = GetSetting( "Directory" );
+	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
+	//goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
 	settings = GetSetting( "HTTP Files" );
 	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
