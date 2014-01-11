@@ -590,13 +590,15 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
       b = a;
   }
 
-  for( a = 0 ; a < empired->numplayers ; a++ )
-  {
-    if( parray[a] <= parray[b] )
-      continue;
-    b = a;
-  }
-  if( parray[b] >= 1 )
+for( a = 0 ; a < empired->numplayers ; a++ ) {
+	if( !( user = dbUserLinkID( empired->player[a] ) ) )
+		continue;
+	if( ( user->lasttime <= ( ticks.speed * 26 ) && ( parray[a] < parray[b] ) ) && ( parray[a] <= parray[b] ) )
+		continue;
+	b = a;
+}
+
+if( parray[b] >= 1 )
   {
     empired->leader = empired->player[b];
     if( ( user = dbUserLinkID( empired->leader ) ) )
