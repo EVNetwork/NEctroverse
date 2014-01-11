@@ -97,7 +97,6 @@ return str;
 
 //This is the actual loop process, which listens and responds to requests on all sockets.
 int daemonloop() {
-	ConfigArrayPtr settings;
 	time_t curtime;
 
 //Start HTTP Server(s)
@@ -143,8 +142,8 @@ while( sysconfig.shutdown == false ) {
 		nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
 		continue;
 	}
-	settings = GetSetting( "Tick Speed" );
-	ticks.next = ( curtime + (int)settings->num_value );
+	
+	ticks.next = ( curtime + ticks.speed );
 	
 	cmdTickInit();
 	if( ticks.status ) {
@@ -220,7 +219,8 @@ close(STDERR_FILENO);
 }
 
 settings[0] = GetSetting( "Tick Speed" );
-ticks.next = time(0) + (int)settings[0]->num_value;
+ticks.speed = (int)settings[0]->num_value;
+ticks.next = time(0) + ticks.speed;
 	
 //Time to set some signals
 signal( SIGPIPE, SIG_IGN );

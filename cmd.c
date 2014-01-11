@@ -577,6 +577,7 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
 {
   int a, b;
   int *parray;
+  time_t now;
   dbUserPtr user;
 
   if( ( parray = calloc( dbMapBInfoStatic[MAP_CAPACITY], sizeof(int) ) ) == NULL )
@@ -589,12 +590,22 @@ void cmdEmpireLeader( dbMainEmpirePtr empired )
     if( empired->leader == empired->player[a] )
       b = a;
   }
+time( &now );
+
+// b = leader
+/*
+if( ( user = dbUserLinkID( empired->leader ) ) ) {
+
+info("Time: %d, %d", user->id, ( ( ( now - user->lasttime ) > ( ticks.speed * 2 ) ) && ( parray[a] == parray[b] ) ) ); // || 
+info("Time: %d, %d", user->id, ( ( parray[a] <= parray[b] ) && !( ( ( now - user->lasttime ) > ( ticks.speed * 2 ) ) && ( parray[a] == parray[b] ) ) ) );
+// && (  !( ( ( now - user->lasttime ) > ( ticks.speed * 2 ) ) && ( parray[a] == parray[b] ) ) )
+}
+*/
 
 for( a = 0 ; a < empired->numplayers ; a++ ) {
-	if( !( user = dbUserLinkID( empired->player[a] ) ) )
+	if( ( parray[a] <= parray[b] ) ) {
 		continue;
-	if( ( (( time(0) - user->lasttime ) <= ( ticks.speed * 26 )) && ( parray[a] < parray[b] ) ) && ( parray[a] <= parray[b] ) )
-		continue;
+	}
 	b = a;
 }
 
@@ -603,8 +614,9 @@ if( parray[b] >= 1 )
     empired->leader = empired->player[b];
     if( ( user = dbUserLinkID( empired->leader ) ) )
     {
+    info( user->name );
       //user->flags &= 0xFFFF;
-      bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER );;
+      bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER );
       dbUserSave( empired->leader, user );
     }
   }

@@ -172,7 +172,7 @@ if( type == SESSION_HTTP ) {
 }
 
 if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
-	if( ( ( id = dbUserSessionSearch( (char *)cookie ) < 0 ) ) ) {
+	if( ( ( id = dbUserSessionSearch( (char *)cookie ) ) < 0  ) ) {
 		goto MAKECOOKIE;
 	} else {
 		ret->dbuser = dbUserLinkID( id );
