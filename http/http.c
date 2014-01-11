@@ -23,7 +23,7 @@
 #include "pagelist.c"
 
 
-
+static FileStoragePtr StoredFiles;
 
 
 static struct MHD_Daemon *PlainHTTP;
@@ -475,6 +475,7 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	char *type, *fname, *temp;
 	struct stat buf;
 	struct MHD_Response *response;
+	FileStoragePtr filelist;
 	ConfigArrayPtr settings;
 	FILE *file;
 
@@ -487,11 +488,9 @@ if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 	settings = GetSetting( "Directory" );
 	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
 } else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
-	settings = GetSetting( "HTTP Images" );
-	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
+	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "eimage" ) == 0 ) ) {
-	settings = GetSetting( "Directory" );
-	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
+	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
 	settings = GetSetting( "HTTP Files" );
 	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
@@ -542,6 +541,59 @@ if (file == NULL) {
 	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
 	MHD_destroy_response( response );
 }
+
+return ret;
+IMAGE_BUFFER:
+(void) pthread_mutex_lock( &mutex );
+filelist = StoredFiles;
+
+for( ; filelist ; filelist = filelist->next ) {
+	if( strcmp( filelist->name, fname ) == 0 )
+		break;
+}
+if( filelist == NULL ) {
+	settings = GetSetting( "HTTP Images" );
+	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
+	if( (0 == stat( dmsg, &buf)) && (S_ISREG(buf.st_mode)) ) {
+		file = fopen( dmsg, "rb" );
+	} else {
+		return MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
+	}
+	if( (filelist = malloc( 1*sizeof(FileStorageDef) ) ) == NULL ) {
+		critical( "Image Memory allocation failed" );
+		fclose( file );
+		return MHD_NO;
+	}
+	
+	filelist->data = malloc( buf.st_size );
+	file_r( filelist->data, 1, buf.st_size, file );
+	filelist->name = strdup( fname );
+	filelist->mime = strdup(iohttpMime[ iohttpMimeFind( fname ) ].def );
+	filelist->size = buf.st_size;
+	filelist->modofied = buf.st_mtime;
+	filelist->next = StoredFiles;
+	StoredFiles = filelist;
+	fclose( file );
+}
+
+filelist->lastaccess = time(0);
+
+(void) pthread_mutex_unlock( &mutex );
+
+response = MHD_create_response_from_buffer( filelist->size, filelist->data, MHD_RESPMEM_PERSISTENT);
+if (response == NULL) {
+	return MHD_NO;
+}
+
+(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, filelist->mime);
+
+//strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
+//(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
+
+settings = GetSetting( "Server Name" );
+(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, settings->string_value );
+ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
+MHD_destroy_response( response );
 
 return ret;
 }
@@ -979,7 +1031,7 @@ return MHD_YES;
  * Clean up handles of sessions that have been idle for
  * too long.
  */
-void expire_sessions () {
+static void expire_sessions () {
 	int id;
 	char buffer[SESSION_SIZE];
 	dbUserPtr user;
@@ -1057,6 +1109,36 @@ while( NULL != pos ) {
 return MHD_NO;
 }
 
+
+static void expire_file_storage () {
+	FileStoragePtr pos;
+	FileStoragePtr prev;
+	FileStoragePtr next;
+	time_t now;
+
+now = time(NULL);
+prev = NULL;
+pos = StoredFiles;
+
+while( NULL != pos ) {
+	next = pos->next;
+	if( (now - pos->lastaccess) > ( day ) ) {
+		if (NULL == prev) {
+			StoredFiles = pos->next;
+		} else {
+			prev->next = next;
+		}
+		free( pos->name );
+		free( pos->mime );
+		free( pos->data );
+		free( pos );
+	} else {
+	        prev = pos;
+        }
+	pos = next;
+}
+
+}
 
 
 #if HTTPS_SUPPORT
@@ -1305,6 +1387,14 @@ magic_close (magic);
 #endif
 
 info( "Server shutdown complete, now cleaning up!" );
+
+for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
+	free( StoredFiles->name );
+	free( StoredFiles->mime );
+	free( StoredFiles->data );
+	free( StoredFiles );
+}
+
 dbFlush();
 cleanUp(0);
 cleanUp(1);
@@ -1314,5 +1404,14 @@ return;
 }
 
 
+
+void WWWExpire() {
+
+expire_sessions();
+
+expire_file_storage();
+
+return;
+}
 
 

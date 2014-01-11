@@ -113,8 +113,8 @@ if( https_start() )
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
-	/* Expire HTTP Sessions */
-	expire_sessions();
+	/* Expire HTTP Stuff */
+	WWWExpire();
 
 	#if MULTI_THREAD_SUPPORT == 0
 	WWWSelect(false);

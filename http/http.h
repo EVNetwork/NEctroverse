@@ -17,6 +17,19 @@ enum UploadState {
 
 extern char *cmdUploadState[]; 
 
+
+typedef struct _FILE_DATA_STORAGE {
+	size_t size;
+	time_t lastaccess;
+	time_t modofied;
+	char *name;
+	char *mime;
+	void *data;
+	struct _FILE_DATA_STORAGE *next;
+} FileStorageDef, *FileStoragePtr;
+
+
+
 typedef struct _POST_DATA_STORAGE {
 	int offset;
 	int current;
@@ -227,7 +240,8 @@ void Shutdown();
 
 int postdata_wipe( SessionPtr session );
 
-void expire_sessions ();
+void WWWExpire();
+
 int remove_session( const char *sid );
 
 int not_found_page ( int id, const void *cls, const char *mime, struct Session *session, struct MHD_Connection *connection);
