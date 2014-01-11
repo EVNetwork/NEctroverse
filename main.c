@@ -938,7 +938,7 @@ strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
 
 settings = GetSetting( "Directory" );
 if( settings->string_value ) {
-	sprintf( fname, "%s/evserver.log", settings->string_value );
+	sprintf( fname, "%s/logs/core_server.log", settings->string_value );
 	if( !( file = fopen( fname, "a" ) ) ) {
 		if( !( file = fopen( fname, "w+" ) ) && ( LogNoFile == NULL ) ) {
 			//File unable to be created, probably because the dir doesn't exist yet... so lets start buffering output.
