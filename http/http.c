@@ -393,7 +393,7 @@ static void update_directory( struct MHD_Connection *connection ) {
 	struct MHD_Response *response;
 	StringBufferDef rd;
 	ConfigArrayPtr settings;
-	char dir_name[PATH_MAX], md5sum[MD5_HASHSUM_SIZE];
+	char dir_name[PATH_MAX];
 	struct stat sbuf;
 
 rd.buf_len = buf_size_allocation[0]; 
@@ -417,8 +417,6 @@ if( 0 == stat (dir_name, &sbuf) ) {
 rd.off += snprintf (&rd.buf[rd.off], rd.buf_len - rd.off, "%s", UPLOAD_DIR_PAGE_FOOTER );
 
 response = MHD_create_response_from_buffer (rd.off, rd.buf, MHD_RESPMEM_MUST_FREE );
-md5_string( rd.buf, md5sum );
-(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 mark_as( response, "text/html" );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONNECTION, "close");
 
@@ -472,7 +470,7 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	#endif
 	int ret;
 	char dmsg[PATH_MAX];
-	char *type, *fname, *temp;
+	char *type, *fname;
 	struct stat buf;
 	struct MHD_Response *response;
 	FileStoragePtr filelist;
@@ -531,9 +529,7 @@ if (file == NULL) {
 	if (NULL != mime) {
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, mime);
 	} else {
-		temp = strdup(iohttpMime[ iohttpMimeFind( fname ) ].def );
-		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( temp, ' ')+1 ) );
-		free( temp );
+		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, iohttpMime[ iohttpMimeFind( fname ) ].def );
 	}
 
 	strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
@@ -570,7 +566,7 @@ if( filelist == NULL ) {
 	filelist->data = malloc( buf.st_size );
 	file_r( filelist->data, 1, buf.st_size, file );
 	filelist->name = strdup( fname );
-	filelist->mime = strdup(iohttpMime[ iohttpMimeFind( fname ) ].def );
+	filelist->mime = strdup( iohttpMime[ iohttpMimeFind( fname ) ].def );
 	filelist->size = buf.st_size;
 	filelist->modofied = buf.st_mtime;
 	filelist->next = StoredFiles;
@@ -589,8 +585,8 @@ if (response == NULL) {
 
 (void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, filelist->mime);
 
-//strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
-//(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
+strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&filelist->modofied) );
+(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
 
 settings = GetSetting( "Server Name" );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, settings->string_value );
