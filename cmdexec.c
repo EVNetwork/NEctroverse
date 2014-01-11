@@ -1665,7 +1665,8 @@ int cmdExecExploreShips( int id )
   dbUserFleetPtr fleetd;
   if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 )
     return 0;
-  for( a = total = 0 ; a < num ; a++ )
+  total = 0;
+  for( a = 1 ; a < num ; a++ )
   {
     if( fleetd[a].unit[CMD_UNIT_EXPLORATION] )
       total++;
