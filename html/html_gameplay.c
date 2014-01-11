@@ -2878,6 +2878,7 @@ httpString( cnt, "</div>" );
 
  httpString( cnt, "<tr><td><form enctype=\"multipart/form-data\" method=\"POST\">Empire picture</td></tr>" );
  httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></td></tr>" );
+  httpString( cnt, "<tr><td><input type=\"hidden\" name=\"upload_type\" value=\"empire\"></td></tr>" );
  httpString( cnt, "<tr><td><input type=\"file\" name=\"fileupload\" id=\"fileupload\"></td></tr>" );
  httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br><br><br></td></tr>" );
 

@@ -721,6 +721,10 @@ if (NULL == filename) {
 }
 
 if (-1 == uc->fd) {
+	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
+		uc->response = request_refused_response;
+		return MHD_NO;
+	}
 	//User logged in? If not, reject connection.
 	if( !( ( (uc->session)->dbuser ) ) ) {
 		uc->response = request_refused_response;
@@ -746,10 +750,6 @@ if (-1 == uc->fd) {
 	}
 	if ( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
 		error( "Saving \'%s\' for user #%d", filename, ((uc->session)->dbuser)->id );
-		return MHD_NO;
-	}
-	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
-		uc->response = request_refused_response;
 		return MHD_NO;
 	}
 	snprintf (fn, sizeof (fn), "%s/uploads/empire%d", settings->string_value, maind.empire );
