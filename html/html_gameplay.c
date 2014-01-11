@@ -6676,7 +6676,8 @@ void iohtmlFunc_research( ReplyDataPtr cnt )
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
-
+if( dbUserMainRetrieve( id, &maind ) < 0 )
+	return;
 
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
  {
