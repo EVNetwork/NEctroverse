@@ -1986,7 +1986,7 @@ void iohtmlFunc_empire( ReplyDataPtr cnt )
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *empirestring;
- char fname[64];
+ char fname[REDIRECT_MAX];
  dbUserPtr user;
  dbUserMainDef mainp[32];
  int stats[64];
@@ -2029,11 +2029,10 @@ if ( curfam == maind.empire ) {
 }
 
 
-
-//sprintf( fname, "/files?type=image&name=%d", empired.reserved[0] );
-//info( fname );
-// if( iohttpFileFind( fname ) ) 
-//  httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
+if( empired.reserved[0] > 0 ) {
+	sprintf( fname, "/files?type=eimage&name=empire%d/pic%d", curfam, empired.reserved[0] );
+	httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
+}
 
  if( !( empired.numplayers ) )
  {

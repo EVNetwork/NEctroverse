@@ -126,7 +126,8 @@ static SessionPtr SessionList;
  */
 SessionPtr get_session( int type, void *cls ) {
 	SessionPtr ret;
-	int id, now;
+	int id;
+	time_t now;
 	char buffer[256];
 	char md5sum[MD5_HASHSUM_SIZE];
 	const char *cookie;
@@ -176,11 +177,13 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 		goto MAKECOOKIE;
 	} else {
 		ret->dbuser = dbUserLinkID( id );
-		now = time(NULL);
+		time(&now);
+		//
 		if( (now - (ret->dbuser)->lasttime) > ( SESSION_TIME ) ) {
 			ret->dbuser = NULL;
 			goto MAKECOOKIE;
 		}
+		//This should already be true... but what the heck, lets double check.
 		if( strcmp( cookie, ret->dbuser->http_session ) == 0 )
 			strcpy(ret->sid,cookie);
 	}
@@ -486,6 +489,9 @@ if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 } else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
 	settings = GetSetting( "HTTP Images" );
 	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
+} else if ( ( type ) && ( strcmp( type, "eimage" ) == 0 ) ) {
+	settings = GetSetting( "Directory" );
+	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
 } else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
 	settings = GetSetting( "HTTP Files" );
 	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
@@ -715,6 +721,7 @@ if (NULL == filename) {
 }
 
 if (-1 == uc->fd) {
+	//User logged in? If not, reject connection.
 	if( !( ( (uc->session)->dbuser ) ) ) {
 		uc->response = request_refused_response;
 		(uc->session)->upload = UPLOAD_STATE_FAIL;
@@ -723,23 +730,31 @@ if (-1 == uc->fd) {
 		error( "User Info Lookup Failed" );
 		return MHD_NO;
 	}
-	/*
+	
 	if( ( maind.empire != -1 ) && ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) )
 		return MHD_NO;
-	
-	if ( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
-		error( "Saving" );
+	char fn[PATH_MAX];
+	settings = GetSetting( "Directory" );
+	if( empired.leader == ((uc->session)->dbuser)->id ) {
+		if( empired.reserved[0] > 0 ) {
+			snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.reserved[0] );
+			unlink(fn);
+		}
+		empired.reserved[0] = rand();
+	} else {
 		return MHD_NO;
-	}*/
+	}
+	if ( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
+		error( "Saving \'%s\' for user #%d", filename, ((uc->session)->dbuser)->id );
+		return MHD_NO;
+	}
 	if ( (NULL != strstr (filename, "..")) || (NULL != strchr (filename, '/')) || (NULL != strchr (filename, '\\')) ) {
 		uc->response = request_refused_response;
 		return MHD_NO;
 	}
-	char fn[PATH_MAX];
-	settings = GetSetting( "Directory" );
-	snprintf (fn, sizeof (fn), "%s/uploads", settings->string_value );
-	(void) mkdir (fn, S_IRWXU);
-	snprintf (fn, sizeof (fn),"%s/uploads/%s", settings->string_value, filename);
+	snprintf (fn, sizeof (fn), "%s/uploads/empire%d", settings->string_value, maind.empire );
+	(void) dirstructurecheck(fn);
+	snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.reserved[0] );
 	for (i=strlen (fn)-1;i>=0;i--) {
 		if( !isprint( (int)fn[i] ) ){
 			fn[i] = '_';

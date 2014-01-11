@@ -614,7 +614,7 @@ if( parray[b] >= 1 )
     empired->leader = empired->player[b];
     if( ( user = dbUserLinkID( empired->leader ) ) )
     {
-    info( user->name );
+    //info( user->name );
       //user->flags &= 0xFFFF;
       bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER );
       dbUserSave( empired->leader, user );
