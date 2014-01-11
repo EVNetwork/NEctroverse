@@ -1,3 +1,7 @@
+10 January 2014
+Registration for pre-alpha debugging is enabled, but be advised that NO RECORDS will be preserved.
+If you register now, you are only doing so to test the system.
+
 9 January 2014
 Redirects on this site are contolled by the AJAX Ticker which is controlled by tick speed.
 It may take untill the next tick for them to occur, and they will still take place if you manually change pages.
