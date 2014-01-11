@@ -469,7 +469,6 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	#endif
 	int ret;
 	char dmsg[PATH_MAX];
-	//char md5sum[MD5_HASHSUM_SIZE];
 	char *type, *fname, *temp;
 	struct stat buf;
 	struct MHD_Response *response;
@@ -529,8 +528,6 @@ if (file == NULL) {
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, trimwhitespace( strrchr( temp, ' ')+1 ) );
 		free( temp );
 	}
-	//md5_file( dmsg, md5sum );
-	//(void)MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 
 	strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
@@ -545,7 +542,6 @@ return ret;
 
 int page_render( int id, const void *cls, const char *mime, SessionPtr session, struct MHD_Connection *connection) {
 	int ret;
-	//char md5sum[MD5_HASHSUM_SIZE];
 	char buffer[REDIRECT_MAX];
 	struct MHD_Response *response;
 	ReplyDataDef rd;
@@ -560,14 +556,12 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 }
 
 //Lock the mutex while we form pages, this is just safer... since it prevents double access of in-game infomation.
-//(void)pthread_mutex_lock( &mutex );
+(void)pthread_mutex_lock( &mutex );
 html_page[id].function( &rd );
-//(void)pthread_mutex_unlock( &mutex );
+(void)pthread_mutex_unlock( &mutex );
 
 response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(rd.session, response);
-//md5_string( rd.cache.buf, md5sum );
-//(void)MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_MD5, md5sum );
 mark_as( response, mime );
 
 if( strlen(rd.session->redirect) ) {
