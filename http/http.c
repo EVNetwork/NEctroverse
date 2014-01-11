@@ -595,11 +595,11 @@ if( !( session->postdata == NULL ) ) {
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
-			int toadd = strlen( value );
-			if( toadd == 0 ) {
+			if( strlen( value ) == 0 ) {
 				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
 				return MHD_YES;
 			}
+			int toadd = ( strlen( value ) + 32 );
 			if( (( data->current - data->offset ) - toadd ) < 0 ) {
 				//Buffer is too small, adding post data will over-flow, so need to re-size -- Add size ( data-in + 1kb )
 				int ajust = ( ( data->current + toadd ) + KB_SIZE );
