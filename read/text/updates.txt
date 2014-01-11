@@ -1,6 +1,10 @@
 10 January 2014
 Registration for pre-alpha debugging is enabled, but be advised that NO RECORDS will be preserved.
-If you register now, you are only doing so to test the system.
+If you register now, you are only doing so to test the system. ::angel
+
+10 January 2014
+Redirects modofied, they are no longer controlled by the "Ticker" as this proved ineffective. ::bad
+They are now controlled by HTTP Redirect Headers, and therefore may not work on older browsers (if there are any left now days)
 
 9 January 2014
 Redirects on this site are contolled by the AJAX Ticker which is controlled by tick speed.
