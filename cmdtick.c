@@ -894,7 +894,7 @@ ticks.debug_pass = 8;
 
 	//Population Reduction changed to include portals + units
 	maind.infos[INFOS_PORTALS_UPKEEP] = fmax( 0.0, ( pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0) );
-	maind.infos[INFOS_POPULATION_REDUCTION] = fmax( maind.infos[INFOS_POPULATION_REDUCTION], ( maind.infos[INFOS_BUILDING_UPKEEP] + maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_PORTALS_UPKEEP] ) );
+	maind.infos[INFOS_POPULATION_REDUCTION] = fmin( maind.infos[INFOS_POPULATION_REDUCTION], ( maind.infos[INFOS_BUILDING_UPKEEP] + maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_PORTALS_UPKEEP] ) );
 
     //virus network mean more upkeep Based on the upkeep of a building with after pop reduction
     for( a = 0 ; a < opvirus ; a++ )
