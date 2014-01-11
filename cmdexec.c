@@ -1140,7 +1140,7 @@ int cmdExecFamMemberFlags( int id, int fam, int flags )
     return -3;
   //user->flags &= 0xFFFF;
   if( flags ) {
-    bigflag_add( &user->flags, flag );
+    bitflag_add( &user->flags, flags );
   }
   dbUserSave( id, user );
   return 1;
