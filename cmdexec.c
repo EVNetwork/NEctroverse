@@ -1138,9 +1138,10 @@ int cmdExecFamMemberFlags( int id, int fam, int flags )
     return -3;
   if( flags > CMD_USER_FLAGS_NUMUSED )
     return -3;
-  user->flags &= 0xFFFF;
-  if( flags )
-    user->flags |= ( 1 << flags ) << 16;
+  //user->flags &= 0xFFFF;
+  if( flags ) {
+    bigflag_add( &user->flags, flag );
+  }
   dbUserSave( id, user );
   return 1;
 }

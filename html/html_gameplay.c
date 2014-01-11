@@ -2897,7 +2897,15 @@ httpString( cnt, "</div>" );
    continue;
   httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
  }
- httpString( cnt, "</select> <select name=\"status\"><option value=\"0\">No tag<option value=\"1\">Vice-leader</option><option value=\"2\">Minister of Communication<option value=\"3\">Minister of Development<option value=\"4\">Minister of War<option value=\"5\">Independent</select></td></tr>" );
+ httpString( cnt, "</select>
+ httpString( cnt, "<select name=\"status\">" );
+ httpString( cnt, "<option value=\"0\">No tag</option>" );
+ httpPrintf( cnt, "<option value=\"%d\">Vice-leader</option>", CMD_USER_FLAGS_VICELEADER );
+ httpPrintf( cnt, "<option value=\"%d\">Minister of Communication</option>", CMD_USER_FLAGS_COMMINISTER );
+ httpPrintf( cnt, "<option value=\"%d\">Minister of Development</option>", CMD_USER_FLAGS_DEVMINISTER );
+ httpPrintf( cnt, "<option value=\"%d\">Minister of War</option>", CMD_USER_FLAGS_WARMINISTER );
+ httpPrintf( cnt, "<option value=\"%d\">Independent</option>", CMD_USER_FLAGS_INDEPENDENT );
+ httpString( cnt, "</select></td></tr>" );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
  }
  cmdExecGetFamPass( curfam, fname );
