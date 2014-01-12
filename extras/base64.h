@@ -9,9 +9,13 @@
 #ifndef BASE64_H
 #define BASE64_H
 
+#define POLARSSL_ERR_BASE64_BUFFER_TOO_SMALL -0x002A
+#define POLARSSL_ERR_BASE64_INVALID_CHARACTER -0x002C 
 
+int base64_encode( unsigned char *dst, size_t *dlen, const unsigned char *src, size_t slen );
 
-char * 
-BASE64Decode(const char* src);
+int base64_decode( unsigned char *dst, size_t *dlen, const unsigned char *src, size_t slen );
+
+int base64_self_test( int verbose );
 
 #endif /* !BASE64_H */
