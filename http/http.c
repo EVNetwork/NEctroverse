@@ -794,11 +794,11 @@ if (-1 == uc->fd) {
 	char fn[PATH_MAX];
 	settings = GetSetting( "Directory" );
 	if( empired.leader == ((uc->session)->dbuser)->id ) {
-		if( empired.reserved[0] > 0 ) {
-			snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.reserved[0] );
+		if( empired.picture > 0 ) {
+			snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.picture );
 			unlink(fn);
 		}
-		empired.reserved[0] = rand();
+		empired.picture = rand();
 	} else {
 		return MHD_NO;
 	}
@@ -808,7 +808,7 @@ if (-1 == uc->fd) {
 	}
 	snprintf (fn, sizeof (fn), "%s/uploads/empire%d", settings->string_value, maind.empire );
 	(void) dirstructurecheck(fn);
-	snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.reserved[0] );
+	snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.picture );
 	for (i=strlen (fn)-1;i>=0;i--) {
 		if( !isprint( (int)fn[i] ) ){
 			fn[i] = '_';

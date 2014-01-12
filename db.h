@@ -139,6 +139,7 @@ typedef struct
   int artefacts;
   int rank;
   int aidaccess;
+  int flags;
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );
@@ -273,8 +274,10 @@ typedef struct
 
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd );
 int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd );
-
-
+/*
+ * The use of ARRAY_MAX in here, is un-desirable... but it prevents any future over-flow as its limit is 65k 
+ * This is the same limit as max players, so each Empire is capable of holding all players... technicly. Not that it should.
+ */
 typedef struct
 {
   int rank;
@@ -285,7 +288,8 @@ typedef struct
   int leader;
   int homeid;
   int homepos; // ( y << 16 ) + x
-  int reserved[2];
+  int picture;
+  int reserved_dead;
   int planets;
   int networth;
   int artefacts;

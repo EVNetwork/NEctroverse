@@ -89,8 +89,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
 {
  int a, b;
- dbUserMainDef maind;
- dbUserPtr user;
+ dbUserMainDef maind, main2d;
 
  httpPrintf( cnt, "<br><br><i>Week %lld, year %lld</i><br>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
  if( (long long)newsd[2] == CMD_NEWS_BUILDING )
@@ -248,10 +247,10 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
  {
   httpPrintf( cnt, "Your agents reached their destination, the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-  if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
-   httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+  if( ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) )
+   httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], main2d.faction, (long long)newsd[6], (long long)newsd[6] );
   httpPrintf( cnt, " to perform <b>%s</b>.<br>", cmdAgentopName[(long long)newsd[9]] );
-  if( user )
+  if( main2d.faction )
   {
    if( (long long)newsd[7] == -1 )
     httpPrintf( cnt, "<i>Your agents successfully stayed undiscovered during the operation.</i><br>" );
@@ -473,8 +472,8 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   if( (long long)newsd[7] != -1 )
   {
    httpString( cnt, "Your forces intercepted some agents from " );
-   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
-    httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+   if( ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) )
+    httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], main2d.faction, (long long)newsd[6], (long long)newsd[6] );
    else
     httpString( cnt, "an unknown faction" );
   }
@@ -531,11 +530,11 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    httpPrintf( cnt, "your faction.<br>" );
   else
   {
-   if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-    httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.<br>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
+   if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) )
+    httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.<br>", (long long)newsd[3], main2d.faction, (long long)newsd[4], (long long)newsd[4] );
    else
     httpPrintf( cnt, "an unknown faction.<br>" );
-   if( ( (long long)newsd[3] != ((cnt->session)->dbuser)->id ) && ( user ) )
+   if( ( (long long)newsd[3] != ((cnt->session)->dbuser)->id ) && ( main2d.faction ) )
    {
     if( (long long)newsd[5] == -1 )
      httpPrintf( cnt, "<i>Your psychics successfully stayed undiscovered while performing the spell.</i><br>" );
@@ -582,8 +581,8 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   if( (long long)newsd[5] != -1 )
   {
    httpString( cnt, "Your forces felt the influence of psychics from " );
-   if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-    httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
+   if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) )
+    httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[3], main2d.faction, (long long)newsd[4], (long long)newsd[4] );
    else
     httpString( cnt, "an unknown faction" );
   }
@@ -616,9 +615,9 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   else
   {
    httpPrintf( cnt, "on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+   if( ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) )
    {
-    httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+    httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", (long long)newsd[5], main2d.faction, (long long)newsd[6], (long long)newsd[6] );
     if( (long long)newsd[7] <= 0 )
      httpPrintf( cnt, "<i>Your ghost ships successfully stayed undiscovered during the incantation.</i><br>" );
     else
@@ -719,8 +718,8 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   if( (long long)newsd[7] != -1 )
   {
    httpString( cnt, "Your forces were the target of ghost ships from" );
-   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
-    httpPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+   if( ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) )
+    httpPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], main2d.faction, (long long)newsd[6], (long long)newsd[6] );
    else
     httpString( cnt, " an unknown faction" );
   }
@@ -786,18 +785,18 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
 
  else if( (long long)newsd[2] == CMD_NEWS_PLANET_OFFER )
  {
-  if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-   httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> offered a <a href=\"planet?id=%lld\">planet</a> to your faction. <a href=\"pltake?id=%lld\">Take it</a><br>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
+  if( ( dbUserMainRetrieve( (long long)newsd[2], &main2d ) ) )
+   httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> offered a <a href=\"planet?id=%lld\">planet</a> to your faction. <a href=\"pltake?id=%lld\">Take it</a><br>", (long long)newsd[3], main2d.faction, (long long)newsd[4], (long long)newsd[4] );
  }
  else if( (long long)newsd[2] == CMD_NEWS_PLANET_GIVEN )
  {
-  if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-   httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> took control of a <a href=\"planet?id=%lld\">planet</a> previously offered.<br>", (long long)newsd[3], user->faction, (long long)newsd[4] );
+  if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) )
+   httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> took control of a <a href=\"planet?id=%lld\">planet</a> previously offered.<br>", (long long)newsd[3], main2d.faction, (long long)newsd[4] );
  }
  else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
  {
-  if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-   httpPrintf( cnt, "You took control of a <a href=\"planet?id=%lld\">planet</a> offered by <a href=\"player?id=%lld\">%s</a>.<br>", (long long)newsd[4], (long long)newsd[3], user->faction );
+  if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) )
+   httpPrintf( cnt, "You took control of a <a href=\"planet?id=%lld\">planet</a> offered by <a href=\"player?id=%lld\">%s</a>.<br>", (long long)newsd[4], (long long)newsd[3], main2d.faction );
  }
 
 
@@ -840,8 +839,6 @@ void iohtmlFamNews( ReplyDataPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr e
  int a, b, c;
  dbUserMainDef maind;
  dbUserMainDef *mfamd;
- dbUserPtr user;
-
  
 
  httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
@@ -1040,10 +1037,10 @@ if( !( num ) )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    httpPrintf( cnt, "Agents sent by %s reached their destination, the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", mfamd[b].faction, (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-   if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
-    httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+   if( ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
+    httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], maind.faction, (long long)newsd[6], (long long)newsd[6] );
    httpPrintf( cnt, " to perform <b>%s</b>.", cmdAgentopName[(long long)newsd[9]] );
-   if( user )
+   if( maind.faction )
    {
     if( (long long)newsd[7] == -1 )
      httpPrintf( cnt, "<br><i>The agents successfully stayed undiscovered during the operation.</i>" );
@@ -1057,8 +1054,8 @@ if( !( num ) )
    if( (long long)newsd[7] != -1 )
    {
     httpPrintf( cnt, "The forces of %s intercepted some agents from ", mfamd[b].faction );
-    if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
-     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+    if( ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
+     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], maind.faction, (long long)newsd[6], (long long)newsd[6] );
     else
      httpString( cnt, "an unknown faction" );
    }
@@ -1076,11 +1073,11 @@ if( !( num ) )
     httpPrintf( cnt, "their faction." );
    else
    {
-    if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
+    if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
+     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>.", (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
     else
      httpPrintf( cnt, "an unknown faction." );
-    if( user )
+    if( maind.faction )
     {
      if( (long long)newsd[5] == -1 )
       httpPrintf( cnt, "<br><i>The psychics successfully stayed undiscovered while performing the spell.</i>" );
@@ -1095,8 +1092,8 @@ if( !( num ) )
    if( (long long)newsd[5] != -1 )
    {
     httpPrintf( cnt, "The forces of %s felt the influence of psychics from ", mfamd[b].faction );
-    if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[3], user->faction, (long long)newsd[4], (long long)newsd[4] );
+    if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
+     httpPrintf( cnt, "<a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[3], maind.faction, (long long)newsd[4], (long long)newsd[4] );
     else
      httpString( cnt, "an unknown faction" );
    }
@@ -1115,9 +1112,9 @@ if( !( num ) )
    else
    {
     httpPrintf( cnt, "on the <a href=\"planet?id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-    if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
+    if( ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
     {
-     httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+     httpPrintf( cnt, " owned by <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a><br>", (long long)newsd[5], maind.faction, (long long)newsd[6], (long long)newsd[6] );
      if( (long long)newsd[7] <= 0 )
       httpPrintf( cnt, "<i>The ghost ships successfully stayed undiscovered during the incantation.</i><br>" );
      else
@@ -1135,8 +1132,8 @@ if( !( num ) )
    if( (long long)newsd[7] != -1 )
    {
     httpPrintf( cnt, "The forces of %s were the target of ghost ships from", mfamd[b].faction );
-    if( ( user = dbUserLinkID( (long long)newsd[5] ) ) )
-     httpPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], user->faction, (long long)newsd[6], (long long)newsd[6] );
+    if( ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
+     httpPrintf( cnt, " <a href=\"player?id=%lld\">%s</a> of <a href=\"empire?id=%lld\">empire #%lld</a>", (long long)newsd[5], maind.faction, (long long)newsd[6], (long long)newsd[6] );
     else
      httpString( cnt, " an unknown faction" );
    }
@@ -1159,8 +1156,8 @@ if( !( num ) )
   else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
-   if( ( user = dbUserLinkID( (long long)newsd[3] ) ) )
-    httpPrintf( cnt, "The forces of %s took control of a <a href=\"planet?id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, (long long)newsd[4], user->faction );
+   if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
+    httpPrintf( cnt, "The forces of %s took control of a <a href=\"planet?id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, (long long)newsd[4], maind.faction );
   }
 
 
@@ -2029,8 +2026,8 @@ if ( curfam == maind.empire ) {
 }
 
 
-if( empired.reserved[0] > 0 ) {
-	sprintf( fname, "/files?type=eimage&name=empire%d/pic%d", curfam, empired.reserved[0] );
+if( empired.picture > 0 ) {
+	sprintf( fname, "/files?type=eimage&name=empire%d/pic%d", curfam, empired.picture );
 	httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
 }
 
@@ -2300,7 +2297,6 @@ void iohtmlFunc_famgetaid( ReplyDataPtr cnt )
  dbMainEmpireDef empired;
  char *accessstring, *playerstring, *resstring[4];
  char *reportstring;
- dbUserPtr user;
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2366,11 +2362,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( empired.player[a] == id )
    continue;
-  if( !( user = dbUserLinkID( empired.player[a] ) ) )
-   continue;
   if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
-  httpPrintf( cnt, "<b>%s</b> - ", user->faction );
+  httpPrintf( cnt, "<b>%s</b> - ", main2d.faction );
   httpPrintf( cnt, "Energy: %lld&nbsp;&nbsp;Mineral: %lld&nbsp;&nbsp;Crystal: %lld&nbsp;&nbsp;Ectrolium: %lld", (long long)main2d.ressource[0], (long long)main2d.ressource[1], (long long)main2d.ressource[2], (long long)main2d.ressource[3] );
   httpPrintf( cnt, "<br><br>" );
  }
@@ -2389,9 +2383,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( empired.player[a] == id )
    continue;
-  if( !( user = dbUserLinkID( empired.player[a] ) ) )
+  if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
-  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
+  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
  }
  httpString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
@@ -2430,9 +2424,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( empired.player[a] == id )
    continue;
-  if( !( user = dbUserLinkID( empired.player[a] ) ) )
+  if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
-  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
+  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
  }
  httpString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
@@ -2699,11 +2693,10 @@ void iohtmlFunc_famleader( ReplyDataPtr cnt )
 {
  int a, b, c, id, curfam, sid, status, relfam, reltype;
  float tax;
- dbUserMainDef maind;
+ dbUserMainDef maind, main2d;
  dbMainEmpireDef empired;
  char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *filename, *taxstring;
  char fname[256];
- dbUserPtr user;
  int *rel;
  char message[USER_DESC_SIZE], message2[USER_DESC_SIZE];
 
@@ -2893,9 +2886,9 @@ httpString( cnt, "</div>" );
  {
   if( empired.player[a] == id )
    continue;
-  if( !( user = dbUserLinkID( empired.player[a] ) ) )
+  if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
-  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
+  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
  }
  httpString( cnt, "</select>" );
  httpString( cnt, "<select name=\"status\">" );
@@ -5589,10 +5582,9 @@ void iohtmlFunc_spec( ReplyDataPtr cnt )
 {
  int a, b, c, id, plnid, optype, opid;
  dbMainPlanetDef planetd;
- dbUserMainDef maind;
+ dbUserMainDef maind, main2d;
  dbUserFleetDef fleetd;
  char *planetstring;
- dbUserPtr user;
  dbUserSpecOpPtr specopd;
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
@@ -5610,7 +5602,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  }
 
- user = 0;
+ memset( &main2d.faction, 0, sizeof(main2d.faction) );
  plnid = -1;
  if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) )
  {
@@ -5620,7 +5612,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    return;
   }
   iohtmlBodyInit( cnt, "Special Operations on planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
-  user = dbUserLinkID( planetd.owner );
+  dbUserMainRetrieve( planetd.owner, &main2d );
  }
  else
   iohtmlBodyInit( cnt, "Special Operations" );
@@ -5678,7 +5670,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_WIZARD], cmdUnitName[CMD_UNIT_WIZARD] );
  httpPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[CMD_READY_PSYCH] >> 16 );
  httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendpsychics\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_WIZARD] );
- httpPrintf( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">", ( user != 0 ) ? ( (char *)user->faction ) : ( "Faction name or ID" ) );
+ httpPrintf( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">", ( planetd.owner != -1 ) ? ( main2d.faction ) : ( "Faction name or ID" ) );
  httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare spell\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
@@ -5730,8 +5722,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
      httpString( cnt, ", unhabited" );
     else
     {
-     if( ( user = dbUserLinkID( specopd[a].factionid ) ) )
-      httpPrintf( cnt, " on <a href=\"player?id=%d\">%s</a>", specopd[a].factionid, user->faction );
+     if( dbUserMainRetrieve( specopd[a].factionid, &main2d ) )
+      httpPrintf( cnt, " on <a href=\"player?id=%d\">%s</a>", specopd[a].factionid, main2d.faction );
     }
     if( opid == CMD_OPER_HIGHINFIL )
      httpPrintf( cnt, " - <a href=\"specinfos?id=%d\">See information</a>", a );
@@ -5739,11 +5731,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    }
    else if( optype == 1 )
    {
-    if( !( user = dbUserLinkID( specopd[a].factionid ) ) )
+    if( !( dbUserMainRetrieve( specopd[a].factionid, &main2d ) ) )
      continue;
     httpPrintf( cnt, "%s for %d weeks on ", cmdPsychicopName[opid], specopd[a].time );
     if( id != specopd[a].factionid )
-     httpPrintf( cnt, "<a href=\"player?id=%d\">%s</a>", specopd[a].factionid, user->faction );
+     httpPrintf( cnt, "<a href=\"player?id=%d\">%s</a>", specopd[a].factionid, main2d.faction );
     else
      httpString( cnt, "yourself" );
     if( opid == CMD_SPELL_DARKWEB )
@@ -5757,7 +5749,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    }
    else if( optype == 2 )
    {
-    if( !( user = dbUserLinkID( specopd[a].factionid ) ) )
+    if( !( dbUserMainRetrieve( specopd[a].factionid, &main2d ) ) )
      continue;
     httpPrintf( cnt, "%s for %d weeks on ", cmdGhostopName[opid], specopd[a].time );
     if( !( cmdGhostopFlags[opid] & 4 ) )
@@ -5768,8 +5760,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
       httpString( cnt, ", unhabited" );
      else
      {
-      if( ( user = dbUserLinkID( specopd[a].factionid ) ) )
-       httpPrintf( cnt, " of <a href=\"player?id=%d\">%s</a>", specopd[a].factionid, user->faction );
+      if( ( dbUserMainRetrieve( specopd[a].factionid, &main2d ) ) )
+       httpPrintf( cnt, " of <a href=\"player?id=%d\">%s</a>", specopd[a].factionid, main2d.faction );
      }
     }
     else
@@ -5802,10 +5794,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpPrintf( cnt, "%s for %d weeks from", cmdPsychicopName[opid], specopd[a].time );
    else
     httpPrintf( cnt, "%s for %d weeks from", cmdGhostopName[opid], specopd[a].time );
-   if( ( specopd[a].factionid == -1 ) || !( user = dbUserLinkID( specopd[a].factionid ) ) )
+   if( ( specopd[a].factionid == -1 ) || !( dbUserMainRetrieve( specopd[a].factionid, &main2d ) ) )
     httpString( cnt, " an unknown faction<br>" );
    else
-    httpPrintf( cnt, " <a href=\"player?id=%d\">%s</a>", specopd[a].factionid, user->faction );
+    httpPrintf( cnt, " <a href=\"player?id=%d\">%s</a>", specopd[a].factionid, main2d.faction );
 
    if( optype == 2 )
    {

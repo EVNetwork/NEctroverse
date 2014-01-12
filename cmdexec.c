@@ -62,7 +62,6 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 {
   int a, b, c, x, y;
   int binfo[MAP_TOTAL_INFO], *fam;
-  //Max 200 emp
   char epass[USER_PASS_MAX];
   dbUserMainDef maind;
   dbMainEmpireDef empired;

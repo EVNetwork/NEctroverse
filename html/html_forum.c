@@ -272,7 +272,7 @@ int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, 
       return 0;
     if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR )
       return 1;
-    if( ((cnt->session)->dbuser)->level & CMD_USER_FLAGS_INDEPENDENT )
+    if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_INDEPENDENT ) )
       return 0;
     if( maind->empire+100 == forum )
       return 1;
@@ -289,7 +289,7 @@ int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, 
   {
     if( id == -1 )
       return 0;
-    if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( bitflag( ((cnt->session)->dbuser)->level, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_COMMINISTER ) ) ) )
+    if( ( forum >= 100 ) && ( maind->empire == forum-100 ) && ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_COMMINISTER ) ) ) )
       return 1;
     if( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR )
       return 0;
@@ -568,7 +568,7 @@ for( a = 0 ; a < b ; a++ ) {
     httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
    //return;
    else
-    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", ((cnt->session)->dbuser)->faction, ((cnt->session)->dbuser)->faction );
+    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
    httpString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
    httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
   }
@@ -640,7 +640,7 @@ if( forum < 100 )  {
    } else {
    httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
-   if( iohttpForumPerms( id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, ((cnt->session)->dbuser)->faction ) ))
+   if( iohttpForumPerms( id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, maind.faction ) ))
     httpPrintf( cnt, "<br><a href=\"forum?forum=%d&thread=%d&editpost=%d\">Edit</a> - <a href=\"forum?forum=%d&thread=%d&delpost=%d\">Delete</a>", forum, thread, c, forum, thread, c );
    if((cnt->session)->dbuser)
    {
@@ -677,7 +677,7 @@ if( forum < 100 )  {
     httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
    //return;
    else
-    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", ((cnt->session)->dbuser)->faction, ((cnt->session)->dbuser)->faction );
+    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
    httpString( cnt, "</td></tr><tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
   }
 
@@ -700,7 +700,7 @@ if( forum < 100 )  {
   threadd.posts = 0;
   threadd.authorid = id;
   if( id != -1 )
-   sprintf( threadd.authorname, "%s", ((cnt->session)->dbuser)->faction );
+   sprintf( threadd.authorname, "%s", maind.faction );
   else if( namestring )
    iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
   else
@@ -754,7 +754,7 @@ if( forum < 100 )  {
   postd.post.authorid = id;
   if( id != -1 )
   {
-   sprintf( postd.post.authorname, "%s", ((cnt->session)->dbuser)->faction );
+   sprintf( postd.post.authorname, "%s", maind.faction );
    sprintf( postd.post.authortag, "%s", ((cnt->session)->dbuser)->forumtag );
   }
   else
@@ -801,7 +801,7 @@ if( forum < 100 )  {
    httpString( cnt, "This post doesn't exist</center></body></html>" );
    return;
   }
-  if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, ((cnt->session)->dbuser)->faction ) ) ) )
+  if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, maind.faction ) ) ) )
   {
    httpString( cnt, "You are not authorized to delete this post</center></body></html>" );
    if( posts[0].text )
@@ -833,7 +833,7 @@ if( forum < 100 )  {
    httpString( cnt, "This post doesn't exist</center></body></html>" );
    return;
   }
-  if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, ((cnt->session)->dbuser)->faction ) ) ) )
+  if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, maind.faction ) ) ) )
   {
    httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
    if( posts[0].text )
@@ -874,7 +874,7 @@ if( forum < 100 )  {
    httpString( cnt, "This post doesn't exist</center></body></html>" );
    return;
   }
-  if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, ((cnt->session)->dbuser)->faction ) ) ) )
+  if( !( iohttpForumPerms( id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, maind.faction ) ) ) )
   {
    httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
    if( posts[0].text )

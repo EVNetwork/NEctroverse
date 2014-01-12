@@ -1587,7 +1587,7 @@ settings[2] = GetSetting( "Admin Empire Password" );
 listarray = ListAdmins( settings[0]->num_value );
 for( a = 0; a < settings[0]->num_value; a++ ) {
 
-	if( !( listarray[a].name ) || !( listarray[a].password ) || !( listarray[a].faction ) || ( ( id = dbUserSearch( listarray[a].name ) ) >= 0 ) )
+	if( !( listarray[a].name ) || !( listarray[a].password ) || !( listarray[a].email ) || ( ( id = dbUserSearch( listarray[a].name ) ) >= 0 ) )
 		continue;
 
 	info( "Creating %sAdministrator account named: \"%s\"", (( listarray[a].level >= LEVEL_MODERATOR ) ? "" : "Non-"), listarray[a].name );

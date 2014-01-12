@@ -210,7 +210,7 @@ for( a = 0; a < num; a++ ) {
 	snprintf(buffer, sizeof(buffer), "admin%d:password", a+1 );
 	strcpy( array[a].password, iniparser_getstring(config, buffer, "" ) );
 	snprintf(buffer, sizeof(buffer), "admin%d:faction", a+1 );
-	strcpy( array[a].faction, iniparser_getstring(config, buffer, "" ) );
+	strcpy( array[a].email, iniparser_getstring(config, buffer, "" ) );
 	snprintf(buffer, sizeof(buffer), "admin%d:forumtag", a+1 );
 	strcpy( array[a].forumtag, iniparser_getstring(config, buffer, "" ) );
 	snprintf(buffer, sizeof(buffer), "admin%d:level", a+1 );
