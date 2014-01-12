@@ -167,7 +167,12 @@ ret->dbuser = NULL;
 if( type == SESSION_HTTP ) {
 	RANDOMIZE_SEED;
 	snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-	snprintf(ret->sid, SESSION_SIZE, "%s", hashencrypt( buffer ) );
+	char buf[SESSION_SIZE];
+	size_t sizes[2];
+	sizes[0] = SESSION_SIZE;
+	sizes[1] = strlen( buffer );
+	base64_encode( (unsigned char *)buf, &sizes[0], (const unsigned char *)buffer, sizes[1] );
+	snprintf(ret->sid, SESSION_SIZE, "%s", buf );
 } else if( type == SESSION_IRC ) {
 	snprintf(ret->sid, SESSION_SIZE, "%s", cookie );
 }
@@ -900,7 +905,7 @@ if( ( temp_x[0] ) && ( temp_x[1] ) ) {
 }
 
 request = *ptr;
-if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( allowed ) ) {
+if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) /*&& ( allowed )*/ ) {
 	if (NULL == request) {
 		if (NULL == (request = malloc (sizeof (RequestDef))))
 			return MHD_NO; /* out of memory, close connection */
@@ -1405,6 +1410,55 @@ UnloadConfig();
 return;
 }
 
+
+char *URLAppend( ReplyDataPtr cnt, char *url ) {
+	ConfigArrayPtr settings[2];
+	char md5sum[MD5_HASHSUM_SIZE];
+	char buffer[DEFAULT_BUFFER];
+	char *r = buffer;
+	int offset;
+
+
+
+settings[0] = GetSetting( "Tick Speed" );
+settings[1] = GetSetting( "Server Name" );
+
+snprintf( r, DEFAULT_BUFFER, "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
+md5_string( r, md5sum );
+
+
+offset = snprintf( r, DEFAULT_BUFFER, "%s", url );
+
+offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "?%s=%s", md5sum, (cnt->session)->sid );
+
+if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
+	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "%s", "&fbapp=true" );
+}
+
+#if FACEBOOK_SUPPORT
+if( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) {
+	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
+}
+#endif
+
+return r;
+}
+
+void URLString( ReplyDataPtr cnt, char *url, char *label ) {
+	char buffer[DEFAULT_BUFFER];
+	int offset;
+
+
+
+offset = snprintf( buffer, DEFAULT_BUFFER, "<a href=\"%s", URLAppend( cnt, url ) );
+offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "\">" );
+offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", label );
+offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "</a>" );
+
+httpString( cnt, buffer );
+
+return;
+}
 
 
 void WWWExpire() {

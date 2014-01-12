@@ -396,7 +396,7 @@ if( refer ) {
 	httpString( cnt, "\twindow.clearTimeout(SD);\n" );
 	httpString( cnt, "\t}\n" );
 	httpString( cnt, "}\n" );
-	httpString( cnt, "xmlhttp.open(\"GET\",\"ajax?typ=\"+str,true);\n" );
+	httpPrintf( cnt, "xmlhttp.open(\"GET\",\"%s&typ=\"+str,true);\n", URLAppend( cnt, "ajax" ) );
 	httpString( cnt, "xmlhttp.send();\n" );
 	httpString( cnt, "}\n" );
 	httpString( cnt, "\n" );

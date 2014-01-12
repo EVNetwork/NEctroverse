@@ -73,7 +73,7 @@ httpPrintf( cnt, "Forum tag : <b>%s</b><br>", infod.forumtag );
 if( !( ticks.status | ticks.number ) ) {
 	httpString( cnt, "<br>Change Faction name<br><i>Only available before time starts.</i><br>" );
 	httpPrintf( cnt, "<form action=\"account\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", maind.faction );
-	httpString( cnt, "<form action=\"account\">Faction race - <a href=\"races\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">" );
+	httpPrintf( cnt, "<form action=\"account\">Faction race - <a href=\"%s\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">", URLAppend( cnt, "races" ) );
 
 	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\"", a );
@@ -106,8 +106,8 @@ httpString( cnt, "</td></tr></table>" );
 }
 #endif
 
-httpString( cnt, "<br><a href=\"changepass\">Change your password</a>" );
-httpString( cnt, "<br><br><a href=\"delete\">Delete your Faction</a>" );
+httpPrintf( cnt, "<br><a href=\"%s\">Change your password</a>", URLAppend( cnt, "changepass" ) );
+httpPrintf( cnt, "<br><br><a href=\"%s\">Delete your Faction</a>", URLAppend( cnt, "delete" ) );
 httpString( cnt, "</td></tr></table>" );
 
 

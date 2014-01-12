@@ -257,4 +257,7 @@ void AddBufferPrint( StringBufferPtr buffer, char *string, ... );
 void httpString( ReplyDataPtr rd, char *string );
 void httpPrintf( ReplyDataPtr rd, char *string, ... );
 
+char *URLAppend( ReplyDataPtr cnt, char *url );
+void URLString( ReplyDataPtr cnt, char *url, char *label );
+
 #endif

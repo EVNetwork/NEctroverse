@@ -53,6 +53,7 @@ if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token");
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
@@ -93,6 +94,7 @@ if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token");
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
@@ -135,6 +137,7 @@ if( curl ) {
 	init_string(&curl_str);
 	curl_easy_setopt(curl, CURLOPT_URL, urlstring );
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
 	res = curl_easy_perform(curl);
@@ -277,6 +280,7 @@ if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, template);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
@@ -312,6 +316,7 @@ if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, post );
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
 	res = curl_easy_perform(curl);
@@ -334,6 +339,7 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	int a, id, offset = 0;
 	char *error, *remove, *host;
 	char *code, *fbtoke;
+	char *dump = NULL;
 	char buffer[1024];
 	#if HTTPS_SUPPORT
 	char temp[2][32];
@@ -356,9 +362,11 @@ sprintf(temp[0], "%d", options.port[PORT_HTTP]);
 sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
 is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
 #endif
-
-snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_https ? "https" : "http"), host  );
-
+if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
+	snprintf( do_redi, sizeof( do_redi ), "%s", "https://apps.facebook.com/nectroverse/facebook?fbapp=true" );
+} else {
+	snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_https ? "https" : "http"), host );
+}
 memset( &fbdata, 0, sizeof(FBUserDef) );
 memset( &token, 0, sizeof(FBTokenDef) );
 memset( &buffer, 0, sizeof(buffer) );
@@ -371,11 +379,42 @@ code = iohtmlVarsFind( cnt, "code" );
 fbtoke = iohtmlVarsFind( cnt, "fblogin_token" );
 remove = iohtmlVarsFind( cnt, "remove" );
 
-if( ( code ) || ( fbtoke ) ){
-	if( code )
+if( ( fbtoke == NULL ) && ( code == NULL ) ) {
+	fbtoke = iohtmlVarsFind( cnt, "signed_request" );
+	if( fbtoke != NULL ) {
+		char *pointer = ( strchr( fbtoke, '.' ) +1 );
+		char *test = strdup( pointer );
+		char buffer[ARRAY_MAX];
+		size_t sizes[2];
+		sizes[0] = ARRAY_MAX;
+		sizes[1] = strlen(test);
+		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
+		test = strdup( buffer );
+		cJSON *root = cJSON_Parse( test );
+		if( root ) {
+			cJSON *message;
+			message = cJSON_GetObjectItem(root,"oauth_token");
+			if( ( message ) ) {
+				info( message->valuestring );
+				dump = strdup( message->valuestring );
+				fbtoke = dump;
+			}
+		}
+		cJSON_Delete(root);
+		free( test );
+	}
+}
+
+if( ( code ) || ( fbtoke ) || ( dump ) ){
+	if( code ) {
 		facebook_usertoken( &token, code );
-	else
+	} else {
+		if( dump ) {
+			strncpy( token.val, dump, sizeof( token.val ) );
+		}
+		else
 		strncpy( token.val, fbtoke, sizeof( token.val ) );
+	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
 		if( !( fbdata.id ) ) {
@@ -424,7 +463,8 @@ if( id >= 0 ) {
 	redirect( cnt, "/" );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
 	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
-	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
+	URLString( cnt, "/", "Click here if it takes too long" );
+	httpString( cnt, "<br>" );
 } else if( fbdata.id[0] ) {
 	if( remove ) {
 		goto REMOVELINK;
@@ -432,9 +472,11 @@ if( id >= 0 ) {
 		goto LINKWITHFB;
 	}
 } else {
-	redirect( cnt, "/" );
-	httpString( cnt, "Invalid Request, reloading to main screen.<br>" );
-	httpString( cnt, "<a href=\"/\">Click here if it takes too long</a><br>" );
+	httpString( cnt, "Invalid Request, unable to load facebook details...<br><br>" );
+	URLString( cnt, "/", "Click here to return to main screen" );
+	httpString( cnt, "<br><br>" );
+	httpString( cnt, "<br><br>" );
+	iohtmlFBConnect( cnt );
 }
 
 goto BAILOUT;
@@ -453,7 +495,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	redirect( cnt, "/main?page=account" );
 	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
 	httpString( cnt, "You should be redirected back to your account screen shortly<br>" );
-	httpString( cnt, "<a href=\"/main?page=account\">Click here if it takes too long</a><br>" );
+	httpPrintf( cnt, "<a href=\"/%s?page=account\">Click here if it takes too long</a><br>", URLAppend( cnt, "main" ) );
 } else {
 	httpString( cnt, "<script type=\"text/javascript\">" );
 	httpString( cnt, "$(document).ready(function(){" );
@@ -524,6 +566,8 @@ if( facebook_unlink_app( fbdata.id ) ) {
 }
 
 BAILOUT:
+if( dump != NULL )
+	free( dump );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -537,6 +581,7 @@ void iohtmlFBConnect( ReplyDataPtr cnt ) {
 	#if HTTPS_SUPPORT
 	char temp[2][32];
 	#endif
+
 
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
@@ -556,10 +601,13 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
 	is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
 	#endif
-
-	sprintf( url, "%s://%s/facebook", (is_https ? "https" : "http"), host  );
-
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", url );
+	
+	if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
+		httpString( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"https://apps.facebook.com/nectroverse/facebook?fbapp=true\">" );
+	} else {
+		sprintf( url, "%s://%s/facebook", (is_https ? "https" : "http"), host );
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", url );	
+	}
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
 } else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
