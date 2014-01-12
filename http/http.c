@@ -623,13 +623,13 @@ html_page[id].function( &rd );
 response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(rd.session, response);
 mark_as( response, mime );
-/*
+
 if( strlen(rd.session->redirect) ) {
 	snprintf( buffer, REDIRECT_MAX, "0; url=%s", rd.session->redirect );
 	memset( &rd.session->redirect, 0, REDIRECT_MAX );
 	MHD_add_response_header(response, MHD_HTTP_HEADER_REFRESH, buffer );
 }
-*/
+
 ret = MHD_queue_response( rd.connection, MHD_HTTP_OK, response );
 MHD_destroy_response( response );
 
@@ -766,6 +766,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 	int i;
 
 if( ( !( filename ) ) ) {
+	info(  );
 	return postdata_set( uc->session, key, data );
 }
 if (NULL == filename) {
@@ -900,7 +901,7 @@ if( ( temp_x[0] ) && ( temp_x[1] ) ) {
 }
 
 request = *ptr;
-if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) /*&& ( allowed )*/ ) {
+if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( allowed ) ) {
 	if (NULL == request) {
 		if (NULL == (request = malloc (sizeof (RequestDef))))
 			return MHD_NO; /* out of memory, close connection */
