@@ -1572,26 +1572,20 @@ int cmdInit() {
 	char string[2][USER_NAME_MAX];
 	dbUserPtr user;
 	dbUserInfoDef infod;
-	ConfigArrayPtr settings[3];
 	dbUserInfoPtr listarray;
-	ConfigArrayPtr map;
+	ConfigArrayPtr settings;
 
-char *list[3] = { "Map Size", "Map Systems", "Map Families" };
-map = ListSettings( list );
-free( map );
+char *list[4] = { "Create Admins", "Admin Empire Number", "Admin Empire Password", "Create Fakes" };
+settings = ListSettings( list );
 
-settings[0] = GetSetting( "Create Admins" );
-settings[1] = GetSetting( "Admin Empire Number" );
-settings[2] = GetSetting( "Admin Empire Password" );
-
-listarray = ListAdmins( settings[0]->num_value );
-for( a = 0; a < settings[0]->num_value; a++ ) {
+listarray = ListAdmins( settings[0].num_value );
+for( a = 0; a < settings[0].num_value; a++ ) {
 
 	if( !( listarray[a].name ) || !( listarray[a].password ) || !( listarray[a].email ) || ( ( id = dbUserSearch( listarray[a].name ) ) >= 0 ) )
 		continue;
 
 	info( "Creating %sAdministrator account named: \"%s\"", (( listarray[a].level >= LEVEL_MODERATOR ) ? "" : "Non-"), listarray[a].name );
-	if( ( id = cmdExecNewUser( listarray[a].name, listarray[a].password, listarray[a].faction ) ) < 0 ) {
+	if( ( id = cmdExecNewUser( listarray[a].name, listarray[a].password, listarray[a].email ) ) < 0 ) {
 		error( "Failure Creating %sAdministrator account: \"%s\"", (( listarray[a].level >= LEVEL_MODERATOR ) ? "" : "Non-"), listarray[a].name );
 		continue;
 	}
@@ -1605,7 +1599,7 @@ for( a = 0; a < settings[0]->num_value; a++ ) {
 
 	if( user->level >= LEVEL_MODERATOR ) { 
 		info( "Placing Administrator account: \"%s\"", infod.name );
-		if( cmdExecNewUserEmpire( id, (int)settings[1]->num_value, settings[2]->string_value, (( listarray[a].flags >= 0 ) ? listarray[a].flags : 0), user->level ) < 0 ) {
+		if( cmdExecNewUserEmpire( id, (int)settings[1].num_value, settings[2].string_value, (( listarray[a].flags >= 0 ) ? listarray[a].flags : 0), user->level ) < 0 ) {
 			error( "Failure Placing Administrator account: \"%s\"", infod.name );
 			continue;
 		}
@@ -1618,14 +1612,10 @@ for( a = 0; a < settings[0]->num_value; a++ ) {
 	}
 }
 free( listarray );
-UnloadSetting( "Create Admins" );
-UnloadSetting( "Admin Empire Password" );
 
-
-settings[0] = GetSetting( "Create Fakes" );
-if( settings[0]->num_value > 0 ) {
+if( settings[3].num_value > 0 ) {
 	pass = exist = 0;
-	for( a = 0; a < settings[0]->num_value; a++ ) {
+	for( a = 0; a < settings[3].num_value; a++ ) {
 		sprintf(string[0], "fake%05duser", a );
 		sprintf(string[1], "Fake Faction %d", a );
 		if( ( id = dbUserSearch( string[0] ) ) >= 0 ) {
@@ -1658,7 +1648,14 @@ if( settings[0]->num_value > 0 ) {
 	}
 	RANDOMIZE_SEED;
 }
+
+
+free( settings );
+
 UnloadSetting( "Create Fakes" );
+UnloadSetting( "Create Admins" );
+UnloadSetting( "Admin Empire Password" );
+
 
 dbFlush();
 

@@ -232,7 +232,6 @@ return array;
 //... Or, make one list and just use them over and over, just remember to free any usage of this function.
 ConfigArrayPtr makelistfromconfig( char **list, char *sourcefile, int sourceline ) {
 	ConfigArrayPtr array;
-	ConfigArrayPtr fetch;
 	int a, count;
 
 count = 0;
@@ -252,8 +251,7 @@ if( ( array = calloc( count, sizeof(ConfigArrayDef) ) ) == NULL ) {
 }
 
 for( a = 0; list[a]; a++ ) {
-	fetch = loadfromconfig( list[a], sourcefile, sourceline );
-	memcpy( &array[a], fetch, sizeof(ConfigArrayDef) );
+	array[a] = *loadfromconfig( list[a], sourcefile, sourceline );;
 }
 
 
