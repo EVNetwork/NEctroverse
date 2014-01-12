@@ -460,7 +460,7 @@ if( id >= 0 ) {
 	fbdata.token = token;
 	infod.fbinfo = fbdata;
 	dbUserInfoSet( id, &infod );
-	redirect( cnt, "/" );
+	redirect( cnt, "%s", URLAppend( cnt, "/" ) );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
 	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
 	URLString( cnt, "/", "Click here if it takes too long" );
@@ -529,7 +529,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
         httpString( cnt, "</select></div>" );
 
 	httpString( cnt, "<div class=\"login hidebox\">" );
-	httpString( cnt, "<form action=\"/login\" method=\"POST\">" );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
 	httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
 	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
@@ -537,7 +537,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	httpString( cnt, "</div>" );
 
 	httpString( cnt, "<div class=\"create hidebox\">" );
-	httpString( cnt, "<form action=\"/register\" method=\"POST\">" );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
 	httpString( cnt, "Please choose a Faction name<br>" );
 	httpString( cnt, "<input type=\"text\" name=\"faction\"><br>" );
@@ -546,7 +546,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	httpString( cnt, "</div>" );
 
 	httpString( cnt, "<div class=\"remove hidebox\">" );
-	httpString( cnt, "<form action=\"/facebook\" method=\"POST\">" );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "facebook" ) );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"remove\" value=\"%s\">", fbdata.id );
 	httpString( cnt, "<input type=\"submit\" value=\"Remove Facebook Permissions\"></form>" );
