@@ -130,7 +130,7 @@ SessionPtr get_session( int type, void *cls ) {
 	time_t now;
 	char buffer[256];
 	char md5sum[MD5_HASHSUM_SIZE];
-	const char *cookie;
+	const char *cookie = NULL;
 	ConfigArrayPtr settings[2];
 
 if( type == SESSION_HTTP ) {
@@ -140,6 +140,8 @@ if( type == SESSION_HTTP ) {
 	snprintf( buffer, sizeof(buffer), "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
 	md5_string( buffer, md5sum );
 	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, md5sum );
+	if( cookie == NULL )
+		cookie = MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, md5sum );
 } else if( type == SESSION_IRC ) {
 	cookie = cls;
 }
@@ -167,12 +169,7 @@ ret->dbuser = NULL;
 if( type == SESSION_HTTP ) {
 	RANDOMIZE_SEED;
 	snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-	char buf[SESSION_SIZE];
-	size_t sizes[2];
-	sizes[0] = SESSION_SIZE;
-	sizes[1] = strlen( buffer );
-	base64_encode( (unsigned char *)buf, &sizes[0], (const unsigned char *)buffer, sizes[1] );
-	snprintf(ret->sid, SESSION_SIZE, "%s", buf );
+	snprintf(ret->sid, SESSION_SIZE, "%s", buffer );
 } else if( type == SESSION_IRC ) {
 	snprintf(ret->sid, SESSION_SIZE, "%s", cookie );
 }
