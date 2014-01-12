@@ -7,7 +7,7 @@
 #define _GNU_SOURCE  1
 
 /* disable debugging symbols support */
-#define DEBUG_SUPPORT 1
+#define DEBUG_SUPPORT 0
 
 /* disable HTTPS support */
 #define FACEBOOK_SUPPORT 1

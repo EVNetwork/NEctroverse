@@ -86,20 +86,18 @@ if( flags & 1 ) {
 httpString( cnt, "</head>" );
 httpString( cnt, "<body" );
 
-if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
-	if( flags & 8 )
-		httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href };" );
-	else
-		httpString( cnt, " onload=\"if (window == window.top) { \
-		if( top.location.search ) { \
-		top.location.href=\'main?page=\'+top.location.pathname+top.location.search;\
-		} else { \
-		top.location.href=\'main?page=\'+top.location.pathname ;\
-		}\
-		};" );
-}
+if( flags & 8 )
+	httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href }; countDown();\" " );
+else
+	httpString( cnt, " onload=\"if (window == window.top) { \
+	if( top.location.search ) { \
+	top.location.href=\'main?page=\'+top.location.pathname+top.location.search;\
+	} else { \
+	top.location.href=\'main?page=\'+top.location.pathname ;\
+	}\
+	}; countDown();\" " );
 
-httpString( cnt, "countDown();\">" );
+httpString( cnt, ">" );
 
 httpString( cnt, "<center>" );
 
