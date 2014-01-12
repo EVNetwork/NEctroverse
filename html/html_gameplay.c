@@ -7129,7 +7129,18 @@ if( stat( COREDIR, &stdata ) != -1 ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
 				error( "Failure reading round rankings infomation: %s", COREDIR );
 			} else {
-				httpString( cnt, data );
+				char temp[REDIRECT_MAX];
+				snprintf( temp, REDIRECT_MAX, "%s&", URLAppend( cnt, "empire") );
+				char *block = str_replace(data, "empire?", temp );
+
+				snprintf( temp, REDIRECT_MAX, "%s&", URLAppend( cnt, "player") );
+				char *block2 = str_replace(block, "player?", temp );
+				httpString( cnt, block2 );
+				if( block )
+					free( block );
+				if( block2 )
+					free( block2 );
+					
 			}
 			fclose( file );
 		}
