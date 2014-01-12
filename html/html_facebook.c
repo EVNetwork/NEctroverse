@@ -544,7 +544,7 @@ settings[1] = GetSetting( "Facebook Secret" );
 if( ( strlen( settings[0]->string_value ) <= 0 ) || ( strlen( settings[1]->string_value ) <= 0 ) )
 	return;
 
-if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) )) ) ) {
+if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) )) ) ) {
 
 	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", settings[0]->string_value );
@@ -562,7 +562,7 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", url );
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
-} else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) ) ) {
+} else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 	httpString( cnt, "<b>This Account is linked with Facebook.</b><br>" );
 }
 
@@ -574,10 +574,10 @@ void facebook_update_user( dbUserPtr user ) {
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
 
-if( ( user ) && bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
+if( ( user ) && ( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 	facebook_getdata_id( &fbdata, user->fbid );
 	fbdata.updated = time(0);
-	if( !( fbdata.connected ) ) {
+	if( !( fbdata.connected ) && !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 		memset( &user->fbid, 0, sizeof(user->fbid) );
 		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
 		dbUserSave( user->id, user );
