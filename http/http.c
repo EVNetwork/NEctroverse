@@ -888,19 +888,19 @@ static int create_response (void *cls, struct MHD_Connection *connection, const 
   int ret;
   unsigned int i;
   const char *temp_x[2];
-  bool local;
+  bool allowed;
 
 temp_x[0] = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "Referer");
 temp_x[1] = MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "Host");
 
 if( ( temp_x[0] ) && ( temp_x[1] ) ) {
-	local = strstr( temp_x[0], temp_x[1] ) ? true : false;
+	allowed = strstr( temp_x[0], temp_x[1] ) ? true : false;
 } else {
-	local = false;
+	allowed = false;
 }
 
 request = *ptr;
-if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( local ) ) {
+if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) /*&& ( allowed )*/ ) {
 	if (NULL == request) {
 		if (NULL == (request = malloc (sizeof (RequestDef))))
 			return MHD_NO; /* out of memory, close connection */
