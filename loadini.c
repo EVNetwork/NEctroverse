@@ -25,7 +25,7 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_INT, "https:port", "9991", "HTTPS Port" },
 	{ INI_TYPE_STRING, "https:key", "", "HTTPS Key" },
 	{ INI_TYPE_STRING, "https:cert", "", "HTTPS Cert" },
-	{ INI_TYPE_STRING, "https:bundle", "", "HTTPS Bundle" },
+	{ INI_TYPE_STRING, "https:trust", "", "HTTPS Trust" },
 	#endif
 
 	{ INI_TYPE_INT, "ticks:round", "0", "Round Number" },
