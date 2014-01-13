@@ -1235,7 +1235,6 @@ internal_add_connection (struct MHD_Daemon *daemon,
           gnutls_credentials_set (connection->tls_session,
 				  GNUTLS_CRD_CERTIFICATE,
 				  daemon->x509_cred);
-	  gnutls_certificate_send_x509_rdn_sequence(connection->tls_session, 0 );
           break;
         default:
 #if HAVE_MESSAGES
