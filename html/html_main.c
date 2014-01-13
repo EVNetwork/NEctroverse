@@ -66,12 +66,12 @@ httpPrintf( cnt, "<title>%s</title>", settings->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&name=favicon.ico\">" );
 httpPrintf( cnt, "<link href=\"%s&type=server&name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 if( !( flags & 32 ) ) {
-	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 	if( flags & 8 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=status.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 }
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );

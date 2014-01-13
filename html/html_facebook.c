@@ -656,8 +656,9 @@ httpString( cnt, "if(response.status==='connected'){" );
 httpString( cnt, "redirect_forlink();" );
 httpString( cnt, "}" );
 httpString( cnt, "});" );
-httpString( cnt, "};" );
 */
+httpString( cnt, "};" );
+
 httpString( cnt, "(function(d){" );
 httpString( cnt, "var js,id='facebook-jssdk',ref=d.getElementsByTagName('script')[0];" );
 httpString( cnt, "if(d.getElementById(id)){return;}" );
