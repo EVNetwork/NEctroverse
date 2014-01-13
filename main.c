@@ -99,17 +99,6 @@ return str;
 int daemonloop() {
 	time_t curtime;
 
-//Start HTTP Server(s)
-if( http_prep() )
-	return 1;
-
-if( http_start() )
-	return 1;
-
-#if HTTPS_SUPPORT
-if( https_start() )
-	return 1;
-#endif
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
 while( sysconfig.shutdown == false ) {
@@ -170,7 +159,7 @@ if( irc_is_connected(sysconfig.irc_session) ) {
 
 Shutdown();
 
-return 0;
+return YES;
 }
 
 //begin upgrade to daemon, I don't like shell dependancy!
@@ -188,9 +177,9 @@ if( options.mode == MODE_FORKED ) {
 pid = fork();
 if(pid < 0) {
 	error( "Forking Error: %d" )
-	return 0;
+	return NO;
 } else if(pid > 0) {
-	return 1; // So we forked it, time to return and wait for results on a client pipe.
+	return YES; // So we forked it, time to return and wait for results on a client pipe.
 }
 
 settings[0] = GetSetting( "Server Name" );
@@ -199,13 +188,13 @@ info( "Begining initiation of %s daemon...", settings[0]->string_value );
 // First, start a new session
 if((sid = setsid()) < 0) {
 	error( "setsid has failed, unable to fork into daemon" );
-	return 0;
+	return NO;
 }
 
 // Next, make /tmp/evcore the current directory. -- I do this, just because I can. (It doesn't matter it changes a lot latter, I need to fix that still).
 if((chdir(TMPDIR)) < 0) {
 	error( "chdir has failed, unable to fork into daemon" );
-	return 0;
+	return NO;
 }
 
 // Reset the file mode
@@ -243,16 +232,15 @@ signal( SIGUSR2, &svSignal);
 	
 RANDOMIZE_SEED;
 
-if( !( dbInit("Database initialisation failed, exiting\n") ) ) {
-
+if( dbInit() == NO ) {
 	loghandle(LOG_CRIT, false, "%s", "Server Database Initation Failed, now exiting..." );
-	return 0;
+	return NO;
 }
 
 
-if( !( cmdInit() ) )  {
+if( cmdInit() == NO )  {
 	loghandle(LOG_CRIT, false, "%s", "Server Command Initation Failed, now exiting..." );
-	return 0;
+	return NO;
 }
 
 settings[0] = GetSetting( "Directory" );
@@ -260,7 +248,7 @@ sprintf( DIRCHECKER, "%s/data", settings[0]->string_value );
 if( chdir( DIRCHECKER ) == -1 ) {
 	if( options.verbose )
 	loghandle(LOG_ERR, errno, "Change into Database Dir \"%s\" Failed, exiting", DIRCHECKER );
-	return 0;
+	return NO;
 }
 
 dbMapRetrieveMain( binfo );
@@ -279,6 +267,14 @@ sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 	options.serverpipe = open(DIRCHECKER, O_RDONLY | O_NONBLOCK);
 }
 #endif
+
+if( http_prep() == NO ) {
+	critical( "HTTP Preperation Failed" );
+	return NO;
+} else {
+	info( "HTTP Settings initalized..." );
+}
+
 info( "All Checks passed, begining server loop..." ); 
 
 #if FACEBOOK_SUPPORT
@@ -303,14 +299,28 @@ if( sysconfig.irc_enabled ) {
 }
 #endif
 
-daemonloop();
+//Start HTTP Server(s)
+
+
+if( http_start() == NO ) {
+	critical( "HTTP Server failed to start" );
+	return NO;
+}
+
+#if HTTPS_SUPPORT
+if( https_start() == NO )
+	error( "HTTPS Server failed to start" );
+#endif
+
+if( daemonloop() == NO )
+	return NO;
 
 
 cmdEnd();
 dbEnd();
 
 
-return 1;
+return YES;
 }
 
 int file_exist (char *filename) {
@@ -562,7 +572,7 @@ return 1;
 }
 
 
-int checkops(int argc, char **argv) {
+static int checkops(int argc, char **argv) {
 	int opt_index;
 	char DIRCHECKER[512] = {0};
 	bool result;
@@ -641,7 +651,7 @@ while( (opt = getopt_long(argc, argv, short_opt, long_opt, &opt_index)) != -1) {
 
 if( !( strlen(options.sysini) > 0 ) ) {
 	if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
-		sprintf(options.sysini, "%s/config/evsystem.ini" ,DIRCHECKER);
+		sprintf(options.sysini, "%s/config/evconfig.ini" ,DIRCHECKER);
 	} else {
 		perror("getcwd() error");
 		result = true;
@@ -689,7 +699,7 @@ if( checkops(argc,argv) ) {
 if( file_exist(options.sysini) == 0 ) {
 	printf("File does not exist: \'%s\'\n",options.sysini);
 	//printf("The above file will be created with a default set, please review the file and reload.\n");
-	printf("Use \'-c /path/to/evsystem.ini\' to specify ini file to load (including the file name)\n");
+	printf("Use \'-c /path/to/evconfig.ini\' to specify ini file to load (including the file name)\n");
 	firstload = true;
 } else if( options.verbose ) {
 	info("Using config file: \'%s\'",options.sysini);
@@ -794,7 +804,7 @@ if( !( file_exist(DIRCHECKER) ) ) {
 }
 //Begin deamonization and initate server loop.
 
-if( !( daemon_init( ) ) ) {
+if( daemon_init( ) == NO ) {
 	critical("<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
 	return 1;
 }
@@ -1038,7 +1048,7 @@ char *str_replace(char *orig, char *rep, char *with) {
     len_with = strlen(with);
 
     ins = orig;
-    for (count = 0; tmp = strstr(ins, rep); ++count) {
+    for (count = 0; ( tmp = strstr(ins, rep) ); ++count) {
         ins = tmp + len_rep;
     }
 

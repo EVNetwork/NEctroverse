@@ -1575,7 +1575,7 @@ int cmdInit() {
 	dbUserInfoPtr listarray;
 	ConfigArrayPtr settings;
 
-char *list[4] = { "Create Admins", "Admin Empire Number", "Admin Empire Password", "Create Fakes" };
+char *list[5] = { "Create Admins", "Admin Empire Number", "Admin Empire Password", "Create Fakes", NULL };
 settings = ListSettings( list );
 
 listarray = ListAdmins( settings[0].num_value );

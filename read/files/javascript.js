@@ -108,7 +108,7 @@ function addLoadEvent(func) {
 	}
 }
 
-addLoadEvent(function(){countDown();});
+addLoadEvent( SD=window.setTimeout("countDown();", 1000) );
 
 function togglemb(num) { for(i=0;i<window.document.forms[num].length;i++) if(window.document.forms[num].elements[i].type == "checkbox") window.document.forms[num].elements[i].click(); }
 
@@ -127,14 +127,17 @@ function bytesToSize(bytes) {
 
 function uploadFile(){
 	var file = _("fileupload").files[0];
-	var prompt = confirm("You are about to upload\n"+file.name+" | "+bytesToSize(file.size)+" | "+file.type);
-	if ( prompt == true ) {
-		sendFile(file);
-	} else {
-  		updatehtml("status","Upload aborted!");
+	var destination = _("destination").value;
+	if( ( file ) && ( destination ) ){
+		var prompt = confirm("You are about to upload\n"+file.name+" | "+bytesToSize(file.size)+" | "+file.type);
+		if ( prompt == true ) {
+			sendFile(file, destination);
+		} else {
+  			updatehtml("status","Upload aborted!");
+		}
 	}
 }
-function sendFile(file){
+function sendFile(file, destination){
 	toggle();
 	var formdata = new FormData();
 	formdata.append("uploadfile", file);
@@ -143,7 +146,7 @@ function sendFile(file){
 	ajax.addEventListener("load", completeHandler, false);
 	ajax.addEventListener("error", errorHandler, false);
 	ajax.addEventListener("abort", abortHandler, false);
-	ajax.open("POST", "files");
+	ajax.open("POST", destination);
 	ajax.send(formdata);
 }
 function progressHandler(event){

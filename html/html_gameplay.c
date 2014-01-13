@@ -44,11 +44,11 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Market</a><br>", URLAppend( cnt, "market" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Planets</a><br>", URLAppend( cnt, "planets" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
- httpPrintf( cnt, "<a href=\"%s&forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ) );
+ httpPrintf( cnt, "<a href=\"%s&forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire + 100 );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Relations</a><br>", URLAppend( cnt, "famrels" ), maind.empire + 100 );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
 
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
@@ -1460,7 +1460,7 @@ for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%d</td></tr></table><br><br>", b );
-httpString( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"cancelbuild\">" );
+httpPrintf( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
 
 for( a = c = 0 ; a < numbuild ; a++ ) {
@@ -1497,7 +1497,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br><br>", b );
-httpString( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"cancelbuild\">" );
+httpPrintf( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 
 memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 for( a = c = 0 ; a < numbuild ; a++ ) {
@@ -1579,7 +1579,8 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
    httpString( cnt, buildstring[a] );
  }
 
- httpString( cnt, "<form action=\"units\" method=\"POST\"><table cellspacing=\"6\" border=\"0\"><tr><td><b>Unit</b></td><td><b>Cost</b></td><td><b>Owned</b></td><td><b>Build</b></td></tr>" );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "units" ) );
+ httpString( cnt, "<table cellspacing=\"6\" border=\"0\"><tr><td><b>Unit</b></td><td><b>Cost</b></td><td><b>Owned</b></td><td><b>Build</b></td></tr>" );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
   cmdGetBuildCosts( &maind, 0x10000 | a, resbuild );
@@ -1845,7 +1846,7 @@ if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 ) {
 
 
 
- httpPrintf( cnt, "<form action=\"massbuild\" method=\"POST\">", URLAppend( cnt, "massbuild" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "massbuild" ) );
 
 if (sort == 0)
  httpPrintf( cnt, "<table width=\"100%%\"><tr><td width=\"15%%\"><a href=\"/%s&sort=10\">Planet</a></td>", URLAppend( cnt, "planets" ) );
@@ -2523,7 +2524,7 @@ if( typestring ) {
 }
 
 
-iohtmlBodyInit( cnt, "%s votes", evote ? "Empire" : ( "Unavalible" ) );
+iohtmlBodyInit( cnt, "Vote %s", evote ? " for Empire Leader" : ( "Unavalible" ) );
 
 if( evote ) {
 	if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
@@ -2922,8 +2923,9 @@ httpString( cnt, "</div>" );
 
  httpPrintf( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"%s\" method=\"POST\">Empire picture</td></tr>", URLAppend( cnt, "famleader" ) );
  httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></td></tr>" );
-  httpString( cnt, "<tr><td><input type=\"hidden\" name=\"upload_type\" value=\"empire\"></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"file\" name=\"fileupload\" id=\"fileupload\"></td></tr>" );
+ httpString( cnt, "<tr><td><input type=\"hidden\" name=\"upload_type\" value=\"empire\"></td></tr>" );
+ httpPrintf( cnt, "<tr><td><input type=\"hidden\" id=\"destination\" value=\"%s\"></td></tr>", URLAppend( cnt, "files" ) );
+ httpString( cnt, "<tr><td><input type=\"file\" id=\"fileupload\"></td></tr>" );
  httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br><br><br></td></tr>" );
 
 
@@ -3538,7 +3540,7 @@ void iohtmlFunc_system( ReplyDataPtr cnt )
 
  plnid = systemd.indexplanet;
 if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
- httpPrintf( cnt, "<br>There are %d unexplored planets in this system<br><a href=\"%s&system=%d\">Mass explore system</a>", URLAppend( cnt, "explore" ), systemd.unexplored, sysid );
+ httpPrintf( cnt, "<br>There are %d unexplored planets in this system<br><a href=\"%s&system=%d\">Mass explore system</a>", systemd.unexplored, URLAppend( cnt, "explore" ), sysid );
  httpString( cnt, "<table width=\"100%\" cellspacing=\"6\" cellpadding=\"6\">" );
  for( a = b = ln = 0 ; a < systemd.numplanets ; a++, plnid++ )
  {
@@ -7129,17 +7131,29 @@ if( stat( COREDIR, &stdata ) != -1 ) {
 			if( ( fread( data, 1, stdata.st_size, file ) < 1 ) && ( stdata.st_size ) ) {
 				error( "Failure reading round rankings infomation: %s", COREDIR );
 			} else {
+				/*
+				 * So this might not be the best way of doing things
+				 * But it saves hard calling the ranks each time.
+				 * This will append all links in the rankings
+				 */
 				char temp[REDIRECT_MAX];
 				snprintf( temp, REDIRECT_MAX, "%s&", URLAppend( cnt, "empire") );
 				char *block = str_replace(data, "empire?", temp );
-
-				snprintf( temp, REDIRECT_MAX, "%s&", URLAppend( cnt, "player") );
-				char *block2 = str_replace(block, "player?", temp );
-				httpString( cnt, block2 );
-				if( block )
-					free( block );
-				if( block2 )
-					free( block2 );
+				if( block ) {
+					snprintf( temp, REDIRECT_MAX, "%s&", URLAppend( cnt, "player") );
+					char *block2 = str_replace( block, "player?", temp );
+					if( block2 ) {
+						httpString( cnt, block2 );
+						free( block2 );
+					} else {
+						free( block );
+						goto SKIP;
+					}
+				free( block );
+				} else {
+					SKIP:
+					httpString( cnt, data );
+				}
 					
 			}
 			fclose( file );

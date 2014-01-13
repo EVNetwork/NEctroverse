@@ -72,8 +72,9 @@ httpPrintf( cnt, "Forum tag : <b>%s</b><br>", infod.forumtag );
 
 if( !( ticks.status | ticks.number ) ) {
 	httpString( cnt, "<br>Change Faction name<br><i>Only available before time starts.</i><br>" );
-	httpPrintf( cnt, "<form action=\"account\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", maind.faction );
-	httpPrintf( cnt, "<form action=\"account\">Faction race - <a href=\"%s\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">", URLAppend( cnt, "races" ) );
+	httpPrintf( cnt, "<form action=\"%s\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", URLAppend( cnt, "account" ), maind.faction );
+	httpPrintf( cnt, "<form action=\"%s\">Faction race - ", URLAppend( cnt, "account" ) );
+	httpPrintf( cnt, "<a href=\"%s\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">", URLAppend( cnt, "races" ) );
 
 	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\"", a );
@@ -86,7 +87,7 @@ if( !( ticks.status | ticks.number ) ) {
 
 iohttpForumFilter3( description, infod.desc, USER_DESC_SIZE );
 httpString( cnt, "<br>" );
-httpString( cnt, "<form action=\"account\" method=\"POST\"><i>Faction description</i><br>" );
+httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><i>Faction description</i><br>", URLAppend( cnt, "account" ) );
 httpString( cnt, "<textarea name=\"desc\" wrap=\"soft\" rows=\"4\" cols=\"64\">" );
 httpString( cnt, description );
 httpString( cnt, "</textarea><br>" );
@@ -165,7 +166,8 @@ void iohtmlFunc_changepass( ReplyDataPtr cnt )
       httpString( cnt, "<i>Password has been changed.</i><br><br>" );
   }
 
-  httpString( cnt, "<form action=\"changepass\" method=\"POST\">Current Password:<br><input type=\"password\" name=\"password\" size=\"16\"><br><br>" );
+  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "changepass" ) );
+  httpString( cnt, "Current Password:<br><input type=\"password\" name=\"password\" size=\"16\"><br><br>" );
   httpString( cnt, "New Password:<br><input type=\"password\" name=\"newpass1\" size=\"16\"><br><br>" );
   httpString( cnt, "Repeat New Password:<br><input type=\"password\" name=\"newpass2\" size=\"16\"><br><br>" );
   httpString( cnt, "<input type=\"submit\" name=\"Change\"></center>" );
@@ -192,7 +194,7 @@ void iohtmlFunc_delete( ReplyDataPtr cnt )
   if( !( iohtmlHeader( cnt, id, &maind ) ) )
     return;
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
-	error( "Error in user html delete, getting real info" );
+	error( "Error getting info" );
 	return;
 }
   iohtmlBodyInit( cnt, "Delete faction" );
@@ -233,7 +235,8 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
     return;
   }
 
-  httpString( cnt, "<form action=\"delete\" method=\"POST\"><table><tr><td>Please specify the kind of deletion<br><select name=\"delete\">" );
+  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "delete" ) );
+  httpString( cnt, "<table><tr><td>Please specify the kind of deletion<br><select name=\"delete\">" );
   httpString( cnt, "<option value=\"1\">Keep the account to join a different empire" );
   httpString( cnt, "<option value=\"0\">Delete the faction and the account" );
   httpString( cnt, "</select><br><br>How should your emperor career end?<br><select name=\"death\">" );

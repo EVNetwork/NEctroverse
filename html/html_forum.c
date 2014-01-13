@@ -448,8 +448,9 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
-  if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) )
+  if( ( id != -1 ) && ( forum != maind.empire + 100 ) && ( maind.empire != -1 ) ) {
    httpPrintf( cnt, " - <a href=\"%s&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire + 100 );
+   }
   httpString( cnt, "</td></tr></table>" );
 
   httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
@@ -499,7 +500,8 @@ if( forums )
 	 }
 	 	settings = GetSetting( "Server Name" );
 		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
-		httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - <a href=\"%s\">%s public forums</a> - %s</td><td align=\"right\">", URLAppend( cnt, "/" ), settings->string_value, URLAppend( cnt, "forum" ), settings->string_value, forumd.title );
+		httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
+		httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), settings->string_value, forumd.title );
 if( forum < 100 ) {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
@@ -563,7 +565,9 @@ for( a = 0 ; a < b ; a++ ) {
 
   if( iohttpForumPerms( id, forum, cnt, &maind, forumd.wperms ) )
   {
-   httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum );
+   httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
+   httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
+   httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
    if( id == -1 )
     httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
    //return;
@@ -605,7 +609,9 @@ for( a = 0 ; a < b ; a++ ) {
   }
 settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
-  httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - <a href=\"%s\">%s public forums</a> - <a href=\"%s&forum=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "/" ), settings->string_value, URLAppend( cnt, "forum" ), settings->string_value, URLAppend( cnt, "forum" ), forum, forumd.title, threadd.topic );
+  httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
+  httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - ", URLAppend( cnt, "forum" ), settings->string_value );
+  httpPrintf( cnt, "<a href=\"%s&forum=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), forum, forumd.title, threadd.topic );
 if( forum < 100 )  {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
@@ -640,8 +646,10 @@ if( forum < 100 )  {
    } else {
    httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
-   if( iohttpForumPerms( id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, maind.faction ) ))
-    httpPrintf( cnt, "<br><a href=\"%s&forum=%d&thread=%d&editpost=%d\">Edit</a> - <a href=\"%s&forum=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), forum, thread, c, URLAppend( cnt, "forum" ), forum, thread, c );
+   if( iohttpForumPerms( id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, maind.faction ) )) {
+    	httpPrintf( cnt, "<br><a href=\"%s&forum=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), forum, thread, c );
+    	httpPrintf( cnt, "<a href=\"%s&forum=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), forum, thread, c );
+    }
    if((cnt->session)->dbuser)
    {
 	   if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
@@ -672,7 +680,9 @@ if( forum < 100 )  {
 
   if( iohttpForumPerms( id, forum, cnt, &maind, forumd.wperms ) )
   {
-   httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><table cellspacing=\"3\"><tr><td>Name</td><td>", forum, thread );
+   httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
+   httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\">", forum, thread );
+   httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
    if( id == -1 )
     httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
    //return;
@@ -843,7 +853,8 @@ if( forum < 100 )  {
    return;
   }
 
-  httpPrintf( cnt, "<form action=\"forum\" method=\"POST\"><input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><input type=\"hidden\" name=\"editpost\" value=\"%d\">", forum, thread, post );
+  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
+  httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\"><input type=\"hidden\" name=\"thread\" value=\"%d\"><input type=\"hidden\" name=\"editpost\" value=\"%d\">", forum, thread, post );
   httpString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 
   if( !( text = malloc( 2 * FORUM_MAX ) ) )

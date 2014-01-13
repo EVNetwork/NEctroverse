@@ -10,7 +10,7 @@ You can find the original source code at https://github.com/ectroverse/evsource
 
 To install the game:<br>
 Edit config/buildflags.h to ajust optinal addins.<br>
-Edit config/evsystem.ini and change as required.<br>
+Edit config/evconfig.ini and change as required.<br>
 
 Additional Librarys needed for components:
 * build-essential -- needed, but you should already have that.
@@ -34,4 +34,8 @@ NEctroverse can run in forked daemon mode, which does not require a shell.<br>
 This does not require any extra librarys, and will save logs via syslog feature.
 
 KNOWN BUGS - Very annoying and need to go:
-* Council Production glitches out for some.
+* Facebook linkage is unstable.
+* Empire Positions can not be changed.
+* ... Possibly more
+* ... Join and help find them all!
+* .... ?

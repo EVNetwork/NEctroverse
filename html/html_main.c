@@ -64,14 +64,14 @@ httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
 httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", settings->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&name=favicon.ico\">" );
-httpString( cnt, "<link href=\"files?type=server&name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">" );
+httpPrintf( cnt, "<link href=\"%s&type=server&name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 if( !( flags & 32 ) ) {
-	httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=javascript.js\"></script>" );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 	if( flags & 8 )
-		httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=jquery-1.10.2.min.js\"></script>" );
-	httpString( cnt, "<script type=\"text/javascript\" src=\"ajax.js\"></script>" );
+		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
-		httpString( cnt, "<script type=\"text/javascript\" src=\"files?type=server&name=status.js\"></script>" );
+		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=status.js\"></script>", URLAppend( cnt, "files" ) );
 }
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
@@ -87,19 +87,21 @@ httpString( cnt, "</head>" );
 httpString( cnt, "<body" );
 
 if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
-	if( flags & 8 )
-		httpString( cnt, " onload=\"if (window != window.top) { top.location.href=location.href };" );
-	else
-		httpString( cnt, " onload=\"if (window == window.top) { \
-		if( top.location.search ) { \
-		top.location.href=\'main?page=\'+top.location.pathname+top.location.search;\
-		} else { \
-		top.location.href=\'main?page=\'+top.location.pathname ;\
-		}\
-		};" );
+	if( flags & 8 ) {
+		httpString( cnt, " onload=\"if(window != window.top){top.location.href=location.href};" );
+	} else {
+		httpString( cnt, " onload=\"if(window==window.top){" );
+		httpString( cnt, "if(top.location.search ){" );
+		httpString( cnt, "top.location.href=\'main\'+top.location.search+\'&page=\'+top.location.pathname+top.location.search;" );
+		httpString( cnt, "}else{" );
+		httpString( cnt, "top.location.href=\'main?page=\'+top.location.pathname;" );
+		httpString( cnt, "}" );
+		httpString( cnt, "};" );
+	}
 }
 
-httpString( cnt, "countDown();\">" );
+//httpString( cnt, "countDown();" );
+httpString( cnt, "\">" );
 
 httpString( cnt, "<center>" );
 
@@ -879,7 +881,9 @@ void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
 	ConfigArrayPtr settings;
 	struct stat stdata;
 	char *data, *name, *pass;
+	#if FACEBOOK_SUPPORT
 	char *token = NULL;
+	#endif
 	char DIRCHECKER[PATH_MAX];
 	char timebuf[512];
 	time_t tint;

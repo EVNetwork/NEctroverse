@@ -8,6 +8,8 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "syslog:facility", "LOG_LOCAL6", "Log Handle" },
 	{ INI_TYPE_STRING, "syslog:tag", "EVServer", "Log Tag" },
 	
+	{ INI_TYPE_INT, "system:http_port", "9990", "HTTP Port" },
+	
 	{ INI_TYPE_STRING, "system:name", "NEctroverse", "Server Name" },
 	{ INI_TYPE_STRING, "system:cookiedomain", "false", "Cookie Domain" },
 
@@ -17,18 +19,21 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "system:httpread", "/tmp/evcore/html/read", "HTTP Text" },
 	{ INI_TYPE_STRING, "system:publicforum", "/tmp/evcore/data", "Public Forum" },
 
-	{ INI_TYPE_INT, "system:http_port", "9990", "HTTP Port" },
+	{ INI_TYPE_INT, "system:notices", "5", "Display Notices" },
+
 	#if HTTPS_SUPPORT
-	{ INI_TYPE_INT, "system:https_port", "9991", "HTTPS Port" },
+	{ INI_TYPE_INT, "https:port", "9991", "HTTPS Port" },
+	{ INI_TYPE_STRING, "https:key", "", "HTTPS Key" },
+	{ INI_TYPE_STRING, "https:cert", "", "HTTPS Cert" },
+	{ INI_TYPE_STRING, "https:bundle", "", "HTTPS Bundle" },
 	#endif
 
-	{ INI_TYPE_INT, "system:notices", "5", "Display Notices" },
-	{ INI_TYPE_INT, "system:stockpile", "0", "Stockpile" },
-	{ INI_TYPE_INT, "system:auto_victory_afterticks", "0", "Auto Victory" },
-	{ INI_TYPE_INT, "system:auto_endwar_afterticks", "0", "End Wars" },
-	{ INI_TYPE_INT, "system:tick_time", "3600", "Tick Speed" },
-
-	{ INI_TYPE_INT, "system:round", "0", "Round Number" },
+	{ INI_TYPE_INT, "ticks:round", "0", "Round Number" },
+	{ INI_TYPE_INT, "ticks:tick_time", "3600", "Tick Speed" },
+	{ INI_TYPE_INT, "ticks:stockpile", "0", "Stockpile" },
+	{ INI_TYPE_INT, "ticks:victory_afterticks", "0", "Auto Victory" },
+	{ INI_TYPE_INT, "ticks:endwar_afterticks", "0", "End Wars" },
+	
 
 	//Auto Start
 	{ INI_TYPE_BOOL, "auto_start:enable", "false", "Auto Start" },
@@ -165,6 +170,11 @@ if( config_listing[index].type == INI_TYPE_STRING ) {
 
 //Got all that, so now than lets make it go!
 if( ( ( ConfigTable[index] != NULL ) && ( ConfigTable[index]->id == index ) ) ) {
+	/*
+	 * Shoulden't really get here... if we do, it's because settings are being called too fast. 
+	 * -- Ignorable, just informational. Causes no trouble... as the index is fixed with build.
+	 * 
+	 */
 	loghandle(LOG_ERR, 0, "Entry already indexed: \'%s\' ( Called from %s on line:%d )", name, sourcefile, sourceline);
 } else {
 	newset = calloc( 1, sizeof(ConfigArrayDef) );
@@ -189,10 +199,12 @@ if( config != NULL ) {
 
 return ConfigTable[index];
 }
-
-//  -- This is ONLY for cmd.c Admin creation --
-//Fetch list of Admin details needed for account creation, number was already loaded and so it's just passed in
-//Rember that returns of this function need to be free'd once finished with 
+/*
+ *  -- This is ONLY for cmd.c Admin creation --
+ * Fetch list of Admin details needed for account creation, number was already loaded and so it's just passed in
+ * Rember that returns of this function need to be free'd once finished with 
+ *
+ */
 dbUserInfoPtr ListAdmins( int num ) {
 	dbUserInfoPtr array;
 	char buffer[DEFAULT_BUFFER];
@@ -227,15 +239,19 @@ if( config != NULL ) {
 return array;
 }
 
-//Hmmz, I'm so tired of calling settings one-by-one... so here's that listing function
-//Yer, this was cause of map generation... it needs a fair few settings at once, and I can either call them again and again
-//... Or, make one list and just use them over and over, just remember to free any usage of this function.
+/*
+ * Hmmz, I'm so tired of calling settings one-by-one... so here's that listing function
+ * Yer, this was cause of map generation... it needs a fair few settings at once, and I can either call them again and again
+ *... Or, make one list and just use them over and over, just remember to free any usage of this function.
+ *  ----- End of List should contain NULL, for safe termination. -----
+ *
+ */
 ConfigArrayPtr makelistfromconfig( char **list, char *sourcefile, int sourceline ) {
 	ConfigArrayPtr array;
 	int a, count;
 
 count = 0;
-for( a = 0; list[a]; a++ ) {
+for( a = 0; list[a] != NULL ; a++ ) {
 	count++;
 }
 
@@ -361,9 +377,8 @@ iniparser_set(ini,"NEED_TO_DELETE_ME",NULL);
 dumpfile = fopen( filename, "w");
 if( !( dumpfile ) ) {
 	printf( RED"Unable to load config file, and unable to spawn in specified location: \'%s\'\n"RESET, filename );
-	//filename = "/tmp/evcore/evsystem.ini";
-	dumpfile = fopen(filename, "w");
-	printf( RED"A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'\n"RESET, filename );
+	dumpfile = fopen( TMPDIR"/evconfig.ini", "w");
+	printf( RED"A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'\n"RESET, TMPDIR"/evconfig.ini" );
 	printf( RED"You will need to edit and move this file before you can run the server, its best if you use the config directory!\n"RESET );
 } else {
 	printf( RED"A default, non-usable version of the evsystem.ini has been dumped to: \'%s\'\n"RESET, filename );

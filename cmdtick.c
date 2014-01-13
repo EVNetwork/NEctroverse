@@ -46,20 +46,21 @@ settings[1] = GetSetting( "Admin Empire Ommit" );
       continue;
 
 settings[0] = GetSetting( "End Wars" );
-if( ( wnum = dbEmpireRelsList( b, &rels ) ) >= 0 ) {
-	wnum <<= 2;
-	for( wa = 0 ; wa < wnum ; wa += 4 ) {
-		if( rels[wa+1] == CMD_RELATION_WAR ) {
-			if( (rels[wa] + (int)settings[0]->num_value) <= ticks.number ) {
-				cmdExecDelRelation( b, wa / 4 );
+if( (int)settings[0]->num_value > 0 ) {
+	if( ( wnum = dbEmpireRelsList( b, &rels ) ) >= 0 ) {
+		wnum <<= 2;
+		for( wa = 0 ; wa < wnum ; wa += 4 ) {
+			if( rels[wa+1] == CMD_RELATION_WAR ) {
+				if( (rels[wa] + (int)settings[0]->num_value) <= ticks.number ) {
+					cmdExecDelRelation( b, wa / 4 );
+				}
 			}
 		}
+		free( rels );
+	} else {
+		error( "Getting relations list for Empire:%d", b );
 	}
-	free( rels );
-} else {
-	error( "Getting relations list for Empire:%d", b );
 }
-
 
     stats[c+0] = b;
 // calc NW, planets and empire artefacts
@@ -157,11 +158,14 @@ if( artsnum > artmax )
 if( artsnum == ARTEFACT_NUMUSED ) {
         if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
 	        settings[0] = GetSetting( "Auto Victory" );
-                dbMapBInfoStatic[MAP_ARTITIMER] = ticks.number + (int)settings[0]->num_value;
-                dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
-                dbMapSetMain( dbMapBInfoStatic );
+	        if( (int)settings[0]->num_value > 0 ) {
+        	        dbMapBInfoStatic[MAP_ARTITIMER] = ticks.number + (int)settings[0]->num_value;
+        	        dbMapBInfoStatic[MAP_TIMEMPIRE] = stats[a+0];
+	                dbMapSetMain( dbMapBInfoStatic );
+                }
         } else if ( ( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) && ( dbMapBInfoStatic[MAP_ARTITIMER] <= ticks.number ) ) {
                 ticks.status = 0;
+                ticks.locked = 1;
         }
 } else if( dbMapBInfoStatic[MAP_TIMEMPIRE] == stats[a+0] ) {
         dbMapBInfoStatic[MAP_ARTITIMER] = -1;
