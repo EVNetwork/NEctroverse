@@ -1180,7 +1180,7 @@ static char *loadsslfile( char *filename, int required ) {
 	char *data, *ret;
 	FILE *file;
 
-ret = 0;
+ret = NULL;
 
 if( stat( filename, &stdata ) != -1 ) {
 	if( ( data = malloc( stdata.st_size + 1 ) ) ) {
@@ -1286,18 +1286,17 @@ return YES;
 }
 
 #if HTTPS_SUPPORT
+static char *ssl_files[3];
+
 int https_start() {
 	ConfigArrayPtr settings;
-	char *key;
-	char *cert;
-	char *bundle;
 
 char *list[4] = { "HTTPS Key", "HTTPS Cert", "HTTPS Bundle", NULL };
 settings = ListSettings( list );
 
-key = loadsslfile( settings[0].string_value, true );
-cert = loadsslfile( settings[1].string_value, true );
-bundle = loadsslfile( settings[2].string_value, false );
+ssl_files[0] = loadsslfile( settings[0].string_value, true );
+ssl_files[1] = loadsslfile( settings[1].string_value, true );
+ssl_files[2] = loadsslfile( settings[2].string_value, false );
 
 free( settings );
 
@@ -1306,18 +1305,18 @@ SecureHTTP = MHD_start_daemon (flags | MHD_USE_SSL,
 				&access_check, NULL,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
-				MHD_OPTION_HTTPS_MEM_KEY, key,
-				MHD_OPTION_HTTPS_MEM_CERT, cert,
-				MHD_OPTION_HTTPS_MEM_TRUST, bundle,
+				MHD_OPTION_HTTPS_MEM_KEY, (const char *)ssl_files[0],
+				MHD_OPTION_HTTPS_MEM_CERT, (const char *)ssl_files[1],
+				MHD_OPTION_HTTPS_MEM_TRUST, (const char *)ssl_files[2],
+				MHD_OPTION_HTTPS_CRED_TYPE, GNUTLS_CRD_CERTIFICATE,
+				MHD_OPTION_HTTPS_PRIORITIES, "EXPORT",
 				#if MULTI_THREAD_SUPPORT
 				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, THREADS ),
 				#endif
 				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 				MHD_OPTION_END);
 
-free( key );
-free( cert );
-free( bundle );
+
 if(NULL == SecureHTTP) {
 	return NO;
 }
@@ -1461,6 +1460,13 @@ for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 
 if( ServerSessionMD5 != NULL )
 	free( ServerSessionMD5 );
+
+if( ssl_files[0] )
+	free( ssl_files[0] );
+if( ssl_files[1] )
+	free( ssl_files[1] );
+if( ssl_files[2] )
+	free( ssl_files[2] );
 
 dbFlush();
 cleanUp(0);
