@@ -1307,7 +1307,7 @@ SecureHTTP = MHD_start_daemon (flags | MHD_USE_SSL,
 				MHD_OPTION_ARRAY, ops,
 				MHD_OPTION_HTTPS_MEM_KEY, ssl_files[0],
 				MHD_OPTION_HTTPS_MEM_CERT, ssl_files[1],
-				//MHD_OPTION_HTTPS_MEM_TRUST, ssl_files[2],
+				MHD_OPTION_HTTPS_MEM_TRUST, ssl_files[2],
 				MHD_OPTION_HTTPS_CRED_TYPE, GNUTLS_CRD_CERTIFICATE,
 				MHD_OPTION_HTTPS_PRIORITIES, "SECURE256:+COMP-DEFLATE",
 				#if MULTI_THREAD_SUPPORT
@@ -1315,6 +1315,8 @@ SecureHTTP = MHD_start_daemon (flags | MHD_USE_SSL,
 				#endif
 				MHD_OPTION_NOTIFY_COMPLETED, &completed_callback, NULL,
 				MHD_OPTION_END);
+
+
 
 
 if(NULL == SecureHTTP) {
