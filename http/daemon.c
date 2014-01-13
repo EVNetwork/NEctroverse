@@ -1262,7 +1262,7 @@ internal_add_connection (struct MHD_Daemon *daemon,
 
       if (daemon->https_mem_trust)
 	  gnutls_certificate_server_set_request (connection->tls_session,
-						 GNUTLS_CERT_REQUEST);
+						 GNUTLS_CERT_REQUIRE);
     }
 #endif
 
