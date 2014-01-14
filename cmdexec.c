@@ -1138,7 +1138,7 @@ if( flags > CMD_USER_FLAGS_NUMUSED )
 
 if( flags ) {
 	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
-		if( ( a != flag ) )
+		if( ( a != flags ) )
 			bitflag_remove( &user->flags, a );
 	}
 	bitflag_add( &user->flags, flags );
