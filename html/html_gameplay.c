@@ -2568,7 +2568,7 @@ if( evote ) {
 			httpString( cnt, "Error while retriving user's main data" );
 			return;
 		}
-		httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">", empired.player[a], URLAppend( cnt, "player" ) );
+		httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), empired.player[a] );
 		if( empired.leader == empired.player[a] ) {
 			httpPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", main2d.faction );
 		} else {
