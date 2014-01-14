@@ -638,8 +638,7 @@ rd.cache.off = 0;
 rd.cache.buf_len = buf_size_allocation[1];
 if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 	critical( "Malloc Failed" );
-	ret = -1;
-	goto RETURN;
+	return -1;
 }
 
 html_page[id].function( &rd );
@@ -656,31 +655,26 @@ if( strlen(rd.session->redirect) ) {
 
 ret = MHD_queue_response( rd.connection, MHD_HTTP_OK, response );
 MHD_destroy_response( response );
-
-RETURN:
 (void)pthread_mutex_unlock( &mutex );
+
 return ret;
 }
 
 static int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
-	bool result = NO;
 	PostDataPtr data;
 
-(void)pthread_mutex_lock( &mutex );
 if( session->postdata != NULL) {
 	for( a = 1, data = session->postdata ; data ; data = data->next, a++ ) {
 		if( a >= MAX_POST_VALUES ) {
 			info( "Ignoring post value, due to over-load limit \'%s\'", key );
-			result = NO;
-			goto RETURN;
+			return NO;
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
 			if( strlen( value ) == 0 ) {
 				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
-				result = YES;
-				goto RETURN;
+				return YES;
 			}
 			int toadd = ( strlen( value ) + 32 ); //Ensure at least 32 bytes of "slack space"
 			if( (( data->current - data->offset ) - toadd ) < 0 ) {
@@ -689,29 +683,28 @@ if( session->postdata != NULL) {
 				if( ajust < data->current ) {
 					critical( "Size Overflow" );
 					//Shutdown();
-					result = NO;
-					goto RETURN;
+					return NO;
 				}
 				//And now the actuall ajustment...
 				if( ( r = realloc( data->value, ajust ) ) == NULL ) {
 					critical( "Out of memory" );
-					result = NO;
-					goto RETURN;
+					return NO;
 				}
 				data->value = r;
 				data->current = ajust;
 			}
 			//And finnaly, if we made it this far... there's data to add and out buffer should have ample capacity.
-			result = ( data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value ) );
-			goto RETURN;
+			//Return add function, this saves us having to re-check for success;
+			return ( data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value ) );
 		}
 	}
 }
 
+
+
 if( ( data = malloc( 1*sizeof(PostDataDef) ) ) == NULL ) {
 	critical( "Out of memory" )
-	result = NO;
-	goto RETURN;
+	return NO;
 }
 
 data->key = strdup( key );
@@ -722,9 +715,7 @@ data->next = session->postdata;
 
 session->postdata = data;
 
-RETURN:
-(void)pthread_mutex_unlock( &mutex );
-return result;
+return YES;
 }
 
 static int postdata_remove( SessionPtr session, const char *key ) {
