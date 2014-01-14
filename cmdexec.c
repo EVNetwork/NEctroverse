@@ -1116,7 +1116,7 @@ int cmdExecChangFamName( int fam, char *name )
 
 
 int cmdExecFamMemberFlags( int id, int fam, int flags ) {
-	int a;
+	int a, b;
 	dbUserPtr user;
 	dbMainEmpireDef empired;
 
@@ -1148,8 +1148,10 @@ dbUserSave( id, user );
  * I only like one of each "Minister" per Empire, so strip others if someone is changed.
  */
 if( flags != CMD_USER_FLAGS_INDEPENDENT ) {
-	for( a = 0 ; a <= empired.numplayers ; a++ ) {
-		if( !( user = dbUserLinkID( id ) ) )
+	for( b = 0 ; b <= empired.numplayers ; b++ ) {
+		if( b == a )
+			continue;
+		if( !( user = dbUserLinkID( b ) ) )
 			continue;
 		bitflag_remove( &user->flags, flags );
 		dbUserSave( id, user );
