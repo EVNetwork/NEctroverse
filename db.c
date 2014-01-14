@@ -374,42 +374,33 @@ if( dbUserList )
 	dbUserList->prev = &(user->next);
 dbUserList = user;
 user->id = id;
-user->lasttime = 0;
+user->lasttime = time(NULL);
 dbUserTable[id] = user;
 
 return user;
 }
 
-void dbUserFree( dbUserPtr user )
-{
-  dbUserPtr next;
-  next = user->next;
-  *(user->prev) = (void *)next;
-  if( next )
-    next->prev = user->prev;
-  free( user );
-  if( (unsigned int)user->id >= ARRAY_MAX )
-    return;
-  dbUserTable[user->id] = 0;
-  return;
+void dbUserFree( dbUserPtr user ) {
+	dbUserPtr next;
+
+if( (unsigned int)user->id >= ARRAY_MAX )
+	return;
+
+dbUserTable[user->id] = 0;
+
+next = user->next;
+*(user->prev) = (void *)next;
+if( next )
+	next->prev = user->prev;
+free( user );
+
+return;
 }
 
 
 /*
 users
   4:next user ID
-
-
-
-
-
-
-
-
-
-
-
-
   4:number of free IDs
 4*X:list of free IDs
 */
@@ -658,7 +649,7 @@ int dbUserSearch( char *name ) {
 for( user = dbUserList ; user ; user = user->next ) {
 	if( !( ioCompareExact( name, user->name ) ) )
 		continue;
-	info( "Name: %s links to ID: %d", name, user->id );
+	//info( "Name: %s links to ID:%d", name, user->id );
 	return user->id;
 }
 

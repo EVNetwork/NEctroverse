@@ -395,7 +395,6 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			cJSON *message;
 			message = cJSON_GetObjectItem(root,"oauth_token");
 			if( ( message ) ) {
-				info( message->valuestring );
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
 			}
@@ -441,8 +440,7 @@ if( buffer[0] )
 	httpString( cnt, buffer );
 
 if( id >= 0 ) {
-	user = dbUserLinkID( id );
-	if( dbUserLinkDatabase( cnt, id ) < 0 )
+	if( ( ( user = dbUserLinkID( id ) ) < 0 ) && ( dbUserLinkDatabase( cnt, id ) < 0 ) )
 		goto BAILOUT;
 
 	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )

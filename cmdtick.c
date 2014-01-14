@@ -740,12 +740,10 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 	// add research
 
-    for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
-    {
-
-    	fa = ( (double)(maind.allocresearch[a]) * (double)( 500*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
-    	if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_POPRESEARCH )
-        	fa += ( (double)(maind.allocresearch[a]) * (double)maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
+	for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
+		fa = ( (maind.allocresearch[a]) * ( 500*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
+		if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_POPRESEARCH )
+			fa += ( (maind.allocresearch[a]) * maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
 
 	/*		//ARTI CODE Foohon Ancestry
 			if(maind.artefacts & ARTEFACT_*_BIT)
@@ -753,19 +751,18 @@ for( user = dbUserList ; user ; user = user->next ) {
 	*/
 
 
-		maind.research[a] += cmdRace[maind.raceid].researchpoints[a] * fa;
+			maind.research[a] += cmdRace[maind.raceid].researchpoints[a] * fa;
 
-     	if( maind.research[a] < 0 )
-        	maind.research[a] = 0x7FFFFFFF;
-    }
-    maind.fundresearch = (int64_t)( 0.9 * (double)maind.fundresearch );
+			maind.research[a] = fmax( 0.0, maind.research[a]);
+	}
+	maind.fundresearch = (int64_t)( 0.9 * maind.fundresearch );
 
-ticks.debug_pass = 6;
+	ticks.debug_pass = 6;
 
-   // SK: because of the network backbone arti, we need to calculate Tech research first
-//    int addedFromTech = 0;
+	// SK: because of the network backbone arti, we need to calculate Tech research first
+	//    int addedFromTech = 0;
 
-    // calculate total research for tech
+	// calculate total research for tech
 
           //research maximum
           fa = cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH];
@@ -775,126 +772,113 @@ ticks.debug_pass = 6;
                             fa -= 25;
      */
 
-          b = fa * ( 1.0 - exp( (double)maind.research[CMD_RESEARCH_TECH] / ( -10.0 * (double)maind.networth ) ) );
-
-
-          if( b > maind.totalresearch[CMD_RESEARCH_TECH] )
-            maind.totalresearch[CMD_RESEARCH_TECH]++;
-          else if( b < maind.totalresearch[CMD_RESEARCH_TECH] )
-            maind.totalresearch[CMD_RESEARCH_TECH]--;
+        b = fa * ( 1.0 - exp( maind.research[CMD_RESEARCH_TECH] / ( -10.0 * maind.networth ) ) );
+        if( b > maind.totalresearch[CMD_RESEARCH_TECH] ) {
+		maind.totalresearch[CMD_RESEARCH_TECH]++;
+	} else if( b < maind.totalresearch[CMD_RESEARCH_TECH] ) {
+		maind.totalresearch[CMD_RESEARCH_TECH]--;
+	}
 
               //addedFromTech = b/10;
 
 
-    // calculate total research
-        for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
-        {
-                    if(a == CMD_RESEARCH_TECH)
-                            continue;
+	// calculate total research
+	for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
+		if(a == CMD_RESEARCH_TECH)
+			continue;
+		//research maximum
+		fa = cmdRace[maind.raceid].researchmax[a];
+		// CODE_ARTI
+		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( a == CMD_RESEARCH_MILITARY ) ) {
+			fa += 25.0;
+		}
+	        // put this arti last, you need the other ones calculated before this one.
+	         /*   //ARTI CODE network backbone
+	        if(maind.artefacts & ARTEFACT_*_BIT)
+	        {
+	           // exclude tech research from having this bonus (otherwise there is no cap)
+	           if( a != CMD_RESEARCH_TECH)
+	               {
+	                fa += addedFromTech;
+	               }
+	        }*/
 
-          //research maximum
-          fa = cmdRace[maind.raceid].researchmax[a];
+		b = fa * ( 1.0 - exp( maind.research[a] / ( -10.0 * maind.networth ) ) );
+		if( b > maind.totalresearch[a] )
+			maind.totalresearch[a]++;
+		else if( b < maind.totalresearch[a] )
+		maind.totalresearch[a]--;
+	}
 
-	// CODE_ARTI
-      if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( a == CMD_RESEARCH_MILITARY ) )
-        fa += 25.0;
-
-        // put this arti last, you need the other ones calculated before this one.
-         /*   //ARTI CODE network backbone
-        if(maind.artefacts & ARTEFACT_*_BIT)
-        {
-           // exclude tech research from having this bonus (otherwise there is no cap)
-           if( a != CMD_RESEARCH_TECH)
-               {
-                fa += addedFromTech;
-               }
-        }*/
-
-          b = fa * ( 1.0 - exp( (double)maind.research[a] / ( -10.0 * (double)maind.networth ) ) );
-          if( b > maind.totalresearch[a] )
-            maind.totalresearch[a]++;
-          else if( b < maind.totalresearch[a] )
-            maind.totalresearch[a]--;
-                    }
-
-ticks.debug_pass = 7;
+	ticks.debug_pass = 7;
 
 
 // calc infos
-    fa = ( 12.0 * (double)(cmdTickProduction[CMD_BUILDING_SOLAR]) / specopSolarCalc( user->id ) );
-    if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_SOLARP15 )
-      fa *= 1.15;
+	fa = ( 12.0 * cmdTickProduction[CMD_BUILDING_SOLAR] / specopSolarCalc( user->id ) );
+	if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_SOLARP15 ) {
+		fa *= 1.15;
+	}
 
       //ARTI CODE Ether Palace
-	if(maind.artefacts & ARTEFACT_32_BIT)
+	if( maind.artefacts & ARTEFACT_32_BIT ) {
 		fa *= 1.30;
+	}
 
-    fb = ( 40.0 * (double)(cmdTickProduction[CMD_BUILDING_FISSION]) );
-
-
+	fb = ( 40.0 * cmdTickProduction[CMD_BUILDING_FISSION] );
 	fa += fb;
 
 	//ARTI CODE Ether Garden
 
-	if(maind.artefacts & ARTEFACT_ETHER_BIT)
+	if(maind.artefacts & ARTEFACT_ETHER_BIT) {
 		fa *= 1.10;
+	}
 
 	//ARTI CODE Ether Palace
-	if(maind.artefacts & ARTEFACT_8_BIT)
+	if(maind.artefacts & ARTEFACT_8_BIT) {
 		fa *= 1.25;
+	}
 
-	fb = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ENERGY] * ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_ENERGY] );
-
-
-  maind.infos[INFOS_ENERGY_PRODUCTION] = (int64_t)( fa * fb );
+	fb = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ENERGY] * ( 1.00 + 0.01 * maind.totalresearch[CMD_RESEARCH_ENERGY] );
 
 
-    /* This block is for the automated funding from energy production if used add the funding into the council with maind.infos
-    	dbUserMainSet(user->id, &maind);
-			cmd[0] = CMD_FUND_RESEARCH;
-    	cmd[1] = user->id;
-    	cmd[2] = maind.infos[INFOS_ENERGY_PRODUCTION]*0.08;
-			cmdExecute( (svConnectionPtr)NULL, cmd, 0, 0 );
-			dbUserMainRetrieve( cmd[1], &maind );
-			//maind.infos[INFOS_ENERGY_PRODUCTION] -= maind.infos[INFOS_ENERGY_PRODUCTION]*0.08;  //This line remove the actual funding from the production
-  */
-
-settings = GetSetting( "Stockpile" );
-fc = settings->num_value * maind.infos[INFOS_ENERGY_PRODUCTION];
-fa = CMD_ENERGY_DECAY;
-maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
+	maind.infos[INFOS_ENERGY_PRODUCTION] = ( fa * fb );
 
 
-  // meh! building upkeep
-  maind.infos[INFOS_BUILDING_UPKEEP] = 0;
-  for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
-  {
-  	if( ( a == CMD_BUILDING_SOLAR ) || ( a == CMD_BUILDING_FISSION ) )
-   	  maind.infos[INFOS_BUILDING_UPKEEP] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a] * fb;
-        else
-          maind.infos[INFOS_BUILDING_UPKEEP] += ((float)cmdTickProduction[a])*cmdBuildingUpkeep[a];
-
-  }
+	settings = GetSetting( "Stockpile" );
+	fc = settings->num_value * maind.infos[INFOS_ENERGY_PRODUCTION];
+	fa = CMD_ENERGY_DECAY;
+	maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
 
 
-ticks.debug_pass = 8;
+	// meh! building upkeep
+	maind.infos[INFOS_BUILDING_UPKEEP] = 0;
+	for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
+		if( ( a == CMD_BUILDING_SOLAR ) || ( a == CMD_BUILDING_FISSION ) ) {
+			maind.infos[INFOS_BUILDING_UPKEEP] += ( cmdTickProduction[a] * cmdBuildingUpkeep[a] * fb );
+   		} else {
+			maind.infos[INFOS_BUILDING_UPKEEP] += ( cmdTickProduction[a] * cmdBuildingUpkeep[a] );
+		}
 
-    for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
-	{
-	  if( maind.totalunit[a] < 0 )
-		maind.totalunit[a] = 0;
 	}
 
 
-    maind.infos[INFOS_UNITS_UPKEEP] = 0;
-    for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
-		{
-			maind.infos[INFOS_UNITS_UPKEEP] += ((float)maind.totalunit[a])*cmdUnitUpkeep[a];
-		}
-		//ARTI CODE Romulan Military Outpost
-		if(maind.artefacts & ARTEFACT_16_BIT)
+	ticks.debug_pass = 8;
+
+	for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+		if( maind.totalunit[a] < 0 )
+			maind.totalunit[a] = 0;
+	}
+
+
+	maind.infos[INFOS_UNITS_UPKEEP] = 0;
+	for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+		maind.infos[INFOS_UNITS_UPKEEP] += ( maind.totalunit[a] * cmdUnitUpkeep[a] );
+	}
+	//ARTI CODE Romulan Military Outpost
+	if(maind.artefacts & ARTEFACT_16_BIT) {
 		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;
-		maind.infos[INFOS_POPULATION_REDUCTION] = (1.0/35.0) * (float)maind.ressource[CMD_RESSOURCE_POPULATION]* ( 1.00 + 0.01 * (float)maind.totalresearch[CMD_RESEARCH_WELFARE] ) * (cmdRace[maind.raceid].growth);
+	}
+	maind.infos[INFOS_POPULATION_REDUCTION] = ((1.0/35.0) * maind.ressource[CMD_RESSOURCE_POPULATION] * ( 1.00 + 0.01 * maind.totalresearch[CMD_RESEARCH_WELFARE] ) * cmdRace[maind.raceid].growth );
 
 	//Population Reduction changed to include portals + units
 	maind.infos[INFOS_PORTALS_UPKEEP] = fmax( 0.0, ( pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0) );
@@ -908,55 +892,54 @@ ticks.debug_pass = 8;
 		maind.infos[INFOS_BUILDING_UPKEEP] += fmax( 0.0, ( maind.infos[INFOS_BUILDING_UPKEEP] * 0.15 ) );
 	}
 
-	maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
+	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
 
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%
 	//	if(maind.artefacts & ARTEFACT_*_BIT)
 	//	fa /= 4;
-fc = settings->num_value * maind.infos[INFOS_CRYSTAL_PRODUCTION];
-fa = CMD_CRYSTAL_DECAY;
-maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, (double)maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc );
+	fc = settings->num_value * maind.infos[INFOS_CRYSTAL_PRODUCTION];
+	fa = CMD_CRYSTAL_DECAY;
+	maind.infos[INFOS_CRYSTAL_DECAY] = fa * fmax( 0.0, ( maind.ressource[CMD_RESSOURCE_CRYSTAL] - fc ) );
 
 
     //ARTI CODE Mana Gate
 		//if(maind.artefacts & ARTEFACT_MANA_BIT)
 		//	maind.infos[INFOS_PORTALS_UPKEEP] /= 2;
 
-	maind.infos[INFOS_MINERAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * (float)(cmdTickProduction[CMD_BUILDING_MINING]);
-	maind.infos[INFOS_ECTROLIUM_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * (float)(cmdTickProduction[CMD_BUILDING_REFINEMENT]);
+	maind.infos[INFOS_MINERAL_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * cmdTickProduction[CMD_BUILDING_MINING]);
+	maind.infos[INFOS_ECTROLIUM_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * cmdTickProduction[CMD_BUILDING_REFINEMENT]);
 
-if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
-	error( "Tick error: Retriving empire %d", maind.empire  );
-	continue;
-}
-maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * empired.taxation ) );
-maind.infos[INFOS_MINERAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_MINERAL_PRODUCTION] * empired.taxation ) );
-maind.infos[INFOS_CRYSTAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_CRYSTAL_PRODUCTION] * empired.taxation ) );
-maind.infos[INFOS_ECTROLIUM_TAX] = fmax( 0.0, ( maind.infos[INFOS_ECTROLIUM_PRODUCTION] * empired.taxation ) );
+	if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+		error( "Tick error: Retriving empire %d", maind.empire  );
+		continue;
+	}
+	maind.infos[INFOS_ENERGY_TAX] = fmax( 0.0, ( maind.infos[INFOS_ENERGY_PRODUCTION] * empired.taxation ) );
+	maind.infos[INFOS_MINERAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_MINERAL_PRODUCTION] * empired.taxation ) );
+	maind.infos[INFOS_CRYSTAL_TAX] = fmax( 0.0, ( maind.infos[INFOS_CRYSTAL_PRODUCTION] * empired.taxation ) );
+	maind.infos[INFOS_ECTROLIUM_TAX] = fmax( 0.0, ( maind.infos[INFOS_ECTROLIUM_PRODUCTION] * empired.taxation ) );
 
-maind.infos[CMD_RESSOURCE_ENERGY] = maind.infos[INFOS_ENERGY_PRODUCTION] - maind.infos[INFOS_ENERGY_DECAY] - maind.infos[INFOS_BUILDING_UPKEEP] - maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_POPULATION_REDUCTION] - maind.infos[INFOS_PORTALS_UPKEEP] - maind.infos[INFOS_ENERGY_TAX];
+	maind.infos[CMD_RESSOURCE_ENERGY] = maind.infos[INFOS_ENERGY_PRODUCTION] - maind.infos[INFOS_ENERGY_DECAY] - maind.infos[INFOS_BUILDING_UPKEEP] - maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_POPULATION_REDUCTION] - maind.infos[INFOS_PORTALS_UPKEEP] - maind.infos[INFOS_ENERGY_TAX];
 
-maind.infos[CMD_RESSOURCE_MINERAL] = (maind.infos[INFOS_MINERAL_PRODUCTION] - maind.infos[INFOS_MINERAL_TAX]);
+	maind.infos[CMD_RESSOURCE_MINERAL] = (maind.infos[INFOS_MINERAL_PRODUCTION] - maind.infos[INFOS_MINERAL_TAX]);
 
-maind.infos[CMD_RESSOURCE_CRYSTAL] = ( (maind.infos[INFOS_CRYSTAL_PRODUCTION] - maind.infos[INFOS_CRYSTAL_TAX] ) - maind.infos[INFOS_CRYSTAL_DECAY]);
+	maind.infos[CMD_RESSOURCE_CRYSTAL] = ( (maind.infos[INFOS_CRYSTAL_PRODUCTION] - maind.infos[INFOS_CRYSTAL_TAX] ) - maind.infos[INFOS_CRYSTAL_DECAY]);
 
-maind.infos[CMD_RESSOURCE_ECTROLIUM] = (maind.infos[INFOS_ECTROLIUM_PRODUCTION] - maind.infos[INFOS_ECTROLIUM_TAX]);
+	maind.infos[CMD_RESSOURCE_ECTROLIUM] = (maind.infos[INFOS_ECTROLIUM_PRODUCTION] - maind.infos[INFOS_ECTROLIUM_TAX]);
 
 
-empired.fund[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ENERGY] + maind.infos[INFOS_ENERGY_TAX] ) );
-empired.fund[CMD_RESSOURCE_MINERAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_MINERAL] + maind.infos[INFOS_MINERAL_TAX] ) );
-empired.fund[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_CRYSTAL] + maind.infos[INFOS_CRYSTAL_TAX] ) );
-empired.fund[CMD_RESSOURCE_ECTROLIUM] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ECTROLIUM] + maind.infos[INFOS_ECTROLIUM_TAX] ) );
+	empired.fund[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ENERGY] + maind.infos[INFOS_ENERGY_TAX] ) );
+	empired.fund[CMD_RESSOURCE_MINERAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_MINERAL] + maind.infos[INFOS_MINERAL_TAX] ) );
+	empired.fund[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_CRYSTAL] + maind.infos[INFOS_CRYSTAL_TAX] ) );
+	empired.fund[CMD_RESSOURCE_ECTROLIUM] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ECTROLIUM] + maind.infos[INFOS_ECTROLIUM_TAX] ) );
 
-if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
-	error( "Tick error: Setting Empire #%d Fund!", maind.empire );
-}
+	if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
+		error( "Tick error: Setting Empire #%d Fund!", maind.empire );
+	}
 
 
 	//ARTI CODE Mineral enhancement
-		if(maind.artefacts & ARTEFACT_64_BIT)
-	{
+	if(maind.artefacts & ARTEFACT_64_BIT) {
 		maind.infos[CMD_RESSOURCE_MINERAL] *= 1.50;
 	}
 /*	//ARTI CODE Ectrolim enhancement
@@ -964,7 +947,7 @@ if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
 	{
 		maind.infos[CMD_RESSOURCE_ECTROLIUM] *= 1.50;
 	}	*/
-ticks.debug_pass = 9;
+	ticks.debug_pass = 9;
 
 
 // fleets decay?
