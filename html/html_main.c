@@ -181,19 +181,24 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+/*
 httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&name=ectro_03.jpg\" width=\"350\" height=\"80\" alt=\"ect Top\"></td></tr>" );
 
-httpString( cnt, "<tr><td><table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
+httpString( cnt, "<tr><td>" );
+httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>" );
 httpString( cnt, "<td background=\"files?type=image&name=ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
 httpString( cnt, "<td align=\"center\" width=\"10%\"><img src=\"files?type=image&name=ectro_06.jpg\" width=\"450\" height=\"75\"></td>" );
 httpString( cnt, "<td background=\"files?type=image&name=ectro_12.jpg\" width=\"45%\">&nbsp;</td>" );
-httpString( cnt, "</tr></table></tr></td>" );
-
-httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&name=ectro_09.jpg\" width=\"660\" height=\"100\"></td></tr>" );
-httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" align=\"center\"><table width=\"660\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_13.jpg\" valign=\"middle\"><table style=\"width:100%;border-width:0;\"><tr>" );
-httpPrintf( cnt, "<td align=\"left\">%d of %d players online</td>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
-httpString( cnt, "<td align=\"right\"><b>" );
+httpString( cnt, "</tr></table>" );
+httpString( cnt, "</tr></td>" );
+*/
+httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&name=n1.jpg\" ></td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" align=\"center\">" );
+httpString( cnt, "<table width=\"90%\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" valign=\"middle\">" );
+httpString( cnt, "<table style=\"width:100%;border-width:0;\"><tr>" );
+httpPrintf( cnt, "<td align=\"center\">%d of %d players online</td>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
+httpString( cnt, "<td align=\"center\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
 	URLString( cnt, "/", "Main" );
