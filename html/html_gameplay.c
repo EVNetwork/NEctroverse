@@ -3664,6 +3664,7 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt )
  int a, num, id, playerid;
  int *buffer;
  dbUserMainDef maind, main2d;
+ dbMainPlanetDef planetd;
  char *playerstring;
 
  iohtmlBase( cnt, 1 );
@@ -3684,19 +3685,18 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt )
  iohtmlBodyInit( cnt, main2d.faction );
 
  httpString( cnt, "Planets list<br>" );
-
- if( ( num = dbUserPlanetListCoords( playerid, &buffer ) ) < 0 )
- {
-  httpString( cnt, "Are you sure this user exists?</body></html>" );
-  iohtmlBodyEnd( cnt );
-  return;
+ if( ( num = dbUserPlanetListIndices( playerid, &buffer ) ) <= 0 ) {
+	httpString( cnt, "Error while retriving planets list" );
+	iohtmlBodyEnd( cnt );
+	return;
  }
  if( num )
  {
   num--;
   for( a = 0 ; ; a++ )
   {
-   httpPrintf( cnt, "%d,%d:%d", ( buffer[a] >> 8 ) & 0xFF, buffer[a] >> 20, buffer[a] & 0xFF );
+   dbMapRetrievePlanet( buffer[a], &planetd );
+   httpPrintf( cnt, "<a href=\"%s&id=%d\">%d,%d:%d</a>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFF, planetd.position >> 20, planetd.position & 0xFF );
    if( a >= num )
     break;
    if( ( a & 7 ) == 7 )
