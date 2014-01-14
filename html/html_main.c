@@ -92,7 +92,8 @@ if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
 	} else {
 		httpString( cnt, " onload=\"if(window==window.top){" );
 		httpString( cnt, "if(top.location.search ){" );
-		httpString( cnt, "top.location.href=\'main\'+top.location.search+\'&page=\'+top.location.pathname+top.location.search;" );
+		httpString( cnt, "var params = parseQueryString();" );
+		httpPrintf( cnt, "top.location.href=\'main?%s=\'+params[\'%s\']+\'&page=\'+top.location.pathname+encodeURIComponent(top.location.search);", ServerSessionMD5, ServerSessionMD5 );
 		httpString( cnt, "}else{" );
 		httpString( cnt, "top.location.href=\'main?page=\'+top.location.pathname;" );
 		httpString( cnt, "}" );
@@ -100,7 +101,6 @@ if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
 	}
 }
 
-//httpString( cnt, "countDown();" );
 httpString( cnt, "\">" );
 
 httpString( cnt, "<center>" );

@@ -113,7 +113,7 @@ return;
  * OK, so lets start easing the CPU load... We don't need to re-generate this each time
  * As it should not change for the lifetime of the server. (-Unless tick speed is changed-)
  */
-static char *ServerSessionMD5;
+char *ServerSessionMD5;
 
 static int GenServerSum() {
 	ConfigArrayPtr settings[2];
@@ -1439,6 +1439,12 @@ if( SecureHTTP ) {
 	MHD_stop_daemon(SecureHTTP);
 	info("HTTPS Server has been gracefully shutdown!");
 }
+if( ssl_files[0] )
+	free( ssl_files[0] );
+if( ssl_files[1] )
+	free( ssl_files[1] );
+if( ssl_files[2] )
+	free( ssl_files[2] );
 #endif
 
 MHD_destroy_response (file_not_found_response);
@@ -1462,13 +1468,6 @@ for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 
 if( ServerSessionMD5 != NULL )
 	free( ServerSessionMD5 );
-
-if( ssl_files[0] )
-	free( ssl_files[0] );
-if( ssl_files[1] )
-	free( ssl_files[1] );
-if( ssl_files[2] )
-	free( ssl_files[2] );
 
 dbFlush();
 cleanUp(0);

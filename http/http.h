@@ -1,6 +1,6 @@
 #ifndef HTTP_H
 #define HTTP_H
-
+extern char *ServerSessionMD5;
 #define MAX_POST_VALUES 64
 
 enum UploadState {
