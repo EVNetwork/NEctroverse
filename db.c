@@ -563,10 +563,9 @@ dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] = 0;
 dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] = 0;
 for( a = 0 ; a < b ; a++ ) {
 	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) ) {
-		error( "User Open" );
+		error( "User %d Open", a );
 		continue;
 	}
-
 	if( !( user = dbUserAllocate( a ) ) ) {
 		fclose( file );
 		continue;
