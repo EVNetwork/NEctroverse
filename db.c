@@ -658,7 +658,7 @@ int dbUserSearch( char *name ) {
 for( user = dbUserList ; user ; user = user->next ) {
 	if( !( ioCompareExact( name, user->name ) ) )
 		continue;
-
+	info( "Name: %s links to ID: %d", name, user->id );
 	return user->id;
 }
 
