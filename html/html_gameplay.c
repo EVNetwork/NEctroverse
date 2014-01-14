@@ -2200,7 +2200,7 @@ if( empired.picture > 0 ) {
 }
  httpString( cnt, "</table><br>" );
 if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
-	if( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_DEVMINISTER ) ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
+	if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_VICELEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_DEVMINISTER ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
 		if( empired.taxation ) {
 			httpPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
