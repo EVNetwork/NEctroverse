@@ -562,8 +562,10 @@ dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED] = b;
 dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] = 0;
 dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] = 0;
 for( a = 0 ; a < b ; a++ ) {
-	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) )
+	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) ) {
+		error( "User Open" );
 		continue;
+	}
 
 	if( !( user = dbUserAllocate( a ) ) ) {
 		fclose( file );
@@ -992,8 +994,10 @@ int dbUserMainSet( int id, dbUserMainPtr maind ) {
 	dbUserPtr user;
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
-    return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
+	error( "User Open" );
+	return -3;
+}
 
 file_w( maind, 1, sizeof(dbUserMainDef), file );
 fclose( file );
@@ -1009,8 +1013,10 @@ return 1;
 int dbUserMainRetrieve( int id, dbUserMainPtr maind ) {
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 memset( maind, 0, sizeof(dbUserMainDef) );
 file_r( maind, 1, sizeof(dbUserMainDef), file );
@@ -1034,8 +1040,10 @@ int dbUserBuildAdd( int id, int type, int64_t *cost, int quantity, int time, int
 if( !( memset( &buildp, 0, sizeof(dbUserBuildDef) ) ) ) {
 	return -3;
 }
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+	error( "User Open" );
 	return -3;  
+}
 
 buildp.type = type;
 buildp.quantity = quantity;
@@ -1063,8 +1071,10 @@ int dbUserBuildRemove( int id, int bldid ) {
 	int a, num, data[sizeof(dbUserBuildDef)];
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 file_r( &num, 1, sizeof(int), file );
 
 if( (unsigned int)bldid >= num ) {
@@ -1093,8 +1103,10 @@ int dbUserBuildList( int id, dbUserBuildPtr *build ) {
 	dbUserBuildPtr buildp;
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 file_r( &num, 1, sizeof(int), file );
 
 if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
@@ -1103,6 +1115,7 @@ if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
 }
 
 for( a = 0 ; a < num ; a++ ) {
+
 
 
 
@@ -1185,8 +1198,10 @@ int dbUserBuildListReduceTime( int id, dbUserBuildPtr *build ) {
 	FILE *file;
 	dbUserBuildPtr buildp;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 file_r( &num, 1, sizeof(int), file );
 
@@ -1212,8 +1227,10 @@ int dbUserBuildEmpty( int id ) {
 	int a;
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 a = 0;
 file_w( &a, 1, sizeof(int), file );
@@ -1229,15 +1246,17 @@ return 1;
 
 // user planets functions
 
-int dbUserPlanetNumber( int id )
-{
-  int pos;
-  FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
-    return -3;
+int dbUserPlanetNumber( int id ) {
+	int pos;
+	FILE *file;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+	error( "User Open" );
+	return -3;
+}
 file_r( &pos, 1, sizeof(int), file );
-  fclose( file );
-  return pos;
+fclose( file );
+
+return pos;
 }
 
 int dbUserPlanetAdd( int id, int plnid, int sysid, int plnloc, int flags )
@@ -1261,8 +1280,10 @@ int dbUserPlanetAdd( int id, int plnid, int sysid, int plnloc, int flags )
     }
 	}
 	
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
-    return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+	error( "User Open" );
+	return -3;
+}
 file_r( &pos, 1, sizeof(int), file );
   file_s( file, 4+(pos*20) );
   file_w( &plnid, 1, sizeof(int), file );
@@ -1298,8 +1319,10 @@ int dbUserPlanetRemove( int id, int plnid )
       dbUserMainSet( empired.player[a], &maind );
     }
 	}
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
-    return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+	error( "User Open" );
+	return -3;
+}
 file_r( &num, 1, sizeof(int), file );
   if( num >= 2 )
   {
@@ -1345,8 +1368,10 @@ int dbUserPlanetSetFlags( int id, int plnid, int flags )
       break;
   }
   free( list );
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
-    return -3;
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+	error( "User Open" );
+	return -3;
+}
   file_s( file, 4+(pos*20)+12 );
   file_w( &flags, 1, sizeof(int), file );
   fclose( file );
@@ -1360,8 +1385,10 @@ int dbUserPlanetListCoords( int id, int **list )
   int a, num;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(int) ) ) )
   {
@@ -1383,8 +1410,10 @@ int dbUserPlanetListIndices( int id, int **list )
   int a, num;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(int) ) ) )
   {
@@ -1406,8 +1435,10 @@ int dbUserPlanetListSystems( int id, int **list )
   int a, num;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(int) ) ) )
   {
@@ -1431,8 +1462,10 @@ int dbUserPlanetListFull ( int id, int **list )
   int a, num;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*4*sizeof(int) ) ) )
   {
@@ -1456,8 +1489,10 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
   int *listp, *list2p, *list3p;
   dbMainPlanetDef planetd;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(int) ) ) )
     {
@@ -1487,6 +1522,7 @@ int dbUserPlanetListIndicesSorted( int id, int **list, int sort )
       free (listp);
       free (list2p);
       return -1;
+
     }
   if (sort == 1)
     {
@@ -1658,8 +1694,10 @@ int dbUserPortalsList( int id, int **list )
   int a, b, num, flags;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( 3*num*sizeof(int) ) ) )
     return -1;
@@ -1681,8 +1719,10 @@ int dbUserPortalsListCoords( int id, int **list )
   int a, b, num, flags;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(int) ) ) )
     return -1;
@@ -1704,8 +1744,10 @@ int dbUserPortalsListIndices( int id, int **list )
   int a, b, num, flags;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(int) ) ) )
     return -1;
@@ -1733,8 +1775,10 @@ int dbUserFleetAdd( int id, dbUserFleetPtr fleetd )
 {
   int pos;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &pos, 1, sizeof(int), file );
   file_s( file, 4+(pos*sizeof(dbUserFleetDef)) );
   file_w( fleetd, 1, sizeof(dbUserFleetDef), file );
@@ -1749,8 +1793,10 @@ int dbUserFleetRemove( int id, int fltid )
 {
   int a, num, data[24];
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)fltid >= num )
   {
@@ -1776,8 +1822,10 @@ int dbUserFleetList( int id, dbUserFleetPtr *fleetd )
   int a, num;
   dbUserFleetPtr fleetp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( fleetp = malloc( num*sizeof(dbUserFleetDef) ) ) )
   {
@@ -1798,8 +1846,10 @@ int dbUserFleetSet( int id, int fltid, dbUserFleetPtr fleetd )
 {
   int num;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)fltid >= num )
   {
@@ -1817,8 +1867,10 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd )
 {
   int num;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)fltid >= num )
   {
@@ -2681,8 +2733,10 @@ int dbUserMarketReset( int id )
 {
   int a;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   a = 0;
   file_w( &a, 1, sizeof(int), file );
   file_w( &a, 1, sizeof(int), file );
@@ -2694,8 +2748,10 @@ int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int
 {
   int pos;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &pos, 1, sizeof(int), file );
   file_s( file, (2*sizeof(int))+(pos*sizeof(dbMarketUserDef)) );
   file_w( &action, 1, sizeof(int), file );
@@ -2715,8 +2771,10 @@ int dbUserMarketList( int id, int **list )
   int num;
   int *listp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( !( listp = malloc( num*sizeof(dbMarketUserDef) ) ) )
     return -1;
@@ -2734,8 +2792,10 @@ int dbUserMarketQuantity( int id, int bidid, int quantity )
 {
   int a, b, num;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   for( a = 0 ; a < num ; a++ )
   {
@@ -2756,8 +2816,10 @@ int dbUserMarketRemove( int id, int bidid )
 {
   int a, b, num, data[5];
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( num >= 2 )
   {
@@ -3611,8 +3673,10 @@ int dbMailList( int id, int type, int base, int end, dbMailPtr *mails, int *rtnu
 
 if( ( type & 0xFFFFFFE ) )
 	return -3;
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 file_r( &num, 1, sizeof(int64_t), file );
 
@@ -3666,8 +3730,10 @@ int dbMailAdd( int id, int type, dbMailPtr maild ) {
 
 if( ( type & 0xFFFFFFE ) )
 	return -3;
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 file_r( &num, 1, sizeof(int64_t), file );
 
@@ -3707,8 +3773,10 @@ int dbMailRemove( int id, int type, int message ) {
 
 if( ( type & 0xFFFFFFE ) )
 	return -3;
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 file_r( &num, 1, sizeof(int64_t), file );
 file_r( &offset, 1, sizeof(int64_t), file );
 
@@ -3764,8 +3832,10 @@ int dbMailEmpty( int id, int type ) {
 
 if( ( type & 0xFFFFFFE ) )
 	return -3;
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 file_w( dbFileUserListData[DB_FILE_USER_MAILIN+type], 1, dbFileUserListBase[DB_FILE_USER_MAILIN+type], file );
 fclose( file );
@@ -3784,8 +3854,10 @@ int dbUserSpecOpAdd( int id, dbUserSpecOpPtr specopd )
 {
   int pos;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &pos, 1, sizeof(int), file );
   file_s( file, 4+(pos*sizeof(dbUserSpecOpDef)) );
   file_w( specopd, 1, sizeof(dbUserSpecOpDef), file );
@@ -3801,8 +3873,10 @@ int dbUserSpecOpRemove( int id, int specopid )
   int a, num;
   dbUserSpecOpDef data;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)specopid >= num )
   {
@@ -3828,8 +3902,10 @@ int dbUserSpecOpList( int id, dbUserSpecOpPtr *specopd )
   int num;
   dbUserSpecOpPtr specopp;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
 file_r( &num, 1, sizeof(int), file );
   if( !( specopp = malloc( num*sizeof(dbUserSpecOpDef) ) ) )
   {
@@ -3847,8 +3923,10 @@ int dbUserSpecOpSet( int id, int specopid, dbUserSpecOpPtr specopd )
 {
   int num;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
 file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)specopid >= num )
   {
@@ -3865,8 +3943,10 @@ int dbUserSpecOpRetrieve( int id, int specopid, dbUserSpecOpPtr specopd )
 {
   int num;
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
 file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)specopid >= num )
   {
@@ -3882,8 +3962,10 @@ file_r( specopd, 1, sizeof(dbUserSpecOpDef), file );
 int dbUserSpecOpEmpty( int id )
 {
   FILE *file;
-  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) )
+  if( !( file = dbFileUserOpen( id, DB_FILE_USER_SPECOPS ) ) ) {
+  	error( "User Open" );
     return -3;
+    }
   file_w( dbFileUserListData[DB_FILE_USER_SPECOPS], 1, dbFileUserListBase[DB_FILE_USER_SPECOPS], file );
   fclose( file );
   return 1;
@@ -3902,9 +3984,10 @@ int dbUserInfoSet( int id, dbUserInfoPtr infod ) {
 	FILE *file;
 	dbUserPtr user;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
+	error( "User Open" );
 	return -3;
-
+}
 file_s( file, 0 );
 file_w( infod, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
@@ -3925,8 +4008,10 @@ return 1;
 int dbUserInfoRetrieve( int id, dbUserInfoPtr infod ) {
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 file_s( file, 0 );
 file_r( infod, 1, sizeof(dbUserInfoDef), file );
@@ -3939,8 +4024,10 @@ int dbUserRecordAdd( int id, dbUserRecordPtr recordd ) {
 	int num = 0;
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 
 file_r( &num, 1, 4, file );
 num++;
@@ -3957,8 +4044,10 @@ int dbUserRecordList( int id, dbUserRecordPtr *records ) {
 	int num = 0;
 	dbUserRecordPtr recordp;
 	FILE *file;
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) )
+if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) ) {
+	error( "User Open" );
 	return -3;
+}
 file_r( &num, 1, 4, file );
 
 if( !( recordp = malloc( num * sizeof(dbUserRecordDef) ) ) )

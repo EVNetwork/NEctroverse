@@ -42,7 +42,7 @@ if( type ) {
 return;
 }
 
-void svSignal( int signal ) {
+static void svSignal(int signal, siginfo_t *siginfo, void *context) {
 
 if( (signal == SIGNALS_SIGTERM ) || (signal == SIGNALS_SIGINT) ){
 	if( options.verbose ) {
@@ -167,6 +167,7 @@ int daemon_init() {
 	int binfo[MAP_TOTAL_INFO];
 	char DIRCHECKER[PATH_MAX];
 	ConfigArrayPtr settings[2];
+	struct sigaction act;
 	pid_t pid, sid;
 
 info( "Server process iniating...");
@@ -210,25 +211,69 @@ close(STDERR_FILENO);
 settings[0] = GetSetting( "Tick Speed" );
 ticks.speed = (int)settings[0]->num_value;
 ticks.next = time(0) + ticks.speed;
-	
-//Time to set some signals
+
+memset (&act, '\0', sizeof(act));
+ 
+act.sa_sigaction = &svSignal;
+act.sa_flags = SA_SIGINFO;	
+if (sigaction(SIGTERM, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGINT, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGFPE, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGILL, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGPOLL, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGPROF, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGQUIT, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGSEGV, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGSYS, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGTERM, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGTRAP, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGABRT, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGUSR1, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGUSR2, &act, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
 signal( SIGPIPE, SIG_IGN );
 signal( SIGHUP, SIG_IGN );
-signal( SIGFPE, &svSignal );
-signal( SIGBUS, &svSignal );
-signal( SIGILL, &svSignal );
-signal( SIGINT, &svSignal );
-signal( SIGKILL, &svSignal );
-signal( SIGPOLL, &svSignal );
-signal( SIGPROF, &svSignal );
-signal( SIGQUIT, &svSignal );
-signal( SIGSEGV, &svSignal );
-signal( SIGSYS, &svSignal );
-signal( SIGTERM, &svSignal );
-signal( SIGTRAP, &svSignal );
-signal( SIGABRT, &svSignal );
-signal( SIGUSR1, &svSignal);
-signal( SIGUSR2, &svSignal);
 	
 RANDOMIZE_SEED;
 
@@ -653,7 +698,7 @@ if( !( strlen(options.sysini) > 0 ) ) {
 	if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
 		sprintf(options.sysini, "%s/config/evconfig.ini" ,DIRCHECKER);
 	} else {
-		perror("getcwd() error");
+		error("getcwd() error");
 		result = true;
 	}
 } else {
@@ -666,7 +711,7 @@ if( !( strlen(options.sysini) > 0 ) ) {
 		if (getcwd(DIRCHECKER, sizeof(DIRCHECKER)) != NULL) {
 			sprintf(options.sysini, "%s/%s" ,DIRCHECKER, input);
 		} else {
-			perror("getcwd() error");
+			error("getcwd() error");
 			result = true;
 		}
 	}

@@ -103,8 +103,6 @@ void loghandle( int flag, int error, char *fmt, ... );
 
 extern bool firstload;
 
-void svSignal( int signal );
-
 extern char *cmdSignalNames[SIGNALS_NUMUSED];
 
 char *str_replace(char *orig, char *rep, char *with);
