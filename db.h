@@ -143,7 +143,9 @@ typedef struct
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );
-int dbUserMainRetrieve( int id, dbUserMainPtr main );
+
+#define dbUserMainRetrieve( id, maind ) dbUserMainRetrieve_real( id, maind, __FILE__, __LINE__ )
+int dbUserMainRetrieve_real( int id, dbUserMainPtr main, char *sourcefile, int sourceline );
 
 
 

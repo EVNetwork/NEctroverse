@@ -1010,11 +1010,13 @@ sprintf( user->faction, "%s", maind->faction );
 return 1;
 }
 
-int dbUserMainRetrieve( int id, dbUserMainPtr maind ) {
+
+
+int dbUserMainRetrieve_real( int id, dbUserMainPtr maind, char *sourcefile, int sourceline ) {
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
-	error( "User Open" );
+	error( "User Open from file %s on line %d", sourcefile, sourceline );
 	return -3;
 }
 

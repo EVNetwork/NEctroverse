@@ -154,6 +154,8 @@ ticks.locked = true; \
 #define UnloadSetting( name ) unloadfromconfig( name, __FILE__, __LINE__ )
 #define ListSettings( list ) makelistfromconfig( list, __FILE__, __LINE__ )
 
+
+
 #include "../enum.h"
 #include "../artefact.h"
 #include "../db.h"
