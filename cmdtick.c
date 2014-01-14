@@ -900,11 +900,15 @@ ticks.debug_pass = 8;
 	maind.infos[INFOS_PORTALS_UPKEEP] = fmax( 0.0, ( pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0) );
 	maind.infos[INFOS_POPULATION_REDUCTION] = fmin( maind.infos[INFOS_POPULATION_REDUCTION], ( maind.infos[INFOS_BUILDING_UPKEEP] + maind.infos[INFOS_UNITS_UPKEEP] + maind.infos[INFOS_PORTALS_UPKEEP] ) );
 
-    //virus network mean more upkeep Based on the upkeep of a building with after pop reduction
-    for( a = 0 ; a < opvirus ; a++ )
-      maind.infos[INFOS_BUILDING_UPKEEP] += (int64_t)( (float)(maind.infos[INFOS_BUILDING_UPKEEP]-maind.infos[INFOS_POPULATION_REDUCTION]) * 0.15 );
+	/*
+	 * Network Virus Effect.
+	 */
+	for( a = 0 ; a < opvirus ; a++ ) {
+		maind.infos[INFOS_POPULATION_REDUCTION] -= fmax( 0.0, ( maind.infos[INFOS_POPULATION_REDUCTION] * 0.05 ) );
+		maind.infos[INFOS_BUILDING_UPKEEP] += fmax( 0.0, ( maind.infos[INFOS_BUILDING_UPKEEP] * 0.15 ) );
+	}
 
-    maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
+	maind.infos[INFOS_CRYSTAL_PRODUCTION] = cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * (float)(cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
 
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%
