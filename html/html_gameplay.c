@@ -1890,9 +1890,9 @@ else
   for( c = d = 0 ; c < CMD_BLDG_NUMUSED ; c++ )
    d += planetd.building[c];
   if(planetd.flags & CMD_PLANET_FLAGS_BEACON)
-  	httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">%d,%d:%d</a>&nbsp;<img src=\"files?type=image&name=beacon.gif\">", URLAppend( cnt, "planets" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  	httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">%d,%d:%d</a>&nbsp;<img src=\"files?type=image&name=beacon.gif\">", URLAppend( cnt, "planet" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   else
-  	httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">%d,%d:%d</a>", URLAppend( cnt, "planets" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  	httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">%d,%d:%d</a>", URLAppend( cnt, "planet" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
 
 if( planetd.surrender != -1 ) {
     if( dbUserMainRetrieve( planetd.surrender, &main2d ) < 0 )
@@ -3618,7 +3618,8 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  iohtmlBodyInit( cnt, main2d.faction );
  httpPrintf( cnt, "<table border=\"0\"><tr><td>" );
  httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire : #%d</a>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
- httpPrintf( cnt, "<br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>Home planet : %d,%d:%d<br><br>Faction ID : %d<br>", (long long)main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], infod.forumtag, (long long)main2d.ressource[CMD_RESSOURCE_POPULATION], ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid );
+ httpPrintf( cnt, "<br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>", (long long)main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], infod.forumtag, (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
+ httpPrintf( cnt, "Home planet : %d,%d:%d<br><br>Faction ID : %d<br>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid );
  httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
