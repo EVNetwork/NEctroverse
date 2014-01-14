@@ -3622,7 +3622,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
- httpPrintf( cnt, "<a href=\"%s&target_id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
+ httpPrintf( cnt, "<a href=\"%s&id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
  httpString( cnt, "<br></td></tr></table>" );
 
  if( strlen(infod.desc) )
@@ -3674,8 +3674,8 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt )
    return;
  }
 
- playerstring = iohtmlVarsFind( cnt, "target_id" );
-info( "%s", MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, "target_id") ? MHD_lookup_connection_value(cnt->connection, MHD_GET_ARGUMENT_KIND, "target_id") : "NULL" );
+ playerstring = iohtmlVarsFind( cnt, "id" );
+
  if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) )
  {
   httpPrintf( cnt, "Are you sure this user %d exists?</body></html>", playerid );

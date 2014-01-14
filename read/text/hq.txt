@@ -1,6 +1,5 @@
-Yes, I know there are a few "un-baked" features.
-I am still working on the code, and many more features are yet to come.
+All faults must be reported... No matter how minor.
 
-Untill then... Just have fun! =) 
+If you encounter a bug/error. Report it.
 
 --Necro
