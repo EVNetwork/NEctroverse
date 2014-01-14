@@ -1149,9 +1149,9 @@ dbUserSave( id, user );
  */
 if( flags != CMD_USER_FLAGS_INDEPENDENT ) {
 	for( b = 0 ; b <= empired.numplayers ; b++ ) {
-		if( b == a )
+		if( empired.player[b] == id )
 			continue;
-		if( !( user = dbUserLinkID( b ) ) )
+		if( !( user = dbUserLinkID( empired.player[b] ) ) )
 			continue;
 		bitflag_remove( &user->flags, flags );
 		dbUserSave( id, user );
