@@ -2,6 +2,8 @@
 This is PRE-ALPHA TEST... This is NOT a real round, this is NOT the end design of the game.
 This is mearly to help me find the stray bugs from the develeopment of the game core.
 By playing you agree to report any faults encountered to the best of your ability.
+<br>
+Due to an unforseen colission in the databases I've been forced to reset the whole thing.
 
 11 January 2014
 Population upeek reduction has been relabled Population reduction, and now allows off-set of portal and unit costs.
