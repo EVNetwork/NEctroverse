@@ -7021,7 +7021,7 @@ if( typestring ) {
 					a = 1;
 			}
 			iohttpForumFilter( &maild.text[MAIL_MAX], mailstring, MAIL_MAX, a );
-			(maild.mail).length = iohttpForumFilter3( maild.text, &maild.text[MAIL_MAX], MAIL_MAX );
+			(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[MAIL_MAX], MAIL_MAX );
 			httpString( cnt, maild.text );
 			free( maild.text );
 			httpString( cnt, "<br>" );
