@@ -2177,7 +2177,7 @@ if( empired.picture > 0 ) {
    b = curtime - user->lasttime;
    if( b < 5*60 )
     httpString( cnt, "[online]" );
-   else if( bitflag( (cnt->session)->dbuser->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_COMMINISTER ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_VICELEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_COMMINISTER ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
