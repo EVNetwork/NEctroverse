@@ -629,20 +629,20 @@ int page_render( int id, const void *cls, const char *mime, SessionPtr session, 
 	char buffer[REDIRECT_MAX];
 	struct MHD_Response *response;
 	ReplyDataDef rd;
-	
+
+//Lock the mutex while we form pages, this is just safer... since it prevents double access of in-game infomation.
+(void)pthread_mutex_lock( &mutex );	
 rd.session = session;
 rd.connection = connection;
 rd.cache.off = 0;
 rd.cache.buf_len = buf_size_allocation[1];
 if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 	critical( "Malloc Failed" );
-	return -1;
+	ret = -1;
+	goto RETURN;
 }
 
-//Lock the mutex while we form pages, this is just safer... since it prevents double access of in-game infomation.
-(void)pthread_mutex_lock( &mutex );
 html_page[id].function( &rd );
-(void)pthread_mutex_unlock( &mutex );
 
 response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(rd.session, response);
@@ -657,25 +657,30 @@ if( strlen(rd.session->redirect) ) {
 ret = MHD_queue_response( rd.connection, MHD_HTTP_OK, response );
 MHD_destroy_response( response );
 
-
+RETURN:
+(void)pthread_mutex_unlock( &mutex );
 return ret;
 }
 
 static int postdata_set( SessionPtr session, const char *key, const char *value ) {
 	int a;
+	bool result = NO;
 	PostDataPtr data;
 
+(void)pthread_mutex_lock( &mutex );
 if( session->postdata != NULL) {
 	for( a = 1, data = session->postdata ; data ; data = data->next, a++ ) {
 		if( a >= MAX_POST_VALUES ) {
 			info( "Ignoring post value, due to over-load limit \'%s\'", key );
-			return NO;
+			result = NO;
+			goto RETURN;
 		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
 			if( strlen( value ) == 0 ) {
 				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
-				return YES;
+				result = YES;
+				goto RETURN;
 			}
 			int toadd = ( strlen( value ) + 32 ); //Ensure at least 32 bytes of "slack space"
 			if( (( data->current - data->offset ) - toadd ) < 0 ) {
@@ -684,28 +689,29 @@ if( session->postdata != NULL) {
 				if( ajust < data->current ) {
 					critical( "Size Overflow" );
 					//Shutdown();
-					return NO;
+					result = NO;
+					goto RETURN;
 				}
 				//And now the actuall ajustment...
 				if( ( r = realloc( data->value, ajust ) ) == NULL ) {
 					critical( "Out of memory" );
-					return NO;
+					result = NO;
+					goto RETURN;
 				}
 				data->value = r;
 				data->current = ajust;
 			}
 			//And finnaly, if we made it this far... there's data to add and out buffer should have ample capacity.
-			//Return add function, this saves us having to re-check for success;
-			return ( data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value ) );
+			result = ( data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value ) );
+			goto RETURN;
 		}
 	}
 }
 
-
-
 if( ( data = malloc( 1*sizeof(PostDataDef) ) ) == NULL ) {
 	critical( "Out of memory" )
-	return NO;
+	result = NO;
+	goto RETURN;
 }
 
 data->key = strdup( key );
@@ -716,7 +722,9 @@ data->next = session->postdata;
 
 session->postdata = data;
 
-return YES;
+RETURN:
+(void)pthread_mutex_unlock( &mutex );
+return result;
 }
 
 static int postdata_remove( SessionPtr session, const char *key ) {

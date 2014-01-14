@@ -1783,7 +1783,8 @@ int dbUserFleetAdd( int id, dbUserFleetPtr fleetd )
 
 int dbUserFleetRemove( int id, int fltid )
 {
-  int a, num, data[24];
+  int a, num;
+  dbUserFleetDef data;
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_FLEETS ) ) ) {
   	error( "User Open" );
@@ -1798,9 +1799,9 @@ int dbUserFleetRemove( int id, int fltid )
   if( fltid+1 < num )
   {
     file_s( file, 4+(num*sizeof(dbUserFleetDef))-sizeof(dbUserFleetDef) );
-    file_r( data, 1, sizeof(dbUserFleetDef), file );
+    file_r( &data, 1, sizeof(dbUserFleetDef), file );
     file_s( file, 4+(fltid*sizeof(dbUserFleetDef)) );
-    file_w( data, 1, sizeof(dbUserFleetDef), file );
+    file_w( &data, 1, sizeof(dbUserFleetDef), file );
   }
   file_s( file, 0 );
   a = num-1;

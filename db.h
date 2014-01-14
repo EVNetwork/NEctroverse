@@ -186,7 +186,7 @@ int dbUserPortalsListCoords( int id, int **list );
 
 typedef struct
 {
-  int unit[CMD_UNIT_NUMUSED];
+  int64_t unit[CMD_UNIT_NUMUSED];
   int order;
   int destination;
   int destid;
@@ -258,20 +258,20 @@ int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd );
 
 typedef struct
 {
+  int flags;
+  int size;
   int system;
   int position;
-  int owner;
-  int size;
-  int flags;
-  double population;
-  int maxpopulation;
-  int special[3];
-  int building[CMD_BLDG_NUMUSED];
-  int unit[CMD_UNIT_NUMUSED];
+  int64_t population;
+  int64_t maxpopulation;
+  int64_t unit[CMD_UNIT_NUMUSED];
+  int64_t building[CMD_BLDG_NUMUSED];
   int construction;
   int protection;
   int surrender;
   int nuked;
+  int owner;
+  int special[5];
 } dbMainPlanetDef, *dbMainPlanetPtr;
 
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd );
@@ -291,14 +291,13 @@ typedef struct
   int homeid;
   int homepos; // ( y << 16 ) + x
   int picture;
-  int reserved_dead;
   int planets;
-  int networth;
   int artefacts;
   int construction;
   int building[8];
-  int readiness[CMD_READY_NUMUSED];
+  int counters[16];
   float taxation;
+  int64_t networth;
   int64_t fund[CMD_RESSOURCE_NUMUSED];
   int64_t infos[CMD_RESSOURCE_NUMUSED];
   char name[USER_NAME_MAX];
@@ -333,6 +332,7 @@ typedef struct
    int nummaxbids;
    int listfree;
    int totalofbids;
+
    int firstid;
    int lastid;
 } dbMarketIndexDef, *dbMarketIndexPtr;
@@ -429,16 +429,15 @@ int dbUserSpecOpEmpty( int id );
 typedef struct
 {
   int roundid;
-
+  int rank;
   int planets;
-  int networth;
+  int64_t networth;
   char faction[USER_NAME_MAX];
   char forumtag[USER_FTAG_MAX];
-  int rank;
 
   int empire;
   int famplanets;
-  int famnetworth;
+  int64_t  famnetworth;
   char famname[USER_NAME_MAX];
   int famrank;
   int artefacts;

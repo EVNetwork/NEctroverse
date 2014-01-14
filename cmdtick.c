@@ -56,7 +56,9 @@ if( (int)settings[0]->num_value > 0 ) {
 				}
 			}
 		}
-		free( rels );
+		if( rels ) {
+			free( rels );
+		}
 	} else {
 		error( "Getting relations list for Empire:%d", b );
 	}

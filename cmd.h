@@ -29,8 +29,10 @@ int cmdExecAddBuild( int id, int type, int quantity, int plnid, int maxbuild );
 int cmdExecAddBid( int id, int action, int resource, int price, int quantity );
 int cmdExecRemoveBid( int id, int bidid );
 int cmdExecGetMarket( int *market );
-int cmdExecSendAid( int id, int destid, int fam, int *res );
-int cmdExecGetAid( int id, int destid, int fam, int *res );
+
+int cmdExecSendAid( int id, int destid, int fam, int64_t *res );
+int cmdExecGetAid( int id, int destid, int fam, int64_t *res );
+
 int cmdExecAidAccess( int id, int access );
 int cmdExecChangeVote( int id, int vote );
 int cmdExecChangFamName( int fam, char *name );
@@ -45,9 +47,11 @@ int cmdExecDelRelation( int fam, int relid );
 int cmdExecSetSectsize( int id, int size );
 
 int cmdExecSendFleetInfos( int id, int plnid, int *fr );
-int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit );
-int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents );
-int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts );
+
+int cmdExecSendFleet( int id, int x, int y, int z, int order, int64_t *sendunit );
+int cmdExecSendAgents( int id, int x, int y, int z, int order, int64_t agents );
+int cmdExecSendGhosts( int id, int x, int y, int z, int order, int64_t ghosts );
+
 int cmdExecExploreInfo( int id, int plnid, int *ibuffer );
 int cmdExecExplore( int id, int plnid, int *ibuffer );
 int cmdExecChangeFleet( int id, int x, int y, int z, int order, int fltid );

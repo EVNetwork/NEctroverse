@@ -125,23 +125,23 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
 
 
 
-void battlePhaseUpdate( int *unit, int *results )
+void battlePhaseUpdate( int64_t *unit, int64_t *results )
 {
-  int a;
+  int64_t a;
   float fa;
   if( results[CMD_UNIT_CARRIER] )
   {
-    fa = (float)results[CMD_UNIT_CARRIER] / (float)unit[CMD_UNIT_CARRIER];
-    results[CMD_UNIT_BOMBER] += fa * (float)unit[CMD_UNIT_BOMBER];
-    results[CMD_UNIT_FIGHTER] += fa * (float)unit[CMD_UNIT_FIGHTER];
-    results[CMD_UNIT_TRANSPORT] += fa * (float)unit[CMD_UNIT_TRANSPORT];
+    fa = results[CMD_UNIT_CARRIER] / unit[CMD_UNIT_CARRIER];
+    results[CMD_UNIT_BOMBER] += fa * unit[CMD_UNIT_BOMBER];
+    results[CMD_UNIT_FIGHTER] += fa * unit[CMD_UNIT_FIGHTER];
+    results[CMD_UNIT_TRANSPORT] += fa * unit[CMD_UNIT_TRANSPORT];
   }
   if( results[CMD_UNIT_TRANSPORT] )
   {
-    fa = (float)results[CMD_UNIT_TRANSPORT] / (float)unit[CMD_UNIT_TRANSPORT];
-    results[CMD_UNIT_SOLDIER] += fa * (float)unit[CMD_UNIT_SOLDIER];
-    results[CMD_UNIT_DROID] += fa * (float)unit[CMD_UNIT_DROID];
-    results[CMD_UNIT_GOLIATH] += fa * (float)unit[CMD_UNIT_GOLIATH];
+    fa = results[CMD_UNIT_TRANSPORT] / unit[CMD_UNIT_TRANSPORT];
+    results[CMD_UNIT_SOLDIER] += fa * unit[CMD_UNIT_SOLDIER];
+    results[CMD_UNIT_DROID] += fa * unit[CMD_UNIT_DROID];
+    results[CMD_UNIT_GOLIATH] += fa * unit[CMD_UNIT_GOLIATH];
   }
   for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
   {
@@ -164,15 +164,15 @@ void battlePhaseUpdate( int *unit, int *results )
 }
 
 
-int battle( int id, int fltid, int *results )
+int battle( int id, int fltid, int64_t *results )
 {
   int a, b, flee, stationleft, defid;
   float fa, fb, cover, attfactor, deffactor;
   double attdam, defdam;
-  int *attunit;
-  int attunitbase[CMD_UNIT_NUMUSED];
-  int defunit[CMD_UNIT_NUMUSED];
-  int defunitbase[CMD_UNIT_NUMUSED];
+  int64_t *attunit;
+  int64_t attunitbase[CMD_UNIT_NUMUSED];
+  int64_t defunit[CMD_UNIT_NUMUSED];
+  int64_t defunitbase[CMD_UNIT_NUMUSED];
   dbUserMainDef maind, main2d;
   dbUserInfoDef infod;
   dbUserFleetDef fleetd, fleet2d;
@@ -238,7 +238,7 @@ int battle( int id, int fltid, int *results )
       return -3;
     if( !( bitflag( user->flags, CMD_USER_FLAGS_INDEPENDENT ) ) || ( main2d.planets > 1 ) || ( infod.createtime+3600*24 > time( 0 ) ) )
     {
-      cmdErrorString = "You can attack a home planet only if the faction is declared independent, does not own any other planet and the account has been created since more than 24 hours.";
+      cmdErrorString = "You can attack a home planet only if the faction is declared independent, does not own any other planet and the account is older than 24 hours.";
       return -3;
     }
   }
@@ -295,14 +295,14 @@ int battle( int id, int fltid, int *results )
   // fleets
   attunit = fleetd.unit;
   for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
-    defunit[a] = planetd.unit[a] + (int)( cover * (float)fleet2d.unit[a] );
-  memcpy( attunitbase, attunit, CMD_UNIT_FLEET*sizeof(int) );
-  memcpy( defunitbase, defunit, CMD_UNIT_FLEET*sizeof(int) );
+    defunit[a] = planetd.unit[a] + (int64_t)( cover * (float)fleet2d.unit[a] );
+  memcpy( attunitbase, attunit, CMD_UNIT_FLEET*sizeof(int64_t) );
+  memcpy( defunitbase, defunit, CMD_UNIT_FLEET*sizeof(int64_t) );
   defsatsbase = defsats = planetd.building[CMD_BUILDING_SATS];
   
   shields = CMD_SHIELD_ABSORB * planetd.building[CMD_BUILDING_SHIELD]  +  specopShieldingCalc( defid, fleetd.destid );
 
-  memset( results, 0, (4+8*CMD_UNIT_FLEET)*sizeof(int) );
+  memset( results, 0, (4+8*CMD_UNIT_FLEET)*sizeof(int64_t) );
   results[0] = defid;
   results[1] = main2d.empire;
   results[2] = (int)( 100.0 * cover );
@@ -312,8 +312,8 @@ int battle( int id, int fltid, int *results )
   {
     for( b = 0 ; b < CMD_UNIT_STATS_BATTLE ; b++ )
     {
-      attstats[a][b] = (double)(cmdUnitStats[a][b]) * cmdRace[maind.raceid].unit[a];
-      defstats[a][b] = (double)(cmdUnitStats[a][b]) * cmdRace[main2d.raceid].unit[a];
+      attstats[a][b] = (cmdUnitStats[a][b]) * cmdRace[maind.raceid].unit[a];
+      defstats[a][b] = (cmdUnitStats[a][b]) * cmdRace[main2d.raceid].unit[a];
     }
   }
 
@@ -337,15 +337,15 @@ int battle( int id, int fltid, int *results )
   }
   if( ( attdam / defdam ) * 100.0 >= main2d.config_flee[0] )
   {
-    defdam = (int)( 0.15 * defdam );
-    attdam = (int)( 0.10 * attdam );
+    defdam = ( 0.15 * defdam );
+    attdam = ( 0.10 * attdam );
     
     results[3] |= 0x100;
   }
   if( ( attdam >= 1.0 ) && ( ( defdam / attdam ) * 100.0 >= maind.config_flee[0] ) )
   {
-    defdam = (int)( 0.20 * defdam );
-    attdam = (int)( 0.10 * attdam );
+    defdam = ( 0.20 * defdam );
+    attdam = ( 0.10 * attdam );
     flee = 1;
   }
 
@@ -467,14 +467,14 @@ int battle( int id, int fltid, int *results )
   }
   if( ( attdam / defdam ) * 100.0 >= main2d.config_flee[1] )
   {
-    defdam = (int)( 0.15 * defdam );
-    attdam = (int)( 0.10 * attdam );
+    defdam = ( 0.15 * defdam );
+    attdam = ( 0.10 * attdam );
     results[3] |= 0x200;
   }
   if( ( attdam >= 1.0 ) && ( ( defdam / attdam ) * 100.0 >= maind.config_flee[1] ) )
   {
-    defdam = (int)( 0.50 * defdam );
-    attdam = (int)( 0.25 * attdam );
+    defdam = ( 0.50 * defdam );
+    attdam = ( 0.25 * attdam );
     flee = 2;
   }
 
@@ -625,14 +625,14 @@ int battle( int id, int fltid, int *results )
   }
   if( ( attdam / defdam ) * 100.0 >= main2d.config_flee[2] )
   {
-    defdam = (int)( 0.15 * defdam );
-    attdam = (int)( 0.10 * attdam );
+    defdam = ( 0.15 * defdam );
+    attdam = ( 0.10 * attdam );
     results[3] |= 0x400;
   }
   if( ( attdam >= 1.0 ) && ( ( defdam / attdam ) * 100.0 >= maind.config_flee[2] ) )
   {
-    defdam = (int)( 0.30 * defdam );
-    attdam = (int)( 0.15 * attdam );
+    defdam = ( 0.30 * defdam );
+    attdam = ( 0.15 * attdam );
     flee = 4;
   }
 
@@ -759,14 +759,14 @@ int battle( int id, int fltid, int *results )
   }
   if( ( attdam / defdam ) * 100.0 >= main2d.config_flee[3] )
   {
-    defdam = (int)( 0.15 * defdam );
-    attdam = (int)( 0.10 * attdam );
+    defdam = ( 0.15 * defdam );
+    attdam = ( 0.10 * attdam );
     results[3] |= 0x800;
   }
   if( ( attdam >= 1.0 ) && ( ( defdam / attdam ) * 100.0 >= maind.config_flee[3] ) )
   {
-    defdam = (int)( 0.40 * defdam );
-    attdam = (int)( 0.20 * attdam );
+    defdam = ( 0.40 * defdam );
+    attdam = ( 0.20 * attdam );
     flee = 8;
   }
 
@@ -998,7 +998,7 @@ int battle( int id, int fltid, int *results )
 
   if( stationleft )
   {
-    memcpy( fleet2d.unit, planetd.unit, CMD_UNIT_NUMUSED*sizeof(int) );
+    memcpy( fleet2d.unit, planetd.unit, CMD_UNIT_NUMUSED*sizeof(int64_t) );
     fleet2d.order = CMD_FLEET_ORDER_CANCELED;
     fleet2d.destination = planetd.position;
     fleet2d.destid = fleetd.destid;
@@ -1017,8 +1017,8 @@ int battle( int id, int fltid, int *results )
 
   if( planetd.flags & CMD_PLANET_FLAGS_HOME )
   {
-    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
     planetd.owner = -1;
     dbMapSetPlanet( fleetd.destid, &planetd );
     dbUserMainSet( id, &maind );
@@ -1036,7 +1036,7 @@ int battle( int id, int fltid, int *results )
   {
     for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
       main2d.totalbuilding[a] -= planetd.building[a];
-    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
+    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
   }
   else
   {
@@ -1046,18 +1046,18 @@ int battle( int id, int fltid, int *results )
     for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
     {
       main2d.totalbuilding[a] -= planetd.building[a];
-      planetd.building[a] = (int)floor( fa * (float)planetd.building[a] );
+      planetd.building[a] = floor( fa * (float)planetd.building[a] );
       maind.totalbuilding[a] += planetd.building[a];
     }
   }
-  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 
   fleetd.flags = 0;
   fleetd.time = -1;
   if( maind.config_fleet == 0 )
   {
     dbUserFleetRemove( id, fltid );
-    memcpy( planetd.unit, fleetd.unit, CMD_UNIT_FLEET*sizeof(int) );
+    memcpy( planetd.unit, fleetd.unit, CMD_UNIT_FLEET*sizeof(int64_t) );
   }
   else if( maind.config_fleet == 1 )
   {

@@ -4,7 +4,7 @@
 
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
-void iohtmlAttackReport( ReplyDataPtr cnt, int *results, int sats );
+void iohtmlAttackReport( ReplyDataPtr cnt, int64_t *results, int sats );
 
 void iohtmlFunc_main( ReplyDataPtr cnt );
 

@@ -1923,7 +1923,7 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
   {
   	sprintf(szColor, "FFFF66");
   }
-  httpPrintf( cnt, "</td><td><font color=\"#%s\">%.0f0 / %d0</font></td><td><a href=\"%s&id=%d\">Build</a>", szColor, planetd.population, planetd.maxpopulation, URLAppend( cnt, "build" ), buffer[a] );
+  httpPrintf( cnt, "</td><td><font color=\"#%s\">%lld0 / %lld0</font></td><td><a href=\"%s&id=%d\">Build</a>", szColor, planetd.population, planetd.maxpopulation, URLAppend( cnt, "build" ), buffer[a] );
   if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
   {
    httpString( cnt, " Portal" );
@@ -2257,7 +2257,8 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
 
 void iohtmlFunc_famaid( ReplyDataPtr cnt )
 {
- int a, b, id, res[4];
+ int a, b, id;
+ int64_t res[4];
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *playerstring, *resstring[4];
@@ -2284,11 +2285,11 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
   if( sscanf( playerstring, "%d", &b ) != 1 )
    goto iohttpFunc_famaidL0;
 
-  memset( res, 0, 4*sizeof(int) );
+  memset( res, 0, 4*sizeof(int64_t) );
   for( a = 0 ; a < 4 ; a++ )
   {
    if( resstring[a] )
-    sscanf( resstring[a], "%d", &res[a] );
+    sscanf( resstring[a], "%" SCNd64, &res[a] );
   }
 
   if( cmdExecSendAid( id, b, maind.empire, res ) < 0 )
@@ -2345,7 +2346,8 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
 
 void iohtmlFunc_famgetaid( ReplyDataPtr cnt )
 {
- int a, b, id, res[4];
+ int a, b, id;
+ int64_t res[4];
  dbUserMainDef maind, main2d;
  dbMainEmpireDef empired;
  char *accessstring, *playerstring, *resstring[4];
@@ -2379,11 +2381,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    reportstring = "Error retrieving user's infos";
    goto iohttpFunc_famaidL0;
   }
-  memset( res, 0, 4*sizeof(int) );
+  memset( res, 0, 4*sizeof(int64_t) );
   for( a = 0 ; a < 4 ; a++ )
   {
    if( resstring[a] )
-    sscanf( resstring[a], "%d", &res[a] );
+    sscanf( resstring[a], "%" SCNd64, &res[a] );
   }
   if( cmdExecGetAid( b, id, maind.empire, res ) < 0 )
   {
@@ -3771,7 +3773,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    httpString( cnt, "Error encountered while unstationing forces<br><br>" );
   else
    httpString( cnt, "<i>Fleet unstationed</i><br><br>" );
-  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
  }
 
  if( planetd.owner == -1 )
@@ -3786,7 +3788,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  else if( planetd.owner == id )
  {
   httpString( cnt, "This planet is yours.<br>" );
-  httpPrintf( cnt, "Population : %.0f0<br>", planetd.population );
+  httpPrintf( cnt, "Population : %lld0<br>", planetd.population );
  b = (int)artefactPrecense( &planetd );
   if( b >= 0 )
    httpPrintf( cnt, "<br><img src=\"files?type=image&name=artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
@@ -3799,7 +3801,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   sprintf(szString, " function Areyousure(plnid)\n{if(confirm(\"Are you sure you want to raze eveything on this planet??\"))open(\"raze?id=\"+plnid+\"");
   for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ )
 	 {
-	  sprintf(szTemp, "&bldg%d=%d", b, planetd.building[b]);
+	  sprintf(szTemp, "&bldg%d=%lld", b, (long long)planetd.building[b]);
 	  strcat(szString, szTemp);
 	 }
   strcat(szString, "\",\"_self\");\n}");
@@ -4721,7 +4723,7 @@ void iohtmlFunc_fleetsend( ReplyDataPtr cnt )
 {
  int a, id, order, x, y, z;
  dbUserMainDef maind;
- int sendunit[CMD_UNIT_NUMUSED];
+ int64_t sendunit[CMD_UNIT_NUMUSED];
  char sendname[CMD_UNIT_NUMUSED];
  char *orderstring, *xstring, *ystring, *zstring, *sptr;
 
@@ -4733,12 +4735,12 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohtmlBodyInit( cnt, "Sending fleet" );
 
- memset( sendunit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+ memset( sendunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
  {
   sprintf( sendname, "u%d", a );
   sptr = iohtmlVarsFind( cnt, sendname );
-  if( !( sptr ) || ( sscanf( sptr, "%d", &sendunit[a] ) != 1 ) )
+  if( !( sptr ) || ( sscanf( sptr, "%" SCNd64, &sendunit[a] ) != 1 ) )
    sendunit[a] = 0;
  }
  orderstring = iohtmlVarsFind( cnt, "order" );
@@ -5256,7 +5258,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 }
 
 
-void iohtmlAttackReport( ReplyDataPtr cnt, int *results, int sats )
+void iohtmlAttackReport( ReplyDataPtr cnt, int64_t *results, int sats )
 {
  int a;
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
@@ -5276,13 +5278,13 @@ void iohtmlAttackReport( ReplyDataPtr cnt, int *results, int sats )
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
  {
   if( results[4+0*CMD_UNIT_FLEET+a] )
-   httpPrintf( cnt, "%d %s<br>", results[4+0*CMD_UNIT_FLEET+a], cmdUnitName[a] );
+   httpPrintf( cnt, "%lld %s<br>", results[4+0*CMD_UNIT_FLEET+a], cmdUnitName[a] );
  }
  httpString( cnt, "</td><td width=\"30%\" align=\"center\" valign=\"top\"><i>Defender losses</i><br>" );
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
  {
   if( results[4+1*CMD_UNIT_FLEET+a] )
-   httpPrintf( cnt, "%d %s<br>", results[4+1*CMD_UNIT_FLEET+a], cmdUnitName[a] );
+   httpPrintf( cnt, "%lld %s<br>", results[4+1*CMD_UNIT_FLEET+a], cmdUnitName[a] );
  }
  if( sats )
   httpPrintf( cnt, "%d %s<br>", sats, cmdBuildingName[CMD_BUILDING_SATS] );
@@ -5294,7 +5296,7 @@ void iohtmlAttackReport( ReplyDataPtr cnt, int *results, int sats )
 void iohtmlFunc_fleetattack( ReplyDataPtr cnt )
 {
  int id, cmd[3];
- int results[4+8*CMD_UNIT_FLEET+2];
+ int64_t results[4+8*CMD_UNIT_FLEET+2];
  dbUserMainDef maind, main2d;
  char *fleetstring;
 
@@ -6755,6 +6757,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 void iohtmlFunc_research( ReplyDataPtr cnt )
 {
  int a, b, id, cmd[3];
+ int64_t addfund;
  char fundstring[128] = {0};
  char *fund;
  char *rschptr[CMD_RESEARCH_NUMUSED];
@@ -6774,16 +6777,16 @@ if( dbUserMainRetrieve( id, &maind ) < 0 )
  }
  fund = iohtmlVarsFind( cnt, "fund" );
  
-if( ( fund ) && ( sscanf( fund, "%d", &a ) == 1 ) ) {
-	if( a > maind.ressource[CMD_RESSOURCE_ENERGY] ) {
-		sprintf( fundstring, "<i>%s</i><br><br>", "You don't have so much energy" );
+if( ( fund ) && ( sscanf( fund, "%" SCNd64, &addfund ) == 1 ) ) {
+	if( addfund > maind.ressource[CMD_RESSOURCE_ENERGY] ) {
+		sprintf( fundstring, "<i>You don't have that much energy</i><br><br>" );
 	} else {
-		maind.fundresearch += a;
-		maind.ressource[CMD_RESSOURCE_ENERGY] -= a;
+		maind.fundresearch += addfund;
+		maind.ressource[CMD_RESSOURCE_ENERGY] -= addfund;
 		if( dbUserMainSet( id, &maind ) < 0 ) {
 			sprintf( fundstring, "%s", "<i>Error while funding research</i><br><br>" );
 		} else {
-			sprintf( fundstring, "<i>Research funding increased by %d</i><br><br>", a );
+			sprintf( fundstring, "<i>Research funding increased by %lld</i><br><br>", (long long)addfund );
 		}
 	}
 }

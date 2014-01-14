@@ -175,8 +175,8 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   planetd.owner = id;
   planetd.protection = 100;
   planetd.population = 5000;
-  memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+  memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   planetd.building[CMD_BUILDING_SOLAR] = 50;
   planetd.building[CMD_BUILDING_MINING] = 20;
   planetd.building[CMD_BUILDING_CRYSTAL] = 5;
@@ -290,8 +290,8 @@ int cmdExecUserDeactivate( int id, int flags )
       planetd.owner = -1;
       planetd.construction = 0;
       planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
       dbMapSetPlanet( buffer[a], &planetd );
       dbMapRetrieveSystem( planetd.system, &systemd );
       systemd.unexplored++;
@@ -407,8 +407,8 @@ int cmdUserDelete( int id )
       planetd.owner = -1;
       planetd.construction = 0;
       planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
       dbMapSetPlanet( buffer[a], &planetd );
       dbMapRetrieveSystem( planetd.system, &systemd );
       systemd.unexplored++;
@@ -885,7 +885,7 @@ int cmdExecGetMarket( int *market )
 }
 
 
-int cmdExecSendAid( int id, int destid, int fam, int *res)
+int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
 {
   int a, b;
   dbMainEmpireDef empired;
@@ -934,7 +934,7 @@ int cmdExecSendAid( int id, int destid, int fam, int *res)
     maind.ressource[a] -= (int64_t)res[a];
     if( maind.ressource[a] >= 0 )
       continue;
-    sprintf( cmdErrorBuffer, "You don't have %d %s.", res[a], cmdRessourceName[a] );
+    sprintf( cmdErrorBuffer, "You don't have %lld %s.", (long long)res[a], cmdRessourceName[a] );
     cmdErrorString = cmdErrorBuffer;
     return -3;
   }
@@ -969,7 +969,7 @@ int cmdExecAidAccess( int id, int access )
 }
 
 
-int cmdExecGetAid( int id, int destid, int fam, int *res )
+int cmdExecGetAid( int id, int destid, int fam, int64_t *res )
 {
   int a, b;
   dbMainEmpireDef empired;
@@ -1033,7 +1033,7 @@ int cmdExecGetAid( int id, int destid, int fam, int *res )
     maind.ressource[a] -= (int64_t)res[a];
     if( maind.ressource[a] >= 0 )
       continue;
-    sprintf( cmdErrorBuffer, "There isn't %d %s available.", res[a], cmdRessourceName[a] );
+    sprintf( cmdErrorBuffer, "There isn't %lld %s available.", (long long)res[a], cmdRessourceName[a] );
     cmdErrorString = cmdErrorBuffer;
     return -3;
   }
@@ -1413,7 +1413,7 @@ int cmdExecSendFleetInfos( int id, int plnid, int *fr )
 
 
 
-int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
+int cmdExecSendFleet( int id, int x, int y, int z, int order, int64_t *sendunit )
 {
   int a, b;
   float fa;
@@ -1489,7 +1489,7 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
   {
     if( sendunit[a] > fleet2d.unit[a] )
     {
-      sprintf( cmdErrorBuffer, "You don't have as many as %d %s in your main fleet!", sendunit[a], cmdUnitName[a] );
+      sprintf( cmdErrorBuffer, "You don't have as many as %lld %s in your main fleet!", (long long)sendunit[a], cmdUnitName[a] );
       cmdErrorString = cmdErrorBuffer;
       return -3;
     }
@@ -1504,7 +1504,7 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
 
   if( !( dbUserFleetSet( id, 0, &fleet2d ) ) )
     return -3;
-  memcpy( fleetd.unit, sendunit, CMD_UNIT_NUMUSED*sizeof(int) );
+  memcpy( fleetd.unit, sendunit, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   fleetd.order = order;
   fleetd.destination = ( x << 8 ) + ( y << 20 ) + ( z );
   fleetd.flags = 0;
@@ -1518,7 +1518,7 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int *sendunit )
 
 
 
-int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
+int cmdExecSendAgents( int id, int x, int y, int z, int order, int64_t agents )
 {
   int a, b;
   float fa;
@@ -1561,7 +1561,7 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
     return -3;
   if( agents > fleet2d.unit[CMD_UNIT_AGENT] )
   {
-    sprintf( cmdErrorBuffer, "You don't have as many as %d %s in your main fleet!", agents, cmdUnitName[CMD_UNIT_AGENT] );
+    sprintf( cmdErrorBuffer, "You don't have as many as %lld %s in your main fleet!", (long long)agents, cmdUnitName[CMD_UNIT_AGENT] );
     cmdErrorString = cmdErrorBuffer;
     return -3;
   }
@@ -1575,7 +1575,7 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
 
   if( !( dbUserFleetSet( id, 0, &fleet2d ) ) )
     return -3;
-  memset( fleetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+  memset( fleetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   fleetd.unit[CMD_UNIT_AGENT] = agents;
   fleetd.order = order;
   fleetd.destination = ( x << 8 ) + ( y << 20 ) + ( z );
@@ -1589,7 +1589,7 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int agents )
 }
 
 
-int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
+int cmdExecSendGhosts( int id, int x, int y, int z, int order, int64_t ghosts )
 {
   int a, b;
   float fa;
@@ -1645,7 +1645,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
     return -3;
   if( ghosts > fleet2d.unit[CMD_UNIT_GHOST] )
   {
-    sprintf( cmdErrorBuffer, "You don't have as many as %d %s in your main fleet!", ghosts, cmdUnitName[CMD_UNIT_GHOST] );
+    sprintf( cmdErrorBuffer, "You don't have as many as %lld %s in your main fleet!", (long long)ghosts, cmdUnitName[CMD_UNIT_GHOST] );
     cmdErrorString = cmdErrorBuffer;
     return -3;
   }
@@ -1659,7 +1659,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int ghosts )
 
   if( !( dbUserFleetSet( id, 0, &fleet2d ) ) )
     return -3;
-  memset( fleetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+  memset( fleetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   fleetd.unit[CMD_UNIT_GHOST] = ghosts;
   fleetd.order = order;
   fleetd.destination = ( x << 8 ) + ( y << 20 ) + ( z );
@@ -2040,7 +2040,7 @@ int cmdExecTakePlanet( int id, int plnid )
   planetd.construction = 0;
   planetd.surrender = -1;
   planetd.flags &= 0xFFFFFFFF - ( CMD_PLANET_FLAGS_PORTAL | CMD_PLANET_FLAGS_PORTAL_BUILD );
-  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+  memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
   dbMapSetPlanet( plnid, &planetd );
   dbUserPlanetAdd( id, plnid, planetd.system, planetd.position, planetd.flags );
 

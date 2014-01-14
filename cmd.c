@@ -930,8 +930,8 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
     planetd.owner = id;
     planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
     planetd.protection = 0.0;
-    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
     planetd.construction = 0;
     dbMapSetPlanet( fleetd->destid, &planetd );
     dbUserFleetRemove( id, fltid );
@@ -1553,7 +1553,7 @@ int cmdExecute( void *DEPRECIATED, int *cmd, void *buffer, int size )
     fleetd.flags = 0;
     if( ( a = dbUserFleetAdd( cmd[1], &fleetd ) ) < 0 )
       return -3;
-    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
     dbMapSetPlanet( cmd[2], &planetd );
     cmdFleetAction( &fleetd, cmd[1], cmd[2], 0 );
     return 1;
