@@ -71,13 +71,13 @@ if( !( flags & 32 ) ) {
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=status.js\"></script>", URLAppend( cnt, "files" ) );
-	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&type=server&name=javascript.min.js\"></script>", URLAppend( cnt, "files" ) );
 }
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
 if( flags & 1 ) {
 	httpString( cnt, "<style type=\"text/css\">" );
-	httpString( cnt, "body{background-image:url(files?type=image&name=mbg.gif);" );
+	httpString( cnt, "body{background-image:url(files?type=image&name=background.gif);" );
 	if( !( flags & 2 ) )
 		httpString( cnt, "background-attachment:fixed;" );
 	httpString( cnt, "}</style>" );
@@ -501,7 +501,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						httpString( cnt, "<br><br>" );
 						if( notices == (int)settings[1]->num_value ) {
 							httpString( cnt, "<table align=\"right\">" );
-							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
+							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&request=true\" rel=\"ajaxpanel\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
 							httpString( cnt, "</table>" );
 							break;
 						}
@@ -822,7 +822,10 @@ void iohtmlFunc_notices( ReplyDataPtr cnt ) {
 	FILE *file;
 	int id;
 
-iohtmlBase( cnt, 8 );
+if( iohtmlVarsFind( cnt, "request" ) ) {
+	iohtmlBase( cnt, 1 );
+} else {
+	iohtmlBase( cnt, 8 );
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
@@ -830,6 +833,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 }
 
 iohtmlFunc_frontmenu( cnt, FMENU_NOTICES );
+}
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td class=\"center\"><div class=\"genlarge\"><b>Listing of all Server Notices</b></span></td></tr>" );
