@@ -1144,6 +1144,17 @@ if( flags ) {
 	bitflag_add( &user->flags, flags );
 }
 dbUserSave( id, user );
+/*
+ * I only like one of each "Minister" per Empire, so strip others if someone is changed.
+ */
+if( flags != CMD_USER_FLAGS_INDEPENDENT ) {
+	for( a = 0 ; a < empired.numplayers ; a++ ) {
+		if( !( user = dbUserLinkID( id ) ) )
+			continue;
+		bitflag_remove( &user->flags, flags );
+		dbUserSave( id, user );
+	}
+}
 
 return 1;
 }
