@@ -1115,34 +1115,37 @@ int cmdExecChangFamName( int fam, char *name )
 }
 
 
-int cmdExecFamMemberFlags( int id, int fam, int flags )
-{
-  int a;
-  dbUserPtr user;
-  dbMainEmpireDef empired;
+int cmdExecFamMemberFlags( int id, int fam, int flags ) {
+	int a;
+	dbUserPtr user;
+	dbMainEmpireDef empired;
 
-  cmdErrorString = 0;
-  if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
-    return -3;
-  if( id == empired.leader )
-    return -3;
-  for( a = 0 ; ; a++ )
-  {
-    if( a == empired.numplayers )
-      return -3;
-    if( id == empired.player[a] )
-      break;
-  }
-  if( !( user = dbUserLinkID( id ) ) )
-    return -3;
-  if( flags > CMD_USER_FLAGS_NUMUSED )
-    return -3;
-  //user->flags &= 0xFFFF;
-  if( flags ) {
-    bitflag_add( &user->flags, flags );
-  }
-  dbUserSave( id, user );
-  return 1;
+cmdErrorString = 0;
+if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+	return -3;
+if( id == empired.leader )
+	return -3;
+for( a = 0 ; ; a++ ) {
+	if( a == empired.numplayers )
+		return -3;
+	if( id == empired.player[a] )
+		break;
+}
+if( !( user = dbUserLinkID( id ) ) )
+	return -3;
+if( flags > CMD_USER_FLAGS_NUMUSED )
+	return -3;
+
+if( flags ) {
+	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
+		if( ( a != flag ) )
+			bitflag_remove( &user->flags, a );
+	}
+	bitflag_add( &user->flags, flags );
+}
+dbUserSave( id, user );
+
+return 1;
 }
 
 
