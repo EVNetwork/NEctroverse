@@ -856,9 +856,9 @@ for( user = dbUserList ; user ; user = user->next ) {
 	maind.infos[INFOS_BUILDING_UPKEEP] = 0;
 	for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
 		if( ( a == CMD_BUILDING_SOLAR ) || ( a == CMD_BUILDING_FISSION ) ) {
-			maind.infos[INFOS_BUILDING_UPKEEP] += ( cmdTickProduction[a] * cmdBuildingUpkeep[a] * fb );
+			maind.infos[INFOS_BUILDING_UPKEEP] += ( maind.totalbuilding[a] * cmdBuildingUpkeep[a] * fb );
    		} else {
-			maind.infos[INFOS_BUILDING_UPKEEP] += ( cmdTickProduction[a] * cmdBuildingUpkeep[a] );
+			maind.infos[INFOS_BUILDING_UPKEEP] += ( maind.totalbuilding[a] * cmdBuildingUpkeep[a] );
 		}
 
 	}
