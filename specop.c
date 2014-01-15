@@ -1518,15 +1518,15 @@ Kill 1 Fission takes 400 energy
         {
           if( dbMapRetrievePlanet( plnlist[a], &planet2d ) < 0 )
             continue;
-          c = planetd.building[CMD_BUILDING_SOLAR] * fa;
-          if( c > planetd.building[CMD_BUILDING_SOLAR] )
-            c = planetd.building[CMD_BUILDING_SOLAR];
-          planetd.building[CMD_BUILDING_SOLAR] -= c;
+          c = planet2d.building[CMD_BUILDING_SOLAR] * fa;
+          if( c > planet2d.building[CMD_BUILDING_SOLAR] )
+            c = planet2d.building[CMD_BUILDING_SOLAR];
+          planet2d.building[CMD_BUILDING_SOLAR] -= c;
           newd[14] += c;
-          c = planetd.building[CMD_BUILDING_FISSION] * fb;
-          if( c > planetd.building[CMD_BUILDING_FISSION] )
-            c = planetd.building[CMD_BUILDING_FISSION];
-          planetd.building[CMD_BUILDING_FISSION] -= c;
+          c = planet2d.building[CMD_BUILDING_FISSION] * fb;
+          if( c > planet2d.building[CMD_BUILDING_FISSION] )
+            c = planet2d.building[CMD_BUILDING_FISSION];
+          planet2d.building[CMD_BUILDING_FISSION] -= c;
           newd[15] += c;
           dbMapSetPlanet( plnlist[a], &planet2d );
         }
