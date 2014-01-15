@@ -5443,7 +5443,7 @@ if( systemstring ) {
 					goto iohttpFunc_exploreL1;
 			}
 			if ( planetd.owner == -1 ) {
-				net = ( cmdExploreCost( id, &maind) >> 16 );
+				net = cmdExploreCost( id, &maind);
 				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
 					break;
 				} else {
@@ -5456,7 +5456,7 @@ if( systemstring ) {
 			if( cmdErrorString ) {
 				httpPrintf( cnt, "%s<br><br>", cmdErrorString );
 			}
-			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br>If everything goes well, %s will be ours in %d weeks<br>", count, cmdUnitName[CMD_UNIT_EXPLORATION], cost, ( count > 1 ? " these planets" : "this planet" ), explore );
+			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br>If everything goes well, %s will be ours in %d weeks<br>", count, cmdUnitName[CMD_UNIT_EXPLORATION], ( cost >> 16 ), ( count > 1 ? " these planets" : "this planet" ), explore );
 		}
 	goto iohttpFunc_exploreL0;
 	} else {
