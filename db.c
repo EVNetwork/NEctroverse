@@ -493,7 +493,7 @@ if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "rb+" ) ) 
 
 snprintf( COREDIR, sizeof(COREDIR), "%s/data/forums", settings[0]->string_value );
 if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
-	info("Forum database not found, creating...");
+	info("Empire Forum database not found, creating...");
 	
 	if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create forum database!" );
@@ -501,6 +501,7 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_FORUM] );
+	fclose( dbFilePtr[DB_FILE_FORUM] );
 	forumd.threads = 0;
 	forumd.time = 0;
 	forumd.tick = 0;
@@ -549,15 +550,14 @@ if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "rb+" ) ) ) {
 
 file_s( dbFilePtr[DB_FILE_USERS], 0 );
 file_r( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED] = b;
 dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] = 0;
 dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] = 0;
 for( a = 0 ; a < b ; a++ ) {
 	if( !( file = dbFileUserOpen( a, 0x10000 | DB_FILE_USER_INFO ) ) ) {
-		error( "User %d Open", a );
 		continue;
 	}
 	if( !( user = dbUserAllocate( a ) ) ) {
+		error( "User %d allocation", a );
 		fclose( file );
 		continue;
 	}
@@ -580,6 +580,7 @@ for( a = 0 ; a < b ; a++ ) {
 	strncpy( user->http_session, infod.http_session, sizeof(user->http_session) );
 	fclose( file );
 }
+dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED] = a;
 ticks.uregist = dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED];
 ticks.uactive = dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED];
 ticks.uonline= dbRegisteredInfo[DB_TOTALS_USERS_ONLINE];
@@ -811,6 +812,8 @@ if( !( freenum ) ) {
 	file_s( dbFilePtr[DB_FILE_USERS], 4 );
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
 }
+
+dbFlush();
 
 return id;
 }

@@ -11,9 +11,9 @@ if( ((cnt->session)->dbuser)->level < LEVEL_ADMINISTRATOR )
 
 settings = GetSetting( "Server Name" );
 httpPrintf( cnt, "<html><head><title>%s</title></head><frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">", settings->string_value );
-httpString( cnt, "<frame src=\"adminmenu\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>" );
-httpString( cnt, "<frame src=\"adminserver\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>" );
-httpString( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"menu\">Menu</a></noframes>" );
+httpPrintf( cnt, "<frame src=\"%s\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>", URLAppend( cnt, "adminmenu") );
+httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>", URLAppend( cnt, "adminserver") );
+httpPrintf( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"%s\">Menu</a></noframes>", URLAppend( cnt, "adminmenu") );
 httpString( cnt, "</frameset></html>" );
 return;
 
@@ -28,7 +28,8 @@ void iohtmlFunc_adminmenu( ReplyDataPtr cnt )
  int id;
  dbUserMainDef maind;
  
- httpString( cnt, "<html><head><style type=\"text/css\">a {\ntext-decoration: none\n}\na:hover {\ncolor: #00aaaa\n}\n</style></head><body bgcolor=\"#000000\" text=\"#FFFFFF\" link=\"#FFFFFF\" alink=\"#FFFFFF\" vlink=\"#FFFFFF\" leftmargin=\"0\" background=\"files?type=image&name=mbg.gif\">" );
+ iohtmlBase( cnt, 1|2|32 );
+ 
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  if( dbUserMainRetrieve( id, &maind ) < 0 )
@@ -37,19 +38,34 @@ void iohtmlFunc_adminmenu( ReplyDataPtr cnt )
 
  httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"files?type=image&name=i36.jpg\" border=\"0\" align=\"center\"><tr><td><img height=\"40\" src=\"files?type=image&name=i18.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&name=i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
 
- httpString( cnt, "<a href=\"adminforum\" target=\"main\">Forums</a></font></b></td></tr><tr><td background=\"files?type=image&name=i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- httpString( cnt, "<a href=\"council\" target=\"main\">Council</a><br><a href=\"units\" target=\"main\">Units</a><br><a href=\"market\" target=\"main\">Market</a><br><a href=\"planets\" target=\"main\">Planets</a><br>" );
- httpPrintf( cnt, "<a href=\"empire\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- <a href=\"forum?forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- <a href=\"famaid\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- <a href=\"famgetaid\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- <a href=\"famnews\" target=\"main\">News</a><br>&nbsp;&nbsp;- <a href=\"famrels\" target=\"main\">Relations</a><br>", maind.empire + 100 );
- httpString( cnt, "<a href=\"fleets\" target=\"main\">Fleets</a><br>" );
- httpString( cnt, "<a href=\"mappick\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- <a href=\"map\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- <a href=\"mapadv\" target=\"main\">Map generation</a><br>" );
- httpString( cnt, "<a href=\"research\" target=\"main\">Research</a><br>" );
- httpString( cnt, "<a href=\"spec\" target=\"main\">Operations</a><br>" );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Forums</a>", URLAppend( cnt, "adminforum" ) );
+ httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&name=i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Council</a><br>", URLAppend( cnt, "council" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Units</a><br>", URLAppend( cnt, "units" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Market</a><br>", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Planets</a><br>", URLAppend( cnt, "planets" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
+ httpPrintf( cnt, "<a href=\"%s&empire=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
+
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Research</a><br>", URLAppend( cnt, "research" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Operations</a><br>", URLAppend( cnt, "spec" ) );
 
  httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&name=i36.jpg\"><img height=\"15\" src=\"files?type=image&name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&name=i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- httpString( cnt, "<a href=\"mail?type=0\" target=\"main\">Messages</a><br><a href=\"rankings\" target=\"main\">Faction rankings</a><br><a href=\"famranks\" target=\"main\">Empire rankings</a><br>" );
- httpString( cnt, "<a href=\"forum\" target=\"main\">Forums</a><br>" );
- httpString( cnt, "<a href=\"account\" target=\"main\">Account</a><br>" );
- httpString( cnt, "<a href=\"logout\" target=\"_top\">Logout</a><br><br>" );
+ 
+ httpPrintf( cnt, "<a href=\"%s&type=0\" target=\"main\">Messages</a><br>", URLAppend( cnt, "mail" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s&typ=1\" target=\"main\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Forums</a><br>", URLAppend( cnt, "forum" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br>", URLAppend( cnt, "account" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"_top\">Logout</a><br><br>", URLAppend( cnt, "logout" ) );
 
    httpString( cnt, "<br><a href=\"admin\" target=\"main\">Old Admin</a>" );
       httpString( cnt, "<br><a href=\"moderator\" target=\"main\">Old Mod</a>" );

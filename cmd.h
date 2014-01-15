@@ -46,6 +46,7 @@ int cmdExecDelRelation( int fam, int relid );
 
 int cmdExecSetSectsize( int id, int size );
 
+int cmdExploreCost( int id, dbUserMainPtr mainp );
 int cmdExecSendFleetInfos( int id, int plnid, int *fr );
 
 int cmdExecSendFleet( int id, int x, int y, int z, int order, int64_t *sendunit );

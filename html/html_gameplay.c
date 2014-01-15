@@ -5387,7 +5387,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 
 void iohtmlFunc_explore( ReplyDataPtr cnt ) {
-	int a, id, num, plnid, system, explore;
+	int a, id, num, plnid, system, explore, net, cost, count;
 	char *planetstring, *explorestring, *systemstring;
 	dbMainPlanetDef planetd;
 	dbMainSystemDef systemd;
@@ -5436,23 +5436,27 @@ if( planetd.flags & CMD_PLANET_FLAGS_HOME ) {
 SYSTEMEXPO:
 if( systemstring ) {
 	if( explorestring ) {
+		cost = count = 0;
 		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
 					httpString( cnt, "Planet retrvial error!<br>" );
 					goto iohttpFunc_exploreL1;
 			}
 			if ( planetd.owner == -1 ) {
+				net = ( cmdExploreCost( id, &maind) >> 16 );
 				if( ( cmdExecExplore( id, num, &explore ) ) < 0 ) {
-					if( cmdErrorString ) {
-						httpPrintf( cnt, "%s<br>", cmdErrorString );
-					} else {
-						httpString( cnt, "Error encountered while retrieving exploration information<br>" );
-						goto iohttpFunc_exploreL0;
-					}
+					break;
 				} else {
-					httpPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
+					cost += net;
+					count++;
 				}
 			}
+		}
+		if( count ) {
+			if( cmdErrorString ) {
+				httpPrintf( cnt, "%s<br><br>", cmdErrorString );
+			}
+			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br>If everything goes well, %s will be ours in %d weeks<br>", count, cmdUnitName[CMD_UNIT_EXPLORATION], cost, ( count > 1 ? " these planets" : "this planet" ), explore );
 		}
 	goto iohttpFunc_exploreL0;
 	} else {
@@ -5467,15 +5471,19 @@ if( systemstring ) {
 		}
 		if( ( cmdExecExploreInfo( id, num, &explore ) ) < 0 ) {
 			if( cmdErrorString )
-				httpPrintf( cnt, "%s", cmdErrorString );
+				httpPrintf( cnt, "%s<br><br>", cmdErrorString );
 			else
 				httpString( cnt, "Error encountered while retrieving exploration information<br>" );
 				goto iohttpFunc_exploreL0;
 		}
-		httpPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
-		httpString( cnt, "<br><br>" );
-		httpPrintf( cnt, "It will take %d weeks for an %s to reach this system.<br><br>", explore, cmdUnitName[CMD_UNIT_EXPLORATION] );
-		httpPrintf( cnt, "<a href=\"%s&system=%d&dispatch=1\">Dispatch %s</a>", URLAppend( cnt, "explore" ), system, cmdUnitName[CMD_UNIT_EXPLORATION] );
+		httpPrintf( cnt, "It will take %d weeks and %d%% FR for our %s to reach this system.<br>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
+		httpString( cnt, "(Note that the cost will increase after each ship is dispatched)<br><br>" );
+		if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
+			httpPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s<br><br>", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
+			httpPrintf( cnt, "<a href=\"%s&system=%d&dispatch=1\">Dispatch %s</a>", URLAppend( cnt, "explore" ), system, cmdUnitName[CMD_UNIT_EXPLORATION] );
+		} else {
+			httpPrintf( cnt, "You don't have any %s to send!<br>", cmdUnitName[CMD_UNIT_EXPLORATION] );
+		}
 	}
 } else if( explorestring ) {
 	if( ( cmdExecExplore( id, plnid, &explore ) ) < 0 ) {
@@ -5495,11 +5503,11 @@ if( systemstring ) {
 			httpString( cnt, "Error encountered while retrieving exploration information<br>" );
 			goto iohttpFunc_exploreL0;
 	}
+	httpPrintf( cnt, "It would take %d weeks and %d%% FR for our %s to reach this planet.<br><br>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
 	if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
-		httpPrintf( cnt, "It would take %d weeks for an %s to reach this planet.<br><br>", explore, cmdUnitName[CMD_UNIT_EXPLORATION] );
 		httpPrintf( cnt, "<b><a href=\"%s&id=%d&dispatch=1\">Explore this planet</a></b><br>", URLAppend( cnt, "explore" ), plnid );
 	} else {
-		httpPrintf( cnt, "You don't have any %s to send!", cmdUnitName[CMD_UNIT_EXPLORATION] );
+		httpPrintf( cnt, "You don't have any %s to send!<br>", cmdUnitName[CMD_UNIT_EXPLORATION] );
 	}
 }
 

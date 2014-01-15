@@ -1716,6 +1716,14 @@ int cmdExecExploreInfo( int id, int plnid, int *ibuffer )
 }
 
 
+int cmdExploreCost( int id, dbUserMainPtr mainp ) {
+	int cost;
+	
+cost = (( ( ( mainp->planets + cmdExecExploreShips( id ) ) << 16 ) >> 2 ) + 10*65536 );
+
+return cost;
+}
+
 int cmdExecExplore( int id, int plnid, int *ibuffer )
 {
   int a, b;
@@ -1756,7 +1764,7 @@ int cmdExecExplore( int id, int plnid, int *ibuffer )
     return -3;
   }
 
-	maind.readiness[0] -= (( ( ( maind.planets + cmdExecExploreShips( id ) ) << 16 ) >> 2 ) + 10*65536);
+	maind.readiness[0] -= cmdExploreCost( id, &maind );
 	
 	ibuffer[0] = ( ( a / cmdUnitStats[CMD_UNIT_EXPLORATION][CMD_UNIT_STATS_SPEED] ) >> 8 ) + 1;
 	
