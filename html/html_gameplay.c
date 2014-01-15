@@ -1385,8 +1385,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 void iohtmlFunc_council( ReplyDataPtr cnt ) {
 	int a, b, c, id, numbuild;
-	int bsums[CMD_BLDG_NUMUSED+1];
-	int usums[CMD_UNIT_NUMUSED];
+	int64_t bsums[CMD_BLDG_NUMUSED+1];
+	int64_t usums[CMD_UNIT_NUMUSED];
 	dbMainEmpireDef empired;
 	dbUserBuildPtr build;
 	dbUserMainDef maind;
@@ -1460,8 +1460,8 @@ for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%d</td></tr></table><br><br>", b );
-httpPrintf( cnt, "<b>Buildings under construction</b><br><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
-memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int) );
+httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
 
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( build[a].type >> 16 )
@@ -1481,13 +1481,13 @@ if( !( c ) ) {
 	for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 		if( !( bsums[a] ) )
 			continue;
-		httpPrintf( cnt, "%d %s<br>", bsums[a], cmdBuildingName[a] );
+		httpPrintf( cnt, "%lld %s<br>", (long long)bsums[a], cmdBuildingName[a] );
 		b += bsums[a];
 	}
 	httpPrintf( cnt, "<i>Total of %d buildings under construction</i><br>", b );
 }
 
-httpString( cnt, "</td><td align=\"center\" valign=\"top\">" );
+httpString( cnt, "</span></td><td align=\"center\" valign=\"top\">" );
 
 httpString( cnt, "<b>Units</b><br><table>" );
 
@@ -1497,9 +1497,9 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br><br>", b );
-httpPrintf( cnt, "<b>Units under construction</b><br><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 
-memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( !( build[a].type >> 16 ) )
 		continue;
@@ -1516,13 +1516,13 @@ if( !( c ) ) {
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	if( !( usums[a] ) )
 		continue;
-	httpPrintf( cnt, "%d %s<br>", usums[a], cmdUnitName[a] );
+	httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
 	b += usums[a];
   	}
 	httpPrintf( cnt, "<i>Total of %d units under construction</i><br>", b );
 }
 
-httpString( cnt, "</td></tr></table>" );
+httpString( cnt, "</span></td></tr></table>" );
 
 free( build );
 iohtmlBodyEnd( cnt );
