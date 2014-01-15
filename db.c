@@ -491,7 +491,7 @@ if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "rb+" ) ) 
 		file_w( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
 }
 
-snprintf( COREDIR, sizeof(COREDIR), dbFileList[DB_FILE_FORUM], settings[0]->string_value );
+snprintf( COREDIR, sizeof(COREDIR), "%s/data/forums", settings[0]->string_value );
 if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	info("Forum database not found, creating...");
 	
@@ -510,7 +510,7 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 		forumd.rperms = 2;
 		forumd.wperms = 2;
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
-		dbForumAddForum( &forumd, 1, 100+a );
+		dbForumAddForum( true, a, &forumd );
 	}
 	info( "Created Forums for %d Empires.", a );
 }
@@ -2876,15 +2876,21 @@ struct ( X+Y )
   Y:text
 */
 
-int dbForumListForums( int perms, dbForumForumPtr *forums ) {
+int dbForumListForums( int flags, int perms, dbForumForumPtr *forums ) {
 	int num;
 	FILE *file;
 	dbForumForumPtr forumsp;
 	ConfigArrayPtr settings;
 	char fname[PATH_MAX];
 
-settings = GetSetting( "Public Forum" );  
-sprintf(fname, "%s/forums", settings->string_value);
+if( flags ) {
+	settings = GetSetting( "Directory" );
+	sprintf(fname, "%s/data/forums", settings->string_value);
+} else {
+	settings = GetSetting( "Public Forum" );
+	sprintf(fname, "%s/forums", settings->string_value);
+}
+
 if( !( file = fopen( fname, "rb+" ) ))
 	return -3;
 file_r( &num, 1, sizeof(int), file );
@@ -2902,7 +2908,7 @@ return num;
 }
 
 
-int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, dbForumThreadPtr *threads ) {
+int dbForumListThreads( int flags, int forum, int base, int end, dbForumForumPtr forumd, dbForumThreadPtr *threads ) {
 	ConfigArrayPtr settings;
   int a, b, c, d, num, lused, lfree, numnext;
   FILE *file;
@@ -2912,7 +2918,7 @@ int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, db
   *threads = 0;
   if( base < 0 )
     return -3;
-  if(forum > 100) {
+  if( flags ) {
   	settings = GetSetting( "Directory" ); 
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
   } else {
@@ -2966,7 +2972,7 @@ file_r( forumd, 1, sizeof(dbForumForumDef), file );
 }
 
 
-int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts ) {
+int dbForumListPosts( int flags, int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts ) {
 	ConfigArrayPtr settings;
   int a, b, offset, num;
   char fname[PATH_MAX];
@@ -2977,7 +2983,7 @@ int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr
   if( base < 0 )
     return -3;
 
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
 } else {
@@ -3036,12 +3042,12 @@ file_r( threadd, 1, sizeof(dbForumThreadDef), file );
 
 
 
-int dbForumRetrieveForum( int forum, dbForumForumPtr forumd ) {
+int dbForumRetrieveForum( int flags, int forum, dbForumForumPtr forumd ) {
 	ConfigArrayPtr settings;
 	FILE *file;
 	char fname[PATH_MAX];
   
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
 	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
 } else {
@@ -3058,28 +3064,35 @@ if(forum > 100) {
 
 
 
-int dbForumAddForum( dbForumForumPtr forumd, int type, int nid ) {
+int dbForumAddForum( int flags, int nid, dbForumForumPtr forumd ) {
 	ConfigArrayPtr settings;
   int a, num;
   FILE *file;
   char fname[PATH_MAX];
   num = nid;
-if( !( type ) ) {
+
+if( flags ) {
+	settings = GetSetting( "Directory" );
+  	snprintf( fname, sizeof(fname), "%s/data/forums", settings->string_value);
+} else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forums", settings->string_value);
-    if( !( file = fopen( fname, "rb+" ) ))
-      return -3;
-    file_r( &num, 1, sizeof(int), file );
-    file_s( file, 4+num*sizeof(dbForumForumDef) );
-    file_w( forumd, 1, sizeof(dbForumForumDef), file );
-    num++;
-    file_s( file, 0 );
-    file_w( &num, 1, sizeof(int), file );
-    num--;
-    fclose( file );
 }
+
+if( !( file = fopen( fname, "rb+" ) ))
+	return -3;
+file_r( &num, 1, sizeof(int), file );
+file_s( file, 4+num*sizeof(dbForumForumDef) );
+file_w( forumd, 1, sizeof(dbForumForumDef), file );
+num++;
+file_s( file, 0 );
+file_w( &num, 1, sizeof(int), file );
+num--;
+
+fclose( file );
+
 	
-if(num > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d", settings->string_value, num );
 } else {
@@ -3093,7 +3106,7 @@ if( mkdir( fname, S_IRWXU ) == -1 ) {
 }
 
 
-if(num > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, num );
 } else {
@@ -3116,7 +3129,7 @@ fclose( file );
 return num;
 }
 
-int dbForumRemoveForum( int forum )
+int dbForumRemoveForum( int flags, int forum )
 {
   int a, b, num;
   FILE *file;
@@ -3127,7 +3140,7 @@ int dbForumRemoveForum( int forum )
   dbForumForumDef forumd;
   ConfigArrayPtr settings;
   
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
 	a = snprintf( fname, sizeof(fname), "%s/data/forum%d", settings->string_value, forum );
 } else {
@@ -3145,7 +3158,7 @@ while( ( direntry = readdir( dirdata ) ) ) {
 	unlink( fname );
 }
 closedir( dirdata );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
 	a = snprintf( fname, sizeof(fname), "%s/data/forum%d", settings->string_value, forum );
 } else {
@@ -3153,7 +3166,7 @@ if(forum > 100) {
   	a = snprintf( fname, sizeof(fname),  "%s/forum%d", settings->string_value, forum );
 }  
 rmdir( fname );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
 	a = snprintf( fname, sizeof(fname), "%s/data/%d/forum", settings->string_value, forum );
 } else {
@@ -3197,14 +3210,14 @@ file_r( &num, 1, sizeof(int), file );
 
 
 
-int dbForumAddThread( int forum, dbForumThreadPtr threadd ) {
+int dbForumAddThread( int flags, int forum, dbForumThreadPtr threadd ) {
 	ConfigArrayPtr settings;
 	int a, num, lused, lfree, numnext, lcur, lnext;
 	FILE *file;
 	char fname[PATH_MAX];
 	dbForumForumDef forumd;
 
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
 } else {
@@ -3258,7 +3271,13 @@ file_r( &forumd, 1, sizeof(dbForumForumDef), file );
   file_s( file, 16 );
   file_w( &forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
-  snprintf( fname, sizeof(fname), "%s/forums", settings->string_value );	
+if( flags ) {
+	settings = GetSetting( "Directory" );
+  	  snprintf( fname, sizeof(fname), "%s/data/forums", settings->string_value );
+} else {
+	settings = GetSetting( "Public Forum" );
+  	  snprintf( fname, sizeof(fname), "%s/forums", settings->string_value );
+}
   if( !( file = fopen( fname, "rb+" ) ))
     return -3;
   file_r( &num, 1, sizeof(int), file );
@@ -3269,7 +3288,7 @@ file_r( &forumd, 1, sizeof(dbForumForumDef), file );
   }
   fclose( file );
 
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, lcur );
 } else {
@@ -3289,7 +3308,7 @@ if(forum > 100) {
   return lcur;
 }
 
-int dbForumRemoveThread( int forum, int thread ) {
+int dbForumRemoveThread( int flags, int forum, int thread ) {
 	ConfigArrayPtr settings;
 	int a, num, lused, lfree, numnext, lprev, lnext;
 	FILE *file;
@@ -3297,7 +3316,7 @@ int dbForumRemoveThread( int forum, int thread ) {
 	dbForumForumDef forumd;
 	dbForumThreadDef threadd;
 
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
 } else {
@@ -3356,7 +3375,7 @@ file_r( &forumd, 1, sizeof(dbForumForumDef), file );
   forumd.threads--;
   file_w( &forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
 } else {
@@ -3364,7 +3383,7 @@ if(forum > 100) {
   	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, thread );
 }
   unlink( fname );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forums", settings->string_value );
 } else {
@@ -3388,7 +3407,7 @@ if(forum > 100) {
 }
 
 
-int dbForumAddPost( int forum, int thread, dbForumPostPtr postd ) {
+int dbForumAddPost( int flags, int forum, int thread, dbForumPostPtr postd ) {
 	ConfigArrayPtr settings;
 	int a, num, offset, lused, lprev, lnext;
 	FILE *file;
@@ -3396,7 +3415,7 @@ int dbForumAddPost( int forum, int thread, dbForumPostPtr postd ) {
 	dbForumThreadDef threadd;
 	dbForumForumDef forumd;
 	
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
 } else {
@@ -3428,7 +3447,7 @@ file_r( &threadd, 1, sizeof(dbForumThreadDef), file );
   file_w( &a, 1, sizeof(int), file );
 
   fclose( file );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
 } else {
@@ -3471,7 +3490,7 @@ file_r( &lnext, 1, sizeof(int), file );
   }
 
   fclose( file );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forums", settings->string_value );
 } else {
@@ -3495,7 +3514,7 @@ file_r( &num, 1, sizeof(int), file );
   return 1;
 }
 
-int dbForumRemovePost( int forum, int thread, int post ) {
+int dbForumRemovePost( int flags, int forum, int thread, int post ) {
 	ConfigArrayPtr settings;
 	int a, num, offset, offset2;
 	FILE *file;
@@ -3503,7 +3522,7 @@ int dbForumRemovePost( int forum, int thread, int post ) {
 	dbForumThreadDef threadd;
 	dbForumPostDef postd;
 
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
 } else {
@@ -3561,7 +3580,7 @@ file_r( &threadd, 1, sizeof(dbForumThreadDef), file );
     file_w( &offset, 1, sizeof(int), file );
 
     fclose( file );
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
   	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
 } else {
@@ -3580,7 +3599,7 @@ if(forum > 100) {
   return -3;
 }
 
-int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd ) {
+int dbForumEditPost( int flags, int forum, int thread, int post, dbForumPostPtr postd ) {
 	ConfigArrayPtr settings;
 	int a, b, num, offset;
 	FILE *file;
@@ -3592,9 +3611,9 @@ int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd ) {
     return -3;
 */
   posts = 0;
-  dbForumListPosts( forum, thread, post+1, FORUM_MAX, &threadd, &posts );
+  dbForumListPosts( flags, forum, thread, post+1, FORUM_MAX, &threadd, &posts );
 
-if(forum > 100) {
+if( flags ) {
 	settings = GetSetting( "Directory" );
 	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
 } else {

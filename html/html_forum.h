@@ -69,21 +69,21 @@ typedef struct
 
 
 
-int dbForumListForums( int perms, dbForumForumPtr *forums );
-int dbForumListThreads( int forum, int base, int end, dbForumForumPtr forumd, dbForumThreadPtr *threads );
-int dbForumListPosts( int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts );
+int dbForumListForums( int flags, int perms, dbForumForumPtr *forums );
+int dbForumListThreads( int flags, int forum, int base, int end, dbForumForumPtr forumd, dbForumThreadPtr *threads );
+int dbForumListPosts( int flags, int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts );
 
-int dbForumRetrieveForum( int forum, dbForumForumPtr forumd );
+int dbForumRetrieveForum( int flags, int forum, dbForumForumPtr forumd );
 
-int dbForumAddForum( dbForumForumPtr forumd, int type, int nid );
-int dbForumRemoveForum( int forum );
+int dbForumAddForum( int flags, int nid, dbForumForumPtr forumd );
+int dbForumRemoveForum( int flags, int forum );
 
-int dbForumAddThread( int forum, dbForumThreadPtr threadd );
-int dbForumRemoveThread( int forum, int thread );
+int dbForumAddThread( int flags, int forum, dbForumThreadPtr threadd );
+int dbForumRemoveThread( int flags, int forum, int thread );
 
-int dbForumAddPost( int forum, int thread, dbForumPostPtr postd );
-int dbForumRemovePost( int forum, int thread, int post );
-int dbForumEditPost( int forum, int thread, int post, dbForumPostPtr postd );
+int dbForumAddPost( int flags, int forum, int thread, dbForumPostPtr postd );
+int dbForumRemovePost( int flags, int forum, int thread, int post );
+int dbForumEditPost( int flags, int forum, int thread, int post, dbForumPostPtr postd );
 
 
 //////////
@@ -95,11 +95,11 @@ int iohttpForumFilter2( char *dest, char *string, int size );
 
 int iohttpForumFilter3( char *dest, char *string, int size );
 
-int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, int perms );
+int iohttpForumPerms( int flags, int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, int perms );
 
-int iohttpForumCleanAuthor( char *string );
+int iohttpForumCleanAuthor( int flags, char *string );
 
-int iohttpForumCleanIP( char *ipstring );
+int iohttpForumCleanIP( int flags, char *ipstring );
 
 void iohtmlFunc_forum( ReplyDataPtr cnt );
 

@@ -115,7 +115,7 @@ iohtmlBodyInit( cnt, "Forums Administration" );
       forumd.rperms = 2;
       forumd.wperms = 2;
       forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
-      dbForumAddForum( &forumd, 1, 100+a );
+      dbForumAddForum( true, a, &forumd );
     }
     httpString( cnt, "<i>Empire forums created</i><br><br>" );
   }
@@ -138,7 +138,7 @@ iohtmlBodyInit( cnt, "Forums Administration" );
     if( !( sscanf( str0, "%d", &forumd.wperms ) ) )
       goto cancel;
     forumd.flags = 0;
-    dbForumAddForum( &forumd, 1, 0 );
+    dbForumAddForum( false, 0, &forumd );
     httpString( cnt, "<i>Forum created</i><br><br>" );
   }
 
@@ -146,7 +146,7 @@ iohtmlBodyInit( cnt, "Forums Administration" );
   {
     if( !( sscanf( actionstring, "%d", &a ) ) )
       goto cancel;
-    if( dbForumRemoveForum( a ) >= 0 )
+    if( dbForumRemoveForum( false, a ) >= 0 )
       httpString( cnt, "<i>Forum deleted</i><br><br>" );
   }
 
@@ -1045,7 +1045,7 @@ if( action[0] ) {
       forumd.rperms = 2;
       forumd.wperms = 2;
       forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
-      dbForumAddForum( &forumd, 1, 100+a );
+      dbForumAddForum( true, a, &forumd );
     }
 
     httpString( cnt, "<i>Forums created</i><br><br>" );
@@ -1079,7 +1079,7 @@ sysconfig.shutdown = true;
   {
     if( sscanf( action[3], "%d", &a ) == 1 )
     {
-      if( dbForumRemoveForum( a ) >= 0 )
+      if( dbForumRemoveForum( false, a ) >= 0 )
         httpString( cnt, "<i>Forum deleted</i><br><br>" );
     }
   }
@@ -1093,7 +1093,7 @@ sysconfig.shutdown = true;
     iohttpForumFilter( forumd.title, action[4], 64, 0 );
     forumd.rperms = 0xFFF;
     forumd.wperms = 0xFFF;
-    if( dbForumAddForum( &forumd, 0, 0 ) >= 0 )
+    if( dbForumAddForum( false, 0, &forumd ) >= 0 )
       httpPrintf( cnt, "Public forum %s added<br><br>", action[4] );
   }
 
@@ -1398,13 +1398,13 @@ sysconfig.shutdown = true;
 
   if( action[25] )
   {
-    a = iohttpForumCleanAuthor( action[25] );
+    a = iohttpForumCleanAuthor( false, action[25] );
     httpPrintf( cnt, "Deleted author %s ; %d threads<br><br>", action[25], a );
   }
 
   if( action[26] )
   {
-    a = iohttpForumCleanIP( action[26] );
+    a = iohttpForumCleanIP( false, action[26] );
     httpPrintf( cnt, "Deleted ip %s ; %d threads<br><br>", action[26], a );
   }
 
