@@ -364,7 +364,7 @@ int iohttpForumCleanIP( int flags, char *ipstring )
 
 void iohtmlFunc_forum( ReplyDataPtr cnt )
 {
- int a, b, c, d, id, forum, thread, post, action, skip, empire;
+ int a, b, c, d, id, forum, thread, post, action, skip;
  bool flags;
  dbUserMainDef maind;
  char *forumstring, *threadstring, *topicstring, *poststring, *delthreadstring, *delpoststring, *editpoststring, *namestring, *skipstring, *empirestring;
