@@ -331,12 +331,15 @@ return result;
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[3];
-	int a, id, offset = 0;
+	int a, i, id, offset = 0;
 	char *error, *remove;
 	char *code, *fbtoke;
 	char *dump = NULL;
 	char buffer[1024];
 	const char *host;
+	char DIRCHECKER[PATH_MAX];
+	char timebuf[512];
+	time_t tint;
 	#if HTTPS_SUPPORT
 	char temp[2][32];
 	#endif
@@ -421,17 +424,36 @@ if( ( code ) || ( fbtoke ) || ( dump ) ){
 		}
 	} else {
 		offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s", "Invalid Login, Did you just reload this page?" );
+		goto BAILOUT;
 	}
 } else if( error) {
 	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s", "Error Detected<br>" );
 	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", error );
 	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_reason" ) );
 	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_description" ) );
+	goto BAILOUT;
 } else {
 	httpString( cnt, "Invalid" );
 	goto BAILOUT;
 }
 
+
+settings[3] = GetSetting( "Directory" );
+sprintf( DIRCHECKER, "%s/logs/login.log", settings[3]->string_value );
+if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
+	time( &tint );
+	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+	fprintf( file, "Time: %s\n", timebuf );
+	fprintf( file, "Facebook ID: %s;\n", fbdata.id );
+	if( (cnt->connection)->addr->sa_family == AF_INET )
+		fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+	strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
+	for(i=0;i<strlen(DIRCHECKER);i++) {
+		if(DIRCHECKER[i] == ';')
+			DIRCHECKER[i] = ',';
+	}
+	fprintf( file, "User Agent: %s;\n", DIRCHECKER );
+}
 
 id = dbUserFBSearch( fbdata.id );
 
@@ -439,27 +461,7 @@ if( buffer[0] )
 	httpString( cnt, buffer );
 
 if( id >= 0 ) {
-	int i;
-	char DIRCHECKER[PATH_MAX];
-	char timebuf[512];
-	time_t tint;
-	
-	settings[3] = GetSetting( "Directory" );
-	sprintf( DIRCHECKER, "%s/logs/login.log", settings[3]->string_value );
-	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
-		time( &tint );
-		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
-		fprintf( file, "Time: %s\n", timebuf );
-		fprintf( file, "Facebook ID: %s;\n", fbdata.id );
-		if( (cnt->connection)->addr->sa_family == AF_INET )
-			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
-		strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
-		for(i=0;i<strlen(DIRCHECKER);i++) {
-			if(DIRCHECKER[i] == ';')
-				DIRCHECKER[i] = ',';
-		}
-		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
-	}
+
 	if( ( ( user = dbUserLinkID( id ) ) < 0 ) || ( dbUserLinkDatabase( cnt, id ) < 0 ) ) {
 		httpString( cnt, "An error has occured while trying to link with your game account.<br>" );
 		goto BAILOUT;
@@ -519,6 +521,10 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	fbdata.token = token;
 	infod.fbinfo = fbdata;
 	dbUserInfoSet( user->id, &infod );
+	if( file ) {
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
+		fclose( file );
+	}
 	facebook_post_notice( fbdata.id, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
 	redirect( cnt, "/main?page=account" );
 	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
@@ -579,12 +585,20 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"remove\" value=\"%s\">", fbdata.id );
 	httpString( cnt, "<input type=\"submit\" value=\"Remove Facebook Permissions\"></form>" );
 	httpString( cnt, "</div>" );
+	if( file ) {
+		fprintf( file, "ID : %d ( %x ) -- New Account\n\n\n", id, id );
+		fclose( file );
+	}
 }
 goto BAILOUT;
 
 REMOVELINK:
 
 if( facebook_unlink_app( fbdata.id ) ) {
+	if( file ) {
+		fprintf( file, "ID : %d ( %x ) -- UNLINKED\n\n\n", id, id );
+		fclose( file );
+	}
 	httpString( cnt, "As requested, your link with Facebook has been removed.<br>" );
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<a href=\"https://www.facebook.com\">Goto Facebook</a> - <a href=\"http://www.google.com\">Goto Google<br>" );
