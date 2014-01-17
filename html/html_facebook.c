@@ -9,9 +9,9 @@ curl_str->ptr = malloc(curl_str->len+1);
 
 if (curl_str->ptr == NULL) {
 	critical( "malloc failure" );
+} else {
+	curl_str->ptr[0] = '\0';
 }
-
-curl_str->ptr[0] = '\0';
 
 return;
 }
@@ -337,10 +337,11 @@ return result;
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[2];
 	int a, id, offset = 0;
-	char *error, *remove, *host;
+	char *error, *remove;
 	char *code, *fbtoke;
 	char *dump = NULL;
 	char buffer[1024];
+	const char *host;
 	#if HTTPS_SUPPORT
 	char temp[2][32];
 	#endif
@@ -355,12 +356,14 @@ settings[1] = GetSetting( "Facebook Secret" );
 if( !(strlen( settings[0]->string_value )) || !(strlen( settings[1]->string_value )) )
 	goto BAILOUT;
 
-host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 #if HTTPS_SUPPORT
 sprintf(temp[0], "%d", options.port[PORT_HTTP]);
 sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
-is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
+if( ( host != NULL ) && ( temp[0] ) && ( temp[1] ) ) {
+	is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
+}
 #endif
 if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
 	snprintf( do_redi, sizeof( do_redi ), "%s", "https://apps.facebook.com/nectroverse/facebook?fbapp=true" );
