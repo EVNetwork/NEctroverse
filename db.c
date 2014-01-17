@@ -502,14 +502,12 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_FORUM] );
 	dbFileGenClose( DB_FILE_FORUM );
-	forumd.threads = 0;
-	forumd.time = 0;
-	forumd.tick = 0;
-	forumd.flags = 0;
+	memset( &forumd, 0, sizeof(dbForumForumDef) );
 	for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 		sprintf( forumd.title, "Empire %d forum", a );
 		forumd.rperms = 2;
 		forumd.wperms = 2;
+		forumd.lastid = -1;
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( true, a, &forumd );
 	}
@@ -3259,6 +3257,8 @@ file_r( &forumd, 1, sizeof(dbForumForumDef), file );
   }
   forumd.time = threadd->time;
   forumd.tick = threadd->tick;
+  forumd.lastid = threadd->authorid;
+  strncpy(forumd.lastpost, threadd->authorname, USER_NAME_MAX);
   forumd.threads++;
 
   file_s( file, 16+sizeof(dbForumForumDef) + lcur * ( sizeof(dbForumThreadDef) + 8 ) );
@@ -3441,10 +3441,12 @@ file_r( &num, 1, sizeof(int), file );
 file_r( &offset, 1, sizeof(int), file );
 
 file_r( &threadd, 1, sizeof(dbForumThreadDef), file );
-  file_s( file, 8 );
   threadd.time = postd->post.time;
   threadd.tick = postd->post.tick;
+  threadd.lastid = postd->post.authorid;
+  strncpy( threadd.lastpost, postd->post.authorname, USER_NAME_MAX );
   threadd.posts++;
+  file_s( file, 8 );
   file_w( &threadd, 1, sizeof(dbForumThreadDef), file );
 
   file_s( file, offset );
@@ -3516,6 +3518,8 @@ file_r( &num, 1, sizeof(int), file );
     file_r( &forumd, 1, sizeof(dbForumForumDef), file );
     forumd.time = threadd.time;
     forumd.tick = threadd.tick;
+    forumd.lastid = threadd.lastid;
+    strncpy( forumd.lastpost, threadd.lastpost, USER_NAME_MAX );
     file_s( file, 4+forum*sizeof(dbForumForumDef) );
     file_w( &forumd, 1, sizeof(dbForumForumDef), file );
   }

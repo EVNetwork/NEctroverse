@@ -10,13 +10,15 @@
 typedef struct
 {
   char title[DB_FORUM_NAME_SIZE];
+  char lastpost[USER_NAME_MAX];
+  int lastid;
   int threads;
   int rperms;
   int wperms;
   time_t time;
   int tick;
   int flags;
-  int reserved[2];
+  struct in_addr sin_addr;
 } dbForumForumDef, *dbForumForumPtr;
 
 typedef struct
@@ -24,21 +26,14 @@ typedef struct
   char topic[DB_FORUM_NAME_SIZE];
   int posts;
   int authorid;
+  int lastid;
   char authorname[USER_NAME_MAX];
+  char lastpost[USER_NAME_MAX];  
   time_t time;
   int tick;
   int flags;
-
   int id;
-
-
-/*
-  int reserved;
-*/
   struct in_addr sin_addr;
-  char reserved[ 4 - sizeof(struct in_addr) ];
-
-
 } dbForumThreadDef, *dbForumThreadPtr;
 
 typedef struct
@@ -50,15 +45,7 @@ typedef struct
   time_t time;
   int tick;
   int flags;
-
-
-/*
-  int reserved[2];
-*/
   struct in_addr sin_addr;
-  char reserved[ 4 - sizeof(struct in_addr) ];
-
-
 } dbForumPostInDef, *dbForumPostInPtr;
 
 typedef struct

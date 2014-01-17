@@ -499,6 +499,7 @@ if( id >= 0 ) {
 	if( ( file ) ) {
 		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( user->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
 		fclose( file );
+		file = NULL;
 	}
 	
 	redirect( cnt, "%s", URLAppend( cnt, "/" ) );
@@ -535,6 +536,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	if( file ) {
 		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
 		fclose( file );
+		file = NULL;
 	}
 	facebook_post_notice( fbdata.id, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
 	redirect( cnt, "/main?page=account" );
@@ -599,6 +601,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	if( file ) {
 		fprintf( file, "ID : %d ( %x ) -- New Account\n\n\n", id, id );
 		fclose( file );
+		file = NULL;
 	}
 }
 goto BAILOUT;
@@ -609,6 +612,7 @@ if( facebook_unlink_app( fbdata.id ) ) {
 	if( file ) {
 		fprintf( file, "ID : %d ( %x ) -- UNLINKED\n\n\n", id, id );
 		fclose( file );
+		file = NULL;
 	}
 	httpString( cnt, "As requested, your link with Facebook has been removed.<br>" );
 	httpString( cnt, "<br>" );
@@ -625,6 +629,7 @@ if( dump != NULL )
 if( file ) {
 	fprintf( file, "Failed!\n\n\n" );
 	fclose( file );
+	file = NULL;
 }
 iohtmlFunc_endhtml( cnt );
 
