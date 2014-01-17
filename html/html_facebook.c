@@ -70,8 +70,12 @@ if( curl ) {
 		error( "Facebook Curl" );
 	/* always cleanup */
 	curl_easy_cleanup(curl);
-	*token = strdup(curl_str.ptr);
-	free(curl_str.ptr);
+	if( curl_str.ptr ) {
+		*token = strdup(curl_str.ptr);
+		free(curl_str.ptr);
+	} else {
+		*token = NULL;
+	}
 }
 
 
@@ -121,9 +125,11 @@ if( curl ) {
 				sscanf( (strstr( split[i], "=" )+1), "%d", &token->expire );
 			}
 		}
+		free( split );
 	}
-	free( split );
-	free(curl_str.ptr);
+	if( curl_str.ptr ) {
+		free( curl_str.ptr );
+	}
 }
 
 return;
@@ -207,7 +213,9 @@ if( curl ) {
 	}
 	cJSON_Delete(root);
 	//printf( curl_str.ptr );
-	free(curl_str.ptr);
+	if( curl_str.ptr ) {
+		free( curl_str.ptr );
+	}
 }
 
 
@@ -289,8 +297,10 @@ if( curl ) {
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
-	result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;
-	free(curl_str.ptr);
+	if( curl_str.ptr ) {
+		result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;
+		free( curl_str.ptr );
+	}
 }
 
 return result;
@@ -321,8 +331,10 @@ if( curl ) {
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
-	result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;
-	free(curl_str.ptr);
+	if( curl_str.ptr ) {
+		result = ( strcmp( curl_str.ptr, "true" ) == 0 ) ? true : false;
+		free( curl_str.ptr );
+	}
 }
 
 	
