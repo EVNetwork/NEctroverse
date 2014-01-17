@@ -44,7 +44,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Market</a><br>", URLAppend( cnt, "market" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Planets</a><br>", URLAppend( cnt, "planets" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
- httpPrintf( cnt, "<a href=\"%s&empire=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
+ httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
@@ -2734,7 +2734,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_ALLY ) || ( rel[a+2] != rel[c+2] ) )
      continue;
     httpPrintf( cnt, "Your empire is <font color=\"#00FF00\">allied</font> to <a href=\"%s&id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-    httpPrintf( cnt, "<a href=\"/%s&forum=%d\">Empire Forum</a> - ", URLAppend( cnt, "forum" ), 100+rel[a+2] );
+    httpPrintf( cnt, "<a href=\"/%s&empire=true&forum=%d\">Empire Forum</a> - ", URLAppend( cnt, "forum" ), rel[a+2] );
     httpPrintf( cnt, "<a href=\"/%s&id=%d\">Empire news</a> - ", URLAppend( cnt, "famnews" ), rel[a+2] );
     httpPrintf( cnt, "<a href=\"/%s&id=%d\">Empire relations</a><br>", URLAppend( cnt, "famrels" ), rel[a+2]);
    }

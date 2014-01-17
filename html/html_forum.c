@@ -403,19 +403,13 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  namestring = iohtmlVarsFind( cnt, "name" );
  skipstring = iohtmlVarsFind( cnt, "skip" );
 
-if( ( empirestring ) && ( sscanf( empirestring, "%d", &empire ) == 1 ) ) {
+if( ( empirestring ) && ( strcmp( empirestring, "true" ) == 0 ) ) {
 	flags = true;
 } else {
 	flags = false;
 }
 action = 0;
-if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ||  ( empirestring ) ) {
-	if( ( empirestring ) && !( forumstring  ) ){
-		forum = empire;
-		flags = true;
-	} else {
-		flags = false;
-	}
+if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ) {
 	action = 1;
   if( ( threadstring ) && ( sscanf( threadstring, "%d", &thread ) == 1 ) )
   {
@@ -449,20 +443,29 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ||  ( em
 
  if( action == 0 )
  {
+ if( ( flags ) && ( !( (cnt->session)->dbuser ) || !( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) {
+   httpString( cnt, "You are not authorised to view this list." );
+   goto RETURN;
+ }
+ 
   b = dbForumListForums( flags, 0, &forums );
   if( b < 0 )
   {
-   httpString( cnt, "Error while retrieving list of forums</center></body></html>" );
-   return;
+   httpString( cnt, "Error while retrieving list of forums" );
+   goto RETURN;
   }
   time( &tint );
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
   settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
-  if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
-   httpPrintf( cnt, " - <a href=\"%s&empire=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
-   }
+if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
+	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+		httpPrintf( cnt, " - <a href=\"%s&empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
+	} else {
+		httpPrintf( cnt, " - <a href=\"%s&empire=true&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+	}
+}
   httpString( cnt, "</td></tr></table>" );
 
   httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
@@ -470,7 +473,7 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ||  ( em
   for( a = 0 ; a < b ; a++ )
   {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s&%s=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), a, forums[a].time, forums[a].title, forums[a].threads, timebuf, forums[a].tick % 52, forums[a].tick / 52 );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>%s<br>Week %d, %d</td></tr>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), a, forums[a].time, forums[a].title, forums[a].threads, timebuf, forums[a].tick % 52, forums[a].tick / 52 );
   }
   httpString( cnt, "</table>" );
 if( forums )
@@ -483,15 +486,15 @@ if( forums )
   b = dbForumListThreads( flags, forum, skip, skip+IOHTTP_FORUM_THREADSNUM, &forumd, &threads );
   if( b < 0 )
   {
-   httpString( cnt, "These threads do not exist!</center></body></html>" );
-   return;
+   httpString( cnt, "These threads do not exist!" );
+   goto RETURN;
   }
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, forumd.rperms ) ) )
   {
    if( threads )
     free( threads );
-   httpString( cnt, "You are not authorized to view this forum</center></body></html>" );
-   return;
+   httpString( cnt, "You are not authorized to view this forum" );
+   goto RETURN;
   }
   if((cnt->session)->dbuser)
   {
@@ -518,8 +521,13 @@ if( flags ) {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 	httpString( cnt, timebuf );
-	if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) )
-		httpPrintf( cnt, " - <a href=\"%s&empire=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+	if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
+		if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+			httpPrintf( cnt, " - <a href=\"%s&empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
+		} else {
+			httpPrintf( cnt, " - <a href=\"%s&empire=true&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+		}
+	}
 	httpString( cnt, "</td></tr></table>" );
 } else
 	httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
@@ -543,17 +551,17 @@ for( a = 0 ; a < b ; a++ ) {
 	sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
 	strcat( timebuf, timetemp);
 
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s&%s=%d&thread=%d&last=%d\">%s</a>", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, threads[a].id, threads[a].time, threads[a].topic );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&forum=%d&thread=%d&last=%d\">%s</a>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, threads[a].id, threads[a].time, threads[a].topic );
    if( threads[a].posts > IOHTTP_FORUM_POSTSNUM )
    {
     httpString( cnt, " - Pages : " );
     for( d = 0, c = 1 ; d < threads[a].posts ; d += IOHTTP_FORUM_POSTSNUM, c++ )
-     httpPrintf( cnt, "<a href=\"%s&%s=%d&thread=%d&skip=%d&last=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, threads[a].id, d, threads[a].time, c );
+     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&skip=%d&last=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, threads[a].id, d, threads[a].time, c );
    }
    httpPrintf( cnt, "</td><td>%d</td><td nowrap>%s</td><td nowrap>%s", threads[a].posts, threads[a].authorname, timebuf );
 			if(( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) )&&(id != -1))
    {
-   	httpPrintf( cnt, " <a href=\"%s&%s=%d&thread=%d&delthread=1\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, threads[a].id );
+   	httpPrintf( cnt, " <a href=\"%s%s&forum=%d&thread=%d&delthread=1\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, threads[a].id );
   	}
   	if((cnt->session)->dbuser)
   	{
@@ -569,7 +577,7 @@ for( a = 0 ; a < b ; a++ ) {
    for( a = 0, c = 1 ; a < forumd.threads ; a += IOHTTP_FORUM_THREADSNUM, c++ )
    {
     if( skip != a )
-     httpPrintf( cnt, "<a href=\"%s&%s=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, a, c );
+     httpPrintf( cnt, "<a href=\"%s%s&forum==%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, a, c );
     else
      httpPrintf( cnt, "<b>%d</b> ", c );
    }
@@ -578,7 +586,8 @@ for( a = 0 ; a < b ; a++ ) {
   if( iohttpForumPerms( flags, id, forum, cnt, &maind, forumd.wperms ) )
   {
    httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
-   httpPrintf( cnt, "<input type=\"hidden\" name=\"%s\" value=\"%d\">", ( flags ? "empire" : "forum" ), forum );
+   httpPrintf( cnt, "<input type=\"hidden\" name=\"empire\" value=\"%s\">", ( flags ? "true" : "false" ) );
+   httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
    if( id == -1 )
     httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
@@ -597,14 +606,14 @@ for( a = 0 ; a < b ; a++ ) {
   iohttpForumL1:
   if( dbForumRetrieveForum( flags, forum, &forumd ) < 0 )
   {
-   httpString( cnt, "This forum does not exist!</center></body></html>" );
-   return;
+   httpString( cnt, "This forum does not exist!" );
+   goto RETURN;
   }
   b = dbForumListPosts( flags, forum, thread, skip, skip+IOHTTP_FORUM_POSTSNUM, &threadd, &posts );
   if( b < 0 )
   {
-   httpString( cnt, "Error while retrieving list of posts</center></body></html>" );
-   return;
+   httpString( cnt, "Error while retrieving list of posts" );
+   goto RETURN;
   }
 
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, forumd.rperms ) ) )
@@ -616,20 +625,25 @@ for( a = 0 ; a < b ; a++ ) {
    }
    if( posts )
     free( posts );
-   httpString( cnt, "You are not authorized to view this forum</center></body></html>" );
-   return;
+   httpString( cnt, "You are not authorized to view this forum" );
+   goto RETURN;
   }
 settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - ", URLAppend( cnt, "forum" ), settings->string_value );
-  httpPrintf( cnt, "<a href=\"%s&%s=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, forumd.title, threadd.topic );
+  httpPrintf( cnt, "<a href=\"%s%s&forum=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, forumd.title, threadd.topic );
 if( flags )  {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 	httpString( cnt, timebuf );
-	if( ( id != -1 ) && ( flags ) && ( forum != maind.empire ) && ( maind.empire != -1 ) )
-	httpPrintf( cnt, " - <a href=\"%s&empire=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+	if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
+		if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+			httpPrintf( cnt, " - <a href=\"%s&empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
+		} else {
+			httpPrintf( cnt, " - <a href=\"%s&empire=true&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+		}
+	}
 	httpString( cnt, "</td></tr></table>" );
 } else
 	httpPrintf( cnt, "Week %d, Year %d</td></tr></table>", ticks.number % 52, ticks.number / 52 );
@@ -640,7 +654,7 @@ if( flags )  {
    for( a = 0, c = 1 ; a < threadd.posts ; a += IOHTTP_FORUM_POSTSNUM, c++ )
    {
     if( skip != a )
-     httpPrintf( cnt, "<a href=\"%s&%s=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, thread, a, c );
+     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, a, c );
     else
      httpPrintf( cnt, "<b>%d</b> ", c );
    }
@@ -659,8 +673,8 @@ if( flags )  {
    httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
    if( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, maind.faction ) )) {
-    	httpPrintf( cnt, "<br><a href=\"%s&%s=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, thread, c );
-    	httpPrintf( cnt, "<a href=\"%s&%s=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "empire" : "forum" ), forum, thread, c );
+    	httpPrintf( cnt, "<br><a href=\"%s%s&forum=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, c );
+    	httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, c );
     }
    if((cnt->session)->dbuser)
    {
@@ -684,7 +698,7 @@ if( flags )  {
    for( a = 0, c = 1 ; a < threadd.posts ; a += IOHTTP_FORUM_POSTSNUM, c++ )
    {
     if( skip != a )
-     httpPrintf( cnt, "<a href=\"%s&forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), forum, thread, a, c );
+     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, a, c );
     else
      httpPrintf( cnt, "<b>%d</b> ", c );
    }
@@ -693,7 +707,8 @@ if( flags )  {
   if( iohttpForumPerms( flags, id, forum, cnt, &maind, forumd.wperms ) )
   {
    httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
-   httpPrintf( cnt, "<input type=\"hidden\" name=\"%s\" value=\"%d\">", ( flags ? "empire" : "forum" ), forum );
+   httpPrintf( cnt, "<input type=\"hidden\" name=\"empire\" value=\"%s\">", ( flags ? "true" : "false" ) );
+   httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
    httpPrintf( cnt, "<input type=\"hidden\" name=\"thread\" value=\"%d\">", thread );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
    if( id == -1 )
@@ -711,13 +726,13 @@ if( flags )  {
  {
   if( dbForumRetrieveForum( flags, forum, &forumd ) < 0 )
   {
-   httpString( cnt, "This forum does not exist!</center></body></html>" );
-   return;
+   httpString( cnt, "This forum does not exist!" );
+   goto RETURN;
   }
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, forumd.wperms ) ) )
   {
-   httpString( cnt, "You are not authorized to post in this forum</center></body></html>" );
-   return;
+   httpString( cnt, "You are not authorized to post in this forum" );
+   goto RETURN;
   }
   iohttpForumFilter( threadd.topic, topicstring, DB_FORUM_NAME_SIZE, 0 );
   threadd.posts = 0;
@@ -739,13 +754,13 @@ if( flags )  {
  {
   if( dbForumRetrieveForum( flags, forum, &forumd ) < 0 )
   {
-   httpString( cnt, "This forum does not exist!</center></body></html>" );
-   return;
+   httpString( cnt, "This forum does not exist!" );
+   goto RETURN;
   }
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, forumd.wperms ) ) )
   {
-   httpString( cnt, "You are not authorized to post in this forum</center></body></html>" );
-   return;
+   httpString( cnt, "You are not authorized to post in this forum" );
+   goto RETURN;
   }
 
 	/*	b = dbForumListThreads( forum, thread, thread+1, &forumd, &threads );
@@ -763,8 +778,7 @@ if( flags )  {
 
   if( !( postd.text = malloc( 3 * FORUM_MAX ) ) )
   {
-   httpString( cnt, "</center></body></html>" );
-   return;
+   goto RETURN;
   }
   a = 0;
   if((cnt->session)->dbuser)
@@ -805,8 +819,8 @@ if( flags )  {
  {
   if(( !( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) ) ) || (id == -1))
   {
-   httpString( cnt, "You are not authorized to delete threads here</center></body></html>" );
-   return;
+   httpString( cnt, "You are not authorized to delete threads here" );
+   goto RETURN;
   }
   iohttpForumL3:
 
@@ -821,17 +835,17 @@ if( flags )  {
   b = dbForumListPosts( flags, forum, thread, post, post+1, &threadd, &posts );
   if( b < 0 )
   {
-   httpString( cnt, "This post doesn't exist</center></body></html>" );
-   return;
+   httpString( cnt, "This post doesn't exist" );
+   goto RETURN;
   }
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, maind.faction ) ) ) )
   {
-   httpString( cnt, "You are not authorized to delete this post</center></body></html>" );
+   httpString( cnt, "You are not authorized to delete this post" );
    if( posts[0].text )
     free( posts[0].text );
     if( posts )
    free( posts );
-   return;
+   goto RETURN;
   }
   if( posts[0].text )
    free( posts[0].text );
@@ -853,21 +867,22 @@ if( flags )  {
   b = dbForumListPosts( flags, forum, thread, post, post+1, &threadd, &posts );
   if( b < 0 )
   {
-   httpString( cnt, "This post doesn't exist</center></body></html>" );
-   return;
+   httpString( cnt, "This post doesn't exist" );
+   goto RETURN;
   }
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, maind.faction ) ) ) )
   {
-   httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
+   httpString( cnt, "You are not authorized to edit this post" );
    if( posts[0].text )
     free( posts[0].text );
     if( posts )
    free( posts );
-   return;
+   goto RETURN;
   }
 
   httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
-  httpPrintf( cnt, "<input type=\"hidden\" name=\"%s\" value=\"%d\">", ( flags ? "empire" : "forum" ), forum );
+  httpPrintf( cnt, "<input type=\"hidden\" name=\"empire\" value=\"%s\">", ( flags ? "true" : "false" ) );
+  httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum ); 
   httpPrintf( cnt, "<input type=\"hidden\" name=\"thread\" value=\"%d\">", thread );
   httpPrintf( cnt, "<input type=\"hidden\" name=\"editpost\" value=\"%d\">", post );
   httpString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
@@ -878,8 +893,7 @@ if( flags )  {
     free( posts[0].text );
     if( posts )
    free( posts );
-   httpString( cnt, "</center></body></html>" );
-   return;
+   goto RETURN;
   }
   iohttpForumFilter3( text, posts[0].text, 2*FORUM_MAX - 512 );
   httpString( cnt, text );
@@ -897,17 +911,17 @@ if( flags )  {
   b = dbForumListPosts( flags, forum, thread, post, post+1, &threadd, &posts );
   if( b < 0 )
   {
-   httpString( cnt, "This post doesn't exist</center></body></html>" );
-   return;
+   httpString( cnt, "This post doesn't exist" );
+   goto RETURN;
   }
   if( !( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) ) && ( ( id == -1 ) || ( posts[0].post.authorid != id ) || !( ioCompareExact( posts[0].post.authorname, maind.faction ) ) ) )
   {
-   httpString( cnt, "You are not authorized to edit this post</center></body></html>" );
+   httpString( cnt, "You are not authorized to edit this post" );
    if( posts[0].text )
     free( posts[0].text );
     if( posts )
    free( posts );
-   return;
+   goto RETURN;
   }
   sprintf( postd.post.authorname, "%s", posts[0].post.authorname );
   sprintf( postd.post.authortag, "%s", posts[0].post.authortag );
@@ -923,8 +937,7 @@ if( flags )  {
 
   if( !( postd.text = malloc( 3 * FORUM_MAX ) ) )
   {
-   httpString( cnt, "</center></body></html>" );
-   return;
+   goto RETURN;
   }
   a = 0;
   if((cnt->session)->dbuser)
@@ -948,6 +961,7 @@ if( flags )  {
   goto iohttpForumL1;
  }
 
+RETURN:
 if( id != -1 ) {
 	httpString( cnt, "</center></body></html>" );
 } else {
