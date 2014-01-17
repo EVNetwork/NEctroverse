@@ -690,6 +690,7 @@ if( ( user ) && ( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user
 	facebook_getdata_id( &fbdata, user->fbid );
 	fbdata.updated = time(0);
 	if( !( fbdata.connected ) && !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
+		info( "Removing Link for User: ( %d ) %s", user->id, user->name );
 		memset( &user->fbid, 0, sizeof(user->fbid) );
 		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
 		dbUserSave( user->id, user );
