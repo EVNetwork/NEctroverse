@@ -3598,6 +3598,7 @@ void iohtmlFunc_player( ReplyDataPtr cnt )
  int a, b, id, playerid;
  dbUserMainDef maind, main2d;
  char *playerstring;
+ dbUserPtr user;
  dbUserInfoDef infod;
  dbUserRecordPtr recordd;
 
@@ -3619,14 +3620,43 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  }
  iohtmlBodyInit( cnt, main2d.faction );
  httpPrintf( cnt, "<table border=\"0\"><tr><td>" );
- httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire : #%d</a>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
- httpPrintf( cnt, "<br>Networth : %lld<br>Planets : %d<br>Race : %s<br>Forum tag : <b>%s</b><br>Population : %lld0<br>", (long long)main2d.networth, main2d.planets, cmdRaceName[main2d.raceid], infod.forumtag, (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
- httpPrintf( cnt, "Home planet : %d,%d:%d<br><br>Faction ID : %d<br>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF, playerid );
+ httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire : #%d</a><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+ httpPrintf( cnt, "Home planet : %d,%d:%d<br>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF );
+ httpPrintf( cnt, "Faction ID : %d<br>", playerid );
+ httpPrintf( cnt, "Planets : %d<br>", main2d.planets );
+ httpPrintf( cnt, "Race : %s<br>", cmdRaceName[main2d.raceid] );
+ httpPrintf( cnt, "Networth : %lld<br>", (long long)main2d.networth );
+  httpPrintf( cnt, "Population : %lld0<br>", (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
+  httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
+
  httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
  httpString( cnt, "<br></td></tr></table>" );
+
+
+ 
+#if FACEBOOK_SUPPORT
+if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->id == playerid ) || (((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) {
+	if( ( user = dbUserLinkID( playerid ) ) < 0 ) {
+		error( "DB link error" );
+		httpString( cnt, "Error Linking with user database... " );
+	} else {
+		if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
+			facebook_update_user( user );
+		}
+		if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
+			httpString( cnt, "<table><tr><td>" );
+			httpPrintf( cnt, "<img src=\"%s\" alt=\"Facebook Icon\">", infod.fbinfo.pic );
+			httpString( cnt, "</td><td>" );
+			httpPrintf( cnt, "Facebook ID : <b>%s</b><br>", infod.fbinfo.id );
+			httpPrintf( cnt, "Facebook Name : <b>%s</b><br>", infod.fbinfo.full_name );
+			httpString( cnt, "</td></tr></table>" );
+		}
+	}
+}
+#endif
 
  if( strlen(infod.desc) )
  {
