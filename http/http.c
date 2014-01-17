@@ -354,7 +354,9 @@ return;
 
 void httpString( ReplyDataPtr rd, char *text ) {
 	int buf_max = (rd->cache.buf_len - rd->cache.off);
-	int buf_len = strlen( text );
+	int buf_len;
+	
+buf_len = text ? strlen( text ) : 0;
 	
 if( ( buf_max - buf_len ) < 0 ) {
 	rd->cache.buf = buffer_realloc( &rd->cache, 2, buf_len, &buf_max );

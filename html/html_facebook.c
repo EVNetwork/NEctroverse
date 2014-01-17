@@ -479,13 +479,12 @@ if( id >= 0 ) {
 		goto BAILOUT;
 	}
 
-	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) {
+	if( dbSessionSet( user, (cnt->session)->sid ) < 0 ) {
 		httpString( cnt, "An error has occured while trying to set game user session.<br>" );
 		goto BAILOUT;
 	}
 
 	dbUserInfoRetrieve( id, &infod );
-
 	infod.lasttime = time( 0 );
 	if( (cnt->connection)->addr->sa_family == AF_INET )
 	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
@@ -498,7 +497,7 @@ if( id >= 0 ) {
 	infod.fbinfo = fbdata;
 	dbUserInfoSet( id, &infod );
 	if( ( file ) ) {
-		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( user->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
 		fclose( file );
 	}
 	
