@@ -632,15 +632,15 @@ void facebook_update_user( dbUserPtr user ) {
 if( ( user ) && ( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 	facebook_getdata_id( &fbdata, user->fbid );
 	fbdata.updated = time(0);
-	if( !( fbdata.connected ) && !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
+	//if( !( fbdata.connected ) && !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 		memset( &user->fbid, 0, sizeof(user->fbid) );
 		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
 		dbUserSave( user->id, user );
-	} else {
-		dbUserInfoRetrieve( user->id, &infod );
-		infod.fbinfo = fbdata;
-		dbUserInfoSet( user->id, &infod );	
-	}
+	//} else {
+	//	dbUserInfoRetrieve( user->id, &infod );
+	//	infod.fbinfo = fbdata;
+	//	dbUserInfoSet( user->id, &infod );	
+	//}
 }
 
 return;
