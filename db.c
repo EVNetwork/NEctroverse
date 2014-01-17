@@ -508,6 +508,7 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 		forumd.rperms = 2;
 		forumd.wperms = 2;
 		forumd.lastid = -1;
+		forumd.time = now;
 		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( true, a, &forumd );
 	}
