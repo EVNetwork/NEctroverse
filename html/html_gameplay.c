@@ -3645,6 +3645,7 @@ if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->id == playerid ) 
 	} else {
 		if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
 			facebook_update_user( user );
+			dbUserInfoRetrieve( playerid, &infod );
 		}
 		if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
 			httpString( cnt, "<table><tr><td>" );

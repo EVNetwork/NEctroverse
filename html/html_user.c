@@ -95,6 +95,7 @@ httpString( cnt, "<input type=\"submit\" value=\"Change\"></form><br>" );
 #if FACEBOOK_SUPPORT
 if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
 	facebook_update_user( (cnt->session)->dbuser );
+	dbUserInfoRetrieve( ((cnt->session)->dbuser)->id, &infod );
 }
 iohtmlFBConnect( cnt );
 if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) ) {
