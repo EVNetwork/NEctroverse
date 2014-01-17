@@ -3638,7 +3638,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 
  
 #if FACEBOOK_SUPPORT
-if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->id == playerid ) || (((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) {
+if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) {
 	if( ( user = dbUserLinkID( playerid ) ) < 0 ) {
 		error( "DB link error" );
 		httpString( cnt, "Error Linking with user database... " );
