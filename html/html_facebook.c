@@ -31,6 +31,16 @@ curl_str->len = new_len;
 return size*nmemb;
 }
 
+static void facebook_default_curl( CURL *curl, CurlStringPtr curl_str ) {
+	init_string( curl_str );
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, false );
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc );
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl_str );
+
+return;
+}
+
 
 void facebook_apptoken( char **token ) {
 	ConfigArrayPtr settings[2];
@@ -48,15 +58,12 @@ offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", "&grant_type
 
 curl = curl_easy_init();
 if( curl ) {
-	CurlStringDef curl_str;
-	init_string(&curl_str);
 	curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token");
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	CurlStringDef curl_str;
+	facebook_default_curl( curl, &curl_str );
+
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
@@ -89,15 +96,12 @@ offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&code=%s", code )
 
 curl = curl_easy_init();
 if( curl ) {
-	CurlStringDef curl_str;
-	init_string(&curl_str);
 	curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token");
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	CurlStringDef curl_str;
+	facebook_default_curl( curl, &curl_str );
+
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
@@ -133,13 +137,10 @@ offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s",
 
 curl = curl_easy_init();
 if( curl ) {
-	CurlStringDef curl_str;
-	init_string(&curl_str);
 	curl_easy_setopt(curl, CURLOPT_URL, urlstring );
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
-	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	CurlStringDef curl_str;
+	facebook_default_curl( curl, &curl_str );
+
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
@@ -274,16 +275,13 @@ offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&template=%s", te
 
 curl = curl_easy_init();
 if( curl ) {
-	CurlStringDef curl_str;
-	init_string(&curl_str);
 	sprintf( template, "https://graph.facebook.com/%s/notifications", fbid  );
 	curl_easy_setopt(curl, CURLOPT_URL, template);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	CurlStringDef curl_str;
+	facebook_default_curl( curl, &curl_str );
+
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
@@ -311,14 +309,11 @@ offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", sysconfig.f
 
 curl = curl_easy_init();
 if( curl ) {
-	CurlStringDef curl_str;
-	init_string(&curl_str);
 	curl_easy_setopt(curl, CURLOPT_URL, post );
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
+	CurlStringDef curl_str;
+	facebook_default_curl( curl, &curl_str );
+
 	res = curl_easy_perform(curl);
 	/* Check for errors */
 	if(res != CURLE_OK)
