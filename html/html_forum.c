@@ -264,7 +264,7 @@ int iohttpForumPerms( int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, 
 
 int iohttpForumPerms( int flags, int id, int forum, ReplyDataPtr cnt, dbUserMainPtr maind, int perms )
 {
-printf( "Flag %d\n id %d\n forum %d\n empire %d\n with perm %d\n", flags, id, forum, maind.empire, perms   );
+printf( "Flag %d\n id %d\n forum %d\n empire %d\n with perm %d\n", flags, id, forum, maind->empire, perms   );
   if( perms >= 4 )
     return 1;
   else if( perms >= 2 )
