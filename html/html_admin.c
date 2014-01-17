@@ -360,6 +360,13 @@ sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
   httpString( cnt, "<input type=\"text\" name=\"changestatus\" value=\"player ID number\"><br>" );
   httpString( cnt, "<input type=\"text\" name=\"statusid\" value=\"StatusID\"><br>" );
   httpString( cnt, "<input type=\"submit\" value=\"Change player status\"></form><br><br>" );
+
+  httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
+  httpString( cnt, "<input type=\"text\" name=\"changefbstatus\" value=\"player ID number\"><br>" );
+  httpString( cnt, "<input type=\"text\" name=\"status\" value=\"Status\"><br>" );
+  httpString( cnt, "<input type=\"text\" name=\"fbid\" value=\"FBID\"><br>" );
+  httpString( cnt, "<input type=\"submit\" value=\"Change player status\"></form><br><br>" );
+
 /*
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   httpString( cnt, "<input type=\"text\" name=\"forumlid\" value=\"Forum ID\"><br>" );
@@ -459,6 +466,34 @@ sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
     cmdExecute( cnt, cmd, &maind, 0 );
     fprintf( file, "%s > view news of player %s \n",main2d.faction, maind.faction);
   }
+  
+if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
+	if( sscanf( actionstring, "%d", &actionid ) != 1 )
+		goto iohtmlFunc_moderatorL0;
+	if( !( user = dbUserLinkID( actionid ) ) )
+		goto iohtmlFunc_moderatorL0;
+	if( !( str0 = iohtmlVarsFind( cnt, "status" ) ) )
+		goto iohtmlFunc_moderatorL0;
+	if( !( str1 = iohtmlVarsFind( cnt, "fbid" ) ) )
+		goto iohtmlFunc_moderatorL0;
+	if( sscanf( str0, "%d", &a ) != 1 )
+		goto iohtmlFunc_moderatorL0;
+	if( a == 0 ) {
+		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
+		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBMADE );
+	} else if ( a == 1 ) {
+		bitflag_add( &user->flags, CMD_USER_FLAGS_FBLINK );
+		strcpy(user->fbid, str1 );
+	} else if ( a == 2 ) {
+		bitflag_add( &user->flags, CMD_USER_FLAGS_FBLINK );
+		bitflag_add( &user->flags, CMD_USER_FLAGS_FBMADE );
+		strcpy( user->fbid, str1 );
+		sprintf( COREDIR, "FBUSER%s", user->fbid );
+		strcpy( user->name, COREDIR );
+	}
+	dbUserSave( user->id, user );
+	fprintf( file, "%s > ajust fb status of player %s \n",main2d.faction, maind.faction);
+}
 
   if( ( actionstring = iohtmlVarsFind( cnt, "playerpts" ) ) )
   {
