@@ -661,7 +661,7 @@ int dbUserFBSearch( char *FBid ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) ) || !( ioCompareExact( FBid, user->fbid ) ) )
+	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) ) && !( ioCompareExact( FBid, user->fbid ) ) )
 		continue;
 
 	return user->id;
@@ -2516,6 +2516,7 @@ int dbMarketFull( int *list )
   {
     file_s( file, 8+a*12 );
     file_r( &list[a], 1, sizeof(int), file );
+
   }
   return 1;
 }
