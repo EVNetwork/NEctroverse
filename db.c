@@ -660,7 +660,6 @@ return -1;
 int dbUserFBSearch( char *FBid ) {
 	dbUserPtr user;
 
-info( FBid );
 if( strlen( FBid ) < 1 ) {
 	return -1;
 }
@@ -669,10 +668,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) ) || !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE) ) ) {
 	 	continue;
 	}
-	info( user->fbid );
 	if( !( ioCompareExact( FBid, user->fbid ) ) )
 		continue;
-	info( "%d, %s, %s", user->id, FBid, user->fbid  );
 	return user->id;
 }
 
