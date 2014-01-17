@@ -481,17 +481,21 @@ if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
 	if( a == 0 ) {
 		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
 		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBMADE );
+		httpPrintf( cnt, "<b>%s Facebook Link -- Removed</b>", user->faction );
 	} else if ( a == 1 ) {
 		bitflag_add( &user->flags, CMD_USER_FLAGS_FBLINK );
 		strcpy(user->fbid, str1 );
+		httpPrintf( cnt, "<b>%s Facebook Link -- Added to ID: %s</b>", user->faction, user->fbid );
 	} else if ( a == 2 ) {
 		bitflag_add( &user->flags, CMD_USER_FLAGS_FBLINK );
 		bitflag_add( &user->flags, CMD_USER_FLAGS_FBMADE );
 		strcpy( user->fbid, str1 );
 		sprintf( COREDIR, "FBUSER%s", user->fbid );
 		strcpy( user->name, COREDIR );
+		httpPrintf( cnt, "<b>%s Facebook Link -- Added to ID %s, With Made Flag.</b>", user->faction, user->fbid  );
 	}
 	dbUserSave( user->id, user );
+	facebook_update_user( user );
 	fprintf( file, "%s > ajust fb status of player %s \n",main2d.faction, maind.faction);
 }
 
