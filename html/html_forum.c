@@ -289,7 +289,7 @@ int iohttpForumPerms( int flags, int id, int forum, ReplyDataPtr cnt, dbUserMain
   {
     if( id == -1 )
       return 0;
-    if( ( flags ) && ( maind->empire == forum ) && ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_VICELEADER | CMD_USER_FLAGS_COMMINISTER ) ) ) )
+    if( ( flags ) && ( maind->empire == forum ) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ||  bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_VICELEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_COMMINISTER ) ) )
       return 1;
     if( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR )
       return 0;
