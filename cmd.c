@@ -631,12 +631,8 @@ if( ( empired->leader == -1 ) || ( ( c == -1 ) || ( empired->leader != empired->
 			dbUserSave( empired->player[a], user );
 		}
 	}
-} else {
-	info( "%d", c );
-	info( "%d", empired->leader );
-
 }
-
+ 
   free( parray );
   return;
 }
