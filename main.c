@@ -78,6 +78,9 @@ exit(1);
 
 char *trimwhitespace(char *str) {
 	char *end;
+	
+if( str == NULL )
+return -1;
 // Trim leading space
 while(isspace(*str)) str++;
 

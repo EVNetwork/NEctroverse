@@ -574,7 +574,7 @@ return;
 
 void iohtmlFBConnect( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[2];
-	char *host;
+	const char *host;
 	char url[REDIRECT_MAX];
 	#if HTTPS_SUPPORT
 	char temp[2][32];
@@ -592,12 +592,14 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"client_id\" value=\"%s\">", settings[0]->string_value );
 
-	host = (char *)MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+	host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
 	#if HTTPS_SUPPORT
 	sprintf(temp[0], "%d", options.port[PORT_HTTP]);
 	sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
-	is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
+	if( ( host != NULL ) && ( temp[0] ) && ( temp[1] ) ) {
+		is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
+	}
 	#endif
 	
 	if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
