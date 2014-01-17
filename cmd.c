@@ -573,23 +573,23 @@ int cmdCheckName( char *name )
   return 1;
 }
 
-void cmdEmpireLeader( dbMainEmpirePtr empired )
-{
-  int a, b;
-  int *parray;
-  time_t now;
-  dbUserPtr user;
+void cmdEmpireLeader( dbMainEmpirePtr empired ) {
+	int a, b, c;
+	int *parray;
+	time_t now;
+	dbUserPtr user;
 
-  if( ( parray = calloc( dbMapBInfoStatic[MAP_CAPACITY], sizeof(int) ) ) == NULL )
-  	error( "Malloc Failed" );
-  for( a = b = 0 ; a < empired->numplayers ; a++ )
-  {
-    if( empired->vote[a] == -1 )
-      continue;
-    parray[(int)(empired->vote[a])]++;
-    if( empired->leader == empired->player[a] )
-      b = a;
-  }
+if( ( parray = calloc( dbMapBInfoStatic[MAP_CAPACITY], sizeof(int) ) ) == NULL )
+	error( "Malloc Failed" );
+c = -1;
+for( a = b = 0; a < empired->numplayers; a++ ) {
+	if( empired->vote[a] == -1 )
+		continue;
+	parray[(int)(empired->vote[a])]++;
+	if( empired->leader == empired->player[a] ) {
+      		c = b = a;
+      	}
+}
 time( &now );
 
 // b = leader
@@ -609,35 +609,33 @@ for( a = 0 ; a < empired->numplayers ; a++ ) {
 	b = a;
 }
 
-if( parray[b] >= 1 )
-  {
-    empired->leader = empired->player[b];
-    if( ( user = dbUserLinkID( empired->leader ) ) )
-    {
-    //info( user->name );
-      //user->flags &= 0xFFFF;
-      bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER );
-      dbUserSave( empired->leader, user );
-    }
-  }
-  else
-  {
-    empired->leader = -1;
-    b = -1;
-  }
+if( parray[b] >= 1 ) {
+	empired->leader = empired->player[b];
+	if( ( user = dbUserLinkID( empired->leader ) ) ) {
+		bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER );
+		dbUserSave( empired->leader, user );
+    	}
+} else {
+	empired->leader = -1;
+	b = -1;
+}
 
+if( ( empired->leader == -1 ) || ( ( c == -1 ) || ( empired->leader != empired->player[c] ) ) ) {
+	for( a = 0 ; a < empired->numplayers ; a++ ) {
+		if( empired->player[a] == empired->leader )
+			continue;
+		if( ( user = dbUserLinkID( empired->player[a] ) ) ) {
+			for( b = CMD_EMPIRE_POLITICS_START; b <= CMD_EMPIRE_POLITICS_END; b++ ) {
+				bitflag_remove( &user->flags, b );
+			}
+			dbUserSave( empired->player[a], user );
+		}
+	}
+} else {
+	info( "%d", c );
+	info( "%d", empired->leader );
 
-  for( a = 0 ; a < empired->numplayers ; a++ )
-  {
-    if( a == b )
-      continue;
-    if( ( user = dbUserLinkID( empired->player[a] ) ) && ( bitflag( user->flags, CMD_USER_FLAGS_LEADER ) ) )
-    {
-      //user->flags &= 0xFFFF;
-      bitflag_remove( &user->flags, CMD_USER_FLAGS_LEADER );
-      dbUserSave( empired->player[a], user );
-    }
-  }
+}
 
   free( parray );
   return;
