@@ -1142,12 +1142,16 @@ if( flags ) {
 			bitflag_remove( &user->flags, a );
 	}
 	bitflag_add( &user->flags, flags );
+} else {
+	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
+		bitflag_remove( &user->flags, a );
+	}
 }
 dbUserSave( id, user );
 /*
  * I only like one of each "Minister" per Empire, so strip others if someone is changed.
  */
-if( flags != CMD_USER_FLAGS_INDEPENDENT ) {
+if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
 	for( b = 0 ; b <= empired.numplayers ; b++ ) {
 		if( empired.player[b] == id )
 			continue;
