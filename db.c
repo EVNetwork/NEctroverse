@@ -665,7 +665,7 @@ if( strlen( FBid ) < 1 ) {
 }
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) ) || !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE) ) ) {
+	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE) ) ) {
 	 	continue;
 	}
 	if( !( ioCompareExact( FBid, user->fbid ) ) )
