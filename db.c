@@ -501,7 +501,7 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_FORUM] );
-	fclose( dbFilePtr[DB_FILE_FORUM] );
+	dbFileGenClose( DB_FILE_FORUM );
 	forumd.threads = 0;
 	forumd.time = 0;
 	forumd.tick = 0;
