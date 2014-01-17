@@ -136,7 +136,7 @@ if( curl ) {
 	CurlStringDef curl_str;
 	init_string(&curl_str);
 	curl_easy_setopt(curl, CURLOPT_URL, urlstring );
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
 	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curl_str);
