@@ -1141,10 +1141,9 @@ sysconfig.shutdown = true;
 
   if( action[4] )
   {
-    forumd.threads = 0;
-    forumd.time = 0;
-    forumd.tick = 0;
-    forumd.flags = 0;
+    memset( &forumd, 0, sizeof(dbForumForumDef) );
+    time( &forumd.time );
+    forumd.lastid = -1;
     iohttpForumFilter( forumd.title, action[4], 64, 0 );
     forumd.rperms = 0xFFF;
     forumd.wperms = 0xFFF;

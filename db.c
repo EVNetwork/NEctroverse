@@ -503,13 +503,13 @@ if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_FORUM] );
 	dbFileGenClose( DB_FILE_FORUM );
 	memset( &forumd, 0, sizeof(dbForumForumDef) );
+	forumd.rperms = 2;
+	forumd.wperms = 2;
+	forumd.lastid = -1;
+	forumd.time = now;
+	forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 	for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 		sprintf( forumd.title, "Empire %d forum", a );
-		forumd.rperms = 2;
-		forumd.wperms = 2;
-		forumd.lastid = -1;
-		forumd.time = now;
-		forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 		dbForumAddForum( true, a, &forumd );
 	}
 	info( "Created Forums for %d Empires.", a );
