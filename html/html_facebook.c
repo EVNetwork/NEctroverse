@@ -440,11 +440,15 @@ if( buffer[0] )
 	httpString( cnt, buffer );
 
 if( id >= 0 ) {
-	if( ( ( user = dbUserLinkID( id ) ) < 0 ) && ( dbUserLinkDatabase( cnt, id ) < 0 ) )
+	if( ( ( user = dbUserLinkID( id ) ) < 0 ) || ( dbUserLinkDatabase( cnt, id ) < 0 ) ) {
+		httpString( cnt, "An error has occured while trying to link with your game account.<br>" );
 		goto BAILOUT;
+	}
 
-	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
+	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) {
+		httpString( cnt, "An error has occured while trying to set game user session.<br>" );
 		goto BAILOUT;
+	}
 
 	dbUserInfoRetrieve( id, &infod );
 	infod.lasttime = time( 0 );
