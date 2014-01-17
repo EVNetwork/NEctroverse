@@ -359,7 +359,7 @@ void httpString( ReplyDataPtr rd, char *text ) {
 if( text == NULL ) {
 	return;
 } else {
-	buflen = strlen( text );
+	buf_len = strlen( text );
 }
 	
 if( ( buf_max - buf_len ) < 0 ) {
