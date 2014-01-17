@@ -3643,10 +3643,10 @@ if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->id == playerid ) 
 		error( "DB link error" );
 		httpString( cnt, "Error Linking with user database... " );
 	} else {
-		//if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
+		if( -timediff( *localtime( &infod.fbinfo.updated ) ) >= day ) {
 			facebook_update_user( user );
 			dbUserInfoRetrieve( playerid, &infod );
-		//}
+		}
 		if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
 			httpString( cnt, "<table><tr><td>" );
 			httpPrintf( cnt, "<img src=\"%s\" alt=\"Facebook Icon\">", infod.fbinfo.pic );
