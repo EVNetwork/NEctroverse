@@ -923,7 +923,7 @@ if( ( name ) && ( pass ) ) {
 	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
 		time( &tint );
 		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
-		fprintf( file, "Time: %s", timebuf );
+		fprintf( file, "Time: %s\n", timebuf );
 		fprintf( file, "Name: %s;\n", name );
 		if( (cnt->connection)->addr->sa_family == AF_INET )
 			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );

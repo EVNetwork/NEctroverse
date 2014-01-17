@@ -335,7 +335,7 @@ return result;
 }
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
-	ConfigArrayPtr settings[2];
+	ConfigArrayPtr settings[3];
 	int a, id, offset = 0;
 	char *error, *remove;
 	char *code, *fbtoke;
@@ -349,6 +349,7 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
 	FBTokenDef token;
+	FILE *file = NULL;
 
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
@@ -443,6 +444,27 @@ if( buffer[0] )
 	httpString( cnt, buffer );
 
 if( id >= 0 ) {
+	int i;
+	char DIRCHECKER[PATH_MAX];
+	char timebuf[512];
+	time_t tint;
+	
+	settings[3] = GetSetting( "Directory" );
+	sprintf( DIRCHECKER, "%s/logs/login.log", settings[3]->string_value );
+	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
+		time( &tint );
+		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+		fprintf( file, "Time: %s\n", timebuf );
+		fprintf( file, "Facebook ID: %s;\n", fbdata.id );
+		if( (cnt->connection)->addr->sa_family == AF_INET )
+			fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+		strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
+		for(i=0;i<strlen(DIRCHECKER);i++) {
+			if(DIRCHECKER[i] == ';')
+				DIRCHECKER[i] = ',';
+		}
+		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
+	}
 	if( ( ( user = dbUserLinkID( id ) ) < 0 ) || ( dbUserLinkDatabase( cnt, id ) < 0 ) ) {
 		httpString( cnt, "An error has occured while trying to link with your game account.<br>" );
 		goto BAILOUT;
@@ -454,6 +476,7 @@ if( id >= 0 ) {
 	}
 
 	dbUserInfoRetrieve( id, &infod );
+
 	infod.lasttime = time( 0 );
 	if( (cnt->connection)->addr->sa_family == AF_INET )
 	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
@@ -465,6 +488,11 @@ if( id >= 0 ) {
 	fbdata.token = token;
 	infod.fbinfo = fbdata;
 	dbUserInfoSet( id, &infod );
+	if( ( file ) ) {
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
+		fclose( file );
+	}
+	
 	redirect( cnt, "%s", URLAppend( cnt, "/" ) );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
 	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
@@ -574,6 +602,10 @@ BAILOUT:
 if( dump != NULL )
 	free( dump );
 
+if( file ) {
+	fprintf( file, "Failed!\n\n\n" );
+	fclose( file );
+}
 iohtmlFunc_endhtml( cnt );
 
 return;
