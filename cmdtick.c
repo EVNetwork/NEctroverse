@@ -953,7 +953,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 
 // fleets decay?
-    a = 65536*75;
+    a = 65536*2;
     b = -1;
 
 
