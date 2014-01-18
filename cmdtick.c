@@ -413,13 +413,13 @@ int cmdTickPlanets( int usrid, dbUserMainPtr mainp ) {
 	int64_t population;
 	dbMainPlanetDef planetd;
 	dbMainEmpireDef empired;
-	dbUserFleetPtr fleetd;
 	dbUserSpecOpPtr specopd;
 
 ticks.debug_pass = 0 + 10000;
 
 
 memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
+memset( mainp->stationunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
 
@@ -501,7 +501,7 @@ for( a = 0 ; a < num ; a++ ) {
 	}
 
 	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
-		mainp->totalunit[b] += planetd.unit[b];
+		mainp->stationunit[b] += planetd.unit[b];
 
 	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
 		mainp->totalbuilding[CMD_BLDG_NUMUSED]++;
@@ -554,22 +554,6 @@ if( portals )
 	free( portals );
 
 ticks.debug_pass = 10 + 10000;
-
-if( ( num = dbUserFleetList( usrid, &fleetd ) ) < 0 )
-	return 0;
-
-ticks.debug_pass = 11 + 10000;
-
-for( a = 0 ; a < num ; a++ ) {
-	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
-		mainp->totalunit[b] += fleetd[a].unit[b];
-}
-
-ticks.debug_pass = 12 + 10000;
-
-free( fleetd );
-
-ticks.debug_pass = 13 + 10000;
 
 
 return 1;
@@ -746,16 +730,12 @@ for( user = dbUserList ; user ; user = user->next ) {
 		fa = ( (maind.allocresearch[a]) * ( 500*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
 		if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_POPRESEARCH )
 			fa += ( (maind.allocresearch[a]) * maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
-
 	/*		//ARTI CODE Foohon Ancestry
 			if(maind.artefacts & ARTEFACT_*_BIT)
 				fa += ( (double)(maind.allocresearch[a]) * (double)maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
 	*/
-
-
-			maind.research[a] += cmdRace[maind.raceid].researchpoints[a] * fa;
-
-			maind.research[a] = fmax( 0.0, maind.research[a]);
+		maind.research[a] += cmdRace[maind.raceid].researchpoints[a] * fa;
+		maind.research[a] = fmax( 0.0, maind.research[a]);
 	}
 	maind.fundresearch = (int64_t)( 0.9 * maind.fundresearch );
 
@@ -767,7 +747,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	// calculate total research for tech
 
           //research maximum
-          fa = cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH];
+	fa = cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH];
 
       /*      //      ARTI CODE Divine Stone
                     if(maind.artefacts & ARTEFACT_*_BIT)
@@ -849,7 +829,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	settings = GetSetting( "Stockpile" );
 	fc = settings->num_value * maind.infos[INFOS_ENERGY_PRODUCTION];
 	fa = CMD_ENERGY_DECAY;
-	maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, maind.ressource[CMD_RESSOURCE_ENERGY] - fc );
+	maind.infos[INFOS_ENERGY_DECAY] = fa * fmax( 0.0, ( maind.ressource[CMD_RESSOURCE_ENERGY] - fc ) );
 
 
 	// meh! building upkeep
@@ -866,16 +846,29 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 	ticks.debug_pass = 8;
 
-	for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-		if( maind.totalunit[a] < 0 )
-			maind.totalunit[a] = 0;
-	}
 
+	if( ( num = dbUserFleetList( user->id, &fleetp ) ) < 0 )
+		return 0;
 
+	ticks.debug_pass = 11;
+	
 	maind.infos[INFOS_UNITS_UPKEEP] = 0;
-	for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-		maind.infos[INFOS_UNITS_UPKEEP] += ( maind.totalunit[a] * cmdUnitUpkeep[a] );
+	
+	for( a = 0 ; a < num ; a++ ) {
+		for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ ) {
+			maind.infos[INFOS_UNITS_UPKEEP] += ( ( fleetp[a].unit[b] * cmdUnitUpkeep[b] ) * ( (a == 0) ? 1 : 2 ) );
+			maind.totalunit[b] += fleetp[a].unit[b];
+		}
 	}
+	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ ) {
+		maind.infos[INFOS_UNITS_UPKEEP] += ( ( maind.stationunit[b] * cmdUnitUpkeep[b] ) * ( 1.5 ) );
+		maind.totalunit[b] += maind.stationunit[b];
+	}
+
+	ticks.debug_pass = 12 + 10000;
+
+	free( fleetp );
+
 	//ARTI CODE Romulan Military Outpost
 	if(maind.artefacts & ARTEFACT_16_BIT) {
 		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;
