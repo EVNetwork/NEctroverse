@@ -381,6 +381,7 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 
 
 MHD_get_connection_values( cnt->connection, MHD_POSTDATA_KIND, &set_key_value_pairs, NULL);
+MHD_get_connection_values( cnt->connection, MHD_GET_ARGUMENT_KIND, &set_key_value_pairs, NULL);
 
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
