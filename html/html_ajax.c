@@ -137,11 +137,7 @@ if( ( typestring ) && ( refer ) ) {
 		if( !strcmp(refer,"hq") ) {
 			httpString( cnt, "<readiness>" );
 			for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
-				snprintf( CHECKER, sizeof(CHECKER), "%s",cmdReadyName[a]);
-				for(b = 0; CHECKER[b]; b++){
-					CHECKER[b] = tolower(CHECKER[b]);
-				}
-				httpPrintf( cnt, "<%sready>%d</%sready>", CHECKER, maind.readiness[a] >> 16, CHECKER );
+				httpPrintf( cnt, "<%sready>%d</%sready>", cmdReadyName[a], maind.readiness[a] >> 16, cmdReadyName[a] );
 			}
 			httpString( cnt, "</readiness>" );
 		httpPrintf( cnt, "<planets>%d</planets>", maind.planets );
