@@ -1552,7 +1552,7 @@ char *targetframe( ReplyDataPtr cnt ) {
 
 #if FACEBOOK_SUPPORT
 if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) 
-	snprintf( r, 128, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" ) );
+	snprintf( r, 128, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" );
 else
 #endif
 	snprintf( r, 128, "%s", "_top" );
