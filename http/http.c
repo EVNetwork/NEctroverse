@@ -648,7 +648,7 @@ add_session_cookie(rd.session, response);
 mark_as( response, mime );
 
 if( strlen(rd.session->redirect) ) {
-	snprintf( buffer, REDIRECT_MAX, "0; url=%s", rd.session->redirect );
+	snprintf( buffer, REDIRECT_MAX, "1; url=%s", rd.session->redirect );
 	memset( &rd.session->redirect, 0, REDIRECT_MAX );
 	MHD_add_response_header(response, MHD_HTTP_HEADER_REFRESH, buffer );
 }
@@ -1551,8 +1551,8 @@ char *targetframe( ReplyDataPtr cnt ) {
 	char *r = buffer;
 
 #if FACEBOOK_SUPPORT
-if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL )
-	snprintf( r, 128, "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
+if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) 
+	snprintf( r, 128, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" ) );
 else
 #endif
 	snprintf( r, 128, "%s", "_top" );
