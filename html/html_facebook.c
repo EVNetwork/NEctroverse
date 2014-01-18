@@ -407,22 +407,21 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 	if( fbtoke != NULL ) {
 		char *pointer = ( strchr( fbtoke, '.' ) +1 );
 		char *test = strdup( pointer );
-		char buffer[ARRAY_MAX];
+		char buffer[DEFAULT_BUFFER];
 		size_t sizes[2];
-		sizes[0] = ARRAY_MAX;
+		sizes[0] = DEFAULT_BUFFER;
 		sizes[1] = strlen(test);
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
-		info( "test: %s", buffer );
+		if( test ) {
+			free( test );
+		}
 		cJSON *root = cJSON_Parse( buffer );
 		if( root ) {
-			info( "in root" );
 			cJSON *message;
 			message = cJSON_GetObjectItem(root,"oauth_token");
 			if( ( message ) ) {
-				info( "found token" );
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
-				info( "dump: %s", dump );
 			}
 		}
 		cJSON_Delete(root);
@@ -431,15 +430,9 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 
 if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
-		info( "code: %s", code );
 		facebook_usertoken( &token, code );
 	} else {
-		if( dump ) {
-			strncpy( token.val, dump, sizeof( token.val ) );
-		} else {
-			strncpy( token.val, fbtoke, sizeof( token.val ) );
-		}
-		info( "token: %s", token.val );
+		strncpy( token.val, fbtoke, sizeof( token.val ) );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
