@@ -450,7 +450,10 @@ if( ( code ) || ( fbtoke ) || ( dump ) ) {
 	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_description" ) );
 	goto BAILOUT;
 } else {
-	httpString( cnt, "Invalid" );
+	httpString( cnt, "Welcome, as you have not yet authorised this game you will need to do so<br>" );
+	httpString( cnt, "before we will be able to automaticly create a game account for you... Click below?<br>" );
+	httpString( cnt, "<br>" );
+	iohtmlFBConnect( cnt );
 	goto BAILOUT;
 }
 
