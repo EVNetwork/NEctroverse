@@ -412,9 +412,8 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		sizes[0] = ARRAY_MAX;
 		sizes[1] = strlen(test);
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
-		test = strdup( buffer );
-		info( "test: %s", test );
-		cJSON *root = cJSON_Parse( test );
+		info( "test: %s", buffer );
+		cJSON *root = cJSON_Parse( buffer );
 		if( root ) {
 			info( "in root" );
 			cJSON *message;
@@ -427,7 +426,6 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			}
 		}
 		cJSON_Delete(root);
-		free( test );
 	}
 }
 
