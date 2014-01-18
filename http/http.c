@@ -666,10 +666,6 @@ static int postdata_set( SessionPtr session, const char *key, const char *value 
 
 if( session->postdata != NULL) {
 	for( a = 1, data = session->postdata ; data ; data = data->next, a++ ) {
-		if( a >= MAX_POST_VALUES ) {
-			info( "Ignoring post value, due to over-load limit \'%s\'", key );
-			return NO;
-		}
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
 			if( strlen( value ) == 0 ) {
