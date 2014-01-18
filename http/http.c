@@ -1547,15 +1547,15 @@ return;
 }
 
 char *targetframe( ReplyDataPtr cnt ) {
-	char buffer[32];
+	char buffer[128];
 	char *r = buffer;
 
 #if FACEBOOK_SUPPORT
 if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL )
-	snprintf( r, 32, "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
+	snprintf( r, 128, "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
 else
 #endif
-	snprintf( r, 32, "%s", "_top" );
+	snprintf( r, 128, "%s", "_top" );
 
 return r;
 }
