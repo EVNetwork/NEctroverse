@@ -416,9 +416,11 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		info( "test: %s", test );
 		cJSON *root = cJSON_Parse( test );
 		if( root ) {
+			info( "in root" );
 			cJSON *message;
 			message = cJSON_GetObjectItem(root,"oauth_token");
 			if( ( message ) ) {
+				info( "found token" );
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
 				info( "dump: %s", dump );
