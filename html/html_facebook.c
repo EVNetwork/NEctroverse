@@ -218,6 +218,7 @@ if( curl ) {
 	cJSON_Delete(root);
 	//printf( curl_str.ptr );
 	if( curl_str.ptr ) {
+		fbdata->updated = time(0);
 		free( curl_str.ptr );
 	}
 }
@@ -696,13 +697,12 @@ void facebook_update_user( dbUserPtr user ) {
 
 if( ( user ) && ( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 	facebook_getdata_id( &fbdata, user->fbid );
-	fbdata.updated = time(0);
 	if( !( fbdata.connected ) && !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 		info( "Removing Link for User: ( %d ) %s", user->id, user->name );
 		memset( &user->fbid, 0, sizeof(user->fbid) );
 		bitflag_remove( &user->flags, CMD_USER_FLAGS_FBLINK );
 		dbUserSave( user->id, user );
-	} else {
+	} else if ( fbdata.connected ) {
 		dbUserInfoRetrieve( user->id, &infod );
 		infod.fbinfo = fbdata;
 		dbUserInfoSet( user->id, &infod );	
