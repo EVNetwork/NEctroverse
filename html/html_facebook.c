@@ -37,7 +37,7 @@ static void facebook_default_curl( CURL *curl, CurlStringPtr curl_str ) {
 	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc );
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl_str );
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false );
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, true );
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5 );
 return;
 }
@@ -57,6 +57,7 @@ offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "client_id=%s", se
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s", settings[1]->string_value );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", "&grant_type=client_credentials" );
 
+curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
 if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token");
@@ -99,6 +100,7 @@ offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&client_secret=%s
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&redirect_uri=%s", do_redi );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&code=%s", code );
 
+curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
 if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, "https://graph.facebook.com/oauth/access_token");
@@ -142,6 +144,7 @@ void facebook_getdata( FBUserPtr fbdata, char *urlstring, int offset ) {
 
 offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,languages" );
 
+curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
 if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, urlstring );
@@ -285,6 +288,7 @@ if( url != NULL ) {
 }
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&template=%s", template );
 
+curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
 if( curl ) {
 	sprintf( template, "https://graph.facebook.com/%s/notifications", fbid  );
@@ -321,6 +325,7 @@ offset = 0;
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "https://graph.facebook.com/%s/permissions", userid  );
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "?%s", sysconfig.facebook_token );
 
+curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
 if( curl ) {
 	curl_easy_setopt(curl, CURLOPT_URL, post );
