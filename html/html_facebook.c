@@ -420,17 +420,18 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
+				info( dump );
 			}
 		}
 		cJSON_Delete(root);
 	}
 }
 
-if( ( code ) || ( fbtoke ) || ( dump ) ){
+if( ( code ) || ( fbtoke ) || ( dump ) ) {
 	if( code ) {
 		facebook_usertoken( &token, code );
 	} else {
-		strncpy( token.val, fbtoke, sizeof( token.val ) );
+		strncpy( token.val, ( dump ? dump : fbtoke ), sizeof( token.val ) );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
