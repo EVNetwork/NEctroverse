@@ -1552,10 +1552,10 @@ char *targetframe( ReplyDataPtr cnt ) {
 
 #if FACEBOOK_SUPPORT
 if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL )
-	snprintf( r, sizeof( buffer ), "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
+	snprintf( r, 32, "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
 else
 #endif
-	snprintf( r, sizeof( buffer ), "%s", "_top" );
+	snprintf( r, 32, "%s", "_top" );
 
 return r;
 }
