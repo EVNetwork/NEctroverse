@@ -1551,7 +1551,7 @@ char *targetframe( ReplyDataPtr cnt ) {
 	char *r = buffer;
 
 #if FACEBOOK_SUPPORT
-if ( iohtmlVarsFind( cnt, "fbapp" ) == NULL )
+if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL )
 	snprintf( r, sizeof( buffer ), "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
 else
 #endif
