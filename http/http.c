@@ -1546,4 +1546,42 @@ expire_file_storage();
 return;
 }
 
+char *targetframe( ReplyDataPtr cnt ) {
+	char buffer[32];
+	char *r = buffer;
+
+#if FACEBOOK_SUPPORT
+if ( iohtmlVarsFind( cnt, "fbapp" ) == NULL )
+	snprintf( r, sizeof( buffer ), "iframe_canvas%s", ( securecnt( cnt ) ? "_fb_https" : "" ) );
+else
+#endif
+	snprintf( r, sizeof( buffer ), "%s", "_top" );
+
+return r;
+}
+
+bool securecnt( ReplyDataPtr cnt ) {
+	const char *host;
+	#if HTTPS_SUPPORT
+	char temp[2][32];
+	#endif
+	bool result = false;
+	
+host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+if( host == NULL ) {
+	return false;
+}
+
+#if HTTPS_SUPPORT
+sprintf(temp[0], "%d", options.port[PORT_HTTP]);
+sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
+if( ( host != NULL ) && ( temp[0] ) && ( temp[1] ) ) {
+	result = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
+}
+#endif
+
+return result;
+}
+
+
 

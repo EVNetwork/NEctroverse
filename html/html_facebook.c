@@ -1,5 +1,4 @@
 
-static bool is_https = false;
 static char do_redi[REDIRECT_MAX];
 
 void init_string( CurlStringPtr curl_str ) {
@@ -363,9 +362,6 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	char DIRCHECKER[PATH_MAX];
 	char timebuf[512];
 	time_t tint;
-	#if HTTPS_SUPPORT
-	char temp[2][32];
-	#endif
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
@@ -380,17 +376,10 @@ if( !(strlen( settings[0]->string_value )) || !(strlen( settings[1]->string_valu
 
 host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
-#if HTTPS_SUPPORT
-sprintf(temp[0], "%d", options.port[PORT_HTTP]);
-sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
-if( ( host != NULL ) && ( temp[0] ) && ( temp[1] ) ) {
-	is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
-}
-#endif
 if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
-	snprintf( do_redi, sizeof( do_redi ), "%s", "https://apps.facebook.com/nectroverse/facebook?fbapp=true" );
+	snprintf( do_redi, sizeof( do_redi ), "%s://apps.facebook.com/nectroverse/facebook?fbapp=true", ( securecnt( cnt ) ? "https" : "http") );
 } else {
-	snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", (is_https ? "https" : "http"), host );
+	snprintf( do_redi, sizeof( do_redi ), "%s://%s/facebook", ( securecnt( cnt ) ? "https" : "http"), host );
 }
 memset( &fbdata, 0, sizeof(FBUserDef) );
 memset( &token, 0, sizeof(FBTokenDef) );
@@ -648,10 +637,6 @@ void iohtmlFBConnect( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[2];
 	const char *host;
 	char url[REDIRECT_MAX];
-	#if HTTPS_SUPPORT
-	char temp[2][32];
-	#endif
-
 
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
@@ -666,18 +651,11 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 
 	host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
-	#if HTTPS_SUPPORT
-	sprintf(temp[0], "%d", options.port[PORT_HTTP]);
-	sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
-	if( ( host != NULL ) && ( temp[0] ) && ( temp[1] ) ) {
-		is_https = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
-	}
-	#endif
-	
+
 	if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
-		httpString( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"https://apps.facebook.com/nectroverse/facebook?fbapp=true\">" );
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s://apps.facebook.com/nectroverse/facebook?fbapp=true\">", ( securecnt( cnt ) ? "https" : "http") );
 	} else {
-		sprintf( url, "%s://%s/facebook", (is_https ? "https" : "http"), host );
+		sprintf( url, "%s://%s/facebook", ( securecnt( cnt ) ? "https" : "http"), host );
 		httpPrintf( cnt, "<input type=\"hidden\" name=\"redirect_uri\" value=\"%s\">", url );	
 	}
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );

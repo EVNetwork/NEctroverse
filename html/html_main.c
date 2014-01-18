@@ -544,12 +544,12 @@ if( (id < 0) ) {
 	httpPrintf( cnt, "<br><b>You are already logged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
 	httpString( cnt, "<br>" );
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "main" ), ( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) ? "_top" : "iframe_canvas_fb_https" );
+		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "main" ), targetframe( cnt ) );
 	} else {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Activate Now!</a><br>", URLAppend( cnt, "register" ), ( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) ? "_top" : "iframe_canvas_fb_https" );
+		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Activate Now!</a><br>", URLAppend( cnt, "register" ), targetframe( cnt ) );
 	}
 	httpString( cnt, "<br>" );
-	httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Log out</a><br>", URLAppend( cnt, "logout" ), ( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) ? "_top" : "iframe_canvas_fb_https" );
+	httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Log out</a><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<br>" );
 }
