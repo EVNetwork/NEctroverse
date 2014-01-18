@@ -410,18 +410,20 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		char buffer[DEFAULT_BUFFER];
 		size_t sizes[2];
 		sizes[0] = DEFAULT_BUFFER;
-		sizes[1] = strlen(test);
+		sizes[1] = strlen( test );
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
+		info( buffer );
 		if( test ) {
 			free( test );
 		}
 		cJSON *root = cJSON_Parse( buffer );
 		if( root ) {
 			cJSON *message;
-			message = cJSON_GetObjectItem(root,"oauth_token");
+			message = cJSON_GetObjectItem( root, "oauth_token" );
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
+				info( dump );
 			}
 		}
 		cJSON_Delete(root);
