@@ -1723,7 +1723,7 @@ int cmdExecExploreInfo( int id, int plnid, int *ibuffer )
 int cmdExploreCost( int id, dbUserMainPtr mainp ) {
 	int cost;
 	
-cost = 0;//(( ( ( mainp->planets + cmdExecExploreShips( id ) ) << 16 ) >> 2 ) + 10*65536 );
+cost = (( ( ( mainp->planets + cmdExecExploreShips( id ) ) << 16 ) >> 2 ) + 10*65536 );
 
 return cost;
 }
