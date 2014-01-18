@@ -421,6 +421,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
+				info( dump );
 			}
 		}
 		cJSON_Delete(root);
@@ -430,13 +431,15 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 
 if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
+		info( code );
 		facebook_usertoken( &token, code );
 	} else {
 		if( dump ) {
 			strncpy( token.val, dump, sizeof( token.val ) );
+		} else {
+			strncpy( token.val, fbtoke, sizeof( token.val ) );
 		}
-		else
-		strncpy( token.val, fbtoke, sizeof( token.val ) );
+		info( token.val );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
