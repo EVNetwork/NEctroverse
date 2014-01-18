@@ -421,7 +421,6 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			cJSON *message = cJSON_GetObjectItem( root, "oauth_token" );
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
-				info( dump );
 			}
 		}
 		cJSON_Delete(root);
@@ -432,9 +431,11 @@ if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
 		facebook_usertoken( &token, code );
 	} else {
-		info( "dump; %s", dump );
-		info( "toke; %s", fbtoke );
-		strncpy( token.val, fbtoke, sizeof( token.val ) );
+		if( dump ) {
+			strncpy( token.val, dump, sizeof( token.val ) );
+		} else {
+			strncpy( token.val, fbtoke, sizeof( token.val ) );
+		}
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
