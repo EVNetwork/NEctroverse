@@ -1561,22 +1561,32 @@ return r;
 }
 
 bool securecnt( ReplyDataPtr cnt ) {
-	const char *host;
 	#if HTTPS_SUPPORT
-	char temp[2][32];
+	urlinfoPtr urlp;
+	const char *host, *referer;
+	char temp[32];
 	#endif
 	bool result = false;
-	
+
+#if HTTPS_SUPPORT	
 host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+referer = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Referer" );
+
 if( host == NULL ) {
 	return false;
 }
 
-#if HTTPS_SUPPORT
-sprintf(temp[0], "%d", options.port[PORT_HTTP]);
-sprintf(temp[1], "%d", options.port[PORT_HTTPS]);
-if( ( host != NULL ) && ( temp[0] ) && ( temp[1] ) ) {
-	result = strstr( host, temp[1] ) ? true : ( strstr( host, temp[0] ) ? false : true );
+if( ( ( host ) && ( referer ) ) && ( strstr( referer, host ) ) ) {
+	urlp = parse_url( referer );
+	if( urlp ) {
+		result = ( strcmp( urlp->scheme, "https" ) == 0 ) ? true : false;
+	}
+	urlinfo_free( urlp );
+} else {
+	sprintf(temp, "%d", options.port[PORT_HTTPS]);
+	if( ( host != NULL ) ) {
+		result = strstr( host, temp ) ? true : false;
+	}
 }
 #endif
 
