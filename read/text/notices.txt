@@ -1,3 +1,7 @@
+18 January 2014
+Unit Upkeep has changed, traveling units now incur 2x upkeep.
+While units stationed on a planet will incur a 1.5x increase.
+
 15 January 2014
 This is PRE-ALPHA TEST... This is NOT a real round, this is NOT the end design of the game.
 This is mearly to help me find the stray bugs from the develeopment of the game core.
