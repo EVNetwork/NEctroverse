@@ -218,7 +218,7 @@ if( curl ) {
 	cJSON_Delete(root);
 	//printf( curl_str.ptr );
 	if( curl_str.ptr ) {
-		fbdata->updated = time(0);
+		time( &fbdata->updated );
 		free( curl_str.ptr );
 	}
 }
