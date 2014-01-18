@@ -406,12 +406,11 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 	if( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) {
 		char *pointer = ( strchr( iohtmlVarsFind( cnt, "signed_request" ), '.' ) +1 );
 		char *test = strdup( pointer );
-		char buffer[DEFAULT_BUFFER];
+		char buffer[DEFAULT_BUFFER*2];
 		size_t sizes[2];
-		sizes[0] = DEFAULT_BUFFER;
+		sizes[0] = DEFAULT_BUFFER*2;
 		sizes[1] = strlen( test );
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
-		info( buffer );
 		if( test ) {
 			free( test );
 		}
