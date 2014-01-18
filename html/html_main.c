@@ -463,8 +463,7 @@ if( ( id = iohtmlIdentify( cnt, 0 ) ) >= 0 ) {
 }
 
 #if FACEBOOK_SUPPORT
-if( (id < 0) && !( len > 0 ) )
-	iohtmlFBSDK( cnt );
+iohtmlFBSDK( cnt );
 #endif
 
 iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
