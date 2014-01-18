@@ -789,6 +789,7 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 	int i;
 
 if( ( !( filename ) ) ) {
+	info(key);info(data);
 	return postdata_set( uc->session, key, data );
 }
 if (NULL == filename) {
