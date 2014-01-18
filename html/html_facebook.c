@@ -351,7 +351,13 @@ if( curl ) {
 return result;
 }
 
+static int set_key_value_pairs(void *cls, enum MHD_ValueKind kind, const char *key, const char *value) {
 
+info( key );
+info( value );
+
+return MHD_YES;
+}
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[3];
@@ -372,6 +378,9 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	FBUserDef fbdata;
 	FBTokenDef token;
 	FILE *file = NULL;
+
+
+MHD_get_connection_values( cnt->connection, MHD_POSTDATA_KIND, &set_key_value_pairs, NULL);
 
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
