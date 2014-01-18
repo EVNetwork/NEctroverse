@@ -399,8 +399,13 @@ if( ( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) || ( ( fbtoke == NULL ) 
 		char *pointer = ( strchr( fbtoke, '.' ) +1 );
 		char *test = strdup( pointer );
 		char buffer[DEFAULT_BUFFER];
+		size_t sizes[2];
 		fbtoke = NULL;
-		UnBase64( (unsigned char *)buffer, (const unsigned char*)test, strlen( test ) );
+		sizes[0] = sizeof( buffer );
+		sizes[1] = strlen( test );
+		struct base64_decode_context ctx;
+		base64_decode_ctx_init( &ctx );
+		base64_decode_ctx( &ctx, test, sizes[1], buffer, &sizes[0] );
 		if( test ) {
 			free( test );
 		}
