@@ -90,7 +90,7 @@ if( (cnt->session)->dbuser ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, "<br><a href=\"%s\" target=\"main\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
 	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"_top\">Admin panel</a>", URLAppend( cnt, "administration" ) );
+		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
 	}
 }
 

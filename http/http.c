@@ -1576,7 +1576,7 @@ if( host == NULL ) {
 	return false;
 }
 
-if( ( ( host ) && ( referer ) ) && ( strstr( referer, host ) ) ) {
+if( referer ) {
 	urlp = parse_url( referer );
 	if( urlp ) {
 		result = ( strcmp( urlp->scheme, "https" ) == 0 ) ? true : false;
