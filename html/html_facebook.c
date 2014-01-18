@@ -414,8 +414,10 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		if( test ) {
 			free( test );
 		}
+		info( buffer );
 		cJSON *root = cJSON_Parse( buffer );
 		if( root ) {
+			info( "valid" );
 			cJSON *message = cJSON_GetObjectItem( root, "oauth_token" );
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
