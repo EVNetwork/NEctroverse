@@ -403,9 +403,8 @@ fbtoke = iohtmlVarsFind( cnt, "fblogin_token" );
 remove = iohtmlVarsFind( cnt, "remove" );
 
 if( ( fbtoke == NULL ) && ( code == NULL ) ) {
-	fbtoke = iohtmlVarsFind( cnt, "signed_request" );
-	if( fbtoke != NULL ) {
-		char *pointer = ( strchr( fbtoke, '.' ) +1 );
+	if( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) {
+		char *pointer = ( strchr( iohtmlVarsFind( cnt, "signed_request" ), '.' ) +1 );
 		char *test = strdup( pointer );
 		char buffer[DEFAULT_BUFFER];
 		size_t sizes[2];
@@ -421,6 +420,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			cJSON *message = cJSON_GetObjectItem( root, "oauth_token" );
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
+				fbtoke = dump;
 			}
 		}
 		cJSON_Delete(root);
@@ -431,11 +431,7 @@ if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
 		facebook_usertoken( &token, code );
 	} else {
-		if( dump ) {
-			strncpy( token.val, dump, sizeof( token.val ) );
-		} else {
-			strncpy( token.val, fbtoke, sizeof( token.val ) );
-		}
+		strncpy( token.val, fbtoke, sizeof( token.val ) );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
