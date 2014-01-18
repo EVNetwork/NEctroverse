@@ -563,6 +563,7 @@ if( ((cnt->session)->dbuser) ) {
 	}
 }
 httpString( cnt, "<div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>" );
+httpString( cnt, "<br>" );
 iohtmlFBConnect( cnt );
 if( (id >= 0) ) {
 	httpString( cnt, "<br>" );
