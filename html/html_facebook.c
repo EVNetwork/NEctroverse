@@ -413,6 +413,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		sizes[1] = strlen(test);
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
 		test = strdup( buffer );
+		info( test );
 		cJSON *root = cJSON_Parse( test );
 		if( root ) {
 			cJSON *message;
