@@ -3,6 +3,6 @@ All faults must be reported... No matter how minor.
 If you encounter a bug/error. Report it.
 
 -- It seems there is a memory allocation fault somewhere --
--- Untill I can locate it the game is unsable --
+-- Unfortanatly, It will take me a while to isolate by myself --
 
 --Necro

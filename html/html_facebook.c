@@ -33,11 +33,12 @@ return size*nmemb;
 
 static void facebook_default_curl( CURL *curl, CurlStringPtr curl_str ) {
 	init_string( curl_str );
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, false );
-	curl_easy_setopt(curl, CURLOPT_SSLVERSION, 3 );
+	curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_SSLv3 );
+	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc );
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl_str );
-
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, false );
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5 );
 return;
 }
 
@@ -264,7 +265,7 @@ return;
 }
 
 
-int facebook_post_notice( char *fbid, char *fmt, ... ) {
+int facebook_post_notice( char *fbid, char *url, char *fmt, ... ) {
 	bool result = false;
 	int offset;
 	char post[DEFAULT_BUFFER];
@@ -279,6 +280,9 @@ va_end( ap );
 
 offset = 0;
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "%s", sysconfig.facebook_token );
+if( url != NULL ) {
+	offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&href=%s", url );
+}
 offset += snprintf( &post[offset], (DEFAULT_BUFFER - offset), "&template=%s", template );
 
 curl = curl_easy_init();
@@ -538,7 +542,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 		fclose( file );
 		file = NULL;
 	}
-	facebook_post_notice( fbdata.id, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
+	facebook_post_notice( fbdata.id, NULL, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
 	redirect( cnt, "/main?page=account" );
 	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
 	httpString( cnt, "You should be redirected back to your account screen shortly<br>" );
