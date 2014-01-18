@@ -428,11 +428,11 @@ if( ( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) || ( ( fbtoke == NULL ) 
 	}
 }
 
-if( ( code ) || ( fbtoke ) || ( dump ) ) {
-	if( code ) {
-		facebook_usertoken( &token, code );
-	} else {
+if( ( code ) || ( fbtoke ) ) {
+	if( fbtoke ) {
 		strncpy( token.val, fbtoke, sizeof( token.val ) );
+	} else {
+		facebook_usertoken( &token, code );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
