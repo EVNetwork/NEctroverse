@@ -562,6 +562,7 @@ if( ((cnt->session)->dbuser) ) {
 		facebook_update_user( (cnt->session)->dbuser );
 	}
 }
+httpString( cnt, "<div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>" );
 iohtmlFBConnect( cnt );
 if( (id >= 0) ) {
 	httpString( cnt, "<br>" );
@@ -595,10 +596,6 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 //end todo list
 
 httpString( cnt, "</table>" );
-
-#if FACEBOOK_SUPPORT
-httpString( cnt, "<div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>" );
-#endif
 
 iohtmlFunc_endhtml( cnt );
 return;
