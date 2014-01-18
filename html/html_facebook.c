@@ -409,7 +409,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		char buffer[ARRAY_MAX];
 		size_t sizes[2];
 		sizes[0] = ARRAY_MAX;
-		sizes[1] = strlen( test );
+		sizes[1] = strlen( test )+1;
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
 		if( test ) {
 			free( test );
