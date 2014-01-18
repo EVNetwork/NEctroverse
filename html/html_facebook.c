@@ -405,7 +405,7 @@ code = iohtmlVarsFind( cnt, "code" );
 fbtoke = iohtmlVarsFind( cnt, "fblogin_token" );
 remove = iohtmlVarsFind( cnt, "remove" );
 
-if( ( fbtoke == NULL ) && ( code == NULL ) ) {
+if( ( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) || ( ( fbtoke == NULL ) && ( code == NULL ) ) ) {
 	fbtoke = iohtmlVarsFind( cnt, "signed_request" );
 	if( fbtoke != NULL ) {
 		char *pointer = ( strchr( fbtoke, '.' ) +1 );
