@@ -413,7 +413,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 		sizes[1] = strlen(test);
 		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
 		test = strdup( buffer );
-		info( test );
+		info( "test: %s", test );
 		cJSON *root = cJSON_Parse( test );
 		if( root ) {
 			cJSON *message;
@@ -421,7 +421,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
-				info( dump );
+				info( "dump: %s", dump );
 			}
 		}
 		cJSON_Delete(root);
@@ -431,7 +431,7 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 
 if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
-		info( code );
+		info( "code: %s", code );
 		facebook_usertoken( &token, code );
 	} else {
 		if( dump ) {
@@ -439,7 +439,7 @@ if( ( code ) || ( fbtoke ) || ( dump ) ){
 		} else {
 			strncpy( token.val, fbtoke, sizeof( token.val ) );
 		}
-		info( token.val );
+		info( "token: %s", token.val );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
