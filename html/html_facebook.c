@@ -433,8 +433,8 @@ if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
 		facebook_usertoken( &token, code );
 	} else {
-		info( dump );
-		info( fbtoke );
+		info( "dump; %s", dump );
+		info( "toke; %s", fbtoke );
 		strncpy( token.val, fbtoke, sizeof( token.val ) );
 	}
 	if( token.val ) {
