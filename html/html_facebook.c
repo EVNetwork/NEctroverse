@@ -37,7 +37,7 @@ static void facebook_default_curl( CURL *curl, CurlStringPtr curl_str ) {
 	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc );
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, curl_str );
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, true );
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, false );
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5 );
 return;
 }
@@ -422,7 +422,6 @@ if( ( fbtoke == NULL ) && ( code == NULL ) ) {
 			message = cJSON_GetObjectItem( root, "oauth_token" );
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
-				fbtoke = dump;
 				info( dump );
 			}
 		}
@@ -434,6 +433,8 @@ if( ( code ) || ( fbtoke ) || ( dump ) ){
 	if( code ) {
 		facebook_usertoken( &token, code );
 	} else {
+		info( dump );
+		info( fbtoke );
 		strncpy( token.val, fbtoke, sizeof( token.val ) );
 	}
 	if( token.val ) {
