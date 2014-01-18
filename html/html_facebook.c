@@ -350,6 +350,8 @@ if( curl ) {
 return result;
 }
 
+
+
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[3];
 	int a, i, id, offset = 0;
@@ -403,26 +405,22 @@ fbtoke = iohtmlVarsFind( cnt, "fblogin_token" );
 remove = iohtmlVarsFind( cnt, "remove" );
 
 if( ( fbtoke == NULL ) && ( code == NULL ) ) {
-	if( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) {
-		char *pointer = ( strchr( iohtmlVarsFind( cnt, "signed_request" ), '.' ) +1 );
+	fbtoke = iohtmlVarsFind( cnt, "signed_request" );
+	if( fbtoke != NULL ) {
+		char *pointer = ( strchr( fbtoke, '.' ) +1 );
 		char *test = strdup( pointer );
-		char buffer[ARRAY_MAX];
-		size_t sizes[2];
-		sizes[0] = ARRAY_MAX;
-		sizes[1] = strlen( test );
-		base64_decode( (unsigned char *)buffer, &sizes[0], (const unsigned char*)test, sizes[1] );
+		char buffer[DEFAULT_BUFFER];
+		fbtoke = NULL;
+		UnBase64( (unsigned char *)buffer, (const unsigned char*)test, strlen( test ) );
 		if( test ) {
 			free( test );
 		}
-		info( buffer );
 		cJSON *root = cJSON_Parse( buffer );
 		if( root ) {
-			info( "valid" );
 			cJSON *message = cJSON_GetObjectItem( root, "oauth_token" );
 			if( ( message ) ) {
 				dump = strdup( message->valuestring );
 				fbtoke = dump;
-				info( dump );
 			}
 		}
 		cJSON_Delete(root);
@@ -433,7 +431,7 @@ if( ( code ) || ( fbtoke ) || ( dump ) ) {
 	if( code ) {
 		facebook_usertoken( &token, code );
 	} else {
-		strncpy( token.val, ( dump ? dump : fbtoke ), sizeof( token.val ) );
+		strncpy( token.val, fbtoke, sizeof( token.val ) );
 	}
 	if( token.val ) {
 		facebook_getdata_token( &fbdata, token );
