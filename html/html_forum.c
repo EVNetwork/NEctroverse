@@ -474,7 +474,7 @@ if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empi
   {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
    httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), a, forums[a].time, forums[a].title, forums[a].threads );
-   httpPrintf( cnt, "%s<br>Week %d, %d", timebuf, forums[a].tick % 52, forums[a].tick / 52 );
+   httpPrintf( cnt, "%s<br>Week %d, Year %d", timebuf, forums[a].tick % 52, forums[a].tick / 52 );
 	if( forums[a].lastid != -1 ) {
 		httpPrintf( cnt, "<br>By <a href=\"%s&id=%d\">%s</a>", URLAppend( cnt, "player" ), forums[a].lastid, forums[a].lastpost );
 	}

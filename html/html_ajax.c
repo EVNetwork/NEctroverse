@@ -390,12 +390,8 @@ if( refer ) {
 	httpString( cnt, "\n" );
 	if( !strcmp(refer,"hq") ) {
 		for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
-			snprintf( CHECKER, sizeof(CHECKER),"%s",cmdReadyName[a]);
-			for(b = 0; CHECKER[b]; b++){
-				CHECKER[b] = tolower(CHECKER[b]);
-			}
-			httpPrintf( cnt, "\t\t\tvar %sready = getnodevar(xmlhttp.responseXML,\"%sready\");\n", CHECKER, CHECKER );
-			httpPrintf( cnt, "\t\t\tupdatehtml(\"hq%sready\",%sready);\n", CHECKER, CHECKER );
+			httpPrintf( cnt, "\t\t\tvar %sready = getnodevar(xmlhttp.responseXML,\"%sready\");\n", cmdReadyName[a], cmdReadyName[a] );
+			httpPrintf( cnt, "\t\t\tupdatehtml(\"hq%sready\",%sready);\n", cmdReadyName[a], cmdReadyName[a] );
 		}
 		httpString( cnt, "\t\t\tvar planets = getnodevar(xmlhttp.responseXML,\"planets\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqpopulation\",population);\n" );
