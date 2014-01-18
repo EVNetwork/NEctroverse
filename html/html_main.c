@@ -562,7 +562,6 @@ if( ((cnt->session)->dbuser) ) {
 		facebook_update_user( (cnt->session)->dbuser );
 	}
 }
-
 iohtmlFBConnect( cnt );
 if( (id >= 0) ) {
 	httpString( cnt, "<br>" );
@@ -570,7 +569,7 @@ if( (id >= 0) ) {
 #endif
 
 httpString( cnt, "</td></table></td></tr>" );
-httpString( cnt, "<tr><td><div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div></tr></td>" );
+
 //read the todo list from todo.txt and format for display. -- If this file is missing, or empty it is skipped.
 sprintf( DIRCHECKER, "%s/todo.txt", settings[0]->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
@@ -596,6 +595,10 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 //end todo list
 
 httpString( cnt, "</table>" );
+
+#if FACEBOOK_SUPPORT
+httpString( cnt, "<br><div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>" );
+#endif
 
 iohtmlFunc_endhtml( cnt );
 return;
