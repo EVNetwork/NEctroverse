@@ -3067,7 +3067,7 @@ void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int ty
 
 void iohtmlFunc_map( ReplyDataPtr cnt )
 {
- int a, b, c, d, numpl, id, x, y, i, explcol, newwins, cid;
+ int a, b, c, d, numpl, id, x, y, i, explcol, cid;
  int *buffer;
  dbUserMainDef maind;
  dbMainSystemDef systemd;
@@ -3129,15 +3129,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
   advname[0] = 'u';
   advdet[a] = iohtmlVarsFind( cnt, advname );
  }
- newwins = 0;
- if( ( advopt[0] == -1 ) && ( maind.config_mapsize & 0x10000 ) )
-  newwins = 1;
- else if( iohtmlVarsFind( cnt, "newwin" ) )
-  newwins = 1;
 
- if( newwins )
-  iohtmlBase( cnt, 1|2|4 );
- else
   iohtmlBase( cnt, 1|2 );
 
  if( advopt[0] == -1 )
@@ -3271,8 +3263,6 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
  if( ( configstring ) && ( dbUserMainRetrieve( id, &maind ) >= 0 ) )
  {
   maind.config_mapsize &= 0xFFFF;
-  if( newwins )
-   maind.config_mapsize |= 0x10000;
   memcpy( maind.config_map, config, 8*sizeof(int) );
   dbUserMainSet( id, &maind );
  }
@@ -3487,19 +3477,17 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   }
   httpString( cnt, "</select></td></tr>" );
  }
- httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><table cellspacing=\"0\" cellpadding=\"0\"><tr><td><input type=\"checkbox\" name=\"newwin\"" );
- if( maind.config_mapsize & 0x10000 )
-  httpString( cnt, " checked" );
- httpString( cnt, "> Open system views in new windows<br><input type=\"checkbox\" name=\"setdefault\"> Save these settings as the default</td></tr></table></td></tr>" );
+ httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><table cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
+ httpString( cnt, "<input type=\"checkbox\" name=\"setdefault\"> Save these settings as the default</td></tr></table></td></tr>" );
  httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\"></td></tr>" );
  httpString( cnt, "</table></form>" );
 
  httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br><br><br>" );
 
  httpString( cnt, "<b>Reset map defaults to</b><br><table><tr><td>" );
- httpPrintf( cnt, "<a href=\"%s&e0=1&c0=0&newwin=1&setdefault=1\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&e0=1&c0=1&e1=2&c1=0&newwin=1&setdefault=1\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&e0=3&c0=2&e1=1&c1=1&e2=2&c2=0&newwin=1&setdefault=1\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&e0=1&c0=0&setdefault=1\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&e0=1&c0=1&e1=2&c1=0&setdefault=1\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&e0=3&c0=2&e1=1&c1=1&e2=2&c2=0&setdefault=1\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
  httpString( cnt, "</td></tr></table>" );
 
  iohtmlBodyEnd( cnt );
