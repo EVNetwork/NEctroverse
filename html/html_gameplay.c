@@ -5492,7 +5492,13 @@ if( systemstring ) {
 			if( cmdErrorString ) {
 				httpPrintf( cnt, "%s<br><br>", cmdErrorString );
 			}
-			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br>If everything goes well, %s will be ours in %d weeks<br>", count, cmdUnitName[CMD_UNIT_EXPLORATION], ( cost >> 16 ), ( count > 1 ? " these planets" : "this planet" ), explore );
+			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br>", count, cmdUnitName[CMD_UNIT_EXPLORATION], ( cost >> 16 ) );
+			httpPrintf( cnt, "If everything goes well, %s will be ours in %d weeks<br>", ( count > 1 ? " these planets" : "this planet" ), explore );
+		} else if ( cmdErrorString ) {
+			httpPrintf( cnt, "%s<br><br>", cmdErrorString );
+		} else {
+			error( "Got Dead page..." );
+			httpString( cnt, "An Error has occured with this page...<br><br>" );
 		}
 	goto iohttpFunc_exploreL0;
 	} else {
@@ -5529,8 +5535,9 @@ if( systemstring ) {
 			httpString( cnt, "Error encountered while retrieving exploration information<br>" );
 			goto iohttpFunc_exploreL0;
 		}
+	} else {
+		httpPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br><br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
 	}
-	httpPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br><br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
 } else {
 	if( ( cmdExecExploreInfo( id, plnid, &explore ) ) < 0 ) {
 		if( cmdErrorString )
@@ -5538,8 +5545,9 @@ if( systemstring ) {
 		else
 			httpString( cnt, "Error encountered while retrieving exploration information<br>" );
 			goto iohttpFunc_exploreL0;
+	} else {
+		httpPrintf( cnt, "It would take %d weeks and %d%% FR for our %s to reach this planet.<br><br>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
 	}
-	httpPrintf( cnt, "It would take %d weeks and %d%% FR for our %s to reach this planet.<br><br>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
 	if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
 		httpPrintf( cnt, "<b><a href=\"%s&id=%d&dispatch=1\">Explore this planet</a></b><br>", URLAppend( cnt, "explore" ), plnid );
 	} else {
