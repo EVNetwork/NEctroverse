@@ -140,7 +140,6 @@ typedef struct
   int rank;
   int aidaccess;
   int flags;
-  int64_t stationunit[CMD_UNIT_NUMUSED];
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );

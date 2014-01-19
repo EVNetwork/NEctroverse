@@ -1,4 +1,5 @@
 int64_t cmdTickProduction[CMD_BLDG_NUMUSED];
+int64_t StationedUnits[CMD_UNIT_NUMUSED];
 
 void cmdTickGenRanks() {
 	int a, b, c, d, first, num, artmax, wa, wnum;
@@ -419,10 +420,9 @@ ticks.debug_pass = 0 + 10000;
 
 
 memset( mainp->totalbuilding, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
-memset( mainp->stationunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 memset( mainp->totalunit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
-
+memset( StationedUnits, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 
 nInfection = 0;
 if( ( b = dbUserSpecOpList( usrid, &specopd ) ) >= 0 ) {
@@ -501,7 +501,7 @@ for( a = 0 ; a < num ; a++ ) {
 	}
 
 	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
-		mainp->stationunit[b] += planetd.unit[b];
+		StationedUnits[b] += planetd.unit[b];
 
 	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
 		mainp->totalbuilding[CMD_BLDG_NUMUSED]++;
@@ -861,8 +861,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 		}
 	}
 	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ ) {
-		maind.infos[INFOS_UNITS_UPKEEP] += ( ( maind.stationunit[b] * cmdUnitUpkeep[b] ) * ( 1.5 ) );
-		maind.totalunit[b] += maind.stationunit[b];
+		maind.infos[INFOS_UNITS_UPKEEP] += ( ( StationedUnits[b] * cmdUnitUpkeep[b] ) * ( 1.5 ) );
+		maind.totalunit[b] += StationedUnits[b];
 	}
 
 	ticks.debug_pass = 12 + 10000;
