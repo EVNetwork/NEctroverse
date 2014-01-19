@@ -197,7 +197,7 @@ httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" alig
 httpString( cnt, "<table width=\"90%\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&name=ectro_12.jpg\" valign=\"middle\">" );
 httpString( cnt, "<table style=\"width:100%;border-width:0;\"><tr>" );
-httpPrintf( cnt, "<td align=\"center\">%d of %d players online</td>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
+httpPrintf( cnt, "<td align=\"center\"><div id=\"u_online\">%d</div> of <div id=\"u_activated\">%d</div> players online</td>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
 httpString( cnt, "<td align=\"center\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
