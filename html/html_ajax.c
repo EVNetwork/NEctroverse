@@ -308,7 +308,7 @@ if( refer ) {
 	httpString( cnt, "\t\tvar u_online = getnodevar(xmlhttp.responseXML,\"u_online\");\n" );
 	httpString( cnt, "\t\tvar u_activated = getnodevar(xmlhttp.responseXML,\"u_activated\");\n" );
 	httpString( cnt, "\n" );
-	if( ( strlen( refer ) == 0 ) || ( strcmp(refer,"faq") == 0 ) || ( strcmp(refer,"halloffame") == 0 ) || ( strcmp(refer,"gettingstarted") == 0 ) || ( strcmp(refer,"register") == 0 ) || ( strcmp(refer,"login") == 0 ) ) {
+	if( ( strlen( refer ) == 0 ) || ( strcmp(refer,"faq") == 0 ) || ( strcmp(refer,"halloffame") == 0 ) || ( strcmp(refer,"gettingstarted") == 0 ) || ( strcmp(refer,"register") == 0 ) || ( strcmp(refer,"login") == 0 ) || ( strcmp(refer,"logout") == 0 ) || ( strcmp(refer,"status") == 0 ) ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"u_online\",u_online);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"u_activated\",u_activated);\n" );
 	}
