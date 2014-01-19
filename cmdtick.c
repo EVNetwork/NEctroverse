@@ -2,7 +2,7 @@ int64_t cmdTickProduction[CMD_BLDG_NUMUSED];
 int64_t StationedUnits[CMD_UNIT_NUMUSED];
 
 void cmdTickGenRanks() {
-	int a, b, c, d, first, num, artmax, wa, wnum;
+	int first, num, artmax, wa, wnum;
 	FILE *file, *filep;
 	ConfigArrayPtr settings[2];
 	dbUserMainDef maind;
@@ -10,7 +10,9 @@ void cmdTickGenRanks() {
 	dbMainEmpireDef empired;
 	dbUserMainPtr mainp;
 	dbUserPtr user;
-	int *stats, *rels;
+	int64_t a, b, c, d;
+	int64_t *stats;
+	int *rels;
 	int artefacts[ARTEFACT_NUMUSED], artsnum;
 	char COREDIR[PATH_MAX];
 
@@ -28,13 +30,13 @@ void cmdTickGenRanks() {
     fclose( file );
     return;
   }
-  if( !( stats = malloc( 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int) + sizeof(dbMainEmpireDef)*dbMapBInfoStatic[MAP_EMPIRES] ) ) )
+  if( !( stats = malloc( 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int64_t) + sizeof(dbMainEmpireDef)*dbMapBInfoStatic[MAP_EMPIRES] ) ) )
   {
     fclose( file );
     return;
   }
   empirep = (void *)&stats[6*dbMapBInfoStatic[MAP_EMPIRES]];
-  memset( stats, 0, 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int) );
+  memset( stats, 0, 6*dbMapBInfoStatic[MAP_EMPIRES]*sizeof(int64_t) );
 settings[0] = GetSetting( "Admin Empire Number" );
 settings[1] = GetSetting( "Admin Empire Ommit" );
   for( b = c = num = 0 ; b < dbMapBInfoStatic[MAP_EMPIRES] ; b++ )
@@ -73,7 +75,7 @@ if( (int)settings[0]->num_value > 0 ) {
         continue;
       stats[c+1] += maind.planets;
       stats[c+2]++;
-      stats[c+3] += (int)maind.networth;
+      stats[c+3] += maind.networth;
     }
     empirep[b].planets = stats[c+1];
     empirep[b].networth = stats[c+3];
@@ -185,19 +187,19 @@ if( artsnum == ARTEFACT_NUMUSED ) {
       }
     }
 
-	fprintf( file, " %d</td><td><a href=\"empire?id=%d\">", b, stats[a+0] );
+	fprintf( file, " %lld</td><td><a href=\"empire?id=%lld\">", (long long)b, (long long)stats[a+0] );
   	if( empirep[stats[a+0]].name[0] )
-      fprintf( file, "%s #%d", empirep[stats[a+0]].name, stats[a+0] );
+      fprintf( file, "%s #%lld", empirep[stats[a+0]].name, (long long)stats[a+0] );
     else
-      fprintf( file, "Empire #%d", stats[a+0] );
-    fprintf( file, "</a></td><td align=\"center\">%d</td><td align=\"center\">%d</td><td align=\"center\">%d</td></tr>\n", stats[a+1], stats[a+2], stats[a+3] );
+      fprintf( file, "Empire #%lld", (long long)stats[a+0] );
+    fprintf( file, "</a></td><td align=\"center\">%lld</td><td align=\"center\">%lld</td><td align=\"center\">%lld</td></tr>\n", (long long)stats[a+1], (long long)stats[a+2], (long long)stats[a+3] );
 
     /* Plain Text */
-    fprintf( filep, "%d:%d:%d:%d:%d:", b, stats[a+0], stats[a+1], stats[a+2], stats[a+3] );
+    fprintf( filep, "%lld:%lld:%lld:%lld:%lld:", (long long)b, (long long)stats[a+0], (long long)stats[a+1], (long long)stats[a+2], (long long)stats[a+3] );
     if( empirep[stats[a+0]].name[0] )
-      fprintf( filep, "%s #%d", empirep[stats[a+0]].name, stats[a+0] );
+      fprintf( filep, "%s #%lld", empirep[stats[a+0]].name, (long long)stats[a+0] );
     else
-      fprintf( filep, "Empire #%d", stats[a+0] );
+      fprintf( filep, "Empire #%lld", (long long)stats[a+0] );
     fprintf( filep, "\n" );
 
     // moo
@@ -263,13 +265,13 @@ dbArtefactMax = artmax;
   }
   for( user = dbUserList, num = 0 ; user ; user = user->next )
     num++;
-  if( !( num ) || !( stats = malloc( 6*num*sizeof(int) + sizeof(dbUserMainDef)*num ) ) )
+  if( !( num ) || !( stats = malloc( 6*num*sizeof(int64_t) + sizeof(dbUserMainDef)*num ) ) )
   {
     fclose( file );
     return;
   }
   mainp = (void *)&stats[6*num];
-  memset( stats, 0, 6*num*sizeof(int) );
+  memset( stats, 0, 6*num*sizeof(int64_t) );
 settings[0] = GetSetting( "Admin Empire Number" );
 settings[1] = GetSetting( "Admin Empire Ommit" );
   for( b = c = 0, user = dbUserList ; user ; user = user->next )
@@ -335,9 +337,9 @@ settings[1] = GetSetting( "Admin Empire Ommit" );
   fprintf( file, "<table cellspacing=\"4\"><tr><td>Rank</td><td>Faction</td><td>Empire</td><td>Planets</td><td>Networth</td></tr>" );
   for( a = first, b = 1 ; a != -1 ; b++ )
   {
-    fprintf( file, "<tr><td align=\"right\">%d</td><td><a href=\"player?id=%d\">%s</a></td><td><a href=\"empire?id=%d\">empire #%d</a></td><td align=\"center\">%d</td><td align=\"center\">%lld</td></tr>", b, stats[a+0], mainp[stats[a+3]].faction, mainp[stats[a+3]].empire, mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, (long long)mainp[stats[a+3]].networth );
+    fprintf( file, "<tr><td align=\"right\">%lld</td><td><a href=\"player?id=%lld\">%s</a></td><td><a href=\"empire?id=%d\">empire #%d</a></td><td align=\"center\">%d</td><td align=\"center\">%lld</td></tr>", (long long)b, (long long)stats[a+0], mainp[stats[a+3]].faction, mainp[stats[a+3]].empire, mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, (long long)mainp[stats[a+3]].networth );
 
-    fprintf( filep, "%d:%d:%d:%d:%lld:%s\n", b, stats[a+0], mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, (long long)mainp[stats[a+3]].networth, mainp[stats[a+3]].faction );
+    fprintf( filep, "%lld:%lld:%d:%d:%lld:%s\n", (long long)b, (long long)stats[a+0], mainp[stats[a+3]].empire, mainp[stats[a+3]].planets, (long long)mainp[stats[a+3]].networth, mainp[stats[a+3]].faction );
 
 
 
