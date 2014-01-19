@@ -361,12 +361,13 @@ sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
   httpString( cnt, "<input type=\"text\" name=\"statusid\" value=\"StatusID\"><br>" );
   httpString( cnt, "<input type=\"submit\" value=\"Change player status\"></form><br><br>" );
 
+  #if FACEBOOK_SUPPORT
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   httpString( cnt, "<input type=\"text\" name=\"changefbstatus\" value=\"player ID number\"><br>" );
   httpString( cnt, "<input type=\"text\" name=\"status\" value=\"Status\"><br>" );
   httpString( cnt, "<input type=\"text\" name=\"fbid\" value=\"FBID\"><br>" );
   httpString( cnt, "<input type=\"submit\" value=\"Change player status\"></form><br><br>" );
-
+  #endif
 /*
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   httpString( cnt, "<input type=\"text\" name=\"forumlid\" value=\"Forum ID\"><br>" );
@@ -466,7 +467,7 @@ sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
     cmdExecute( cnt, cmd, &maind, 0 );
     fprintf( file, "%s > view news of player %s \n",main2d.faction, maind.faction);
   }
-  
+#if FACEBOOK_SUPPORT
 if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
 	if( sscanf( actionstring, "%d", &actionid ) != 1 )
 		goto iohtmlFunc_moderatorL0;
@@ -498,7 +499,7 @@ if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
 	facebook_update_user( user );
 	fprintf( file, "%s > ajust fb status of player %s \n",main2d.faction, maind.faction);
 }
-
+#endif
   if( ( actionstring = iohtmlVarsFind( cnt, "playerpts" ) ) )
   {
     if( !( str0 = iohtmlVarsFind( cnt, "playerptsnum" ) ) )

@@ -1281,17 +1281,17 @@ return YES;
 }
 
 #if HTTPS_SUPPORT
-static char *ssl_files[3];
+char *ssl_files[3];
 
 int https_start() {
 	ConfigArrayPtr settings;
 
-char *list[4] = { "HTTPS Key", "HTTPS Cert", "HTTPS Trust", NULL };
+char *list[4] = { "HTTPS Key", "HTTPS Cert"/*, "HTTPS Trust"*/, NULL };
 settings = ListSettings( list );
 
 ssl_files[0] = loadsslfile( settings[0].string_value, true );
 ssl_files[1] = loadsslfile( settings[1].string_value, true );
-ssl_files[2] = loadsslfile( settings[2].string_value, false );
+/*ssl_files[2] = loadsslfile( settings[2].string_value, false );*/
 
 free( settings );
 
@@ -1302,9 +1302,9 @@ SecureHTTP = MHD_start_daemon (flags | MHD_USE_SSL,
 				MHD_OPTION_ARRAY, ops,
 				MHD_OPTION_HTTPS_MEM_KEY, ssl_files[0],
 				MHD_OPTION_HTTPS_MEM_CERT, ssl_files[1],
-				MHD_OPTION_HTTPS_MEM_TRUST, ssl_files[2],
+				/*MHD_OPTION_HTTPS_MEM_TRUST, ssl_files[2],
 				MHD_OPTION_HTTPS_CRED_TYPE, GNUTLS_CRD_CERTIFICATE,
-				MHD_OPTION_HTTPS_PRIORITIES, "NORMAL:+VERS-SSL3.0:+CIPHER-ALL:+COMP-ALL:+RSA:+DHE-RSA:+DHE-DSS:+MAC-ALL",
+				MHD_OPTION_HTTPS_PRIORITIES, "NORMAL:+COMP-ALL",*/
 				#if MULTI_THREAD_SUPPORT
 				MHD_OPTION_THREAD_POOL_SIZE, (unsigned int)fmax( 1.0, THREADS ),
 				#endif

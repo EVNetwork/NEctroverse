@@ -3601,7 +3601,9 @@ void iohtmlFunc_player( ReplyDataPtr cnt )
  int a, b, id, playerid;
  dbUserMainDef maind, main2d;
  char *playerstring;
+ #if FACEBOOK_SUPPORT
  dbUserPtr user;
+ #endif
  dbUserInfoDef infod;
  dbUserRecordPtr recordd;
 
