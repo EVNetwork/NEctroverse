@@ -3072,6 +3072,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
  dbUserMainDef maind;
  dbMainSystemDef systemd;
  dbMainEmpireDef empired;
+ ConfigArrayPtr setting;
  int *mapp;
  int zoompos[2];
  char advname[16];
@@ -3108,7 +3109,8 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
   zoompos[0] /= IOHTTP_MAPPICK_DIVIDE;
   zoompos[1] /= IOHTTP_MAPPICK_DIVIDE;
   zoomsize = maind.config_mapsize & 0xFFFF;
-  if( (unsigned int)zoomsize > 60 )
+  setting = GetSetting( "Map Size" );
+  if( ( (unsigned int)zoomsize > 60 ) || ( ((unsigned int)zoomsize << 1 ) > (unsigned int)setting->num_value ) )
    zoomsize = 15;
  }
 
@@ -3346,7 +3348,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
  return;
 }
 
-#define MAPPICKSIZES (4) // Disable 45 and 60, due to bad rendering
+#define MAPPICKSIZES (7)
 void iohtmlFunc_mappick( ReplyDataPtr cnt )
 {
  int a, b, i, id;
@@ -3354,7 +3356,7 @@ void iohtmlFunc_mappick( ReplyDataPtr cnt )
  dbUserMainDef maind;
  dbMainSystemDef systemd;
  char *sizestring;
- static int sizes[MAPPICKSIZES] = { 15, 20, 25, 30/*, 45, 60*/ };
+ static int sizes[MAPPICKSIZES] = { 10, 15, 20, 25, 30, 45, 60 };
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -3370,7 +3372,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( cmdExecSetSectsize( id, a ) >= 0 )
   {
-   httpPrintf( cnt, "<i>Default map sector size changed for %d</i><br><br>", a );
+   httpPrintf( cnt, "<i>Default map sector size changed for %d</i><br><br>", ( a << 1 ) );
    maind.config_mapsize = a | ( maind.config_mapsize & 0xFFFF0000 );
   }
   else
@@ -3417,7 +3419,7 @@ httpString( cnt, "</map></td>" );
   httpPrintf( cnt, "<option value=\"%d\"", sizes[a] );
   if( ( maind.config_mapsize & 0xFFFF ) == sizes[a] )
    httpString( cnt, " selected" );
-  httpPrintf( cnt, ">Galaxy sectors of %d by %d", sizes[a], sizes[a] );
+  httpPrintf( cnt, ">Galaxy sectors of %d by %d", ( sizes[a] << 1 ), ( sizes[a] << 1 ) );
  }
  httpString( cnt, "</select>&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" value=\"Change\"></form>" );
 
