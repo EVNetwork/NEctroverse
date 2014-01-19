@@ -3373,7 +3373,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( cmdExecSetSectsize( id, a ) >= 0 )
   {
-   httpPrintf( cnt, "<i>Default map sector size changed for %d</i><br><br>", ( a << 1 ) );
+   httpPrintf( cnt, "<i>Default map sector size is now %d x %d</i><br><br>", ( a << 1 ), ( a << 1 ) );
    maind.config_mapsize = a | ( maind.config_mapsize & 0xFFFF0000 );
   }
   else
