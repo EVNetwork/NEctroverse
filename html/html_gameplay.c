@@ -259,9 +259,9 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   }
   httpString( cnt, " has been taken from the faction reserves." );
  }
- else if( (long long)newsd[2] == CMD_NEWS_MAIL ) {
+ else if( ( (long long)newsd[2] == CMD_NEWS_MAIL ) && !( dbUserMainRetrieve( newsd[4], &maind ) < 0 ) ) {
   httpPrintf( cnt, "You received a <a href=\"%s&type=0\">message</a> from ", URLAppend( cnt, "mail" ) );
-  httpPrintf( cnt, "<a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[4], (char *)&newsd[6] );
+  httpPrintf( cnt, "<a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[4], maind.faction );
   httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a>.", URLAppend( cnt, "empire" ), (long long)newsd[5], (long long)newsd[5] );
  } else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
  {
@@ -6974,8 +6974,6 @@ if( ( tostring ) && ( mailstring ) ) {
 				newd[3] = 0;
 				newd[4] = id;
 				newd[5] = maind.empire;
-				int __damn_overflows = USER_NAME_MAX / 2 + 3 * 2;
-				memcpy( &newd[6], maind.faction, __damn_overflows );
 				cmdUserNewsAdd( a, newd, CMD_NEWS_FLAGS_MAIL );
 				(maild.mail).authorid = a;
 				sprintf( (maild.mail).authorname, "%s", main2d.faction );
