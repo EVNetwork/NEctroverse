@@ -1281,7 +1281,42 @@ return YES;
 }
 
 #if HTTPS_SUPPORT
-char *ssl_files[3];
+#define EMPTY_PAGE "<html><head><title>Empty page</title></head><body>Empty page</body></html>"
+static int
+query_session_ahc (void *cls, struct MHD_Connection *connection,
+                   const char *url, const char *method,
+                   const char *upload_data, const char *version,
+                   size_t *upload_data_size, void **ptr)
+{
+  struct MHD_Response *response;
+  int ret;
+  
+  if (NULL == *ptr)
+    {
+      *ptr = &query_session_ahc;
+      return MHD_YES;
+    }
+
+  if (GNUTLS_SSL3 != 
+      (ret = MHD_get_connection_info
+       (connection,
+	MHD_CONNECTION_INFO_PROTOCOL)->protocol))
+    {
+      fprintf (stderr, "Error: requested protocol mismatch (wanted %d, got %d)\n",
+               GNUTLS_SSL3,
+	       ret);
+      return -1;
+    }
+
+  response = MHD_create_response_from_buffer (strlen (EMPTY_PAGE),
+					      (void *) EMPTY_PAGE,
+					      MHD_RESPMEM_PERSISTENT);
+  ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+  MHD_destroy_response (response);
+  return ret;
+}
+
+static char *ssl_files[3];
 
 int https_start() {
 	ConfigArrayPtr settings;
@@ -1297,7 +1332,7 @@ free( settings );
 
 SecureHTTP = MHD_start_daemon (flags | MHD_USE_SSL,
 				options.port[PORT_HTTPS],
-				&access_check, NULL,
+				&access_check, &query_session_ahc,
 				&create_response, NULL,
 				MHD_OPTION_ARRAY, ops,
 				MHD_OPTION_HTTPS_MEM_KEY, ssl_files[0],

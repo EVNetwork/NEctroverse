@@ -1,7 +1,7 @@
 #ifndef HTTP_H
 #define HTTP_H
 extern char *ServerSessionMD5;
-extern char *ssl_files[3];
+
 enum UploadState {
 
     UPLOAD_STATE_NULL = 0,
