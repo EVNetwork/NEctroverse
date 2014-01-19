@@ -3417,7 +3417,7 @@ httpString( cnt, "</map></td>" );
  httpPrintf( cnt, "<br><form action=\"%s\" method=\"GET\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
 setting = GetSetting( "Map Size" );
 for( a = 0 ; a < MAPPICKSIZES ; a++ ) {
-	if( ( a << 1 ) > (unsigned int)setting->num_value ) {
+	if( ( sizes[a] << 1 ) > (unsigned int)setting->num_value ) {
 		break;
 	}
 	httpPrintf( cnt, "<option value=\"%d\"", sizes[a] );
