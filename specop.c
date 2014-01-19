@@ -1212,7 +1212,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 if( maind.artefacts & ARTEFACT_16_BIT )
   attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (float)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (float)cmdGhostopDifficulty[specop] *1.2);
 else //code arti
-	attack = (int64_t)( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] );
+	attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] );
 
 	if( penalty )
     attack = attack / ( 1.0 + 0.01*(double)penalty );

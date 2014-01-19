@@ -68,6 +68,7 @@ typedef struct
   int createtime;
   int lasttime;
   int tagpoints;
+  //int forumposts;
   int forumtagtype;
   char name[USER_NAME_MAX];
   char faction[USER_NAME_MAX];

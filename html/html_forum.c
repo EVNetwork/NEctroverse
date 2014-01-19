@@ -748,7 +748,7 @@ if( flags )  {
   threadd.authorid = id;
   if( id != -1 )
    sprintf( threadd.authorname, "%s", maind.faction );
-  else if( namestring )
+  else if( ( namestring ) && ( strlen( namestring ) ) )
    iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
   else
    sprintf( threadd.authorname, "Anonymous" );
@@ -798,16 +798,12 @@ if( flags )  {
   iohttpForumFilter( &postd.text[2*FORUM_MAX], poststring, FORUM_MAX, a );
   postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*FORUM_MAX], FORUM_MAX );
   postd.post.authorid = id;
-  if( id != -1 )
-  {
+  if( id != -1 ) {
    sprintf( postd.post.authorname, "%s", maind.faction );
    sprintf( postd.post.authortag, "%s", ((cnt->session)->dbuser)->forumtag );
-  }
-  else
-  {
-   if( namestring )
+  } else if( ( namestring ) && ( strlen( namestring ) ) ) {
     iohttpForumFilter( postd.post.authorname, namestring, USER_NAME_MAX, 0 );
-   else
+   } else {
     sprintf( postd.post.authorname, "Anonymous" );
    postd.post.authortag[0] = 0;
   }

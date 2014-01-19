@@ -304,7 +304,7 @@ int cmdGhostopReadiness[CMD_GHOSTOP_NUMUSED] =
 
 float cmdAgentopDifficulty[CMD_AGENTOP_NUMUSED] =
 {
-1.0, 1.0, 3.9, 2.5, 4.0, 3.5, 4.5, 5.0, 6.0, 1.5
+1.0, 1.0, 4.0, 2.5, 4.0, 3.5, 4.5, 5.0, 6.0, 1.5
 };
 
 float cmdPsychicopDifficulty[CMD_PSYCHICOP_NUMUSED] =
