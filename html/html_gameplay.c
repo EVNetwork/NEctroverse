@@ -3355,6 +3355,7 @@ void iohtmlFunc_mappick( ReplyDataPtr cnt )
  int px, py;
  dbUserMainDef maind;
  dbMainSystemDef systemd;
+ ConfigArrayPtr setting;
  char *sizestring;
  static int sizes[MAPPICKSIZES] = { 10, 15, 20, 25, 30, 45, 60 };
 
@@ -3414,13 +3415,16 @@ httpString( cnt, "</map></td>" );
  httpString( cnt, "</table>" );
 
  httpPrintf( cnt, "<br><form action=\"%s\" method=\"GET\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
- for( a = 0 ; a < MAPPICKSIZES ; a++ )
- {
-  httpPrintf( cnt, "<option value=\"%d\"", sizes[a] );
-  if( ( maind.config_mapsize & 0xFFFF ) == sizes[a] )
-   httpString( cnt, " selected" );
-  httpPrintf( cnt, ">Galaxy sectors of %d by %d", ( sizes[a] << 1 ), ( sizes[a] << 1 ) );
- }
+setting = GetSetting( "Map Size" );
+for( a = 0 ; a < MAPPICKSIZES ; a++ ) {
+	if( ( a << 1 ) > (unsigned int)setting->num_value ) {
+		break;
+	}
+	httpPrintf( cnt, "<option value=\"%d\"", sizes[a] );
+	if( ( maind.config_mapsize & 0xFFFF ) == sizes[a] )
+		httpString( cnt, " selected" );
+	httpPrintf( cnt, ">Galaxy sectors of %d by %d</option>", ( sizes[a] << 1 ), ( sizes[a] << 1 ) );
+}
  httpString( cnt, "</select>&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" value=\"Change\"></form>" );
 
  iohtmlBodyEnd( cnt );
