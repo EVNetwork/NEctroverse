@@ -974,7 +974,7 @@ create_thread (pthread_t *thread,
 			start_routine, arg);
 #if (__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 12)
 #if LINUX
-  (void) pthread_setname_np (*thread, "libmicrohttpd");
+  (void) pthread_setname_np (*thread, PACKAGE_VERSION);
 #endif
 #endif
   if (0 != daemon->thread_stack_size)
@@ -4158,7 +4158,7 @@ MHD_init ()
   mhd_panic_cls = NULL;
 
 #ifdef WINDOWS
-  plibc_init ("GNU", "libmicrohttpd");
+  plibc_init ("GNU", PACKAGE_VERSION);
 #endif
 #if HTTPS_SUPPORT
 #if GCRYPT_VERSION_NUMBER < 0x010600

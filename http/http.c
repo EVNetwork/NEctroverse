@@ -1,5 +1,5 @@
 
-#define PACKAGE_VERSION "NEctroverse microhttpd Bridge"
+#define PACKAGE_VERSION "NEctroverse HTTP 0.2"
 
 #define MHD_HTTP_HEADER_CONTENT_DISPOSITION "Content-Disposition"
 #define MHD_HTTP_HEADER_REFRESH "Refresh"
