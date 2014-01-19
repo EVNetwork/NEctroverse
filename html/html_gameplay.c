@@ -471,6 +471,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
      httpString( cnt, "Fleets infiltration : failed<br>" );
     httpPrintf( cnt, "You can access the faction information in the <a href=\"%s\">list of current operations</a> for the next two years.<br>", URLAppend( cnt, "spec" ) );
    }
+   httpString( cnt, "</td></tr></table>" );
   }
 	 else if( (long long)newsd[2] == CMD_NEWS_OPPLANETBEACON )
   {
