@@ -745,10 +745,14 @@ return NO;
 }
 
 static int postdata_wipe( SessionPtr session ) {
+	PostDataPtr data;
 
-for( ; session->postdata != NULL ; session->postdata = session->postdata->next )
-	postdata_remove( session, session->postdata->key );
+if( session->postdata != NULL ) {
+	for( data = session->postdata ; data ; data = data->next )
+		postdata_remove( session, data->key );
 	
+}
+
 return YES;
 }
 
