@@ -541,7 +541,7 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 		file = NULL;
 	}
 	facebook_post_notice( fbdata.id, NULL, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
-	redirect( cnt, "/main?page=account" );
+	redirect( cnt, "/%s&page=account", URLAppend( cnt, "main" ) );
 	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
 	httpString( cnt, "You should be redirected back to your account screen shortly<br>" );
 	httpPrintf( cnt, "<a href=\"/%s?page=account\">Click here if it takes too long</a><br>", URLAppend( cnt, "main" ) );

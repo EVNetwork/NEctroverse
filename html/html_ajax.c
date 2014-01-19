@@ -51,6 +51,7 @@ if( ( typestring ) && ( refer ) ) {
 		httpPrintf( cnt, "<pass>%d</pass>", ( id != -1 ) ? ( ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ? true : false ) : false );
 		if( refer )
 			httpPrintf( cnt, "<page>%s</page>", refer );
+		httpPrintf( cnt, "<u_online>%d</u_online><u_activated>%d</u_activated>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
 		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
 		if( !strcmp(refer,"status") ) {
 			snprintf( CHECKER, sizeof(CHECKER), "%lu bytes ( %5.1f mb )", pinfod.stvsize, pinfod.stvsize  / megabyte );
@@ -304,7 +305,14 @@ if( refer ) {
 	httpString( cnt, "\n" );
 	httpString( cnt, "\t\tvar week = getnodevar(xmlhttp.responseXML,\"week\");\n" );
 	httpString( cnt, "\t\tvar year = getnodevar(xmlhttp.responseXML,\"year\");\n" );
+	httpString( cnt, "\t\tvar u_online = getnodevar(xmlhttp.responseXML,\"u_online\");\n" );
+	httpString( cnt, "\t\tvar u_activated = getnodevar(xmlhttp.responseXML,\"u_activated\");\n" );
 	httpString( cnt, "\n" );
+	if( ( strlen( refer ) == 0 ) || ( strcmp(refer,"faq") == 0 ) || ( strcmp(refer,"halloffame") == 0 ) || ( strcmp(refer,"gettingstarted") == 0 ) || ( strcmp(refer,"register") == 0 ) || ( strcmp(refer,"login") == 0 ) ) {
+		httpString( cnt, "\t\t\tupdatehtml(\"u_online\",u_online);\n" );
+		httpString( cnt, "\t\t\tupdatehtml(\"u_activated\",u_activated);\n" );
+	}
+	
 	if( !strcmp(refer,"hq") ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"hqweeks\",week);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqyears\",year);\n" );

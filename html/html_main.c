@@ -1267,28 +1267,34 @@ if( race ) {
 
 
 } else if ( ( id < 0 ) ) {
-httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
-if( token == NULL ) {
-	httpString( cnt, "User name<br><input type=\"text\" name=\"name\"><br>" );
-	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
+	if( token == NULL ) {
+		httpString( cnt, "User name<br><input type=\"text\" name=\"name\"><br>" );
+		httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+	} else {
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br>", token );
+	}
+	httpString( cnt, "<br>Faction name<br><input type=\"text\" name=\"faction\"><br>" );
+	httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
+	goto END;
+}
+
+if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
+	redirect( cnt, "/%s", URLAppend( cnt, "main" ) );
+	httpString( cnt, "This account has already been activated, you will now be redirected into the game...<br>" );
+	httpString( cnt, "<br>" );
+	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long<a>", URLAppend( cnt, "/main" ) );
 } else {
-	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br>", token );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>", URLAppend( cnt, "register" ) );
+	httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
+	httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
+	httpPrintf( cnt, "<a href=\"%s\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "races" ) );
+	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
+		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdRaceName[a] );
+	}
+	httpString( cnt, "</select><br><br>" );
+	httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
 }
-httpString( cnt, "<br>Faction name<br><input type=\"text\" name=\"faction\"><br>" );
-httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
-goto END;
-}
-
-
-httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>", URLAppend( cnt, "register" ) );
-httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
-httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
-httpPrintf( cnt, "<a href=\"%s\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "races" ) );
-	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ )
-		httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRaceName[a] );
-httpString( cnt, "</select><br><br>" );
-
-httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
 
 httpPrintf( cnt, "<br><br><a href=\"%s&typ=1\" target=\"_blank\">See empire rankings</a>", URLAppend( cnt, "rankings" ) );
 httpPrintf( cnt, "<br><a href=\"%s\" target=\"_blank\">See faction rankings</a>", URLAppend( cnt, "rankings" ) );
