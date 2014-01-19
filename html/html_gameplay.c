@@ -266,7 +266,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  } else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
  {
   httpPrintf( cnt, "Your agents reached their destination, the <a href=\"%s&id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-  if( ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) ) {
+  if( ( (long long)newsd[5] != -1 ) && ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) ) {
    httpPrintf( cnt, " owned by <a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[5], main2d.faction );
    httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
   }
@@ -1081,7 +1081,7 @@ if( !( num ) )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    httpPrintf( cnt, "Agents sent by %s reached their destination, the <a href=\"%s&id=%lld\">planet %lld,%lld:%lld</a>", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-   if( ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) ) {
+   if( ( (long long)newsd[5] != -1 ) && ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) ) {
     httpPrintf( cnt, " owned by <a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[5], maind.faction );
     httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
    }
@@ -1140,7 +1140,7 @@ if( !( num ) )
    if( (long long)newsd[5] != -1 )
    {
     httpPrintf( cnt, "The forces of %s felt the influence of psychics from ", mfamd[b].faction );
-    if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) ) {
+    if( ( (long long)newsd[3] != -1 ) && ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) ) {
      httpPrintf( cnt, "<a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[3], maind.faction );
      httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[4], (long long)newsd[4] );
     } else
@@ -1161,7 +1161,7 @@ if( !( num ) )
    else
    {
     httpPrintf( cnt, "on the <a href=\"%s&id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-    if( ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
+    if( ( (long long)newsd[5] != -1 ) && ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
     {
      httpPrintf( cnt, " owned by <a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[5], maind.faction );
      httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a><br>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
@@ -5734,18 +5734,18 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  memset( &main2d.faction, 0, sizeof(main2d.faction) );
  plnid = -1;
- if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) )
- {
-  if( dbMapRetrievePlanet( plnid, &planetd ) < 0 )
-  {
-   httpString( cnt, "This planet doesn't seem to exist!</body></html>" );
-   return;
-  }
-  iohtmlBodyInit( cnt, "Special Operations on planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
-  dbUserMainRetrieve( planetd.owner, &main2d );
- }
- else
-  iohtmlBodyInit( cnt, "Special Operations" );
+if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
+	if( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) {
+		httpString( cnt, "This planet doesn't seem to exist!</body></html>" );
+		return;
+	}
+	iohtmlBodyInit( cnt, "Special Operations on planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+	if( planetd.owner != -1 ) {
+		dbUserMainRetrieve( planetd.owner, &main2d );
+	}
+} else {
+	iohtmlBodyInit( cnt, "Special Operations" );
+}
 
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table border=\"0\" width=\"70%\" cellspacing=\"4\" cellpadding=\"4\"><tr><td width=\"35%\" valign=\"top\" nowrap>", URLAppend( cnt, "operation" ) );
