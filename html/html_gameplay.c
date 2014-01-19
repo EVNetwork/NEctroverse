@@ -950,8 +950,8 @@ if( !( num ) )
    if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohtmlFamNewsL0;
    httpPrintf( cnt, "%s lost the <a href=\"%s&id=%lld\">planet %lld,%lld:%lld</a> to ", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF );
-   httpPrintf( cnt, "<a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[3] );
-   httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), maind.faction, (long long)newsd[4], (long long)newsd[4] );
+   httpPrintf( cnt, "<a href=\"%s&id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[3], maind.faction );
+   httpPrintf( cnt, "<a href=\"%s&id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[4], (long long)newsd[4] );
    goto iohtmlFamNewsL1;
   }
   else if( (long long)newsd[2] == CMD_NEWS_ATTACK_FAILED )
