@@ -916,8 +916,8 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
   for( a = 0 ; a < 4 ; a++ )
   {
     b |= res[a];
-    if( res[a] >= 1000000000 )
-      return -3;
+    /*if( res[a] >= 1000000000 )
+      return -3;*/
   }
   if( !( b ) )
   {
@@ -942,7 +942,7 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
 
   for( a = 0 ; a < 4 ; a++ )
   {
-    main2d.ressource[a] += (int64_t)res[a];
+    main2d.ressource[a] += res[a];
     newd[4+a] = res[a];
   }
   dbUserMainSet( destid, &main2d );
@@ -1000,8 +1000,8 @@ int cmdExecGetAid( int id, int destid, int fam, int64_t *res )
   for( a = 0 ; a < 4 ; a++ )
   {
     b |= res[a];
-    if( res[a] >= 1000000000 )
-      return -3;
+    /*if( res[a] >= 1000000000 )
+      return -3;*/
   }
   if( !( b ) )
   {
@@ -1030,7 +1030,7 @@ int cmdExecGetAid( int id, int destid, int fam, int64_t *res )
 
   for( a = 0 ; a < 4 ; a++ )
   {
-    maind.ressource[a] -= (int64_t)res[a];
+    maind.ressource[a] -= res[a];
     if( maind.ressource[a] >= 0 )
       continue;
     sprintf( cmdErrorBuffer, "There isn't %lld %s available.", (long long)res[a], cmdRessourceName[a] );

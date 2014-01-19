@@ -236,7 +236,7 @@ void iohtmlFunc_moderator( ReplyDataPtr cnt ) {
     return;
   }
 settings = GetSetting( "Directory" );
-sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
+sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
     if( !( file = fopen( COREDIR, "a+t" ) ) )
         return;
 
