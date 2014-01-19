@@ -744,18 +744,14 @@ while( NULL != pos ) {
 return NO;
 }
 
+static int postdata_wipe( SessionPtr session ) {
 
-int postdata_wipe( SessionPtr session ) {
-	PostDataPtr data;
-
-if( !( session->postdata == NULL ) ) {
-	for( data = session->postdata ; data ; data = data->next )
-		postdata_remove( session, data->key );
+for( ; session->postdata != NULL ; session->postdata = session->postdata->next )
+	postdata_remove( session, session->postdata->key );
 	
-}
-
 return YES;
 }
+
 
 /**
  * Iterator over key-value pairs where the value

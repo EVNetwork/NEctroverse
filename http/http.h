@@ -237,8 +237,6 @@ void WWWSelect( );
 
 void Shutdown();
 
-int postdata_wipe( SessionPtr session );
-
 void WWWExpire();
 
 int remove_session( const char *sid );
