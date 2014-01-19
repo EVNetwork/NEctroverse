@@ -511,8 +511,10 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] != -1 )
     httpPrintf( cnt, "%lld %% of your research has been lost!<br>", (long long)newsd[10] );
-   if( (long long)newsd[11] != -1 )
-    httpPrintf( cnt, "Your net building upkeep will be 15%% for higher for %lld weeks.<br>", (long long)newsd[11] );
+   if( (long long)newsd[11] != -1 ) {
+    httpPrintf( cnt, "Your net population reduction will be 5%% lower for %lld weeks.<br>", (long long)newsd[11] );
+    httpPrintf( cnt, "Your net building upkeep will be 15%% higher for %lld weeks.<br>", (long long)newsd[11] );
+    }
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPBIOINFECTION_TARGET )

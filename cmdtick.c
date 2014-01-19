@@ -795,7 +795,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	ticks.debug_pass = 7;
 
 
-// calc infos
+	// calc infos
 	fa = ( 12.0 * cmdTickProduction[CMD_BUILDING_SOLAR] / specopSolarCalc( user->id ) );
 	if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_SOLARP15 ) {
 		fa *= 1.15;
