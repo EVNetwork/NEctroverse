@@ -44,7 +44,7 @@ iohtmlIdentifyL0:
 
 if( action & 1 ) {
 
-	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, the server program was probably updated and restarted." );
+	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, your account may have been hijacked." );
 
 }
 
@@ -445,13 +445,13 @@ void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	bool boxopen = false;
 	char *data;
 	char DIRCHECKER[PATH_MAX];
-	char DATAPOOL[USER_DESC_SIZE];
+	char DATAPOOL[USER_DESC_MAX];
 	FILE *file;
 	int id, len, notices = 0;
 	va_list ap;
 
 va_start( ap, text );
-len = vsnprintf( DATAPOOL, USER_DESC_SIZE, text, ap );
+len = vsnprintf( DATAPOOL, USER_DESC_MAX, text, ap );
 va_end( ap );
 
 
@@ -486,12 +486,12 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
 						iohtmlFunc_boxstart( cnt, DATAPOOL );
 						boxopen = true;
 						notices++;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
 						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
@@ -582,7 +582,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( strlen(data) > 1 )
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
 						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", DATAPOOL );
 				}
 				httpString( cnt, "</td></tr></table></td></tr>" );
@@ -820,7 +820,7 @@ void iohtmlFunc_notices( ReplyDataPtr cnt ) {
 	struct stat stdata;
 	bool boxopen = false;
 	char *data;
-	char DATAPOOL[USER_DESC_SIZE];
+	char DATAPOOL[USER_DESC_MAX];
 	char DIRCHECKER[PATH_MAX];
 	FILE *file;
 	int id;
@@ -854,12 +854,12 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
 						httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tbody><tr>" );
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
 						httpPrintf( cnt, "<td background=\"files?type=image&name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>%s</b></font></td>", DATAPOOL );
 						httpString( cnt, "</tr><tr><td><font size=\"2\">" );
 						boxopen = true;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_SIZE );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
 						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {

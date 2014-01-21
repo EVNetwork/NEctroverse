@@ -169,13 +169,17 @@ return YES;
 //begin upgrade to daemon, I don't like shell dependancy!
 int daemon_init() {
 	int binfo[MAP_TOTAL_INFO];
-	char DIRCHECKER[PATH_MAX];
 	ConfigArrayPtr settings[2];
 	struct sigaction act;
 	pid_t pid, sid;
 
 info( "Server process iniating...");
 
+// Next, make /tmp/evcore the current directory. -- I do this, just because I can.
+if((chdir(TMPDIR)) < 0) {
+	error( "chdir has failed, unable to enter daemon" );
+	return NO;
+}
 
 
 if( options.mode == MODE_FORKED ) {
@@ -193,12 +197,6 @@ info( "Begining initiation of %s daemon...", settings[0]->string_value );
 // First, start a new session
 if((sid = setsid()) < 0) {
 	error( "setsid has failed, unable to fork into daemon" );
-	return NO;
-}
-
-// Next, make /tmp/evcore the current directory. -- I do this, just because I can. (It doesn't matter it changes a lot latter, I need to fix that still).
-if((chdir(TMPDIR)) < 0) {
-	error( "chdir has failed, unable to fork into daemon" );
 	return NO;
 }
 
@@ -289,14 +287,6 @@ if( dbInit() == NO ) {
 
 if( cmdInit() == NO )  {
 	loghandle(LOG_CRIT, false, "%s", "Server Command Initation Failed, now exiting..." );
-	return NO;
-}
-
-settings[0] = GetSetting( "Directory" );
-sprintf( DIRCHECKER, "%s/data", settings[0]->string_value );  
-if( chdir( DIRCHECKER ) == -1 ) {
-	if( options.verbose )
-	loghandle(LOG_ERR, errno, "Change into Database Dir \"%s\" Failed, exiting", DIRCHECKER );
 	return NO;
 }
 
@@ -423,11 +413,12 @@ return ret;
 
 //And just to do some basic stuff... verify directory structure by attempted creation.
 //Does not check for existance, but ignores error for existing dir, other errors are loged.
-void dirstructurecheck(char *directory) {
+int dirstructurecheck( char *directory, int verbose ) {
 	int i, num, check;
 	char mkthisdir[PATH_MAX];
  	char* strCpy;
 	char** split;
+	bool status = true;
 
 strCpy = malloc( strlen( directory ) * sizeof( strCpy ) );
 strcpy( strCpy, directory );
@@ -442,10 +433,13 @@ if ( split == NULL ) {
 			strcat(mkthisdir, "/");
 			strcat(mkthisdir, split[i]);
 			check = mkdir( mkthisdir, S_IRWXU );
-			if (!check) {
-				info( "Directory \"%s\" created.", mkthisdir );
-			} else if ( errno != 17 ) {
-				error( "Error creating directory: \"%s\"", mkthisdir );
+			if( ( check == 0 ) ){
+				if( verbose ) {
+					info( "Directory \"%s\" created.", mkthisdir );
+				}
+			} else if( ( errno != 17 ) ){
+				error( "Creating directory: \"%s\"", mkthisdir );
+				status = false;
 			} else if( errno == 17 ) {
 				errno = 0;
 			}
@@ -456,7 +450,7 @@ free( split );
 free( strCpy );
 
 
-return;
+return status;
 }
 
 int loadconfig( char *file, int type ) {
@@ -757,7 +751,7 @@ if( file_exist(options.sysini) == 0 ) {
 (void)pthread_mutex_init (&mutex, NULL);
 
 
-dirstructurecheck(TMPDIR);
+dirstructurecheck( TMPDIR, true );
 
 memset( &sysconfig, 0, sizeof(SystemCoreDef) );
 
@@ -787,17 +781,17 @@ loadconfig(options.sysini,CONFIG_BANNED);
 
 //check basic dir structure and create as needed.	
 sprintf( DIRCHECKER, "%s/data", settings->string_value );
-dirstructurecheck(DIRCHECKER);
+dirstructurecheck( DIRCHECKER, true );
 sprintf( DIRCHECKER, "%s/users", settings->string_value );
-dirstructurecheck(DIRCHECKER);
+dirstructurecheck( DIRCHECKER, true );
 sprintf( DIRCHECKER, "%s/logs", settings->string_value );
-dirstructurecheck(DIRCHECKER);
+dirstructurecheck( DIRCHECKER, true );
 sprintf( DIRCHECKER, "%s/rankings", settings->string_value );
-dirstructurecheck(DIRCHECKER);
+dirstructurecheck( DIRCHECKER, true );
 
 //well its not really public yet now is it... <<<WORKNEEDED>>>
 sprintf( DIRCHECKER, "%s/forum", settings->string_value );
-dirstructurecheck(DIRCHECKER);
+dirstructurecheck( DIRCHECKER, true );
 
 #define SPAWNABLE_DIRS 3
 	ConfigArrayPtr Files[3];
@@ -810,7 +804,7 @@ settings = GetSetting( "Download Source" );
 for( a = 0; a < SPAWNABLE_DIRS; a++ ) {
 	
 	if( !( file_exist( location[a] ) ) ) {
-		dirstructurecheck(location[a]);
+		dirstructurecheck( location[a], true );
 		if( !(file_exist(location[a]) ) ) {
 			info( "Directory creation failed, unable to continue.");
 			return 1;
@@ -999,8 +993,7 @@ settings = GetSetting( "Directory" );
 if( settings->string_value ) {
 	sprintf( fname, "%s/logs/core_server.log", settings->string_value );
 	if( !( file = fopen( fname, "a" ) ) ) {
-		if( !( file = fopen( fname, "w+" ) ) && ( LogNoFile == NULL ) ) {
-			//File unable to be created, probably because the dir doesn't exist yet... so lets start buffering output.
+		if( LogNoFile == NULL ) {
 			LogNoFile = calloc( 1, sizeof(StringBufferDef) );
 		}
 	}

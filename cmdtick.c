@@ -43,7 +43,7 @@ settings[1] = GetSetting( "Admin Empire Ommit" );
   {
 	if( (b == (int)settings[1]->num_value) && ( (int)settings[1]->num_value ) )
 		continue;
-    if( dbMapRetrieveEmpire( b, &empirep[b] ) < 0 )
+    if( dbEmpireGetInfo( b, &empirep[b] ) < 0 )
       continue;
     if( !( empirep[b].numplayers ) )
       continue;
@@ -79,7 +79,7 @@ if( (int)settings[0]->num_value > 0 ) {
     }
     empirep[b].planets = stats[c+1];
     empirep[b].networth = stats[c+3];
-    dbMapSetEmpire( b, &empirep[b] );
+    dbEmpireSetInfo( b, &empirep[b] );
     num++;
 
 // set artefacts for empire members
@@ -204,7 +204,7 @@ if( artsnum == ARTEFACT_NUMUSED ) {
 
     // moo
     empirep[stats[a+0]].rank = b;
-    dbMapSetEmpire( stats[a+0], &empirep[stats[a+0]] );
+    dbEmpireSetInfo( stats[a+0], &empirep[stats[a+0]] );
 
 
 
@@ -222,7 +222,7 @@ for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ )
 
 if( artsnum ) {
 	if( !(dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) ) {
-		if( dbMapRetrieveEmpire( dbMapBInfoStatic[MAP_TIMEMPIRE], &empired ) < 0 )
+		if( dbEmpireGetInfo( dbMapBInfoStatic[MAP_TIMEMPIRE], &empired ) < 0 )
 		      return;
 		if( empired.name[0] ) {
 			if( (dbMapBInfoStatic[MAP_ARTITIMER] - ticks.number) <= 0 )
@@ -512,9 +512,9 @@ for( a = 0 ; a < num ; a++ ) {
 	ticks.debug_pass = 5 + 10000;
 
 	if( planetd.special[1] ) {
-		if( planetd.special[0] == 0 ) {
+		if( planetd.special[0] == CMD_BONUS_ENERGY ) {
 			cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * planetd.building[CMD_BUILDING_SOLAR] ) / 100;
-		} else if( planetd.special[0] == CMD_BONUS_ENERGY ) {
+		} else if( planetd.special[0] == CMD_BONUS_MINERAL ) {
 			cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * planetd.building[CMD_BUILDING_MINING] ) / 100;
 		} else if( planetd.special[0] == CMD_BONUS_CRYSTAL ) {
 			cmdTickProduction[CMD_BUILDING_CRYSTAL] += ( planetd.special[1] * planetd.building[CMD_BUILDING_CRYSTAL] ) / 100;
@@ -532,11 +532,11 @@ for( a = 0 ; a < num ; a++ ) {
 	if( ( b = (int)artefactPrecense( &planetd ) ) < 0 )
 		continue;
 
-	if( dbMapRetrieveEmpire( mainp->empire, &empired ) < 0 )
+	if( dbEmpireGetInfo( mainp->empire, &empired ) < 0 )
 		continue;
 
 	empired.artefacts |= 1 << b;
-	dbMapSetEmpire( mainp->empire, &empired );
+	dbEmpireSetInfo( mainp->empire, &empired );
 
 
 	ticks.debug_pass = 7 + 10000;
@@ -594,7 +594,7 @@ ticks.debug_id = 0;
 time(&now);
 
 for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
-	if( dbMapRetrieveEmpire( a, &empired ) < 0 )
+	if( dbEmpireGetInfo( a, &empired ) < 0 )
 		continue;
 	ticks.debug_id = a;
 	empired.artefacts = 0;
@@ -603,7 +603,7 @@ for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 	empired.infos[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, (  CMD_CRYSTAL_DECAY * empired.fund[CMD_RESSOURCE_CRYSTAL] ) );
 	empired.fund[CMD_RESSOURCE_ENERGY] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ENERGY] - empired.infos[CMD_RESSOURCE_ENERGY] ) );
 	empired.fund[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_CRYSTAL] - empired.infos[CMD_RESSOURCE_CRYSTAL] ) );
-	dbMapSetEmpire( a, &empired );
+	dbEmpireSetInfo( a, &empired );
 }
 
 
@@ -907,7 +907,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	maind.infos[INFOS_MINERAL_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * cmdTickProduction[CMD_BUILDING_MINING]);
 	maind.infos[INFOS_ECTROLIUM_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * cmdTickProduction[CMD_BUILDING_REFINEMENT]);
 
-	if ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+	if ( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) {
 		error( "Tick error: Retriving empire %d", maind.empire  );
 		continue;
 	}
@@ -930,7 +930,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	empired.fund[CMD_RESSOURCE_CRYSTAL] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_CRYSTAL] + maind.infos[INFOS_CRYSTAL_TAX] ) );
 	empired.fund[CMD_RESSOURCE_ECTROLIUM] = fmax( 0.0, ( empired.fund[CMD_RESSOURCE_ECTROLIUM] + maind.infos[INFOS_ECTROLIUM_TAX] ) );
 
-	if( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
+	if( dbEmpireSetInfo( maind.empire, &empired ) < 0 ) {
 		error( "Tick error: Setting Empire #%d Fund!", maind.empire );
 	}
 

@@ -668,10 +668,10 @@ int cmdTotalsCalculate( int usrid, dbUserMainPtr mainp )
 
     if( ( b = artefactPrecense( &planetd ) ) < 0 )
       continue;
-    if( dbMapRetrieveEmpire( mainp->empire, &empired ) < 0 )
+    if( dbEmpireGetInfo( mainp->empire, &empired ) < 0 )
       continue;
     empired.artefacts |= 1 << b;
-    dbMapSetEmpire( mainp->empire, &empired );
+    dbEmpireSetInfo( mainp->empire, &empired );
 
   }
   mainp->planets = num;

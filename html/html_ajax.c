@@ -35,7 +35,7 @@ refer = iohtmlHeaderFind(cnt, "Referer");
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
 		goto BAILAJAX;
-	else if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
+	else if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
 		goto BAILAJAX;
 
 }

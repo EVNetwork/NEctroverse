@@ -90,7 +90,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
       cmdExecGetFamPass( a, epass );
       if( epass[0] )
         continue;
-      dbMapRetrieveEmpire( a, &empired );
+      dbEmpireGetInfo( a, &empired );
       if( !( binfo[MAP_EMEMBERS] - empired.numplayers ) )
         continue;
       fam[a] = 1 + ( empired.numplayers << 16 );
@@ -134,7 +134,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
     maind.allocresearch[a] = b;
   maind.allocresearch[0] += 100 - ( b * CMD_RESEARCH_NUMUSED );
 
-  if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
+  if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
   {
     cmdErrorString = "The empire doesn't exist!";
     return -1;
@@ -147,7 +147,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
 
   empired.player[empired.numplayers] = id;
   empired.numplayers++;
-  dbMapSetEmpire( maind.empire, &empired );
+  dbEmpireSetInfo( maind.empire, &empired );
 
   dbMapRetrieveSystem( empired.homeid, &systemd );
   y = systemd.position >> 16;
@@ -224,7 +224,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( dbUserInfoRetrieve( id, &infod ) < 0 )
     return -1;
   if( maind.empire != -1 )
-    dbMapRetrieveEmpire( maind.empire, &empired );
+    dbEmpireGetInfo( maind.empire, &empired );
 
   if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( maind.empire != -1 ) )
   {
@@ -261,7 +261,7 @@ int cmdExecUserDeactivate( int id, int flags )
 	          continue;
 	        //Found the ally if we reach this line  
 	        //If the ally have all the artefacts we give double tp to this user :D
-	        dbMapRetrieveEmpire( rel[i+2], &empire2d );
+	        dbEmpireGetInfo( rel[i+2], &empire2d );
 	        j = pow(2, ARTEFACT_NUMUSED)-1;
 	        if(empire2d.artefacts == j)
 	        	infod.tagpoints += maind.planets;
@@ -275,6 +275,7 @@ int cmdExecUserDeactivate( int id, int flags )
       infod.tagpoints += 3 * maind.planets;
     else
       infod.tagpoints += maind.planets;
+
     dbUserRecordAdd( id, &recordd );
   }
 
@@ -340,10 +341,14 @@ int cmdExecUserDeactivate( int id, int flags )
       	strcpy( empired.password, "");
 	}
 
-      dbMapSetEmpire( maind.empire, &empired );
+      dbEmpireSetInfo( maind.empire, &empired );
       
       break;
     }
+	for( a = CMD_EMPIRE_POLITICS_START; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
+		bitflag_remove( &user->flags, a );
+	}
+
   }
 
   if( ( num = dbUserFleetList( id, &fleetp ) ) >= 0 )
@@ -424,7 +429,7 @@ int cmdUserDelete( int id )
     free( buffer );
   }
 
-  if( ( dbUserMainRetrieve( id, &maind ) >= 0 ) && ( maind.empire != -1 ) && ( dbMapRetrieveEmpire( maind.empire, &empired ) >= 0 ) )
+  if( ( dbUserMainRetrieve( id, &maind ) >= 0 ) && ( maind.empire != -1 ) && ( dbEmpireGetInfo( maind.empire, &empired ) >= 0 ) )
   {
     for( a = 0 ; a < empired.numplayers ; a++ )
     {
@@ -447,7 +452,7 @@ int cmdUserDelete( int id )
 
       empired.numplayers--;
       cmdEmpireLeader( &empired );
-      dbMapSetEmpire( maind.empire, &empired );
+      dbEmpireSetInfo( maind.empire, &empired );
       break;
     }
   }
@@ -899,7 +904,7 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
   }
 
   cmdErrorString = 0;
-  if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+  if( dbEmpireGetInfo( fam, &empired ) < 0 )
     return -3;
   b = 0;
   for( a = 0 ; a < empired.numplayers ; a++ )
@@ -984,7 +989,7 @@ int cmdExecGetAid( int id, int destid, int fam, int64_t *res )
   }
 
   cmdErrorString = 0;
-  if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+  if( dbEmpireGetInfo( fam, &empired ) < 0 )
     return -3;
   b = 0;
   for( a = 0 ; a < empired.numplayers ; a++ )
@@ -1065,7 +1070,7 @@ int cmdExecChangeVote( int id, int vote )
   cmdErrorString = 0;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
-  if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
+  if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
     return -3;
   for( b = 0 ; ; b++ )
   {
@@ -1090,7 +1095,7 @@ int cmdExecChangeVote( int id, int vote )
     }
   }
   cmdEmpireLeader( &empired );
-  if( dbMapSetEmpire( maind.empire, &empired ) < 0 )
+  if( dbEmpireSetInfo( maind.empire, &empired ) < 0 )
     return -3;
   return 1;
 }
@@ -1103,13 +1108,13 @@ int cmdExecChangFamName( int fam, char *name )
   dbMainEmpireDef empired;
 
   cmdErrorString = 0;
-  if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+  if( dbEmpireGetInfo( fam, &empired ) < 0 )
     return -3;
   for( a = 0 ; ( a < USER_NAME_MAX-1 ) && ( name[a] ) ; a++ )
     empired.name[a] = name[a];
   empired.name[a] = 0;
 
-  if( dbMapSetEmpire( fam, &empired ) < 0 )
+  if( dbEmpireSetInfo( fam, &empired ) < 0 )
     return -3;
   return 1;
 }
@@ -1121,7 +1126,7 @@ int cmdExecFamMemberFlags( int id, int fam, int flags ) {
 	dbMainEmpireDef empired;
 
 cmdErrorString = 0;
-if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+if( dbEmpireGetInfo( fam, &empired ) < 0 )
 	return -3;
 if( id == empired.leader )
 	return -3;
@@ -1172,7 +1177,7 @@ int cmdExecSetFamPass( int fam, char *pass ) {
 	dbMainEmpireDef empired;
 
 cmdErrorString = 0;
-if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+if( dbEmpireGetInfo( fam, &empired ) < 0 )
 	return -3;
 
 for( a = 0 ; a < USER_PASS_MAX-1 ; a++ ) {
@@ -1185,7 +1190,7 @@ empired.password[a] = 0;
 if( strlen(empired.password) )
   sprintf(empired.password, "%s", hashencrypt(empired.password) );
 
-if( dbMapSetEmpire( fam, &empired ) < 0 )
+if( dbEmpireSetInfo( fam, &empired ) < 0 )
 	return -3;
 
 
@@ -1197,7 +1202,7 @@ int cmdExecGetFamPass( int fam, char *pass ) {
 
 cmdErrorString = 0;
 
-if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+if( dbEmpireGetInfo( fam, &empired ) < 0 )
 	return -3;
 
 strcpy(pass, empired.password);
@@ -1291,9 +1296,9 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
   }
   else if( type == CMD_RELATION_WAR )
   {
-    if( dbMapRetrieveEmpire( fam, &empired ) < 0 )
+    if( dbEmpireGetInfo( fam, &empired ) < 0 )
       return -3;
-    if( dbMapRetrieveEmpire( famtarget, &empire2d ) < 0 )
+    if( dbEmpireGetInfo( famtarget, &empire2d ) < 0 )
       return -3;
 		
 		//60% of empire size "in planets"
@@ -1424,6 +1429,8 @@ int cmdExecSendFleet( int id, int x, int y, int z, int order, int64_t *sendunit 
   dbUserMainDef maind;
   dbMainSystemDef systemd;
   dbUserFleetDef fleetd, fleet2d;
+
+  cmdErrorString = 0;
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;

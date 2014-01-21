@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <inttypes.h>
 #include <math.h>
+#include <malloc.h>
 #include <memory.h>
 #if MYSQL_SUPPORT
 #include <mysql.h>
@@ -99,7 +100,7 @@ static const double megabyte = (KB_SIZE * KB_SIZE);
 
 #define INI_MAX 1*KB_SIZE
 
-#define USER_DESC_SIZE 4*KB_SIZE
+#define USER_DESC_MAX 4*KB_SIZE
 #define USER_PASS_MAX 129
 #define USER_NAME_MAX 129
 #define USER_FTAG_MAX 256

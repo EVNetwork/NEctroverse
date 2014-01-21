@@ -76,18 +76,17 @@ int spawn_map() {
 	ConfigArrayPtr map_set;
 	int a, b, c, d, e, i, p, x, y, x2, y2;
 	int map_bonus[CMD_BONUS_NUMUSED+1];
-	int64_t j;
 	float dist, distmax;
 	char fname[PATH_MAX];
 	uint8_t *pixels, *bigpixies; 
 	FILE *file;
-	FILE *file2;
 	imgImage mapimage;
 	dbMainMapPtr mapbase;
 	MapStoragePtr mapstore;
 	dbMainSystemDef systemd;
 	dbMainPlanetDef planetd;
 	dbMainEmpireDef empired;
+	dbEmpireMessageDef message;
 
 //Yer... I'm so not calling these one-by-one, list calling time!! *sigh* lol =P
 static char *list[] = { "Map Size", "Map Size", "Map Systems", "Map Families", "Map Family Members", "Map Border", "Map Lenght", "Map Lenght Var", "Map Link", "Map Link Radius", "Map Angle Var" };
@@ -130,7 +129,7 @@ mapCalcFactors( map_set, mapstore );
 
 settings[0] = GetSetting( "Directory" );
 sprintf( fname, "%s/data", settings[0]->string_value );
-dirstructurecheck(fname);
+dirstructurecheck(fname, false);
 
 RANDOMIZE_SEED;
 
@@ -202,7 +201,7 @@ if( NULL == ( mapbase = calloc( 1, sizeof(dbMainMapDef) ) ) ) {
 	goto DIE;
 }
 // OK, a new headers write.
-sprintf( fname, "%s/data/map", settings[0]->string_value );
+snprintf( fname, PATH_MAX, "%s/data/map", settings[0]->string_value );
 file = fopen( fname, "wb" );
 mapbase->sizex = map_set[0].num_value;
 mapbase->sizey = map_set[1].num_value;
@@ -295,40 +294,45 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	file_w( &planetd, 1, sizeof(dbMainPlanetDef), file );
 }
 //End planet generation
+fclose( file );
 
-
-// New families generation, based on defaults.
+/*
+ * END BASE MAP
+ */
+ 
 settings[1] = GetSetting( "Admin Empire Number" );
 settings[2] = GetSetting( "Admin Empire Name" );
 settings[3] = GetSetting( "Admin Empire Password" );
+
 for( a = 0 ; a < map_set[3].num_value ; a++ ) {
+	snprintf( fname, PATH_MAX, "%s/data/empire%d", settings[0]->string_value, a );
+	if( dirstructurecheck( fname, false ) == false ) {
+		goto DIE;
+	}
+	if( (file = dbFileEmpireOpen( a, DB_FILE_EMPIRE_INFO ) ) == 0 ) {
+		goto DIE;
+	}
 	memset( &empired, 0, sizeof(dbMainEmpireDef) );
 	memset( empired.player, -1, map_set[4].num_value*sizeof(int) );
 	memset( empired.vote, -1, map_set[4].num_value*sizeof(int) );
 	empired.leader = empired.rank = -1;
-	sprintf(empired.message[0],"<i>Welcome to Empire #%d!<i>",a);
 	if( ( (int)settings[1]->num_value == a ) ) {
-		strcpy( empired.name, settings[2]->string_value );
-		strcpy( empired.password, hashencrypt(settings[3]->string_value) );
+		strncpy( empired.name, settings[2]->string_value, USER_NAME_MAX );
+		strncpy( empired.password, hashencrypt(settings[3]->string_value), USER_PASS_MAX );
 		info( "Empire %d Claimed for Administration.", a);
 	}
 	empired.homeid = mapstore->system[a];
 	empired.homepos = mapstore->pos[ mapstore->system[a] ];
 	file_w( &empired, 1, sizeof(dbMainEmpireDef), file );
-// FIXME: Well duh... we got all the other stuff nice and flexible... what about this!
-	sprintf( fname, "%s/data/fam%dnews", settings[0]->string_value, a );
-	file2 = fopen( fname, "wb" );
-	j = 0;
-	file_w( &j, 1, sizeof(int64_t), file2 );
-	j = -1;
-	file_w( &j, 1, sizeof(int64_t), file2 );
-	file_w( &j, 1, sizeof(int64_t), file2 );
-	j = 0;
-	file_w( &j, 1, sizeof(int64_t), file2 );
-	file_w( &j, 1, sizeof(int64_t), file2 );
-	fclose( file2 );
+	fclose( file );
+	
+	file = dbFileEmpireOpen( a, DB_FILE_EMPIRE_MESSAGES );
+	memset( &message, 0, sizeof(dbEmpireMessageDef) );
+	snprintf(message.leader, USER_DESC_MAX, "<i>Welcome to Empire #%d!<i>", a);
+	file_w( &message, 1, sizeof(dbMainEmpireDef), file );
+	fclose( file );
+	
 }
-fclose( file );
 UnloadSetting( "Admin Empire Password" );
 UnloadSetting( "Admin Empire Name" );
 //End family generation
@@ -374,11 +378,11 @@ if( mapimage.width > map_set[0].num_value ) {
 	mapimage.data = pixels;
 }
 settings[0] = GetSetting( "HTTP Images" );
-sprintf( fname, "%s/galaxies", settings[0]->string_value );
-dirstructurecheck(fname);
+snprintf( fname, PATH_MAX, "%s/galaxies", settings[0]->string_value );
+dirstructurecheck(fname, false);
 
 settings[1] = GetSetting( "Round Number" );
-sprintf( fname, "%s/galaxies/galaxyr%.0f.png", settings[0]->string_value, settings[1]->num_value );
+snprintf( fname, PATH_MAX, "%s/galaxies/galaxyr%.0f.png", settings[0]->string_value, settings[1]->num_value );
 imgConvertGrayscale(&mapimage,IMG_IMAGE_FORMAT_RGB24);
 imgWritePngFile( fname, &mapimage );
 imgFree( &mapimage );

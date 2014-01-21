@@ -4,7 +4,7 @@
 void iohtmlFunc_account( ReplyDataPtr cnt ) {
 	int a, id;
 	char *faction, *race, *desc;
-	char description[USER_DESC_SIZE];
+	char description[USER_DESC_MAX];
 	dbUserMainDef maind;
 	dbUserInfoDef infod;
 
@@ -48,8 +48,8 @@ if( !( ticks.status | ticks.number ) ) {
 }
 
 if( desc ) {
-	iohttpForumFilter( description, desc, USER_DESC_SIZE, 0 );
-	iohttpForumFilter2( infod.desc, description, USER_DESC_SIZE );
+	iohttpForumFilter( description, desc, USER_DESC_MAX, 0 );
+	iohttpForumFilter2( infod.desc, description, USER_DESC_MAX );
 	if( dbUserInfoSet( id, &infod ) )
       		httpString( cnt, "<i>Description Updated</i><br><br>" );
 	else
@@ -85,7 +85,7 @@ if( !( ticks.status | ticks.number ) ) {
 	httpString( cnt, "</select><input type=\"submit\" value=\"Change\"></form>" );
 }
 
-iohttpForumFilter3( description, infod.desc, USER_DESC_SIZE );
+iohttpForumFilter3( description, infod.desc, USER_DESC_MAX );
 httpString( cnt, "<br>" );
 httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><i>Faction description</i><br>", URLAppend( cnt, "account" ) );
 httpString( cnt, "<textarea name=\"desc\" wrap=\"soft\" rows=\"4\" cols=\"64\">" );

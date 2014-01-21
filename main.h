@@ -85,7 +85,7 @@ int loadconfig( char *file, int type );
 
 char *trimwhitespace(char *str);
 char** str_split(char* str, char delim, int* numSplits );
-void dirstructurecheck(char *directory);
+int dirstructurecheck( char *directory, int verbose );
 
 void cleanUp(int type);
 

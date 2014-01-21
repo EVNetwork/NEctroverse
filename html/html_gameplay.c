@@ -1234,7 +1234,7 @@ if( !( num ) )
 void iohtmlFunc_hq( ReplyDataPtr cnt ) {
 	int id, a, num;
 	dbUserMainDef maind;
-	dbMainEmpireDef empired;
+	dbEmpireMessageDef message;
 	ConfigArrayPtr settings;
 	#if FACEBOOK_SUPPORT
 	dbUserInfoDef infod;
@@ -1254,12 +1254,6 @@ void iohtmlFunc_hq( ReplyDataPtr cnt ) {
   free( newsp );
   return;
  }
-
-if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
-	httpString( cnt, "Error retriving Empire details!" );
-	if( (cnt->session)->dbuser->level < LEVEL_MODERATOR )
-		return;
-}
 
  iohtmlBodyInit( cnt, "Headquarters" );
 
@@ -1315,10 +1309,13 @@ sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
 	}
 }
 //end hq message
-if( ( strlen(empired.message[0]) ) ) {
-	httpString( cnt, "<b>Message from your leader</b><br>" );
-	httpString( cnt, empired.message[0] );
-	httpString( cnt, "<br><br>" );
+
+if( dbEmpireGetMessage( maind.empire, &message ) ) {
+	if( ( strlen(message.leader) ) ) {
+		httpString( cnt, "<b>Message from your leader</b><br>" );
+		httpString( cnt, message.leader );
+		httpString( cnt, "<br><br>" );
+	}
 }
 
  newsd = newsp;
@@ -1403,15 +1400,15 @@ iohtmlBase( cnt, 1 );
 if( !( iohtmlHeader( cnt, id, &maind ) ) )
 	return;
 
-if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
-        httpString( cnt, "Error retriving Empire details!" );
+if( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) {
+        httpString( cnt, "Error retrieving Empire details!" );
 	return;
 }
 
 iohtmlBodyInit( cnt, "Council" );
 
 if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 ) {
-	httpString( cnt, "Error while retriving user build list</body></html>" );
+	httpString( cnt, "Error while retrieving user build list</body></html>" );
 	return;
 }
 
@@ -1715,7 +1712,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( cmdExecGetMarket( rmarket ) < 0 )
   {
-   httpString( cnt, "Error while retriving market" );
+   httpString( cnt, "Error while retrieving market" );
    iohtmlBodyEnd( cnt );
    return;
   }
@@ -1740,7 +1737,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( dbMarketFull( fullmarket ) < 0 )
   {
-   httpString( cnt, "Error while retriving market" );
+   httpString( cnt, "Error while retrieving market" );
    iohtmlBodyEnd( cnt );
    return;
   }
@@ -1842,7 +1839,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   sort = 0;
 
 if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 ) {
-	httpString( cnt, "Error while retriving planets list" );
+	httpString( cnt, "Error while retrieving planets list" );
 	iohtmlBodyEnd( cnt );
 	return;
 }
@@ -2059,7 +2056,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  if( !( empirestring ) || ( sscanf( empirestring, "%d", &curfam ) <= 0 ) )
   curfam = maind.empire;
 
- if( dbMapRetrieveEmpire( curfam, &empired ) < 0 )
+ if( dbEmpireGetInfo( curfam, &empired ) < 0 )
  {
   httpString( cnt, "This empire does not seem to exist!</body></html>" );
   return;
@@ -2097,7 +2094,7 @@ if( empired.picture > 0 ) {
  {
   if( dbUserMainRetrieve( empired.player[a], &mainp[a] ) < 0 )
   {
-   httpString( cnt, "Error while retriving user's main data" );
+   httpString( cnt, "Error while retrieving user's main data" );
    continue;
   }
  }
@@ -2153,8 +2150,6 @@ if( empired.picture > 0 ) {
    httpString( cnt, "<td>&nbsp;</td>" );
   else if( bitflag( user->flags, CMD_USER_FLAGS_LEADER ) )
    httpString( cnt, "<td><i>Leader</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_VICELEADER ) )
-   httpString( cnt, "<td><i>Vice-leader</i></td>" );
   else if( bitflag( user->flags, CMD_USER_FLAGS_COMMINISTER ) )
    httpString( cnt, "<td><i>Minister of Communications</i></td>" );
   else if( bitflag( user->flags, CMD_USER_FLAGS_DEVMINISTER ) )
@@ -2180,7 +2175,7 @@ if( empired.picture > 0 ) {
    b = curtime - user->lasttime;
    if( b < 5*60 )
     httpString( cnt, "[online]" );
-   else if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_VICELEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_COMMINISTER ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_COMMINISTER ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
@@ -2203,7 +2198,7 @@ if( empired.picture > 0 ) {
 }
  httpString( cnt, "</table><br>" );
 if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
-	if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_VICELEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_DEVMINISTER ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
+	if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_DEVMINISTER ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
 		if( empired.taxation ) {
 			httpPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
@@ -2312,7 +2307,7 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
  if( reportstring )
   httpPrintf( cnt, "<i>%s</i><br><br>", reportstring );
 
- if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
+ if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
  {
   httpString( cnt, "Error while retrieving empire data" );
   iohtmlBodyEnd( cnt );
@@ -2409,7 +2404,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( reportstring )
   httpPrintf( cnt, "<i>%s</i><br><br>", reportstring );
 
- if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 )
+ if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
  {
   httpString( cnt, "Error while retrieving empire data" );
   iohtmlBodyEnd( cnt );
@@ -2457,19 +2452,19 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<option value=\"0\"" );
  if( maind.aidaccess == 0 )
   httpPrintf( cnt, " selected" );
- httpPrintf( cnt, ">No one" );
+ httpPrintf( cnt, ">No one</option>" );
  httpPrintf( cnt, "<option value=\"1\"" );
  if( maind.aidaccess == 1 )
   httpPrintf( cnt, " selected" );
- httpPrintf( cnt, ">Only the leader" );
+ httpPrintf( cnt, ">Only the Leader</option>" );
  httpPrintf( cnt, "<option value=\"2\"" );
  if( maind.aidaccess == 2 )
   httpPrintf( cnt, " selected" );
- httpPrintf( cnt, ">The leader and vice-leaders" );
+ httpPrintf( cnt, ">The Leader and Minister of Development</option>" );
  httpPrintf( cnt, "<option value=\"3\"" );
  if( maind.aidaccess == 3 )
   httpPrintf( cnt, " selected" );
- httpPrintf( cnt, ">All factions" );
+ httpPrintf( cnt, ">All factions</option>" );
  httpString( cnt, "</select><br><br>" );
  httpString( cnt, "<input type=\"submit\" value=\"Change access\"></form>" );
 
@@ -2532,7 +2527,7 @@ if( typestring ) {
 iohtmlBodyInit( cnt, "Vote %s", evote ? " for Empire Leader" : ( "Unavalible" ) );
 
 if( evote ) {
-	if( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) {
+	if( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) {
 		httpString( cnt, "Error while retrieving empire data" );
 		goto VOTEEND;
 	}
@@ -2553,7 +2548,7 @@ if( evote ) {
 			httpString( cnt, "<i>Failed to change vote...?!</i><br><br>" );
 		} else {
 			httpString( cnt, "<i>Vote changed</i><br><br>" );
-			dbMapRetrieveEmpire( maind.empire, &empired );
+			dbEmpireGetInfo( maind.empire, &empired );
 		}
 	}
 	if( empired.leader == -1 ) {
@@ -2562,7 +2557,7 @@ if( evote ) {
 		httpString( cnt, "<b>You are the leader</b>" );
 	} else {
 		if( dbUserMainRetrieve( empired.leader, &main2d ) < 0 ) {
-			httpString( cnt, "Error while retriving leader's main data" );
+			httpString( cnt, "Error while retrieving leader's main data" );
 		} else {
 			httpPrintf( cnt, "<b>The empire leader is %s</b>", main2d.faction );
 		}
@@ -2570,7 +2565,7 @@ if( evote ) {
 	httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\"><table cellspacing=\"8\"><tr><td><b>Empire members</b></td><td>Networth</td><td>Planets</td><td>Your vote</td></tr>", URLAppend( cnt, "vote" ) );
 	for( a = b = 0 ; a < empired.numplayers ; a++ ) {
 		if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 ) {
-			httpString( cnt, "Error while retriving user's main data" );
+			httpString( cnt, "Error while retrieving user's main data" );
 			return;
 		}
 		httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), empired.player[a] );
@@ -2645,7 +2640,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  	}
  }
 
- if( ( dbMapRetrieveEmpire( curfam, &empired ) ) < 0 )
+ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 )
  {
   httpString( cnt, "This empire does not seem to exist!</body></html>" );
   return;
@@ -2668,6 +2663,7 @@ void iohtmlFunc_famrels( ReplyDataPtr cnt )
  int a, b, c, id, curfam, nEmp;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
+ dbEmpireMessageDef message;
  char *empirestring;
  int *rel;
 
@@ -2688,18 +2684,20 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if(( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )|| ( cmdExecFindRelation(maind.empire, nEmp, &c, 0) == CMD_RELATION_ALLY))
   sscanf( empirestring, "%d", &curfam );
 
-	if( ( dbMapRetrieveEmpire( curfam, &empired ) ) < 0 )
- {
-  httpString( cnt, "This empire does not seem to exist!</body></html>" );
-  return;
- }
+if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
+	httpString( cnt, "This empire does not seem to exist!</body></html>" );
+	return;
+} else if( ( dbEmpireGetMessage( curfam, &message ) ) < 0 ) {
+	httpString( cnt, "Error loading Empire infomation!</body></html>" );
+	return;
+}
 
  iohtmlBodyInit( cnt, "Empire #%d relations", curfam );
 
- if( strlen( empired.message[1] ) )
+ if( strlen( message.mow ) )
  {
-  httpString( cnt, "<b>Message from your leader</b><br>" );
-  httpString( cnt, empired.message[1] );
+  httpString( cnt, "<b>Message from your Minister of War</b><br>" );
+  httpString( cnt, message.mow );
   httpString( cnt, "<br><br>" );
  }
 
@@ -2756,10 +2754,11 @@ void iohtmlFunc_famleader( ReplyDataPtr cnt )
  float tax;
  dbUserMainDef maind, main2d;
  dbMainEmpireDef empired;
+ dbEmpireMessageDef message;
  char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *filename, *taxstring;
  char fname[256];
  int *rel;
- char message[USER_DESC_SIZE], message2[USER_DESC_SIZE];
+ char msg[2][USER_DESC_MAX];
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
@@ -2785,9 +2784,14 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )
   sscanf( empirestring, "%d", &curfam );
 
- if( dbMapRetrieveEmpire( curfam, &empired ) < 0 )
+ if( dbEmpireGetInfo( curfam, &empired ) < 0 )
  {
   httpString( cnt, "This empire does not seem to exist!</body></html>" );
+  return;
+ }
+  if( dbEmpireGetMessage( curfam, &message ) < 0 )
+ {
+  httpString( cnt, "Error getting Empire infomation!</body></html>" );
   return;
  }
  if( ( empired.leader != id ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
@@ -2805,7 +2809,7 @@ if( taxstring ){
 		httpString( cnt, "<i>Tax level too high!!</i><br><br>" );
 	} else {
 		empired.taxation = fmax( 0.0, ( tax / 100.0 ) );
-		if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
+		if( dbEmpireSetInfo( curfam, &empired ) < 0 ) {
 			httpString( cnt, "<i>Error setting new tax...</i><br><br>" );
 		} else {
 			if( empired.taxation ) {
@@ -2885,29 +2889,31 @@ if( taxstring ){
  }
 
 if( hqmesstring ) {
-	iohttpForumFilter( message, hqmesstring, USER_DESC_SIZE, 0 );
-	iohttpForumFilter2( message2, message, USER_DESC_SIZE );
-	strcpy(empired.message[0],message2);
-	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
+	iohttpForumFilter( msg[0], hqmesstring, USER_DESC_MAX, 0 );
+	iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
+	strcpy(message.leader,msg[1]);
+	if( dbEmpireSetMessage( curfam, &message ) < 0 ) {
 		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
 	} else {
 		httpString( cnt, "<i>Leader message changed</i><br><br>" );
 	}
+	dbEmpireGetMessage( curfam, &message );
 }
 
 if( relsmesstring ) {
-	iohttpForumFilter( message, relsmesstring, USER_DESC_SIZE, 0 );
-	iohttpForumFilter2( message2, message, USER_DESC_SIZE );
-	strcpy(empired.message[1],message2);
-	if( dbMapSetEmpire( curfam, &empired ) < 0 ) {
+	iohttpForumFilter( msg[0], relsmesstring, USER_DESC_MAX, 0 );
+	iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
+	strcpy(message.mow,msg[1]);
+	if( dbEmpireSetMessage( curfam, &message ) < 0 ) {
 		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
 	} else {
 		httpString( cnt, "<i>Leader message changed</i><br><br>" );
 	}
+	dbEmpireGetMessage( curfam, &message );
 }
 
  iohttpFunc_famleaderL0:
- dbMapRetrieveEmpire( curfam, &empired );
+ dbEmpireGetInfo( curfam, &empired );
 
 httpString( cnt, "<div id=\"progblock\" style=\"display:none\">" );
 httpString( cnt, "<progress id=\"progressBar\" value=\"0\" max=\"100\" style=\"width:300px;\"></progress>" );
@@ -2938,7 +2944,7 @@ httpString( cnt, "</div>" );
 
  if( empired.numplayers > 1 ) {
  httpString( cnt, "<tr><td>Set an empire member status</td></tr>" );
- httpString( cnt, "<tr><td><i>Vice-leaders can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
+ httpString( cnt, "<tr><td><i>Minister of Communication can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\"><select name=\"sid\">", URLAppend( cnt, "famleader" ) );
  for( a = 0 ; a < empired.numplayers ; a++ )
  {
@@ -2951,7 +2957,6 @@ httpString( cnt, "</div>" );
  httpString( cnt, "</select>" );
  httpString( cnt, "<select name=\"status\">" );
  httpString( cnt, "<option value=\"0\">No tag</option>" );
- httpPrintf( cnt, "<option value=\"%d\">Vice-leader</option>", CMD_USER_FLAGS_VICELEADER );
  httpPrintf( cnt, "<option value=\"%d\">Minister of Communication</option>", CMD_USER_FLAGS_COMMINISTER );
  httpPrintf( cnt, "<option value=\"%d\">Minister of Development</option>", CMD_USER_FLAGS_DEVMINISTER );
  httpPrintf( cnt, "<option value=\"%d\">Minister of War</option>", CMD_USER_FLAGS_WARMINISTER );
@@ -3014,14 +3019,14 @@ httpString( cnt, "</div>" );
  httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
  httpString( cnt, "</table></td></tr>" );
 
- iohttpForumFilter3( message2, empired.message[0], USER_DESC_SIZE );
+ iohttpForumFilter3( msg[1], message.leader, USER_DESC_MAX );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Leader message</td></tr>", URLAppend( cnt, "famleader" ) );
- httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
+ httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- iohttpForumFilter3( message2, empired.message[1], USER_DESC_SIZE );
+ iohttpForumFilter3( msg[1], message.mow, USER_DESC_MAX );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "famleader" ) );
- httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, message2 );
+ httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
  httpString( cnt, "</table>" );
@@ -3238,7 +3243,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
     continue;
    }
    iohttpFunc_mapL0:
-   if( dbMapRetrieveEmpire( cid, &empired ) < 0 )
+   if( dbEmpireGetInfo( cid, &empired ) < 0 )
    {
     httpPrintf( cnt, "#%d This empire doesn't seem to exist.<br><br>", a+1 );
     continue;
@@ -3509,7 +3514,8 @@ void iohtmlFunc_system( ReplyDataPtr cnt )
  dbMainPlanetDef planetd;
  char *systemstring;
 
- int b, c, d, ln, lns[32], pics[64];
+ int b, c, d, ln;
+ int *pics = NULL, *lns = NULL;
  float fa;
 
  iohtmlBase( cnt, 1 );
@@ -3521,11 +3527,23 @@ void iohtmlFunc_system( ReplyDataPtr cnt )
 
  systemstring = iohtmlVarsFind( cnt, "id" );
 
- if( !( systemstring ) || ( sscanf( systemstring, "%d", &sysid ) <= 0 ) || ( dbMapRetrieveSystem( sysid, &systemd ) < 0 ) )
- {
-  httpString( cnt, "This system doesn't seem to exist!</body></html>" );
-  return;
- }
+if( !( systemstring ) || ( sscanf( systemstring, "%d", &sysid ) <= 0 ) ) {
+	httpString( cnt, "Bad input detected!</body></html>" );
+	return;
+}
+if( dbMapRetrieveSystem( sysid, &systemd ) < 0 ) {
+	httpString( cnt, "This system doesn't seem to exist!</body></html>" );
+	return;
+}
+
+if( ( pics = malloc( systemd.numplanets * sizeof(int) ) ) == NULL ) {
+	critical( "Malloc Failed" );
+ 	goto RETURN;
+}
+if( ( lns = malloc( systemd.numplanets * sizeof(int) ) ) == NULL ) {
+ 	critical( "Malloc Failed" );
+ 	goto RETURN;
+}
 
  srand( sysid );
  for( a = 0 ; a < systemd.numplanets ; a++ )
@@ -3584,9 +3602,17 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
   httpString( cnt, "</tr></td></table></tr>" );
  httpString( cnt, "</table><br><br>" );
 
+RETURN:
  httpString( cnt, "</center></body></html>" );
 
- return;
+if( pics ) {
+	free( pics );
+}
+if( lns ) {
+	free( lns );
+}
+
+return;
 }
 
 
@@ -3719,7 +3745,7 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt )
 
  httpString( cnt, "Planets list<br>" );
  if( ( num = dbUserPlanetListIndices( playerid, &buffer ) ) <= 0 ) {
-	httpString( cnt, "Error while retriving planets list" );
+	httpString( cnt, "Error while retrieving planets list" );
 	iohtmlBodyEnd( cnt );
 	return;
  }
@@ -3770,11 +3796,14 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  unstationstring = iohtmlVarsFind( cnt, "unstation" );
  plgivestring = iohtmlVarsFind( cnt, "plgive" );
 
- if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) )
- {
-  httpString( cnt, "This planet doesn't seem to exist!</body></html>" );
-  return;
- }
+if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) ) {
+	httpString( cnt, "Bad input detected!</body></html>" );
+	return;
+}
+if( ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
+	httpString( cnt, "This planet doesn't seem to exist!</body></html>" );
+	return;
+}
  plgive = -2;
  if( plgivestring )
   sscanf( plgivestring, "%d", &plgive );
@@ -3845,7 +3874,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpPrintf( cnt, "<a href=# onClick=\"Areyousure(%d)\">Raze all buildings</a><br>", plnid );
 
 
-  if( ( dbMapRetrieveEmpire( maind.empire, &empired ) >= 0 ) && ( empired.numplayers >= 2 ) && !( planetd.flags & CMD_PLANET_FLAGS_HOME ) )
+  if( ( dbEmpireGetInfo( maind.empire, &empired ) >= 0 ) && ( empired.numplayers >= 2 ) && !( planetd.flags & CMD_PLANET_FLAGS_HOME ) )
   {
    httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\">Offer this planet to :", URLAppend( cnt, "planet" ) );
    httpPrintf( cnt, "<input type=\"hidden\" value=\"%d\" name=\"id\">", plnid );
@@ -3897,7 +3926,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   cmd2[0] = CMD_RETRIEVE_USERMAIN;
   cmd2[1] = planetd.owner;
   if( cmdExecute( cnt, cmd2, &main2d, 0 ) < 0 )
-   httpString( cnt, "Error while retriving user's main data" );
+   httpString( cnt, "Error while retrieving user's main data" );
   else {
    httpPrintf( cnt, "This planet is owned by : <a href=\"%s&id=%d\">%s</a> of ", URLAppend( cnt, "player" ), planetd.owner, main2d.faction );
    httpPrintf( cnt, "<a href=\"%s&id=%d\">empire #%d</a>, networth %lld.<br><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire, (long long)main2d.networth );
@@ -4221,7 +4250,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  cmd[1] = id;
  if( ( numpl = cmdExecute( cnt, cmd, &buffer, 0 ) ) < 0 )
  {
-  httpString( cnt, "Error while retriving planets list" );
+  httpString( cnt, "Error while retrieving planets list" );
   return;
  }
 
@@ -4613,7 +4642,7 @@ memset(szTotal, 0, CMD_UNIT_NUMUSED*sizeof(int));
 
  if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 )
  {
-  httpString( cnt, "Error while retriving user fleets list" );
+  httpString( cnt, "Error while retrieving user fleets list" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -5439,13 +5468,13 @@ explorestring = iohtmlVarsFind( cnt, "dispatch" );
 systemstring = iohtmlVarsFind( cnt, "system" );
 
 if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 ) {
-	httpString( cnt, "Error while retriving user fleets list" );
+	httpString( cnt, "Error while retrieving user fleets list" );
 	goto iohttpFunc_exploreL1;
 }
 
 if( systemstring ) {
 	if( ( sscanf( systemstring, "%d", &system ) <= 0 ) || dbMapRetrieveSystem( system, &systemd ) < 0 ) {
-		httpString( cnt, "Error retriving system!<br>" );
+		httpString( cnt, "Error retrieving system!<br>" );
 		goto iohttpFunc_exploreL1;
 	} else if ( systemd.empire != -1 ) {
 		httpString( cnt, "Unable to explore an Empire System!<br>" );
@@ -5657,7 +5686,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 void iohtmlFunc_station( ReplyDataPtr cnt )
 {
- int a, id, cmd[3], plnid;
+ int a, id, plnid;
  dbMainPlanetDef planetd;
  dbUserMainDef maind;
  dbUserFleetDef fleetd;
@@ -5672,21 +5701,18 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  planetstring = iohtmlVarsFind( cnt, "id" );
 
- cmd[0] = CMD_RETRIEVE_FLEET;
- cmd[1] = id;
- cmd[2] = 0;
- if( cmdExecute( cnt, cmd, &fleetd, 0 ) < 0 )
+ if( dbUserFleetRetrieve( id, 0, &fleetd ) < 0 )
  {
   httpString( cnt, "Error encountered while getting main fleet stats</body></html>" );
   return;
  }
- //cmd[0] = CMD_RETRIEVE_PLANET;
- if( !( planetstring ) || ( sscanf( planetstring, "%d", &cmd[1] ) <= 0 ) || ( dbMapRetrievePlanet( cmd[1], &planetd ) < 0 ) )
+
+ if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) )
  {
   httpString( cnt, "This planet doesn't seem to exist!</body></html>" );
   return;
  }
- plnid = cmd[1];
+
 
  iohtmlBodyInit( cnt, "Station forces on the planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
 
@@ -6010,7 +6036,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   {
    if( dbUserMainRetrieve( specopd.factionid, &main2d ) < 0 )
    {
-    httpString( cnt, "Error while retriving main user data" );
+    httpString( cnt, "Error while retrieving main user data" );
     return;
    }
    httpPrintf( cnt, "<br><table><tr><td valign=\"top\"><i>Faction</i><br>" );
@@ -6031,7 +6057,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    {
     if( ( b = dbUserPlanetListIndices( specopd.factionid, &buffer ) ) < 0 )
     {
-     httpString( cnt, "Error while retriving planets list" );
+     httpString( cnt, "Error while retrieving planets list" );
      return;
     }
     httpString( cnt, "<table width=\"100%%\"><tr><td width=\"15%%\"><b>Planet</b></td><td width=\"10%%\">Size</td><td width=\"20%%\">Buildings - Penalty</td><td width=\"25%%\">Population</td><td width=\"28%\">Protection</td></tr>" );
@@ -6104,7 +6130,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    {
     if( ( num = dbUserFleetList( specopd.factionid, &fleetd ) ) <= 0 )
     {
-     httpString( cnt, "Error while retriving user fleets list</body></html>" );
+     httpString( cnt, "Error while retrieving user fleets list</body></html>" );
      iohtmlBodyEnd( cnt );
      return;
     }
@@ -6802,7 +6828,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 void iohtmlFunc_research( ReplyDataPtr cnt )
 {
- int a, b, id, cmd[3];
+ int a, b, id;
  int64_t addfund;
  char fundstring[128] = {0};
  char *fund;
@@ -6844,25 +6870,30 @@ if( ( fund ) && ( sscanf( fund, "%" SCNd64, &addfund ) == 1 ) ) {
  iohtmlBodyInit( cnt, "Research" );
  
 
- for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
- {
-  if( !( rschptr[a] ) || ( sscanf( rschptr[a], "%d", &rschvalue[a] ) < 1 ) )
-   goto iohttpFunc_researchL0;
- }
- cmd[0] = CMD_SET_RESEARCH;
- cmd[1] = id;
- if( ( b = cmdExecute( cnt, cmd, rschvalue, 0 ) ) < 0 )
- {
-  if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
-  else
-   httpString( cnt, "<i>Error while setting research</i><br><br>" );
- }
- else
- {
-  httpString( cnt, "<i>Research priorities changed</i><br><br>" );
-  memcpy( maind.allocresearch, rschvalue, CMD_RESEARCH_NUMUSED*sizeof(int) );
- }
+for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
+	if( !( rschptr[a] ) || ( sscanf( rschptr[a], "%d", &rschvalue[a] ) < 1 ) )
+		goto iohttpFunc_researchL0;
+}
+ 
+for( a = b = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
+	if( (unsigned int)rschvalue[a] >= 101 ) {
+		httpString( cnt, "The sum of the research fields percentages must be 100%<br><br>" );
+		goto iohttpFunc_researchL0;
+	}
+	b += rschvalue[a];
+}
+if( b != 100 ) {
+	httpString( cnt, "The sum of the research fields percetages must be 100%<br><br>" );
+	goto iohttpFunc_researchL0;
+}
+memcpy( maind.allocresearch, rschvalue, CMD_RESEARCH_NUMUSED*sizeof(int) );
+if( dbUserMainSet( id, &maind ) < 0 ) {
+	httpString( cnt, "<i>Error while setting research percentages</i><br><br>" ); 
+} else {
+	httpString( cnt, "<i>Research priorities changed</i><br><br>" );
+}
+
+
  iohttpFunc_researchL0:
  if( fundstring[0] )
   httpString( cnt, fundstring );

@@ -181,7 +181,7 @@ if (cookie != NULL) {
 	}
 	if (NULL != ret) {
 		ret->rc++;
-		ret->active = time(NULL);
+		time(&ret->active);
 		return ret;
 	}
 }
@@ -220,8 +220,8 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 MAKECOOKIE:
 ret->rc++;
 ret->postdata = NULL;
-ret->active = time(NULL);
-ret->start = time(NULL);
+time(&ret->active);
+time(&ret->start);
 ret->next = SessionList;
 
 SessionList = ret;
@@ -808,7 +808,7 @@ if (-1 == uc->fd) {
 		return NO;
 	}
 	
-	if( ( maind.empire != -1 ) && ( dbMapRetrieveEmpire( maind.empire, &empired ) < 0 ) )
+	if( ( maind.empire != -1 ) && ( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) )
 		return NO;
 	char fn[PATH_MAX];
 	settings = GetSetting( "Directory" );
@@ -821,12 +821,12 @@ if (-1 == uc->fd) {
 	} else {
 		return NO;
 	}
-	if ( dbMapSetEmpire( maind.empire, &empired ) < 0 ) {
+	if ( dbEmpireSetInfo( maind.empire, &empired ) < 0 ) {
 		error( "Saving \'%s\' for user #%d", filename, ((uc->session)->dbuser)->id );
 		return NO;
 	}
 	snprintf (fn, sizeof (fn), "%s/uploads/empire%d", settings->string_value, maind.empire );
-	(void) dirstructurecheck(fn);
+	(void) dirstructurecheck(fn,false);
 	snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.picture );
 	for (i=strlen (fn)-1;i>=0;i--) {
 		if( !isprint( (int)fn[i] ) ){

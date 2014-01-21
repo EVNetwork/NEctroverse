@@ -908,9 +908,9 @@ if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
       goto iohtmlFunc_moderatorL0;
     if( sscanf( str0, "%d", &i0 ) != 1 )
       goto iohtmlFunc_moderatorL0;
-    dbMapRetrieveEmpire( actionid, &empired );
+    dbEmpireGetInfo( actionid, &empired );
     empired.numplayers = i0;
-    dbMapSetEmpire( actionid, &empired );
+    dbEmpireSetInfo( actionid, &empired );
     httpPrintf( cnt, "fam %d cleared", actionid );
   }
 
@@ -994,8 +994,6 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
   int a, b, c, cmd[2], id;
   int *buffer;
   char *action[33];
-  //char fname[200];
-  char curdir[1024];
   dbForumForumDef forumd;
   dbUserFleetDef fleetd;
   dbUserMainDef maind;
@@ -1047,15 +1045,6 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
   action[31] = iohtmlVarsFind( cnt, "systemcmd" );
 
 if( action[0] ) {
-	if( getcwd( curdir, 1024 ) ) {
-		info( "Admin is Reloading files" );
-		//EndHTTP();
-		//InitHTTP();
-		if( chdir( curdir ) != 1 ) {
-			error( "changing DIR in Admin" );
-
-		}
-	}
 	httpString( cnt, "<i>HTTP files reloaded</i><br><br>" );
 }
 
@@ -1430,7 +1419,7 @@ sysconfig.shutdown = true;
     for( user = dbUserList ; user ; user = user->next )
     {
       dbUserInfoRetrieve( user->id, &infod );
-      for( a = 0 ; ( a < USER_DESC_SIZE ) && ( infod.desc[a] ) ; a++ )
+      for( a = 0 ; ( a < USER_DESC_MAX ) && ( infod.desc[a] ) ; a++ )
       {
         if( infod.desc[a] >= 128 )
         {

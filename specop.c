@@ -43,7 +43,7 @@ int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 	if( !( main2d ) )
 		return (int)( cmdAgentopReadiness[specop] * 65536.0 );
 
-	if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
+	if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
 		return -1;
 
 for(i=0;i<empired.numplayers;i++)
@@ -701,7 +701,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   else if( !( main2d ) )
     return (int)( cmdPsychicopReadiness[specop] * 65536.0 );
 
-  if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
+  if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
     return -1;
 
   for(i=0;i<empired.numplayers;i++)
@@ -1075,7 +1075,7 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   	return (int)( cmdGhostopReadiness[specop] * 65536.0 );
 
 
-  if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
+  if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
     return -1;
 
   for(i=0;i<empired.numplayers;i++)

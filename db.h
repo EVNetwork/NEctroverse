@@ -51,7 +51,7 @@ typedef struct {
 	char first_name[USER_NAME_MAX];
 	char last_name[USER_NAME_MAX];
 	char pic[PATH_MAX];
-	char bio[USER_DESC_SIZE];
+	char bio[USER_DESC_MAX];
 	//Access Token Data
 	time_t updated;
 	FBTokenDef token;
@@ -76,7 +76,7 @@ typedef struct
   char password[USER_PASS_MAX];
   char http_session[SESSION_SIZE];
   char forumtag[USER_FTAG_MAX];
-  char desc[USER_DESC_SIZE];
+  char desc[USER_DESC_MAX];
   struct in_addr sin_addr[MAXIPRECORD];
   #if FACEBOOK_SUPPORT
   FBUserDef fbinfo;
@@ -250,7 +250,8 @@ typedef struct
   int numplanets;
   int empire;
   int unexplored;
-  int jumpgate;
+  int flags;
+  int timer;
 } dbMainSystemDef, *dbMainSystemPtr;
 
 int dbMapSetSystem( int sysid, dbMainSystemPtr systemd );
@@ -269,10 +270,11 @@ typedef struct
   int64_t building[CMD_BLDG_NUMUSED];
   int construction;
   int protection;
+  int special[5];
   int surrender;
   int nuked;
   int owner;
-  int special[5];
+  int timer;
 } dbMainPlanetDef, *dbMainPlanetPtr;
 
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd );
@@ -281,9 +283,19 @@ int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd );
  * The use of ARRAY_MAX in here, is un-desirable... but it prevents any future over-flow as its limit is 65k 
  * This is the same limit as max players, so each Empire is capable of holding all players... technicly. Not that it should.
  */
+ 
+typedef struct
+{
+  char leader[USER_DESC_MAX];
+  char moc[USER_DESC_MAX];
+  char mod[USER_DESC_MAX];
+  char mow[USER_DESC_MAX];
+} dbEmpireMessageDef, *dbEmpireMessagePtr;
+
 typedef struct
 {
   int rank;
+  int flags;
   int numplayers;
   int politics[CMD_EMPIRE_POLITICS_TOTAL];
   int player[ARRAY_MAX];
@@ -303,7 +315,6 @@ typedef struct
   int64_t infos[CMD_RESSOURCE_NUMUSED];
   char name[USER_NAME_MAX];
   char password[USER_PASS_MAX];
-  char message[CMD_EMPIRE_POLITICS_TOTAL][USER_DESC_SIZE];
 } dbMainEmpireDef, *dbMainEmpirePtr;
 
 typedef struct
@@ -314,8 +325,8 @@ typedef struct
   int flags;
 } dbEmpireRelationsDef, *dbEmpireRelationsPtr;
 
-int dbMapSetEmpire( int famid, dbMainEmpirePtr empired );
-int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired );
+int dbEmpireSetInfo( int famid, dbMainEmpirePtr empired );
+int dbEmpireGetInfo( int famid, dbMainEmpirePtr empired );
 
 
 
@@ -438,7 +449,7 @@ typedef struct
 
   int empire;
   int famplanets;
-  int64_t  famnetworth;
+  int64_t famnetworth;
   char famname[USER_NAME_MAX];
   int famrank;
   int artefacts;
@@ -455,11 +466,26 @@ int dbUserRecordList( int id, dbUserRecordPtr *records );
 
 /////////////////////////////////////////////////////////////////////////////////
 
-extern char *dbImageDirs[HTTP_DIR_TOTAL];
-
 extern int dbArtefactPos[ARTEFACT_NUMUSED];
 
 extern int dbArtefactMax;
 
+
+enum 
+{
+DB_FILE_EMPIRE_INFO,
+DB_FILE_EMPIRE_BUILD,
+DB_FILE_EMPIRE_NEWS,
+DB_FILE_EMPIRE_MESSAGES,
+DB_FILE_EMPIRE_RELATIONS,
+
+DB_FILE_EMPIRE_TOTAL,
+};
+
+
+FILE *dbFileEmpireOpen( int id, int num );
+
+int dbEmpireSetMessage( int famid, dbEmpireMessagePtr message );
+int dbEmpireGetMessage( int famid, dbEmpireMessagePtr message );
 
 #endif

@@ -63,7 +63,7 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
   }
   else
   {
-    if( ( dbMapRetrieveEmpire( maind->empire, &empired ) < 0 ) || ( dbMapRetrieveEmpire( main2d->empire, &empire2d ) < 0 ) )
+    if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
       return -1;
     for(i=0;i<empired.numplayers;i++)
     {
@@ -188,6 +188,7 @@ int battle( int id, int fltid, int64_t *results )
   int64_t hpcarrier, hptransport, hpcruiser, hpbomber, hpfighter, hpsoldier, hpdroid, hpgoliath, hpphantom, hptotal, hpsats;
   double damcarrier, damtransport, damcruiser, dambomber, damfighter, damsoldier, damdroid, damgoliath, damphantom, damsats;
 
+  cmdErrorString = 0;
   // get attacking fleet
   if( dbUserFleetRetrieve( id, fltid, &fleetd ) < 0 )
   {

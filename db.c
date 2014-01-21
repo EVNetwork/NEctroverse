@@ -4,28 +4,22 @@
 
 enum 
 {
-DB_FILE_USERS,
-DB_FILE_MAP,
-DB_FILE_MARKET,
-DB_FILE_FORUM,
-DB_FILE_TOTAL,
+DB_FILE_BASE_USERS,
+DB_FILE_BASE_MAP,
+DB_FILE_BASE_MARKET,
+DB_FILE_BASE_FORUM,
+
+DB_FILE_BASE_TOTAL,
 };
 
-char dbFileUsersName[] = "%s/userdb";
-char dbFileMapName[] = "map";
-char dbFileMarketName[] = "market";
-char dbFileForumName[] = "%s/forums";
+static char dbFileMapName[] = "%s/map";
 
-char *dbFileList[DB_FILE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName, dbFileForumName };
-FILE *dbFilePtr[DB_FILE_TOTAL];
+static char dbFileUsersName[] = "%s/userdb";
+static char dbFileMarketName[] = "%s/market";
+static char dbFileForumName[] = "%s/forums";
 
-char *dbImageDirs[HTTP_DIR_TOTAL] = {
-"%s",
-"%s/avatars",
-"%s/filetypes",
-"%s/ostypes",
-"%s/smilies",
-};
+static char *dbFileList[DB_FILE_BASE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName, dbFileForumName };
+static FILE *dbFilePtr[DB_FILE_BASE_TOTAL];
 
 enum 
 {
@@ -45,29 +39,27 @@ DB_FILE_USER_FLAGS,
 DB_FILE_USER_TOTAL,
 };
 
+static char dbFileUserInfoName[] = "%s/user%d/info";
+static char dbFileUserMailInName[] = "%s/user%d/mailin";
+static char dbFileUserMailOutName[] = "%s/user%d/mailout";
+static char dbFileUserRecordName[] = "%s/user%d/record";
 
+static char dbFileUserMainName[] = "%s/user%d/main";
+static char dbFileUserBuildName[] = "%s/user%d/build";
+static char dbFileUserPlanetsName[] = "%s/user%d/planets";
+static char dbFileUserFleetsName[] = "%s/user%d/fleets";
+static char dbFileUserNewsName[] = "%s/user%d/news";
+static char dbFileUserMarketName[] = "%s/user%d/market";
+static char dbFileUserSpecOpsName[] = "%s/user%d/specops";
+static char dbFileUserGameFlags[] = "%s/user%d/flags";
 
-char dbFileUserInfoName[] = "%s/user%d/info";
-char dbFileUserMailInName[] = "%s/user%d/mailin";
-char dbFileUserMailOutName[] = "%s/user%d/mailout";
-char dbFileUserRecordName[] = "%s/user%d/record";
+static char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserGameFlags };
 
-char dbFileUserMainName[] = "%s/user%d/main";
-char dbFileUserBuildName[] = "%s/user%d/build";
-char dbFileUserPlanetsName[] = "%s/user%d/planets";
-char dbFileUserFleetsName[] = "%s/user%d/fleets";
-char dbFileUserNewsName[] = "%s/user%d/news";
-char dbFileUserMarketName[] = "%s/user%d/market";
-char dbFileUserSpecOpsName[] = "%s/user%d/specops";
-char dbFileUserGameFlags[] = "%s/user%d/flags";
+static int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
+static int64_t dbFileUserListDat1[] = { 0, 8 };
 
-char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUserMainName, dbFileUserBuildName, dbFileUserPlanetsName, dbFileUserFleetsName, dbFileUserNewsName, dbFileUserMarketName, dbFileUserMailInName, dbFileUserMailOutName, dbFileUserSpecOpsName, dbFileUserRecordName, dbFileUserGameFlags };
-
-int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
-int64_t dbFileUserListDat1[] = { 0, 8 };
-
-int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
-int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
+static int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
+static int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
 
 
 int dbMapBInfoStatic[MAP_TOTAL_INFO];
@@ -77,6 +69,26 @@ int dbRegisteredInfo[DB_TOTALS_USERS_NUMUSED];
 int dbArtefactPos[ARTEFACT_NUMUSED];
 
 int dbArtefactMax;
+
+/*
+ * Begin new Empire database Structure.
+ * The old in-map was starting to get a bit bloated.
+ * So... time to fracture it away into a seperate struct.
+ */
+
+static char dbFileEmpireInfoName[] = "%s/empire%d/info";
+static char dbFileEmpireBuildName[] = "%s/empire%d/build";
+static char dbFileEmpireNewsName[] = "%s/empire%d/news";
+static char dbFileEmpireMessageName[] = "%s/empire%d/messages";
+static char dbFileEmpireRelationsName[] = "%s/empire%d/relations";
+
+static char *dbFileEmpireList[DB_FILE_EMPIRE_TOTAL] = { dbFileEmpireInfoName, dbFileEmpireBuildName, dbFileEmpireNewsName, dbFileEmpireMessageName, dbFileEmpireRelationsName };
+
+
+static int dbFileEmpireListBase[DB_FILE_EMPIRE_TOTAL] = { 4, 4, 40, 4, 4 };
+static int64_t *dbFileEmpireListData[DB_FILE_EMPIRE_TOTAL] = { dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
+
+
 
 
 
@@ -247,17 +259,18 @@ FILE *dbFileGenOpen( int num ) {
 	ConfigArrayPtr settings;
 	
 settings = GetSetting( "Directory" );
-if(num == DB_FILE_USERS) {
+if(num == DB_FILE_BASE_USERS) {
 	snprintf( COREDIR, sizeof(COREDIR), "%s/users", settings->string_value );
 	sprintf(fname, dbFileList[num], COREDIR);
 } else {
 	snprintf( COREDIR, sizeof(COREDIR), "%s/data", settings->string_value );
 	sprintf(fname, dbFileList[num], COREDIR);
 }
+
 if( dbFilePtr[num] ) {
 	return dbFilePtr[num];
 }
-   
+
 if( !( dbFilePtr[num] = fopen( fname, "rb+" ) ) ) {
 	error( "Opening File: %s", fname );
 	return 0;
@@ -266,22 +279,24 @@ if( !( dbFilePtr[num] = fopen( fname, "rb+" ) ) ) {
 return dbFilePtr[num];
 }
 
-void dbFileGenClose( int num )
-{
-  if( dbFilePtr[num] )
-  {
-    fclose( dbFilePtr[num] );
-    dbFilePtr[num] = 0;
-  }
-  return;
+void dbFileGenClose( int num ) {
+
+if( dbFilePtr[num] ) {
+	fclose( dbFilePtr[num] );
+	dbFilePtr[num] = 0;
 }
 
-void dbFlush()
-{
-  int a;
-  for( a = 0 ; a < DB_FILE_TOTAL ; a++ )
-    dbFileGenClose( a );
-  return;
+return;
+}
+
+void dbFlush() {
+	int a;
+
+for( a = 0 ; a < DB_FILE_BASE_TOTAL ; a++ ) {
+	dbFileGenClose( a );
+}
+
+return;
 }
 
 
@@ -319,36 +334,27 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 return file;
 }
 
-FILE *dbFileFamOpen( int id, int num )
-{
-  int a, b;
-  char fname[PATH_MAX];
-  FILE *file;
-  snprintf( fname, sizeof(fname), "fam%02dn%02d", id, num );
-  if( !( file = fopen( fname, "rb+" ) ) )
-  {
-    if( ( file = fopen( fname, "wb+" ) ) )
-    {
-      if( num == 0 )
-      {
-        a = 0;
-        file_w( &a, 1, sizeof(int), file );
-      }
-      else
-      {
-        a = 0;
-        for( b = 0 ; b < 4096*2/4 ; b++ )
-          file_w( &a, 1, sizeof(int), file );
-      }
-      file_s( file, 0 );
-      return file;
-    }
-	if( num < 0x10000 ) {
-		error( "Opening File: %s", fname);
+FILE *dbFileEmpireOpen( int id, int num ) {
+	ConfigArrayPtr setting;
+	char fname[PATH_MAX];
+	char COREDIR[PATH_MAX];
+	FILE *file;
+	
+setting = GetSetting( "Directory" );
+snprintf( COREDIR, sizeof(COREDIR), "%s/data", setting->string_value );  
+snprintf( fname, sizeof(fname), dbFileEmpireList[num], COREDIR, id );
+
+if( !( file = fopen( fname, "rb+" ) ) ) {
+	if( ( file = fopen( fname, "wb" ) ) ) {
+		file_w( dbFileEmpireListData[num], 1, dbFileEmpireListBase[num], file );
+		fclose( file );
+		return fopen( fname, "rb+" );
 	}
-    return 0;
-  }
-  return file;
+	error( "Opening File: %s", fname);
+	return 0;
+}
+
+return file;
 }
 
 
@@ -410,7 +416,7 @@ int dbInitUsersReset()
   //dbUserMainDef maind;
   FILE *file;
 
-  if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
+  if( !( dbFileGenOpen( DB_FILE_BASE_USERS ) ) )
     return -3;
   last = 0;
   for( a = 0 ; a < ARRAY_MAX ; a++ )
@@ -421,7 +427,7 @@ int dbInitUsersReset()
     fclose( file );
   }
 
-  file_s( dbFilePtr[DB_FILE_USERS], 8 );
+  file_s( dbFilePtr[DB_FILE_BASE_USERS], 8 );
   freenum = 0;
   for( a = 0 ; a <= last ; a++ )
   {
@@ -430,16 +436,16 @@ int dbInitUsersReset()
       fclose( file );
       continue;
     }
-    file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+    file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
     freenum++;
   }
 
-  file_s( dbFilePtr[DB_FILE_USERS], 0 );
+  file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
   last++;
-  file_w( &last, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+  file_w( &last, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 
-  file_s( dbFilePtr[DB_FILE_USERS], 4 );
-  file_w( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+  file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
+  file_w( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 
   return 1;
 }
@@ -463,45 +469,43 @@ time( &now );
 settings[0] = GetSetting( "Directory" );
 settings[1] = GetSetting( "Public Forum" );
 snprintf( COREDIR, sizeof(COREDIR), "%s/data", settings[0]->string_value );
-if( chdir( COREDIR ) == -1 ) {
-	critical( "Change DIR" );
-	return 0;
-}
 
 if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
 	return 0;
 
-if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "rb+" ) ) ) {
+snprintf( fname, sizeof(fname), "%s/data", settings[0]->string_value );
+snprintf( COREDIR, sizeof(COREDIR), dbFileList[DB_FILE_BASE_MARKET], fname );
+if( !( dbFilePtr[DB_FILE_BASE_MARKET] = fopen( COREDIR, "rb+" ) ) ) {
 	info( "Market database not found, creating..." );
 
-	if( !( dbFilePtr[DB_FILE_MARKET] = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) ) {
+	if( !( dbFilePtr[DB_FILE_BASE_MARKET] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create market database!" );
 		return 0;
 	}
 
-	file_s( dbFilePtr[DB_FILE_MARKET], 0 );
+	file_s( dbFilePtr[DB_FILE_BASE_MARKET], 0 );
 	array[0] = 0;
 	array[1] = -1;
-	file_w( array, 1, 2*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+	file_w( array, 1, 2*sizeof(int), dbFilePtr[DB_FILE_BASE_MARKET] );
 
 	array[0] = 0;
 	array[1] = -1;
 	array[2] = -1;
 	for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
-		file_w( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_MARKET] );
+		file_w( array, 1, 3*sizeof(int), dbFilePtr[DB_FILE_BASE_MARKET] );
 }
 
 snprintf( COREDIR, sizeof(COREDIR), "%s/data/forums", settings[0]->string_value );
-if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
+if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	info("Empire Forum database not found, creating...");
 	
-	if( !( dbFilePtr[DB_FILE_FORUM] = fopen( COREDIR, "wb+" ) ) ) {
+	if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create forum database!" );
 		return 0;
 	}
 	a = 0;
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_FORUM] );
-	dbFileGenClose( DB_FILE_FORUM );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
+	dbFileGenClose( DB_FILE_BASE_FORUM );
 	memset( &forumd, 0, sizeof(dbForumForumDef) );
 	forumd.rperms = 2;
 	forumd.wperms = 2;
@@ -529,26 +533,26 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 fclose( file );
 
 snprintf( COREDIR, sizeof(COREDIR), "%s/users", settings[0]->string_value );
-sprintf( fname, dbFileList[DB_FILE_USERS], COREDIR );
-if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "rb+" ) ) ) {
+sprintf( fname, dbFileList[DB_FILE_BASE_USERS], COREDIR );
+if( !( dbFilePtr[DB_FILE_BASE_USERS] = fopen( fname, "rb+" ) ) ) {
 	info( "User database not found, creating..." );
 
-	if( !( dbFilePtr[DB_FILE_USERS] = fopen( fname, "wb+" ) ) ) {
+	if( !( dbFilePtr[DB_FILE_BASE_USERS] = fopen( fname, "wb+" ) ) ) {
 		critical( "Error, could not create user database!" );
 		return 0;
 	}
-	file_s( dbFilePtr[DB_FILE_USERS], 0 );
+	file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
 	a = 0;
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 	return 1;
 } else {
 	dbInitUsersReset();
 }
 
 
-file_s( dbFilePtr[DB_FILE_USERS], 0 );
-file_r( &b, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
+file_r( &b, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] = 0;
 dbRegisteredInfo[DB_TOTALS_USERS_ONLINE] = 0;
 for( a = 0 ; a < b ; a++ ) {
@@ -721,20 +725,20 @@ int dbUserAdd( dbUserInfoPtr adduser ) {
 	FILE *file;
 
 
-if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
+if( !( dbFileGenOpen( DB_FILE_BASE_USERS ) ) )
 	return -3;
 
-file_s( dbFilePtr[DB_FILE_USERS], 4 );
-file_r( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
+file_r( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 
 
 if( !( freenum ) ) {
-	file_s( dbFilePtr[DB_FILE_USERS], 0 );
-	file_r( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
+	file_r( &id, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 } else {
 	a = freenum - 1;
-	file_s( dbFilePtr[DB_FILE_USERS], 8 + ( a << 2 ) );
-	file_r( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	file_s( dbFilePtr[DB_FILE_BASE_USERS], 8 + ( a << 2 ) );
+	file_r( &id, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 }
 	
 if( !( user = dbUserAllocate( id ) ) ) {
@@ -809,13 +813,13 @@ file_w( adduser, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
 
 if( !( freenum ) ) {
-	file_s( dbFilePtr[DB_FILE_USERS], 0 );
+	file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
 	a = id + 1;
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 } else {
 	a = freenum - 1;
-	file_s( dbFilePtr[DB_FILE_USERS], 4 );
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+	file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 }
 
 dbFlush();
@@ -834,18 +838,18 @@ int dbUserRemove( int id ) {
 
 if( !( user = dbUserLinkID( id ) ) )
 	return 0;
-if( !( dbFileGenOpen( DB_FILE_USERS ) ) )
+if( !( dbFileGenOpen( DB_FILE_BASE_USERS ) ) )
 	return 0;
 
 dbUserFree( user );
 
-file_s( dbFilePtr[DB_FILE_USERS], 4 );
-file_r( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
+file_r( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 a++;
-file_s( dbFilePtr[DB_FILE_USERS], 4 );
-file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
-file_s( dbFilePtr[DB_FILE_USERS], ( a + 1 ) << 2 );
-file_w( &id, 1, sizeof(int), dbFilePtr[DB_FILE_USERS] );
+file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
+file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
+file_s( dbFilePtr[DB_FILE_BASE_USERS], ( a + 1 ) << 2 );
+file_w( &id, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 
 settings = GetSetting( "Directory" );
 for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
@@ -1018,7 +1022,6 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
 	return -3;
 }
 
-memset( maind, 0, sizeof(dbUserMainDef) );
 file_r( maind, 1, sizeof(dbUserMainDef), file );
 
 fclose( file );
@@ -1271,7 +1274,7 @@ int dbUserPlanetAdd( int id, int plnid, int sysid, int plnloc, int flags )
 	dbMapRetrievePlanet(plnid, &Planetd);
 	if(artefactPrecense(&Planetd) == 6)
   {
-  	dbMapRetrieveEmpire( id, &empired );
+  	dbEmpireGetInfo( id, &empired );
   	for( a = 0 ; a < empired.numplayers ; a++ )
     {
   		if( dbUserMainRetrieve( empired.player[a], &maind ) < 0 )
@@ -1311,7 +1314,7 @@ int dbUserPlanetRemove( int id, int plnid )
 	dbMapRetrievePlanet(plnid, &Planetd);
 	if(artefactPrecense(&Planetd) == 6)
   {
-  	dbMapRetrieveEmpire( id, &empired );
+  	dbEmpireGetInfo( id, &empired );
   	for( a = 0 ; a < empired.numplayers ; a++ )
     {
   		if( dbUserMainRetrieve( empired.player[a], &maind ) < 0 )
@@ -2099,11 +2102,10 @@ int dbFamNewsAdd( int id, int64_t *data )
 {
   int64_t a, num, lused, lfree, numnext, lcur, lnext;
   FILE *file;
-  char fname[PATH_MAX];
-  snprintf( fname, sizeof(fname), "fam%dnews", id );
-if( !( file = fopen( fname, "rb+" ) ) ) {
-	critical( "Database Empire News Add" );
-  	return -3;
+
+if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_NEWS ) ) ) {
+	critical( "Database Empire News List" );
+	return -3;
 }
   
 file_r( &num, 1, sizeof(int64_t), file );
@@ -2156,11 +2158,9 @@ int dbFamNewsList( int id, int64_t **data, int time )
   int64_t a, b, c, d, num, lused, lfree, lprev, lnext;
   FILE *file;
   int64_t *datap;
-  char fname[PATH_MAX];
   *data = 0;
-  snprintf( fname, sizeof(fname), "fam%dnews", id );
 
-if( !( file = fopen( fname, "rb+" ) ) ) {
+if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_NEWS ) ) ) {
 	critical( "Database Empire News List" );
 	return -3;
 }
@@ -2234,7 +2234,7 @@ file_r( &lfree, 1, sizeof(int64_t), file );
 int dbMapRetrieveMain( int *binfo ) {
 	FILE *file;
 
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 	return -3;
 
 file_s( file, 0 );
@@ -2246,7 +2246,7 @@ return 1;
 int dbMapSetMain( int *binfo ) {
 	FILE *file;
 
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 	return -3;
 
 file_s( file, 0 );
@@ -2259,7 +2259,7 @@ return 1;
 int dbMapSetSystem( int sysid, dbMainSystemPtr systemd ) {
 	FILE *file;
 
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 	return -3;
 
 if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
@@ -2274,7 +2274,7 @@ return 1;
 int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd ) {
 	FILE *file;
 
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 	return -3;
 
 if( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] )
@@ -2289,7 +2289,7 @@ return 1;
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd ) {
 	FILE *file;
 
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 	return -3;
 
 if( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] )
@@ -2307,7 +2307,7 @@ int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd ) {
 if( plnid == -1)
 	return -3;
 
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
+if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 	return -3;
 
 if( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] )
@@ -2320,16 +2320,17 @@ return 1;
 }
 
 
-int dbMapSetEmpire( int famid, dbMainEmpirePtr empired ) {
+int dbEmpireSetInfo( int famid, dbMainEmpirePtr empired ) {
 	FILE *file;
 //	dbUserPtr user;
 
 
-if(!( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-	return -3;
-
 if((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES])
 	return -3;
+
+if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_INFO ) ) )
+	return -3;
+
 /*
 //---------------------
 if ( empired->numplayers == 1) {
@@ -2343,28 +2344,62 @@ if ( empired->numplayers == 1) {
 //-----------------------
 */
 
-file_s( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)) );
+//file_s( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)) );
 
 file_w( empired, 1, sizeof(dbMainEmpireDef), file );
+
+fclose( file );
 
 return 1;
 }
 
-int dbMapRetrieveEmpire( int famid, dbMainEmpirePtr empired ) {
+int dbEmpireGetInfo( int famid, dbMainEmpirePtr empired ) {
 	FILE *file;
-
-if( !( file = dbFileGenOpen( DB_FILE_MAP ) ) )
-	return -3;
 
 if( (unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES] )
 	return -3;
 
-file_s( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)) );
+if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_INFO ) ) )
+	return -3;
+
 file_r( empired, 1, sizeof(dbMainEmpireDef), file );
+
+fclose( file );
 
 return 1;
 }
 
+int dbEmpireSetMessage( int famid, dbEmpireMessagePtr message ) {
+	FILE *file;
+
+if( (unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES] )
+	return -3;
+
+if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_MESSAGES ) ) )
+	return -3;
+
+file_r( message, 1, sizeof(dbEmpireMessageDef), file );
+
+fclose( file );
+
+return 1;
+}
+
+int dbEmpireGetMessage( int famid, dbEmpireMessagePtr message ) {
+	FILE *file;
+
+if( (unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES] )
+	return -3;
+
+if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_MESSAGES ) ) )
+	return -3;
+
+file_r( message, 1, sizeof(dbEmpireMessageDef), file );
+
+fclose( file );
+
+return 1;
+}
 
 
 
@@ -2382,7 +2417,7 @@ int dbEmpireRelsAdd( int id, int *rel )
   FILE *file;
   if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( !( file = dbFileFamOpen( id, 0 ) ) )
+  if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
   file_r( &pos, 1, sizeof(int), file );
   file_s( file, 4+(pos*sizeof(dbEmpireRelationsDef)) );
@@ -2400,7 +2435,7 @@ int dbEmpireRelsRemove( int id, int relid )
   FILE *file;
   if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( !( file = dbFileFamOpen( id, 0 ) ) )
+  if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
   file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)relid >= num )
@@ -2424,12 +2459,12 @@ int dbEmpireRelsRemove( int id, int relid )
 
 int dbEmpireRelsList( int id, int **rel )
 {
-  int num;
+  int num = 0;
   FILE *file;
   int *relp;
   if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( !( file = dbFileFamOpen( id, 0 ) ) )
+  if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
   file_r( &num, 1, sizeof(int), file );
   if( !( relp = malloc( num*sizeof(dbEmpireRelationsDef) ) ) )
@@ -2450,7 +2485,7 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
   FILE *file;
   if( (unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES] )
     return -3;
-  if( !( file = dbFileFamOpen( id, 0 ) ) )
+  if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
   file_r( &num, 1, sizeof(int), file );
   if( (unsigned int)relid >= num )
@@ -2495,7 +2530,7 @@ int dbMarketReset()
 {
   int a, array[3];
   FILE *file;
-  if( !( file = fopen( dbFileList[DB_FILE_MARKET], "wb+" ) ) )
+  if( !( file = fopen( dbFileList[DB_FILE_BASE_MARKET], "wb+" ) ) )
     return 0;
   file_s( file, 0 );
   array[0] = 0;
@@ -2514,7 +2549,7 @@ int dbMarketFull( int *list )
 {
   int a;
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
   file_s( file, 8 );
   for( a = 0 ; a < 3*2*DB_MARKET_RANGE ; a++ )
@@ -2531,7 +2566,7 @@ int dbMarketReplaceFull( int *list )
 {
   int a;
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
   file_s( file, 8 );
   for( a = 0 ; a < 3*2*DB_MARKET_RANGE ; a++ )
@@ -2551,7 +2586,7 @@ int dbMarketAdd( int *bid )
   int a, offs, num, lcur, lfree, databid[4];
   int mhead[3];
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
 
   offs = 8;
@@ -2611,7 +2646,7 @@ int dbMarketRemove( int *bid, int lcur )
   int offs, lfree, databid[4];
   int mhead[3];
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
 
   offs = 8;
@@ -2663,7 +2698,7 @@ int dbMarketListStart( int *bid )
 {
   int a, offs;
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
 
   offs = 8;
@@ -2681,7 +2716,7 @@ int dbMarketListNext( int lcur, int *result )
 {
   int databid[4];
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
   file_s( file, DB_MARKET_BIDSOFF+lcur*16 );
   file_r( databid, 1, 16, file );
@@ -2695,7 +2730,7 @@ int dbMarketSetQuantity( int *bid, int lcur, int quantity, int loss )
   int offs;
   int mhead[3];
   FILE *file;
-  if( !( file = dbFileGenOpen( DB_FILE_MARKET ) ) )
+  if( !( file = dbFileGenOpen( DB_FILE_BASE_MARKET ) ) )
     return -3;
 
   offs = 8;
@@ -2929,7 +2964,7 @@ int dbForumListThreads( int flags, int forum, int base, int end, dbForumForumPtr
     return -3;
   if( flags ) {
   	settings = GetSetting( "Directory" ); 
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, forum );
   } else {
   	settings = GetSetting( "Public Forum" ); 
   	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, forum );
@@ -2994,7 +3029,7 @@ int dbForumListPosts( int flags, int forum, int thread, int base, int end, dbFor
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/thread%d", settings->string_value, forum, thread );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, thread );
@@ -3058,7 +3093,7 @@ int dbForumRetrieveForum( int flags, int forum, dbForumForumPtr forumd ) {
   
 if( flags ) {
 	settings = GetSetting( "Directory" );
-	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
+	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
 	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, forum );
@@ -3103,13 +3138,13 @@ fclose( file );
 	
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d", settings->string_value, num );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d", settings->string_value, num );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d", settings->string_value, num );
 }
 
-if( mkdir( fname, S_IRWXU ) == -1 ) {
+if( dirstructurecheck( fname, false ) == false ) {
 	error( "Making DIR" );
 	return -3;
 }
@@ -3117,7 +3152,7 @@ if( mkdir( fname, S_IRWXU ) == -1 ) {
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, num );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, num );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, num );
@@ -3151,7 +3186,7 @@ int dbForumRemoveForum( int flags, int forum )
   
 if( flags ) {
 	settings = GetSetting( "Directory" );
-	a = snprintf( fname, sizeof(fname), "%s/data/forum%d", settings->string_value, forum );
+	a = snprintf( fname, sizeof(fname), "%s/data/empire%d", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
   	a = snprintf( fname, sizeof(fname),  "%s/forum%d", settings->string_value, forum );
@@ -3169,52 +3204,60 @@ while( ( direntry = readdir( dirdata ) ) ) {
 closedir( dirdata );
 if( flags ) {
 	settings = GetSetting( "Directory" );
-	a = snprintf( fname, sizeof(fname), "%s/data/forum%d", settings->string_value, forum );
+	a = snprintf( fname, sizeof(fname), "%s/data/empire%d", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
   	a = snprintf( fname, sizeof(fname),  "%s/forum%d", settings->string_value, forum );
 }  
+
 rmdir( fname );
+
 if( flags ) {
 	settings = GetSetting( "Directory" );
-	a = snprintf( fname, sizeof(fname), "%s/data/%d/forum", settings->string_value, forum );
+	a = snprintf( fname, sizeof(fname), "%s/data/forums", settings->string_value );
 } else {
 	settings = GetSetting( "Public Forum" );
-  	a = snprintf( fname, sizeof(fname),  "%s/%d/forum", settings->string_value, forum );
+  	a = snprintf( fname, sizeof(fname),  "%s/forums", settings->string_value );
 }
 
 	
-  if( !( file = fopen( fname, "rb+" ) ))
+if( !( file = fopen( fname, "rb+" ) ) ) {
+	return -3;
+}
 
-    return -3;
 file_r( &num, 1, sizeof(int), file );
-  if( forum >= num )
-  {
-    fclose( file );
-    return 0;
-  }
-  file_s( file, 4+forum*sizeof(dbForumForumDef) );
-  file_r( &forumd, 1, sizeof(dbForumForumDef), file );
-  forumd.flags |= DB_FORUM_FLAGS_FORUMUNUSED;
-  file_s( file, 4+forum*sizeof(dbForumForumDef) );
-  file_w( &forumd, 1, sizeof(dbForumForumDef), file );
-  a = num - ( forum + 1 );
-  if( a )
-  {
-    b = a * sizeof(dbForumForumDef);
-    frcopy = malloc( b );
-    file_s( file, 4+(forum+1)*sizeof(dbForumForumDef) );
-    file_r( frcopy, 1, b, file );
-    file_s( file, 4+(forum+0)*sizeof(dbForumForumDef) );
-    file_w( frcopy, 1, b, file );
-    free( frcopy );
-  }
-  num--;
-  file_s( file, 0 );
-  file_w( &num, 1, sizeof(int), file );
-  fclose( file );
 
-  return num;
+if( forum >= num ) {
+	fclose( file );
+	return 0;
+}
+
+file_s( file, 4+forum*sizeof(dbForumForumDef) );
+file_r( &forumd, 1, sizeof(dbForumForumDef), file );
+
+forumd.flags |= DB_FORUM_FLAGS_FORUMUNUSED;
+
+file_s( file, 4+forum*sizeof(dbForumForumDef) );
+file_w( &forumd, 1, sizeof(dbForumForumDef), file );
+
+a = num - ( forum + 1 );
+
+if( a ) {
+	b = a * sizeof(dbForumForumDef);
+	frcopy = malloc( b );
+	file_s( file, 4+(forum+1)*sizeof(dbForumForumDef) );
+	file_r( frcopy, 1, b, file );
+	file_s( file, 4+(forum+0)*sizeof(dbForumForumDef) );
+	file_w( frcopy, 1, b, file );
+	free( frcopy );
+}
+
+num--;
+file_s( file, 0 );
+file_w( &num, 1, sizeof(int), file );
+fclose( file );
+
+return num;
 }
 
 
@@ -3228,7 +3271,7 @@ int dbForumAddThread( int flags, int forum, dbForumThreadPtr threadd ) {
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, forum );
@@ -3301,7 +3344,7 @@ if( flags ) {
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, lcur );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/thread%d", settings->string_value, forum, lcur );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, lcur );
@@ -3329,7 +3372,7 @@ int dbForumRemoveThread( int flags, int forum, int thread ) {
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, forum );
@@ -3388,7 +3431,7 @@ file_r( &forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/thread%d", settings->string_value, forum, thread );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, thread );
@@ -3428,7 +3471,7 @@ int dbForumAddPost( int flags, int forum, int thread, dbForumPostPtr postd ) {
 	
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/thread%d", settings->string_value, forum, thread );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, thread );
@@ -3462,7 +3505,7 @@ file_r( &threadd, 1, sizeof(dbForumThreadDef), file );
   fclose( file );
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, forum );
@@ -3539,7 +3582,7 @@ int dbForumRemovePost( int flags, int forum, int thread, int post ) {
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/thread%d", settings->string_value, forum, thread );
 } else {
 	settings = GetSetting( "Public Forum" );
 	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, thread );
@@ -3597,7 +3640,7 @@ file_r( &threadd, 1, sizeof(dbForumThreadDef), file );
     fclose( file );
 if( flags ) {
 	settings = GetSetting( "Directory" );
-  	snprintf( fname, sizeof(fname), "%s/data/forum%d/threads", settings->string_value, forum );
+  	snprintf( fname, sizeof(fname), "%s/data/empire%d/threads", settings->string_value, forum );
 } else {
 	settings = GetSetting( "Public Forum" );
 	snprintf( fname, sizeof(fname), "%s/forum%d/threads", settings->string_value, forum );
@@ -3630,7 +3673,7 @@ int dbForumEditPost( int flags, int forum, int thread, int post, dbForumPostPtr 
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
-	snprintf( fname, sizeof(fname), "%s/data/forum%d/thread%d", settings->string_value, forum, thread );
+	snprintf( fname, sizeof(fname), "%s/data/empire%d/thread%d", settings->string_value, forum, thread );
 } else {
 	settings = GetSetting( "Public Forum" );
   	snprintf( fname, sizeof(fname), "%s/forum%d/thread%d", settings->string_value, forum, thread );
