@@ -234,6 +234,7 @@ httpString( cnt, "</b></td></tr></table></td></tr>" );
 httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
+httpString( cnt, "<br>" );
 
 return;
 }
@@ -595,8 +596,6 @@ iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
 
 if( len > 0 )
 	httpPrintf( cnt, "<b>%s</b><br><br>", DATAPOOL );
-else
-httpString( cnt, "<br>" );
 
 httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
