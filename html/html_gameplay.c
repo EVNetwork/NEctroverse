@@ -3766,7 +3766,7 @@ if( num ) {
 		dbMapRetrievePlanet( buffer[a], &planetd );
 		httpPrintf( cnt, "<td><a href=\"%s&id=%d\">%d,%d:%d</td>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFF, planetd.position >> 20, planetd.position & 0xFF );
 		if( ( a & 7 ) == 7 ) {
-			httpString( cnt, "</tr></table><table><tr>" );
+			httpString( cnt, "</tr><tr>" );
 		} else if( a != (num-1) ) {
 			httpString( cnt, "<td>&nbsp;</td>" );
 		}
