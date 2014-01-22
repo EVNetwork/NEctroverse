@@ -795,6 +795,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 			maind.totalresearch[a]++;
 		} else if( b < maind.totalresearch[a] ) {
 			maind.totalresearch[a]--;
+		} else {
+			maind.totalresearch[a] = fmin( b, fa );
 		}
 	}
 
