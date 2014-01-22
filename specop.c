@@ -390,6 +390,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	      newd[12] = main2d.ressource[2] + resources[2];
 	    if( success >= 0.4 )
 	      newd[13] = main2d.ressource[3] + resources[3];
+      	    if( success >= 0.5 )
+	      newd[14] = main2d.ressource[CMD_RESSOURCE_POPULATION];
 	    if( success >= 0.9 )
 	    {
 	    	//14 to 20

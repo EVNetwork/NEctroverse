@@ -374,25 +374,28 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   {
    httpPrintf( cnt, "Your agents gathered the following information.<br>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
-   for( a = 10 ; a < 10+CMD_RESSOURCE_NUMUSED ; a++ )
+   for( a = 10 ; a < 10+(CMD_RESSOURCE_NUMUSED+1) ; a++ )
    {
+   if( (a-10) == CMD_RESSOURCE_NUMUSED )
+   httpString( cnt, cmdRessourceName[CMD_RESSOURCE_POPULATION] );
+   else
     httpString( cnt, cmdRessourceName[a-10] );
     if( (long long)newsd[a] == -1 )
      httpString( cnt, " : unknown<br>" );
     else
      httpPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
    }
-   for( a = 14 ; a < 14+CMD_RESEARCH_NUMUSED ; a++ )
+   for( a = 15 ; a < 15+CMD_RESEARCH_NUMUSED ; a++ )
    {
-    httpPrintf( cnt, "%s research", cmdResearchName[a-14] );
+    httpPrintf( cnt, "%s research", cmdResearchName[a-15] );
     if( (long long)newsd[a] == -1 )
      httpString( cnt, " : unknown<br>" );
     else
      httpPrintf( cnt, " : %lld %%<br>", (long long)newsd[a] );
    }
-   for( a = 14+CMD_RESEARCH_NUMUSED ; a < 14+CMD_RESEARCH_NUMUSED+CMD_BLDG_NUMUSED ; a++ )
+   for( a = 15+CMD_RESEARCH_NUMUSED ; a < 15+CMD_RESEARCH_NUMUSED+CMD_BLDG_NUMUSED ; a++ )
    {
-    httpString( cnt, cmdBuildingName[a-14-CMD_RESEARCH_NUMUSED] );
+    httpString( cnt, cmdBuildingName[a-15-CMD_RESEARCH_NUMUSED] );
     if( (long long)newsd[a] == -1 )
      httpString( cnt, " : unknown<br>" );
     else
@@ -3755,6 +3758,7 @@ if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( d
 	goto RETURN;
 }
 if( ( maind.empire != main2d.empire ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
+	iohtmlBodyInit( cnt, "Restricted Access" );
 	httpString( cnt, "You may not view this players planet listing." );
 	goto RETURN;
 }
