@@ -188,6 +188,11 @@ float cmdUnitUpkeep[CMD_UNIT_NUMUSED] =
 2.0, 1.6, 3.2, 12.0, 18.0, 0.4, 0.6, 2.8, 0.0,   0.8, 0.8, 2.4, 60.0
 };
 
+float cmdUnitPenalty[2] =
+{
+1.5, 1.25
+};
+
 // to air attack, from air defence, to ground attack, from ground attack, speed, networth
 int cmdUnitStats[CMD_UNIT_NUMUSED][CMD_UNIT_STATS_NUMUSED] =
 {

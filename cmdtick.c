@@ -863,12 +863,12 @@ for( user = dbUserList ; user ; user = user->next ) {
 	
 	for( a = 0 ; a < num ; a++ ) {
 		for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ ) {
-			maind.infos[INFOS_UNITS_UPKEEP] += ( ( fleetp[a].unit[b] * cmdUnitUpkeep[b] ) * ( (a == 0) ? 1 : 1.75 ) );
+			maind.infos[INFOS_UNITS_UPKEEP] += ( ( fleetp[a].unit[b] * cmdUnitUpkeep[b] ) * ( (a == 0) ? 1 : cmdUnitPenalty[0] ) );
 			maind.totalunit[b] += fleetp[a].unit[b];
 		}
 	}
 	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ ) {
-		maind.infos[INFOS_UNITS_UPKEEP] += ( ( StationedUnits[b] * cmdUnitUpkeep[b] ) * ( 1.25 ) );
+		maind.infos[INFOS_UNITS_UPKEEP] += ( ( StationedUnits[b] * cmdUnitUpkeep[b] ) * cmdUnitPenalty[1] );
 		maind.totalunit[b] += StationedUnits[b];
 	}
 

@@ -395,11 +395,13 @@ for( a = table = 0; a < CMD_UNIT_NUMUSED; a++, table++ ) {
 	} else {
 		httpString( cnt, "<tr><td><span class=\"genblue\">Special Unit:</span></td><td>Can not be built.</td></tr>" );
 	}
-
-	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdUnitUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
-	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Travel Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 1.75), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
-	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Station Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 1.25), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
-
+	if( cmdUnitUpkeep[a] > 0 ) {
+		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdUnitUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Travel Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * cmdUnitPenalty[0]), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Station Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * cmdUnitPenalty[1]), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+	} else {
+		httpString( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
+	}
 	if( cmdUnitTech[a] > 0 ) {
 		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Tech:</span></td><td>%d%%</td></tr>", cmdUnitTech[a] );
 	}
@@ -447,7 +449,7 @@ for( a = table = 0; a < CMD_BLDG_NUMUSED+1; a++, table++ ) {
 		if( cmdBuildingUpkeep[a] > 0 ) {
 			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdBuildingUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
 		} else {
-			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
+			httpString( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
 		}
 		if( cmdBuildingProduction[a] > 0 ) {
 			if( a == CMD_BUILDING_CITIES ) {
