@@ -67,8 +67,13 @@ if( curl ) {
 
 	res = curl_easy_perform(curl);
 	/* Check for errors */
-	if(res != CURLE_OK)
+	if(res != CURLE_OK) {
 		error( "Facebook Curl" );
+		if( curl_str.ptr ) {
+			free(curl_str.ptr);
+			curl_str.ptr = NULL;
+		}
+	}
 	/* always cleanup */
 	curl_easy_cleanup(curl);
 	if( curl_str.ptr ) {
