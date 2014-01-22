@@ -3754,7 +3754,7 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt )
  iohtmlBodyInit( cnt, main2d.faction );
 
  httpString( cnt, "Planets list<br>" );
- if( ( num = dbUserPlanetListIndices( playerid, &buffer ) ) <= 0 ) {
+ if( ( num = dbUserPlanetListIndicesSorted( playerid, &buffer, 0 ) ) <= 0 ) {
 	httpString( cnt, "Error while retrieving planets list" );
 	iohtmlBodyEnd( cnt );
 	return;

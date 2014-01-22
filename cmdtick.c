@@ -453,7 +453,7 @@ population = 0;
 
 for( a = 0 ; a < num ; a++ ) {
 	dbMapRetrievePlanet( buffer[a], &planetd );
-	planetd.maxpopulation = ( ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) ) );
+	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
@@ -462,9 +462,9 @@ for( a = 0 ; a < num ; a++ ) {
 	ticks.debug_pass = 2 + 10000;
 
 	if(mainp->artefacts & ARTEFACT_16_BIT) {
-		planetd.population += ceil( planetd.population * (( cmdRace[mainp->raceid].growth * 1.25 ) * pow(0.75, (float)nInfection) ) );
+		planetd.population += ceil( planetd.population * ( cmdRace[mainp->raceid].growth * 1.25 ) * pow(0.75, (float)nInfection) );
 	} else {
-		planetd.population += ceil( planetd.population * ( cmdRace[mainp->raceid].growth * pow(0.75, (float)nInfection) ) );
+		planetd.population += ceil( planetd.population * cmdRace[mainp->raceid].growth * pow(0.75, (float)nInfection) );
 	}
 	planetd.population = fmin( planetd.maxpopulation, planetd.population );
 
