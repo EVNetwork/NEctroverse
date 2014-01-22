@@ -453,7 +453,7 @@ population = 0;
 
 for( a = 0 ; a < num ; a++ ) {
 	dbMapRetrievePlanet( buffer[a], &planetd );
-	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + cmdTickProduction[CMD_BUILDING_CITIES] );
+	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
