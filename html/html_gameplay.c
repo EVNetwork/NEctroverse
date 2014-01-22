@@ -2418,6 +2418,16 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
   httpPrintf( cnt, "<b>%s</b> - ", main2d.faction );
+
+  if( ( main2d.aidaccess == 2 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
+    httpString( cnt, "No access<br><br>" );
+    continue;
+  }
+  if( ( main2d.aidaccess == 1 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ) ) {
+    httpString( cnt, "No access<br><br>" );
+    continue;
+  }
+
   httpPrintf( cnt, "Energy: %lld&nbsp;&nbsp;Mineral: %lld&nbsp;&nbsp;Crystal: %lld&nbsp;&nbsp;Ectrolium: %lld", (long long)main2d.ressource[0], (long long)main2d.ressource[1], (long long)main2d.ressource[2], (long long)main2d.ressource[3] );
   httpPrintf( cnt, "<br><br>" );
  }

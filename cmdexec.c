@@ -276,6 +276,7 @@ int cmdExecUserDeactivate( int id, int flags )
     else
       infod.tagpoints += maind.planets;
 
+
     dbUserRecordAdd( id, &recordd );
   }
 
@@ -982,6 +983,8 @@ int cmdExecGetAid( int id, int destid, int fam, int64_t *res )
   dbUserPtr user2;
   int64_t newd[DB_USER_NEWS_BASE];
 
+cmdErrorString = 0;
+
   if( !( ticks.status ) )
   {
     cmdErrorString = "You can't receive aid before the beginning of the round.";
@@ -1024,7 +1027,7 @@ int cmdExecGetAid( int id, int destid, int fam, int64_t *res )
   /* Check access rights - maind is giver */
   if( maind.aidaccess == 3 )
     goto access;
-  if( ( maind.aidaccess == 2 ) && ( bitflag( user2->flags, ( CMD_USER_FLAGS_LEADER | CMD_USER_FLAGS_DEVMINISTER ) ) ) )
+  if( ( maind.aidaccess == 2 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) || bitflag( user2->flags, CMD_USER_FLAGS_DEVMINISTER ) ) )
     goto access;
   if( ( maind.aidaccess == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) )
     goto access;
@@ -1226,6 +1229,7 @@ int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
 
   if( ( num = dbEmpireRelsList( fam, &rels ) ) < 0 )
     return -3;
+
 
   num <<= 2;
   for( a = b = c = 0 ; a < num ; a += 4 )

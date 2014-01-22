@@ -741,7 +741,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 			
 		maind.research[a] = fmax( 0.0, maind.research[a]);
 	}
-	maind.fundresearch = (int64_t)( 0.9 * maind.fundresearch );
+	maind.fundresearch = ( 0.9 * maind.fundresearch );
 
 	ticks.debug_pass = 6;
 
@@ -770,12 +770,13 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 	// calculate total research
 	for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
-		if(a == CMD_RESEARCH_TECH)
+		if( a == CMD_RESEARCH_TECH ) {
 			continue;
+		}
 		//research maximum
 		fa = cmdRace[maind.raceid].researchmax[a];
 		// CODE_ARTI
-		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( a == CMD_RESEARCH_MILITARY ) ) {
+		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( a == ( CMD_RESEARCH_MILITARY || CMD_RESEARCH_ENERGY ) ) ) {
 			fa += 25.0;
 		}
 	        // put this arti last, you need the other ones calculated before this one.
@@ -790,10 +791,11 @@ for( user = dbUserList ; user ; user = user->next ) {
 	        }*/
 
 		b = fa * ( 1.0 - exp( maind.research[a] / ( -10.0 * maind.networth ) ) );
-		if( b > maind.totalresearch[a] )
+		if( b > maind.totalresearch[a] ) {
 			maind.totalresearch[a]++;
-		else if( b < maind.totalresearch[a] )
-		maind.totalresearch[a]--;
+		} else if( b < maind.totalresearch[a] ) {
+			maind.totalresearch[a]--;
+		}
 	}
 
 	ticks.debug_pass = 7;
@@ -1116,7 +1118,7 @@ ticks.debug_pass = 12;
      	maind.networth += 8 * maind.totalbuilding[a];
     }
 
-    maind.networth += (int64_t)(0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
+    maind.networth += (0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
 
     for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
       maind.networth += (0.001 * maind.research[a]);
