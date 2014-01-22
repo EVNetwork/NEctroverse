@@ -895,7 +895,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 		maind.infos[INFOS_BUILDING_UPKEEP] += fmax( 0.0, ( maind.infos[INFOS_BUILDING_UPKEEP] * 0.15 ) );
 	}
 
-	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * ( ( 1.00 + 0.01 * maind.totalresearch[CMD_RESEARCH_WELFARE] ) / 10 ) ) * cmdTickProduction[CMD_BUILDING_CRYSTAL]);
+	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * ( ( 1.00 + 0.001 * maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) * cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
 
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%
