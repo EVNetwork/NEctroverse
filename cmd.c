@@ -143,6 +143,16 @@ int cmdBuildingFlags[CMD_BLDG_NUMUSED] =
 0, 0, 0, 0, 0, 0, 0, 1, 1
 };
 
+int cmdBuildingNetworth[CMD_BLDG_NUMUSED+1] = 
+{
+4, 25, 4, 6, 6, 10, 8, 12, 16, 20
+};
+
+float cmdBuildingProduction[CMD_BLDG_NUMUSED] = 
+{
+12, 40, 1, 1, 1, 1000, 5, 0, 0
+};
+
 
 int64_t cmdUnitCost[CMD_UNIT_NUMUSED][CMD_RESSOURCE_NUMUSED+1] =
 {

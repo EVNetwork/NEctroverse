@@ -74,7 +74,7 @@ if( !( ticks.status | ticks.number ) ) {
 	httpString( cnt, "<br>Change Faction name<br><i>Only available before time starts.</i><br>" );
 	httpPrintf( cnt, "<form action=\"%s\"><input type=\"text\" name=\"newname\" size=\"32\" value=\"%s\"><input type=\"submit\" value=\"Change\"></form>", URLAppend( cnt, "account" ), maind.faction );
 	httpPrintf( cnt, "<form action=\"%s\">Faction race - ", URLAppend( cnt, "account" ) );
-	httpPrintf( cnt, "<a href=\"%s\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">", URLAppend( cnt, "races" ) );
+	httpPrintf( cnt, "<a href=\"%s&type=races\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">", URLAppend( cnt, "info" ) );
 
 	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\"", a );

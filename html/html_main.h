@@ -13,7 +13,7 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags );
 void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ... );
 
 void iohtmlFunc_faq( ReplyDataPtr cnt );
-void iohtmlFunc_races( ReplyDataPtr cnt );
+void iohtmlFunc_info( ReplyDataPtr cnt );
 void iohtmlFunc_rules( ReplyDataPtr cnt );
 void iohtmlFunc_notices( ReplyDataPtr cnt );
 void iohtmlFunc_gettingstarted( ReplyDataPtr cnt );

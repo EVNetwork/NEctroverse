@@ -453,7 +453,7 @@ population = 0;
 
 for( a = 0 ; a < num ; a++ ) {
 	dbMapRetrievePlanet( buffer[a], &planetd );
-	planetd.maxpopulation = (float)( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * CMD_POPULATION_CITIES ) );
+	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + cmdTickProduction[CMD_BUILDING_CITIES] );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
@@ -499,7 +499,7 @@ for( a = 0 ; a < num ; a++ ) {
 
 	for( b = 0 ; b < CMD_BLDG_NUMUSED ; b++ ) {
 		mainp->totalbuilding[b] += planetd.building[b];
-		cmdTickProduction[b] += planetd.building[b];
+		cmdTickProduction[b] += ( cmdBuildingProduction[b] * planetd.building[b] );
 	}
 
 	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
@@ -513,15 +513,15 @@ for( a = 0 ; a < num ; a++ ) {
 
 	if( planetd.special[1] ) {
 		if( planetd.special[0] == CMD_BONUS_ENERGY ) {
-			cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * planetd.building[CMD_BUILDING_SOLAR] ) / 100;
+			cmdTickProduction[CMD_BUILDING_SOLAR] += ( planetd.special[1] * ( planetd.building[CMD_BUILDING_SOLAR] * cmdBuildingProduction[CMD_BUILDING_SOLAR] ) ) / 100;
 		} else if( planetd.special[0] == CMD_BONUS_MINERAL ) {
-			cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * planetd.building[CMD_BUILDING_MINING] ) / 100;
+			cmdTickProduction[CMD_BUILDING_MINING] += ( planetd.special[1] * ( planetd.building[CMD_BUILDING_MINING] * cmdBuildingProduction[CMD_BUILDING_MINING] ) ) / 100;
 		} else if( planetd.special[0] == CMD_BONUS_CRYSTAL ) {
-			cmdTickProduction[CMD_BUILDING_CRYSTAL] += ( planetd.special[1] * planetd.building[CMD_BUILDING_CRYSTAL] ) / 100;
+			cmdTickProduction[CMD_BUILDING_CRYSTAL] += ( planetd.special[1] * ( planetd.building[CMD_BUILDING_CRYSTAL] * cmdBuildingProduction[CMD_BUILDING_CRYSTAL] ) ) / 100;
 		} else if( planetd.special[0] == CMD_BONUS_ECTROLIUM ) {
-			cmdTickProduction[CMD_BUILDING_REFINEMENT] += ( planetd.special[1] * planetd.building[CMD_BUILDING_REFINEMENT] ) / 100;
+			cmdTickProduction[CMD_BUILDING_REFINEMENT] += ( planetd.special[1] * ( planetd.building[CMD_BUILDING_REFINEMENT] * cmdBuildingProduction[CMD_BUILDING_REFINEMENT] ) ) / 100;
 		} else if( planetd.special[0] == CMD_BONUS_FISSION ) {
-			cmdTickProduction[CMD_BUILDING_FISSION] += ( planetd.special[1] * planetd.building[CMD_BUILDING_FISSION] ) / 100;
+			cmdTickProduction[CMD_BUILDING_FISSION] += ( planetd.special[1] * ( planetd.building[CMD_BUILDING_FISSION] * cmdBuildingProduction[CMD_BUILDING_FISSION] ) ) / 100;
 		}
 	}
 
@@ -729,7 +729,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	// add research
 
 	for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
-		fa = ( (maind.allocresearch[a]) * ( 500*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
+		fa = ( (maind.allocresearch[a]) * ( 100*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
 	/*		//ARTI CODE Foohon Ancestry
 			if(maind.artefacts & ARTEFACT_*_BIT)
 				fa += ( (double)(maind.allocresearch[a]) * (double)maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
@@ -741,7 +741,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 			
 		maind.research[a] = fmax( 0.0, maind.research[a]);
 	}
-	maind.fundresearch = ( 0.9 * maind.fundresearch );
+	maind.fundresearch = fmax( 0.0, ( 0.9 * maind.fundresearch ) );
 
 	ticks.debug_pass = 6;
 
@@ -802,7 +802,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 
 	// calc infos
-	fa = ( 12.0 * cmdTickProduction[CMD_BUILDING_SOLAR] / specopSolarCalc( user->id ) );
+	fa = ( cmdTickProduction[CMD_BUILDING_SOLAR] / specopSolarCalc( user->id ) );
 	if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_SOLARP15 ) {
 		fa *= 1.15;
 	}
@@ -812,7 +812,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 		fa *= 1.30;
 	}
 
-	fb = ( 40.0 * cmdTickProduction[CMD_BUILDING_FISSION] );
+	fb = cmdTickProduction[CMD_BUILDING_FISSION];
+	
 	fa += fb;
 
 	//ARTI CODE Ether Garden
@@ -908,8 +909,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 		//if(maind.artefacts & ARTEFACT_MANA_BIT)
 		//	maind.infos[INFOS_PORTALS_UPKEEP] /= 2;
 
-	maind.infos[INFOS_MINERAL_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * cmdTickProduction[CMD_BUILDING_MINING]);
-	maind.infos[INFOS_ECTROLIUM_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * cmdTickProduction[CMD_BUILDING_REFINEMENT]);
+	maind.infos[INFOS_MINERAL_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_MINERAL] * cmdTickProduction[CMD_BUILDING_MINING] );
+	maind.infos[INFOS_ECTROLIUM_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_ECTROLIUM] * cmdTickProduction[CMD_BUILDING_REFINEMENT] );
 
 	if ( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) {
 		error( "Tick error: Retriving empire %d", maind.empire  );
@@ -1111,11 +1112,11 @@ ticks.debug_pass = 12;
 // networth
     a = dbUserPlanetNumber( user->id );
     maind.networth = ( 800 * a );
-    for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
+    for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
       maind.networth += maind.totalunit[a] * cmdUnitStats[a][CMD_UNIT_STATS_NETWORTH];
-    for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
-    {
-     	maind.networth += 8 * maind.totalbuilding[a];
+    }
+    for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
+     	maind.networth += maind.totalbuilding[a] * cmdBuildingNetworth[a];
     }
 
     maind.networth += (0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);

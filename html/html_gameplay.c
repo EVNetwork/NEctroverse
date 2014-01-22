@@ -2166,7 +2166,7 @@ if( empired.picture > 0 ) {
    httpPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", mainp[b].faction );
   else
    httpString( cnt, mainp[b].faction );
-  httpPrintf( cnt, "</a></td><td><a href=\"%s\">%s</a></td><td>%d</td><td>%lld</td><td>", URLAppend( cnt, "races" ), cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
+  httpPrintf( cnt, "</a></td><td><a href=\"%s&type=races\">%s</a></td><td>%d</td><td>%lld</td><td>", URLAppend( cnt, "info" ), cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
   nAlly = cmdExecFindRelation(maind.empire, curfam, 0, 0);
 
   if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || (nAlly == CMD_RELATION_ALLY) || ( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) ) )
@@ -4051,7 +4051,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Build on planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
- httpPrintf( cnt, "<a href=\"%s\">Building Information</a><br><br>", URLAppend( cnt, "stats" ) );
+ httpPrintf( cnt, "<a href=\"%s&type=buildings\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
  for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ )
  {
   if( buildstring[a][0] )

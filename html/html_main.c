@@ -257,8 +257,9 @@ void iohtmlBodyEnd( ReplyDataPtr cnt )
  return;
 }
 
-void iohtmlFunc_races( ReplyDataPtr cnt ) {
-	int a, b, id;
+void iohtmlFunc_info( ReplyDataPtr cnt ) {
+	int a, b, id, table;
+	char *type;
 	bool c;
 	dbUserMainDef maind;
 	ConfigArrayPtr settings;
@@ -273,8 +274,26 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 }
 
 settings = GetSetting( "Server Name" );
-iohtmlBodyInit( cnt, "%s: Races", settings->string_value );
 
+type = iohtmlVarsFind( cnt, "type" );
+
+if( type == NULL ) {
+	iohtmlBodyInit( cnt, "%s: Info", settings->string_value );
+	httpString( cnt, "Invalid Request" );
+	goto RETURN;
+} else if( strcmp( type, "races" ) == 0 ) {
+	iohtmlBodyInit( cnt, "%s: Races", settings->string_value );
+	goto RACES;
+} else if( strcmp( type, "units" ) == 0 ) {
+	iohtmlBodyInit( cnt, "%s: Units", settings->string_value );
+	goto UNITS;
+} else if( strcmp( type, "buildings" ) == 0 ) {
+	iohtmlBodyInit( cnt, "%s: Buildings", settings->string_value );
+	goto BUILDINGS;
+}
+
+
+RACES:
 for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	httpPrintf( cnt, "<div class=\"genlarge\">%s</div><br>", cmdRaceName[a] );
 	if( cmdRace[a].special )
@@ -344,10 +363,66 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	httpString( cnt, "</td></tr></table>" );
 	httpString( cnt, "<br><br>" );
 }
+goto RETURN;
+
+UNITS:
+
+
+goto RETURN;
+BUILDINGS:
+
+httpString( cnt, "<table width=\"100%\">" );
+
+for( a = table = 0; a < CMD_BLDG_NUMUSED+1; a++, table++ ) {
+	if( table == 3 ) {
+		httpString( cnt, "</tr><tr><td>&nbsp;</td></tr>" );
+		table = 0;
+	} else {
+		httpString( cnt, "<td>&nbsp;&nbsp;&nbsp;</td>" );
+	}
+	if( table == 0 ) {
+		httpString( cnt, "<tr>" );
+	}
+	httpString( cnt, "<td valign=\"top\" align=\"center\">" );
+	httpPrintf( cnt, "<span class=\"genlarge\">%s</span><br>", cmdBuildingName[a] );
+	httpString( cnt, "<table>" );
+	httpString( cnt, "<tr><td><span class=\"genblue\">Base Cost:</span></td><td>" );
+	httpString( cnt, "<table>" );
+	for( b = 0; b < CMD_RESSOURCE_NUMUSED; b++) {
+		if( cmdBuildingCost[a][b] > 0 ) {
+			httpPrintf( cnt, "<tr><td align=\"right\">%lld</td><td align=\"left\">%s</td></tr>", (long long)cmdBuildingCost[a][b], cmdRessourceName[b] );
+		}
+	}
+	httpString( cnt, "</table></td>" );
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Build Time:</span></td><td>%lld Ticks</td></tr>", (long long)cmdBuildingCost[a][CMD_RESSOURCE_TIME] );
+	if( a < CMD_BLDG_NUMUSED ) {
+		if( cmdBuildingUpkeep[a] > 0 ) {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdBuildingUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+		} else {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
+		}
+		if( cmdBuildingProduction[a] > 0 ) {
+			if( a == CMD_BUILDING_CITIES ) {
+				httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Capacity:</span></td><td>%.2f Population</td></tr>", cmdBuildingProduction[a] );
+			} else {
+				httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Output:</span></td><td>%.2f per Tick</td></tr>", cmdBuildingProduction[a] );
+			}
+		}
+		if( cmdBuildingTech[a] > 0 ) {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Tech:</span></td><td>%d%%</td></tr>", cmdBuildingTech[a] );
+		}
+	}
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Networth:</span></td><td>%d</td></tr>", cmdBuildingNetworth[a] );
+	httpString( cnt, "</table>" );
+	httpString( cnt, "</td>" );
+}
+
+httpString( cnt, "</table>" );
+
+RETURN:
 iohtmlBodyEnd( cnt );
 
-
- return;
+return;
 }
 
 
@@ -708,7 +783,7 @@ httpString( cnt, "You are well on your way to making a name for yourself.<br>" )
 httpString( cnt, "But how will people remember you? As an aggressive attacker? A proud and rich Energy provider? A self made and self sufficient powerhouse?<br>" );
 httpString( cnt, "<br>" );
 httpString( cnt, "Your race will decide which path you will walk.<br>" );
-httpPrintf( cnt, "<a href=\"%s\">View the stats for each race here</a>.<br><br>", URLAppend( cnt, "races" ) );
+httpPrintf( cnt, "<a href=\"%s&type=races\">View the stats for each race here</a>.<br><br>", URLAppend( cnt, "info" ) );
 
 httpString( cnt, "<a name=\"a4\"><b><i>4. Completion and logging in.</i></b></a><br>" );
 httpString( cnt, "Congratulations. You have created an account, chosen an Empire to fight for and selected your race.<br>" );
@@ -1288,7 +1363,7 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>", URLAppend( cnt, "register" ) );
 	httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
 	httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
-	httpPrintf( cnt, "<a href=\"%s\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "races" ) );
+	httpPrintf( cnt, "<a href=\"%s&type=races\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "info" ) );
 	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdRaceName[a] );
 	}

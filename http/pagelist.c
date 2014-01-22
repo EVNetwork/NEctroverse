@@ -23,7 +23,7 @@ PageDef html_page[] =
     { "/gettingstarted", "text/html",  &page_render, iohtmlFunc_gettingstarted, NULL },
     { "/faq", "text/html",  &page_render, iohtmlFunc_faq, NULL },
     { "/status", "text/html",  &page_render, iohtmlFunc_status, NULL },
-    { "/races", "text/html",  &page_render, iohtmlFunc_races, NULL },
+    { "/info", "text/html",  &page_render, iohtmlFunc_info, NULL },
     { "/rules", "text/html",  &page_render, iohtmlFunc_rules, NULL },
     { "/register", "text/html",  &page_render, iohtmlFunc_register, NULL },
     //Ajax pages

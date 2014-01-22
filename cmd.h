@@ -124,15 +124,21 @@ extern char *cmdMainInfoNames[INFOS_TOTAL_NUMUSED];
 
 
 extern char *cmdUnitName[CMD_UNIT_NUMUSED];
-
+extern int64_t cmdUnitCost[CMD_UNIT_NUMUSED][CMD_RESSOURCE_NUMUSED+1];
 
 extern char *cmdResearchName[CMD_RESEARCH_NUMUSED];
 extern char *cmdResearchDesc[CMD_RESEARCH_NUMUSED];
 
+extern int64_t cmdBuildingCost[CMD_BLDG_NUMUSED+1][CMD_RESSOURCE_NUMUSED+1];
 
+extern int cmdBuildingTech[CMD_BLDG_NUMUSED+1];
 extern float cmdBuildingUpkeep[CMD_BLDG_NUMUSED];
 extern int cmdBuildingFlags[CMD_BLDG_NUMUSED];
 
+extern int cmdBuildingNetworth[CMD_BLDG_NUMUSED+1];
+extern float cmdBuildingProduction[CMD_BLDG_NUMUSED];
+
+extern int cmdUnitTech[CMD_UNIT_NUMUSED];
 extern float cmdUnitUpkeep[CMD_UNIT_NUMUSED];
 extern int cmdUnitStats[CMD_UNIT_NUMUSED][CMD_UNIT_STATS_NUMUSED];
 
