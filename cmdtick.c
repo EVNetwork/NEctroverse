@@ -464,8 +464,8 @@ for( a = 0 ; a < num ; a++ ) {
 	//No more pop grow bonus it will count as upkeep reducer multiplier
 	//Planet grow pop is 2% each tick -- of current population, not max
 	planetd.population += ceil( planetd.population * 0.02 * pow(0.75, (float)nInfection) );
-	if( planetd.population > planetd.maxpopulation )
-		planetd.population = planetd.maxpopulation;
+
+	planetd.population = fmin( planetd.maxpopulation, planetd.population );
 
 
 	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
