@@ -295,8 +295,11 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
     httpString( cnt, "Agents readiness : unknown<br>" );
    else
     httpPrintf( cnt, "Agents readiness : %lld%%<br>", (long long)newsd[12] >> 16 );
-   for( a = 13 ; a < 13+CMD_RESSOURCE_NUMUSED ; a++ )
+   for( a = 13 ; a < 13+(CMD_RESSOURCE_NUMUSED+1) ; a++ )
    {
+   if( (a-13) == CMD_RESSOURCE_NUMUSED )
+   httpString( cnt, cmdRessourceName[CMD_RESSOURCE_POPULATION] );
+   else
     httpString( cnt, cmdRessourceName[a-13] );
     if( (long long)newsd[a] == -1 )
      httpString( cnt, " : unknown<br>" );

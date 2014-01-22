@@ -310,6 +310,8 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	      newd[15] = main2d.ressource[2] + resources[2];
 	    if( success >= 0.8 )
 	      newd[16] = main2d.ressource[3] + resources[3];
+       	    if( success >= 0.9 )
+	      newd[17] = main2d.ressource[CMD_RESSOURCE_POPULATION];
 	  }
 	  else if( fleetd->order == CMD_FLEET_ORDER_OBSERVEPLANET )
 	  {
