@@ -751,7 +751,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	// calculate total research for tech
 
           //research maximum
-	fa = cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH];
+	fa = (cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH] + 1);
 
       /*      //      ARTI CODE Divine Stone
                     if(maind.artefacts & ARTEFACT_*_BIT)
@@ -774,7 +774,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 			continue;
 		}
 		//research maximum
-		fa = cmdRace[maind.raceid].researchmax[a];
+		fa = (cmdRace[maind.raceid].researchmax[a] + 1);
 		// CODE_ARTI
 		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( ( a == CMD_RESEARCH_ENERGY ) || ( a == CMD_RESEARCH_MILITARY ) ) ) {
 			fa += 25.0;
@@ -795,8 +795,6 @@ for( user = dbUserList ; user ; user = user->next ) {
 			maind.totalresearch[a]++;
 		} else if( b < maind.totalresearch[a] ) {
 			maind.totalresearch[a]--;
-		} else {
-			maind.totalresearch[a] = fmin( b, fa );
 		}
 	}
 
