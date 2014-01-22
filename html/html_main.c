@@ -395,15 +395,13 @@ for( a = table = 0; a < CMD_UNIT_NUMUSED; a++, table++ ) {
 	} else {
 		httpString( cnt, "<tr><td><span class=\"genblue\">Special Unit:</span></td><td>Can not be built.</td></tr>" );
 	}
-	if( a < CMD_BLDG_NUMUSED ) {
-		if( cmdUnitUpkeep[a] > 0 ) {
-			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdUnitUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
-		} else {
-			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
-		}
-		if( cmdUnitTech[a] > 0 ) {
-			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Tech:</span></td><td>%d%%</td></tr>", cmdUnitTech[a] );
-		}
+
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdUnitUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Travel Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 2), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Station Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 1.5), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+
+	if( cmdUnitTech[a] > 0 ) {
+		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Tech:</span></td><td>%d%%</td></tr>", cmdUnitTech[a] );
 	}
 	for( b = 0; b < CMD_UNIT_STATS_NUMUSED; b++ ) {
 		if( cmdUnitStats[a][b] > 0 ) {
