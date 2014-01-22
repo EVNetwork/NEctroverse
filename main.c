@@ -75,6 +75,10 @@ Shutdown();
 
 exit(1);
 }
+static void catcher(int signal, siginfo_t *siginfo, void *context) {
+  /* do nothing */
+return;
+}
 
 char *trimwhitespace(char *str) {
 	char *end;
@@ -170,7 +174,7 @@ return YES;
 int daemon_init() {
 	int binfo[MAP_TOTAL_INFO];
 	ConfigArrayPtr settings[2];
-	struct sigaction act;
+	struct sigaction act, ign;
 	pid_t pid, sid;
 
 info( "Server process iniating...");
@@ -214,10 +218,16 @@ settings[0] = GetSetting( "Tick Speed" );
 ticks.speed = (int)settings[0]->num_value;
 ticks.next = time(0) + ticks.speed;
 
-memset (&act, '\0', sizeof(act));
- 
+memset(&act, '\0', sizeof(act));
+sigemptyset (&act.sa_mask);
 act.sa_sigaction = &svSignal;
-act.sa_flags = SA_SIGINFO;	
+act.sa_flags = SA_SIGINFO;
+
+memset(&ign, '\0', sizeof(ign));
+sigemptyset (&ign.sa_mask);
+ign.sa_sigaction = &catcher;
+ign.sa_flags = SA_SIGINFO;	
+
 if (sigaction(SIGTERM, &act, NULL) < 0) {
 		error ("sigaction");
 		return NO;
@@ -274,8 +284,14 @@ if (sigaction(SIGUSR2, &act, NULL) < 0) {
 		error ("sigaction");
 		return NO;
 }
-signal( SIGPIPE, SIG_IGN );
-signal( SIGHUP, SIG_IGN );
+if (sigaction(SIGPIPE, &ign, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
+if (sigaction(SIGHUP, &ign, NULL) < 0) {
+		error ("sigaction");
+		return NO;
+}
 	
 RANDOMIZE_SEED;
 
