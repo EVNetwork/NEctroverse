@@ -398,7 +398,7 @@ if( ( iohtmlVarsFind( cnt, "signed_request" ) != NULL ) || ( ( fbtoke == NULL ) 
 	if( fbtoke != NULL ) {
 		char *pointer = ( strchr( fbtoke, '.' ) +1 );
 		char *test = strdup( pointer );
-		char buffer[DEFAULT_BUFFER];
+		char buffer[DEFAULT_BUFFER*2];
 		fbtoke = NULL;
 		UnBase64( (unsigned char *)buffer, (unsigned char *)test, strlen( test ) );
 		if( test ) {
