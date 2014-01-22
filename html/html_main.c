@@ -1153,13 +1153,16 @@ if( ( name ) && ( pass ) ) {
 	return;
 	}
 	goto LOGIN_SUCESS;
+} else {
+	goto LOGIN_RAW;
 }
 LOGIN_FAIL:
-
 if( file ) {
 	fprintf( file, "Failed!\n\n\n" );
 	fclose( file );
 }
+httpString( cnt, "<span class=\"genlargered\">Login Failed</span><br>" );
+LOGIN_RAW:
 
 if( text ) {
 	httpPrintf( cnt, "<br>%s", text );

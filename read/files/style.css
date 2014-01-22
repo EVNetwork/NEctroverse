@@ -82,13 +82,16 @@ body,td{
 .genwhite,.genmedwhite,.gensmallwhite {
 	color : #FFFFFF;
 }
+.genlargered {
+	font-size : 25px;
+}
 .genmedred { 
 	font-size : 11px; 
 }
 .gensmallred { 
 	font-size : 10px; 
 }
-.genred,.genmedred,.gensmallred {
+.genred,.genlargered,.genmedred,.gensmallred {
 	color : #880000;
 }
 .genmedblue { 
