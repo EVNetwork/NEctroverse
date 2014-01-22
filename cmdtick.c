@@ -730,13 +730,15 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 	for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
 		fa = ( (maind.allocresearch[a]) * ( 500*cmdTickProduction[CMD_BUILDING_RESEARCH] + maind.fundresearch ) ) / 10000.0;
-		if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_POPRESEARCH )
-			fa += ( (maind.allocresearch[a]) * maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
 	/*		//ARTI CODE Foohon Ancestry
 			if(maind.artefacts & ARTEFACT_*_BIT)
 				fa += ( (double)(maind.allocresearch[a]) * (double)maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 400.0 * 100.0 );
 	*/
 		maind.research[a] += cmdRace[maind.raceid].researchpoints[a] * fa;
+		
+		if( cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_POPRESEARCH )
+			maind.research[a] += ( (maind.allocresearch[a]) * maind.ressource[CMD_RESSOURCE_POPULATION] ) / ( 600.0 * 100.0 );
+			
 		maind.research[a] = fmax( 0.0, maind.research[a]);
 	}
 	maind.fundresearch = (int64_t)( 0.9 * maind.fundresearch );

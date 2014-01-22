@@ -280,7 +280,7 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	if( cmdRace[a].special )
 	httpPrintf( cnt, "<i><b>Special bonus.</b></i><br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_POPRESEARCH )
-		httpString( cnt, "Each 4000 population produces 1 research point every week!<br>" );
+		httpString( cnt, "Each 6000 population produces 1 research point every week!<br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_SOLARP15 )
 		httpString( cnt, "Solar Production increased by 15%!<br>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_CULPROTECT )
