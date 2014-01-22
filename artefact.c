@@ -32,7 +32,7 @@ char *artefactDescription[ARTEFACT_NUMUSED] =
 "The <b>Ether Laboratory</b> increases the Energy and Military research maximum by 25%!",
 "The <b>Ether Palace</b> increases your energy production by 25%!",
 
-"The <b>Tachyon Pulsar</b> doubles the strenght of Phantoms and increases your unit upkeep by 50%!",
+"The <b>Tachyon Pulsar</b> Increases population growth by 25%! and increases your unit upkeep by 15%!",
 "The <b>Ether Solar Formula</b>, increases the output of Solar Collectors by 30%!",
 "The <b>Arrakis Spice Melange</b> increases the production of Mineral by 50%!",
 "The <b>Apotheosis of War</b> reduces by half the readiness loss for the Energy Surge incantation!", 

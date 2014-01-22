@@ -111,7 +111,7 @@ char *cmdResearchDesc[CMD_RESEARCH_NUMUSED] =
 "Allow construction of advanced units and buildings",
 "Increases energy output",
 "Increases the protection range of your portals",
-"Increases building upkeep reduction and psychics capabilities",
+"Increases crystal production and psychics capabilities",
 "Increases the effectiveness of your agents"
 };
 

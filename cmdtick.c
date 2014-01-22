@@ -453,7 +453,7 @@ population = 0;
 
 for( a = 0 ; a < num ; a++ ) {
 	dbMapRetrievePlanet( buffer[a], &planetd );
-	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) );
+	planetd.maxpopulation = ( ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) ) );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
@@ -461,10 +461,11 @@ for( a = 0 ; a < num ; a++ ) {
 	*/
 	ticks.debug_pass = 2 + 10000;
 
-	//No more pop grow bonus it will count as upkeep reducer multiplier
-	//Planet grow pop is 2% each tick -- of current population, not max
-	planetd.population += ceil( planetd.population * 0.02 * pow(0.75, (float)nInfection) );
-
+	if(mainp->artefacts & ARTEFACT_16_BIT) {
+		planetd.population += ceil( planetd.population * (( cmdRace[mainp->raceid].growth * 1.25 ) * pow(0.75, (float)nInfection) ) );
+	} else {
+		planetd.population += ceil( planetd.population * ( cmdRace[mainp->raceid].growth * pow(0.75, (float)nInfection) ) );
+	}
 	planetd.population = fmin( planetd.maxpopulation, planetd.population );
 
 
@@ -878,9 +879,9 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 	//ARTI CODE Romulan Military Outpost
 	if(maind.artefacts & ARTEFACT_16_BIT) {
-		maind.infos[INFOS_UNITS_UPKEEP] *= 1.5;
+		maind.infos[INFOS_UNITS_UPKEEP] *= 1.15;
 	}
-	maind.infos[INFOS_POPULATION_REDUCTION] = ((1.0/35.0) * maind.ressource[CMD_RESSOURCE_POPULATION] * ( 1.00 + 0.01 * maind.totalresearch[CMD_RESEARCH_WELFARE] ) * cmdRace[maind.raceid].growth );
+	maind.infos[INFOS_POPULATION_REDUCTION] = (1.0/35.0) * maind.ressource[CMD_RESSOURCE_POPULATION];
 
 	//Population Reduction changed to include portals + units
 	maind.infos[INFOS_PORTALS_UPKEEP] = fmax( 0.0, ( pow( (maind.totalbuilding[CMD_BLDG_NUMUSED]-1), 1.2736 ) * 10000.0) );
@@ -894,7 +895,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 		maind.infos[INFOS_BUILDING_UPKEEP] += fmax( 0.0, ( maind.infos[INFOS_BUILDING_UPKEEP] * 0.15 ) );
 	}
 
-	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * cmdTickProduction[CMD_BUILDING_CRYSTAL]);
+	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * ( 1.00 + 0.01 * maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) * cmdTickProduction[CMD_BUILDING_CRYSTAL]);
 
 
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%

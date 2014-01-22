@@ -322,7 +322,7 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	c = false;
 	if( (int)((((cmdRace[a].growth-1)/0.02) - 1 ) * 100 ) != 0 ) {
 		httpPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
-		httpPrintf( cnt, "%+.0f%% Population Upkeep Reduction<br>", (((cmdRace[a].growth-1)/0.02) - 1 ) * 100 );
+		httpPrintf( cnt, "%+.0f%% Population growth<br>", (((cmdRace[a].growth-1)/0.02) - 1 ) * 100 );
 		c = true;
 	}
 	for( b = 0; b < CMD_RESSOURCE_NUMUSED ; b++) {

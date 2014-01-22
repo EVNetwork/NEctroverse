@@ -1004,12 +1004,12 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
   {
     newd[2] = CMD_NEWS_SPPHANTOMS;
 
-
+/*
 //CODE_ARTEFACT for double phantom strength
   if( maind.artefacts & ARTEFACT_16_BIT )
     attack *= 2.0;
  //CODE_ARTEFACT
-
+*/
 
     j = attack / 2;
 
@@ -1208,10 +1208,10 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
   fa = 0.6 + (0.8/255.0) * (double)( rand() & 255 );
 
  // CODE_ARTI ARTEFACT_16_BIT
-
+/*
 if( maind.artefacts & ARTEFACT_16_BIT )
   attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (float)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (float)cmdGhostopDifficulty[specop] *1.2);
-else //code arti
+else //code arti*/
 	attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] );
 
 	if( penalty )
