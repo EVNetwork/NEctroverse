@@ -214,6 +214,7 @@ int cmdExecUserDeactivate( int id, int flags )
   dbUserSpecOpPtr specopd;
   dbUserPtr user;
   dbUserRecordDef recordd;
+  ConfigArrayPtr setting;
   int i, j, k;
 	int *rel;
 	
@@ -231,12 +232,12 @@ int cmdExecUserDeactivate( int id, int flags )
     recordd.roundid = ticks.round;
     recordd.planets = maind.planets;
     recordd.networth = maind.networth;
-    memcpy( recordd.faction, maind.faction, 32 );
-    memcpy( recordd.forumtag, infod.forumtag, 32 );
+    memcpy( recordd.faction, maind.faction, USER_NAME_MAX );
+    memcpy( recordd.forumtag, infod.forumtag, USER_FTAG_MAX );
     recordd.empire = maind.empire;
     recordd.famplanets = empired.planets;
     recordd.famnetworth = empired.networth;
-    memcpy( recordd.famname, empired.name, 64 );
+    memcpy( recordd.famname, empired.name, USER_NAME_MAX );
     recordd.rank = maind.rank;
     recordd.famrank = empired.rank;
     for( a = c = 0, b = 1 ; a < ARTEFACT_NUMUSED ; a++, b <<= 1 )
@@ -337,15 +338,15 @@ int cmdExecUserDeactivate( int id, int flags )
       cmdEmpireLeader( &empired );
  
      //Remove pass if last player
-      if( ( empired.numplayers < 1 ) && ( maind.empire > 0 ) ) {
-      	strcpy( empired.name, "");
-      	strcpy( empired.password, "");
+	setting = GetSetting( "Admin Empire" );
+	if( ( empired.numplayers < 1 ) && ( maind.empire != setting->num_value ) ) {
+		memset( &empired.name, 0, USER_NAME_MAX );
+		memset( &empired.password, 0, USER_PASS_MAX );
 	}
-
-      dbEmpireSetInfo( maind.empire, &empired );
+	dbEmpireSetInfo( maind.empire, &empired );
       
-      break;
-    }
+	break;
+	}
 	for( a = CMD_EMPIRE_POLITICS_START; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
 		bitflag_remove( &user->flags, a );
 	}
