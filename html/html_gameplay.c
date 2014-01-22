@@ -3738,46 +3738,47 @@ void iohtmlFunc_playerlist( ReplyDataPtr cnt )
 
  iohtmlBase( cnt, 1 );
 
- if( ( id = iohtmlIdentify( cnt, 1|2 ) ) >= 0 )
- {
-  if( !( iohtmlHeader( cnt, id, &maind ) ) )
-   return;
- }
+if( ( id = iohtmlIdentify( cnt, 1|2 ) ) >= 0 ) {
+	if( !( iohtmlHeader( cnt, id, &maind ) ) )
+		return;
+}
 
- playerstring = iohtmlVarsFind( cnt, "id" );
+playerstring = iohtmlVarsFind( cnt, "id" );
 
- if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) )
- {
-  httpPrintf( cnt, "Are you sure this user %d exists?</body></html>", playerid );
-  return;
- }
- iohtmlBodyInit( cnt, main2d.faction );
+if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) ) {
+	iohtmlBodyInit( cnt, "User Not Found" );
+	httpPrintf( cnt, "Are you sure this user %d exists?", playerid );
+	goto RETURN;
+}
 
- httpString( cnt, "Planets list<br>" );
- if( ( num = dbUserPlanetListIndicesSorted( playerid, &buffer, 0 ) ) <= 0 ) {
+
+iohtmlBodyInit( cnt, main2d.faction );
+
+httpString( cnt, "Planets list<br>" );
+if( ( num = dbUserPlanetListIndicesSorted( playerid, &buffer, 0 ) ) <= 0 ) {
 	httpString( cnt, "Error while retrieving planets list" );
-	iohtmlBodyEnd( cnt );
-	return;
- }
- if( num )
- {
-  num--;
-  for( a = 0 ; ; a++ )
-  {
-   dbMapRetrievePlanet( buffer[a], &planetd );
-   httpPrintf( cnt, "<a href=\"%s&id=%d\">%d,%d:%d</a>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFF, planetd.position >> 20, planetd.position & 0xFF );
-   if( a >= num )
-    break;
-   if( ( a & 7 ) == 7 )
-    httpString( cnt, "<br>" );
-   else
-    httpString( cnt, " &nbsp; " );
-  }
- }
- free( buffer );
+	goto RETURN;
+}
+if( num ) {
+	num--;
+	httpString( cnt, "<table><tr>" );
+	for( a = 0 ; a < num ; a++ ) {
+		dbMapRetrievePlanet( buffer[a], &planetd );
+		httpPrintf( cnt, "<td><a href=\"%s&id=%d\">%d,%d:%d</td>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFF, planetd.position >> 20, planetd.position & 0xFF );
+		if( ( a & 7 ) == 7 ) {
+			httpString( cnt, "</tr></table><table><tr>" );
+		} else if( a != (num-1) ) {
+			httpString( cnt, "<td>&nbsp;</td>" );
+		}
 
- iohtmlBodyEnd( cnt );
- return;
+	}
+	httpString( cnt, "</tr></table>" );
+}
+free( buffer );
+
+RETURN:
+iohtmlBodyEnd( cnt );
+return;
 }
 
 
