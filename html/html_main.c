@@ -364,8 +364,58 @@ for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
 	httpString( cnt, "<br><br>" );
 }
 goto RETURN;
-
 UNITS:
+
+
+httpString( cnt, "<table width=\"100%\">" );
+
+for( a = table = 0; a < CMD_UNIT_NUMUSED; a++, table++ ) {
+	if( table == 3 ) {
+		httpString( cnt, "</tr><tr><td>&nbsp;</td></tr>" );
+		table = 0;
+	} else {
+		httpString( cnt, "<td>&nbsp;&nbsp;&nbsp;</td>" );
+	}
+	if( table == 0 ) {
+		httpString( cnt, "<tr>" );
+	}
+	httpString( cnt, "<td valign=\"top\" align=\"center\">" );
+	httpPrintf( cnt, "<span class=\"genlarge\">%s</span><br>", cmdUnitName[a] );
+	httpString( cnt, "<table>" );
+	if( a != CMD_UNIT_PHANTOM ) {
+		httpString( cnt, "<tr><td><span class=\"genblue\">Base Cost:</span></td><td>" );
+		httpString( cnt, "<table>" );
+		for( b = 0; b < CMD_RESSOURCE_NUMUSED; b++) {
+			if( cmdUnitCost[a][b] > 0 ) {
+				httpPrintf( cnt, "<tr><td align=\"right\">%lld</td><td align=\"left\">%s</td></tr>", (long long)cmdUnitCost[a][b], cmdRessourceName[b] );
+			}
+		}
+		httpString( cnt, "</table></td>" );
+		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Build Time:</span></td><td>%lld Ticks</td></tr>", (long long)cmdUnitCost[a][CMD_RESSOURCE_TIME] );
+	} else {
+		httpString( cnt, "<tr><td><span class=\"genblue\">Special Unit:</span></td><td>Can not be built.</td></tr>" );
+	}
+	if( a < CMD_BLDG_NUMUSED ) {
+		if( cmdUnitUpkeep[a] > 0 ) {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdUnitUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+		} else {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
+		}
+		if( cmdUnitTech[a] > 0 ) {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Tech:</span></td><td>%d%%</td></tr>", cmdUnitTech[a] );
+		}
+	}
+	for( b = 0; b < CMD_UNIT_STATS_NUMUSED; b++ ) {
+		if( cmdUnitStats[a][b] > 0 ) {
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">%s:</span></td><td>%d</td></tr>", cmdUnitStatsNames[b], cmdUnitStats[a][b] );
+		}
+	}
+	
+	httpString( cnt, "</table>" );
+	httpString( cnt, "</td>" );
+}
+
+httpString( cnt, "</table>" );
 
 
 goto RETURN;
@@ -403,7 +453,7 @@ for( a = table = 0; a < CMD_BLDG_NUMUSED+1; a++, table++ ) {
 		}
 		if( cmdBuildingProduction[a] > 0 ) {
 			if( a == CMD_BUILDING_CITIES ) {
-				httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Capacity:</span></td><td>%.2f Population</td></tr>", cmdBuildingProduction[a] );
+				httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Capacity:</span></td><td>%.0f Population</td></tr>", cmdBuildingProduction[a] );
 			} else {
 				httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Output:</span></td><td>%.2f per Tick</td></tr>", cmdBuildingProduction[a] );
 			}

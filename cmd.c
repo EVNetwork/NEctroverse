@@ -207,6 +207,15 @@ int cmdUnitStats[CMD_UNIT_NUMUSED][CMD_UNIT_STATS_NUMUSED] =
 {  0,  0,  0,  0, 3, 30 }
 };
 
+char *cmdUnitStatsNames[CMD_UNIT_STATS_NUMUSED] = 
+{
+"Air Attack",
+"Air Defence",
+"Ground Attack",
+"Ground Defence",
+"Speed",
+"Networth"
+};
 
 
 char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED] =

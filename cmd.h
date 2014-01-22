@@ -142,7 +142,7 @@ extern int cmdUnitTech[CMD_UNIT_NUMUSED];
 extern float cmdUnitUpkeep[CMD_UNIT_NUMUSED];
 extern int cmdUnitStats[CMD_UNIT_NUMUSED][CMD_UNIT_STATS_NUMUSED];
 
-
+extern char *cmdUnitStatsNames[CMD_UNIT_STATS_NUMUSED];
 
 extern char *cmdFleetOrderName[CMD_FLEET_ORDER_NUMUSED];
 

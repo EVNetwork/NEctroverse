@@ -1572,7 +1572,7 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Units" );
-
+ httpPrintf( cnt, "<a href=\"%s&type=units\">Unit Information</a><br><br>", URLAppend( cnt, "info" ) );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
   if( buildstring[a][0] )
@@ -4374,7 +4374,7 @@ cmdExecAddBuild !!!
  }
 
  iohtmlBodyInit( cnt, "Build on %d planets", totalpl );
- httpString( cnt, "<a href=\"stats\">Building Information</a><br><br>" );
+ httpPrintf( cnt, "<a href=\"%s&type=buildings\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
  httpString( cnt, buildstring );
 
  httpString( cnt, "<table><tr><td>" );
