@@ -447,7 +447,7 @@ for( a = table = 0; a < CMD_BLDG_NUMUSED+1; a++, table++ ) {
 	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Build Time:</span></td><td>%lld Ticks</td></tr>", (long long)cmdBuildingCost[a][CMD_RESSOURCE_TIME] );
 	if( a < CMD_BLDG_NUMUSED ) {
 		if( cmdBuildingUpkeep[a] > 0 ) {
-			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdBuildingUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+			httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f per Tick</td></tr>", cmdBuildingUpkeep[a] );
 		} else {
 			httpString( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>No Upkeep</td></tr>" );
 		}
