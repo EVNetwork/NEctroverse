@@ -397,8 +397,8 @@ for( a = table = 0; a < CMD_UNIT_NUMUSED; a++, table++ ) {
 	}
 
 	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", cmdUnitUpkeep[a], cmdRessourceName[CMD_RESSOURCE_ENERGY] );
-	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Travel Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 2), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
-	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Station Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 1.5), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Travel Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 1.75), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
+	httpPrintf( cnt, "<tr><td><span class=\"genblue\">Station Upkeep:</span></td><td>%.2f %s per Tick</td></tr>", (cmdUnitUpkeep[a] * 1.25), cmdRessourceName[CMD_RESSOURCE_ENERGY] );
 
 	if( cmdUnitTech[a] > 0 ) {
 		httpPrintf( cnt, "<tr><td><span class=\"genblue\">Base Tech:</span></td><td>%d%%</td></tr>", cmdUnitTech[a] );
