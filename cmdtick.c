@@ -776,7 +776,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 		//research maximum
 		fa = cmdRace[maind.raceid].researchmax[a];
 		// CODE_ARTI
-		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( a == ( CMD_RESEARCH_MILITARY || CMD_RESEARCH_ENERGY ) ) ) {
+		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( ( a == CMD_RESEARCH_ENERGY ) || ( a == CMD_RESEARCH_MILITARY ) ) ) {
 			fa += 25.0;
 		}
 	        // put this arti last, you need the other ones calculated before this one.
