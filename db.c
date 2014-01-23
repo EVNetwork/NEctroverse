@@ -686,7 +686,7 @@ int dbUserSessionSearch( char *session ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( ioCompareExact( session, user->http_session ) ) )
+	if( ( strlen(user->http_session) == 0 ) || !( ioCompareExact( session, user->http_session ) ) )
 		continue;
 	return user->id;
 }

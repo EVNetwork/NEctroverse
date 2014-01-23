@@ -374,10 +374,10 @@ int cmdExecUserDeactivate( int id, int flags )
 
   memcpy( &main2d, &cmdUserMainDefault, sizeof(dbUserMainDef) );
   if( user->level == 0 )
-    sprintf( infod.forumtag, "%s", cmdTagFind( infod.tagpoints ) );
+    snprintf( infod.forumtag, USER_FTAG_MAX, "%s", cmdTagFind( infod.tagpoints ) );
   else
-    sprintf( infod.forumtag, "%s", infod.forumtag );
-  sprintf( main2d.faction, "%s", maind.faction );
+    snprintf( infod.forumtag, USER_FTAG_MAX, "%s", infod.forumtag );
+  snprintf( main2d.faction, USER_NAME_MAX, "%s", maind.faction );
   main2d.empire = -1;
 
   if( !( dbUserMainSet( id, &main2d ) ) )

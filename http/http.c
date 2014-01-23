@@ -1061,7 +1061,6 @@ return YES;
  */
 static void expire_sessions () {
 	int id;
-	char buffer[SESSION_SIZE];
 	dbUserPtr user;
 	SessionPtr pos;
 	SessionPtr prev;
@@ -1081,9 +1080,8 @@ while( NULL != pos ) {
 			prev->next = next;
 		}
 		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
-			if( ( user = dbUserLinkID( id ) ) ){
-				snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-				snprintf(user->http_session, sizeof(user->http_session), "%s", hashencrypt(buffer) );
+			if( ( user = dbUserLinkID( id ) ) ) {
+				memset( user->http_session, 0, sizeof(user->http_session) );
 				dbUserSave( id, user );
 			}
 		}
@@ -1100,7 +1098,6 @@ while( NULL != pos ) {
 
 int remove_session( const char *sid ) {
 	int id;
-	char buffer[SESSION_SIZE];
 	dbUserPtr user;
 	SessionPtr pos;
 	SessionPtr prev;
@@ -1118,9 +1115,8 @@ while( NULL != pos ) {
 			prev->next = next;
 		}
 		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
-			if( ( user = dbUserLinkID( id ) ) ){
-				snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-				snprintf(user->http_session, sizeof(user->http_session), "%s", hashencrypt(buffer) );
+			if( ( user = dbUserLinkID( id ) ) ) {
+				memset( user->http_session, 0, sizeof(user->http_session) );
 				dbUserSave( id, user );
 			}
 		}
