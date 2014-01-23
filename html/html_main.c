@@ -1080,15 +1080,21 @@ if( ( name ) && ( pass ) ) {
 	}
 	if( ( id = dbUserSearch( name ) ) < 0 )
 		goto LOGIN_FAIL;
-	if( dbUserRetrievePassword( id, rtpass ) < 0 )
+	if( dbUserRetrievePassword( id, rtpass ) < 0 ) {
+		error( "Getting Password for User: %d", id );
 		goto LOGIN_FAIL;
+	}
 	if( !( checkencrypt( pass, rtpass ) ) )
 		goto LOGIN_FAIL;
-	if( dbUserLinkDatabase( cnt, id ) < 0 )
+	if( dbUserLinkDatabase( cnt, id ) < 0 ) {
+		error( "Getting linking User: %d", id );
 		goto LOGIN_FAIL;
+	}
 
-	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 )
+	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) {
+		error( "Getting setting session for User: %d", id );
 		goto LOGIN_FAIL;
+	}
 
 	dbUserInfoRetrieve( id, &infod );
 	infod.lasttime = time( 0 );
