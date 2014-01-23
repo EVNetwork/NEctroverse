@@ -75,6 +75,7 @@ Shutdown();
 
 exit(1);
 }
+
 static void catcher(int signal, siginfo_t *siginfo, void *context) {
   /* do nothing */
 return;

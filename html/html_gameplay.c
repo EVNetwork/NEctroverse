@@ -3667,7 +3667,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  httpPrintf( cnt, "Planets : %d<br>", main2d.planets );
  httpPrintf( cnt, "Race : %s<br>", cmdRaceName[main2d.raceid] );
  httpPrintf( cnt, "Networth : %lld<br>", (long long)main2d.networth );
-if( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ){
+if( ( maind.empire == main2d.empire ) || ( ( (cnt->session)->dbuser ) && ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ){
  	httpPrintf( cnt, "Population : %lld0<br>", (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
 }
  httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );

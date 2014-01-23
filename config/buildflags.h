@@ -34,7 +34,7 @@
 #define DAUTH_SUPPORT 1
 
 /* disable epoll support */
-#define EPOLL_SUPPORT 0
+#define EPOLL_SUPPORT 1
 
 /* Define to 1 if you have the `accept4' function. */
 #define HAVE_ACCEPT4 1
