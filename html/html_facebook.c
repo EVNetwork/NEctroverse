@@ -146,7 +146,7 @@ void facebook_getdata( FBUserPtr fbdata, char *urlstring, int offset ) {
 	CURL *curl;
 	CURLcode res;
 
-offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,languages" );
+offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,location" );
 
 curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
@@ -167,7 +167,7 @@ if( curl ) {
 	if( root ) {
 		cJSON *message;
 		
-		message = cJSON_GetObjectItem(root,"languages");
+		message = cJSON_GetObjectItem(root,"location");
 		fbdata->connected = ( message ) ? true : false;
 		
 		message = cJSON_GetObjectItem(root,"timezone");

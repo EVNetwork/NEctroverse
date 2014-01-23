@@ -661,11 +661,10 @@ return ret;
 }
 
 static int postdata_set( SessionPtr session, const char *key, const char *value ) {
-	int a;
 	PostDataPtr data;
 
 if( session->postdata != NULL) {
-	for( a = 1, data = session->postdata ; data ; data = data->next, a++ ) {
+	for(data = session->postdata ; data ; data = data->next ) {
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
 			if( strlen( value ) == 0 ) {

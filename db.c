@@ -651,7 +651,7 @@ int dbUserSearch( char *name ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( ioCompareExact( name, user->name ) ) )
+	if( ( ioCompareExact( name, user->name ) ) == 0 )
 		continue;
 	//info( "Name: %s links to ID:%d", name, user->id );
 	return user->id;
@@ -671,7 +671,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	if( !( bitflag( user->flags, CMD_USER_FLAGS_FBLINK) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE) ) ) {
 	 	continue;
 	}
-	if( !( ioCompareExact( FBid, user->fbid ) ) )
+	if( ( ioCompareExact( FBid, user->fbid ) ) == 0 )
 		continue;
 	return user->id;
 }
@@ -686,7 +686,7 @@ int dbUserSessionSearch( char *session ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( ( strlen(user->http_session) == 0 ) || !( ioCompareExact( session, user->http_session ) ) )
+	if( ( strlen(user->http_session) == 0 ) || ( ioCompareExact( session, user->http_session ) == 0 ) )
 		continue;
 	return user->id;
 }
@@ -699,7 +699,7 @@ int dbUserSearchFaction( char *name ) {
 	dbUserPtr user;
 
 for( user = dbUserList ; user ; user = user->next ) {
-	if( !( ioCompareExact( name, user->faction ) ) )
+	if( ( ioCompareExact( name, user->faction ) ) == 0 )
 		continue;
 
 	return user->id;
@@ -752,12 +752,12 @@ sprintf( dname, "%s/data/user%d", settings->string_value, id );
 sprintf( uname, "%s/users/user%d", settings->string_value, id );
 if( mkdir( dname, S_IRWXU ) == -1 ) {
 	dbUserFree( user );
-	error( "mkdir %s\n", dname );
+	critical( "mkdir %s\n", dname );
 	return -3;
 }  
 if( mkdir( uname, S_IRWXU ) == -1 ) {
 	dbUserFree( user );
-	error( "mkdir %s\n", dname );
+	critical( "mkdir %s\n", dname );
 	return -3;
 }  
 
