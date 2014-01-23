@@ -146,7 +146,7 @@ void facebook_getdata( FBUserPtr fbdata, char *urlstring, int offset ) {
 	CURL *curl;
 	CURLcode res;
 
-offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture,location" );
+offset += snprintf( &urlstring[offset], (DEFAULT_BUFFER - offset), "&fields=%s", "id,gender,name,first_name,last_name,timezone,bio,picture" );
 
 curl_global_init( CURL_GLOBAL_SSL );
 curl = curl_easy_init();
@@ -167,8 +167,17 @@ if( curl ) {
 	if( root ) {
 		cJSON *message;
 		
-		message = cJSON_GetObjectItem(root,"location");
-		fbdata->connected = ( message ) ? true : false;
+		message = cJSON_GetObjectItem(root,"error");
+		if( ( message ) ) {
+			message = cJSON_GetObjectItem(root,"message");
+			if( ( message ) ) {
+				if( strstr( message->valuestring, "The user has not authorized application" ) > 0 ) {
+					fbdata->connected = false;
+				}
+			}
+		} else {
+			fbdata->connected = true;
+		}
 		
 		message = cJSON_GetObjectItem(root,"timezone");
 		if( ( message ) ) {
@@ -495,8 +504,8 @@ if( id >= 0 ) {
 		}
 	}
 	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
-	fbdata.token = token;
-	infod.fbinfo = fbdata;
+	memcpy( &fbdata.token, &token, sizeof(FBTokenDef) );
+	memcpy( &infod.fbinfo, &fbdata, sizeof(FBUserDef) );
 	dbUserInfoSet( id, &infod );
 	if( ( file ) ) {
 		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( user->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
@@ -532,8 +541,8 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	strcpy( user->fbid, fbdata.id );
 	dbUserSave( user->id, user );
 	dbUserInfoRetrieve( user->id, &infod );
-	fbdata.token = token;
-	infod.fbinfo = fbdata;
+	memcpy( &fbdata.token, &token, sizeof(FBTokenDef) );
+	memcpy( &infod.fbinfo, &fbdata, sizeof(FBUserDef) );
 	dbUserInfoSet( user->id, &infod );
 	if( file ) {
 		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
@@ -678,7 +687,8 @@ void facebook_update_user( dbUserPtr user ) {
 	FBUserDef fbdata;
 
 if( ( user ) && ( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
-	facebook_getdata_id( &fbdata, user->fbid );
+	dbUserInfoRetrieve( user->id, &infod );
+	facebook_getdata_token( &fbdata, infod.fbinfo.token );
 	if( !( fbdata.connected ) && !( bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 		info( "Removing Link for User: ( %d ) %s", user->id, user->name );
 		memset( &user->fbid, 0, sizeof(user->fbid) );
