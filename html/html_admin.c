@@ -993,6 +993,7 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
 {
   int a, b, c, cmd[2], id;
   int *buffer;
+  char buff[DEFAULT_BUFFER];
   char *action[33];
   dbForumForumDef forumd;
   dbUserFleetDef fleetd;
@@ -1042,7 +1043,7 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
   action[28] = iohtmlVarsFind( cnt, "setplay" );
   action[29] = iohtmlVarsFind( cnt, "deletecons");
   action[30] = iohtmlVarsFind( cnt, "EndOfRound" );
-  action[31] = iohtmlVarsFind( cnt, "systemcmd" );
+  action[31] = iohtmlVarsFind( cnt, "resetpass" );
 
 if( action[0] ) {
 	httpString( cnt, "<i>HTTP files reloaded</i><br><br>" );
@@ -1458,10 +1459,17 @@ sysconfig.shutdown = true;
 
   }
 
-	if( action[31] )
-  {
-	httpString( cnt, "Action disabled by Necro...!!<br><br>" );
-  }
+if( action[31] ) {
+	if( sscanf( action[31], "%d", &a ) == 1 ) {
+		snprintf(buff, USER_PASS_MAX-1, "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+		if( dbUserSetPassword( a, buff ) > 0 ) {
+			httpPrintf( cnt, "User %d changed to %s<br><br>", a, buff );
+		} else {
+			httpString( cnt, "Error occured" );
+		}
+	
+	}
+}
   
   httpString( cnt, "Administrator interface under construction<br><br><br>" );
   iohtmlAdminForm( cnt, "admin" );
@@ -1501,7 +1509,7 @@ sysconfig.shutdown = true;
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"newround2\" value=\"1\"><input type=\"submit\" value=\"Deactivate all for new round, no records\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"forumdelauthor\" value=\"string\"><input type=\"submit\" value=\"Delete forum author\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"forumdelip\" value=\"IP\"><input type=\"submit\" value=\"Delete forum ip\"></form><br><br>" );
-  httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"systemcmd\" value=\"Command\"><input type=\"submit\" value=\"Send a system CMD\"></form><br><br>" );
+  httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"resetpass\" value=\"Command\"><input type=\"submit\" value=\"Reset a User Password\"></form><br><br>" );
 
   httpString( cnt, "</center></body></html>" );
   return;
