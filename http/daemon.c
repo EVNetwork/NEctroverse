@@ -106,7 +106,7 @@
  */
 static void mhd_panic_std (void *cls, const char *file, unsigned int line, const char *reason) {
 
-  loghandle(LOG_CRIT, FALSE, "Fatal error in GNU libmicrohttpd %s:%u: %s", file, line, trimwhitespace( (char *)reason ) );
+  loghandle(LOG_CRIT, FALSE, "Fatal error in GNU libmicrohttpd %s:%u: %s", file, line, reason );
 
 return;
 }
