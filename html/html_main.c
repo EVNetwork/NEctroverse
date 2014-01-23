@@ -1062,36 +1062,44 @@ if( ( name ) && ( pass ) ) {
 		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
 	}
  
-	for( a = 0 ; name[a] ; a++ ) {
-		if( name[a] == '+' )
-			name[a] = ' ';
-		else if( ( name[a] == 10 ) || ( name[a] == 13 ) )
-			name[a] = 0;
-	}
-	for( a = 0 ; pass[a] ; a++ ) {
-		if( pass[a] == '+' )
-			pass[a] = ' ';
-		else if( ( pass[a] == 10 ) || ( pass[a] == 13 ) )
-    			pass[a] = 0;
-	}
 	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
+		if( file ) {
+			fprintf( file, "Ban Match\n" );
+		}
 		info( "ban match" );
 		goto LOGIN_FAIL;
 	}
-	if( ( id = dbUserSearch( name ) ) < 0 )
+	if( ( id = dbUserSearch( name ) ) < 0 ) {
+		if( file ) {
+			fprintf( file, "No User named: %s\n", name );
+		}
 		goto LOGIN_FAIL;
+	}
 	if( dbUserRetrievePassword( id, rtpass ) < 0 ) {
+		if( file ) {
+			fprintf( file, "Error Getting Password.\n" );
+		}
 		error( "Getting Password for User: %d", id );
 		goto LOGIN_FAIL;
 	}
-	if( !( checkencrypt( pass, rtpass ) ) )
+	if( !( checkencrypt( pass, rtpass ) ) ) {
+		if( file ) {
+			fprintf( file, "Password Missmatch.\n" );
+		}
 		goto LOGIN_FAIL;
+	}
 	if( dbUserLinkDatabase( cnt, id ) < 0 ) {
+		if( file ) {
+			fprintf( file, "Unable to link user -> database\n" );
+		}
 		error( "Getting linking User: %d", id );
 		goto LOGIN_FAIL;
 	}
 
 	if( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) {
+		if( file ) {
+			fprintf( file, "Setting session failed.\n" );
+		}
 		error( "Getting setting session for User: %d", id );
 		goto LOGIN_FAIL;
 	}
