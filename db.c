@@ -678,6 +678,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 return -1;
 }
+
 #endif
 
 // Users functions
@@ -913,7 +914,7 @@ if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
 	return -3;
 }
 
-sprintf( uinfo.password, "%s", hashencrypt(pass) );
+strcpy( uinfo.password, hashencrypt(pass) );
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	error( "Error in user save, getting setting info" );
@@ -927,7 +928,7 @@ int dbUserRetrievePassword( int id, char *pass ) {
 	dbUserInfoDef uinfo;
 
 dbUserInfoRetrieve( id, &uinfo );
-sprintf(pass, "%s", uinfo.password);
+strcpy(pass, uinfo.password);
 
 return 1;
 }

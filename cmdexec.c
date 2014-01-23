@@ -480,7 +480,8 @@ int cmdExecChangeName( int id, char *faction )
   cmdErrorString = 0;
   if( !( cmdCheckName( faction ) ) )
   {
-    cmdErrorString = "Your faction name must be between 3 and 31 characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.";
+    sprintf( cmdErrorBuffer, "Your faction name must be between 3 and %d characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.", USER_NAME_MAX-1 );
+    cmdErrorString = cmdErrorBuffer;
     return -2;
   }
   if( dbUserSearchFaction( faction ) >= 0 )
@@ -501,7 +502,8 @@ int cmdExecChangePassword( int id, char *pass )
   cmdErrorString = 0;
   if( !( cmdCheckName( pass ) ) )
   {
-    cmdErrorString = "Your password must be between 3 and 31 characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.";
+    sprintf( cmdErrorBuffer, "Your password must be between 3 and %d characters long and contain only alphanumeric and a low number of space characters. The first character must be a letter.", USER_NAME_MAX-1 );
+    cmdErrorString = cmdErrorBuffer;
     return -2;
   }
   return dbUserSetPassword( id, pass );

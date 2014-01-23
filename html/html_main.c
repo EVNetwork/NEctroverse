@@ -1062,6 +1062,18 @@ if( ( name ) && ( pass ) ) {
 		fprintf( file, "User Agent: %s;\n", DIRCHECKER );
 	}
  
+	for( a = 0 ; name[a] ; a++ ) {
+		if( name[a] == '+' )
+			name[a] = ' ';
+		else if( ( name[a] == 10 ) || ( name[a] == 13 ) )
+			name[a] = 0;
+	}
+	for( a = 0 ; pass[a] ; a++ ) {
+		if( pass[a] == '+' )
+			pass[a] = ' ';
+		else if( ( pass[a] == 10 ) || ( pass[a] == 13 ) )
+    			pass[a] = 0;
+	}
 	if( strncmp( name, "FBUSER", 6 ) == 0 ) {
 		if( file ) {
 			fprintf( file, "Ban Match\n" );
