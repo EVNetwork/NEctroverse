@@ -1466,7 +1466,7 @@ if( action[31] ) {
 			if( dbUserInfoRetrieve( user->id, &infod ) < 0 ) {
 				httpString( cnt, "<i>Error getting user</i><br><br>" );
 			} else {
-    				snprintf( infod.password, USER_PASS_MAX, "%s", hashencrypt(buff) );	
+    				snprintf( infod.password, USER_PASS_MAX, "%s", hashencrypt(buff) );
     			}
 			if( dbUserInfoSet( user->id, &infod ) < 0 ) {
 				httpString( cnt, "<i>Error encountered when changing password.</i><br><br>" );

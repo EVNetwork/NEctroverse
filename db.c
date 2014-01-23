@@ -832,7 +832,7 @@ return id;
 int dbUserRemove( int id ) {
 	int a;
 	char COREDIR[PATH_MAX];
-	char dname[PATH_MAX], fname[PATH_MAX];
+	char fname[PATH_MAX];
 	ConfigArrayPtr settings;
 	dbUserPtr user;
 
@@ -865,10 +865,10 @@ for( a = 0 ; a < DB_FILE_USER_TOTAL ; a++ ) {
 	unlink( fname );
 }
 
-sprintf( dname, "%s/users/user%d", settings->string_value, id );
-rmdir( dname );
-sprintf( dname, "%s/data/user%d", settings->string_value, id );
-rmdir( dname );
+sprintf( fname, "%s/users/user%d", settings->string_value, id );
+rmdir( fname );
+sprintf( fname, "%s/data/user%d", settings->string_value, id );
+rmdir( fname );
 
 
 return 1;
@@ -886,13 +886,13 @@ if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
 
 uinfo.id = user->id;
 uinfo.level = user->level;
-strcpy(uinfo.name,user->name);
+strncpy( uinfo.name, user->name, USER_NAME_MAX);
 uinfo.flags = user->flags;
-strcpy(uinfo.http_session,user->http_session);
+strncpy( uinfo.http_session, user->http_session, sizeof(uinfo.http_session) );
 uinfo.lasttime = user->lasttime;
 #if FACEBOOK_SUPPORT
 if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
-	strcpy( uinfo.fbinfo.id, user->fbid );
+	strncpy( uinfo.fbinfo.id, user->fbid, sizeof(uinfo.fbinfo.id) );
 } else {
 	memset( &user->fbid, 0, sizeof(user->fbid) );
 	memset( &uinfo.fbinfo, 0, sizeof(FBUserDef) );
@@ -914,7 +914,7 @@ if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
 	return -3;
 }
 
-snprintf( uinfo.password, USER_PASS_MAX, "%s", hashencrypt(pass) );
+strncpy( uinfo.password, hashencrypt(pass), USER_PASS_MAX );
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	error( "Error in user save, getting setting info" );
@@ -928,7 +928,7 @@ int dbUserRetrievePassword( int id, char *pass ) {
 	dbUserInfoDef uinfo;
 
 dbUserInfoRetrieve( id, &uinfo );
-snprintf(pass, USER_PASS_MAX, "%s", uinfo.password);
+strncpy(pass, uinfo.password, USER_PASS_MAX);
 
 return 1;
 }
@@ -1008,7 +1008,7 @@ fclose( file );
 if( !( user = dbUserLinkID( id ) ) )
 	return -3;
 
-sprintf( user->faction, "%s", maind->faction );
+snprintf( user->faction, USER_NAME_MAX, "%s", maind->faction );
 
 return 1;
 }
