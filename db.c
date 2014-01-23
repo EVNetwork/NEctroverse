@@ -914,7 +914,7 @@ if( !( dbUserInfoRetrieve( id, &uinfo ) ) ) {
 	return -3;
 }
 
-strcpy( uinfo.password, hashencrypt(pass) );
+snprintf( uinfo.password, USER_PASS_MAX, "%s", hashencrypt(pass) );
 
 if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	error( "Error in user save, getting setting info" );
@@ -928,7 +928,7 @@ int dbUserRetrievePassword( int id, char *pass ) {
 	dbUserInfoDef uinfo;
 
 dbUserInfoRetrieve( id, &uinfo );
-strcpy(pass, uinfo.password);
+snprintf(pass, USER_PASS_MAX, "%s", uinfo.password);
 
 return 1;
 }
