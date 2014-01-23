@@ -1463,19 +1463,19 @@ if( action[31] ) {
 	if( sscanf( action[31], "%d", &a ) == 1 ) {
 		if( ( user = dbUserLinkID( a ) ) ) {
 			snprintf(buff, USER_PASS_MAX, "N%X%X", (unsigned int)random(), (unsigned int)random() );
-			if( cmdExecChangePassword( a, buff ) < 0 ) {
-				if( cmdErrorString ) {
-					httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
-				} else {
-					httpString( cnt, "<i>Error encountered when changing password.</i><br><br>" );
-        			}
+			if( dbUserInfoRetrieve( user->id, &infod ) < 0 ) {
+				httpString( cnt, "<i>Error getting user</i><br><br>" );
 			} else {
+    				snprintf( infod.password, USER_PASS_MAX, "%s", hashencrypt(buff) );	
+    			}
+			if( dbUserInfoSet( user->id, &infod ) < 0 ) {
+				httpString( cnt, "<i>Error encountered when changing password.</i><br><br>" );
+       			} else {
 				httpPrintf( cnt, "User: \'%s\' password changed to \'%s\'.<br><br>", user->name, buff );
 			}
 		} else {
 			httpString( cnt, "Error occured" );
 		}
-	
 	}
 }
   
