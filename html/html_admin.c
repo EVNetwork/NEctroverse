@@ -1461,7 +1461,7 @@ sysconfig.shutdown = true;
 
 if( action[31] ) {
 	if( sscanf( action[31], "%d", &a ) == 1 ) {
-		snprintf(buff, USER_PASS_MAX/2, "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+		snprintf(buff, USER_PASS_MAX, "%X%X", (unsigned int)random(), (unsigned int)random() );
 		if( dbUserSetPassword( a, buff ) > 0 ) {
 			httpPrintf( cnt, "User %d password changed to %s<br><br>", a, buff );
 		} else {
