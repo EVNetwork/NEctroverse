@@ -335,7 +335,6 @@ int cmdExecUserDeactivate( int id, int flags )
       }
 
       empired.numplayers--;
-      cmdEmpireLeader( &empired );
  
      //Remove pass if last player
 	setting = GetSetting( "Admin Empire" );
@@ -344,6 +343,7 @@ int cmdExecUserDeactivate( int id, int flags )
 		memset( &empired.password, 0, USER_PASS_MAX );
 	}
 	dbEmpireSetInfo( maind.empire, &empired );
+	cmdEmpireLeader( &empired );
       
 	break;
 	}
@@ -453,8 +453,8 @@ int cmdUserDelete( int id )
       }
 
       empired.numplayers--;
-      cmdEmpireLeader( &empired );
       dbEmpireSetInfo( maind.empire, &empired );
+      cmdEmpireLeader( &empired );
       break;
     }
   }
