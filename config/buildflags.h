@@ -31,10 +31,13 @@
 #define ENABLE_IPV6 0
 
 /* disable digest Auth support */
-#define DAUTH_SUPPORT 1
+#define DAUTH_SUPPORT 0
 
 /* disable epoll support */
 #define EPOLL_SUPPORT 1
+
+/* disable epoll turbo support */
+#define EPOLL_TURBO 0
 
 /* Define to 1 if you have the `accept4' function. */
 #define HAVE_ACCEPT4 1

@@ -1261,7 +1261,10 @@ flags |=  MHD_USE_DEBUG;
 #endif
 
 #if EPOLL_SUPPORT
-flags |= MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_TURBO;
+flags |= MHD_USE_EPOLL_LINUX_ONLY;
+#if EPOLL_TURBO
+flags |= MHD_USE_EPOLL_TURBO;
+#endif
 #endif
 
 #if HTTPS_SUPPORT
