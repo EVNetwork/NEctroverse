@@ -4055,16 +4055,17 @@ int dbUserInfoSet( int id, dbUserInfoPtr infod ) {
 	FILE *file;
 	dbUserPtr user;
 
+if( !( user = dbUserLinkID( id ) ) )
+	return -3;
+
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	error( "User Open" );
 	return -3;
 }
+
 file_s( file, 0 );
 file_w( infod, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
-
-if( !( user = dbUserLinkID( id ) ) )
-	return -3;
 
 strncpy( user->faction, infod->faction, sizeof(user->faction) );
 strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
