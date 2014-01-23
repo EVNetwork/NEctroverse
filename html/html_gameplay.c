@@ -3667,7 +3667,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  httpPrintf( cnt, "Planets : %d<br>", main2d.planets );
  httpPrintf( cnt, "Race : %s<br>", cmdRaceName[main2d.raceid] );
  httpPrintf( cnt, "Networth : %lld<br>", (long long)main2d.networth );
-if( ( maind.empire == main2d.empire ) || ( ( (cnt->session)->dbuser ) && ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ){
+if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
  	httpPrintf( cnt, "Population : %lld0<br>", (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
 }
  httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
@@ -3675,7 +3675,7 @@ if( ( maind.empire == main2d.empire ) || ( ( (cnt->session)->dbuser ) && ((cnt->
  httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
  httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
-if( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
+if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
  	httpPrintf( cnt, "<a href=\"%s&id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
 }
  httpString( cnt, "<br></td></tr></table>" );
