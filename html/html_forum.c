@@ -508,13 +508,14 @@ if( forums )
 	  	if( flags )
 	  	{
 	  		settings = GetSetting( "Directory" );
-			sprintf( COREDIR, "%s/logs/modlog.txt", settings->string_value );
-	  		fFile = fopen( COREDIR, "a+t" );
-		  	if( fFile )
-		 		{
-		 			fprintf( fFile, "%s > view forum of empire %d\n", maind.faction, forum);
-		 			fclose(fFile);
+			sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
+	  		if( maind.empire != forum ) {
+	  			fFile = fopen( COREDIR, "a+t" );
+		  		if( fFile ) {
+		 				fprintf( fFile, "%s > view forum of empire %d\n", maind.faction, forum);
+		 				fclose(fFile);
 		 		}
+		 	}
 		 	}
 	  	}
 	 }
