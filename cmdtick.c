@@ -622,7 +622,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 
 	ticks.uactive++;
 	ticks.debug_id = user->id;
-	ticks.uonline += ( (now - user->lasttime) < (SESSION_TIME / 4) );
+	ticks.uonline += ( ( (now - user->lasttime) < (SESSION_TIME / 4) ) && ( strlen(user->http_session) ) );
 
 	if( dbUserMainRetrieve( user->id, &maind ) < 0 ) {
 		error( "Tick error: Retriving User %d", user->id );
