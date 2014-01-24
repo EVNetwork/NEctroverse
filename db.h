@@ -292,6 +292,7 @@ typedef struct
   char mow[USER_DESC_MAX];
 } dbEmpireMessageDef, *dbEmpireMessagePtr;
 
+const int EMPIRE_CAPACITY;
 typedef struct
 {
   int rank;

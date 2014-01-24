@@ -2179,7 +2179,7 @@ if( empired.picture > 0 ) {
   {
 
    b = curtime - user->lasttime;
-   if( b < 5*60 )
+   if( ( b < 5*60 ) && ( user->http_session[0] ) )
     httpString( cnt, "[online]" );
    else if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_COMMINISTER ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
@@ -2194,8 +2194,13 @@ if( empired.picture > 0 ) {
      httpPrintf( cnt, "%dh ", b/(60*60) );
      b %= 60*60;
     }
-    if( b >= 60 )
+    if( b >= 60 ) {
      httpPrintf( cnt, "%dm ", b/60 );
+     b %= 60*60;
+     }
+     if( b > 0 ) {
+     httpPrintf( cnt, "%ds ", b );
+     }
    }
   }
   httpString( cnt, "</td></tr>" );

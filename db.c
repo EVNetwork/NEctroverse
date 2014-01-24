@@ -3682,6 +3682,7 @@ file_r( &offset, 1, sizeof(int), file );
   }
 
   file_s( file, 8+sizeof(dbForumThreadDef) );
+
   offset = 8+sizeof(dbForumThreadDef);
   for( a = 0 ; a < num ; a++ )
   {
