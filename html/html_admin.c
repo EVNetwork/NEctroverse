@@ -1332,11 +1332,11 @@ sysconfig.shutdown = true;
     if( !( action[15] ) )
 	return;
     if( b == 0 ) {
-      if( !( dbUserMainRetrieve( a, &maind ) ) )
+      if( !( dbUserInfoRetrieve( a, &infod ) ) )
         return;
-      iohttpForumFilter( maind.faction, action[15], 32, 0 );
-      dbUserMainSet( a, &maind );
-      httpPrintf( cnt, "Player %d name changed for %s<br><br>", a, maind.faction );
+      iohttpForumFilter( infod.faction, action[15], USER_NAME_MAX, 0 );
+      dbUserInfoSet( a, &infod );
+      httpPrintf( cnt, "Player %d name changed for %s<br><br>", a, infod.faction );
       } else {
       if( ( user = dbUserLinkID( a ) ) ) {
       		snprintf( user->name, USER_NAME_MAX, "%s", action[15] );
