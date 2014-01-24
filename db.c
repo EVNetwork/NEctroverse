@@ -4069,8 +4069,9 @@ file_s( file, 0 );
 file_w( infod, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
 
-strncpy( user->faction, infod->faction, sizeof(user->faction) );
-strncpy( user->forumtag, infod->forumtag, sizeof(user->forumtag) );
+strncpy( user->name, infod->name, USER_NAME_MAX );
+strncpy( user->faction, infod->faction, USER_NAME_MAX );
+strncpy( user->forumtag, infod->forumtag, USER_FTAG_MAX );
 #if FACEBOOK_SUPPORT
 if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) )
 	strncpy( user->fbid, infod->fbinfo.id, sizeof(user->fbid) );
