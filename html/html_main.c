@@ -37,7 +37,7 @@ if( action & 4 ) {
 	}
 }
 
-
+purge_captcha( cnt->session );
 return id;
 
 iohtmlIdentifyL0:

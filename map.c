@@ -79,7 +79,7 @@ int spawn_map() {
 	float dist, distmax;
 	char fname[PATH_MAX];
 	uint8_t *pixels, *bigpixies; 
-	FILE *file;
+	FILE *file = NULL;
 	imgImage mapimage;
 	dbMainMapPtr mapbase;
 	MapStoragePtr mapstore;
@@ -112,7 +112,6 @@ for(a = 0; a < CMD_BONUS_NUMUSED-1; a++) {
 	map_bonus[CMD_BONUS_NUMUSED+1] += map_bonus[a];
 }
 
-//haha, naa... we won't check these... in all my tests they've never failed anyways (and if the above works, theres almost no reason this should fail)
 mapstore->factor = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) );
 mapstore->data = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) );
 mapstore->posx = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
@@ -329,7 +328,7 @@ for( a = 0 ; a < map_set[3].num_value ; a++ ) {
 	file = dbFileEmpireOpen( a, DB_FILE_EMPIRE_MESSAGES );
 	memset( &message, 0, sizeof(dbEmpireMessageDef) );
 	snprintf(message.leader, USER_DESC_MAX, "<i>Welcome to Empire #%d!<i>", a);
-	file_w( &message, 1, sizeof(dbMainEmpireDef), file );
+	file_w( &message, 1, sizeof(dbEmpireMessageDef), file );
 	fclose( file );
 	
 }
