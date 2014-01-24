@@ -780,9 +780,8 @@ if( flags )  {
   threadd.posts = 0;
   threadd.authorid = id;
 	if( id != -1 ) {
-		sprintf( threadd.authorname, "%s", maind.faction );
+		sprintf( postd.post.authorname, "%s", maind.faction );
 	} else {
-		postd.post.authortag[0] = 0;
 		if( ( namestring ) && ( strlen( namestring ) ) ) {
 			iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
 		} else {
@@ -830,13 +829,13 @@ if( flags )  {
   iohttpForumL0:
 
 	if( id != -1 ) {
-		sprintf( threadd.authorname, "%s", maind.faction );
+		sprintf( postd.post.authorname, "%s", maind.faction );
 	} else {
 		postd.post.authortag[0] = 0;
 		if( ( namestring ) && ( strlen( namestring ) ) ) {
-			iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
+			iohttpForumFilter( postd.post.authorname, namestring, USER_NAME_MAX, 0 );
 		} else {
-			sprintf( threadd.authorname, "Anonymous" );
+			sprintf( postd.post.authorname, "Anonymous" );
 		}
 		if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
 			httpString( cnt, "No Captcha Entered" );
