@@ -238,6 +238,8 @@ int http_start();
 int https_start();
 #endif
 
+void purge_captcha( SessionPtr session );
+
 void WWWSelect( );
 
 void Shutdown();

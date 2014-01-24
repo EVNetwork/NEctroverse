@@ -601,6 +601,7 @@ for( a = 0 ; a < b ; a++ ) {
    httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
 	if( id == -1 ) {
+	purge_captcha( cnt->session );
   		httpString( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
 	unsigned char im[70*200];
 	unsigned char gif[gifsize];
@@ -737,6 +738,7 @@ if( flags )  {
    httpPrintf( cnt, "<input type=\"hidden\" name=\"thread\" value=\"%d\">", thread );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
 	if( id == -1 ) {
+	purge_captcha( cnt->session );
   		httpString( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
 	unsigned char im[70*200];
 	unsigned char gif[gifsize];
@@ -825,7 +827,15 @@ if( flags )  {
    	return;
   	}
   }*/
-
+if( id < 0 ) {
+	if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
+		httpString( cnt, "No Captcha Entered" );
+		goto RETURN;
+	} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
+		httpPrintf( cnt, "Invalid Captcha Entered %s should be %s", capstring, (cnt->session)->captcha );
+		goto RETURN;
+	}
+}
   iohttpForumL0:
 
 	if( id != -1 ) {
@@ -837,13 +847,6 @@ if( flags )  {
 			iohttpForumFilter( postd.post.authorname, namestring, USER_NAME_MAX, 0 );
 		} else {
 			sprintf( postd.post.authorname, "Anonymous" );
-		}
-		if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
-			httpString( cnt, "No Captcha Entered" );
-   			goto RETURN;
-		} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
-			httpString( cnt, "Invalid Captcha Entered" );
-			goto RETURN;
 		}
 	}
   if( !( postd.text = malloc( 3 * FORUM_MAX ) ) )

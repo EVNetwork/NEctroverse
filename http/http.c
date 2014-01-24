@@ -1055,9 +1055,12 @@ for( a = 0 ; a < sysconfig.banlist.number ; a++ ) {
 return YES;
 }
 
-static void purge_captcha( SessionPtr session ) {
+void purge_captcha( SessionPtr session ) {
 	char captcha[PATH_MAX];
 	struct stat buf;
+
+memset( &session->captcha, 0, sizeof( session->captcha ) );
+
 snprintf(captcha, PATH_MAX, "%s/%s.gif", TMPDIR, session->sid);
 if( (0 == stat( captcha, &buf)) && (S_ISREG(buf.st_mode)) ) {
 	unlink( captcha );
