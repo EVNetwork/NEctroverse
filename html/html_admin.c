@@ -399,6 +399,8 @@ sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
     if( dbUserInfoRetrieve( actionid, &infod ) < 0 )
       goto iohtmlFunc_moderatorL0;
     httpPrintf( cnt, "<b>Player ID %d</b><br><br>", actionid );
+    if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR )
+    httpPrintf( cnt, "User Login : %s <br>", user->name );
     httpPrintf( cnt, "Faction name : %s <br>", maind.faction );
     httpString( cnt, "Last Login : " );
 	//routine to show how long it has been since a player was online
