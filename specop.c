@@ -398,12 +398,12 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 	    {
 	    	//14 to 20
 	   		for(i=0;i<CMD_RESEARCH_NUMUSED;i++)
-	   			newd[14+i] = main2d.totalresearch[i];
+	   			newd[15+i] = main2d.totalresearch[i];
 	    }
 	    if( success >= 1.0 )
 	    //21 to 29
 	    for(i=0;i<CMD_BLDG_NUMUSED;i++)
-	    	newd[14+CMD_RESEARCH_NUMUSED+i] = main2d.totalbuilding[i];
+	    	newd[15+CMD_RESEARCH_NUMUSED+i] = main2d.totalbuilding[i];
 	  }
 	  else if( fleetd->order == CMD_FLEET_ORDER_BIOINFECTION )
 	  {
