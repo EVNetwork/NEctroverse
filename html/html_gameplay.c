@@ -5839,7 +5839,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  {
   if( !( specopPsychicsAllowed( a, maind.raceid ) ) )
    continue;
-  b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[a] );
+  b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[a] );
   if( b == -1 )
    httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdPsychicopName[a] );
   else
@@ -5864,7 +5864,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  {
   if( !( specopGhostsAllowed( a, maind.raceid ) ) )
    continue;
-  b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdGhostopTech[a] );
+  b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[a] );
   if( b == -1 )
    httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdGhostopName[a] );
   else
@@ -6510,7 +6510,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  wrl = specopPsychicsReadiness( specop, &maind, ( id != targetid ) ? ( &main2d ) : ( 0 ) );
  if( wrl == -1 )
  {
-  httpPrintf( cnt, "Unfortunately, we don't have enough %s to perform %s.", cmdResearchName[CMD_RESEARCH_WELFARE], cmdPsychicopName[specop] );
+  httpPrintf( cnt, "Unfortunately, we don't have enough %s to perform %s.", cmdResearchName[CMD_RESEARCH_CULTURE], cmdPsychicopName[specop] );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6661,7 +6661,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  grl = specopGhostsReadiness( specop, &maind, ( planetd.owner != -1 ) ? ( &main2d ) : ( 0 ) );
  if( grl == -1 )
  {
-  httpPrintf( cnt, ". Unfortunately, we don't have enough %s to perform %s.", cmdResearchName[CMD_RESEARCH_WELFARE], cmdGhostopName[specop] );
+  httpPrintf( cnt, ". Unfortunately, we don't have enough %s to perform %s.", cmdResearchName[CMD_RESEARCH_CULTURE], cmdGhostopName[specop] );
   iohtmlBodyEnd( cnt );
   return;
  }

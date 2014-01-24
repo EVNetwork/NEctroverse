@@ -114,7 +114,7 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
 	
 	if((cmdRace[main2d->raceid].special & CMD_RACE_SPECIAL_CULPROTECT)&&(maind->empire != main2d->empire))
 	{
-    	fa *= log10(main2d->totalresearch[CMD_RESEARCH_WELFARE]+10);
+    	fa *= log10(main2d->totalresearch[CMD_RESEARCH_CULTURE]+10);
 	}
 
 	if( fa >= max )
@@ -249,7 +249,7 @@ int battle( int id, int fltid, int64_t *results )
   if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
     cover = 1.0;
   else
-    cover = battlePortalCoverage( defid, ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, main2d.totalresearch[CMD_RESEARCH_PORTALS] );
+    cover = battlePortalCoverage( defid, ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, main2d.totalresearch[CMD_RESEARCH_CULTURE] );
     
   a = specopForcefieldCalc( defid, fleetd.destid );
   if( a )
@@ -485,6 +485,7 @@ int battle( int id, int fltid, int64_t *results )
   /*
   //ARTI CODE
 	if(maind.artefacts & ARTEFACT_SEAT_BIT)
+
 		hptransport += attunit[CMD_UNIT_TRANSPORT] * attstats[CMD_UNIT_TRANSPORT][CMD_UNIT_STATS_AIRDEFENSE];
   */
   hpcruiser = attunit[CMD_UNIT_CRUISER] * attstats[CMD_UNIT_CRUISER][CMD_UNIT_STATS_AIRDEFENSE];

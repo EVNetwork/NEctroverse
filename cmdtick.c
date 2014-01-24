@@ -453,7 +453,7 @@ population = 0;
 
 for( a = 0 ; a < num ; a++ ) {
 	dbMapRetrievePlanet( buffer[a], &planetd );
-	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) );
+	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) ) * ( 1.00 + 0.005 * mainp->totalresearch[CMD_RESEARCH_POPULATION] );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
@@ -462,9 +462,9 @@ for( a = 0 ; a < num ; a++ ) {
 	ticks.debug_pass = 2 + 10000;
 
 	if(mainp->artefacts & ARTEFACT_16_BIT) {
-		planetd.population += ceil( planetd.population * ( cmdRace[mainp->raceid].growth * 1.25 ) * pow(0.75, (float)nInfection) );
+		planetd.population += ceil( planetd.population * ( ( cmdRace[mainp->raceid].growth * ( 1.00 + 0.001 * mainp->totalresearch[CMD_RESEARCH_POPULATION] ) ) * 1.25 ) * pow(0.75, (float)nInfection) );
 	} else {
-		planetd.population += ceil( planetd.population * cmdRace[mainp->raceid].growth * pow(0.75, (float)nInfection) );
+		planetd.population += ceil( planetd.population * ( cmdRace[mainp->raceid].growth * ( 1.00 + 0.001 * mainp->totalresearch[CMD_RESEARCH_POPULATION] ) ) * pow(0.75, (float)nInfection) );
 	}
 	planetd.population = fmin( planetd.maxpopulation, planetd.population );
 
@@ -472,7 +472,7 @@ for( a = 0 ; a < num ; a++ ) {
 	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
 		planetd.protection = 100;
 	else
-      		planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_PORTALS] ) );
+      		planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_CULTURE] ) );
 
 
 	if( planetd.construction < 0 ) {
@@ -645,8 +645,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 		if (specopd[i].type == (CMD_SPELL_WARILLUSIONS | 0x1000)) {
 			fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
 			nChicks = maind.totalunit[CMD_UNIT_WIZARD];
-			nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_WARILLUSIONS] );
-			penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_WARILLUSIONS] );
+			nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_CULTURE] ) / cmdPsychicopDifficulty[CMD_SPELL_WARILLUSIONS] );
+			penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[CMD_SPELL_WARILLUSIONS] );
 			if( penalty )
 		    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
 			fa = 100.0 * (float)nIllusion / (float)maind.networth;
@@ -658,8 +658,8 @@ for( user = dbUserList ; user ; user = user->next ) {
 		} else if (specopd[i].type == (CMD_SPELL_DARKWEB | 0x1000)) {
 			fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
 			nChicks = maind.totalunit[CMD_UNIT_WIZARD];
-			nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[CMD_SPELL_DARKWEB] );
-			penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[CMD_SPELL_DARKWEB] );
+			nIllusion = ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)nChicks * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_CULTURE] ) / cmdPsychicopDifficulty[CMD_SPELL_DARKWEB] );
+			penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[CMD_SPELL_DARKWEB] );
 			if( penalty )
 			    	nIllusion = (float)nIllusion / ( 1.0 + 0.01*(float)penalty );
 			fa = 100.0 * (float)nIllusion / (float)maind.networth;
@@ -894,7 +894,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 		maind.infos[INFOS_BUILDING_UPKEEP] += fmax( 0.0, ( maind.infos[INFOS_BUILDING_UPKEEP] * 0.15 ) );
 	}
 
-	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] * ( 1.00 + 0.001 * maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) * cmdTickProduction[CMD_BUILDING_CRYSTAL] );
+	maind.infos[INFOS_CRYSTAL_PRODUCTION] = ( ( cmdRace[maind.raceid].resource[CMD_RESSOURCE_CRYSTAL] ) * cmdTickProduction[CMD_BUILDING_CRYSTAL] );
 
 		//ARTI CODE Crystalline Entity | reduces crystal decay by 75%
 	//	if(maind.artefacts & ARTEFACT_*_BIT)

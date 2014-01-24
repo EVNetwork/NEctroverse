@@ -98,8 +98,8 @@ char *cmdResearchName[CMD_RESEARCH_NUMUSED] =
 "Military",
 "Construction",
 "Technology",
-"Energy production",
-"Portals efficiency",
+"Energy",
+"Population",
 "Culture",
 "Operations"
 };
@@ -109,9 +109,9 @@ char *cmdResearchDesc[CMD_RESEARCH_NUMUSED] =
 "Increases your units attack and defense strength",
 "Reduces construction costs and building time",
 "Allow construction of advanced units and buildings",
-"Increases energy output",
-"Increases the protection range of your portals",
-"Increases crystal production and psychics capabilities",
+"Increases your energy production efficency",
+"Increases populataion capacity and rate of growth",
+"Increases psychics capabilities and portal coverage",
 "Increases the effectiveness of your agents"
 };
 
@@ -729,7 +729,7 @@ void cmdGetBuildCosts( dbUserMainPtr maind, int type, int64_t *buffer )
   int a;
   int b = 0;
   double da, cost;
-  cost = 100.0 / ( 100.0 + maind->totalresearch[CMD_RESERACH_CONSTRUCTION] );
+  cost = 100.0 / ( 100.0 + maind->totalresearch[CMD_RESEARCH_CONSTRUCTION] );
   if( !( type >> 16 ) )
   {
     a = cmdBuildingTech[type] - maind->totalresearch[CMD_RESEARCH_TECH];

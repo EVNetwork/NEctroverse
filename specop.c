@@ -699,7 +699,7 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   fFactor1 = 1;
   fFactor2 = 1;
   curtime = time( 0 );
-  penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[specop] );
+  penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[specop] );
   if( penalty == -1 )
     return -1;
   else if( !( main2d ) )
@@ -796,12 +796,12 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
     return;
   }
 
-  penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdPsychicopTech[specop] );
+  penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[specop] );
   if( penalty == -1 )
     return;
   fa = 0.4 + (1.2/255.0) * (float)( rand() & 255 );
 
-	attack = (int64_t)( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)psychics * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_WELFARE] ) / cmdPsychicopDifficulty[specop] );
+	attack = (int64_t)( fa * cmdRace[maind.raceid].unit[CMD_UNIT_WIZARD] * (float)psychics * ( 1.0 + 0.005*maind.totalresearch[CMD_RESEARCH_CULTURE] ) / cmdPsychicopDifficulty[specop] );
 /* //ARTI CODE
 	  if(maind.artefacts & ARTEFACT_ANTI_BIT)
 	  	attack *= 0.8;*/
@@ -816,7 +816,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
 
   if( id != targetid )
   {
-    defense = ( cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (float)(fleet2d.unit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.005*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
+    defense = ( cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (float)(fleet2d.unit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.005*main2d.totalresearch[CMD_RESEARCH_CULTURE] ) );
 
 /*    //ARTI CODE
 	  if(main2d.artefacts & ARTEFACT_ANTI_BIT)
@@ -933,7 +933,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
     maind.ressource[CMD_RESSOURCE_CRYSTAL] -= j;
 
     newd[8] = j;
-    newd[9] = (int64_t)( (float)j * 24.0 * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) );
+    newd[9] = (int64_t)( (float)j * 24.0 * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_CULTURE] ) );
 
     maind.ressource[CMD_RESSOURCE_ENERGY] += newd[9];
 
@@ -1072,7 +1072,7 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 
   curtime = time( 0 );
 
-  penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_WELFARE], cmdGhostopTech[specop] );
+  penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[specop] );
   if( penalty == -1 )
     return -1;
    if( !( main2d ) )
@@ -1206,7 +1206,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
     return;
   }
 
-  penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_WELFARE], cmdGhostopTech[specop] );
+  penalty = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[specop] );
   if( penalty == -1 )
     return;
   fa = 0.6 + (0.8/255.0) * (double)( rand() & 255 );
@@ -1214,9 +1214,9 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
  // CODE_ARTI ARTEFACT_16_BIT
 /*
 if( maind.artefacts & ARTEFACT_16_BIT )
-  attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (float)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (float)cmdGhostopDifficulty[specop] *1.2);
+  attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (float)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_CULTURE] ) ) / (float)cmdGhostopDifficulty[specop] *1.2);
 else //code arti*/
-	attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_WELFARE] ) ) / (double)cmdGhostopDifficulty[specop] );
+	attack = ( ( fa * cmdRace[maind.raceid].unit[CMD_UNIT_GHOST] * (double)(fleetd->unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*maind.totalresearch[CMD_RESEARCH_CULTURE] ) ) / (double)cmdGhostopDifficulty[specop] );
 
 	if( penalty )
     attack = attack / ( 1.0 + 0.01*(double)penalty );
@@ -1231,9 +1231,9 @@ else //code arti*/
   {
     if( !( dbUserFleetRetrieve( planetd.owner, 0, &fleet2d ) ) )
       return;
-    defense = ( (1.0/7.0) * cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (double)(fleet2d.unit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
+    defense = ( (1.0/7.0) * cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (double)(fleet2d.unit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_CULTURE] ) );
 
-    defenseghosts = ( cmdRace[main2d.raceid].unit[CMD_UNIT_GHOST] * (double)(fleet2d.unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
+    defenseghosts = ( cmdRace[main2d.raceid].unit[CMD_UNIT_GHOST] * (double)(fleet2d.unit[CMD_UNIT_GHOST]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_CULTURE] ) );
 
     success = (double)attack / (double)( defense + 1 );
     if( success < 2.0 )
@@ -1331,7 +1331,7 @@ else //code arti*/
         {
           if( dbUserMainRetrieve( planetd.owner, &main2d ) < 0 )
             continue;
-          defense = ( (1.0/7.0) * cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (double)(main2d.totalunit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_WELFARE] ) );
+          defense = ( (1.0/7.0) * cmdRace[main2d.raceid].unit[CMD_UNIT_WIZARD] * (double)(main2d.totalunit[CMD_UNIT_WIZARD]) * ( 1.0 + 0.01*main2d.totalresearch[CMD_RESEARCH_CULTURE] ) );
         }
 
         success = (double)attack / (double)( defense + 1 );
