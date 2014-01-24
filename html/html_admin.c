@@ -1327,13 +1327,26 @@ sysconfig.shutdown = true;
   {
     if( sscanf( action[14], "%d", &a ) == 1 )
     {
+    if( sscanf( iohtmlVarsFind( cnt, "changetype" ), "%d", &b ) < 0 )
+	return;
+    if( !( action[15] ) )
+	return;
+    if( b == 0 ) {
       if( !( dbUserMainRetrieve( a, &maind ) ) )
-        return;
-      if( !( action[15] ) )
         return;
       iohttpForumFilter( maind.faction, action[15], 32, 0 );
       dbUserMainSet( a, &maind );
       httpPrintf( cnt, "Player %d name changed for %s<br><br>", a, maind.faction );
+      } else {
+      if( ( user = dbUserLinkID( a ) ) ) {
+      		snprintf( user->name, USER_NAME_MAX, "%s", action[15] );
+      		dbUserSave( a, user );
+		httpPrintf( cnt, "Player %d login changed for %s<br><br>", a, user->name );
+      } else {
+	httpPrintf( cnt, "No link to user %d<br><br>", a );
+      }
+      
+      }
     }
   }
 
@@ -1507,7 +1520,7 @@ if( action[31] ) {
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"inactives\" value=\"1\"><input type=\"submit\" value=\"Delete inactives\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"newround\" value=\"1\"><input type=\"submit\" value=\"Deactivate all for new round\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"resettags\" value=\"1\"><input type=\"submit\" value=\"Reset tags\"></form><br><br>" );
-  httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"changename\" value=\"ID\"><input type=\"text\" name=\"newname\" value=\"New name\"><input type=\"submit\" value=\"Change name\"></form><br><br>" );
+  httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"changename\" value=\"ID\"><input type=\"text\" name=\"changetype\" value=\"0\"><input type=\"text\" name=\"newname\" value=\"New name\"><input type=\"submit\" value=\"Change name\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"unexplored\" value=\"1\"><input type=\"submit\" value=\"Recount unexplored planets\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"clearnews\" value=\"1\"><input type=\"submit\" value=\"Clear all news\"></form><br><br>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"findartefacts\" value=\"1\"><input type=\"submit\" value=\"Find artefacts\"></form><br><br>" );
