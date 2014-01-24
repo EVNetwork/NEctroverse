@@ -1827,7 +1827,7 @@ void iohtmlFunc_planets( ReplyDataPtr cnt )
  int *buffer;
  dbUserMainDef maind, main2d;
  dbMainPlanetDef planetd;
- int totals[7];
+ int64_t totals[7];
  float totalob;
  char *sortstring;
 
@@ -1887,7 +1887,7 @@ else
 
 
 
- memset( totals, 0, 7*sizeof(int) );
+ memset( totals, 0, 7*sizeof(int64_t) );
  totalob = 0.0;
 
  for( a = 0 ; a < b ; a++ )
@@ -1961,7 +1961,7 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
   totals[4] += planetd.maxpopulation;
  }
 
- httpPrintf( cnt, "<tr><td>%d Planets</td><td>%d</td><td>%d", b, totals[0], totals[1] );
+ httpPrintf( cnt, "<tr><td>%d Planets</td><td>%lld</td><td>%lld", b, (long long)totals[0], (long long)totals[1] );
  if( totals[2] )
   httpPrintf( cnt, " ( %d )", totals[2] );
  totalob /= (float)b;
@@ -1978,9 +1978,9 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
  {
  	sprintf(szColor, "FF2020");
  }
- httpPrintf( cnt, "</td><td><font color=\"#%s\">%d0 / %d0</font></td><td> %d Portals", szColor, totals[3], totals[4], totals[5] );
+ httpPrintf( cnt, "</td><td><font color=\"#%s\">%lld0 / %lld0</font></td><td> %lld Portals", szColor, (long long)totals[3], (long long)totals[4], (long long)totals[5] );
  if( totals[6] )
-  httpPrintf( cnt, " <i>Units (%d)</i>", totals[6] );
+  httpPrintf( cnt, " <i>Units (%lld)</i>", (long long)totals[6] );
  httpString( cnt, "</td><td></td></tr>" );
  httpString( cnt, "</table><br><div align=\"right\"><input type=\"submit\" value=\"Build on selected planets\"></div></form>" );
 
