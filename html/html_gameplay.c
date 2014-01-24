@@ -304,7 +304,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
     if( (long long)newsd[a] == -1 )
      httpString( cnt, " : unknown<br>" );
     else
-     httpPrintf( cnt, " : %lld%s<br>", (long long)newsd[a], ((a-10) == CMD_RESSOURCE_NUMUSED) ? "0" : "" );
+     httpPrintf( cnt, " : %lld%s<br>", (long long)newsd[a], ((a-13) == CMD_RESSOURCE_NUMUSED) ? "0" : "" );
    }
    httpString( cnt, "</td></tr></table>" );
   }
