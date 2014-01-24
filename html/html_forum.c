@@ -790,7 +790,7 @@ if( flags )  {
   threadd.posts = 0;
   threadd.authorid = id;
 	if( id != -1 ) {
-		sprintf( postd.post.authorname, "%s", maind.faction );
+		sprintf( threadd.authorname, "%s", maind.faction );
 	} else {
 		if( ( namestring ) && ( strlen( namestring ) ) ) {
 			iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
