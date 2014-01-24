@@ -830,6 +830,7 @@ if( flags )  {
 
 	if( id != -1 ) {
 		sprintf( postd.post.authorname, "%s", maind.faction );
+		sprintf( postd.post.authortag, "%s", ((cnt->session)->dbuser)->forumtag );
 	} else {
 		postd.post.authortag[0] = 0;
 		if( ( namestring ) && ( strlen( namestring ) ) ) {
