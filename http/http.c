@@ -747,7 +747,7 @@ return NO;
 
 static int postdata_wipe( SessionPtr session ) {
 	PostDataPtr data;
-
+	
 if( session->postdata != NULL ) {
 	for( data = session->postdata ; data ; data = data->next )
 		postdata_remove( session, data->key );
@@ -1055,6 +1055,17 @@ for( a = 0 ; a < sysconfig.banlist.number ; a++ ) {
 return YES;
 }
 
+static void purge_captcha( SessionPtr session ) {
+	char captcha[PATH_MAX];
+	struct stat buf;
+snprintf(captcha, PATH_MAX, "%s/%s.gif", TMPDIR, session->sid);
+if( (0 == stat( captcha, &buf)) && (S_ISREG(buf.st_mode)) ) {
+	unlink( captcha );
+}
+
+return;
+}
+
 
 /**
  * Clean up handles of sessions that have been idle for
@@ -1086,6 +1097,7 @@ while( NULL != pos ) {
 			}
 		}
 		postdata_wipe( pos );
+		purge_captcha( pos );
 		free( pos );
 	} else {
 	        prev = pos;
@@ -1121,6 +1133,7 @@ while( NULL != pos ) {
 			}
 		}
 		postdata_wipe( pos );
+		purge_captcha( pos );
 		free( pos );
 		return YES;
 	} else {
