@@ -1022,10 +1022,12 @@ if( id < 0 ) {
   postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, timebuf );
 
   a = dbForumEditPost( flags, forum, thread, post, &postd );
-  if( a >= 0 )
+  if( a >= 0 ) {
    httpPrintf( cnt, "Post edited!<br><br>" );
-  else
+   badpost = false;
+  } else {
    httpPrintf( cnt, "Error while editing post<br><br>" );
+   }
    if( postd.text )
   free( postd.text );
   goto iohttpForumL1;
