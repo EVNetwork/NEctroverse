@@ -993,7 +993,6 @@ return 1;
 // user main data functions
 
 int dbUserMainSet( int id, dbUserMainPtr maind ) {
-	dbUserPtr user;
 	FILE *file;
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
@@ -1003,11 +1002,6 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
 
 file_w( maind, 1, sizeof(dbUserMainDef), file );
 fclose( file );
-
-if( !( user = dbUserLinkID( id ) ) )
-	return -3;
-
-snprintf( user->faction, USER_NAME_MAX, "%s", maind->faction );
 
 return 1;
 }
@@ -4050,6 +4044,7 @@ int dbUserSpecOpEmpty( int id )
 int dbUserInfoSet( int id, dbUserInfoPtr infod ) {
 	FILE *file;
 	dbUserPtr user;
+	dbUserMainDef maind;
 
 if( !( user = dbUserLinkID( id ) ) )
 	return -3;
@@ -4059,6 +4054,17 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	return -3;
 }
 
+if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+	error( "Main Fetch" );
+	return -3;
+}
+
+strncpy( maind.faction, infod->faction, USER_NAME_MAX );
+
+if( dbUserMainSet( id, &maind ) < 0 ) {
+	error( "Main Set" );
+	return -3;
+}
 file_s( file, 0 );
 file_w( infod, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
