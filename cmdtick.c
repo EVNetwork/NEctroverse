@@ -462,9 +462,9 @@ for( a = 0 ; a < num ; a++ ) {
 	ticks.debug_pass = 2 + 10000;
 
 	if(mainp->artefacts & ARTEFACT_16_BIT) {
-		planetd.population += ceil( planetd.population * ( ( cmdRace[mainp->raceid].growth * ( 1.00 + 0.001 * mainp->totalresearch[CMD_RESEARCH_POPULATION] ) ) * 1.25 ) * pow(0.75, (float)nInfection) );
+		planetd.population += ceil( (( planetd.population * ( cmdRace[mainp->raceid].growth * 1.25 ) ) * ( 1.00 + 0.001 * mainp->totalresearch[CMD_RESEARCH_POPULATION] )) * pow(0.75, (float)nInfection) );
 	} else {
-		planetd.population += ceil( planetd.population * ( cmdRace[mainp->raceid].growth * ( 1.00 + 0.001 * mainp->totalresearch[CMD_RESEARCH_POPULATION] ) ) * pow(0.75, (float)nInfection) );
+		planetd.population += ceil( (( planetd.population * ( cmdRace[mainp->raceid].growth ) ) * ( 1.00 + 0.001 * mainp->totalresearch[CMD_RESEARCH_POPULATION] )) * pow(0.75, (float)nInfection) );
 	}
 	planetd.population = fmin( planetd.maxpopulation, planetd.population );
 
