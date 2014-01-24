@@ -365,7 +365,7 @@ int iohttpForumCleanIP( int flags, char *ipstring )
 void iohtmlFunc_forum( ReplyDataPtr cnt )
 {
  int a, b, c, d, id, forum, thread, post, action, skip;
- bool flags;
+ bool flags, badpost = true;
  dbUserMainDef maind;
  char *forumstring, *threadstring, *topicstring, *poststring, *delthreadstring, *delpoststring, *editpoststring, *namestring, *skipstring, *empirestring, *capstring;
  dbForumForumPtr forums;
@@ -601,27 +601,32 @@ for( a = 0 ; a < b ; a++ ) {
    httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
 	if( id == -1 ) {
-	purge_captcha( cnt->session );
-  		httpString( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
-	unsigned char im[70*200];
-	unsigned char gif[gifsize];
+		purge_captcha( cnt->session );
+  		httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\" value=\"%s\">", ( namestring ) ? namestring : "" );
+		unsigned char im[70*200];
+		unsigned char gif[gifsize];
 
-	captcha(im,(unsigned char *)(cnt->session)->captcha);
-	makegif(im,gif);
-	snprintf( COREDIR, PATH_MAX, "%s/%s.gif", TMPDIR, (cnt->session)->sid );
-	FILE *file = fopen( COREDIR, "wb+" );
-	fwrite( gif, 1, gifsize, file );
-	fclose( file );
-	httpString( cnt, "</td></tr><tr><td>" );
-	httpString( cnt, "Captcha" );
-	httpString( cnt, "</td><td>" );
-	httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
-	}
-   //return;
-   else
-    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
-   httpString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
-   httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
+		captcha(im,(unsigned char *)(cnt->session)->captcha);
+		makegif(im,gif);
+		snprintf( COREDIR, PATH_MAX, "%s/%s.gif", TMPDIR, (cnt->session)->sid );
+		FILE *file = fopen( COREDIR, "wb+" );
+		fwrite( gif, 1, gifsize, file );
+		fclose( file );
+		httpString( cnt, "</td></tr><tr><td>" );
+		httpString( cnt, "Captcha" );
+		httpString( cnt, "</td><td>" );
+		httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+	} else {
+    		httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
+    }
+   if( badpost ) {
+   	httpPrintf( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\" value=\"%s\"></td></tr>", ( topicstring ) ? topicstring : "" );
+   	httpPrintf( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">%s</textarea></td></tr>", ( poststring ) ? poststring : ""  );
+   } else {
+   	httpString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
+   	httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr>" );
+   }
+   httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
   }
 
   if( threads )
@@ -738,27 +743,30 @@ if( flags )  {
    httpPrintf( cnt, "<input type=\"hidden\" name=\"thread\" value=\"%d\">", thread );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
 	if( id == -1 ) {
-	purge_captcha( cnt->session );
-  		httpString( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
-	unsigned char im[70*200];
-	unsigned char gif[gifsize];
+		purge_captcha( cnt->session );
+  		httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\" value=\"%s\">", ( namestring ) ? namestring : "" );
+		unsigned char im[70*200];
+		unsigned char gif[gifsize];
 
-	captcha(im,(unsigned char *)(cnt->session)->captcha);
-	makegif(im,gif);
-	snprintf( COREDIR, PATH_MAX, "%s/%s.gif", TMPDIR, (cnt->session)->sid );
-	FILE *file = fopen( COREDIR, "wb+" );
-	fwrite( gif, 1, gifsize, file );
-	fclose( file );
-	httpString( cnt, "</td></tr><tr><td>" );
-	httpString( cnt, "Captcha" );
-	httpString( cnt, "</td><td>" );
-	httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+		captcha(im,(unsigned char *)(cnt->session)->captcha);
+		makegif(im,gif);
+		snprintf( COREDIR, PATH_MAX, "%s/%s.gif", TMPDIR, (cnt->session)->sid );
+		FILE *file = fopen( COREDIR, "wb+" );
+		fwrite( gif, 1, gifsize, file );
+		fclose( file );
+		httpString( cnt, "</td></tr><tr><td>" );
+		httpString( cnt, "Captcha" );
+		httpString( cnt, "</td><td>" );
+		httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+	} else {
+		httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
+		httpString( cnt, "</td></tr>" );
 	}
-   //return;
-   else
-    httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
-   httpString( cnt, "</td></tr>" );
-   httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr>" );
+      if( badpost ) {
+   	httpPrintf( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">%s</textarea></td></tr>", ( poststring ) ? poststring : ""  );
+   } else {
+   	httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr>" );
+   }
    httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr>" );
    httpString( cnt, "</table></form>" );
   }
@@ -790,11 +798,11 @@ if( flags )  {
 			sprintf( threadd.authorname, "Anonymous" );
 		}
 		if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
-			httpString( cnt, "No Captcha Entered" );
-   			goto RETURN;
+			httpString( cnt, "<span class=\"center\"><b>No Captcha Entered</b></span><br><br>" );
+   			goto iohttpForumL2;
 		} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
-			httpString( cnt, "Invalid Captcha Entered" );
-			goto RETURN;
+			httpString( cnt, "<span class=\"center\"><b>Invalid Captcha Entered</b></span></br><br>" );
+			goto iohttpForumL2;
 		}
 	}
   threadd.time = time( 0 );
@@ -802,6 +810,7 @@ if( flags )  {
   threadd.flags = 0;
   memcpy( &(threadd.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );
   thread = dbForumAddThread( flags, forum, &threadd );
+  badpost = false;
   goto iohttpForumL0;
  }
  else if( action == 4 )
@@ -829,11 +838,11 @@ if( flags )  {
   }*/
 if( id < 0 ) {
 	if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
-		httpString( cnt, "No Captcha Entered" );
-		goto RETURN;
+		httpString( cnt, "<span class=\"center\"><b>No Captcha Entered</b></span><br><br>" );
+		goto iohttpForumL1;
 	} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
-		httpPrintf( cnt, "Invalid Captcha Entered %s should be %s", capstring, (cnt->session)->captcha );
-		goto RETURN;
+		httpString( cnt, "<span class=\"center\"><b>Invalid Captcha Entered</b></span></br><br>" );
+		goto iohttpForumL1;
 	}
 }
   iohttpForumL0:
@@ -873,6 +882,7 @@ if( id < 0 ) {
    httpPrintf( cnt, "Error while adding post<br><br>" );
    if( postd.text )
   free( postd.text );
+  badpost = false;
   goto iohttpForumL1;
  }
  else if( action == 5 )
