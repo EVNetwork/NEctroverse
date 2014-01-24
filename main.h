@@ -12,7 +12,7 @@
  * Mutex used when we update stuff.
  */
 extern pthread_mutex_t mutex;
-
+extern time_t now;
 
 //config struct
 typedef struct {

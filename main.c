@@ -7,6 +7,7 @@
 #include "loadini.c"
 
 pthread_mutex_t mutex;
+time_t now;
 
 ServerOptionsDef options = { MODE_DAEMON, { false
 #if HTTPS_SUPPORT
@@ -342,6 +343,7 @@ if( strlen( settings[0]->string_value ) && strlen( settings[1]->string_value ) )
 } else {
 	info( "Unable to load Facebook Token due to bad ini settings" );
 }
+
 #endif
 
 //Now create the loop, this used to take place in here... but I decided to move it =P

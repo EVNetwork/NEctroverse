@@ -259,8 +259,6 @@ if( gmt ) {
 int timediff( struct tm t_in  ) {
 	int seconds;
 	struct tm variable;
-	time_t now;
-
 
 time(&now);
 

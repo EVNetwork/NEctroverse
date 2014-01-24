@@ -1,6 +1,9 @@
 #ifndef ENCRYPT_H
 #define ENCRYPT_H
 
+#include "md5.h"
+#include "base64.h"
+
 #include <crypt.h>
 
 #define SALT_SIZE 128

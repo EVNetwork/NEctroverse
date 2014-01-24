@@ -12,6 +12,8 @@
 
 #include "urlencode.c"
 
+#include "libcaptcha.c"
+
 #if FACEBOOK_SUPPORT
 #include "cJSON.c"
 #endif

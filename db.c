@@ -455,7 +455,6 @@ int dbInitUsersReset()
 int dbInit() {
 	int a, b;
 	int array[4];
-	time_t now;
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	dbMainPlanetDef planetd;
@@ -465,7 +464,7 @@ int dbInit() {
 	char fname[PATH_MAX];
 	char COREDIR[PATH_MAX];
 
-time( &now );
+time(&now);
 settings[0] = GetSetting( "Directory" );
 settings[1] = GetSetting( "Public Forum" );
 snprintf( COREDIR, sizeof(COREDIR), "%s/data", settings[0]->string_value );

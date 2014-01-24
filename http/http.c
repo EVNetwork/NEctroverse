@@ -159,7 +159,6 @@ static SessionPtr SessionList;
 SessionPtr get_session( int type, void *cls ) {
 	SessionPtr ret;
 	int id;
-	time_t now;
 	char buffer[256];
 	const char *cookie = NULL;
 
@@ -508,14 +507,19 @@ fname = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, 
 
 if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 	settings = GetSetting( "Directory" );
-	snprintf(dmsg, sizeof (dmsg), "%s/uploads/%s", settings->string_value, fname );
+	snprintf(dmsg, PATH_MAX, "%s/uploads/%s", settings->string_value, fname );
 } else if ( ( type ) && ( strcmp( type, "image" ) == 0 ) ) {
 	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "eimage" ) == 0 ) ) {
 	goto IMAGE_BUFFER;
 } else if ( ( type ) && ( strcmp( type, "server" ) == 0 ) ) {
 	settings = GetSetting( "HTTP Files" );
-	snprintf(dmsg, sizeof (dmsg), "%s/%s", settings->string_value, fname );
+	snprintf(dmsg, PATH_MAX, "%s/%s", settings->string_value, fname );
+} else if ( ( type ) && ( strcmp( type, "captcha" ) == 0 ) ) {
+	char captcha[256];
+	snprintf(captcha, 256, "%s.gif", session->sid );
+	fname = captcha;
+	snprintf(dmsg, PATH_MAX, "%s/%s", TMPDIR, fname );
 } else {
 	memset( &dmsg, 0, PATH_MAX );
 }
@@ -556,10 +560,7 @@ if (file == NULL) {
 
 	strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
 	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
-	settings = GetSetting( "Server Name" );
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, settings->string_value );
-	ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
-	MHD_destroy_response( response );
+	goto RETURN;
 }
 
 return ret;
@@ -616,11 +617,12 @@ if (response == NULL) {
 strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&filelist->modofied) );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
 
+RETURN:
+
 settings = GetSetting( "Server Name" );
 (void)MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, settings->string_value );
 ret = MHD_queue_response( connection, MHD_HTTP_OK, response );
 MHD_destroy_response( response );
-
 return ret;
 }
 
@@ -1064,9 +1066,8 @@ static void expire_sessions () {
 	SessionPtr pos;
 	SessionPtr prev;
 	SessionPtr next;
-	time_t now;
 
-now = time(NULL);
+time(&now);
 prev = NULL;
 pos = SessionList;
 
@@ -1137,9 +1138,8 @@ static void expire_file_storage () {
 	FileStoragePtr pos;
 	FileStoragePtr prev;
 	FileStoragePtr next;
-	time_t now;
 
-now = time(NULL);
+time(&now);
 prev = NULL;
 pos = StoredFiles;
 

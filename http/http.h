@@ -83,6 +83,11 @@ typedef struct Session
    * url to redirect if needed.
    */
   char redirect[REDIRECT_MAX];
+ 
+  /**
+   * captcha string if needed.
+   */
+  char captcha[6];
   
   /**
    * Time when this session was last active.

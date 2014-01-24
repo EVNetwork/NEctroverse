@@ -575,7 +575,6 @@ int cmdTick() {
 	int marketbid[DB_MARKETBID_NUMUSED];
 	int bidresult[2];
 	int *plist;
-	time_t now;
 	dbUserPtr user;
 	dbUserMainDef maind;
 	dbUserBuildPtr build;

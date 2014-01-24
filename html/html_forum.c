@@ -367,7 +367,7 @@ void iohtmlFunc_forum( ReplyDataPtr cnt )
  int a, b, c, d, id, forum, thread, post, action, skip;
  bool flags;
  dbUserMainDef maind;
- char *forumstring, *threadstring, *topicstring, *poststring, *delthreadstring, *delpoststring, *editpoststring, *namestring, *skipstring, *empirestring;
+ char *forumstring, *threadstring, *topicstring, *poststring, *delthreadstring, *delpoststring, *editpoststring, *namestring, *skipstring, *empirestring, *capstring;
  dbForumForumPtr forums;
  dbForumThreadPtr threads;
  dbForumPostPtr posts;
@@ -392,6 +392,7 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td valign=\"top\">" );
 }
 
+ capstring = iohtmlVarsFind( cnt, "captcha" );
  empirestring = iohtmlVarsFind( cnt, "empire" );
  forumstring = iohtmlVarsFind( cnt, "forum" );
  threadstring = iohtmlVarsFind( cnt, "thread" );
@@ -599,8 +600,22 @@ for( a = 0 ; a < b ; a++ ) {
    httpPrintf( cnt, "<input type=\"hidden\" name=\"empire\" value=\"%s\">", ( flags ? "true" : "false" ) );
    httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
-   if( id == -1 )
-    httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+	if( id == -1 ) {
+  		httpString( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+	unsigned char im[70*200];
+	unsigned char gif[gifsize];
+
+	captcha(im,(unsigned char *)(cnt->session)->captcha);
+	makegif(im,gif);
+	snprintf( COREDIR, PATH_MAX, "%s/%s.gif", TMPDIR, (cnt->session)->sid );
+	FILE *file = fopen( COREDIR, "wb+" );
+	fwrite( gif, 1, gifsize, file );
+	fclose( file );
+	httpString( cnt, "</td></tr><tr><td>" );
+	httpString( cnt, "Captcha" );
+	httpString( cnt, "</td><td>" );
+	httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+	}
    //return;
    else
     httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
@@ -721,12 +736,29 @@ if( flags )  {
    httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
    httpPrintf( cnt, "<input type=\"hidden\" name=\"thread\" value=\"%d\">", thread );
    httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
-   if( id == -1 )
-    httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+	if( id == -1 ) {
+  		httpString( cnt, "<input type=\"text\" name=\"name\" size=\"32\">" );
+	unsigned char im[70*200];
+	unsigned char gif[gifsize];
+
+	captcha(im,(unsigned char *)(cnt->session)->captcha);
+	makegif(im,gif);
+	snprintf( COREDIR, PATH_MAX, "%s/%s.gif", TMPDIR, (cnt->session)->sid );
+	FILE *file = fopen( COREDIR, "wb+" );
+	fwrite( gif, 1, gifsize, file );
+	fclose( file );
+	httpString( cnt, "</td></tr><tr><td>" );
+	httpString( cnt, "Captcha" );
+	httpString( cnt, "</td><td>" );
+	httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+	}
    //return;
    else
     httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
-   httpString( cnt, "</td></tr><tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr><tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
+   httpString( cnt, "</td></tr>" );
+   httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr>" );
+   httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr>" );
+   httpString( cnt, "</table></form>" );
   }
 
   if( posts )
@@ -747,12 +779,23 @@ if( flags )  {
   iohttpForumFilter( threadd.topic, topicstring, DB_FORUM_NAME_SIZE, 0 );
   threadd.posts = 0;
   threadd.authorid = id;
-  if( id != -1 )
-   sprintf( threadd.authorname, "%s", maind.faction );
-  else if( ( namestring ) && ( strlen( namestring ) ) )
-   iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
-  else
-   sprintf( threadd.authorname, "Anonymous" );
+	if( id != -1 ) {
+		sprintf( threadd.authorname, "%s", maind.faction );
+	} else {
+		postd.post.authortag[0] = 0;
+		if( ( namestring ) && ( strlen( namestring ) ) ) {
+			iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
+		} else {
+			sprintf( threadd.authorname, "Anonymous" );
+		}
+		if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
+			httpString( cnt, "No Captcha Entered" );
+   			goto RETURN;
+		} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
+			httpString( cnt, "Invalid Captcha Entered" );
+			goto RETURN;
+		}
+	}
   threadd.time = time( 0 );
   threadd.tick = ticks.number;
   threadd.flags = 0;
@@ -786,6 +829,23 @@ if( flags )  {
 
   iohttpForumL0:
 
+	if( id != -1 ) {
+		sprintf( threadd.authorname, "%s", maind.faction );
+	} else {
+		postd.post.authortag[0] = 0;
+		if( ( namestring ) && ( strlen( namestring ) ) ) {
+			iohttpForumFilter( threadd.authorname, namestring, USER_NAME_MAX, 0 );
+		} else {
+			sprintf( threadd.authorname, "Anonymous" );
+		}
+		if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
+			httpString( cnt, "No Captcha Entered" );
+   			goto RETURN;
+		} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
+			httpString( cnt, "Invalid Captcha Entered" );
+			goto RETURN;
+		}
+	}
   if( !( postd.text = malloc( 3 * FORUM_MAX ) ) )
   {
    goto RETURN;
@@ -799,15 +859,6 @@ if( flags )  {
   iohttpForumFilter( &postd.text[2*FORUM_MAX], poststring, FORUM_MAX, a );
   postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*FORUM_MAX], FORUM_MAX );
   postd.post.authorid = id;
-  if( id != -1 ) {
-   sprintf( postd.post.authorname, "%s", maind.faction );
-   sprintf( postd.post.authortag, "%s", ((cnt->session)->dbuser)->forumtag );
-  } else if( ( namestring ) && ( strlen( namestring ) ) ) {
-    iohttpForumFilter( postd.post.authorname, namestring, USER_NAME_MAX, 0 );
-   } else {
-    sprintf( postd.post.authorname, "Anonymous" );
-   postd.post.authortag[0] = 0;
-  }
   postd.post.time = time( 0 );
   postd.post.tick = ticks.number;
   postd.post.flags = 0;

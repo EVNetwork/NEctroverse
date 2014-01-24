@@ -600,7 +600,6 @@ int cmdCheckName( char *name )
 void cmdEmpireLeader( dbMainEmpirePtr empired ) {
 	int a, b, c;
 	int *parray;
-	time_t now;
 	dbUserPtr user;
 
 if( ( parray = calloc( dbMapBInfoStatic[MAP_CAPACITY], sizeof(int) ) ) == NULL )
