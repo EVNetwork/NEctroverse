@@ -486,6 +486,7 @@ int battle( int id, int fltid, int64_t *results )
   //ARTI CODE
 	if(maind.artefacts & ARTEFACT_SEAT_BIT)
 
+
 		hptransport += attunit[CMD_UNIT_TRANSPORT] * attstats[CMD_UNIT_TRANSPORT][CMD_UNIT_STATS_AIRDEFENSE];
   */
   hpcruiser = attunit[CMD_UNIT_CRUISER] * attstats[CMD_UNIT_CRUISER][CMD_UNIT_STATS_AIRDEFENSE];
@@ -963,14 +964,15 @@ int battle( int id, int fltid, int64_t *results )
     cmdEmpireNewsAdd( maind.empire, id, newd );
     if( maind.config_fleet == 2 )
     {
-      b = cmdFindDistPortal( id, ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, &a, &fleetd.source );
+	cmdExecChangeFleet( id, (( maind.home >> 8 ) & 0xFFF), (maind.home >> 20), (maind.home & 0xFF), CMD_FLEET_ORDER_RECALL, fltid );
+      /*b = cmdFindDistPortal( id, ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, &a, &fleetd.source );
       if( ( b >= -1 ) && ( ( ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8 ) == 0 ) )
       {
         fleetd.time = -1;
         fleetd.order = CMD_FLEET_ORDER_RECALL;
         dbUserFleetSet( id, fltid, &fleetd );
         cmdFleetAction( &fleetd, id, fltid, 0 );
-      }
+      }*/
     }
     return 1;
   }
@@ -1068,6 +1070,8 @@ int battle( int id, int fltid, int64_t *results )
   }
   else if( maind.config_fleet == 2 )
   {
+  cmdExecChangeFleet( id, (( maind.home >> 8 ) & 0xFFF), (maind.home >> 20), (maind.home & 0xFF), CMD_FLEET_ORDER_RECALL, fltid );
+  /*
     b = cmdFindDistPortal( id, ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, &a, &fleetd.source );
     if( ( b >= -1 ) && ( ( ( a / CMD_FLEETS_TRAVEL_SPEED ) >> 8 ) == 0 ) )
     {
@@ -1079,7 +1083,7 @@ int battle( int id, int fltid, int64_t *results )
     {
       fleetd.order = CMD_FLEET_ORDER_CANCELED;
       dbUserFleetSet( id, fltid, &fleetd );
-    }
+    }*/
   }
   dbMapSetPlanet( fleetd.destid, &planetd );
 

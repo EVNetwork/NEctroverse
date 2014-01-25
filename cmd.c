@@ -110,7 +110,7 @@ char *cmdResearchDesc[CMD_RESEARCH_NUMUSED] =
 "Reduces construction costs and building time",
 "Allow construction of advanced units and buildings",
 "Increases your energy production efficency",
-"Increases populataion capacity and rate of growth",
+"Increases population capacity and rate of growth",
 "Increases psychics capabilities and portal coverage",
 "Increases the effectiveness of your agents"
 };
