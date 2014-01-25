@@ -1,3 +1,8 @@
+25 January 2014
+Well, time frozen already... I did not expect that.
+Time will remain frozen untill I complete the End of Round function.
+-- I feel it's about time to start keeping some records.
+
 18 January 2014
 Unit Upkeep has changed, traveling units now incur a 50% increase in upkeep.
 While units stationed on a planet will incur a 25% increase.
