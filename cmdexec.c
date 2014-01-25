@@ -230,6 +230,8 @@ int cmdExecUserDeactivate( int id, int flags )
   if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( maind.empire != -1 ) )
   {
     recordd.roundid = ticks.round;
+    setting = GetSetting( "Round Flag" );
+    memcpy( recordd.roundflag, setting->string_value, USER_NAME_MAX );
     recordd.planets = maind.planets;
     recordd.networth = maind.networth;
     memcpy( recordd.faction, maind.faction, USER_NAME_MAX );
@@ -276,7 +278,6 @@ int cmdExecUserDeactivate( int id, int flags )
       infod.tagpoints += 3 * maind.planets;
     else
       infod.tagpoints += maind.planets;
-
 
     dbUserRecordAdd( id, &recordd );
   }
@@ -337,7 +338,7 @@ int cmdExecUserDeactivate( int id, int flags )
       empired.numplayers--;
  
      //Remove pass if last player
-	setting = GetSetting( "Admin Empire" );
+	setting = GetSetting( "Admin Empire Number" );
 	if( ( empired.numplayers < 1 ) && ( maind.empire != setting->num_value ) ) {
 		memset( &empired.name, 0, USER_NAME_MAX );
 		memset( &empired.password, 0, USER_PASS_MAX );
@@ -373,11 +374,10 @@ int cmdExecUserDeactivate( int id, int flags )
   dbUserNewsEmpty( id );
 
   memcpy( &main2d, &cmdUserMainDefault, sizeof(dbUserMainDef) );
-  if( user->level == 0 )
+  if( user->level < LEVEL_MODERATOR )
     snprintf( infod.forumtag, USER_FTAG_MAX, "%s", cmdTagFind( infod.tagpoints ) );
-  else
-    snprintf( infod.forumtag, USER_FTAG_MAX, "%s", infod.forumtag );
-  snprintf( main2d.faction, USER_NAME_MAX, "%s", maind.faction );
+
+  strncpy( main2d.faction, maind.faction, USER_NAME_MAX );
   main2d.empire = -1;
 
   if( !( dbUserMainSet( id, &main2d ) ) )
@@ -1852,6 +1852,7 @@ int cmdExecChangeFleet( int id, int x, int y, int z, int order, int fltid )
       return -3;
 
     fleetd.basetime = fleetd.time = (int)( (float)a / fa ) >> 8;
+
     
    	if( !( dbUserFleetSet( id, fltid, &fleetd ) ) )
       return -3;
@@ -2073,6 +2074,67 @@ int cmdExecTakePlanet( int id, int plnid )
   return 1;
 }
 
+
+
+int cmdEndofRound( ) {
+	int a;
+	char fname[PATH_MAX];
+	dbUserPtr user;
+	ConfigArrayPtr setting;
+	dbMainEmpireDef empired;
+	struct tm variable;
+
+ticks.status = false;
+ticks.locked = true;
+
+for( user = dbUserList ; user ; user = user->next ) {
+	cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
+}
+
+setting = GetSetting( "Directory" );
+
+for( a = 0; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
+	if( ( dbEmpireGetInfo( a, &empired ) == YES ) && ( empired.picture > 0 ) ) {
+		snprintf(fname, PATH_MAX,"%s/uploads/empire%d/pic%d", setting->string_value, a, empired.picture );
+		unlink(fname);
+	}
+	dbForumRemoveForum( true, a );
+}
+
+snprintf( fname, sizeof(fname), "%s/data/forums", setting->string_value );
+unlink( fname );
+
+cmdEnd();
+dbEnd();
+
+time(&now);
+
+variable = *localtime(&now);
+variable.tm_mday++;
+sysconfig.start = variable;
+ticks.round++;
+ticks.number = 0;
+
+if( spawn_map() == NO ) {
+	critical( "Map Creation Failed" );
+	return NO;
+}
+
+if( dbInit() == NO ) {
+	critical( "Server Database Initation Failed, now exiting..." );
+	return NO;
+}
+
+
+if( cmdInit() == NO )  {
+	critical( "Server Command Initation Failed, now exiting..." );
+	return NO;
+}
+
+ticks.locked = false;
+
+return YES;
+}
 
 
 

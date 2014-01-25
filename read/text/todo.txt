@@ -1,3 +1,2 @@
-Complete End of Round function. (Moved to top of list!)
 Finish Empire Polotics. -- Utalises the Empire Fund.
 Upgrade the admin/mod interface -- Oh this is long overdue!

@@ -1300,10 +1300,13 @@ sysconfig.shutdown = true;
 
   if( action[12] )
   {
-  	curtime = time( 0 );
+  	/*curtime = time( 0 );
     for( user = dbUserList ; user ; user = user->next )
-      cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
+      cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );*/
+      if( cmdEndofRound() == YES )
     httpPrintf( cnt, "All accounts deactivated<br><br>" );
+    else
+    httpPrintf( cnt, "Something bad happened...<br><br>" );
   }
 
   if( action[13] )

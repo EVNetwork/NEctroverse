@@ -132,7 +132,7 @@ static const double megabyte = (KB_SIZE * KB_SIZE);
 StringBufferPtr error_buffer;\
 error_buffer = calloc( 1, sizeof(StringBufferDef) ); \
 AddBufferPrint( error_buffer, msg, ##__VA_ARGS__ ); \
-loghandle(LOG_ERR, errno, "Error \'%s\' in: %s, on line: %d", error_buffer->buf, __FILE__, __LINE__ ); \
+loghandle(LOG_ERR, errno, "%s (file: %s, line: %d)", error_buffer->buf, __FILE__, __LINE__ ); \
 free( error_buffer->buf );\
 free( error_buffer );\
 }
@@ -141,7 +141,7 @@ free( error_buffer );\
 StringBufferPtr critical_buffer;\
 critical_buffer = calloc( 1, sizeof(StringBufferDef) ); \
 AddBufferPrint( critical_buffer, msg, ##__VA_ARGS__ ); \
-loghandle(LOG_CRIT, errno, "Critical Error \'%s\' in: %s, on line: %d", critical_buffer->buf, __FILE__, __LINE__ ); \
+loghandle(LOG_CRIT, errno, "%s (file: %s, line: %d)", critical_buffer->buf, __FILE__, __LINE__ ); \
 free( critical_buffer->buf );\
 free( critical_buffer );\
 ticks.status = false; \

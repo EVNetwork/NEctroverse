@@ -441,6 +441,7 @@ int dbUserSpecOpEmpty( int id );
 typedef struct
 {
   int roundid;
+  char roundflag[USER_NAME_MAX];
   int rank;
   int planets;
   int64_t networth;

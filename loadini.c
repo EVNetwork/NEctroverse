@@ -19,6 +19,7 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "system:httpread", "/tmp/evcore/html/read", "HTTP Text" },
 	{ INI_TYPE_STRING, "system:publicforum", "/tmp/evcore/data", "Public Forum" },
 
+	{ INI_TYPE_STRING, "system:round_flag", "Pre-Alpha", "Round Flag" },
 	{ INI_TYPE_INT, "system:notices", "5", "Display Notices" },
 
 	#if HTTPS_SUPPORT
@@ -28,7 +29,7 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "https:trust", "", "HTTPS Trust" },
 	#endif
 
-	{ INI_TYPE_INT, "ticks:round", "0", "Round Number" },
+	//{ INI_TYPE_INT, "ticks:round", "0", "Round Number" },
 	{ INI_TYPE_INT, "ticks:tick_time", "3600", "Tick Speed" },
 	{ INI_TYPE_INT, "ticks:stockpile", "0", "Stockpile" },
 	{ INI_TYPE_INT, "ticks:victory_afterticks", "0", "Auto Victory" },

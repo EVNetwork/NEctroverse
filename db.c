@@ -3184,7 +3184,7 @@ if( flags ) {
 }
 
 if( !( dirdata = opendir( fname ) ) ) {
-	error( "Opening DIR" );
+	error( "Opening DIR: %s", fname );
 	return -3;
 }
 fname[a] = '/';
@@ -3683,6 +3683,7 @@ file_r( &offset, 1, sizeof(int), file );
 
   file_s( file, 8+sizeof(dbForumThreadDef) );
 
+
   offset = 8+sizeof(dbForumThreadDef);
   for( a = 0 ; a < num ; a++ )
   {
@@ -4107,6 +4108,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) ) {
 
 file_r( &num, 1, 4, file );
 num++;
+file_s( file, 0 );
 file_w( &num, 1, 4, file );
 file_s( file, 4 + ( num - 1 ) * sizeof(dbUserRecordDef) );
 file_w( recordd, 1, sizeof(dbUserRecordDef), file );

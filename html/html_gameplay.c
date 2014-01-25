@@ -3722,18 +3722,22 @@ if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->level >= LEVEL_MO
   httpPrintf( cnt, "Rounds played : %d", b );
   for( a = b-1 ; a >= 0 ; a-- )
   {
-   httpPrintf( cnt, "<br><br>Round : %d", recordd[a].roundid );
+   httpPrintf( cnt, "<br><br>Round %s: %d", recordd[a].roundflag, recordd[a].roundid );
    httpPrintf( cnt, "<br>Faction name : %s", recordd[a].faction );
    httpPrintf( cnt, "<br>Title : %s", recordd[a].forumtag );
    httpPrintf( cnt, "<br>Planets : %d", recordd[a].planets );
    httpPrintf( cnt, "<br>Networth : %d", recordd[a].networth );
    httpPrintf( cnt, "<br>Faction rank : %d", recordd[a].rank );
    httpPrintf( cnt, "<br>Empire : #%d", recordd[a].empire );
-   httpPrintf( cnt, "<br>Empire name : %s", recordd[a].famname );
+   if( strlen( recordd[a].famname ) > 0 ) {
+   	httpPrintf( cnt, "<br>Empire name : %s", recordd[a].famname );
+   }
    httpPrintf( cnt, "<br>Empire rank : %d", recordd[a].famrank );
    httpPrintf( cnt, "<br>Empire planets : %d", recordd[a].famplanets );
    httpPrintf( cnt, "<br>Empire networth : %d", recordd[a].famnetworth );
-   httpPrintf( cnt, "<br>Empire artefacts : %d", recordd[a].artefacts );
+   if( recordd[a].artefacts > 0 ) {
+   	httpPrintf( cnt, "<br>Empire artefacts : %d", recordd[a].artefacts );
+   }
   }
   httpString( cnt, "</td></tr></table>" );
   free( recordd );

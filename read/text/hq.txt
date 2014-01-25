@@ -3,7 +3,7 @@ All faults must be reported... No matter how minor.
 If you encounter a bug/error. Report it.
 
 
---Time stays frozen till I complete the "New Round" Function--
---Shoulden't take too long--
+--New Round Function Coded--
+--However I'd like to make a few more tweaks before using it.--
 
 --Necro

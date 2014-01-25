@@ -1,7 +1,7 @@
 25 January 2014
 Well, time frozen already... I did not expect that.
 Time will remain frozen untill I complete the End of Round function.
--- I feel it's about time to start keeping some records.
+-- Function coded, however I'd like to make a few more tweaks before using it.
 
 18 January 2014
 Unit Upkeep has changed, traveling units now incur a 50% increase in upkeep.

@@ -483,7 +483,7 @@ dbUserMainDef cmdUserMainDefault =
   { }, //totalbuilding
   { }, //totalunit
   { }, //totalresearch
-  1250, //networth
+  1710, //networth
   { }, //allocresearch
   0, //fundresearch
   0, //planets

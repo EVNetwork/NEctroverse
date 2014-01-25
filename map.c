@@ -380,8 +380,7 @@ settings[0] = GetSetting( "HTTP Images" );
 snprintf( fname, PATH_MAX, "%s/galaxies", settings[0]->string_value );
 dirstructurecheck(fname, false);
 
-settings[1] = GetSetting( "Round Number" );
-snprintf( fname, PATH_MAX, "%s/galaxies/galaxyr%.0f.png", settings[0]->string_value, settings[1]->num_value );
+snprintf( fname, PATH_MAX, "%s/galaxies/galaxyr%d.png", settings[0]->string_value, ticks.round );
 imgConvertGrayscale(&mapimage,IMG_IMAGE_FORMAT_RGB24);
 imgWritePngFile( fname, &mapimage );
 imgFree( &mapimage );
