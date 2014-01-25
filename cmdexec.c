@@ -2091,8 +2091,9 @@ for( user = dbUserList ; user ; user = user->next ) {
 	cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
 }
 
-setting = GetSetting( "Directory" );
+dbEnd();
 
+setting = GetSetting( "Directory" );
 for( a = 0; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
 	if( ( dbEmpireGetInfo( a, &empired ) == YES ) && ( empired.picture > 0 ) ) {
 		snprintf(fname, PATH_MAX,"%s/uploads/empire%d/pic%d", setting->string_value, a, empired.picture );
@@ -2103,9 +2104,6 @@ for( a = 0; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
 
 snprintf( fname, sizeof(fname), "%s/data/forums", setting->string_value );
 unlink( fname );
-
-cmdEnd();
-dbEnd();
 
 time(&now);
 
@@ -2125,11 +2123,6 @@ if( dbInit() == NO ) {
 	return NO;
 }
 
-
-if( cmdInit() == NO )  {
-	critical( "Server Command Initation Failed, now exiting..." );
-	return NO;
-}
 
 ticks.locked = false;
 

@@ -108,7 +108,7 @@ static void mhd_panic_std (void *cls, const char *file, unsigned int line, const
 
   loghandle(LOG_CRIT, FALSE, "Fatal error in GNU libmicrohttpd %s:%u: %s", file, line, reason );
 
-return;
+exit(0);
 }
 
 

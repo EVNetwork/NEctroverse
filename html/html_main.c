@@ -16,39 +16,42 @@ if( strcmp( (cnt->session)->sid, sess )  )
 id = ((cnt->session)->dbuser)->id;
 ((cnt->session)->dbuser)->lasttime = time(NULL);
 
-if( dbUserSave( id, (cnt->session)->dbuser ) < 0 )
+if( dbUserSave( id, (cnt->session)->dbuser ) < 0 ) {
 	error( "Database UserSave" );
+	goto NEGATIVE;
+}
+if( action & 8 ) {
+	goto RETURN;
+}
 
-if(( action & 2 )&&((cnt->session)->dbuser)) {
+if( ( action & 2 ) ) {
 	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
 			iohtmlFunc_register( cnt );
 		}
-		return -1;
+		goto NEGATIVE;
 	}
 }
 
 if( action & 4 ) {
-	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
+	if( ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
 		if( action & 1 ) {
 			iohtmlFunc_register( cnt );
 		}
-		return -1;
+		goto NEGATIVE;
 	}
 }
-
+RETURN:
 purge_captcha( cnt->session );
 return id;
 
 iohtmlIdentifyL0:
 
 if( action & 1 ) {
-
 	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, your account may have been hijacked." );
-
 }
 
-
+NEGATIVE:
 return -1;
 }
 

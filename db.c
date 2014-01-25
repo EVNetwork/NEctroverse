@@ -938,8 +938,8 @@ int dbUserLinkDatabase( void *cnt, int id ) {
 	ReplyDataPtr cnt2 = cnt;
 
 if( id < 0 ) {
-	(cnt2->session)->dbuser = 0;
-	return 1;
+	(cnt2->session)->dbuser = NULL;
+	return -1;
 }
 
 if( !( user = dbUserLinkID( id ) ) )
@@ -4085,6 +4085,10 @@ return 1;
 int dbUserInfoRetrieve( int id, dbUserInfoPtr infod ) {
 	FILE *file;
 
+if( id < 0 ) {
+	return -3;
+}
+
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	error( "User Open" );
 	return -3;
@@ -4100,6 +4104,10 @@ return 1;
 int dbUserRecordAdd( int id, dbUserRecordPtr recordd ) {
 	int num = 0;
 	FILE *file;
+
+if( id < 0 ) {
+	return -3;
+}
 
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) ) {
 	error( "User Open" );
@@ -4122,6 +4130,11 @@ int dbUserRecordList( int id, dbUserRecordPtr *records ) {
 	int num = 0;
 	dbUserRecordPtr recordp;
 	FILE *file;
+
+if( id < 0 ) {
+	return -3;
+}
+
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_RECORD ) ) ) {
 	error( "User Open" );
 	return -3;
