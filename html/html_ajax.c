@@ -11,7 +11,7 @@ void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
 	char CHECKER[256];
 	char timebuf[512];
 	dbMainEmpireDef empired;
-	dbUserBuildPtr build;
+	dbBuildPtr build;
 	dbUserMainDef maind;
 	proginfoDef pinfod;
 	urlinfoPtr urlp;
@@ -168,7 +168,7 @@ if( ( typestring ) && ( refer ) ) {
 			memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
 			memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 			httpPrintf( cnt, "<council_html_buildings><![CDATA[" );
-			if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 ) {
+			if( ( numbuild = dbBuildList( true, id, &build ) ) < 0 ) {
 				httpString( cnt, "Error while retriving user build list" );
 				httpPrintf( cnt, "]]></council_html_buildings>" );
 				return;

@@ -577,7 +577,7 @@ int cmdTick() {
 	int *plist;
 	dbUserPtr user;
 	dbUserMainDef maind;
-	dbUserBuildPtr build;
+	dbBuildPtr build;
 	dbMainPlanetDef planetd;
 	dbUserFleetDef fleetd;
 	dbUserFleetPtr fleetp;

@@ -230,6 +230,7 @@ free( mapbase );
 p = 0;
 for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 	memset( &systemd, -1, sizeof(dbMainSystemDef) );
+	systemd.id = a;
 	systemd.position = mapstore->pos[a];
 	systemd.indexplanet = p;
 	p += mapstore->planets[a];
@@ -256,6 +257,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
 	memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
 	planetd.construction = planetd.protection = 0;
+	planetd.id = a;
 	dist = 0;
 	if( b >= mapstore->planets[c] ) {
 		b -= mapstore->planets[c];
@@ -339,6 +341,7 @@ for( a = 0 ; a < map_set[3].num_value ; a++ ) {
 	memset( empired.player, -1, map_set[4].num_value*sizeof(int) );
 	memset( empired.vote, -1, map_set[4].num_value*sizeof(int) );
 	empired.rank = -1;
+	empired.id = a;
 	if( ( (int)settings[1]->num_value == a ) ) {
 		strncpy( empired.name, settings[2]->string_value, USER_NAME_MAX );
 		strncpy( empired.password, hashencrypt(settings[3]->string_value), USER_PASS_MAX );

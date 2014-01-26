@@ -154,18 +154,32 @@ int dbUserMainRetrieve_real( int id, dbUserMainPtr main, char *sourcefile, int s
 typedef struct
 {
   int type;
-  int quantity;
   int time;
   int plnid;
   int plnpos;
+  int64_t quantity;
   int64_t cost[CMD_RESSOURCE_NUMUSED];
-} dbUserBuildDef, *dbUserBuildPtr;
+} dbBuildDef, *dbBuildPtr;
 
-int dbUserBuildAdd( int id, int type, int64_t *cost, int quantity, int time, int plnid, int plnloc );
-int dbUserBuildRemove( int id, int bldid );
-int dbUserBuildList( int id, dbUserBuildPtr *build );
-int dbUserBuildListReduceTime( int id, dbUserBuildPtr *build );
-int dbUserBuildEmpty( int id );
+#define dbUserBuildAdd( id, type, cost, quantity, time, plnid, plnloc ) dbBuildAdd( YES, id, type, cost, quantity, time, plnid, plnloc );
+#define dbEmpireBuildAdd( id, type, cost, quantity, time, plnid, plnloc ) dbBuildAdd( NO, id, type, cost, quantity, time, plnid, plnloc );
+int dbBuildAdd( bool isuser, int id, int type, int64_t *cost, int64_t quantity, int time, int plnid, int plnloc );
+
+#define dbUserBuildRemove( id, bldid ) dbBuildRemove( YES, id, bldid );
+#define dbEmpireBuildRemove( id, bldid ) dbBuildRemove( NO, id, bldid );
+int dbBuildRemove( bool isuser, int id, int bldid );
+
+#define dbUserBuildList( id, build ) dbBuildList( YES, id, build );
+#define dbEmpireBuildList( id, build ) dbBuildList( NO, id, build );
+int dbBuildList( bool isuser, int id, dbBuildPtr *build );
+
+#define dbUserBuildListReduceTime( id, build ) dbBuildListReduceTime( YES, id, build );
+#define dbEmpireBuildListReduceTime( id, build ) dbBuildListReduceTime( NO, id, build );
+int dbBuildListReduceTime( bool isuser, int id, dbBuildPtr *build );
+
+#define dbUserBuildEmpty( id ) dbBuildEmpty( YES, id );
+#define dbEmpireBuildEmpty( id ) dbBuildEmpty( NO, id );
+int dbBuildEmpty( bool isuser, int id );
 
 
 
@@ -246,6 +260,7 @@ extern int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
 typedef struct
 {
+  int id;
   int position;
   int indexplanet;
   int numplanets;
@@ -261,6 +276,7 @@ int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd );
 
 typedef struct
 {
+  int id;
   int flags;
   int size;
   int system;
@@ -295,6 +311,7 @@ typedef struct
 
 typedef struct
 {
+  int id;
   int rank;
   int flags;
   int numplayers;
@@ -308,7 +325,7 @@ typedef struct
   int planets;
   int artefacts;
   int construction;
-  int building[8];
+  int building[CMD_BLDG_EMPIRE_NUMUSED];
   int counters[16];
   float taxation;
   int64_t networth;

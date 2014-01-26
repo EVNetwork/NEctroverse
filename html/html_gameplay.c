@@ -1394,7 +1394,7 @@ void iohtmlFunc_council( ReplyDataPtr cnt ) {
 	int64_t bsums[CMD_BLDG_NUMUSED+1];
 	int64_t usums[CMD_UNIT_NUMUSED];
 	dbMainEmpireDef empired;
-	dbUserBuildPtr build;
+	dbBuildPtr build;
 	dbUserMainDef maind;
 
 
@@ -1413,8 +1413,10 @@ if( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) {
 
 iohtmlBodyInit( cnt, "Council" );
 
-if( ( numbuild = dbUserBuildList( id, &build ) ) < 0 ) {
-	httpString( cnt, "Error while retrieving user build list</body></html>" );
+numbuild = dbUserBuildList( id, &build );
+if( numbuild < 0 ) {
+        httpString( cnt, "Error retrieving Build details!" );
+        free( build );
 	return;
 }
 
@@ -2038,13 +2040,15 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 void iohtmlFunc_empire( ReplyDataPtr cnt )
 {
- int a, b, c, d, nAlly, first, id, curtime, curfam;
+ int a, b, c, d, nAlly, first, id, curtime, curfam, numbuild;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *empirestring;
  char fname[REDIRECT_MAX];
  dbUserPtr user;
+ dbBuildPtr build;
  dbUserMainDef mainp[32];
+ int64_t bsums[CMD_BLDG_NUMUSED+1];
  int stats[64];
 
 maind.empire = -1;
@@ -2090,11 +2094,9 @@ if( empired.picture > 0 ) {
 	httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
 }
 
- if( !( empired.numplayers ) )
- {
-  iohtmlBodyEnd( cnt );
-  return;
- }
+if( !( empired.numplayers ) ) {
+	goto RETURN;
+}
 
  for( a = 0 ; a < empired.numplayers ; a++ )
  {
@@ -2149,18 +2151,20 @@ if( empired.picture > 0 ) {
   b = a >> 1;
   c = empired.player[b];
   user = dbUserLinkID( c );
-  bitflag_add( &user->flags, CMD_USER_FLAGS_ACTIVATED );
-  dbUserSave( c, user);
+  if( user ) {
+  	bitflag_add( &user->flags, CMD_USER_FLAGS_ACTIVATED );
+  	dbUserSave( c, user);
+  }
   httpString( cnt, "<tr>" );
   if( !( user ) )
    httpString( cnt, "<td>&nbsp;</td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_LEADER ) )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_LEADER ) && ( empired.politics[CMD_POLITICS_LEADER] == c ) )
    httpString( cnt, "<td><i>Leader</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_COMMINISTER ) )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_COMMINISTER ) && ( empired.politics[CMD_POLITICS_COMMINISTER] == c ) )
    httpString( cnt, "<td><i>Minister of Communications</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_DEVMINISTER ) )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_DEVMINISTER ) && ( empired.politics[CMD_POLITICS_DEVMINISTER] == c ) )
    httpString( cnt, "<td><i>Minister of Development</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_WARMINISTER ) )
+  else if( bitflag( user->flags, CMD_USER_FLAGS_WARMINISTER ) && ( empired.politics[CMD_POLITICS_WARMINISTER] == c ) )
    httpString( cnt, "<td><i>Minister of War</i></td>" );
   else if( bitflag( user->flags, CMD_USER_FLAGS_INDEPENDENT ) )
    httpString( cnt, "<td><i>Independent</i></td>" );
@@ -2225,6 +2229,26 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
 		httpPrintf( cnt, "<td align=\"center\">%s</td><td align=\"center\">%lld</td>", cmdRessourceName[CMD_RESSOURCE_ECTROLIUM], (long long)empired.fund[CMD_RESSOURCE_ECTROLIUM] );
 		httpString( cnt, "</tr>" );
 		httpString( cnt, "</table>" );
+		
+		numbuild = dbEmpireBuildList( curfam, &build );
+		if( numbuild < 0 ) {
+		        httpString( cnt, "Error retrieving Build details!" );
+			goto RETURN;
+		}
+		httpString( cnt, "<br><b>Buildings under construction</b><br><span id=\"empire_build_que\"><table>" );
+		memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
+		for( a = c = 0 ; a < numbuild ; a++ ) {
+			if( build[a].type >> 16 )
+				continue;
+			httpPrintf( cnt, "<tr><td>%s</td><td>in %d weeks</td></tr>", cmdEmpireBuildingName[ build[a].type & 0xFFFF ], build[a].time, a);
+			bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
+			c++;
+		}
+		httpString( cnt, "</table>" );
+		if( !( c ) ) {
+			httpString( cnt, "None<br>" );
+		}
+		httpString( cnt, "</span>" );	
 	}
 }
 
@@ -2257,7 +2281,8 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
  if( curfam == maind.empire )
   httpString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );
 
-
+RETURN:
+free( build );
  iohtmlBodyEnd( cnt );
  return;
 }
@@ -4175,7 +4200,7 @@ void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
 	int id, i, j, nNbr=0, nTotalBuild, nTotal[4];
 	int *nBuildp=0, *nTemp=0;
 	dbUserMainDef maind;
-	dbUserBuildPtr buildp;
+	dbBuildPtr buildp;
 	dbMainPlanetDef planetd;
 	char buildid[10];
 	char *cBuild;
@@ -4184,7 +4209,7 @@ void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
 	memset(&nTotal, 0, 4*sizeof(int));
-	nTotalBuild = dbUserBuildList(id, &buildp);
+	nTotalBuild = dbUserBuildList( id, &buildp );
 
  nBuildp = NULL;
  for( i=0; i<nTotalBuild; i++)
@@ -4220,7 +4245,7 @@ void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
  	{
  		nTotal[j] += (buildp[nBuildp[i]]).cost[j] / 2;
  	}
- 	dbUserBuildRemove(id, nBuildp[i]);
+ 	dbUserBuildRemove( id, nBuildp[i] );
  	if( !( buildp[nBuildp[i]].type >> 16 ) )
    {
     dbMapRetrievePlanet( buildp[nBuildp[i]].plnid, &planetd );

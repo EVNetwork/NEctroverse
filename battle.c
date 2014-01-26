@@ -177,7 +177,7 @@ int battle( int id, int fltid, int64_t *results )
   dbUserInfoDef infod;
   dbUserFleetDef fleetd, fleet2d;
   dbMainPlanetDef planetd;
-  dbUserBuildPtr buildd;
+  dbBuildPtr buildd;
   int64_t newd[DB_USER_NEWS_BASE];
   dbUserPtr user;
   double attstats[CMD_UNIT_FLEET][CMD_UNIT_STATS_BATTLE];
@@ -485,6 +485,8 @@ int battle( int id, int fltid, int64_t *results )
   /*
   //ARTI CODE
 	if(maind.artefacts & ARTEFACT_SEAT_BIT)
+
+
 
 
 		hptransport += attunit[CMD_UNIT_TRANSPORT] * attstats[CMD_UNIT_TRANSPORT][CMD_UNIT_STATS_AIRDEFENSE];

@@ -190,7 +190,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
   dbMainSystemDef systemd;
   dbUserMainDef maind, main2d;
   dbUserSpecOpDef specopd;
-  dbUserBuildPtr buildd;
+  dbBuildPtr buildd;
   int *plnlist;
   int64_t resources[CMD_RESSOURCE_NUMUSED];
 
@@ -1153,7 +1153,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
   dbMainSystemDef systemd;
   dbUserMainDef maind, main2d;
   dbUserSpecOpDef specopd;
-  dbUserBuildPtr buildd;
+  dbBuildPtr buildd;
   int *plnlist;
 //  int resources[CMD_RESSOURCE_NUMUSED];
 

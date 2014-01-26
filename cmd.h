@@ -115,6 +115,7 @@ extern int64_t cmdFleetActionNewd[DB_USER_NEWS_BASE];
 extern char *cmdErrorString;
 
 extern char *cmdBuildingName[CMD_BLDG_NUMUSED+1];
+extern char *cmdEmpireBuildingName[CMD_BLDG_EMPIRE_NUMUSED];
 
 extern char *cmdRessourceName[CMD_RESSOURCE_NUMUSED+2];
 
@@ -130,6 +131,7 @@ extern char *cmdResearchName[CMD_RESEARCH_NUMUSED];
 extern char *cmdResearchDesc[CMD_RESEARCH_NUMUSED];
 
 extern int64_t cmdBuildingCost[CMD_BLDG_NUMUSED+1][CMD_RESSOURCE_NUMUSED+1];
+extern int64_t cmdEmpireBuildingCost[CMD_BLDG_EMPIRE_NUMUSED][CMD_RESSOURCE_NUMUSED+1];
 
 extern int cmdBuildingTech[CMD_BLDG_NUMUSED+1];
 extern float cmdBuildingUpkeep[CMD_BLDG_NUMUSED];

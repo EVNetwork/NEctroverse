@@ -75,6 +75,31 @@ char *cmdBuildingName[CMD_BLDG_NUMUSED+1] =
 "Portal",
 };
 
+char *cmdEmpireBuildingName[CMD_BLDG_EMPIRE_NUMUSED] =
+{
+"Research Network",
+"Reserved Slot 1",
+"Reserved Slot 2",
+"Reserved Slot 3",
+"Reserved Slot 4",
+"Reserved Slot 5",
+"Reserved Slot 6",
+"Reserved Slot 7",
+};
+
+int64_t cmdEmpireBuildingCost[CMD_BLDG_EMPIRE_NUMUSED][CMD_RESSOURCE_NUMUSED+1] =
+{
+// energy, mineral, crystal, endurium, time
+{ 120, 10,  0,  1,  4 },
+{ 450, 20, 12,  8, 14 },
+{ 200,  0,  0,  2,  8 },
+{ 350,  8,  0, 12,  6 },
+{ 400, 36,  4,  0, 12 },
+{ 300, 30,  0,  2, 10 },
+{ 100,  5,  5,  5,  8 },
+{ 400, 35, 20, 40, 16 },
+};
+
 char *cmdUnitName[CMD_UNIT_NUMUSED] =
 {
 "Bombers",
@@ -649,13 +674,20 @@ if( ( empired->politics[CMD_POLITICS_LEADER] == -1 ) || ( ( c == -1 ) || ( empir
 			continue;
 		if( ( user = dbUserLinkID( empired->player[a] ) ) ) {
 			for( b = CMD_EMPIRE_POLITICS_START; b <= CMD_EMPIRE_POLITICS_END; b++ ) {
+				if( b != CMD_EMPIRE_POLITICS_END ) {
+					if( empired->politics[b-CMD_EMPIRE_POLITICS_START] == user->id ) {
+						empired->politics[b-CMD_EMPIRE_POLITICS_START] = -1;
+					}
+				}
 				bitflag_remove( &user->flags, b );
 			}
 			dbUserSave( empired->player[a], user );
 		}
 	}
 }
- 
+
+dbEmpireSetInfo( empired->id, empired );
+
   free( parray );
   return;
 }

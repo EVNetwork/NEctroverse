@@ -207,13 +207,13 @@ void iohtmlFunc_moderator( ReplyDataPtr cnt ) {
   int id, a, b, c, x, y, num, actionid, i0, numbuild, curtime, cmd[2];
   int64_t i1;
   float fa;
-  dbUserBuildPtr build;
+  dbBuildPtr build;
   dbUserMainDef maind, main2d;
   dbUserInfoDef infod;
   dbUserFleetDef fleetd;
   dbUserFleetPtr fleetp;
   dbMainPlanetDef planetd;
-  dbUserBuildPtr buildd;
+  dbBuildPtr buildd;
   //dbForumForumDef forumd;
   //dbForumThreadPtr pThread;
   char *actionstring, *str0, *str1;
@@ -612,7 +612,7 @@ if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
   {
     if( sscanf( actionstring, "%d", &actionid ) != 1 )
       goto iohtmlFunc_moderatorL0;
-    if( ( numbuild = dbUserBuildList( actionid, &build ) ) < 0 )
+    if( ( numbuild = dbBuildList( true, actionid, &build ) ) < 0 )
       goto iohtmlFunc_moderatorL0;
     for( a = c = 0 ; a < numbuild ; a++ )
     {

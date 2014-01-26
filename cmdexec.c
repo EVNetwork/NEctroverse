@@ -320,7 +320,10 @@ int cmdExecUserDeactivate( int id, int flags )
     {
       if( id != empired.player[a] )
         continue;
-
+	for( b = 0; b < CMD_EMPIRE_POLITICS_TOTAL; b++ ) {
+		if( empired.politics[b] == id )
+			empired.politics[b] = -1;
+	}
       b = empired.numplayers-a-1;
       if( b > 0 )
       {
@@ -438,6 +441,10 @@ int cmdUserDelete( int id )
       if( id != empired.player[a] )
         continue;
 
+	for( b = 0; b < CMD_EMPIRE_POLITICS_TOTAL; b++ ) {
+		if( empired.politics[b] == id )
+			empired.politics[b] = -1;
+	}
       b = empired.numplayers-a-1;
       if( b > 0 )
       {
@@ -1149,13 +1156,19 @@ if( flags > CMD_USER_FLAGS_NUMUSED )
 
 if( flags ) {
 	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
-		if( ( a != flags ) )
-			bitflag_remove( &user->flags, a );
+		if( ( a != flags ) && ( bitflag( user->flags, a) ) ) {
+				empired.politics[a-CMD_EMPIRE_POLITICS_START] = -1;
+				bitflag_remove( &user->flags, a );
+			}
 	}
+	empired.politics[flags-CMD_EMPIRE_POLITICS_START] = id;
 	bitflag_add( &user->flags, flags );
 } else {
 	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
-		bitflag_remove( &user->flags, a );
+		if( bitflag( user->flags, a ) ) {
+			empired.politics[a-CMD_EMPIRE_POLITICS_START] = -1;
+			bitflag_remove( &user->flags, a );
+		}
 	}
 }
 dbUserSave( id, user );
@@ -1172,6 +1185,8 @@ if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
 		dbUserSave( id, user );
 	}
 }
+
+dbEmpireSetInfo( fam, &empired );
 
 return 1;
 }
@@ -2000,7 +2015,7 @@ int cmdExecTakePlanet( int id, int plnid )
   dbMainPlanetDef planetd;
   dbUserMainDef maind, main2d ;
   dbMainSystemDef systemd;
-  dbUserBuildPtr buildd;
+  dbBuildPtr buildd;
 
   cmdErrorString = 0;
   if( dbMapRetrievePlanet( plnid, &planetd ) < 0 )

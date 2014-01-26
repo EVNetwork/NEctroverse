@@ -1025,21 +1025,24 @@ return 1;
 
 
 
-
-
-// user build functions -- Need to change the calling of this function.
-
-int dbUserBuildAdd( int id, int type, int64_t *cost, int quantity, int time, int plnid, int plnloc ) {
+int dbBuildAdd( bool isuser, int id, int type, int64_t *cost, int64_t quantity, int time, int plnid, int plnloc ) {
 	int pos, i;
 	FILE *file;
-	dbUserBuildDef buildp;
+	dbBuildDef buildp;
 
-if( !( memset( &buildp, 0, sizeof(dbUserBuildDef) ) ) ) {
+if( !( memset( &buildp, 0, sizeof(dbBuildDef) ) ) ) {
 	return -3;
 }
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
-	error( "User Open" );
-	return -3;  
+if( isuser == true ) {
+	if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
+} else {
+	if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
 }
 
 buildp.type = type;
@@ -1049,12 +1052,13 @@ buildp.plnid = plnid;
 buildp.plnpos = plnloc;
 
 
-for(i=0;buildp.cost[i];i++)
+for(i=0;buildp.cost[i];i++) {
 	buildp.cost[i] = cost[i];
+}
 
 file_r( &pos, 1, sizeof(int), file );
-file_s( file, 4+(pos*sizeof(dbUserBuildDef)) );
-file_w( &buildp, 1, sizeof(dbUserBuildDef), file );
+file_s( file, 4+(pos*sizeof(dbBuildDef)) );
+file_w( &buildp, 1, sizeof(dbBuildDef), file );
 file_s( file, 0 );
 pos++;
 file_w( &pos, 1, sizeof(int), file );
@@ -1064,14 +1068,22 @@ return pos;
 }
 
 
-int dbUserBuildRemove( int id, int bldid ) {
-	int a, num, data[sizeof(dbUserBuildDef)];
+int dbBuildRemove( bool isuser, int id, int bldid ) {
+	int a, num, data[sizeof(dbBuildDef)];
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
-	error( "User Open" );
-	return -3;
+if( isuser == true ) {
+	if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
+} else {
+	if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
 }
+
 file_r( &num, 1, sizeof(int), file );
 
 if( (unsigned int)bldid >= num ) {
@@ -1080,10 +1092,10 @@ if( (unsigned int)bldid >= num ) {
 }
 
 if( bldid+1 < num ) {
-	file_s( file, 4+(num*sizeof(dbUserBuildDef))-sizeof(dbUserBuildDef) );
-	file_r( data, 1, sizeof(dbUserBuildDef), file );
-	file_s( file, 4+(bldid*sizeof(dbUserBuildDef)) );
-	file_w( data, 1, sizeof(dbUserBuildDef), file );
+	file_s( file, 4+(num*sizeof(dbBuildDef))-sizeof(dbBuildDef) );
+	file_r( data, 1, sizeof(dbBuildDef), file );
+	file_s( file, 4+(bldid*sizeof(dbBuildDef)) );
+	file_w( data, 1, sizeof(dbBuildDef), file );
 }
 
 file_s( file, 0 );
@@ -1095,18 +1107,26 @@ return 1;
 }
 
 
-int dbUserBuildList( int id, dbUserBuildPtr *build ) {
+int dbBuildList( bool isuser, int id, dbBuildPtr *build ) {
 	int a, num;
-	dbUserBuildPtr buildp;
+	dbBuildPtr buildp;
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
-	error( "User Open" );
-	return -3;
+if( isuser == true ) {
+	if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
+} else {
+	if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
 }
+
 file_r( &num, 1, sizeof(int), file );
 
-if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
+if( !( buildp = malloc( num*sizeof(dbBuildDef) ) ) ) {
 	fclose( file );
 	return -1;
 }
@@ -1117,8 +1137,8 @@ for( a = 0 ; a < num ; a++ ) {
 
 
 
-	file_s( file, 4+(a*sizeof(dbUserBuildDef)) );
-	file_r( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+	file_s( file, 4+(a*sizeof(dbBuildDef)) );
+	file_r( &buildp[a], 1, sizeof(dbBuildDef), file );
 }
 fclose( file );
 *build = buildp;
@@ -1190,29 +1210,37 @@ void sortlist2 ( int num, int *list1, int *list2, int *list3 )
   return;
 }
 
-int dbUserBuildListReduceTime( int id, dbUserBuildPtr *build ) {
+int dbBuildListReduceTime( bool isuser, int id, dbBuildPtr *build ) {
 	int a, num;
 	FILE *file;
-	dbUserBuildPtr buildp;
+	dbBuildPtr buildp;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
-	error( "User Open" );
-	return -3;
+if( isuser == true ) {
+	if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
+} else {
+	if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
 }
+
 
 file_r( &num, 1, sizeof(int), file );
 
-if( !( buildp = malloc( num*sizeof(dbUserBuildDef) ) ) ) {
+if( !( buildp = malloc( num*sizeof(dbBuildDef) ) ) ) {
 	fclose( file );
 	return -1;
 }
 
 for( a = 0 ; a < num ; a++ ) {
-	file_s( file, 4+(a*sizeof(dbUserBuildDef)) );
-	file_r( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+	file_s( file, 4+(a*sizeof(dbBuildDef)) );
+	file_r( &buildp[a], 1, sizeof(dbBuildDef), file );
 	buildp[a].time--;
-	file_s( file, 4+(a*sizeof(dbUserBuildDef)) );
-	file_w( &buildp[a], 1, sizeof(dbUserBuildDef), file );
+	file_s( file, 4+(a*sizeof(dbBuildDef)) );
+	file_w( &buildp[a], 1, sizeof(dbBuildDef), file );
 }
 fclose( file );
 *build = buildp;
@@ -1220,14 +1248,22 @@ fclose( file );
 return num;
 }
 
-int dbUserBuildEmpty( int id ) {
+int dbBuildEmpty( bool isuser, int id ) {
 	int a;
 	FILE *file;
 
-if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
-	error( "User Open" );
-	return -3;
+if( isuser == true ) {
+	if( !( file = dbFileUserOpen( id, DB_FILE_USER_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
+} else {
+	if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_BUILD ) ) ) {
+		error( "Build file open failed" );
+		return -3;  
+	}
 }
+
 
 a = 0;
 file_w( &a, 1, sizeof(int), file );
