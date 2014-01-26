@@ -2046,7 +2046,7 @@ void iohtmlFunc_empire( ReplyDataPtr cnt )
  char *empirestring;
  char fname[REDIRECT_MAX];
  dbUserPtr user;
- dbBuildPtr build;
+ dbBuildPtr build = NULL;
  dbUserMainDef mainp[32];
  int64_t bsums[CMD_BLDG_NUMUSED+1];
  int stats[64];
@@ -2200,10 +2200,6 @@ if( !( empired.numplayers ) ) {
     }
     if( b >= 60 ) {
      httpPrintf( cnt, "%dm ", b/60 );
-     b %= 60*60;
-     }
-     if( b > 0 ) {
-     httpPrintf( cnt, "%ds ", b );
      }
    }
   }
@@ -2282,6 +2278,7 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
   httpString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );
 
 RETURN:
+if( build )
 free( build );
  iohtmlBodyEnd( cnt );
  return;
