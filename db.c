@@ -504,6 +504,11 @@ if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
+	a = -1;
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
+	a = 0;
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
 	dbFileGenClose( DB_FILE_BASE_FORUM );
 	memset( &forumd, 0, sizeof(dbForumForumDef) );
 	forumd.rperms = 2;
@@ -513,7 +518,7 @@ if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
 	for( a = 0 ; a < dbMapBInfoStatic[MAP_EMPIRES] ; a++ ) {
 		sprintf( forumd.title, "Empire %d forum", a );
-		dbForumAddForum( true, a, &forumd );
+		dbForumAddForum( true, &forumd );
 	}
 	info( "Created Forums for %d Empires.", a );
 }
@@ -528,8 +533,32 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), file );
+	a = -1;
+	file_w( &a, 1, sizeof(int), file );
+	file_w( &a, 1, sizeof(int), file );
+	a = 0;
+	file_w( &a, 1, sizeof(int), file );
+	fclose( file );
+	memset( &forumd, 0, sizeof(dbForumForumDef) );
+	forumd.lastid = -1;
+	forumd.time = now;
+	forumd.rperms = 0xFFF;
+	sprintf( forumd.title, "News" );
+	dbForumAddForum( false, &forumd );
+	forumd.wperms = 1;
+	sprintf( forumd.title, "Ideas" );
+	dbForumAddForum( false, &forumd );
+
+	forumd.wperms = 0xFFF;
+	sprintf( forumd.title, "General" );
+	dbForumAddForum( false, &forumd );
+
+	sprintf( forumd.title, "Questions" );
+	dbForumAddForum( false, &forumd );
+
+	sprintf( forumd.title, "Bugs" );
+	dbForumAddForum( false, &forumd );
 }
-fclose( file );
 
 snprintf( COREDIR, sizeof(COREDIR), "%s/users", settings[0]->string_value );
 sprintf( fname, dbFileList[DB_FILE_BASE_USERS], COREDIR );
@@ -2901,6 +2930,7 @@ int dbUserMarketRemove( int id, int bidid )
 
 
 
+
 /*
 forums
   4:number
@@ -3118,12 +3148,11 @@ if( flags ) {
 
 
 
-int dbForumAddForum( int flags, int nid, dbForumForumPtr forumd ) {
+int dbForumAddForum( int flags, dbForumForumPtr forumd ) {
 	ConfigArrayPtr settings;
-  int a, num;
-  FILE *file;
-  char fname[PATH_MAX];
-  num = nid;
+	int a, num;
+	FILE *file;
+	char fname[PATH_MAX];
 
 if( flags ) {
 	settings = GetSetting( "Directory" );
@@ -3137,6 +3166,7 @@ if( !( file = fopen( fname, "rb+" ) ))
 	return -3;
 file_r( &num, 1, sizeof(int), file );
 file_s( file, 4+num*sizeof(dbForumForumDef) );
+forumd->id = num;
 file_w( forumd, 1, sizeof(dbForumForumDef), file );
 num++;
 file_s( file, 0 );
@@ -3190,6 +3220,7 @@ int dbForumRemoveForum( int flags, int forum )
   DIR *dirdata;
   struct dirent *direntry;
   char fname[PATH_MAX];
+  char oname[PATH_MAX];
   char *frcopy;
   dbForumForumDef forumd;
   ConfigArrayPtr settings;
@@ -3261,6 +3292,16 @@ if( a ) {
 	file_w( frcopy, 1, b, file );
 	free( frcopy );
 }
+
+if( flags == false ) {
+	settings = GetSetting( "Directory" );
+	for( a = ( forum + 1); a < num; a++ ) {
+		snprintf( oname, PATH_MAX, "%s/forum%d", settings->string_value, a );
+		snprintf( fname, PATH_MAX, "%s/forum%d", settings->string_value, a-1 );
+		rename( oname, fname );
+	}
+}
+
 
 num--;
 file_s( file, 0 );

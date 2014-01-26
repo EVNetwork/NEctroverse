@@ -18,6 +18,7 @@ typedef struct
   time_t time;
   int tick;
   int flags;
+  int id;
   struct in_addr sin_addr;
 } dbForumForumDef, *dbForumForumPtr;
 
@@ -62,7 +63,7 @@ int dbForumListPosts( int flags, int forum, int thread, int base, int end, dbFor
 
 int dbForumRetrieveForum( int flags, int forum, dbForumForumPtr forumd );
 
-int dbForumAddForum( int flags, int nid, dbForumForumPtr forumd );
+int dbForumAddForum( int flags, dbForumForumPtr forumd );
 int dbForumRemoveForum( int flags, int forum );
 
 int dbForumAddThread( int flags, int forum, dbForumThreadPtr threadd );

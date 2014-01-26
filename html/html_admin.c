@@ -67,10 +67,10 @@ void iohtmlFunc_adminmenu( ReplyDataPtr cnt )
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br>", URLAppend( cnt, "account" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"_top\">Logout</a><br><br>", URLAppend( cnt, "logout" ) );
 
-   httpString( cnt, "<br><a href=\"admin\" target=\"main\">Old Admin</a>" );
-      httpString( cnt, "<br><a href=\"moderator\" target=\"main\">Old Mod</a>" );
-   httpString( cnt, "<br><a href=\"main\" target=\"_top\">Back to Game</a>" );
-   httpString( cnt, "<br><a href=\"/\" target=\"_top\">Mainpage</a>" );
+   httpPrintf( cnt, "<br><a href=\"%s\" target=\"main\">Old Admin</a>", URLAppend( cnt, "admin" ) );
+   httpPrintf( cnt, "<br><a href=\"%s\" target=\"main\">Old Mod</a>", URLAppend( cnt, "moderator" ) );
+   httpPrintf( cnt, "<br><a href=\"%s\" target=\"_top\">Back to Game</a>", URLAppend( cnt, "main" ) );
+   httpPrintf( cnt, "<br><a href=\"%s\" target=\"_top\">Mainpage</a>", URLAppend( cnt, "/" ) );
 
 
  httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td><img height=\"20\" src=\"files?type=image&name=i55.jpg\" width=\"150\"></td></tr><tr><td><img height=\"75\" src=\"files?type=image&name=i56.jpg\" width=\"150\"></td></tr></table></body></html>" );
@@ -131,7 +131,7 @@ iohtmlBodyInit( cnt, "Forums Administration" );
       forumd.rperms = 2;
       forumd.wperms = 2;
       forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
-      dbForumAddForum( true, a, &forumd );
+      dbForumAddForum( true, &forumd );
     }
     httpString( cnt, "<i>Empire forums created</i><br><br>" );
   }
@@ -154,7 +154,7 @@ iohtmlBodyInit( cnt, "Forums Administration" );
     if( !( sscanf( str0, "%d", &forumd.wperms ) ) )
       goto cancel;
     forumd.flags = 0;
-    dbForumAddForum( false, 0, &forumd );
+    dbForumAddForum( false, &forumd );
     httpString( cnt, "<i>Forum created</i><br><br>" );
   }
 
@@ -1093,7 +1093,7 @@ if( action[0] ) {
       forumd.rperms = 2;
       forumd.wperms = 2;
       forumd.flags = DB_FORUM_FLAGS_FORUMFAMILY;
-      dbForumAddForum( true, a, &forumd );
+      dbForumAddForum( true, &forumd );
     }
 
     httpString( cnt, "<i>Forums created</i><br><br>" );
@@ -1140,7 +1140,7 @@ sysconfig.shutdown = true;
     iohttpForumFilter( forumd.title, action[4], 64, 0 );
     forumd.rperms = 0xFFF;
     forumd.wperms = 0xFFF;
-    if( dbForumAddForum( false, 0, &forumd ) >= 0 )
+    if( dbForumAddForum( false, &forumd ) >= 0 )
       httpPrintf( cnt, "Public forum %s added<br><br>", action[4] );
   }
 

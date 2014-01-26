@@ -508,7 +508,7 @@ if( id >= 0 ) {
 	memcpy( &infod.fbinfo, &fbdata, sizeof(FBUserDef) );
 	dbUserInfoSet( id, &infod );
 	if( ( file ) ) {
-		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( user->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
+		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ? "Active" : "Deactivated"  ) );
 		fclose( file );
 		file = NULL;
 	}

@@ -1118,7 +1118,7 @@ if( ( name ) && ( pass ) ) {
 		error( "Getting setting session for User: %d", id );
 		goto LOGIN_FAIL;
 	}
-
+	dbRegisteredInfo[DB_TOTALS_USERS_ONLINE]++;
 	dbUserInfoRetrieve( id, &infod );
 	infod.lasttime = time( 0 );
 	if( (cnt->connection)->addr->sa_family == AF_INET )

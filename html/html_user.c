@@ -256,6 +256,8 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 
 void iohtmlFunc_logout( ReplyDataPtr cnt ) {
 
+dbRegisteredInfo[DB_TOTALS_USERS_ONLINE]--;
+
 if( remove_session( (cnt->session)->sid ) == 0 ) {
 	critical( "Unable to remove user session, this really shoulden't be able to happen." );
 	if( ( cnt->session ) )
