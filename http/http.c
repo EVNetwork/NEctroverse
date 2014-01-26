@@ -1094,7 +1094,7 @@ while( NULL != pos ) {
 		} else {
 			prev->next = next;
 		}
-		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
+		if( ( ( id = dbUserSessionSearch( pos->sid ) ) >= 0 ) ) {
 			if( ( user = dbUserLinkID( id ) ) ) {
 				memset( user->http_session, 0, sizeof(user->http_session) );
 				dbUserSave( id, user );
@@ -1130,7 +1130,7 @@ while( NULL != pos ) {
 		} else {
 			prev->next = next;
 		}
-		if( ( ( id = dbUserSessionSearch( pos->sid ) >= 0 ) ) ) {
+		if( ( ( id = dbUserSessionSearch( pos->sid ) ) >= 0 ) ) {
 			if( ( user = dbUserLinkID( id ) ) ) {
 				memset( user->http_session, 0, sizeof(user->http_session) );
 				dbUserSave( id, user );

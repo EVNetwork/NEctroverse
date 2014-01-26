@@ -2183,8 +2183,9 @@ if( !( empired.numplayers ) ) {
   {
 
    b = curtime - user->lasttime;
-   if( ( b < 5*60 ) && ( strlen(user->http_session) ) )
+   if( ( b < 5*60 ) && ( strlen(user->http_session) ) ) {
     httpString( cnt, "[online]" );
+    }
    else if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_COMMINISTER ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
@@ -2201,6 +2202,8 @@ if( !( empired.numplayers ) ) {
     if( b >= 60 ) {
      httpPrintf( cnt, "%dm ", b/60 );
      }
+     
+     httpPrintf( cnt, "%ds ", b % 60 );
    }
   }
   httpString( cnt, "</td></tr>" );
@@ -2278,8 +2281,9 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
   httpString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );
 
 RETURN:
-if( build )
-free( build );
+if( build ) {
+	free( build );
+}
  iohtmlBodyEnd( cnt );
  return;
 }
