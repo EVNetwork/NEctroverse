@@ -1,7 +1,11 @@
+26 January 2014
+"New Round" has been iniated... and it marks a new day for NEctroverse.
+This map was generated while the server was still running, no reboot was required.
+Empire politics will be getting a workup shortly it's been idle long enough.
+
 25 January 2014
 Well, time frozen already... I did not expect that.
 Time will remain frozen untill I complete the End of Round function.
--- Function coded, however I'd like to make a few more tweaks before using it.
 
 18 January 2014
 Unit Upkeep has changed, traveling units now incur a 50% increase in upkeep.
