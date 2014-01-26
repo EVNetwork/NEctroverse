@@ -504,11 +504,6 @@ if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
-	a = -1;
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
-	a = 0;
-	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
 	dbFileGenClose( DB_FILE_BASE_FORUM );
 	memset( &forumd, 0, sizeof(dbForumForumDef) );
 	forumd.rperms = 2;
@@ -531,11 +526,6 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 		critical( "Error, could not create public forum database!" );
 		return 0;
 	}
-	a = 0;
-	file_w( &a, 1, sizeof(int), file );
-	a = -1;
-	file_w( &a, 1, sizeof(int), file );
-	file_w( &a, 1, sizeof(int), file );
 	a = 0;
 	file_w( &a, 1, sizeof(int), file );
 	fclose( file );
