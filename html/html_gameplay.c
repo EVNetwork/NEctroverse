@@ -2074,11 +2074,11 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
   iohtmlBodyInit( cnt, "Empire #%d ( <a href=\"%s&id=%d\">%d,%d</a> )", curfam, URLAppend( cnt, "system" ), empired.homeid, empired.homepos & 0xFFFF, empired.homepos >> 16 );
 
 if ( curfam == maind.empire ) {
-	if( ( empired.leader == -1 ) ) {
+	if( ( empired.politics[CMD_POLITICS_LEADER] == -1 ) ) {
 		httpString( cnt, "<div class=\"genred\">Your Empire has no leader!!</div>" );
 	}
 	httpPrintf( cnt, "<a href=\"%s&type=eleader\">Change your vote</a>", URLAppend( cnt, "vote" ) );
-	if( id == empired.leader ) {
+	if( id == empired.politics[CMD_POLITICS_LEADER] ) {
 		httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\" target=\"main\">Leadership Options</a>", URLAppend( cnt, "famleader" ) );
 	}
 	httpString( cnt, "<br>" );
@@ -2168,7 +2168,7 @@ if( empired.picture > 0 ) {
    httpString( cnt, "<td>&nbsp;</td>" );
 
   httpPrintf( cnt, "<td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), c );
-  if( empired.leader == c )
+  if( empired.politics[CMD_POLITICS_LEADER] == c )
    httpPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", mainp[b].faction );
   else
    httpString( cnt, mainp[b].faction );
@@ -2572,12 +2572,12 @@ if( evote ) {
 			dbEmpireGetInfo( maind.empire, &empired );
 		}
 	}
-	if( empired.leader == -1 ) {
+	if( empired.politics[CMD_POLITICS_LEADER] == -1 ) {
 		httpString( cnt, "<b>Your empire didn't elect a leader yet</b>" );
-	} else if( empired.leader == id ) {
+	} else if( empired.politics[CMD_POLITICS_LEADER] == id ) {
 		httpString( cnt, "<b>You are the leader</b>" );
 	} else {
-		if( dbUserMainRetrieve( empired.leader, &main2d ) < 0 ) {
+		if( dbUserMainRetrieve( empired.politics[CMD_POLITICS_LEADER], &main2d ) < 0 ) {
 			httpString( cnt, "Error while retrieving leader's main data" );
 		} else {
 			httpPrintf( cnt, "<b>The empire leader is %s</b>", main2d.faction );
@@ -2590,7 +2590,7 @@ if( evote ) {
 			return;
 		}
 		httpPrintf( cnt, "<tr><td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), empired.player[a] );
-		if( empired.leader == empired.player[a] ) {
+		if( empired.politics[CMD_POLITICS_LEADER] == empired.player[a] ) {
 			httpPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", main2d.faction );
 		} else {
 			httpString( cnt, main2d.faction );
@@ -2776,7 +2776,7 @@ void iohtmlFunc_famleader( ReplyDataPtr cnt )
  dbUserMainDef maind, main2d;
  dbMainEmpireDef empired;
  dbEmpireMessageDef message;
- char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *relsmesstring, *filename, *taxstring;
+ char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *filename, *taxstring;
  char fname[256];
  int *rel;
  char msg[2][USER_DESC_MAX];
@@ -2788,7 +2788,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
 
- empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = relsmesstring = filename = taxstring = 0;
+ empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = filename = taxstring = 0;
 
   empirestring = iohtmlVarsFind( cnt, "id" );
   fnamestring = iohtmlVarsFind( cnt, "fname" );
@@ -2799,7 +2799,6 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   relfamstring = iohtmlVarsFind( cnt, "relfam" );
   reltypestring = iohtmlVarsFind( cnt, "reltype" );
   hqmesstring = iohtmlVarsFind( cnt, "hqmes" );
-  relsmesstring = iohtmlVarsFind( cnt, "relsmes" );
 
  curfam = maind.empire;
  if( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )
@@ -2815,7 +2814,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpString( cnt, "Error getting Empire infomation!</body></html>" );
   return;
  }
- if( ( empired.leader != id ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
+ if( ( empired.politics[CMD_POLITICS_LEADER] != id ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
  {
   httpString( cnt, "You are not the leader of this empire!</body></html>" );
   return;
@@ -2920,7 +2919,7 @@ if( hqmesstring ) {
 	}
 	dbEmpireGetMessage( curfam, &message );
 }
-
+/*
 if( relsmesstring ) {
 	iohttpForumFilter( msg[0], relsmesstring, USER_DESC_MAX, 0 );
 	iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
@@ -2932,7 +2931,7 @@ if( relsmesstring ) {
 	}
 	dbEmpireGetMessage( curfam, &message );
 }
-
+*/
  iohttpFunc_famleaderL0:
  dbEmpireGetInfo( curfam, &empired );
 
@@ -3044,12 +3043,12 @@ httpString( cnt, "</div>" );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Leader message</td></tr>", URLAppend( cnt, "famleader" ) );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
-
+/*
  iohttpForumFilter3( msg[1], message.mow, USER_DESC_MAX );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "famleader" ) );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
-
+*/
  httpString( cnt, "</table>" );
 
 
@@ -3566,9 +3565,14 @@ if( ( lns = malloc( systemd.numplanets * sizeof(int) ) ) == NULL ) {
  	goto RETURN;
 }
 
- srand( sysid );
- for( a = 0 ; a < systemd.numplanets ; a++ )
-  pics[a] = rand() & 0xF;
+if( bitflag( systemd.flags, MAP_SYSTEM_FLAG_MEGA ) ) {
+	for( a = 0 ; a < systemd.numplanets ; a++ )
+		pics[a] = 16;
+} else {
+	srand( sysid );
+	for( a = 0 ; a < systemd.numplanets ; a++ )
+		pics[a] = rand() & 0xF;
+}
 
  httpPrintf( cnt, "<b>System %d,%d</b><br>", systemd.position & 0xFFFF, systemd.position >> 16 );
 
@@ -3637,16 +3641,15 @@ return;
 }
 
 
-void iohtmlFunc_player( ReplyDataPtr cnt )
-{
- int a, b, id, playerid;
- dbUserMainDef maind, main2d;
- char *playerstring;
- #if FACEBOOK_SUPPORT
- dbUserPtr user;
- #endif
- dbUserInfoDef infod;
- dbUserRecordPtr recordd;
+void iohtmlFunc_player( ReplyDataPtr cnt ) {
+	int a, b, id, playerid;
+	char *playerstring;
+	dbUserMainDef maind, main2d;
+	dbUserRecordPtr recordd;
+	dbUserInfoDef infod;
+	#if FACEBOOK_SUPPORT
+	dbUserPtr user;
+	#endif
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	iohtmlBase( cnt, 1 );
@@ -3657,33 +3660,37 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 	iohtmlFunc_frontmenu( cnt, FMENU_NONE );
 }
 
- playerstring = iohtmlVarsFind( cnt, "id" );
+playerstring = iohtmlVarsFind( cnt, "id" );
 
- if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) || ( dbUserInfoRetrieve( playerid, &infod ) < 0 ) )
- {
-  httpString( cnt, "Are you sure this user exists?</body></html>" );
-  return;
- }
- iohtmlBodyInit( cnt, main2d.faction );
- httpPrintf( cnt, "<table border=\"0\"><tr><td>" );
- httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire : #%d</a><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
- httpPrintf( cnt, "Home planet : %d,%d:%d<br>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF );
- httpPrintf( cnt, "Faction ID : %d<br>", playerid );
- httpPrintf( cnt, "Planets : %d<br>", main2d.planets );
- httpPrintf( cnt, "Race : %s<br>", cmdRaceName[main2d.raceid] );
- httpPrintf( cnt, "Networth : %lld<br>", (long long)main2d.networth );
+if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( dbUserMainRetrieve( playerid, &main2d ) < 0 ) || ( dbUserInfoRetrieve( playerid, &infod ) < 0 ) ) {
+	httpString( cnt, "Are you sure this user exists?</body></html>" );
+	return;
+}
+
+iohtmlBodyInit( cnt, main2d.faction );
+
+httpPrintf( cnt, "<table border=\"0\"><tr><td>" );
+httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire : #%d</a><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+httpPrintf( cnt, "Home planet : %d,%d:%d<br>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF );
+httpPrintf( cnt, "Faction ID : %d<br>", playerid );
+httpPrintf( cnt, "Planets : %d<br>", main2d.planets );
+httpPrintf( cnt, "Race : %s<br>", cmdRaceName[main2d.raceid] );
+httpPrintf( cnt, "Networth : %lld<br>", (long long)main2d.networth );
+
 if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
  	httpPrintf( cnt, "Population : %lld0<br>", (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
 }
- httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
 
- httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
- httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
- httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
+httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
+httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
+httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
+httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
+
 if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
  	httpPrintf( cnt, "<a href=\"%s&id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
 }
- httpString( cnt, "<br></td></tr></table>" );
+
+httpString( cnt, "<br></td></tr></table>" );
 
 
  
@@ -3709,42 +3716,40 @@ if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->level >= LEVEL_MO
 }
 #endif
 
- if( strlen(infod.desc) )
- {
-  httpString( cnt, "<i>Faction description</i><br><table border=\"0\"><tr><td>" );
-  httpString( cnt, infod.desc );
-  httpString( cnt, "</td></tr></table>" );
- }
+if( strlen(infod.desc) ) {
+	httpString( cnt, "<i>Faction description</i><br><table border=\"0\"><tr><td>" );
+	httpString( cnt, infod.desc );
+	httpString( cnt, "</td></tr></table>" );
+}
 
- if( ( b = dbUserRecordList( playerid, &recordd ) ) >= 0 )
- {
-  httpString( cnt, "<table border=\"0\"><tr><td><br><i>Player records</i><br>" );
-  httpPrintf( cnt, "Rounds played : %d", b );
-  for( a = b-1 ; a >= 0 ; a-- )
-  {
-   httpPrintf( cnt, "<br><br>Round %s: %d", recordd[a].roundflag, recordd[a].roundid );
-   httpPrintf( cnt, "<br>Faction name : %s", recordd[a].faction );
-   httpPrintf( cnt, "<br>Title : %s", recordd[a].forumtag );
-   httpPrintf( cnt, "<br>Planets : %d", recordd[a].planets );
-   httpPrintf( cnt, "<br>Networth : %d", recordd[a].networth );
-   httpPrintf( cnt, "<br>Faction rank : %d", recordd[a].rank );
-   httpPrintf( cnt, "<br>Empire : #%d", recordd[a].empire );
-   if( strlen( recordd[a].famname ) > 0 ) {
-   	httpPrintf( cnt, "<br>Empire name : %s", recordd[a].famname );
-   }
-   httpPrintf( cnt, "<br>Empire rank : %d", recordd[a].famrank );
-   httpPrintf( cnt, "<br>Empire planets : %d", recordd[a].famplanets );
-   httpPrintf( cnt, "<br>Empire networth : %d", recordd[a].famnetworth );
-   if( recordd[a].artefacts > 0 ) {
-   	httpPrintf( cnt, "<br>Empire artefacts : %d", recordd[a].artefacts );
-   }
-  }
-  httpString( cnt, "</td></tr></table>" );
-  free( recordd );
- }
+if( ( b = dbUserRecordList( playerid, &recordd ) ) >= 0 ) {
+	httpString( cnt, "<table border=\"0\"><tr><td><br><i>Player records</i><br>" );
+	httpPrintf( cnt, "Rounds played : %d", b );
+	for( a = b-1 ; a >= 0 ; a-- ) {
+		httpPrintf( cnt, "<br><br>Round %s: %d", recordd[a].roundflag, recordd[a].roundid );
+		httpPrintf( cnt, "<br>Faction name : %s", recordd[a].faction );
+		httpPrintf( cnt, "<br>Title : %s", recordd[a].forumtag );
+		httpPrintf( cnt, "<br>Planets : %d", recordd[a].planets );
+		httpPrintf( cnt, "<br>Networth : %d", recordd[a].networth );
+		httpPrintf( cnt, "<br>Faction rank : %d", recordd[a].rank );
+		httpPrintf( cnt, "<br>Empire : #%d", recordd[a].empire );
+		if( strlen( recordd[a].famname ) > 0 ) {
+			httpPrintf( cnt, "<br>Empire name : %s", recordd[a].famname );
+		}
+		httpPrintf( cnt, "<br>Empire rank : %d", recordd[a].famrank );
+		httpPrintf( cnt, "<br>Empire planets : %d", recordd[a].famplanets );
+		httpPrintf( cnt, "<br>Empire networth : %d", recordd[a].famnetworth );
+		if( recordd[a].artefacts > 0 ) {
+			httpPrintf( cnt, "<br>Empire artefacts : %d", recordd[a].artefacts );
+		}
+	}
+	httpString( cnt, "</td></tr></table>" );
+	free( recordd );
+}
 
- iohtmlBodyEnd( cnt );
- return;
+iohtmlBodyEnd( cnt );
+
+return;
 }
 
 void iohtmlFunc_playerlist( ReplyDataPtr cnt )
@@ -3851,11 +3856,14 @@ if( ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
   cmdExecOfferPlanet( id, plgive, plnid );
   planetd.surrender = plgive;
  }
-
- srand( planetd.system );
- for( a = 0 ; a < b ; a++ )
-  rand();
- httpPrintf( cnt, "<img src=\"files?type=image&name=p%02d.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", rand() & 0xF, plnid );
+if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
+	httpPrintf( cnt, "<img src=\"files?type=image&name=p16.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", plnid );
+} else {
+	srand( planetd.system );
+	for( a = 0 ; a < b ; a++ )
+		rand();
+	httpPrintf( cnt, "<img src=\"files?type=image&name=p%02d.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", rand() & 0xF, plnid );
+}
 
  if( unstationstring )
  {

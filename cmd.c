@@ -609,7 +609,7 @@ for( a = b = 0; a < empired->numplayers; a++ ) {
 	if( empired->vote[a] == -1 )
 		continue;
 	parray[(int)(empired->vote[a])]++;
-	if( empired->leader == empired->player[a] ) {
+	if( empired->politics[CMD_POLITICS_LEADER] == empired->player[a] ) {
       		c = b = a;
       	}
 }
@@ -617,7 +617,7 @@ time( &now );
 
 // b = leader
 /*
-if( ( user = dbUserLinkID( empired->leader ) ) ) {
+if( ( user = dbUserLinkID( empired->politics[CMD_POLITICS_LEADER] ) ) ) {
 
 info("Time: %d, %d", user->id, ( ( ( now - user->lasttime ) > ( ticks.speed * 2 ) ) && ( parray[a] == parray[b] ) ) ); // || 
 info("Time: %d, %d", user->id, ( ( parray[a] <= parray[b] ) && !( ( ( now - user->lasttime ) > ( ticks.speed * 2 ) ) && ( parray[a] == parray[b] ) ) ) );
@@ -633,19 +633,19 @@ for( a = 0 ; a < empired->numplayers ; a++ ) {
 }
 
 if( parray[b] >= 1 ) {
-	empired->leader = empired->player[b];
-	if( ( user = dbUserLinkID( empired->leader ) ) ) {
+	empired->politics[CMD_POLITICS_LEADER] = empired->player[b];
+	if( ( user = dbUserLinkID( empired->politics[CMD_POLITICS_LEADER] ) ) ) {
 		bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER );
-		dbUserSave( empired->leader, user );
+		dbUserSave( empired->politics[CMD_POLITICS_LEADER], user );
     	}
 } else {
-	empired->leader = -1;
+	empired->politics[CMD_POLITICS_LEADER] = -1;
 	b = -1;
 }
 
-if( ( empired->leader == -1 ) || ( ( c == -1 ) || ( empired->leader != empired->player[c] ) ) ) {
+if( ( empired->politics[CMD_POLITICS_LEADER] == -1 ) || ( ( c == -1 ) || ( empired->politics[CMD_POLITICS_LEADER] != empired->player[c] ) ) ) {
 	for( a = 0 ; a < empired->numplayers ; a++ ) {
-		if( empired->player[a] == empired->leader )
+		if( empired->player[a] == empired->politics[CMD_POLITICS_LEADER] )
 			continue;
 		if( ( user = dbUserLinkID( empired->player[a] ) ) ) {
 			for( b = CMD_EMPIRE_POLITICS_START; b <= CMD_EMPIRE_POLITICS_END; b++ ) {
@@ -943,7 +943,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
     dbMapSetSystem( planetd.system, &systemd );
 
     planetd.maxpopulation = (float)( planetd.size * CMD_POPULATION_SIZE_FACTOR );
-    planetd.flags = 0;
+    planetd.flags = ( bitflag( systemd.flags, MAP_SYSTEM_FLAG_MEGA ) ? CMD_PLANET_FLAGS_MEGA : 0 );
     planetd.owner = id;
     planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
     planetd.protection = 0.0;

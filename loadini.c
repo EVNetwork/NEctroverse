@@ -19,7 +19,7 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "system:httpread", "/tmp/evcore/html/read", "HTTP Text" },
 	{ INI_TYPE_STRING, "system:publicforum", "/tmp/evcore/data", "Public Forum" },
 
-	{ INI_TYPE_STRING, "system:round_flag", "Pre-Alpha", "Round Flag" },
+	{ INI_TYPE_STRING, "system:round_flag", "", "Round Flag" },
 	{ INI_TYPE_INT, "system:notices", "5", "Display Notices" },
 
 	#if HTTPS_SUPPORT

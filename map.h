@@ -4,4 +4,6 @@
 
 int spawn_map();
 
+extern char *mapStarName[];
+
 #endif

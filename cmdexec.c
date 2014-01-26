@@ -194,7 +194,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
-  if( ( dbUserFleetAdd( id, &cmdUserFleetDefault ) < 0 ) || !( cmdTotalsCalculate( id, &maind ) ) || ( dbUserMainSet( id, &maind ) < 0 ) )
+  if( ( dbUserFleetAdd( id, &cmdUserFleetDefault ) < 0 ) || ( cmdTotalsCalculate( id, &maind ) == NO ) || ( dbUserMainSet( id, &maind ) < 0 ) )
     return -2;
 
   return 1;
@@ -1134,7 +1134,7 @@ int cmdExecFamMemberFlags( int id, int fam, int flags ) {
 cmdErrorString = 0;
 if( dbEmpireGetInfo( fam, &empired ) < 0 )
 	return -3;
-if( id == empired.leader )
+if( id == empired.politics[CMD_POLITICS_LEADER] )
 	return -3;
 for( a = 0 ; ; a++ ) {
 	if( a == empired.numplayers )
@@ -1999,6 +1999,7 @@ int cmdExecTakePlanet( int id, int plnid )
   int64_t newd[DB_USER_NEWS_BASE];
   dbMainPlanetDef planetd;
   dbUserMainDef maind, main2d ;
+  dbMainSystemDef systemd;
   dbUserBuildPtr buildd;
 
   cmdErrorString = 0;
@@ -2062,7 +2063,8 @@ int cmdExecTakePlanet( int id, int plnid )
     if( buildd )
       free( buildd );
    }
-  planetd.flags = 0;
+  dbMapRetrieveSystem( planetd.system, &systemd );
+  planetd.flags = ( bitflag( systemd.flags, MAP_SYSTEM_FLAG_MEGA ) ? CMD_PLANET_FLAGS_MEGA : 0 );
   planetd.owner = id;
   planetd.construction = 0;
   planetd.surrender = -1;
@@ -2091,6 +2093,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
 }
 
+dbMarketReset();
 dbEnd();
 
 setting = GetSetting( "Directory" );

@@ -813,7 +813,7 @@ if (-1 == uc->fd) {
 		return NO;
 	char fn[PATH_MAX];
 	settings = GetSetting( "Directory" );
-	if( empired.leader == ((uc->session)->dbuser)->id ) {
+	if( empired.politics[CMD_POLITICS_LEADER] == ((uc->session)->dbuser)->id ) {
 		if( empired.picture > 0 ) {
 			snprintf(fn, sizeof (fn),"%s/uploads/empire%d/pic%d", settings->string_value, maind.empire, empired.picture );
 			unlink(fn);

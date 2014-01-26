@@ -230,6 +230,7 @@ typedef struct
   int sizey;
   int systems;
   int planets;
+  int megasys;
   int families;
   int fmembers;
   int capacity;
@@ -300,7 +301,7 @@ typedef struct
   int politics[CMD_EMPIRE_POLITICS_TOTAL];
   int player[ARRAY_MAX];
   int vote[ARRAY_MAX];
-  int leader;
+  int depreciated;
   int homeid;
   int homepos; // ( y << 16 ) + x
   int picture;

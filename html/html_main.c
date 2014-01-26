@@ -1378,7 +1378,7 @@ if( race ) {
 	(maild.mail).tick = ticks.number;
 	(maild.mail).flags = 0;
 	if( dbMailAdd( id, 0, &maild ) < 0 )
-		error( "Error sending registration email" );
+		error( "Error sending registration mail" );
 
 	if( ( dbUserLinkDatabase( cnt, id ) < 0 ) || ( dbSessionSet( (cnt->session)->dbuser, (cnt->session)->sid ) < 0 ) ) {
 		httpString( cnt, "Error encountered while registering session" );

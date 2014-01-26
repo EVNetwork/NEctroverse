@@ -2313,29 +2313,12 @@ return 1;
 
 int dbEmpireSetInfo( int famid, dbMainEmpirePtr empired ) {
 	FILE *file;
-//	dbUserPtr user;
-
 
 if( ( famid < 0 ) || ((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
 	return -3;
 
 if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_INFO ) ) )
 	return -3;
-
-/*
-//---------------------
-if ( empired->numplayers == 1) {
-	empired->leader = empired->player[0];
-	if(( user = dbUserLinkID( empired->leader ) ) ) {
-		//user->flags &= 0xFFFF;
-		bitflag_add( &user->flags, CMD_USER_FLAGS_LEADER] | CMD_USER_FLAGS_ACTIVATED );
-		dbUserSave( empired->leader, user );
-	}
-}
-//-----------------------
-*/
-
-//file_s( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(dbMapBInfoStatic[MAP_PLANETS]*sizeof(dbMainPlanetDef))+(famid*sizeof(dbMainEmpireDef)) );
 
 file_w( empired, 1, sizeof(dbMainEmpireDef), file );
 

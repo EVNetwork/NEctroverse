@@ -13,6 +13,7 @@ typedef struct {
 	int *planets;
 	int *pbase;
 	int *home;
+	int *mega;
 	int *system;
 	//data for map image.
 	int *data;
@@ -74,7 +75,7 @@ return;
 int spawn_map() {
 	ConfigArrayPtr settings[4];
 	ConfigArrayPtr map_set;
-	int a, b, c, d, e, i, p, x, y, x2, y2;
+	int a, b, c, d, e, i, p, x, y, x2, y2, mega;
 	int map_bonus[CMD_BONUS_NUMUSED+1];
 	float dist, distmax;
 	char fname[PATH_MAX];
@@ -117,12 +118,14 @@ mapstore->data = calloc( map_set[0].num_value*map_set[1].num_value, sizeof(int) 
 mapstore->posx = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
 mapstore->posy = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
 mapstore->type = calloc( map_bonus[CMD_BONUS_NUMUSED+1], sizeof(int) );
+mapstore->home = calloc( map_set[2].num_value, sizeof(int) );
 mapstore->pos = calloc( map_set[2].num_value, sizeof(int) );
+mapstore->system = calloc( map_set[2].num_value, sizeof(int) );
 mapstore->planets = calloc( map_set[2].num_value, sizeof(int) );
 mapstore->pbase = calloc( map_set[2].num_value, sizeof(int) );
-mapstore->home = calloc( map_set[2].num_value, sizeof(int) );
-mapstore->system = calloc( map_set[3].num_value, sizeof(int) );
 mapstore->arti = calloc( ARTEFACT_NUMUSED, sizeof(int) );
+mega = ( 5 + ( rand() % 15 ));
+mapstore->mega = calloc( map_set[2].num_value, sizeof(int) );
 
 mapCalcFactors( map_set, mapstore );
 
@@ -146,6 +149,15 @@ for( a = 0 ; a < map_set[3].num_value ; a++ ) {
 		goto mainL1;
 	mapstore->home[ mapstore->system[a] ] = a+1;
 	mapstore->planets[ mapstore->system[a] ] = map_set[4].num_value;
+}
+
+for( a = map_set[3].num_value ; a < ( mega + map_set[3].num_value ); a++ ) {
+	mainS1:
+	mapstore->system[a] = rand() % (int)map_set[2].num_value;
+	if( ( mapstore->home[ mapstore->system[a] ] ) || ( mapstore->mega[ mapstore->system[a] ] ) )
+		goto mainS1;
+	mapstore->mega[ mapstore->system[a] ] = a+1;
+	mapstore->planets[ mapstore->system[a] ] = 1;
 }
 
 for( a = b = c = 0 ; a < map_bonus[CMD_BONUS_NUMUSED+1] ; a++, b++ ) {
@@ -189,7 +201,7 @@ for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
 	mainL2:
 	b = rand() % (int)map_set[2].num_value;
-	if( mapstore->home[b] )
+	if( ( mapstore->home[b] ) || ( mapstore->mega[b] ) )
 		goto mainL2;
 	mapstore->arti[a] = mapstore->pbase[b] + ( rand() % mapstore->planets[b] );
 	info( "( %d,%d ) ID:%d Holds: %s", mapstore->pos[b] & 0xFFFF, mapstore->pos[b] >> 16, mapstore->arti[a], artefactName[a] );
@@ -206,6 +218,7 @@ mapbase->sizex = map_set[0].num_value;
 mapbase->sizey = map_set[1].num_value;
 mapbase->systems = map_set[2].num_value;
 mapbase->planets = p;
+mapbase->megasys = mega;
 mapbase->families = map_set[3].num_value;
 mapbase->fmembers = map_set[4].num_value;
 mapbase->capacity = map_set[3].num_value * map_set[4].num_value;
@@ -221,9 +234,16 @@ for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 	systemd.indexplanet = p;
 	p += mapstore->planets[a];
 	systemd.numplanets = mapstore->planets[a];
+	systemd.flags = 0;
 	if( mapstore->home[a] ) {
+		bitflag_add( &systemd.flags, MAP_SYSTEM_FLAG_EMPIRE );
 		systemd.empire = mapstore->home[a] - 1;
 	} else {
+		if( mapstore->mega[a] ) {
+			bitflag_add( &systemd.flags, MAP_SYSTEM_FLAG_MEGA );
+		} else {
+			bitflag_add( &systemd.flags, MAP_SYSTEM_FLAG_PLAIN );
+		}
 		systemd.unexplored = mapstore->planets[a];
 	}
 	file_w( &systemd, 1, sizeof(dbMainSystemDef), file );
@@ -246,20 +266,23 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	y = mapstore->pos[c] >> 16;
 	i = ( y << 20 ) + ( x << 8 ) + b;
 	planetd.position = i;
-	if( !( mapstore->home[c] ) ) {
+	if( mapstore->home[c] ) {
+		planetd.size = 450;
+		planetd.flags = CMD_PLANET_FLAGS_HOME;
+	} else if( mapstore->mega[c] ) {
+		planetd.size = 7500;
+		planetd.flags = CMD_PLANET_FLAGS_MEGA;
+	} else {
 		planetd.flags = 0;
 		planetd.size = 128 + ( rand() % 192 );
 		if( !( rand() & 7 ) )
 			planetd.size += rand() & 255;
 		if( !( rand() & 31 ) )
 			planetd.size += rand() & 511;
-	} else {
-		planetd.size = 450;
-		planetd.flags = CMD_PLANET_FLAGS_HOME;
 	}
 
 	e = i = 0;
-	if( !( mapstore->home[c] ) ) {
+	if( !( mapstore->home[c] ) && !( mapstore->mega[c] ) ) {
 		distmax = (float)0xFFFF;
 		for( d = 0 ; d < map_bonus[CMD_BONUS_NUMUSED+1] ; d++ ) {
 			x2 = x - mapstore->posx[d];
@@ -312,9 +335,10 @@ for( a = 0 ; a < map_set[3].num_value ; a++ ) {
 		goto DIE;
 	}
 	memset( &empired, 0, sizeof(dbMainEmpireDef) );
+	memset( empired.politics, -1, CMD_POLITICS_NUMUSED*sizeof(int) );
 	memset( empired.player, -1, map_set[4].num_value*sizeof(int) );
 	memset( empired.vote, -1, map_set[4].num_value*sizeof(int) );
-	empired.leader = empired.rank = -1;
+	empired.rank = -1;
 	if( ( (int)settings[1]->num_value == a ) ) {
 		strncpy( empired.name, settings[2]->string_value, USER_NAME_MAX );
 		strncpy( empired.password, hashencrypt(settings[3]->string_value), USER_PASS_MAX );
@@ -423,5 +447,180 @@ return YES;
 DIE:
 return NO;
 }
+
+
+
+char *mapStarName[] =
+{
+"Achird",
+"Acubens",
+"Adhafera",
+"Adhil",
+"Ain",
+"Alathfar",
+"Albali",
+"Baham",
+"Baten Kaitos",
+"Becrux",
+"Beid",
+"Botein",
+"Brachium",
+"Caph",
+"Cebalrai",
+"Celaeno",
+"Chara",
+"Chort",
+"Cursa",
+"Dabih",
+"Dheneb",
+"Diadem",
+"Diphda",
+"Dschubba",
+"Dsiban",
+"Ed Asich",
+"Electra",
+"Elnath",
+"Enif",
+"Etamin",
+"Fomalhaut",
+"Fornacis",
+"Fum al Samakah",
+"Furud",
+"Gacrux",
+"Gianfar",
+"Gienah Cygni",
+"Gienah Ghurab",
+"Gomeisa",
+"Gorgonea Quarta",
+"Gorgonea Secunda",
+"Gorgonea Tertia",
+"Graffias",
+"Grafias",
+"Grumium",
+"Hadar",
+"Haedi",
+"Hamal",
+"Hassaleh",
+"Heze",
+"Hoedus",
+"Homam",
+"Hyadum",
+"Izar",
+"Jabbah",
+"Kaffaljidhma",
+"Kajam",
+"Kaus Borealis",
+"Kaus Meridionalis",
+"Keid",
+"Kitalpha",
+"Kornephoros",
+"Kraz",
+"Kuma",
+"Lesath",
+"Maasym",
+"Maia",
+"Marfak",
+"Matar",
+"Mebsuta",
+"Meissa",
+"Mekbuda",
+"Menkalinan",
+"Menkar",
+"Menkent",
+"Menkib",
+"Merga",
+"Merope",
+"Mesarthim",
+"Metallah",
+"Miaplacidus",
+"Minkar",
+"Miram",
+"Mufrid",
+"Muliphen",
+"Murzim",
+"Muscida",
+"Nair al Saif",
+"Naos",
+"Nash",
+"Nashira",
+"Nekkar",
+"Nodus Secundus",
+"Nunki",
+"Nusakan",
+"Peacock",
+"Phad",
+"Phaet",
+"Pherkad Minor",
+"Pherkad",
+"Pleione",
+"Polaris Australis",
+"Porrima",
+"Praecipua",
+"Prima Giedi",
+"Propus",
+"Rana",
+"Rasalgethi",
+"Rasalhague",
+"Rastaban",
+"Regulus",
+"Rigel",
+"Rotanev",
+"Ruchba",
+"Ruchbah",
+"Rukbat",
+"Sabik",
+"Sadalachbia",
+"Sadalsuud",
+"Sadr",
+"Salm",
+"Sargas",
+"Sarin",
+"Sceptrum",
+"Secunda Giedi",
+"Segin",
+"Seginus",
+"Sham",
+"Sharatan",
+"Sheliak",
+"Sirius",
+"Situla",
+"Skat",
+"Spica",
+"Sualocin",
+"Subra",
+"Sulafat",
+"Syrma",
+"Tabit",
+"Talitha",
+"Tarazed",
+"Taygeta",
+"Tegmen",
+"Tejat Posterior",
+"Terebellum",
+"Thabit",
+"Theemim",
+"Thuban",
+"Turais",
+"Tyl",
+"Unukalhai",
+"Vega",
+"Vindemiatrix",
+"Wasat",
+"Wezen",
+"Wezn",
+"Yed Posterior",
+"Yed Prior",
+"Yildun",
+"Zaniah",
+"Zaurak",
+"Zavijah",
+"Zibal",
+"Zosma",
+"Zuben",
+
+};
+
+
+
 
 
