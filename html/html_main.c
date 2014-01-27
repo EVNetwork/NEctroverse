@@ -1445,7 +1445,7 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
 	httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
 	httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
 	httpPrintf( cnt, "<a href=\"%s&type=races\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "info" ) );
-	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
+	for( a = 0 ; a < CMD_RACE_NUMUSED ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdRaceName[a] );
 	}
 	httpString( cnt, "</select><br><br>" );

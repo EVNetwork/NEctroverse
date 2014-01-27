@@ -76,7 +76,7 @@ if( !( ticks.status | ticks.number ) ) {
 	httpPrintf( cnt, "<form action=\"%s\">Faction race - ", URLAppend( cnt, "account" ) );
 	httpPrintf( cnt, "<a href=\"%s&type=races\">See races</a><br><i>Only available before time starts.</i><br><select name=\"race\">", URLAppend( cnt, "info" ) );
 
-	for( a = 0 ; a < CMD_RACE_NUMUSED-1 ; a++ ) {
+	for( a = 0 ; a < CMD_RACE_NUMUSED ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\"", a );
 		if( a == maind.raceid )
 			httpString( cnt, " selected" );

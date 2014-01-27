@@ -1214,7 +1214,7 @@ if( !( num ) )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
-    httpPrintf( cnt, "The forces of %s took control of a <a href=\"%s&id=%lld\">planet</a> offered by %s.<br>", URLAppend( cnt, "planet" ), mfamd[b].faction, (long long)newsd[4], maind.faction );
+    httpPrintf( cnt, "The forces of %s took control of a <a href=\"%s&id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[4], maind.faction );
   }
 
 
