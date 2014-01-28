@@ -616,7 +616,6 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 
 for( user = dbUserList ; user && (ticks.debug_id = user->id) ; user = user->next, ticks.uregist++ ) {
 	if( ( (now - user->lasttime) > SESSION_TIME ) && ( strlen(user->http_session) ) ) {
-		info( "wipe session: %s", user->name );
 		memset( user->http_session, 0, sizeof(user->http_session) );
 		dbUserSave( user->id, user );
 	}
