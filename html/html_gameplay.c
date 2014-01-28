@@ -3007,10 +3007,9 @@ httpString( cnt, "</div>" );
  httpString( cnt, "</select>" );
  httpString( cnt, "<select name=\"status\">" );
  httpString( cnt, "<option value=\"0\">No tag</option>" );
- httpPrintf( cnt, "<option value=\"%d\">Minister of Communication</option>", CMD_USER_FLAGS_COMMINISTER );
- httpPrintf( cnt, "<option value=\"%d\">Minister of Development</option>", CMD_USER_FLAGS_DEVMINISTER );
- httpPrintf( cnt, "<option value=\"%d\">Minister of War</option>", CMD_USER_FLAGS_WARMINISTER );
- httpPrintf( cnt, "<option value=\"%d\">Independent</option>", CMD_USER_FLAGS_INDEPENDENT );
+ for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
+ 	httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdPoliticsName[a-CMD_EMPIRE_POLITICS_START] );
+ }
  httpString( cnt, "</select></td></tr>" );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
  }
