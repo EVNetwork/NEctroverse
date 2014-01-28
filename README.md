@@ -35,7 +35,6 @@ This does not require any extra librarys, and will save logs via syslog feature.
 
 KNOWN BUGS - Very annoying and need to go:
 * Facebook linkage is unstable.
-* Empire Positions can not be changed.
 * ... Possibly more
 * ... Join and help find them all!
 * .... ?
