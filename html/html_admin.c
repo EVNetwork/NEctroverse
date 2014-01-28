@@ -213,16 +213,16 @@ void iohtmlFunc_moderator( ReplyDataPtr cnt ) {
   dbUserFleetDef fleetd;
   dbUserFleetPtr fleetp;
   dbMainPlanetDef planetd;
+  dbMainEmpireDef empired;
   dbBuildPtr buildd;
   //dbForumForumDef forumd;
   //dbForumThreadPtr pThread;
   char *actionstring, *str0, *str1;
   char COREDIR[256];
-  dbUserPtr user;
+  dbUserPtr user, next;
   int64_t *newsp, *newsd;
   int *buffer;
   int *plist;
-  dbMainEmpireDef empired;
   FILE *file;
 
 
@@ -246,6 +246,10 @@ sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   httpString( cnt, "<input type=\"text\" name=\"player\" value=\"player ID number\"><br>" );
   httpString( cnt, "<input type=\"submit\" value=\"View player data\"></form><br><br>" );
+
+  httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
+  httpString( cnt, "<input type=\"text\" name=\"empire\" value=\"empire ID number\"><br>" );
+  httpString( cnt, "<input type=\"submit\" value=\"View Empire data\"></form><br><br>" );
 
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   httpString( cnt, "<input type=\"text\" name=\"playernews\" value=\"player ID number\"><br>" );
@@ -353,7 +357,6 @@ sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
 
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
   httpString( cnt, "<input type=\"text\" name=\"clearfam\" value=\"Family\"><br>" );
-  httpString( cnt, "<input type=\"text\" name=\"players\" value=\"Number of players\"><br>" );
   httpString( cnt, "<input type=\"submit\" value=\"Fix Fam\"></form><br><br>" );
 
   httpString( cnt, "<form action=\"moderator\" method=\"POST\">" );
@@ -443,6 +446,32 @@ sprintf( COREDIR, "%s/logs/modlog.log", settings->string_value );
     httpPrintf( cnt, "Agents readiness : %d %%<br>", maind.readiness[2] >> 16 );
 
     fprintf( file, "%s > view player info of player %s\n", main2d.faction, maind.faction);
+  }
+  
+  if( ( actionstring = iohtmlVarsFind( cnt, "empire" ) ) )
+  {
+    if( sscanf( actionstring, "%d", &actionid ) != 1 )
+      goto iohtmlFunc_moderatorL0;
+    if( dbEmpireGetInfo( actionid, &empired ) < 0 )
+	goto iohtmlFunc_moderatorL0;
+	
+    httpPrintf( cnt, "<b>Empire ID %d</b><br><br>", actionid );
+
+    httpPrintf( cnt, "Planets : %d<br>", empired.planets );
+    httpPrintf( cnt, "Networth : %lld<br>", (long long)empired.networth );
+    httpPrintf( cnt, "Artefacts : 0x%x<br>", empired.artefacts );
+
+    for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
+      httpPrintf( cnt, "%s : %lld<br>", cmdRessourceName[a], (long long)empired.fund[a] );
+    for( b = 0; b < CMD_EMPIRE_POLITICS_TOTAL; b++ ) {
+	httpPrintf( cnt, "%d : %d<br>", empired.politics[b], b );
+    }
+    for( a = 0 ; a < empired.numplayers ; a++ ) {
+	    if( !( user = dbUserLinkID( empired.player[a] ) ) )
+		    continue;
+	    httpPrintf( cnt, "%d : %s<br>", a, user->faction );
+    }
+    fprintf( file, "%s > view empire info of %d\n", main2d.faction, actionid );
   }
 
   if( ( actionstring = iohtmlVarsFind( cnt, "playernews" ) ) )
@@ -904,15 +933,21 @@ if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
 
   if( ( actionstring = iohtmlVarsFind( cnt, "clearfam" ) ) )
   {
-    if( !( str0 = iohtmlVarsFind( cnt, "players" ) ) )
-      goto iohtmlFunc_moderatorL0;
     if( sscanf( actionstring, "%d", &actionid ) != 1 )
       goto iohtmlFunc_moderatorL0;
-    if( sscanf( str0, "%d", &i0 ) != 1 )
-      goto iohtmlFunc_moderatorL0;
     dbEmpireGetInfo( actionid, &empired );
-    empired.numplayers = i0;
+    a = 0;
+    for( user = dbUserList ; user ; user = next ) {
+	next = user->next;
+	dbUserMainRetrieve( user->id, &maind );
+	if( maind.empire == actionid ) {
+		empired.player[a] = user->id;
+		a++;
+	}
+    }
+    empired.numplayers = a;
     dbEmpireSetInfo( actionid, &empired );
+    
     httpPrintf( cnt, "fam %d cleared", actionid );
   }
 

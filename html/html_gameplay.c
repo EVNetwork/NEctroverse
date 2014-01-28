@@ -2098,14 +2098,18 @@ if( !( empired.numplayers ) ) {
 	goto RETURN;
 }
 
- for( a = 0 ; a < empired.numplayers ; a++ )
- {
-  if( dbUserMainRetrieve( empired.player[a], &mainp[a] ) < 0 )
-  {
-   httpString( cnt, "Error while retrieving user's main data" );
-   continue;
-  }
- }
+for( a = b = 0 ; a < empired.numplayers ; a++, b++ ) {
+	if( dbUserMainRetrieve( empired.player[a], &mainp[b] ) < 0 ) {
+		httpString( cnt, "Error while retrieving user's main data" );
+		continue;
+	}
+	if( mainp[b].empire != curfam ) {
+		b--;
+ 		continue;
+	}
+}
+empired.numplayers = b;
+
  first = 0;
  stats[0] = -1;
  stats[1] = -1;
@@ -2151,10 +2155,6 @@ if( !( empired.numplayers ) ) {
   b = a >> 1;
   c = empired.player[b];
   user = dbUserLinkID( c );
-  if( user ) {
-  	bitflag_add( &user->flags, CMD_USER_FLAGS_ACTIVATED );
-  	dbUserSave( c, user);
-  }
   httpString( cnt, "<tr>" );
   if( !( user ) )
    httpString( cnt, "<td>&nbsp;</td>" );

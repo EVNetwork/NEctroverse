@@ -346,9 +346,10 @@ int cmdExecUserDeactivate( int id, int flags )
 		memset( &empired.name, 0, USER_NAME_MAX );
 		memset( &empired.password, 0, USER_PASS_MAX );
 	}
-	dbEmpireSetInfo( maind.empire, &empired );
+	
 	cmdEmpireLeader( &empired );
-      
+	dbEmpireSetInfo( maind.empire, &empired );
+	      
 	break;
 	}
 	for( a = CMD_EMPIRE_POLITICS_START; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
@@ -460,8 +461,8 @@ int cmdUserDelete( int id )
       }
 
       empired.numplayers--;
-      dbEmpireSetInfo( maind.empire, &empired );
       cmdEmpireLeader( &empired );
+      dbEmpireSetInfo( maind.empire, &empired );
       break;
     }
   }
@@ -478,10 +479,7 @@ int cmdUserDelete( int id )
 
 int cmdExecChangeName( int id, char *faction )
 {
-  dbUserMainDef maind;
   dbUserInfoDef infod;
-  if( dbUserMainRetrieve( id, &maind ) < 0 )
-    return -1;
   if( dbUserInfoRetrieve( id, &infod ) < 0 )
     return -1;
   cmdErrorString = 0;
@@ -496,9 +494,7 @@ int cmdExecChangeName( int id, char *faction )
     cmdErrorString = "This faction name is already in use!";
     return -2;
   }
-  sprintf( maind.faction, "%s", faction );
-  sprintf( infod.faction, "%s", faction );
-  dbUserMainSet( id, &maind );
+  strncpy( infod.faction, faction, USER_NAME_MAX );
   dbUserInfoSet( id, &infod );
   return 1;
 }

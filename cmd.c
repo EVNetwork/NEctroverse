@@ -686,7 +686,6 @@ if( ( empired->politics[CMD_POLITICS_LEADER] == -1 ) || ( ( c == -1 ) || ( empir
 	}
 }
 
-dbEmpireSetInfo( empired->id, empired );
 
   free( parray );
   return;
