@@ -2,6 +2,12 @@ All faults must be reported... No matter how minor.
 
 If you encounter a bug/error. Report it.
 
-Dreamweavers are active, as a once up... you can request a change of race.
+!! Dreamweavers are now active !!
+As a once up... you can request a change of race.
+
+A link has been added to the Account page to allow this change.
+Please be warned... you instantly change when you click it.
+And you may not change back, this is a one way conversion.
+(To change back, you would have to deactivate account)
 
 --Necro
