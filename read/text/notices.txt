@@ -1,6 +1,6 @@
 28 January 2014
-Time is frozen while I attempt a repair caused by a player using a broken function.
---Please do not use functions that I have already said are broken.
+OK, So I've repaired the damaged caused by the use of a known broken function.
+--Please do not use functions that are known to be broken/faulty.
 --Unless it has been posted that a fix has been applied, they are still broken.
 
 26 January 2014
