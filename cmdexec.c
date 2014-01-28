@@ -390,7 +390,9 @@ int cmdExecUserDeactivate( int id, int flags )
     return -1;
 
   bitflag_remove(&user->flags, CMD_USER_FLAGS_ACTIVATED );
-  bitflag_add(&user->flags, flags );
+  if( flags ) {
+  	bitflag_add(&user->flags, flags );
+  }
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
