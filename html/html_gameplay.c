@@ -1318,7 +1318,7 @@ sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
 
 if( dbEmpireGetMessage( maind.empire, &message ) ) {
 	if( ( strlen(message.leader) ) ) {
-		httpString( cnt, "<b>Message from your leader</b><br>" );
+		httpString( cnt, "<b>Message from your Prime Minister</b><br>" );
 		httpString( cnt, message.leader );
 		httpString( cnt, "<br><br>" );
 	}
@@ -1421,7 +1421,7 @@ if( numbuild < 0 ) {
 }
 
 if(empired.taxation)
-	httpPrintf( cnt, "<i>Empire leaders have set a taxation level of <span id=\"counciltax\">%.02f</span>%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
+	httpPrintf( cnt, "<i>You Prime Minister have set a taxation level of <span id=\"counciltax\">%.02f</span>%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
 
 httpString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 httpString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
@@ -2079,12 +2079,16 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 
 if ( curfam == maind.empire ) {
 	if( ( empired.politics[CMD_POLITICS_LEADER] == -1 ) ) {
-		httpString( cnt, "<div class=\"genred\">Your Empire has no leader!!</div>" );
+		httpString( cnt, "<div class=\"genred\">Your Empire has no Prime Minister!!</div>" );
 	}
 	httpPrintf( cnt, "<a href=\"%s&type=eleader\">Change your vote</a>", URLAppend( cnt, "vote" ) );
-	if( id == empired.politics[CMD_POLITICS_LEADER] ) {
-		httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\" target=\"main\">Leadership Options</a>", URLAppend( cnt, "famleader" ) );
-	}
+	for( i = 0; i < CMD_POLITICS_NUMUSED; i++ ) {
+		if( i > CMD_POLITICS_LEADER ) { break; }
+   		if( empired.politics[i] == id ) {
+			httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\" target=\"main\">%s Options</a>", URLAppend( cnt, "famleader" ), cmdPoliticsName[i] );
+			break;
+		}
+   	}
 	httpString( cnt, "<br>" );
 }
 
@@ -2187,7 +2191,7 @@ empired.numplayers = b;
    if( ( b < 5*60 ) && ( strlen(user->http_session) ) ) {
     httpString( cnt, "[online]" );
     }
-   else if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_COMMINISTER ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
+   else if( ( empired.politics[CMD_POLITICS_LEADER] == id ) || ( empired.politics[CMD_POLITICS_COMMINISTER] == id ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) )
    {
     httpString( cnt, "<i>Last : " );
     if( b >= 24*60*60 )
@@ -2213,7 +2217,7 @@ empired.numplayers = b;
 }
  httpString( cnt, "</table><br>" );
 if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
-	if( bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_LEADER ) || bitflag( (cnt->session)->dbuser->flags, CMD_USER_FLAGS_DEVMINISTER ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
+	if( ( empired.politics[CMD_POLITICS_LEADER] == id ) || ( empired.politics[CMD_POLITICS_DEVMINISTER] == id ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
 		if( empired.taxation ) {
 			httpPrintf( cnt, "<i>Taxation set at %.02f%%</i>", ( empired.taxation * 100.0 ) );
@@ -2504,11 +2508,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<option value=\"1\"" );
  if( maind.aidaccess == 1 )
   httpPrintf( cnt, " selected" );
- httpPrintf( cnt, ">Only the Leader</option>" );
+ httpPrintf( cnt, ">Only the Prime Minister</option>" );
  httpPrintf( cnt, "<option value=\"2\"" );
  if( maind.aidaccess == 2 )
   httpPrintf( cnt, " selected" );
- httpPrintf( cnt, ">The Leader and Minister of Development</option>" );
+ httpPrintf( cnt, ">The Prime Minister and Minister of Development</option>" );
  httpPrintf( cnt, "<option value=\"3\"" );
  if( maind.aidaccess == 3 )
   httpPrintf( cnt, " selected" );
@@ -2572,7 +2576,7 @@ if( typestring ) {
 }
 
 
-iohtmlBodyInit( cnt, "Vote %s", evote ? " for Empire Leader" : ( "Unavalible" ) );
+iohtmlBodyInit( cnt, "Vote %s", evote ? " for Empire Prime Minister" : ( "Unavalible" ) );
 
 if( evote ) {
 	if( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) {
@@ -2600,14 +2604,14 @@ if( evote ) {
 		}
 	}
 	if( empired.politics[CMD_POLITICS_LEADER] == -1 ) {
-		httpString( cnt, "<b>Your empire didn't elect a leader yet</b>" );
+		httpString( cnt, "<b>Your empire didn't elect a Prime Minister yet</b>" );
 	} else if( empired.politics[CMD_POLITICS_LEADER] == id ) {
-		httpString( cnt, "<b>You are the leader</b>" );
+		httpString( cnt, "<b>You are the Prime Minister</b>" );
 	} else {
 		if( dbUserMainRetrieve( empired.politics[CMD_POLITICS_LEADER], &main2d ) < 0 ) {
-			httpString( cnt, "Error while retrieving leader's main data" );
+			httpString( cnt, "Error while retrieving Prime Minister's main data" );
 		} else {
-			httpPrintf( cnt, "<b>The empire leader is %s</b>", main2d.faction );
+			httpPrintf( cnt, "<b>The empire Prime Minister is %s</b>", main2d.faction );
 		}
 	}
 	httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\"><table cellspacing=\"8\"><tr><td><b>Empire members</b></td><td>Networth</td><td>Planets</td><td>Your vote</td></tr>", URLAppend( cnt, "vote" ) );
@@ -2843,11 +2847,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
  if( ( empired.politics[CMD_POLITICS_LEADER] != id ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
  {
-  httpString( cnt, "You are not the leader of this empire!</body></html>" );
+  httpString( cnt, "You are not the Prime Minister of this empire!</body></html>" );
   return;
  }
 
- iohtmlBodyInit( cnt, "Leader options" );
+ iohtmlBodyInit( cnt, "Prime Minister options" );
 
 if( taxstring ){
 	if( ( sscanf( taxstring, "%f", &tax ) != 1 ) ) {
@@ -2940,9 +2944,9 @@ if( hqmesstring ) {
 	iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
 	strcpy(message.leader,msg[1]);
 	if( dbEmpireSetMessage( curfam, &message ) < 0 ) {
-		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
+		httpString( cnt, "<i>Error changing Prime Minister message...</i><br><br>" );
 	} else {
-		httpString( cnt, "<i>Leader message changed</i><br><br>" );
+		httpString( cnt, "<i>Prime Minister message changed</i><br><br>" );
 	}
 	dbEmpireGetMessage( curfam, &message );
 }
@@ -3067,7 +3071,7 @@ httpString( cnt, "</div>" );
  httpString( cnt, "</table></td></tr>" );
 
  iohttpForumFilter3( msg[1], message.leader, USER_DESC_MAX );
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Leader message</td></tr>", URLAppend( cnt, "famleader" ) );
+ httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Prime Minister message</td></tr>", URLAppend( cnt, "famleader" ) );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 /*

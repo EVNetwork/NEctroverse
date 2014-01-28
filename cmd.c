@@ -494,11 +494,11 @@ char *cmdRaceName[CMD_RACE_NUMUSED] =
 
 char *cmdPoliticsName[CMD_EMPIRE_POLITICS_TOTAL+1] = 
 {
-"Leader",
+"Prime Minister",
 "Minister of Communication",
 "Minister of Development",
 "Minister of War",
-"Independent"
+"Rebelious"
 };
 
 char *cmdErrorString;
