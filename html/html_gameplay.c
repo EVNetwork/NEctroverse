@@ -5932,7 +5932,11 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  httpPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_WIZARD], cmdUnitName[CMD_UNIT_WIZARD] );
  httpPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[CMD_READY_PSYCH] >> 16 );
  httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendpsychics\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_WIZARD] );
- httpPrintf( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">", ( planetd.owner != -1 ) ? ( main2d.faction ) : ( "Faction name or ID" ) );
+ if( ( plnid != -1 ) && ( main2d.faction ) ) {
+ 	httpPrintf( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">",  main2d.faction );
+ } else {
+ 	httpString( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"Faction name or ID\">" );
+ }
  httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare spell\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
