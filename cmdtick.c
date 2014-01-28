@@ -614,7 +614,8 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 	error( "Tick error: Retriving Map Info!" );
 }
 
-for( user = dbUserList ; user && (ticks.debug_id = user->id) ; user = user->next, ticks.uregist++ ) {
+for( user = dbUserList ; user && (ticks.debug_id = user->id) ; user = user->next ) {
+	ticks.uregist++;
 	if( ( (now - user->lasttime) > SESSION_TIME ) && ( strlen(user->http_session) ) ) {
 		memset( user->http_session, 0, sizeof(user->http_session) );
 		dbUserSave( user->id, user );
