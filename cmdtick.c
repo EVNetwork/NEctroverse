@@ -614,15 +614,17 @@ if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) ) {
 	error( "Tick error: Retriving Map Info!" );
 }
 
-for( user = dbUserList ; user && (ticks.debug_id = user->id) ; user = user->next ) {
+for( user = dbUserList ; user ; user = user->next ) {
 	ticks.uregist++;
+	ticks.debug_id = user->id;
 	if( ( (now - user->lasttime) > SESSION_TIME ) && ( strlen(user->http_session) ) ) {
 		memset( user->http_session, 0, sizeof(user->http_session) );
 		dbUserSave( user->id, user );
 	}
 
-	if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) || ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) )
+	if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) || ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) ) {
 		continue;
+	}
 
 	ticks.uactive++;
 	ticks.uonline += ( ( (now - user->lasttime) < (SESSION_TIME / 4) ) && ( strlen(user->http_session) ) );
