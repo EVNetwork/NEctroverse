@@ -709,7 +709,7 @@ if( flags )  {
     }
    if((cnt->session)->dbuser)
    {
-	   if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
+	   if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD ) )
 	   {
 	    httpPrintf( cnt, "<br>Account: <a href=\"%s&id=%d\">%d</a>", URLAppend( cnt, "player" ), posts[a].post.authorid, posts[a].post.authorid );
 	    httpPrintf( cnt, "<br>IP: %s", inet_ntoa( posts[a].post.sin_addr ) );
@@ -865,7 +865,7 @@ if( id < 0 ) {
   a = 0;
   if((cnt->session)->dbuser)
   {
-	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
+	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD ) )
 	   a = 1;
 	 }
   iohttpForumFilter( &postd.text[2*FORUM_MAX], poststring, FORUM_MAX, a );
@@ -1012,7 +1012,7 @@ if( id < 0 ) {
   a = 0;
   if((cnt->session)->dbuser)
   {
-	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) )
+	  if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD ) )
 	 	 a = 1;
 	 }
   iohttpForumFilter( &postd.text[2*FORUM_MAX], poststring, FORUM_MAX, a );
