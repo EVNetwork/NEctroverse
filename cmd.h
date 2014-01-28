@@ -8,7 +8,7 @@ int cmdFindDistPortal( int id, int tx, int ty, int *distptr, int *portalpos );
 
 void cmdExecuteFlush();
 
-int cmdEndofRound();
+void *cmdEndofRound();
 
 void cmdTickInit();
 

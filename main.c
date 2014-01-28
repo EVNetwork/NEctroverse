@@ -111,7 +111,7 @@ int daemonloop() {
 
 
 //Replacment server loop, why use "for" when we can use "while" and its so much cleaner?
-while( sysconfig.shutdown == false ) {
+while( ( sysconfig.shutdown == false ) && ( sysconfig.regen == false ) ) {
 	/* Expire HTTP Stuff */
 	WWWExpire();
 
@@ -166,7 +166,6 @@ if( irc_is_connected(sysconfig.irc_session) ) {
 	irc_disconnect( sysconfig.irc_session );
 }
 #endif
-
 Shutdown();
 
 return YES;
@@ -359,6 +358,7 @@ if( sysconfig.irc_enabled ) {
 
 //Start HTTP Server(s)
 
+(void)pthread_mutex_init (&mutex, NULL);
 
 if( http_start() == NO ) {
 	critical( "HTTP Server failed to start" );
@@ -372,7 +372,6 @@ if( https_start() == NO )
 
 if( daemonloop() == NO )
 	return NO;
-
 
 cmdEnd();
 dbEnd();
@@ -767,9 +766,6 @@ if( file_exist(options.sysini) == 0 ) {
 	info("Using config file: \'%s\'",options.sysini);
 }
 
-(void)pthread_mutex_init (&mutex, NULL);
-
-
 dirstructurecheck( TMPDIR, true );
 
 memset( &sysconfig, 0, sizeof(SystemCoreDef) );
@@ -865,10 +861,18 @@ if( !( file_exist(DIRCHECKER) ) ) {
 	}
 }
 //Begin deamonization and initate server loop.
-
+REGEN:
 if( daemon_init( ) == NO ) {
 	critical("<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
 	return 1;
+}
+if( sysconfig.regen == true ) {
+	while( sysconfig.regen == true ) {
+		nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
+		continue;
+	}
+	sysconfig.shutdown = false;
+	goto REGEN;
 }
 
 if( options.mode == MODE_FORKED ) {

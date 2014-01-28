@@ -1338,7 +1338,8 @@ sysconfig.shutdown = true;
   	/*curtime = time( 0 );
     for( user = dbUserList ; user ; user = user->next )
       cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );*/
-      if( cmdEndofRound() == YES )
+      
+    if( pthread_create(&sysconfig.regen_thread,NULL,cmdEndofRound,NULL) == 0 )
     httpPrintf( cnt, "All accounts deactivated<br><br>" );
     else
     httpPrintf( cnt, "Something bad happened...<br><br>" );

@@ -1475,14 +1475,19 @@ for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 	free( StoredFiles->data );
 	free( StoredFiles );
 }
+StoredFiles = NULL;
 
 if( ServerSessionMD5 != NULL )
 	free( ServerSessionMD5 );
 
+ServerSessionMD5 = NULL;
+
 dbFlush();
 cleanUp(0);
 cleanUp(1);
-UnloadConfig();
+if( sysconfig.regen == false ) {
+	UnloadConfig();
+}
 
 return;
 }

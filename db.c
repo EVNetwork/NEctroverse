@@ -3692,6 +3692,7 @@ if( flags ) {
     file_w( &threadd, 1, sizeof(dbForumThreadDef), file );
     fclose( file );
 
+
     return num;
   }
 

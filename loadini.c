@@ -320,7 +320,10 @@ return;
 
 void UnloadConfig() {
 
-FreeList( ConfigList );
+if( ConfigList ) {
+	FreeList( ConfigList );
+	ConfigList = NULL;
+}
 
 if( config != NULL ) {
 	iniparser_freedict( config );

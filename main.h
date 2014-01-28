@@ -23,6 +23,8 @@ typedef struct {
 typedef struct {
 	//emergency breaker
 	bool shutdown;
+	bool regen;
+	pthread_t regen_thread;
 	//Auto Toggles
 	bool autostart;
 	bool autostop;
