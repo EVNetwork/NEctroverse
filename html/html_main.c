@@ -282,9 +282,7 @@ settings = GetSetting( "Server Name" );
 type = iohtmlVarsFind( cnt, "type" );
 
 if( type == NULL ) {
-	iohtmlBodyInit( cnt, "%s: Info", settings->string_value );
-	httpString( cnt, "Invalid Request" );
-	goto RETURN;
+	goto INVALID;
 } else if( strcmp( type, "races" ) == 0 ) {
 	iohtmlBodyInit( cnt, "%s: Races", settings->string_value );
 	goto RACES;
@@ -294,6 +292,11 @@ if( type == NULL ) {
 } else if( strcmp( type, "buildings" ) == 0 ) {
 	iohtmlBodyInit( cnt, "%s: Buildings", settings->string_value );
 	goto BUILDINGS;
+} else {
+	INVALID:
+	iohtmlBodyInit( cnt, "%s: Info", settings->string_value );
+	httpString( cnt, "Invalid Request" );
+	goto RETURN;
 }
 
 

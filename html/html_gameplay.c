@@ -2040,7 +2040,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 void iohtmlFunc_empire( ReplyDataPtr cnt )
 {
- int a, b, c, d, nAlly, first, id, curtime, curfam, numbuild;
+ int a, b, c, d, i, nAlly, first, id, curtime, curfam, numbuild;
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *empirestring;
@@ -2158,18 +2158,19 @@ empired.numplayers = b;
   httpString( cnt, "<tr>" );
   if( !( user ) )
    httpString( cnt, "<td>&nbsp;</td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_LEADER ) && ( empired.politics[CMD_POLITICS_LEADER] == c ) )
-   httpString( cnt, "<td><i>Leader</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_COMMINISTER ) && ( empired.politics[CMD_POLITICS_COMMINISTER] == c ) )
-   httpString( cnt, "<td><i>Minister of Communications</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_DEVMINISTER ) && ( empired.politics[CMD_POLITICS_DEVMINISTER] == c ) )
-   httpString( cnt, "<td><i>Minister of Development</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_WARMINISTER ) && ( empired.politics[CMD_POLITICS_WARMINISTER] == c ) )
-   httpString( cnt, "<td><i>Minister of War</i></td>" );
-  else if( bitflag( user->flags, CMD_USER_FLAGS_INDEPENDENT ) )
-   httpString( cnt, "<td><i>Independent</i></td>" );
-  else
-   httpString( cnt, "<td>&nbsp;</td>" );
+   for( i = 0; i <= CMD_POLITICS_NUMUSED; i++ ) {
+   	if( i == CMD_POLITICS_NUMUSED ) {
+   		if( bitflag( user->flags, i+CMD_EMPIRE_POLITICS_START ) ) {
+			httpPrintf( cnt, "<td><i>%s</i></td>", cmdPoliticsName[i] );
+		} else {
+			httpString( cnt, "<td>&nbsp;</td>" );
+		}
+		break;
+    	} else if( empired.politics[i] == c ) {
+		httpPrintf( cnt, "<td><i>%s</i></td>", cmdPoliticsName[i] );
+		break;
+	}
+   }
 
   httpPrintf( cnt, "<td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), c );
   if( empired.politics[CMD_POLITICS_LEADER] == c )

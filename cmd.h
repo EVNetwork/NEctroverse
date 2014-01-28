@@ -198,6 +198,6 @@ cmdRaceDef cmdRace[CMD_RACE_NUMUSED];
 
 extern char *cmdRaceName[CMD_RACE_NUMUSED];
 
-
+extern char *cmdPoliticsName[CMD_EMPIRE_POLITICS_TOTAL+1];
 
 #endif
