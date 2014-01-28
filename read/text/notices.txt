@@ -1,3 +1,8 @@
+28 January 2014
+Time is frozen while I attempt a repair caused by a player using a broken function.
+--Please do not use functions that I have already said are broken.
+--Unless it has been posted that a fix has been applied, they are still broken.
+
 26 January 2014
 "New Round" has been iniated... and it marks a new day for NEctroverse.
 This map was generated while the server was still running, no reboot was required.
