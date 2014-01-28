@@ -2167,20 +2167,19 @@ empired.numplayers = b;
    		if( bitflag( user->flags, i+CMD_EMPIRE_POLITICS_START ) ) {
 			httpPrintf( cnt, "<td><i>%s</i></td>", cmdPoliticsName[i] );
 		} else {
-			httpString( cnt, "<td>&nbsp;</td>" );
+			httpPrintf( cnt, "<td>&nbsp;</td>" );
 		}
+		httpPrintf( cnt, "<td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), c );
+		httpPrintf( cnt, "%s", mainp[b].faction );
 		break;
     	} else if( empired.politics[i] == c ) {
 		httpPrintf( cnt, "<td><i>%s</i></td>", cmdPoliticsName[i] );
+		httpPrintf( cnt, "<td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), c );
+		httpPrintf( cnt, "<font color=\"%s\"><b>%s</b></font>", cmdPoliticsColor[i], mainp[b].faction );
 		break;
 	}
    }
 
-  httpPrintf( cnt, "<td><a href=\"%s&id=%d\">", URLAppend( cnt, "player" ), c );
-  if( empired.politics[CMD_POLITICS_LEADER] == c )
-   httpPrintf( cnt, "<font color=\"#FFC040\"><b>%s</b></font>", mainp[b].faction );
-  else
-   httpString( cnt, mainp[b].faction );
   httpPrintf( cnt, "</a></td><td><a href=\"%s&type=races\">%s</a></td><td>%d</td><td>%lld</td><td>", URLAppend( cnt, "info" ), cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
   nAlly = cmdExecFindRelation(maind.empire, curfam, 0, 0);
 

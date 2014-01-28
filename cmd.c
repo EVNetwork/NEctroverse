@@ -501,6 +501,14 @@ char *cmdPoliticsName[CMD_EMPIRE_POLITICS_TOTAL+1] =
 "Rebelious"
 };
 
+char *cmdPoliticsColor[CMD_EMPIRE_POLITICS_TOTAL] = 
+{
+"#FFC040",
+"#0099FF",
+"#996600",
+"#FF3300"
+};
+
 char *cmdErrorString;
 char cmdErrorBuffer[DEFAULT_BUFFER];
 
