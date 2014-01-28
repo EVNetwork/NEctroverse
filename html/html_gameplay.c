@@ -2083,6 +2083,11 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
  else
   iohtmlBodyInit( cnt, "Empire #%d ( <a href=\"%s&id=%d\">%d,%d</a> )", curfam, URLAppend( cnt, "system" ), empired.homeid, empired.homepos & 0xFFFF, empired.homepos >> 16 );
 
+if( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) {
+	httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire News</a>", URLAppend( cnt, "famnews" ), curfam );
+	httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s&id=%d\" target=\"main\">Minister Options</a><br>", URLAppend( cnt, "ministers" ), curfam );
+}
+
 if ( curfam == maind.empire ) {
 	if( ( empired.politics[CMD_POLITICS_LEADER] == -1 ) ) {
 		httpString( cnt, "<div class=\"genred\">Your Empire has no Prime Minister!!</div>" );
@@ -2097,7 +2102,6 @@ if ( curfam == maind.empire ) {
    	}
 	httpString( cnt, "<br>" );
 }
-
 
 if( empired.picture > 0 ) {
 	sprintf( fname, "/files?type=eimage&name=empire%d/pic%d", curfam, empired.picture );

@@ -25,23 +25,6 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 }
 
 iohtmlBodyInit( cnt, "Account Options" );
-/*
- * Allow Change of race to Dreamweavers
- */
-char *allow;
-allow = iohtmlVarsFind( cnt, "admin_overide" );
-if( ( allow ) ) {
-	if( race ) {
-		if( ( sscanf( race, "%d", &a ) == 1 ) && ( a == CMD_RACE_DREAM ) ) {
-			maind.raceid = CMD_RACE_DREAM;
-			httpString( cnt, "<i>Race changed</i><br><br>" );
-			dbUserMainSet( id, &maind );
-		}
-	}
-}
-/*
- * End allow block.
- */
 
 if( !( ticks.status | ticks.number ) ) {
 	if( faction ) {
@@ -102,17 +85,7 @@ if( !( ticks.status | ticks.number ) ) {
 	httpString( cnt, "</select><input type=\"submit\" value=\"Change\"></form>" );
 }
 
-/*
- * Link for race change
- */
-if( maind.raceid != CMD_RACE_DREAM ) {
-	httpPrintf( cnt, "<br><a href=\"%s&race=%d&admin_overide=true\">Make me Dreamweaver</a><br><i>Only available as a once off conversion.</i><br>", URLAppend( cnt, "account" ), CMD_RACE_DREAM );
-}
 
-/*
- * End link
- */
- 
 iohttpForumFilter3( description, infod.desc, USER_DESC_MAX );
 httpString( cnt, "<br>" );
 httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><i>Faction description</i><br>", URLAppend( cnt, "account" ) );
