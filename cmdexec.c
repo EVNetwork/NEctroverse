@@ -1196,6 +1196,7 @@ int cmdExecSetFamPass( int fam, char *pass ) {
 	int a;
 	dbMainEmpireDef empired;
 
+
 cmdErrorString = 0;
 if( dbEmpireGetInfo( fam, &empired ) < 0 )
 	return -3;
@@ -1235,7 +1236,7 @@ return 1;
 
 int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
 {
-  int a, b, c, num;
+  int a, b, c, d, num;
   int *rels;
 
   cmdErrorString = 0;
@@ -1249,7 +1250,7 @@ int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
 
 
   num <<= 2;
-  for( a = b = c = 0 ; a < num ; a += 4 )
+  for( a = b = c = d = 0 ; a < num ; a += 4 )
   {
     if( ( rels[a+1] == CMD_RELATION_ALLY ) && !( rels[a+3] ) )
       c++;
@@ -1264,8 +1265,12 @@ int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
       free( rels );
       return CMD_RELATION_WAR;
     }
-    else if( rels[a+1] == CMD_RELATION_ALLY )
+    else if( rels[a+1] == CMD_RELATION_ALLY ) {
       b += 2 + ( rels[a+3] & 1 );
+    } else if( rels[a+1] == CMD_RELATION_NAP ) {
+      d += 2 + ( rels[a+3] & 1 );
+    }
+
   }
 
   free( rels );
@@ -1277,6 +1282,10 @@ int cmdExecFindRelation( int fam, int famtarget, int *numallies, int flags )
     return CMD_RELATION_ALLY_OFFER;
   else if( b == 5 )
     return CMD_RELATION_ALLY;
+  else if( !( flags ) && ( d == 2 ) )
+    return CMD_RELATION_NAP_OFFER;
+  else if( d == 5 )
+    return CMD_RELATION_NAP;
 
   return -1;
 }
@@ -1308,6 +1317,14 @@ int cmdExecAddRelation( int fam, int type, int famtarget )
 
       return -3;
     }
+    rel[0] = ticks.number;
+    rel[1] = type;
+    rel[2] = fam;
+    rel[3] = 1;
+    if( dbEmpireRelsAdd( famtarget, rel ) < 0 )
+      return -3;
+  }
+  else if( type == CMD_RELATION_NAP ) {
     rel[0] = ticks.number;
     rel[1] = type;
     rel[2] = fam;
@@ -1352,11 +1369,11 @@ int cmdExecDelRelation( int fam, int relid )
   cmdErrorString = 0;
   if( dbEmpireRelsGet( fam, relid, rel ) < 0 )
     return -3;
-  if( ( rel[0]+26 > ticks.number ) /*&& ( rel[1] != CMD_RELATION_WAR )*/ )
+  /*if( ( rel[0]+26 > ticks.number ) )
   {
     cmdErrorString = "A relation can't be canceled for 26 weeks after being declared.";
     return -3;
-  }
+  }*/
   if( rel[3] & 1 )
     return -3;
   if( ( num = dbEmpireRelsList( rel[2], &rels ) ) < 0 )

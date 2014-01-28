@@ -2085,7 +2085,7 @@ if ( curfam == maind.empire ) {
 	for( i = 0; i < CMD_POLITICS_NUMUSED; i++ ) {
 		if( i > CMD_POLITICS_LEADER ) { break; }
    		if( empired.politics[i] == id ) {
-			httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\" target=\"main\">%s Options</a>", URLAppend( cnt, "famleader" ), cmdPoliticsName[i] );
+			httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\" target=\"main\">%s Options</a>", URLAppend( cnt, "ministers" ), cmdPoliticsName[i] );
 			break;
 		}
    	}
@@ -2764,6 +2764,8 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
     continue;
    if( rel[a+1] == CMD_RELATION_ALLY )
     httpPrintf( cnt, "You are offering an <font color=\"#80FF80\">alliance</font> to <a href=\"%s&id=%d\">empire #%d</a><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+   else if( rel[a+1] == CMD_RELATION_NAP )
+    httpPrintf( cnt, "You are offering an <font color=\"#3399FF\">non-agressive pact</font> to <a href=\"%s&id=%d\">empire #%d</a><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    else if( rel[a+1] == CMD_RELATION_WAR )
     httpPrintf( cnt, "You declared <font color=\"#FF0000\">war</font> to <a href=\"%s&id=%d\">empire #%d</a><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
   }
@@ -2773,6 +2775,8 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
     continue;
    if( rel[a+1] == CMD_RELATION_ALLY )
     httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a <font color=\"#80FF80\">alliance</font><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+   else if( rel[a+1] == CMD_RELATION_NAP )
+    httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a <font color=\"#3399FF\">non-agressive pact</font><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    else if( rel[a+1] == CMD_RELATION_WAR )
     httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> declared <font color=\"#FF0000\">war</font>!<br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
   }
@@ -2791,6 +2795,17 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
     httpPrintf( cnt, "<a href=\"/%s&id=%d\">Empire relations</a><br>", URLAppend( cnt, "famrels" ), rel[a+2]);
    }
   }
+  for( a = 0 ; a < b ; a += 4 )
+  {
+   if( ( rel[a+3] & 1 ) || ( rel[a+1] != CMD_RELATION_NAP ) )
+    continue;
+   for( c = 0 ; c < b ; c += 4 )
+   {
+    if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_NAP ) || ( rel[a+2] != rel[c+2] ) )
+     continue;
+    httpPrintf( cnt, "Your empire has a <font color=\"#3399FF\">non-agressive pact</font> with <a href=\"%s&id=%d\">empire #%d</a><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+   }
+  }
   free( rel );
  }
 
@@ -2799,58 +2814,65 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
 }
 
 
-void iohtmlFunc_famleader( ReplyDataPtr cnt )
-{
- int a, b, c, id, curfam, sid, status, relfam, reltype;
- float tax;
- dbUserMainDef maind, main2d;
- dbMainEmpireDef empired;
- dbEmpireMessageDef message;
- char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *filename, *taxstring;
- char fname[256];
- int *rel;
- char msg[2][USER_DESC_MAX];
+void iohtmlFunc_ministers( ReplyDataPtr cnt ) {
+	int a, b, c, id, curfam, sid, status, relfam, reltype, politics;
+	int *rel;
+	float tax;
+	char *empirestring, *fnamestring, *sidstring, *statusstring, *fampassstring, *relfamstring, *reltypestring, *hqmesstring, *filename, *taxstring;
+	char msg[2][USER_DESC_MAX];
+	char fname[256];
+	dbUserMainDef maind, main2d;
+	dbMainEmpireDef empired;
+	dbEmpireMessageDef message;
+
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-  return;
- iohtmlBase( cnt, 1 );
+	return;
 
- if( !( iohtmlHeader( cnt, id, &maind ) ) )
-  return;
+iohtmlBase( cnt, 1 );
 
- empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = filename = taxstring = 0;
+if( !( iohtmlHeader( cnt, id, &maind ) ) )
+	return;
 
-  empirestring = iohtmlVarsFind( cnt, "id" );
-  fnamestring = iohtmlVarsFind( cnt, "fname" );
-  sidstring = iohtmlVarsFind( cnt, "sid" );
-  statusstring = iohtmlVarsFind( cnt, "status" );
-  fampassstring = iohtmlVarsFind( cnt, "fampass" );
-  taxstring = iohtmlVarsFind( cnt, "taxlevel" );
-  relfamstring = iohtmlVarsFind( cnt, "relfam" );
-  reltypestring = iohtmlVarsFind( cnt, "reltype" );
-  hqmesstring = iohtmlVarsFind( cnt, "hqmes" );
+empirestring = fnamestring = sidstring = statusstring = fampassstring = reltypestring = relfamstring = hqmesstring = filename = taxstring = 0;
 
- curfam = maind.empire;
- if( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )
-  sscanf( empirestring, "%d", &curfam );
+empirestring = iohtmlVarsFind( cnt, "id" );
+fnamestring = iohtmlVarsFind( cnt, "fname" );
+sidstring = iohtmlVarsFind( cnt, "sid" );
+statusstring = iohtmlVarsFind( cnt, "status" );
+fampassstring = iohtmlVarsFind( cnt, "fampass" );
+taxstring = iohtmlVarsFind( cnt, "taxlevel" );
+relfamstring = iohtmlVarsFind( cnt, "relfam" );
+reltypestring = iohtmlVarsFind( cnt, "reltype" );
+hqmesstring = iohtmlVarsFind( cnt, "hqmes" );
 
- if( dbEmpireGetInfo( curfam, &empired ) < 0 )
- {
-  httpString( cnt, "This empire does not seem to exist!</body></html>" );
-  return;
- }
-  if( dbEmpireGetMessage( curfam, &message ) < 0 )
- {
-  httpString( cnt, "Error getting Empire infomation!</body></html>" );
-  return;
- }
- if( ( empired.politics[CMD_POLITICS_LEADER] != id ) && ( (cnt->session)->dbuser->level < LEVEL_MODERATOR ) )
- {
-  httpString( cnt, "You are not the Prime Minister of this empire!</body></html>" );
-  return;
- }
+curfam = maind.empire;
+if( ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) && ( empirestring ) )
+	sscanf( empirestring, "%d", &curfam );
 
- iohtmlBodyInit( cnt, "Prime Minister options" );
+iohtmlBodyInit( cnt, "Empire Politics" );
+
+if( dbEmpireGetInfo( curfam, &empired ) < 0 ) {
+	httpString( cnt, "This empire does not seem to exist!" );
+	goto RETURN;
+}
+if( dbEmpireGetMessage( curfam, &message ) < 0 ) {
+	httpString( cnt, "Error getting Empire infomation!" );
+	goto RETURN;
+}
+if( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) {
+	goto ACCESS;
+}
+
+for( politics = 0; politics < CMD_POLITICS_NUMUSED; politics++ ) {
+	if( empired.politics[politics] == id ) {
+		goto ACCESS;
+	}
+}
+
+httpString( cnt, "You do not have permission to access this page." );
+goto RETURN;
+ACCESS:
 
 if( taxstring ){
 	if( ( sscanf( taxstring, "%f", &tax ) != 1 ) ) {
@@ -2871,72 +2893,59 @@ if( taxstring ){
 	}
 }
 
- if( fnamestring )
- {
-  a = iohttpForumFilter( fname, fnamestring, USER_NAME_MAX, 0 );
-  if( cmdExecChangFamName( curfam, fname ) < 0 )
-  {
-   if( cmdErrorString )
-    httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
-   else
-    httpString( cnt, "<i>Error while changing empire name!</i><br><br>" );
-  }
-  else
-  {
-   httpString( cnt, "<i>Empire name changed</i><br><br>" );
-  }
- }
-
- if( fampassstring )
- {
-  iohttpForumFilter( fname, fampassstring, USER_PASS_MAX, 0 );
-
-
-  if(cmdExecSetFamPass( curfam, fname) != 1)
-			httpString( cnt, "<i>Empire password did not changed</i><br><br>" );
+if( fnamestring ) {
+	a = iohttpForumFilter( fname, fnamestring, USER_NAME_MAX, 0 );
+	if( cmdExecChangFamName( curfam, fname ) < 0 ) {
+		if( cmdErrorString )
+			httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
 		else
-			httpString( cnt, "<i>Empire password changed</i><br><br>" );
- }
- if( ( sidstring ) && ( statusstring ) && ( sscanf( sidstring, "%d", &sid ) == 1 ) && ( sscanf( statusstring, "%d", &status ) == 1 ) )
- {
-  if( cmdExecFamMemberFlags( sid, curfam, status ) < 0 )
-  {
-   httpString( cnt, "Error while changing player status</body></html>" );
-   return;
-  }
-  httpString( cnt, "<i>Empire member status updated</i><br><br>" );
- }
+			httpString( cnt, "<i>Error while changing empire name!</i><br><br>" );
+	} else {
+		httpString( cnt, "<i>Empire name changed</i><br><br>" );
+	}
+}
 
- if( reltypestring )
- {
- 	if( sscanf( reltypestring, "%d", &reltype ) != 1 )
-   goto iohttpFunc_famleaderL0;
-  if( !( relfamstring ) )
-  {
-   if( cmdExecDelRelation( curfam, reltype ) < 0 )
-   {
-    if( cmdErrorString )
-     httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
-    else
-     httpString( cnt, "<i>Error while cancelling relation</i><br><br>" );
-   }
-   else
-    httpString( cnt, "<i>Relation cancelled</i><br><br>" );
-   goto iohttpFunc_famleaderL0;
-  }
-  if( sscanf( relfamstring, "%d", &relfam ) != 1 )
-   goto iohttpFunc_famleaderL0;
+if( fampassstring ) {
+	iohttpForumFilter( fname, fampassstring, USER_PASS_MAX, 0 );
+	if(cmdExecSetFamPass( curfam, fname) != 1)
+		httpString( cnt, "<i>Empire password did not changed</i><br><br>" );
+	else
+		httpString( cnt, "<i>Empire password changed</i><br><br>" );
+}
+if( ( sidstring ) && ( statusstring ) && ( sscanf( sidstring, "%d", &sid ) == 1 ) && ( sscanf( statusstring, "%d", &status ) == 1 ) ) {
+	if( cmdExecFamMemberFlags( sid, curfam, status ) < 0 ) {
+		httpString( cnt, "Error while changing player status" );
+		goto RETURN;
+	}
+	httpString( cnt, "<i>Empire member status updated</i><br><br>" );
+}
 
-  if( cmdExecAddRelation( curfam, reltype, relfam ) < 0 )
-  {
-   if( cmdErrorString )
-    httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
-   else
-    httpString( cnt, "<i>Error while adding relation</i><br><br>" );
-  }
-  else
-   httpPrintf( cnt, "<i>Changed relation with empire #%d</i><br><br>", relfam );
- }
+if( reltypestring ) {
+	if( sscanf( reltypestring, "%d", &reltype ) != 1 )
+		goto iohttpFunc_ministersL0;
+	if( !( relfamstring ) ) {
+		if( cmdExecDelRelation( curfam, reltype ) < 0 ) {
+			if( cmdErrorString )
+				httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+			else
+				httpString( cnt, "<i>Error while cancelling relation</i><br><br>" );
+		} else {
+			httpString( cnt, "<i>Relation cancelled</i><br><br>" );
+		}
+		goto iohttpFunc_ministersL0;
+	}
+	if( sscanf( relfamstring, "%d", &relfam ) != 1 )
+		goto iohttpFunc_ministersL0;
+
+	if( cmdExecAddRelation( curfam, reltype, relfam ) < 0 ) {
+		if( cmdErrorString )
+			httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+		else
+			httpString( cnt, "<i>Error while adding relation</i><br><br>" );
+	} else {
+   		httpPrintf( cnt, "<i>Changed relation with empire #%d</i><br><br>", relfam );
+	}
+}
 
 if( hqmesstring ) {
 	iohttpForumFilter( msg[0], hqmesstring, USER_DESC_MAX, 0 );
@@ -2962,128 +2971,152 @@ if( relsmesstring ) {
 	dbEmpireGetMessage( curfam, &message );
 }
 */
- iohttpFunc_famleaderL0:
- dbEmpireGetInfo( curfam, &empired );
+iohttpFunc_ministersL0:
+dbEmpireGetInfo( curfam, &empired );
 
 httpString( cnt, "<div id=\"progblock\" style=\"display:none\">" );
 httpString( cnt, "<progress id=\"progressBar\" value=\"0\" max=\"100\" style=\"width:300px;\"></progress>" );
 httpString( cnt, "<h3 id=\"status\"></h3>" );
 httpString( cnt, "<p id=\"loaded_n_total\"></p>" );
 httpString( cnt, "</div>" );
- httpString( cnt, "<table>" );
+httpString( cnt, "<table>" );
 
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire name</td></tr>", URLAppend( cnt, "famleader" ) );
- httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fname\" size=\"64\" value=\"%s\"></td></tr>", curfam, empired.name );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire name</td></tr>", URLAppend( cnt, "ministers" ) );
+httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fname\" size=\"64\" value=\"%s\"></td></tr>", curfam, empired.name );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Taxation</td></tr>", URLAppend( cnt, "famleader" ) );
- httpPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100.0 ) );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
-
-
-
- httpPrintf( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"%s\" method=\"POST\">Empire picture</td></tr>", URLAppend( cnt, "famleader" ) );
- httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"hidden\" name=\"upload_type\" value=\"empire\"></td></tr>" );
- httpPrintf( cnt, "<tr><td><input type=\"hidden\" id=\"destination\" value=\"%s\"></td></tr>", URLAppend( cnt, "files" ) );
- httpString( cnt, "<tr><td><input type=\"file\" id=\"fileupload\"></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br><br><br></td></tr>" );
+httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Taxation</td></tr>", URLAppend( cnt, "ministers" ) );
+httpPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100.0 ) );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
 
 
+httpPrintf( cnt, "<tr><td><form enctype=\"multipart/form-data\" action=\"%s\" method=\"POST\">Empire picture</td></tr>", URLAppend( cnt, "ministers" ) );
+httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"hidden\" name=\"upload_type\" value=\"empire\"></td></tr>" );
+httpPrintf( cnt, "<tr><td><input type=\"hidden\" id=\"destination\" value=\"%s\"></td></tr>", URLAppend( cnt, "files" ) );
+httpString( cnt, "<tr><td><input type=\"file\" id=\"fileupload\"></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br><br><br></td></tr>" );
 
- if( empired.numplayers > 1 ) {
- httpString( cnt, "<tr><td>Set an empire member status</td></tr>" );
- httpString( cnt, "<tr><td><i>Minister of Communication can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\"><select name=\"sid\">", URLAppend( cnt, "famleader" ) );
- for( a = 0 ; a < empired.numplayers ; a++ )
- {
-  if( empired.player[a] == id )
-   continue;
-  if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
-   continue;
-  httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
- }
- httpString( cnt, "</select>" );
- httpString( cnt, "<select name=\"status\">" );
- httpString( cnt, "<option value=\"0\">No tag</option>" );
- for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
- 	httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdPoliticsName[a-CMD_EMPIRE_POLITICS_START] );
- }
- httpString( cnt, "</select></td></tr>" );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
- }
- cmdExecGetFamPass( curfam, fname );
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire password</td></tr>", URLAppend( cnt, "famleader" ) );
- httpString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
- httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fampass\" size=\"64\" value=\"%s\"></td></tr>", curfam, fname );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
- httpString( cnt, "<tr><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">" );
- httpPrintf( cnt, "<tr><td width=\"40%\"><form action=\"%s\" method=\"POST\">Offer an alliance to an empire</td><td width=\"60%\" rowspan=\"4\" valign=\"top\">", URLAppend( cnt, "famleader" ) );
- if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 )
- {
-  httpString( cnt, "<b>Empire relations</b><br><br>" );
-  if( b == 0 )
-   httpString( cnt, "No relations" );
-  b <<= 2;
-  for( a = 0 ; a < b ; a += 4 )
-  {
-   if( rel[a+3] & 1 )
-    continue;
-   if( rel[a+1] == CMD_RELATION_ALLY ) {
-    httpPrintf( cnt, "You are offering an alliance to <a href=\"%s&id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-    httpPrintf( cnt, "<a href=\"%s&id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "famleader" ), curfam, a >> 2 );
-   } else if( rel[a+1] == CMD_RELATION_WAR ) {
-    httpPrintf( cnt, "You declared war on <a href=\"%s&id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-    httpPrintf( cnt, "<a href=\"%s&id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "famleader" ), curfam, a >> 2 );
-    }
-  }
-  for( a = 0 ; a < b ; a += 4 )
-  {
-   if( !( rel[a+3] & 1 ) )
-    continue;
-   if( rel[a+1] == CMD_RELATION_ALLY )
-    httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a alliance<br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-   else if( rel[a+1] == CMD_RELATION_WAR )
-    httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> declared war!<br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-  }
-  httpString( cnt, "<br>" );
-  for( a = 0 ; a < b ; a += 4 )
-  {
-   if( ( rel[a+3] & 1 ) || ( rel[a+1] != CMD_RELATION_ALLY ) )
-    continue;
-   for( c = 0 ; c < b ; c += 4 )
-   {
-    if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_ALLY ) || ( rel[a+2] != rel[c+2] ) )
-     continue;
-    httpPrintf( cnt, "<i>Allied to empire #%d</i><br>", rel[a+2] );
-   }
-  }
-  free( rel );
- }
- httpString( cnt, "</td></tr>" );
- httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Declare war to an empire</td></tr>", URLAppend( cnt, "famleader" ) );
- httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
- httpString( cnt, "</table></td></tr>" );
 
- iohttpForumFilter3( msg[1], message.leader, USER_DESC_MAX );
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Prime Minister message</td></tr>", URLAppend( cnt, "famleader" ) );
- httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+
+if( empired.numplayers > 1 ) {
+	httpString( cnt, "<tr><td>Set an empire member status</td></tr>" );
+	httpString( cnt, "<tr><td><i>Minister of Communication can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
+	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\"><select name=\"sid\">", URLAppend( cnt, "ministers" ) );
+	for( a = 0 ; a < empired.numplayers ; a++ ) {
+		if( empired.player[a] == id )
+			continue;
+		if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
+			continue;
+		httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
+	}
+	httpString( cnt, "</select>" );
+	httpString( cnt, "<select name=\"status\">" );
+	httpString( cnt, "<option value=\"0\">No tag</option>" );
+ 	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
+ 		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdPoliticsName[a-CMD_EMPIRE_POLITICS_START] );
+	}
+	httpString( cnt, "</select></td></tr>" );
+	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+}
+cmdExecGetFamPass( curfam, fname );
+httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire password</td></tr>", URLAppend( cnt, "ministers" ) );
+httpString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
+httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fampass\" size=\"64\" value=\"%s\"></td></tr>", curfam, fname );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+
+httpString( cnt, "<tr><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">" );
+httpPrintf( cnt, "<tr><td width=\"40%\"><form action=\"%s\" method=\"POST\">Offer an alliance to an empire</td><td width=\"60%\" rowspan=\"4\" valign=\"top\">", URLAppend( cnt, "ministers" ) );
+if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
+	httpString( cnt, "<b>Empire relations</b><br><br>" );
+	if( b == 0 )
+		httpString( cnt, "No relations" );
+	b <<= 2;
+	for( a = 0 ; a < b ; a += 4 ) {
+		if( rel[a+3] & 1 ) {
+			continue;
+		}
+		if( rel[a+1] == CMD_RELATION_ALLY ) {
+				httpPrintf( cnt, "You are offering an alliance to <a href=\"%s&id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+				httpPrintf( cnt, "<a href=\"%s&id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
+		} else if( rel[a+1] == CMD_RELATION_NAP ) {
+				httpPrintf( cnt, "You are offering a non-agressive pact to <a href=\"%s&id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+				httpPrintf( cnt, "<a href=\"%s&id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
+		} else if( rel[a+1] == CMD_RELATION_WAR ) {
+				httpPrintf( cnt, "You declared war on <a href=\"%s&id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+				httpPrintf( cnt, "<a href=\"%s&id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
+		}
+	}
+	for( a = 0 ; a < b ; a += 4 ) {
+		if( !( rel[a+3] & 1 ) )
+			continue;
+		if( rel[a+1] == CMD_RELATION_ALLY ) {
+			httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a alliance", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+			if( cmdExecFindRelation( curfam, rel[a+2], 0, 0 ) != CMD_RELATION_ALLY ) {
+				httpPrintf( cnt, " - <a href=\"%s&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), rel[a+2], CMD_RELATION_ALLY );
+			}
+			httpString( cnt, "<br>" );
+		} else if( rel[a+1] == CMD_RELATION_NAP ) {
+			httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a non-agressive pact", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+			if( cmdExecFindRelation( curfam, rel[a+2], 0, 0 ) != CMD_RELATION_NAP ) {
+				httpPrintf( cnt, " - <a href=\"%s&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), rel[a+2], CMD_RELATION_NAP );
+			}
+			httpString( cnt, "<br>" );
+		} else if( rel[a+1] == CMD_RELATION_WAR ) {
+			httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> declared war!<br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+		}
+	}
+	httpString( cnt, "<br>" );
+	for( a = 0 ; a < b ; a += 4 ) {
+		if( ( rel[a+3] & 1 ) || ( rel[a+1] != CMD_RELATION_ALLY ) )
+			continue;
+		for( c = 0 ; c < b ; c += 4 ) {
+			if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_ALLY ) || ( rel[a+2] != rel[c+2] ) )
+				continue;
+			httpPrintf( cnt, "<i>Allied to empire #%d</i><br>", rel[a+2] );
+		}
+	}
+	for( a = 0 ; a < b ; a += 4 ) {
+		if( ( rel[a+3] & 1 ) || ( rel[a+1] != CMD_RELATION_NAP ) )
+			continue;
+		for( c = 0 ; c < b ; c += 4 ) {
+			if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_NAP ) || ( rel[a+2] != rel[c+2] ) )
+				continue;
+			httpPrintf( cnt, "<i>NAP with empire #%d</i><br>", rel[a+2] );
+		}
+	}
+	free( rel );
+}
+
+httpString( cnt, "</td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
+
+httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Send NAP Offer</td></tr>", URLAppend( cnt, "ministers" ) );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
+
+httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Declare war to an empire</td></tr>", URLAppend( cnt, "ministers" ) );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"2\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
+
+httpString( cnt, "</table></td></tr>" );
+
+iohttpForumFilter3( msg[1], message.leader, USER_DESC_MAX );
+httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Prime Minister message</td></tr>", URLAppend( cnt, "ministers" ) );
+httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 /*
  iohttpForumFilter3( msg[1], message.mow, USER_DESC_MAX );
- httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "famleader" ) );
+ httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "ministers" ) );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
  httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 */
- httpString( cnt, "</table>" );
+httpString( cnt, "</table>" );
 
 
- iohtmlBodyEnd( cnt );
-
- return;
+RETURN:
+iohtmlBodyEnd( cnt );
+return;
 }
 
 

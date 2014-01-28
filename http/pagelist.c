@@ -45,7 +45,7 @@ PageDef html_page[] =
     { "/famgetaid", "text/html",  &page_render, iohtmlFunc_famgetaid, NULL },
     { "/famnews", "text/html",  &page_render, iohtmlFunc_famnews, NULL },
     { "/famrels", "text/html",  &page_render, iohtmlFunc_famrels, NULL },
-    { "/famleader", "text/html",  &page_render, iohtmlFunc_famleader, NULL },
+    { "/ministers", "text/html",  &page_render, iohtmlFunc_ministers, NULL },
     
     { "/map", "text/html",  &page_render, iohtmlFunc_map, NULL },
     { "/mappick", "text/html",  &page_render, iohtmlFunc_mappick, NULL },

@@ -36,7 +36,7 @@ void iohtmlFunc_famnews( ReplyDataPtr cnt );
 
 void iohtmlFunc_famrels( ReplyDataPtr cnt );
 
-void iohtmlFunc_famleader( ReplyDataPtr cnt );
+void iohtmlFunc_ministers( ReplyDataPtr cnt );
 
 void iohtmlFunc_map( ReplyDataPtr cnt );
 
