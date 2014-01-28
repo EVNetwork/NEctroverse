@@ -2085,7 +2085,10 @@ if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
 
 if( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) {
 	httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire News</a>", URLAppend( cnt, "famnews" ), curfam );
-	httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s&id=%d\" target=\"main\">Minister Options</a><br>", URLAppend( cnt, "ministers" ), curfam );
+	httpString( cnt, "&nbsp;-&nbsp;" );
+	httpPrintf( cnt, "<a href=\"/%s&id=%d\">Empire relations</a>", URLAppend( cnt, "famrels" ), curfam );
+	httpString( cnt, "&nbsp;-&nbsp;" );
+	httpPrintf( cnt, "<a href=\"%s&id=%d\" target=\"main\">Minister Options</a><br><br>", URLAppend( cnt, "ministers" ), curfam );
 }
 
 if ( curfam == maind.empire ) {
@@ -2996,7 +2999,7 @@ httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input
 httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Taxation</td></tr>", URLAppend( cnt, "ministers" ) );
-httpPrintf( cnt, "<tr><td><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", ( empired.taxation * 100.0 ) );
+httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", curfam, ( empired.taxation * 100.0 ) );
 httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
 
@@ -3014,7 +3017,7 @@ httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uplo
 if( empired.numplayers > 1 ) {
 	httpString( cnt, "<tr><td>Set an empire member status</td></tr>" );
 	httpString( cnt, "<tr><td><i>Minister of Communication can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
-	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\"><select name=\"sid\">", URLAppend( cnt, "ministers" ) );
+	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\"><input type=\"hidden\" name=\"id\" value=\"%d\"><select name=\"sid\">", URLAppend( cnt, "ministers" ), curfam );
 	for( a = 0 ; a < empired.numplayers ; a++ ) {
 		if( empired.player[a] == id )
 			continue;
@@ -3065,13 +3068,13 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 		if( rel[a+1] == CMD_RELATION_ALLY ) {
 			httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a alliance", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
 			if( cmdExecFindRelation( curfam, rel[a+2], 0, 0 ) != CMD_RELATION_ALLY ) {
-				httpPrintf( cnt, " - <a href=\"%s&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), rel[a+2], CMD_RELATION_ALLY );
+				httpPrintf( cnt, " - <a href=\"%s&id=%d&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), curfam, rel[a+2], CMD_RELATION_ALLY );
 			}
 			httpString( cnt, "<br>" );
 		} else if( rel[a+1] == CMD_RELATION_NAP ) {
 			httpPrintf( cnt, "<a href=\"%s&id=%d\">Empire #%d</a> offered a non-agressive pact", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
 			if( cmdExecFindRelation( curfam, rel[a+2], 0, 0 ) != CMD_RELATION_NAP ) {
-				httpPrintf( cnt, " - <a href=\"%s&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), rel[a+2], CMD_RELATION_NAP );
+				httpPrintf( cnt, " - <a href=\"%s&id=%d&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), curfam, rel[a+2], CMD_RELATION_NAP );
 			}
 			httpString( cnt, "<br>" );
 		} else if( rel[a+1] == CMD_RELATION_WAR ) {
@@ -3101,12 +3104,15 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 }
 
 httpString( cnt, "</td></tr>" );
+httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
 httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Send NAP Offer</td></tr>", URLAppend( cnt, "ministers" ) );
+httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
 httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Declare war to an empire</td></tr>", URLAppend( cnt, "ministers" ) );
+httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
 httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"2\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
 
 httpString( cnt, "</table></td></tr>" );
