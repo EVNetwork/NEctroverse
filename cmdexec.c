@@ -1134,10 +1134,10 @@ int cmdExecChangFamName( int fam, char *name )
 int cmdExecFamMemberFlags( int id, int fam, int flags ) {
 	int a, b;
 	dbUserPtr user;
-	dbMainEmpireDef empired;
+	dbMainEmpireDef empired, empire2d;
 
 cmdErrorString = 0;
-if( dbEmpireGetInfo( fam, &empired ) < 0 )
+if( ( dbEmpireGetInfo( fam, &empired ) < 0 ) || ( dbEmpireGetInfo( fam, &empire2d ) < 0 ) )
 	return -3;
 if( id == empired.politics[CMD_POLITICS_LEADER] )
 	return -3;
@@ -1169,14 +1169,12 @@ if( flags ) {
 		}
 	}
 }
-dbEmpireSetInfo( fam, &empired );
 dbUserSave( id, user );
 /*
  * I only like one of each "Minister" per Empire, so strip others if someone is changed.
  */
 if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
-	dbEmpireGetInfo( fam, &empired );
-	for( b = 0 ; b < empired.numplayers ; b++ ) {
+	for( b = 0 ; b <= empired.numplayers ; b++ ) {
 		if( empired.player[b] == id )
 			continue;
 		if( !( user = dbUserLinkID( empired.player[b] ) ) )
@@ -1184,8 +1182,10 @@ if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
 		bitflag_remove( &user->flags, flags );
 		dbUserSave( empired.player[b], user );
 	}
-	dbEmpireSetInfo( fam, &empired );
 }
+
+memcpy( empire2d.politics, empired.politics, CMD_POLITICS_NUMUSED*sizeof(int) );
+dbEmpireSetInfo( fam, &empire2d );
 
 return 1;
 }
