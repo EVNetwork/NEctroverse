@@ -1169,22 +1169,23 @@ if( flags ) {
 		}
 	}
 }
+dbEmpireSetInfo( fam, &empired );
 dbUserSave( id, user );
 /*
  * I only like one of each "Minister" per Empire, so strip others if someone is changed.
  */
 if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
-	for( b = 0 ; b <= empired.numplayers ; b++ ) {
+	dbEmpireGetInfo( fam, &empired );
+	for( b = 0 ; b < empired.numplayers ; b++ ) {
 		if( empired.player[b] == id )
 			continue;
 		if( !( user = dbUserLinkID( empired.player[b] ) ) )
 			continue;
 		bitflag_remove( &user->flags, flags );
-		dbUserSave( id, user );
+		dbUserSave( empired.player[b], user );
 	}
+	dbEmpireSetInfo( fam, &empired );
 }
-
-dbEmpireSetInfo( fam, &empired );
 
 return 1;
 }
