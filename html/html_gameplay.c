@@ -1208,14 +1208,20 @@ if( !( num ) )
     httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
   }
 
-
-
   else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
     httpPrintf( cnt, "The forces of %s took control of a <a href=\"%s&id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[4], maind.faction );
   }
+   else if( (long long)newsd[2] == CMD_NEWS_DEATH )
+  {
+   iohtmlFamNewsEntry( cnt, -1, newsd );
+   //if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
+    httpPrintf( cnt, "%s %s.<br>", &newsd[6], cmdDeathNews[newsd[3]] );
+  }
+
+
 
 
 

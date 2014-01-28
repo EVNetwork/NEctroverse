@@ -509,6 +509,27 @@ char *cmdPoliticsColor[CMD_EMPIRE_POLITICS_TOTAL] =
 "#FF3300"
 };
 
+char *cmdDeathString[] =  {
+"I slipped on a soap bar",
+"I mixed up television and the auto-destruction device remotes.",
+"I got into an argument with my pet Lynx",
+"I caught my tie in the blender",
+"A chicken bone got stuck in my throat",
+"I retired and lived happily ever after",
+NULL,
+};
+
+char *cmdDeathNews[] =  {
+"slipped on a soap bar and dissapeared into oblivion.",
+"mixed the television remote with the auto-destruction device remote!",
+"got into an argument with their pet Lynx, sadly they lost.",
+"caught their tie in the blender and was pulled in!",
+"a chicken bone got stuck in their throat and died!",
+"retired and lived happily ever after!",
+NULL,
+};
+
+
 char *cmdErrorString;
 char cmdErrorBuffer[DEFAULT_BUFFER];
 

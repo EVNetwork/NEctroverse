@@ -205,17 +205,18 @@ void iohtmlFunc_changepass( ReplyDataPtr cnt )
   return;
 }
 
-
+void cmdEmpireNewsAdd( int famid, int id, int64_t *data );
 
 void iohtmlFunc_delete( ReplyDataPtr cnt )
 {
   int a, b, c, id;
   dbUserMainDef maind;
   dbUserInfoDef infod;
-  char *deletestring/*, *deathstring*/;
+  char *deletestring, *deathstring;
+  int64_t newsd[DB_USER_NEWS_BASE];
 
   deletestring = iohtmlVarsFind( cnt, "delete" );
-  //deathstring = iohtmlVarsFind( cnt, "death" );
+  deathstring = iohtmlVarsFind( cnt, "death" );
 
   iohtmlBase( cnt, 1 );
   if( ( id = iohtmlIdentify( cnt, 1 ) ) < 0 )
@@ -232,7 +233,7 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
   if( !( ticks.status | ticks.number ) )
     c = 120;
   a = time( 0 );
-  if( infod.createtime+c > a )
+  if( ( infod.createtime+c > a ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) )
   {
     b = infod.createtime+c - a;
     httpString( cnt, "You must wait 48 hours after the creation of an account to delete it, or 2 minutes if time has not started yet.<br>" );
@@ -250,31 +251,38 @@ if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
  //   return;
  // }
 
-  if( deletestring )
-  {
-    a = 0;
-    sscanf( deletestring, "%d", &a );
-    if( ( a == 0 ) && ( cmdUserDelete( id ) >= 0 ) )
-      httpPrintf( cnt, "Faction and account deleted!<br>" );
-    else if( ( a == 1 ) && ( cmdExecUserDeactivate( id, 0 ) >= 0 ) )
-      httpPrintf( cnt, "Account deactivated!<br>" );
-    else
-      httpPrintf( cnt, "Error encountered while deleting faction<br>" );
-    iohtmlBodyEnd( cnt );
-    return;
-  }
+if( deletestring ) {
+    	a = b = 0;
+    	sscanf( deletestring, "%d", &a );
+    	sscanf( deathstring, "%d", &b );
+    	newsd[0] = ticks.number;
+    	newsd[1] = CMD_NEWS_FLAGS_NEW;
+	newsd[2] = CMD_NEWS_DEATH;
+	newsd[3] = b;
+	newsd[4] = id;
+	newsd[5] = maind.empire;
+	memcpy( &newsd[6], maind.faction, strlen(maind.faction) );
+    	if( ( a == 0 ) && ( cmdUserDelete( id ) >= 0 ) ) {
+      		httpPrintf( cnt, "Faction and account deleted!<br>" );
+		cmdEmpireNewsAdd( newsd[5], newsd[4], newsd );
+    	} else if( ( a == 1 ) && ( cmdExecUserDeactivate( id, 0 ) >= 0 ) ) {
+      		httpPrintf( cnt, "Account deactivated!<br>" );
+		cmdEmpireNewsAdd( newsd[5], newsd[4], newsd );
+    	} else {
+      		httpPrintf( cnt, "Error encountered while deleting faction<br>" );
+      	}
+    	iohtmlBodyEnd( cnt );
+    	return;
+}
 
   httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "delete" ) );
   httpString( cnt, "<table><tr><td>Please specify the kind of deletion<br><select name=\"delete\">" );
   httpString( cnt, "<option value=\"1\">Keep the account to join a different empire" );
   httpString( cnt, "<option value=\"0\">Delete the faction and the account" );
   httpString( cnt, "</select><br><br>How should your emperor career end?<br><select name=\"death\">" );
-  httpString( cnt, "<option value=\"0\">I retired and lived happily ever after." );
-  httpString( cnt, "<option value=\"1\">I slipped on a soap bar." );
-  httpString( cnt, "<option value=\"2\">I mixed the television and the auto-destruction device remotes." );
-  httpString( cnt, "<option value=\"3\">I got into an argument with my pet Lynx." );
-  httpString( cnt, "<option value=\"4\">I caught my tie in the blender." );
-  httpString( cnt, "<option value=\"5\">A chicken bone got stuck in my throat." );
+  for( a = 0; cmdDeathString[a]; a++ ) {
+  	httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdDeathString[a] );
+  }
   httpString( cnt, "</select><br><br><input type=\"submit\" value=\"Delete\"></td></tr></table></form>" );
 
   iohtmlBodyEnd( cnt );
