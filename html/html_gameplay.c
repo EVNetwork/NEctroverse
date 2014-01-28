@@ -820,7 +820,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
 
  else if( (long long)newsd[2] == CMD_NEWS_PLANET_OFFER )
  {
-  if( ( dbUserMainRetrieve( (long long)newsd[2], &main2d ) ) ) {
+  if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) ) {
    httpPrintf( cnt, "<a href=\"%s&id=%lld\">%s</a> offered a ", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
    httpPrintf( cnt, "<a href=\"%s&id=%lld\">planet</a> to your faction. ", URLAppend( cnt, "planet" ), (long long)newsd[4] );
    httpPrintf( cnt, "<a href=\"%s&id=%lld\">Take it</a><br>", URLAppend( cnt, "pltake" ), (long long)newsd[4] );

@@ -328,7 +328,7 @@ int cmdExecUserDeactivate( int id, int flags )
       if( b > 0 )
       {
         memmove( &(empired.player[a]), &(empired.player[a+1]), b*sizeof(int) );
-        memmove( &(empired.vote[a]), &(empired.vote[a+1]), b );
+        memmove( &(empired.vote[a]), &(empired.vote[a+1]), b*sizeof(int) );
       }
       for( ; b >= 0 ; b-- )
       {
@@ -452,7 +452,7 @@ int cmdUserDelete( int id )
       if( b > 0 )
       {
         memmove( &(empired.player[a]), &(empired.player[a+1]), b*sizeof(int) );
-        memmove( &(empired.vote[a]), &(empired.vote[a+1]), b );
+        memmove( &(empired.vote[a]), &(empired.vote[a+1]), b*sizeof(int) );
       }
       for( ; b >= 0 ; b-- )
       {

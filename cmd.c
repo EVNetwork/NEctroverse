@@ -633,7 +633,7 @@ c = -1;
 for( a = b = 0; a < empired->numplayers; a++ ) {
 	if( empired->vote[a] == -1 )
 		continue;
-	parray[(int)(empired->vote[a])]++;
+	parray[((int)(empired->vote[a]))]++;
 	if( empired->politics[CMD_POLITICS_LEADER] == empired->player[a] ) {
       		c = b = a;
       	}
