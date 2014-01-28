@@ -1477,10 +1477,10 @@ for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 }
 StoredFiles = NULL;
 
-if( ServerSessionMD5 != NULL )
+if( ServerSessionMD5 != NULL ) {
 	free( ServerSessionMD5 );
-
-ServerSessionMD5 = NULL;
+	ServerSessionMD5 = NULL;
+}
 
 dbFlush();
 cleanUp(0);

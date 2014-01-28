@@ -2117,7 +2117,7 @@ void *cmdEndofRound( ) {
 	dbMainEmpireDef empired;
 	struct tm variable;
 
-
+info( "Iniating Map Reset." );
 ticks.status = false;
 ticks.locked = true;
 
@@ -2126,12 +2126,13 @@ for( user = dbUserList ; user ; user = user->next ) {
 }
 
 dbMarketReset();
-dbEnd();
+
 sysconfig.regen = true;
 
 while( sysconfig.shutdown == false ) {
 	nanosleep((struct timespec[]){{0, ( 500000000 / 4 ) }}, NULL);
 }
+info( "Now Purging old Empires..." );
 
 setting = GetSetting( "Directory" );
 for( a = 0; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
@@ -2163,6 +2164,7 @@ if( dbInit() == NO ) {
 	return NO;
 }
 
+info( "Regeneration Completed, now reactivating WWW Servers." );
 
 ticks.locked = false;
 sysconfig.regen = false;
