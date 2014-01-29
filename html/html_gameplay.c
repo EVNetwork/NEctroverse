@@ -2461,8 +2461,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
  {
   httpString( cnt, "Error while retrieving empire data" );
-  iohtmlBodyEnd( cnt );
-  return;
+  goto RETURN;
  }
 
  for( a = 0 ; a < empired.numplayers ; a++ )
@@ -2472,12 +2471,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
   httpPrintf( cnt, "<b>%s</b> - ", main2d.faction );
-
-  if( ( main2d.aidaccess == 2 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
+ if( ( main2d.aidaccess == 0 ) ) {
     httpString( cnt, "No access<br><br>" );
     continue;
-  }
-  if( ( main2d.aidaccess == 1 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ) ) {
+  } else if( ( main2d.aidaccess == 1 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ) ) {
+    httpString( cnt, "No access<br><br>" );
+    continue;
+  } else if( ( main2d.aidaccess == 2 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
     httpString( cnt, "No access<br><br>" );
     continue;
   }
@@ -2489,8 +2489,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( empired.numplayers == 1 )
  {
   httpString( cnt, "There is no one to get aid from in your empire yet!" );
-  iohtmlBodyEnd( cnt );
-  return;
+  goto RETURN;
  }
 
  httpString( cnt, "<table border=\"0\"><tr><td width=\"50%\" align=\"center\">" );
@@ -2558,8 +2557,9 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
 */
 
 
- iohtmlBodyEnd( cnt );
- return;
+RETURN:
+iohtmlBodyEnd( cnt );
+return;
 }
 
 
