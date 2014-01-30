@@ -1197,6 +1197,7 @@ int cmdExecSetFamPass( int fam, char *pass ) {
 	dbMainEmpireDef empired;
 
 
+
 cmdErrorString = 0;
 if( dbEmpireGetInfo( fam, &empired ) < 0 )
 	return -3;
@@ -2169,7 +2170,7 @@ info( "Regeneration Completed, now reactivating WWW Servers." );
 ticks.locked = false;
 sysconfig.regen = false;
 
-return (void*)YES;
+pthread_exit( &sysconfig.regen_thread );
 }
 
 

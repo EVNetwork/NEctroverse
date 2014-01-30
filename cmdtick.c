@@ -1106,27 +1106,35 @@ ticks.debug_pass = 12;
 
 
 // income
-    for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
-    {
-      maind.ressource[a] += maind.infos[a];
-      if( maind.ressource[a] < 0 )
-        maind.ressource[a] = 0;
-    }
+for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
+	maind.ressource[a] += maind.infos[a];
+	if( maind.ressource[a] < 0 )
+		maind.ressource[a] = 0;
+}
 
 // networth
-    a = dbUserPlanetNumber( user->id );
-    maind.networth = ( 800 * a );
-    for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-      maind.networth += maind.totalunit[a] * cmdUnitStats[a][CMD_UNIT_STATS_NETWORTH];
-    }
-    for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
-     	maind.networth += maind.totalbuilding[a] * cmdBuildingNetworth[a];
-    }
+plist = 0;
+maind.networth = 0;
+num = dbUserPlanetListIndices( user->id, &plist );
+for( a = 0; a < num; a++ ) {
+	if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
+		maind.networth += ( planetd.size * 2 );
+	}
+}
+if( plist ) {
+	free( plist );
+}
+for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+	maind.networth += maind.totalunit[a] * cmdUnitStats[a][CMD_UNIT_STATS_NETWORTH];
+}
+for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
+	maind.networth += maind.totalbuilding[a] * cmdBuildingNetworth[a];
+}
 
-    maind.networth += (0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
+maind.networth += (0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
 
-    for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
-      maind.networth += (0.001 * maind.research[a]);
+for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
+	maind.networth += (0.001 * maind.research[a]);
 
 // spec ops
     for( a = specopnum-1 ; a >= 0 ; a-- )
