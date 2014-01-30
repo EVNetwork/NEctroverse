@@ -1114,7 +1114,7 @@ for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
 
 // networth
 plist = 0;
-fa = 5;
+fa = 3;
 maind.networth = 0;
 num = dbUserPlanetListIndices( user->id, &plist );
 for( a = 0; a < num; a++ ) {
@@ -1126,7 +1126,7 @@ for( a = 0; a < num; a++ ) {
 }
 for( a = 0; a < num; a++ ) {
 	if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
-		maind.networth += ( planetd.size * ( (planetd.flags & CMD_PLANET_FLAGS_MEGA) ? fa : 2 ) );
+		maind.networth += ( planetd.size * ( (planetd.flags & CMD_PLANET_FLAGS_MEGA) ? fa : 1.5 ) );
 	}
 }
 if( plist ) {
