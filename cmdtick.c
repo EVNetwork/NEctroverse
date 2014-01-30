@@ -1075,65 +1075,52 @@ ticks.debug_pass = 10;
 
 ticks.debug_pass = 11;
 
+// income
+for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
+	maind.ressource[a] = fmax( 0.0, ( maind.ressource[a] + maind.infos[a] ) );
+}
 
-// units decay on planets
-    plist = 0;
-    num = dbUserPlanetListIndices( user->id, &plist );
-    for( a = 0 ; a < num ; a++ )
-    {
-      dbMapRetrievePlanet( plist[a], &planetd );
-      e = 0;
-      if( planetd.unit[CMD_UNIT_PHANTOM] )
-      {
-        planetd.unit[CMD_UNIT_PHANTOM] -= (int)ceil( phdecay * (float)(planetd.unit[CMD_UNIT_PHANTOM]) );
-        e |= 1;
-      }
-      for( c = b ; c >= 0 ; c-- )
-      {
-        d = (int)ceil( (float)planetd.unit[c] * 0.02 );
-        planetd.unit[c] -= d;
-        maind.totalunit[c] -= d;
-        e |= d;
-      }
-      if( e )
-        dbMapSetPlanet( plist[a], &planetd );
-    }
-    if( plist )
-      free( plist );
-
+// units decay on planets + networth calcualtions
+plist = 0;
+num = dbUserPlanetListIndices( user->id, &plist );
+fa = 0;
+fb = 3;
+maind.networth = 0;
+if( plist ) {
+	for( a = 0 ; a < num ; a++ ) {
+		if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
+			e = 0;
+			if( planetd.unit[CMD_UNIT_PHANTOM] ) {
+				planetd.unit[CMD_UNIT_PHANTOM] -= (int)ceil( phdecay * (float)(planetd.unit[CMD_UNIT_PHANTOM]) );
+				e |= 1;
+			}
+			for( c = b ; c >= 0 ; c-- ) {
+				d = (int)ceil( (float)planetd.unit[c] * 0.02 );
+				planetd.unit[c] -= d;
+				maind.totalunit[c] -= d;
+				e |= d;
+			}
+			if( e ) {
+				dbMapSetPlanet( plist[a], &planetd );
+			}
+			//Networth Segment
+			if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
+				fa += planetd.size;
+				fb += 0.5;
+			} else {
+				maind.networth += ( planetd.size * 1.75 );
+			}
+		}
+	}
+	if( fa ) {
+		maind.networth += ( fa * fb );
+	}
+	free( plist );
+}
 
 ticks.debug_pass = 12;
 
 
-// income
-for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
-	maind.ressource[a] += maind.infos[a];
-	if( maind.ressource[a] < 0 )
-		maind.ressource[a] = 0;
-}
-
-// networth
-plist = 0;
-fa = 3;
-fb = 0;
-maind.networth = 0;
-num = dbUserPlanetListIndices( user->id, &plist );
-for( a = 0; a < num; a++ ) {
-	if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
-		if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
-			fb += planetd.size;
-			fa += 0.5;
-		} else {
-			maind.networth += ( planetd.size * 1.75 );
-		}
-	}
-}
-
-maind.networth += ( fb * fa );
-
-if( plist ) {
-	free( plist );
-}
 for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	maind.networth += maind.totalunit[a] * cmdUnitStats[a][CMD_UNIT_STATS_NETWORTH];
 }
