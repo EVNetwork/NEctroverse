@@ -1115,20 +1115,22 @@ for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
 // networth
 plist = 0;
 fa = 3;
+fb = 0;
 maind.networth = 0;
 num = dbUserPlanetListIndices( user->id, &plist );
 for( a = 0; a < num; a++ ) {
 	if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
 		if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
+			fb += planetd.size;
 			fa += 0.5;
+		} else {
+			maind.networth += ( planetd.size * 1.75 );
 		}
 	}
 }
-for( a = 0; a < num; a++ ) {
-	if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
-		maind.networth += ( planetd.size * ( (planetd.flags & CMD_PLANET_FLAGS_MEGA) ? fa : 1.5 ) );
-	}
-}
+
+maind.networth += ( fb * fa );
+
 if( plist ) {
 	free( plist );
 }
@@ -1139,7 +1141,7 @@ for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
 	maind.networth += maind.totalbuilding[a] * cmdBuildingNetworth[a];
 }
 
-maind.networth += (0.004 * maind.ressource[CMD_RESSOURCE_POPULATION]);
+maind.networth += (0.005 * maind.ressource[CMD_RESSOURCE_POPULATION]);
 
 for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
 	maind.networth += (0.001 * maind.research[a]);
