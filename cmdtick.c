@@ -1114,7 +1114,7 @@ for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
 
 // networth
 plist = 0;
-fa = fb = 0;
+fa = 5;
 maind.networth = 0;
 num = dbUserPlanetListIndices( user->id, &plist );
 for( a = 0; a < num; a++ ) {
