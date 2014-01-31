@@ -2112,8 +2112,8 @@ if ( curfam == maind.empire ) {
 }
 
 if( empired.picture > 0 ) {
-	sprintf( fname, "files?type=eimage&amp;name=empire%d/pic%d", curfam, empired.picture );
-	httpPrintf( cnt, "<br><img src=\"%s\"><br>", &fname[1] );
+	snprintf( fname, REDIRECT_MAX, "files?type=eimage&amp;name=empire%d/pic%d", curfam, empired.picture );
+	httpPrintf( cnt, "<br><img src=\"%s\"><br>", fname );
 }
 
 if( !( empired.numplayers ) ) {
