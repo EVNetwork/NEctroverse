@@ -462,9 +462,9 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ) {
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
 if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-		httpPrintf( cnt, " - <a href=\"%s&empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
+		httpPrintf( cnt, " - <a href=\"%s&amp;empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
 	} else {
-		httpPrintf( cnt, " - <a href=\"%s&empire=true&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+		httpPrintf( cnt, " - <a href=\"%s&amp;empire=true&amp;forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
 	}
 }
   httpString( cnt, "</td></tr></table>" );
@@ -474,10 +474,10 @@ if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empi
   for( a = 0 ; a < b ; a++ )
   {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), a, forums[a].time, forums[a].title, forums[a].threads );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), a, forums[a].time, forums[a].title, forums[a].threads );
    httpPrintf( cnt, "%s<br>Week %d, Year %d", timebuf, forums[a].tick % 52, forums[a].tick / 52 );
 	if( forums[a].lastid != -1 ) {
-		httpPrintf( cnt, "<br>By <a href=\"%s&id=%d\">%s</a>", URLAppend( cnt, "player" ), forums[a].lastid, forums[a].lastpost );
+		httpPrintf( cnt, "<br>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), forums[a].lastid, forums[a].lastpost );
 	}
   httpString( cnt, "</td></tr>" );
    }
@@ -530,9 +530,9 @@ if( flags ) {
 	httpString( cnt, timebuf );
 	if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
 		if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-			httpPrintf( cnt, " - <a href=\"%s&empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
+			httpPrintf( cnt, " - <a href=\"%s&amp;empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
 		} else {
-			httpPrintf( cnt, " - <a href=\"%s&empire=true&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+			httpPrintf( cnt, " - <a href=\"%s&amp;empire=true&amp;forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
 		}
 	}
 	httpString( cnt, "</td></tr></table>" );
@@ -558,19 +558,19 @@ for( a = 0 ; a < b ; a++ ) {
 	sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
 	strcat( timebuf, timetemp);
 
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&forum=%d&thread=%d&last=%d\">%s</a>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, threads[a].id, threads[a].time, threads[a].topic );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&thread=%d&last=%d\">%s</a>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, threads[a].id, threads[a].time, threads[a].topic );
    if( threads[a].posts > IOHTTP_FORUM_POSTSNUM )
    {
     httpString( cnt, " - Pages : " );
     for( d = 0, c = 1 ; d < threads[a].posts ; d += IOHTTP_FORUM_POSTSNUM, c++ )
-     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&skip=%d&last=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, threads[a].id, d, threads[a].time, c );
+     httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d&thread=%d&skip=%d&last=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, threads[a].id, d, threads[a].time, c );
    }
    httpPrintf( cnt, "</td><td>%d</td><td nowrap>%s</td><td nowrap>%s", threads[a].posts, threads[a].authorname, timebuf );
 	if(( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) )&&(id != -1)) {
-   		httpPrintf( cnt, " <a href=\"%s%s&forum=%d&thread=%d&delthread=1\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, threads[a].id );
+   		httpPrintf( cnt, " <a href=\"%s%s&amp;forum=%d&thread=%d&delthread=1\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, threads[a].id );
   	}
 	if( threads[a].lastid != -1  ) {
-		httpPrintf( cnt, "<br>By <a href=\"%s&id=%d\">%s</a>", URLAppend( cnt, "player" ), threads[a].lastid, threads[a].lastpost );
+		httpPrintf( cnt, "<br>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), threads[a].lastid, threads[a].lastpost );
 	}
    
    
@@ -588,7 +588,7 @@ for( a = 0 ; a < b ; a++ ) {
    for( a = 0, c = 1 ; a < forumd.threads ; a += IOHTTP_FORUM_THREADSNUM, c++ )
    {
     if( skip != a )
-     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, a, c );
+     httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, a, c );
     else
      httpPrintf( cnt, "<b>%d</b> ", c );
    }
@@ -663,16 +663,16 @@ settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - ", URLAppend( cnt, "forum" ), settings->string_value );
-  httpPrintf( cnt, "<a href=\"%s%s&forum=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, forumd.title, threadd.topic );
+  httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, forumd.title, threadd.topic );
 if( flags )  {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 	httpString( cnt, timebuf );
 	if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
 		if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-			httpPrintf( cnt, " - <a href=\"%s&empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
+			httpPrintf( cnt, " - <a href=\"%s&amp;empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
 		} else {
-			httpPrintf( cnt, " - <a href=\"%s&empire=true&forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
+			httpPrintf( cnt, " - <a href=\"%s&amp;empire=true&amp;forum=%d\">Empire forum</a>", URLAppend( cnt, "forum" ), maind.empire );
 		}
 	}
 	httpString( cnt, "</td></tr></table>" );
@@ -685,7 +685,7 @@ if( flags )  {
    for( a = 0, c = 1 ; a < threadd.posts ; a += IOHTTP_FORUM_POSTSNUM, c++ )
    {
     if( skip != a )
-     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, a, c );
+     httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, a, c );
     else
      httpPrintf( cnt, "<b>%d</b> ", c );
    }
@@ -704,14 +704,14 @@ if( flags )  {
    httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
    if( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, maind.faction ) )) {
-    	httpPrintf( cnt, "<br><a href=\"%s%s&forum=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, c );
-    	httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, c );
+    	httpPrintf( cnt, "<br><a href=\"%s%s&amp;forum=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, c );
+    	httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, c );
     }
    if((cnt->session)->dbuser)
    {
 	   if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD ) )
 	   {
-	    httpPrintf( cnt, "<br>Account: <a href=\"%s&id=%d\">%d</a>", URLAppend( cnt, "player" ), posts[a].post.authorid, posts[a].post.authorid );
+	    httpPrintf( cnt, "<br>Account: <a href=\"%s&amp;id=%d\">%d</a>", URLAppend( cnt, "player" ), posts[a].post.authorid, posts[a].post.authorid );
 	    httpPrintf( cnt, "<br>IP: %s", inet_ntoa( posts[a].post.sin_addr ) );
 	   }
 	  }
@@ -729,7 +729,7 @@ if( flags )  {
    for( a = 0, c = 1 ; a < threadd.posts ; a += IOHTTP_FORUM_POSTSNUM, c++ )
    {
     if( skip != a )
-     httpPrintf( cnt, "<a href=\"%s%s&forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&empire=true" : "" ), forum, thread, a, c );
+     httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d&thread=%d&skip=%d\">%d</a> ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, a, c );
     else
      httpPrintf( cnt, "<b>%d</b> ", c );
    }

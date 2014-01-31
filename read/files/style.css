@@ -60,7 +60,7 @@ body,td{
 }
 .bodyraw	{
 	margin:auto;
-	background-image : url(files?type=image&name=background.gif);
+	background-image:url(files?type=image&name=background.gif);
 	background-attachment:fixed;
 }
 

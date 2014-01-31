@@ -1524,11 +1524,11 @@ if( strstr( url, (cnt->session)->sid ) == 0 ) {
  * First just ensures windows doesn't redirect over the top, second contains the login
  */
 if( ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) && ( strstr( url, "fbapp=" ) == 0 ) ) {
-	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&fbapp=%s", iohtmlVarsFind( cnt, "fbapp" ) );
+	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&amp;fbapp=%s", iohtmlVarsFind( cnt, "fbapp" ) );
 }
 
 if( ( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) && ( strstr( url, "fblogin_token=" ) == 0 ) ) {
-	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
+	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&amp;fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
 }
 #endif
 

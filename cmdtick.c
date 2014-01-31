@@ -427,25 +427,25 @@ memset( cmdTickProduction, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
 memset( StationedUnits, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 
 nInfection = 0;
-if( ( b = dbUserSpecOpList( usrid, &specopd ) ) >= 0 ) {
+b = dbUserSpecOpList( usrid, &specopd );
+if( specopd ) {
 	for(a = 0; a < b; a++) {
 		if (specopd[a].type == (CMD_OPER_BIOINFECTION|0x10000)) {
 			nInfection++;
 		}
   	}
-  	if( specopd )
-		free( specopd );
+	free( specopd );
 }
-
-if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 )
-	return 0;
 
 portals = 0;
 nump = 0;
 
 if( ( nump = dbUserPortalsListCoords( usrid, &portals ) ) < 0 ) {
 	free( buffer );
-	return 0;
+	return NO;
+}
+if( ( num = dbUserPlanetListIndices( usrid, &buffer ) ) < 0 ) {
+	return NO;
 }
 
 ticks.debug_pass = 1 + 10000;
@@ -453,7 +453,9 @@ population = 0;
 
 for( a = 0 ; a < num ; a++ ) {
 	dbMapRetrievePlanet( buffer[a], &planetd );
-	planetd.maxpopulation = ( ( planetd.size * CMD_POPULATION_SIZE_FACTOR ) + ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] ) ) * ( 1.00 + 0.005 * mainp->totalresearch[CMD_RESEARCH_POPULATION] );
+	planetd.maxpopulation = ( planetd.size * CMD_POPULATION_SIZE_FACTOR );
+	planetd.maxpopulation += ( planetd.building[CMD_BUILDING_CITIES] * cmdBuildingProduction[CMD_BUILDING_CITIES] );
+	planetd.maxpopulation *= ( 1.00 + 0.005 * mainp->totalresearch[CMD_RESEARCH_POPULATION] );
 
 		//ARTI CODE Super Stacker
 	/*	if(mainp->artefacts & ARTEFACT_*_BIT)
@@ -469,11 +471,11 @@ for( a = 0 ; a < num ; a++ ) {
 	planetd.population = fmin( planetd.maxpopulation, planetd.population );
 
 
-	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) )
+	if( ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ) {
 		planetd.protection = 100;
-	else
+	} else {
       		planetd.protection = (int)( 100.0 * battlePortalCalc( ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, portals, nump, mainp->totalresearch[CMD_RESEARCH_CULTURE] ) );
-
+	}
 
 	if( planetd.construction < 0 ) {
 		error( "Warning : negative construction count : %d", planetd.construction );
@@ -542,14 +544,11 @@ for( a = 0 ; a < num ; a++ ) {
 
 	ticks.debug_pass = 7 + 10000;
 }
+free( buffer );
 
 mainp->planets = num;
 mainp->ressource[CMD_RESSOURCE_POPULATION] = population;
 
-
-ticks.debug_pass = 8 + 10000;
-
-free( buffer );
 
 ticks.debug_pass = 9 + 10000;
 
@@ -559,7 +558,7 @@ if( portals )
 ticks.debug_pass = 10 + 10000;
 
 
-return 1;
+return YES;
 }
 
 
@@ -726,7 +725,10 @@ for( user = dbUserList ; user ; user = user->next ) {
 	ticks.debug_pass = 4;
 
 	// calc total of buildings, units, artefacts
-	cmdTickPlanets( user->id, &maind );
+	if( cmdTickPlanets( user->id, &maind ) == NO ) {
+		error( "User %d Planet Tick Failed", user->id );
+		return NO;
+	}
 
 	ticks.debug_pass = 5;
 
@@ -956,30 +958,27 @@ for( user = dbUserList ; user ; user = user->next ) {
 	ticks.debug_pass = 9;
 
 
-// fleets decay?
-    a = 65536*2;
-    b = -1;
+	// fleets decay?
+	a = 65536*2;
+	b = -1;
 
 
-    if( ( maind.ressource[CMD_RESSOURCE_ENERGY] + maind.infos[CMD_RESSOURCE_ENERGY] ) < 0 )
-    {
-      a = -65536*3;
-      b = CMD_UNIT_GHOST;
-    }
+	if( ( maind.ressource[CMD_RESSOURCE_ENERGY] + maind.infos[CMD_RESSOURCE_ENERGY] ) < 0 ) {
+		a = -65536*3;
+		b = CMD_UNIT_GHOST;
+	}
 
-// readiness
-    for( c = 0 ; c < 3 ; c++ )
-    {
-      if( a < 0 )
-      {
-        if( maind.readiness[c] > ( -65536*200 - a ) )
-          maind.readiness[c] += a;
-        else if( maind.readiness[c] > -65536*200 )
-          maind.readiness[c] = -65536*200;
-      }
-      else
-        maind.readiness[c] += a;
-
+	// readiness
+	for( c = 0 ; c < CMD_READY_NUMUSED ; c++ ) {
+		if( a < 0 ) {
+			if( maind.readiness[c] > ( -65536*200 - a ) ) {
+				maind.readiness[c] += a;
+			} else if( maind.readiness[c] > -65536*200 ) {
+				maind.readiness[c] = -65536*200;
+			}
+		} else {
+			maind.readiness[c] += a;
+		}
 
 /* CODE_ARTEFACT
     if( ( maind.artefacts & ARTEFACT_*_BIT ) && ( c != 0 ) )
@@ -994,238 +993,216 @@ for( user = dbUserList ; user ; user = user->next ) {
    }
  CODE_ARTEFACT*/
 
-	if( maind.readiness[c] > 65536*100 )
-		maind.readiness[c] = 65536*100;
+		if( maind.readiness[c] > 65536*100 ) {
+			maind.readiness[c] = 65536*100;
+		}
+		if( maind.readiness[c] < -65536*500 ) {
+			maind.readiness[c] = -65536*500;
+		}
+
+	}
+
+	ticks.debug_pass = 10;
 
 
-    if( maind.readiness[c] < -65536*500 )
-        maind.readiness[c] = -65536*500;
-
-    }
-
-
-ticks.debug_pass = 10;
-
-
-// calculate phantoms decay rate
-    phdecay = 0.20;
-    if( maind.totalunit[CMD_UNIT_WIZARD] )
-    {
-      fa = (double)maind.totalunit[CMD_UNIT_PHANTOM] / (double)maind.totalunit[CMD_UNIT_WIZARD];
-      if( fa < 0.05 )
-        phdecay = 0.01;
-      else
-      {
-        fa = (double)pow( (double)( (1.0/0.05) * fa ), 2.4 );
-        phdecay = 0.01*fa;
-        if( phdecay > 0.20 )
-          phdecay = 0.20;
-      }
-    }
-
-// fleets
-    dbUserMainSet( user->id, &maind );
-    fleetp = 0;
-    num = dbUserFleetList( user->id, &fleetp );
-    for( a = num-1 ; a >= 0 ; a-- )
-    {
-      e = 0;
-      if( a == 0 )
-      {
-        if( !( dbUserFleetRetrieve( user->id, 0, &fleetp[0] ) ) )
-          return 1;
-      }
-      for( c = b ; c >= 0 ; c-- )
-      {
-        d = (int)ceil( (float)fleetp[a].unit[c] * 0.02 );
-        fleetp[a].unit[c] -= d;
-        maind.totalunit[c] -= d;
-        e |= d;
-      }
-
-      if( fleetp[a].unit[CMD_UNIT_PHANTOM] )
-      {
-        d = (int)ceil( (float)fleetp[a].unit[CMD_UNIT_PHANTOM] * phdecay );
-        fleetp[a].unit[CMD_UNIT_PHANTOM] -= d;
-        maind.totalunit[CMD_UNIT_PHANTOM] -= d;
-        e |= d;
-      }
-
-      if( ( a ) && !( fleetp[a].unit[CMD_UNIT_EXPLORATION] ) && !( fleetp[a].unit[CMD_UNIT_CRUISER] ) && !( fleetp[a].unit[CMD_UNIT_CARRIER] ) && !( fleetp[a].unit[CMD_UNIT_PHANTOM] ) && !( fleetp[a].unit[CMD_UNIT_AGENT] ) && !( fleetp[a].unit[CMD_UNIT_GHOST] ) )
-      {
-        dbUserFleetRemove( user->id, a );
-        continue;
-      }
-      fleetd.flags &= 0xFFFFFFFF - CMD_FLEET_FLAGS_MOVED;
-      if( fleetp[a].time > 0 )
-      {
-        fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
-        fleetp[a].time--;
-        dbUserFleetSet( user->id, a, &fleetp[a] );
-      }
-      else if( e )
-        dbUserFleetSet( user->id, a, &fleetp[a] );
-      if( ( a != 0 ) && ( fleetp[a].time == 0 ) )
-        cmdFleetAction( &fleetp[a], user->id, a, 1 );
-    }
-    if( fleetp )
-      free( fleetp );
-    dbUserMainRetrieve( user->id, &maind );
-
-
-ticks.debug_pass = 11;
-
-// income
-for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
-	maind.ressource[a] = fmax( 0.0, ( maind.ressource[a] + maind.infos[a] ) );
-}
-
-// units decay on planets + networth calcualtions
-plist = 0;
-num = dbUserPlanetListIndices( user->id, &plist );
-fa = 0;
-fb = 3;
-maind.networth = 0;
-if( plist ) {
-	for( a = 0 ; a < num ; a++ ) {
-		if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
-			e = 0;
-			if( planetd.unit[CMD_UNIT_PHANTOM] ) {
-				planetd.unit[CMD_UNIT_PHANTOM] -= (int)ceil( phdecay * (float)(planetd.unit[CMD_UNIT_PHANTOM]) );
-				e |= 1;
-			}
-			for( c = b ; c >= 0 ; c-- ) {
-				d = (int)ceil( (float)planetd.unit[c] * 0.02 );
-				planetd.unit[c] -= d;
-				maind.totalunit[c] -= d;
-				e |= d;
-			}
-			if( e ) {
-				dbMapSetPlanet( plist[a], &planetd );
-			}
-			//Networth Segment
-			if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
-				fa += planetd.size;
-				fb += 0.5;
-			} else {
-				maind.networth += ( planetd.size * 1.75 );
+	// calculate phantoms decay rate
+	phdecay = 0.20;
+	if( maind.totalunit[CMD_UNIT_WIZARD] ) {
+		fa = (double)maind.totalunit[CMD_UNIT_PHANTOM] / (double)maind.totalunit[CMD_UNIT_WIZARD];
+		if( fa < 0.05 ) {
+			phdecay = 0.01;
+		} else {
+		        fa = (double)pow( (double)( (1.0/0.05) * fa ), 2.4 );
+		        phdecay = 0.01*fa;
+			if( phdecay > 0.20 ) {
+				phdecay = 0.20;
 			}
 		}
 	}
-	if( fa ) {
-		maind.networth += ( fa * fb );
+
+	// fleets
+	dbUserMainSet( user->id, &maind );
+	fleetp = 0;
+	num = dbUserFleetList( user->id, &fleetp );
+	if( fleetp ) {
+		for( a = num-1 ; a >= 0 ; a-- ) {
+			e = 0;
+			if( a == 0 ) {
+				if( !( dbUserFleetRetrieve( user->id, 0, &fleetp[0] ) ) )
+					return 1;
+			}
+			for( c = b ; c >= 0 ; c-- ) {
+				d = (int)ceil( (float)fleetp[a].unit[c] * 0.02 );
+				fleetp[a].unit[c] -= d;
+				maind.totalunit[c] -= d;
+				e |= d;
+			}
+
+			if( fleetp[a].unit[CMD_UNIT_PHANTOM] ) {
+				d = (int)ceil( (float)fleetp[a].unit[CMD_UNIT_PHANTOM] * phdecay );
+				fleetp[a].unit[CMD_UNIT_PHANTOM] -= d;
+        			maind.totalunit[CMD_UNIT_PHANTOM] -= d;
+        			e |= d;
+			}
+
+			if( ( a ) && !( fleetp[a].unit[CMD_UNIT_EXPLORATION] || fleetp[a].unit[CMD_UNIT_CRUISER] || fleetp[a].unit[CMD_UNIT_CARRIER] || fleetp[a].unit[CMD_UNIT_PHANTOM] || fleetp[a].unit[CMD_UNIT_AGENT] || fleetp[a].unit[CMD_UNIT_GHOST] ) ) {
+				dbUserFleetRemove( user->id, a );
+				continue;
+			}
+			fleetd.flags &= 0xFFFFFFFF - CMD_FLEET_FLAGS_MOVED;
+			if( fleetp[a].time > 0 ) {
+				fleetd.flags |= CMD_FLEET_FLAGS_MOVED;
+				fleetp[a].time--;
+				dbUserFleetSet( user->id, a, &fleetp[a] );
+			} else if( e ) {
+				dbUserFleetSet( user->id, a, &fleetp[a] );
+			}
+			if( ( a != 0 ) && ( fleetp[a].time == 0 ) ) {
+				cmdFleetAction( &fleetp[a], user->id, a, 1 );
+			}
+		}
+		free( fleetp );
 	}
-	free( plist );
+	dbUserMainRetrieve( user->id, &maind );
+
+
+	ticks.debug_pass = 11;
+
+	// income
+	for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
+		maind.ressource[a] = fmax( 0.0, ( maind.ressource[a] + maind.infos[a] ) );
+	}
+
+	// units decay on planets + networth calcualtions
+	plist = 0;
+	num = dbUserPlanetListIndices( user->id, &plist );
+	fa = 0;
+	fb = 3;
+	maind.networth = 0;
+	if( plist ) {
+		for( a = 0 ; a < num ; a++ ) {
+			if( dbMapRetrievePlanet( plist[a], &planetd ) > 0 ) {
+				e = 0;
+				if( planetd.unit[CMD_UNIT_PHANTOM] ) {
+					planetd.unit[CMD_UNIT_PHANTOM] -= (int)ceil( phdecay * (float)(planetd.unit[CMD_UNIT_PHANTOM]) );
+					e |= 1;
+				}
+				for( c = b ; c >= 0 ; c-- ) {
+					d = (int)ceil( (float)planetd.unit[c] * 0.02 );
+					planetd.unit[c] -= d;
+					maind.totalunit[c] -= d;
+					e |= d;
+				}
+				if( e ) {
+					dbMapSetPlanet( plist[a], &planetd );
+				}
+				//Networth Segment
+				if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
+					fa += planetd.size;
+					fb += 0.5;
+				} else {
+					maind.networth += ( planetd.size * 1.75 );
+				}
+			}
+		}
+		if( fa ) {
+			maind.networth += ( fa * fb );
+		}
+		free( plist );
+	}
+
+	ticks.debug_pass = 12;
+
+
+	for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+		maind.networth += maind.totalunit[a] * cmdUnitStats[a][CMD_UNIT_STATS_NETWORTH];
+	}
+	for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
+		maind.networth += maind.totalbuilding[a] * cmdBuildingNetworth[a];
+	}
+
+	maind.networth += (0.005 * maind.ressource[CMD_RESSOURCE_POPULATION]);
+
+	for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
+		maind.networth += (0.001 * maind.research[a]);
+
+	// spec ops
+	if( specopd ) {
+		for( a = specopnum-1 ; a >= 0 ; a-- ) {
+			specopd[a].time--;
+			if( specopd[a].time <= 0 ) {
+				if(specopd[a].type == CMD_OPER_PLANETBEACON) {
+					dbMapRetrievePlanet(specopd[a].plnid, &planetd);
+					planetd.flags ^= CMD_PLANET_FLAGS_BEACON;
+					dbMapSetPlanet(specopd[a].plnid, &planetd);
+				}
+	
+				dbUserSpecOpRemove( user->id, a );
+				continue;
+			}
+			dbUserSpecOpSet( user->id, a, &specopd[a] );
+		}
+		free( specopd );
+	}
+
+
+	ticks.debug_pass = 13;
+
+	dbUserMainSet( user->id, &maind );
 }
-
-ticks.debug_pass = 12;
-
-
-for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
-	maind.networth += maind.totalunit[a] * cmdUnitStats[a][CMD_UNIT_STATS_NETWORTH];
-}
-for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ ) {
-	maind.networth += maind.totalbuilding[a] * cmdBuildingNetworth[a];
-}
-
-maind.networth += (0.005 * maind.ressource[CMD_RESSOURCE_POPULATION]);
-
-for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
-	maind.networth += (0.001 * maind.research[a]);
-
-// spec ops
-    for( a = specopnum-1 ; a >= 0 ; a-- )
-    {
-      specopd[a].time--;
-      if( specopd[a].time <= 0 )
-      {
-      	//remove planet beacon flag on the planet
-      	if(specopd[a].type == CMD_OPER_PLANETBEACON)
-      	{
-      		dbMapRetrievePlanet(specopd[a].plnid, &planetd);
-    			planetd.flags ^= CMD_PLANET_FLAGS_BEACON;
-    			dbMapSetPlanet(specopd[a].plnid, &planetd);
-      	}
-
-        dbUserSpecOpRemove( user->id, a );
-        continue;
-      }
-      dbUserSpecOpSet( user->id, a, &specopd[a] );
-    }
-
-    if( specopd )
-      free( specopd );
-
-
-ticks.debug_pass = 13;
-
-    dbUserMainSet( user->id, &maind );
-  }
 
 
 ticks.debug_pass = 14;
 
 
 // bids energy decay
-  marketbid[DB_MARKETBID_ACTION] = 0;
-  for( marketbid[DB_MARKETBID_RESSOURCE] = 0 ; marketbid[DB_MARKETBID_RESSOURCE] < 3 ; marketbid[DB_MARKETBID_RESSOURCE]++ )
-  {
-    for( marketbid[DB_MARKETBID_PRICE] = 0 ; marketbid[DB_MARKETBID_PRICE] < DB_MARKET_RANGE ; marketbid[DB_MARKETBID_PRICE]++ )
-    {
-      b = dbMarketListStart( marketbid );
-      while( (unsigned int)b < 0x1000000 )
-      {
-        c = dbMarketListNext( b, bidresult );
-        a = (int)ceil( CMD_ENERGY_DECAY * (float)bidresult[0] );
-        if( (bidresult[0]-a) > 0 )
-        {
-          dbUserMarketQuantity( bidresult[1], b, bidresult[0] - a );
-          dbMarketSetQuantity( marketbid, b, bidresult[0] - a, a );
-        }
-        else
-        {
-          dbUserMarketRemove( bidresult[1], b );
-          dbMarketRemove( marketbid, b );
-        }
-        b = c;
-      }
-    }
-  }
+marketbid[DB_MARKETBID_ACTION] = 0;
+for( marketbid[DB_MARKETBID_RESSOURCE] = 0 ; marketbid[DB_MARKETBID_RESSOURCE] < 3 ; marketbid[DB_MARKETBID_RESSOURCE]++ ) {
+	for( marketbid[DB_MARKETBID_PRICE] = 0 ; marketbid[DB_MARKETBID_PRICE] < DB_MARKET_RANGE ; marketbid[DB_MARKETBID_PRICE]++ ) {
+		b = dbMarketListStart( marketbid );
+		while( (unsigned int)b < 0x1000000 ) {
+			c = dbMarketListNext( b, bidresult );
+			a = (int)ceil( CMD_ENERGY_DECAY * (float)bidresult[0] );
+			if( (bidresult[0]-a) > 0 ) {
+				dbUserMarketQuantity( bidresult[1], b, bidresult[0] - a );
+				dbMarketSetQuantity( marketbid, b, bidresult[0] - a, a );
+			} else {
+				dbUserMarketRemove( bidresult[1], b );
+				dbMarketRemove( marketbid, b );
+			}
+			b = c;
+		}
+	}
+}
 
 
 ticks.debug_pass = 15;
 
 
 // bids crystal decay
-  marketbid[DB_MARKETBID_ACTION] = 1;
-  marketbid[DB_MARKETBID_RESSOURCE] = CMD_RESSOURCE_CRYSTAL-1;
-  for( marketbid[DB_MARKETBID_PRICE] = 0 ; marketbid[DB_MARKETBID_PRICE] < DB_MARKET_RANGE ; marketbid[DB_MARKETBID_PRICE]++ )
-  {
-    b = dbMarketListStart( marketbid );
-    while( (unsigned int)b < 0x1000000 )
-    {
-      c = dbMarketListNext( b, bidresult );
-      a = (int)ceil( CMD_CRYSTAL_DECAY * (float)bidresult[0] );
-
-      if( (bidresult[0]-a) > 0 )
-      {
-        dbUserMarketQuantity( bidresult[1], b, bidresult[0] - a );
-        dbMarketSetQuantity( marketbid, b, bidresult[0] - a, a );
-      }
-      else
-      {
-        dbUserMarketRemove( bidresult[1], b );
-        dbMarketRemove( marketbid, b );
-      }
-      b = c;
-    }
-  }
+marketbid[DB_MARKETBID_ACTION] = 1;
+marketbid[DB_MARKETBID_RESSOURCE] = CMD_RESSOURCE_CRYSTAL-1;
+for( marketbid[DB_MARKETBID_PRICE] = 0 ; marketbid[DB_MARKETBID_PRICE] < DB_MARKET_RANGE ; marketbid[DB_MARKETBID_PRICE]++ ) {
+	b = dbMarketListStart( marketbid );
+	while( (unsigned int)b < 0x1000000 ) {
+		c = dbMarketListNext( b, bidresult );
+		a = (int)ceil( CMD_CRYSTAL_DECAY * (float)bidresult[0] );
+		if( (bidresult[0]-a) > 0 ) {
+			dbUserMarketQuantity( bidresult[1], b, bidresult[0] - a );
+			dbMarketSetQuantity( marketbid, b, bidresult[0] - a, a );
+		} else {
+			dbUserMarketRemove( bidresult[1], b );
+			dbMarketRemove( marketbid, b );
+		}
+		b = c;
+	}
+}
 
 
 ticks.debug_pass = 16;
 
 
-  return 1;
+return YES;
 }
 
 
