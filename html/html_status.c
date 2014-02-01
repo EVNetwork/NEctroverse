@@ -12,58 +12,81 @@ return;
 }
 
 #define MAX_TIME_STRING 1024
+static StringBufferPtr time_string_buffer;
+
 char *TimeToString( long eltime ) {
-	int offset = 0;
+	//int offset = 0;
 	bool bweeks, bdays, bhours, bmins;
-	char buffer[MAX_TIME_STRING];
-	char *ret;
+	//char buffer[MAX_TIME_STRING];
+	//char *ret;
 	timeDef deftime;
+
+if( time_string_buffer ) {
+	time_string_buffer->off = 0;
+} else if( NULL == ( time_string_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
+	critical( "URL allocation error!" );
+	return NULL;
+}
 
 converttime_todef(&deftime, eltime);
 
 bweeks = bdays = bhours = bmins = false;
 
-memset( &buffer, 0, MAX_TIME_STRING );
+//memset( &buffer, 0, MAX_TIME_STRING );
 
 if( deftime.weeks ) {
-	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.weeks, ( ( deftime.weeks == 1 ) ? "week" : "weeks" ) );
+	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.weeks, ( ( deftime.weeks == 1 ) ? "week" : "weeks" ) );
+	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.weeks, ( ( deftime.weeks == 1 ) ? "week" : "weeks" ) );
 	bweeks = true;
 }
 
 if( deftime.days ) {
-	if( bweeks )
-		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
-	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
+	if( bweeks ) {
+		AddBufferString( time_string_buffer, " " );
+		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	}
+	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
+	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
 	bdays = true;
 }
 
 if ( deftime.hours ) {
-	if( bdays )
-		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
-	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
+	if( bdays ) {
+		AddBufferString( time_string_buffer, " " );
+		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	}
+	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
+	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
 	bhours = true;
 }
 
 if ( deftime.minutes ) {
-	if( ( bdays ) || ( bhours ) )
-		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
-	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
+	if( ( bdays ) || ( bhours ) ) {
+		AddBufferString( time_string_buffer, " " );
+		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	}
+	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
+	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
 	bmins = true;
 }
 
 if ( deftime.seconds ) {
-	if( ( bdays ) || ( bhours ) || ( bmins ) )
-		offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
-	offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
+	if( ( bdays ) || ( bhours ) || ( bmins ) ) {
+		AddBufferString( time_string_buffer, " " );
+		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
+	}
+	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
+	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
 }
 
-if( !( strlen( buffer ) ) ) {
-	strcpy(buffer, "Never, or bad time input!" );
+if( time_string_buffer->off == 0 ) {
+	AddBufferString( time_string_buffer, "Never, or bad time input!" );
 }
 
-ret = buffer;
+time_string_buffer->buf[time_string_buffer->off] = 0;
+//ret = buffer;
 
-return ret;
+return time_string_buffer->buf;
 }
 
 void getsys_infos( proginfoDef *proginfo ) {
