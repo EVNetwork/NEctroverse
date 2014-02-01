@@ -1567,18 +1567,27 @@ expire_file_storage();
 return;
 }
 
+static StringBufferPtr target_frame_buffer;
+
 char *targetframe( ReplyDataPtr cnt ) {
-	char buffer[128];
-	char *r = buffer;
+
+if( target_frame_buffer ) {
+	target_frame_buffer->off = 0;
+} else if( NULL == ( target_frame_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
+	critical( "URL allocation error!" );
+	return NULL;
+}
 
 #if FACEBOOK_SUPPORT
 if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) 
-	snprintf( r, 128, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" );
+	AddBufferPrintf( target_frame_buffer, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" );
 else
 #endif
-	snprintf( r, 128, "%s", "_top" );
+	AddBufferString( target_frame_buffer, "_top" );
 
-return r;
+target_frame_buffer->buf[target_frame_buffer->off] = 0;
+
+return target_frame_buffer->buf;
 }
 
 bool securecnt( ReplyDataPtr cnt ) {
