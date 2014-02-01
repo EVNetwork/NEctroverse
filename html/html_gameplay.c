@@ -63,7 +63,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  
  httpPrintf( cnt, "<a href=\"%s&amp;type=0\" target=\"main\">Messages</a><br>", URLAppend( cnt, "mail" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s&typ=1\" target=\"main\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=1\" target=\"main\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Forums</a><br>", URLAppend( cnt, "forum" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br>", URLAppend( cnt, "account" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );

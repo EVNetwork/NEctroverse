@@ -197,7 +197,7 @@ int cmdExecNewUserEmpire( int id, int famnum, char *fampass, int raceid, int lev
   if( ( dbUserFleetAdd( id, &cmdUserFleetDefault ) < 0 ) || ( cmdTotalsCalculate( id, &maind ) == NO ) || ( dbUserMainSet( id, &maind ) < 0 ) )
     return -2;
 
-  return 1;
+  return YES;
 }
 
 
@@ -396,7 +396,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
-  return 1;
+  return YES;
 }
 
 
@@ -474,7 +474,7 @@ int cmdUserDelete( int id )
   if( dbUserRemove( id ) < 0 )
     return -3;
 
-  return 1;
+  return YES;
 }
 
 
@@ -498,7 +498,7 @@ int cmdExecChangeName( int id, char *faction )
   }
   strncpy( infod.faction, faction, USER_NAME_MAX );
   dbUserInfoSet( id, &infod );
-  return 1;
+  return YES;
 }
 
 
@@ -828,7 +828,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity )
     dbUserMarketAdd( id, a, action, resource, price, c );
   }
 
-  return 1;
+  return YES;
 }
 
 
@@ -856,7 +856,7 @@ int cmdExecRemoveBid( int id, int bidid )
     dbMarketRemove( &ibuffer[c], bidid );
     dbUserMarketRemove( id, bidid );
     free( ibuffer );
-    return 1;
+    return YES;
   }
   free( ibuffer );
   return -3;
@@ -895,7 +895,7 @@ int cmdExecGetMarket( int *market )
     }
     c += DB_MARKET_RANGE;
   }
-  return 1;
+  return YES;
 }
 
 
@@ -967,7 +967,7 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
   newd[3] = id;
   cmdUserNewsAdd( destid, newd, CMD_NEWS_FLAGS_AID );
 
-  return 1;
+  return YES;
 }
 
 
@@ -979,7 +979,7 @@ int cmdExecAidAccess( int id, int access )
     return -3;
   maind.aidaccess = access;
   dbUserMainSet( id, &maind );
-  return 1;
+  return YES;
 }
 
 
@@ -999,7 +999,6 @@ cmdErrorString = 0;
     return -3;
   }
 
-  cmdErrorString = 0;
   if( dbEmpireGetInfo( fam, &empired ) < 0 )
     return -3;
   b = 0;
@@ -1033,12 +1032,13 @@ cmdErrorString = 0;
     return -3;
 
   /* Check access rights - maind is giver */
-  if( maind.aidaccess == 3 )
+  if( maind.aidaccess == 3 ) {
     goto access;
-  if( ( maind.aidaccess == 2 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) || bitflag( user2->flags, CMD_USER_FLAGS_DEVMINISTER ) ) )
+  } else if( ( maind.aidaccess == 2 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) || bitflag( user2->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
     goto access;
-  if( ( maind.aidaccess == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) )
+  } else if( ( maind.aidaccess == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) ) {
     goto access;
+  }
   cmdErrorString = "You are not authorized to request aid from this faction.";
   return -3;
 
@@ -1068,7 +1068,7 @@ cmdErrorString = 0;
   newd[3] = destid;
   cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_AID );
 
-  return 1;
+  return YES;
 }
 
 
@@ -1108,7 +1108,7 @@ int cmdExecChangeVote( int id, int vote )
   cmdEmpireLeader( &empired );
   if( dbEmpireSetInfo( maind.empire, &empired ) < 0 )
     return -3;
-  return 1;
+  return YES;
 }
 
 
@@ -1127,7 +1127,7 @@ int cmdExecChangFamName( int fam, char *name )
 
   if( dbEmpireSetInfo( fam, &empired ) < 0 )
     return -3;
-  return 1;
+  return YES;
 }
 
 
@@ -1187,7 +1187,7 @@ if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
 memcpy( empire2d.politics, empired.politics, CMD_POLITICS_NUMUSED*sizeof(int) );
 dbEmpireSetInfo( fam, &empire2d );
 
-return 1;
+return YES;
 }
 
 
@@ -1195,6 +1195,7 @@ return 1;
 int cmdExecSetFamPass( int fam, char *pass ) {
 	int a;
 	dbMainEmpireDef empired;
+
 
 
 
@@ -1216,7 +1217,7 @@ if( dbEmpireSetInfo( fam, &empired ) < 0 )
 	return -3;
 
 
-return 1;
+return YES;
 }
 
 int cmdExecGetFamPass( int fam, char *pass ) {
@@ -1229,7 +1230,7 @@ if( dbEmpireGetInfo( fam, &empired ) < 0 )
 
 strcpy(pass, empired.password);
 
-return 1;
+return YES;
 }
 
 
@@ -1410,7 +1411,7 @@ int cmdExecSetSectsize( int id, int size )
   maind.config_mapsize = size;
   if( dbUserMainSet( id, &maind ) < 0 )
     return -3;
-  return 1;
+  return YES;
 }
 
 
@@ -1762,7 +1763,7 @@ int cmdExecExploreInfo( int id, int plnid, int *ibuffer )
   else if( b == -3 )
     return -3;
   ibuffer[0] = ( ( a / cmdUnitStats[CMD_UNIT_EXPLORATION][CMD_UNIT_STATS_SPEED] ) >> 8 ) + 1;
-  return 1;
+  return YES;
 }
 
 
@@ -1924,7 +1925,7 @@ if(order == CMD_FLEET_ORDER_MOVE)
     if( fleetd.basetime == 0 )
     {
       cmdFleetAction( &fleetd, id, fltid, 0 );
-      return 1;
+      return YES;
     }
     return fleetd.basetime;
   }
@@ -1955,7 +1956,7 @@ if(order == CMD_FLEET_ORDER_MOVE)
     {
       cmdFleetAction( &fleetd, id, fltid, 0 );
       cmdErrorString = "Planet explored";
-      return 1;
+      return YES;
     }
     return fleetd.basetime;
   }
@@ -1982,7 +1983,7 @@ if( fleetd.unit[CMD_UNIT_EXPLORATION] )
     if( fleetd.basetime == 0 )
     {
       cmdFleetAction( &fleetd, id, fltid, 0 );
-      return 1;
+      return YES;
     }
     return fleetd.basetime;
   }
@@ -2021,7 +2022,7 @@ int cmdExecOfferPlanet( int id, int destid, int plnid )
   planetd.surrender = destid;
   dbMapSetPlanet( plnid, &planetd );
 
-  return 1;
+  return YES;
 }
 
 
@@ -2105,7 +2106,7 @@ int cmdExecTakePlanet( int id, int plnid )
   dbMapSetPlanet( plnid, &planetd );
   dbUserPlanetAdd( id, plnid, planetd.system, planetd.position, planetd.flags );
 
-  return 1;
+  return YES;
 }
 
 

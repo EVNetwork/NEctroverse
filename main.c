@@ -1045,7 +1045,7 @@ if ( error ) {
 		printf("%s%s"RESET,font, ebuffer);
 		printf(" -- "BOLDBLUE"#%d, %s"RESET"\n", error, strerror(error) );
 	}
-	AddBufferPrint( &internal, "%s -- #%d, %s", ebuffer, error, strerror(error)  );
+	AddBufferPrintf( &internal, "%s -- #%d, %s", ebuffer, error, strerror(error)  );
 	syslog(flag, "%s -- #%d, %s", ebuffer, error, strerror(error) );
 } else {
 	if( ( options.verbose ) && strncmp(ebuffer, BREAKER_TAG, strlen( BREAKER_TAG ) ) ) {
@@ -1082,7 +1082,7 @@ if( file ) {
 	fflush( file );
 	fclose( file );
 } else {
-	AddBufferPrint( LogNoFile, "%s\n", internal.buf );
+	AddBufferPrintf( LogNoFile, "%s\n", internal.buf );
 }
 
 if( internal.buf != NULL )

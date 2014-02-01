@@ -324,20 +324,20 @@ if( NULL == ( r = realloc( buffer->buf, buffer->buf_len ) ) ) {
 return r;
 }
 
-void AddBufferString( StringBufferPtr buffer, char *text ) {
+void AddBufferString( StringBufferPtr buffer, char *string ) {
 	int buf_max = (buffer->buf_len - buffer->off);
-	int buf_len = strlen( text );
+	int buf_len = strlen( string );
 
 if( ( buf_max - buf_len ) < 0 ) {
 	buffer->buf = buffer_realloc( buffer, 0, buf_len, &buf_max );
 }
 
-buffer->off += snprintf( &buffer->buf[buffer->off], buf_max, "%s", text );
+buffer->off += snprintf( &buffer->buf[buffer->off], buf_max, "%s", string );
 
 return;
 }
 
-void AddBufferPrint( StringBufferPtr buffer, char *fmt, ... ) {
+void AddBufferPrintf( StringBufferPtr buffer, char *fmt, ... ) {
 	char text[ARRAY_MAX];
 	va_list ap;
 
@@ -351,15 +351,16 @@ return;
 }
 
 
-void httpString( ReplyDataPtr rd, char *text ) {
+void httpString( ReplyDataPtr rd, char *string ) {
 	int buf_max = (rd->cache.buf_len - rd->cache.off);
-	int buf_len = strlen( text );
+	int buf_len = strlen( string );
+
 	
 if( ( buf_max - buf_len ) < 0 ) {
 	rd->cache.buf = buffer_realloc( &rd->cache, 2, buf_len, &buf_max );
 }
 
-rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", text );
+rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", string );
 
 return;
 }
@@ -1493,19 +1494,21 @@ return;
 }
 
 /*
- *     -----NOT THREAD SAFE, MUST ONLY BE CALLED ONCE PER LINE!!-----
- * If called multiple times in one line, it will default to the first calling.
- *	but return results do not require freeing, as they use "internal memory"
+ * Ensure URL's have session details, this allows use without cookies.
  *
  */
+static StringBufferPtr urlappend;
 
 char *URLAppend( ReplyDataPtr cnt, char *url ) {
-	char buffer[DEFAULT_BUFFER];
-	char *r = buffer;
-	int offset;
 
+if( urlappend ) {
+	urlappend->off = 0;
+} else if( NULL == ( urlappend = calloc( 1, sizeof(StringBufferDef) ) ) ) {
+	critical( "URL allocation error!" );
+	return NULL;
+}
 
-offset = snprintf( r, DEFAULT_BUFFER, "%s", url );
+AddBufferString( urlappend, url );
 
 //Check if session key/id are in URL string, if not add it.
 if( strstr( url, (cnt->session)->sid ) == 0 ) {
@@ -1514,7 +1517,7 @@ if( strstr( url, (cnt->session)->sid ) == 0 ) {
 			critical( "This is a no go Jo.." );
 		}
 	}
-	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "?%s=%s", ServerSessionMD5, (cnt->session)->sid );
+	AddBufferPrintf( urlappend, "?%s=%s", ServerSessionMD5, (cnt->session)->sid );
 }
 
 
@@ -1524,15 +1527,17 @@ if( strstr( url, (cnt->session)->sid ) == 0 ) {
  * First just ensures windows doesn't redirect over the top, second contains the login
  */
 if( ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) && ( strstr( url, "fbapp=" ) == 0 ) ) {
-	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&amp;fbapp=%s", iohtmlVarsFind( cnt, "fbapp" ) );
+	AddBufferPrintf( urlappend, "&amp;fbapp=%s", iohtmlVarsFind( cnt, "fbapp" ) );
 }
 
 if( ( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) && ( strstr( url, "fblogin_token=" ) == 0 ) ) {
-	offset += snprintf( &r[offset], DEFAULT_BUFFER - offset, "&amp;fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
+	AddBufferPrintf( urlappend, "&amp;fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
 }
 #endif
 
-return r;
+urlappend->buf[urlappend->off] = 0;
+
+return urlappend->buf;
 }
 
 

@@ -254,12 +254,12 @@ int page_render( int id, const void *cls, const char *mime, struct Session *sess
 
 void *buffer_realloc( StringBufferPtr buffer, int type, size_t fitsize, int *newsize );
 
-void AddBufferString( StringBufferPtr buffer, char *text );
+void AddBufferString( StringBufferPtr buffer, char *string );
 
-void AddBufferPrint( StringBufferPtr buffer, char *string, ... );
+void AddBufferPrintf( StringBufferPtr buffer, char *fmt, ... );
 
-void httpString( ReplyDataPtr rd, char *string );
-void httpPrintf( ReplyDataPtr rd, char *string, ... );
+void httpString( ReplyDataPtr rd, char string[ARRAY_MAX] );
+void httpPrintf( ReplyDataPtr rd, char *fmt, ... );
 
 char *URLAppend( ReplyDataPtr cnt, char *url );
 void URLString( ReplyDataPtr cnt, char *url, char *label );
