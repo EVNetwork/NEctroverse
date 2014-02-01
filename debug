@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+#
+
+valgrind --tool=memcheck --leak-check=yes --track-origins=yes --leak-check=full --main-stacksize=20971520 ./evserver -c config/evconfig.nogit.ini > data_core/logs/debug.log 2>&1 &
+
+echo "Server deployed into backdround"
+
+exit 0

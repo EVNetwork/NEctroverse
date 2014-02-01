@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+#
+
+valgrind --tool=memcheck --leak-check=yes --track-origins=yes --leak-check=full --main-stacksize=20971520 ./evserver -c config/evconfig.nogit.ini
+
