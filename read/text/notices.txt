@@ -1,3 +1,18 @@
+1 Febuary 2014
+Planets no longer give 800 networth each, its now based on planet size.
+This will give a more "realistic" Networth.
+------<br>
+For all standard planets it is now;
+networth = 1.75 * size.<br>
+For the "mega planets" it is now;
+networth = ( 3 + number of mega planets ) * size.<br>
+For planets with a rescource bonus;
+ENERGY: networth = (base networth as above) + ( planetd.special * 1 )
+MINERAL: networth = (base networth as above) + ( planetd.special * 1.25 )
+CRYSTAL: networth = (base networth as above) + ( planetd.special * 2.25 )
+ECTROLIUM: networth = (base networth as above) + ( planetd.special * 1.65 )
+FISSION: networth = (base networth as above) + ( planetd.special * 5 )
+
 28 January 2014
 OK, So I've repaired the damaged caused by the use of a known broken function.
 --Please do not use functions that are known to be broken/faulty.
@@ -19,8 +34,7 @@ While units stationed on a planet will incur a 25% increase.
 15 January 2014
 This is PRE-ALPHA TEST... This is NOT a real round, this is NOT the end design of the game.
 This is mearly to help me find the stray bugs from the develeopment of the game core.
-By playing you agree to report any faults encountered to the best of your ability.
-<br>
+By playing you agree to report any faults encountered to the best of your ability.<br>
 Due to an unforseen colission in the databases I've been forced to reset the whole thing.
 
 11 January 2014
