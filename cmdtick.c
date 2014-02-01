@@ -1097,6 +1097,32 @@ for( user = dbUserList ; user ; user = user->next ) {
 					dbMapSetPlanet( plist[a], &planetd );
 				}
 				//Networth Segment
+				if( planetd.special[1] ) {
+					switch ( planetd.special[0] ) {
+						case CMD_BONUS_ENERGY:
+							maind.networth += ( planetd.special[1] * 1 );
+						break;
+					
+						case CMD_BONUS_MINERAL:
+							maind.networth += ( planetd.special[1] * 1.25 );
+						break;
+					
+						case CMD_BONUS_CRYSTAL:
+							maind.networth += ( planetd.special[1] * 2.25 );
+						break;
+					
+						case CMD_BONUS_ECTROLIUM:
+							maind.networth += ( planetd.special[1] * 1.65 );
+						break;
+					
+						case CMD_BONUS_FISSION:
+							maind.networth += ( planetd.special[1] * 5 );
+						break;
+
+						default:
+						break;
+					}
+				}
 				if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
 					fa += planetd.size;
 					fb += 0.5;

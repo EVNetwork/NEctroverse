@@ -1535,7 +1535,7 @@ if( ( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) && ( strstr( url, "fblogi
 }
 #endif
 
-urlappend->buf[urlappend->off] = 0;
+urlappend->buf[urlappend->off] = '\0';
 
 return urlappend->buf;
 }
@@ -1574,7 +1574,7 @@ char *targetframe( ReplyDataPtr cnt ) {
 if( target_frame_buffer ) {
 	target_frame_buffer->off = 0;
 } else if( NULL == ( target_frame_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
-	critical( "URL allocation error!" );
+	critical( "memory allocation error!" );
 	return NULL;
 }
 
@@ -1585,7 +1585,7 @@ else
 #endif
 	AddBufferString( target_frame_buffer, "_top" );
 
-target_frame_buffer->buf[target_frame_buffer->off] = 0;
+target_frame_buffer->buf[target_frame_buffer->off] = '\0';
 
 return target_frame_buffer->buf;
 }

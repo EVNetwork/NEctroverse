@@ -36,26 +36,38 @@ return;
 }
 
 //Time to add some hash protection to our passwords.
-char *hashencrypt( char *passhash ) {
-	char md5sum[MD5_HASHSUM_SIZE], salt[SALT_SIZE];
-	struct crypt_data data_crypt_buff;
+static StringBufferPtr enc_buffer;
 
-data_crypt_buff.initialized = 0;
+char *hashencrypt( char *passhash ) {
+	char *enc;
+	char md5sum[MD5_HASHSUM_SIZE], salt[SALT_SIZE];
+
+if( enc_buffer ) {
+	enc_buffer->off = 0;
+	memset( enc_buffer->buf, 0, enc_buffer->buf_len );
+} else if( NULL == ( enc_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
+	critical( "memory allocation error!" );
+	return NULL;
+}
 md5_string( passhash, md5sum );
 saltgen( salt );
+enc = crypt( md5sum, salt );
 
-return crypt_r( md5sum, salt, &data_crypt_buff );
+AddBufferString( enc_buffer, enc );
+enc_buffer->buf[enc_buffer->off] = '\0';
+
+return enc_buffer->buf;
 }
 
 //Good stuff, now to check those encypted passwords.
 int checkencrypt( char *passentered, char *passcheck ) {
+	char *enc;
 	char md5sum[MD5_HASHSUM_SIZE];
-	struct crypt_data data_crypt_check;
 
-data_crypt_check.initialized = 0;
 md5_string( passentered, md5sum );
+enc = crypt( md5sum, passcheck );
 
-return ( ( strcmp( crypt_r( md5sum, passcheck, &data_crypt_check), passcheck) == 0 ) ? 1 : 0 );
+return ( ( strcmp( enc, passcheck) == 0 ) ? 1 : 0 );
 }
 
 

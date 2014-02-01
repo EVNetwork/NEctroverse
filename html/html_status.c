@@ -83,7 +83,7 @@ if( time_string_buffer->off == 0 ) {
 	AddBufferString( time_string_buffer, "Never, or bad time input!" );
 }
 
-time_string_buffer->buf[time_string_buffer->off] = 0;
+time_string_buffer->buf[time_string_buffer->off] = '\0';
 //ret = buffer;
 
 return time_string_buffer->buf;
