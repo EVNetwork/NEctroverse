@@ -58,7 +58,7 @@ static char *dbFileUserList[DB_FILE_USER_TOTAL] = { dbFileUserInfoName, dbFileUs
 static int64_t dbFileUserListDat0[] = { 0, -1, -1, 0, 0 };
 static int64_t dbFileUserListDat1[] = { 0, 8 };
 
-static int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 0 };
+static int dbFileUserListBase[DB_FILE_USER_TOTAL] = { 0, 0, 4, 4, 4, 40, 8, 8, 8, 4, 4, 4 };
 static int64_t *dbFileUserListData[DB_FILE_USER_TOTAL] = { 0, 0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat1, dbFileUserListDat1, dbFileUserListDat0, dbFileUserListDat0, dbFileUserListDat0 };
 
 
@@ -1030,6 +1030,7 @@ return 1;
 int dbUserMainRetrieve_real( int id, dbUserMainPtr maind, char *sourcefile, int sourceline ) {
 	FILE *file;
 
+memset( maind, 0, sizeof(dbUserMainDef) );
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
 	error( "User Open from file %s on line %d", sourcefile, sourceline );
 	return -3;
@@ -3693,6 +3694,7 @@ if( flags ) {
     fclose( file );
 
 
+
     return num;
   }
 
@@ -4139,7 +4141,7 @@ int dbUserInfoRetrieve( int id, dbUserInfoPtr infod ) {
 if( id < 0 ) {
 	return -3;
 }
-
+memset( infod, 0, sizeof(dbUserInfoDef) );
 if( !( file = dbFileUserOpen( id, DB_FILE_USER_INFO ) ) ) {
 	error( "User Open" );
 	return -3;

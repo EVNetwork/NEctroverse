@@ -121,7 +121,7 @@ typedef struct
   char faction[USER_NAME_MAX];
   int64_t ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
-  int64_t infos[INFOS_TOTAL_NUMUSED];
+  int64_t reserved0[18];
   int64_t research[CMD_RESEARCH_NUMUSED];
   int readiness[CMD_READY_NUMUSED];
   int home; // ( y << 20 ) + ( x << 8 ) + planet
@@ -139,8 +139,10 @@ typedef struct
   int raceid;
   int artefacts;
   int rank;
-  int aidaccess;
-  int flags;
+  int benefactors[2];
+  int benefactor[5];
+  float autofund[3];
+  int64_t infos[INFOS_TOTAL_NUMUSED];
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );

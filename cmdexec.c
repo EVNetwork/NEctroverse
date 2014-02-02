@@ -977,7 +977,7 @@ int cmdExecAidAccess( int id, int access )
   dbUserMainDef maind;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
-  maind.aidaccess = access;
+  maind.benefactors[0] = access;
   dbUserMainSet( id, &maind );
   return YES;
 }
@@ -1032,11 +1032,11 @@ cmdErrorString = 0;
     return -3;
 
   /* Check access rights - maind is giver */
-  if( maind.aidaccess == 3 ) {
+  if( maind.benefactors[0] == 3 ) {
     goto access;
-  } else if( ( maind.aidaccess == 2 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) || bitflag( user2->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
+  } else if( ( maind.benefactors[0] == 2 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) || bitflag( user2->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
     goto access;
-  } else if( ( maind.aidaccess == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) ) {
+  } else if( ( maind.benefactors[0] == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) ) {
     goto access;
   }
   cmdErrorString = "You are not authorized to request aid from this faction.";

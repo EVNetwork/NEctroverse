@@ -2476,13 +2476,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 )
    continue;
   httpPrintf( cnt, "<b>%s</b> - ", main2d.faction );
- if( ( main2d.aidaccess == 0 ) ) {
+ if( ( main2d.benefactors[0] == 0 ) ) {
     httpString( cnt, "No access<br><br>" );
     continue;
-  } else if( ( main2d.aidaccess == 1 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ) ) {
+  } else if( ( main2d.benefactors[0] == 1 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ) ) {
     httpString( cnt, "No access<br><br>" );
     continue;
-  } else if( ( main2d.aidaccess == 2 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
+  } else if( ( main2d.benefactors[0] == 2 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
     httpString( cnt, "No access<br><br>" );
     continue;
   }
@@ -2518,19 +2518,19 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br>Allow access to your faction reserves to :<br><select name=\"access\">", URLAppend( cnt, "famgetaid" ) );
  httpPrintf( cnt, "<option value=\"0\"" );
- if( maind.aidaccess == 0 )
+ if( maind.benefactors[0] == 0 )
   httpPrintf( cnt, " selected" );
  httpPrintf( cnt, ">No one</option>" );
  httpPrintf( cnt, "<option value=\"1\"" );
- if( maind.aidaccess == 1 )
+ if( maind.benefactors[0] == 1 )
   httpPrintf( cnt, " selected" );
  httpPrintf( cnt, ">Only the Prime Minister</option>" );
  httpPrintf( cnt, "<option value=\"2\"" );
- if( maind.aidaccess == 2 )
+ if( maind.benefactors[0] == 2 )
   httpPrintf( cnt, " selected" );
  httpPrintf( cnt, ">The Prime Minister and Minister of Development</option>" );
  httpPrintf( cnt, "<option value=\"3\"" );
- if( maind.aidaccess == 3 )
+ if( maind.benefactors[0] == 3 )
   httpPrintf( cnt, " selected" );
  httpPrintf( cnt, ">All factions</option>" );
  httpString( cnt, "</select><br><br>" );

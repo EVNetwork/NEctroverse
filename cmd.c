@@ -47,6 +47,13 @@ char *cmdMainInfoNames[INFOS_TOTAL_NUMUSED] =
 "mineraltax",
 "crystaltax",
 "ectroliumtax",
+
+/*
+"benefactorsnum",
+"benefactorsreduction",
+
+"autoresearch",
+"autoempire",*/
 };
 
 char *cmdBonusName[CMD_BONUS_NUMUSED] =
@@ -539,7 +546,7 @@ dbUserMainDef cmdUserMainDefault =
   { }, //Faction
   { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ }, //ressource
   -1, //Empire
-  { }, //infos
+  { }, //reserved0
   { 0, 0, 0, 0, 0, 0, 0/*, 0*/ }, //Research
   { 100*65536, 100*65536, 100*65536 }, //readiness
   0, //home
@@ -557,7 +564,7 @@ dbUserMainDef cmdUserMainDefault =
   -1, //RaceID
   0, //Artefacts
   -1, //rank
-  -1, //Aidaccess
+  { 0, 0 }, //Aidaccess
 };
 
 dbUserFleetDef cmdUserFleetDefault =
