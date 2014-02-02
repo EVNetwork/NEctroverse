@@ -540,7 +540,7 @@ for( a = 0; a < IOHTTP_FORUM_SMILETOTAL; a++ ) {
 	httpPrintf( cnt, "<td align=\"right\"><img src=\"files?type=image&name=smilies/%s\"></td><td align=\"left\">%s</td>", SmileTable[a]->name, SmileTable[a]->string );
 	if( ( a & 7 ) == 7 ) {
 		httpString( cnt, "</tr><tr>" );
-	} 
+	}
 
 }
 httpString( cnt, "</tr></table>" );
