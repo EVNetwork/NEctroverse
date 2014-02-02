@@ -48,12 +48,12 @@ char *cmdMainInfoNames[INFOS_TOTAL_NUMUSED] =
 "crystaltax",
 "ectroliumtax",
 
-/*
+
 "benefactorsnum",
 "benefactorsreduction",
 
 "autoresearch",
-"autoempire",*/
+"autoempire",
 };
 
 char *cmdBonusName[CMD_BONUS_NUMUSED] =
