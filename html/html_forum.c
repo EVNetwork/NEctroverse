@@ -1,9 +1,9 @@
 #define IOHTTP_FORUM_THREADSNUM (40)
 
 #define IOHTTP_FORUM_POSTSNUM (40)
-
-#define IOHTTP_FORUM_SMILETOTAL (62)
 #define IOHTTP_FORUM_SMILEBASE (8)
+
+static int IOHTTP_FORUM_SMILETOTAL;
 
 typedef struct
 {
@@ -29,14 +29,14 @@ int LoadForumList( ) {
 	struct stat sbuf;
 	struct dirent *de;
 	DIR *dir;
-	int a, size;
+	int size;
 
 setting = GetSetting( "HTTP Images" );
 snprintf(dname, PATH_MAX, "%s/smilies", setting->string_value);
 
 if (NULL == (dir = opendir (dname)))
 	return NO;
-a = 0;
+IOHTTP_FORUM_SMILETOTAL = 0;
 while (NULL != (de = readdir (dir))) {
 	if ('.' == de->d_name[0])
 		continue;
@@ -50,7 +50,7 @@ while (NULL != (de = readdir (dir))) {
 		critical( "HTTP session allocation error!" );
 		return NO;
 	}
-	LoadList->id = a;
+	LoadList->id = IOHTTP_FORUM_SMILETOTAL;
 	char *pointer = strrchr( de->d_name, '.' );
 	if( pointer ) {
 		size = (int)fmin( sizeof(LoadList->string), 2+((strlen(de->d_name) - strlen(pointer))+1) );
@@ -61,9 +61,10 @@ while (NULL != (de = readdir (dir))) {
 	snprintf( LoadList->name, PATH_MAX, "%s", de->d_name );
 	LoadList->next = SmileList;
 	SmileList = LoadList;
-	a++;
+	IOHTTP_FORUM_SMILETOTAL++;
 	
 }
+
 (void)closedir( dir );
 
 
@@ -171,42 +172,51 @@ dest[b] = 0;
 return b;
 }
 
-int iohttpForumFilter3( char *dest, char *string, int size )
-{
- int b, c;
- char *string2;
- for( b = c = 0 ; *string ; )
- {
-  dest[b] = 0;
-  if( b >= size-16 )
-   break;
-  if( ( string2 = ioCompareWords( string, "<br><br><font size=\"1\"><i>Edited by" ) ) )
-   break;
-  if( ( string2 = ioCompareWords( string, "<br>" ) ) )
-  {
-   dest[b++] = 10;
-   string = string2;
-   continue;
-  }
-  if( !( string2 = ioCompareWords( string, "<img src=\"files?type=image&name=smilies/" ) ) )
-   goto iohttpForumFilter3L0;
-  if( !( string2[0] ) || !( string2[1] ) )
-   goto iohttpForumFilter3L0;
-  c = 10 * ( string2[0]-'0' ) + string2[1]-'0';
-  string2 += 2;
-  if( !( string2 = ioCompareWords( string2, ".gif\">" ) ) )
-   goto iohttpForumFilter3L0;
-  if( (unsigned int)c >= IOHTTP_FORUM_SMILETOTAL )
-   goto iohttpForumFilter3L0;
-  b += sprintf( &dest[b], "%s", iohttpForumSmileys[IOHTTP_FORUM_SMILEBASE+c].string );
-  string = string2;
-  continue;
-  iohttpForumFilter3L0:
-  dest[b++] = *string;
-  string++;
- }
- dest[b] = 0;
- return b;
+int iohttpForumFilter3( char *dest, char *string, int size ) {
+	int b, c;
+	char *string2, *string3;
+	ForumSmileysPtr smileys;
+	
+for( b = c = 0 ; *string ; ) {
+	dest[b] = 0;
+	if( b >= size-16 )
+		break;
+	if( ( string2 = ioCompareWords( string, "<br><br><font size=\"1\"><i>Edited by" ) ) )
+		break;
+	if( ( string2 = ioCompareWords( string, "<br>" ) ) ) {
+		dest[b++] = 10;
+		string = string2;
+		continue;
+	}
+	if( !( string2 = ioCompareWords( string, "<img src=\"files?type=image&name=smilies/" ) ) ) {
+		goto iohttpForumFilter3L0;
+	}
+	if( !( string2[0] ) || !( string2[1] ) ) {
+		goto iohttpForumFilter3L0;
+	}
+	
+	for( smileys = SmileList; smileys; smileys = smileys->next  ) {
+		if( ( string3 = ioCompareWords( string2, &smileys->string[2] ) ) )
+			goto iohttpForumFilter3L1;
+	}
+	goto iohttpForumFilter3L0;
+	
+	iohttpForumFilter3L1:
+	if( !( string2 = ioCompareWords( string3, ".gif\">" ) ) ) {
+		goto iohttpForumFilter3L0;
+	}
+	if( smileys->id >= IOHTTP_FORUM_SMILETOTAL )
+		goto iohttpForumFilter3L0;
+	b += sprintf( &dest[b], "%s", smileys->string );
+	string = string2;
+	continue;
+	iohttpForumFilter3L0:
+	dest[b++] = *string;
+	string++;
+}
+dest[b] = 0;
+
+return b;
 }
 
 /*
