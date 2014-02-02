@@ -781,7 +781,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 			continue;
 		}
 		//research maximum
-		fa = (cmdRace[maind.raceid].researchmax[a] + 1);
+		fa = cmdRace[maind.raceid].researchmax[a];
 		// CODE_ARTI
 		if( ( maind.artefacts & ARTEFACT_4_BIT ) && ( ( a == CMD_RESEARCH_ENERGY ) || ( a == CMD_RESEARCH_MILITARY ) ) ) {
 			fa += 25.0;
