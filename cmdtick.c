@@ -758,7 +758,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 	// calculate total research for tech
 
           //research maximum
-	fa = (cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH] + 1);
+	fa = cmdRace[maind.raceid].researchmax[CMD_RESEARCH_TECH];
 
       /*      //      ARTI CODE Divine Stone
                     if(maind.artefacts & ARTEFACT_*_BIT)
