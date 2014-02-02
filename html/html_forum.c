@@ -1,28 +1,28 @@
 #define IOHTTP_FORUM_THREADSNUM (40)
-
 #define IOHTTP_FORUM_POSTSNUM (40)
+
+
 #define IOHTTP_FORUM_SMILEBASE (8)
 
-static int IOHTTP_FORUM_SMILETOTAL;
-
-typedef struct
+static iohttpForumSmileysDef iohttpForumSmileys[IOHTTP_FORUM_SMILEBASE] =
 {
- char string[16];
- char file[PATH_MAX];
-} iohttpForumSmileysDef;
+{ ":)", "smile.gif" },
+{ ":D", "smile2.gif" },
+{ ";)", "wink.gif" },
+{ "x(", "angry.gif" },
+{ "X(", "angry.gif" },
+{ ":(", "sad.gif" },
+{ ":p", "tongue.gif" },
+{ ":P", "tongue.gif" },
+};
 
-typedef struct forum_smileys{
- int id;
- char string[128];
- char name[PATH_MAX];
- struct forum_smileys *next;
-} ForumSmileysDef, *ForumSmileysPtr;
+int IOHTTP_FORUM_SMILETOTAL;
 
 static ForumSmileysPtr SmileList;
-static ForumSmileysPtr *SmileTable;
+ForumSmileysPtr *SmileTable;
  
 /* qsort C-string comparison function */ 
-int cstring_cmp(const void *a, const void *b) 
+static int cstring_cmp(const void *a, const void *b) 
 { 
     const char **ia = (const char **)a;
     const char **ib = (const char **)b;
@@ -111,18 +111,6 @@ FreeList = NULL;
 
 return YES;
 }
-
-iohttpForumSmileysDef iohttpForumSmileys[IOHTTP_FORUM_SMILEBASE] =
-{
-{ ":)", "smile.gif" },
-{ ":D", "smile2.gif" },
-{ ";)", "wink.gif" },
-{ "x(", "angry.gif" },
-{ "X(", "angry.gif" },
-{ ":(", "sad.gif" },
-{ ":p", "tongue.gif" },
-{ ":P", "tongue.gif" },
-};
 
 
 int iohttpForumFilter( char *dest, char *string, int size, int html )

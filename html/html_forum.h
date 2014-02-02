@@ -55,7 +55,22 @@ typedef struct
   dbForumPostInDef post;
 } dbForumPostDef, *dbForumPostPtr;
 
+typedef struct
+{
+ char string[16];
+ char file[PATH_MAX];
+} iohttpForumSmileysDef;
 
+typedef struct forum_smileys{
+ int id;
+ char string[128];
+ char name[PATH_MAX];
+ struct forum_smileys *next;
+} ForumSmileysDef, *ForumSmileysPtr;
+
+extern int IOHTTP_FORUM_SMILETOTAL;
+
+extern ForumSmileysPtr *SmileTable;
 
 int dbForumListForums( int flags, int perms, dbForumForumPtr *forums );
 int dbForumListThreads( int flags, int forum, int base, int end, dbForumForumPtr forumd, dbForumThreadPtr *threads );

@@ -7,7 +7,7 @@
 
 #include "html_main.c"
 
-#include "html_status.c"
+#include "html_info.c"
 
 #include "html_forum.c"
 

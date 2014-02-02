@@ -6,7 +6,7 @@
 #include "html_gameplay.h"
 #include "html_admin.h"
 #include "html_user.h"
-#include "html_status.h"
+#include "html_info.h"
 #include "html_forum.h"
 #include "html_ajax.h"
 

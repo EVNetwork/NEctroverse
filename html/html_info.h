@@ -34,3 +34,6 @@ void getsys_infos( proginfoDef *proginfo );
 struct tm *gettime( time_t t_in, bool gmt );
 
 int timediff( struct tm t_in  );
+
+void iohtmlFunc_info( ReplyDataPtr cnt );
+void iohtmlFunc_rules( ReplyDataPtr cnt );
