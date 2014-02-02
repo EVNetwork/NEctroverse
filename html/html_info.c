@@ -351,7 +351,6 @@ if( type == NULL ) {
 } else {
 	INVALID:
 	iohtmlBodyInit( cnt, "%s: Info", settings->string_value );
-	httpString( cnt, "Invalid Request<br>" );
 	httpString( cnt, "<br>" );
 	httpPrintf( cnt, "<a href=\"%s&type=races\">Races Info</a><br>", URLAppend( cnt, "info" ) );
 	httpPrintf( cnt, "<a href=\"%s&type=units\">Units Info</a><br>", URLAppend( cnt, "info" ) );
