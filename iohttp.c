@@ -47,9 +47,30 @@ char iohttpInputHex( char *src )
   return b;
 }
 
+int io_prep() {
 
+if( http_prep() == NO )  {
+	loghandle(LOG_CRIT, false, "%s", "Server Command Initation Failed, now exiting..." );
+	return NO;
+}
 
+if( LoadForumList() == NO )  {
+	loghandle(LOG_CRIT, false, "%s", "Forum Smiley List Initation Failed, now exiting..." );
+	return NO;
+}
 
+return YES;
+}
+
+int io_end() {
+
+if( UnLoadForumList() == NO )  {
+	loghandle(LOG_CRIT, false, "%s", "Forum Smiley List Unload Failed, now exiting..." );
+	return NO;
+}
+
+return YES;
+}
 
 
 

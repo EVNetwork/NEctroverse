@@ -91,4 +91,8 @@ int iohttpForumCleanIP( int flags, char *ipstring );
 
 void iohtmlFunc_forum( ReplyDataPtr cnt );
 
+
+int LoadForumList( );
+int UnLoadForumList( );
+
 #endif

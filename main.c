@@ -324,11 +324,11 @@ sprintf( DIRCHECKER, "%s/%d.pipe", TMPDIR, options.port[PORT_HTTP] );
 }
 #endif
 
-if( http_prep() == NO ) {
-	critical( "HTTP Preperation Failed" );
+if( io_prep() == NO ) {
+	critical( "WWW Preperation Failed" );
 	return NO;
 } else {
-	info( "HTTP Settings initalized..." );
+	info( "WWW Settings initalized..." );
 }
 
 info( "All Checks passed, begining server loop..." ); 
@@ -373,6 +373,7 @@ if( https_start() == NO )
 if( daemonloop() == NO )
 	return NO;
 
+io_end();
 cmdEnd();
 dbEnd();
 

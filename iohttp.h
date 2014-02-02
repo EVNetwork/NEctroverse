@@ -6,4 +6,7 @@ int iohttpMimeFind( char *name );
 
 char iohttpInputHex( char *src );
 
+int io_prep();
+int io_end();
+
 #endif
