@@ -3857,7 +3857,7 @@ if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( d
 	httpPrintf( cnt, "Are you sure this user %d exists?", playerid );
 	goto RETURN;
 }
-if( (((cnt->session)->dbuser) == NULL ) || ( ( maind.empire != main2d.empire ) || (((cnt->session)->dbuser) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) ) ){
+if( (((cnt->session)->dbuser) == NULL ) || ( (((cnt->session)->dbuser) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) && ( maind.empire != main2d.empire ) ) ){
 	iohtmlBodyInit( cnt, "Restricted Access" );
 	httpString( cnt, "You may not view this players planet listing." );
 	goto RETURN;
