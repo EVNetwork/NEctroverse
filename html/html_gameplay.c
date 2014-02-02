@@ -4957,11 +4957,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
 
  httpString( cnt, "<i>Fleet sent!</i><br><br>" );
- if( a )
+ if( a ) 
   httpPrintf( cnt, "The fleet will reach its destination in %d weeks<br>", a );
  else
   httpString( cnt, "The fleet reached its destination<br>" );
-
+redirect( cnt, "/%s", URLAppend( cnt, "fleets") );
  iohtmlBodyEnd( cnt );
  return;
 }
@@ -6830,10 +6830,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
 
  httpString( cnt, "<i>Fleet sent!</i><br><br>" );
- if( a )
-  httpPrintf( cnt, "The agents will reach their destination in %d weeks<br>", a );
- else
- {
+if( a ) {
+	redirect( cnt, "/%s", URLAppend( cnt, "fleets") );
+	httpPrintf( cnt, "The agents will reach their destination in %d weeks<br>", a );
+} else {
   httpString( cnt, "The agents reached their destination<br>" );
   if( !( cmdFleetActionNewd[1] & CMD_NEWS_FLAGS_NEW ) )
    iohtmlNewsString( cnt, cmdFleetActionNewd );
@@ -6935,10 +6935,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
 
  httpString( cnt, "<i>Fleet sent!</i><br><br>" );
- if( a )
-  httpPrintf( cnt, "The ghosts will reach their destination in %d weeks<br>", a );
- else
- {
+if( a ) {
+	redirect( cnt, "/%s", URLAppend( cnt, "fleets") );
+	httpPrintf( cnt, "The ghosts will reach their destination in %d weeks<br>", a );
+} else {
   httpString( cnt, "The ghosts reached their destination<br>" );
   if( !( cmdFleetActionNewd[1] & CMD_NEWS_FLAGS_NEW ) )
    iohtmlNewsString( cnt, cmdFleetActionNewd );
