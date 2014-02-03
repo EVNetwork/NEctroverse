@@ -541,11 +541,12 @@ goto RETURN;
 SMILEYS:
 httpPrintf( cnt, "There are %d Smileys in total.<br>", IOHTTP_FORUM_SMILETOTAL );
 httpString( cnt, "<table><tr>" );
-for( a = 0; a < IOHTTP_FORUM_SMILETOTAL; a++ ) {
-	httpPrintf( cnt, "<td align=\"right\"><img src=\"files?type=image&name=smilies/%s\"></td><td align=\"left\">%s</td>", SmileTable[a]->name, SmileTable[a]->string );
-	if( ( a & 7 ) == 7 ) {
+for( a = table = 0; a < IOHTTP_FORUM_SMILETOTAL; a++, table++ ) {
+	if( table == 5 ) {
 		httpString( cnt, "</tr><tr>" );
+		table = 0;
 	}
+	httpPrintf( cnt, "<td align=\"right\"><img src=\"files?type=image&name=smilies/%s\"></td><td align=\"left\">%s</td>", SmileTable[a]->name, SmileTable[a]->string );
 
 }
 httpString( cnt, "</tr></table>" );

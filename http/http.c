@@ -1073,8 +1073,7 @@ return;
 
 
 /**
- * Clean up handles of sessions that have been idle for
- * too long.
+ * Clean up sessions that have been idle for longer than SESSION_TIME
  */
 static void expire_sessions () {
 	int id;
