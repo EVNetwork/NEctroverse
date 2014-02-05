@@ -663,7 +663,7 @@ for( a = 0 ; a < b ; a++ ) {
    	httpString( cnt, "</td></tr><tr><td>Topic</td><td><input type=\"text\" name=\"topic\" size=\"32\"></td></tr>" );
    	httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr>" );
    }
-   httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr></table></form>" );
+   httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\" class=\"href\"></td></tr></table></form>" );
   }
 
   if( threads )
@@ -804,7 +804,7 @@ if( flags )  {
    } else {
    	httpString( cnt, "<tr><td>Post</td><td><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\"></textarea></td></tr>" );
    }
-   httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\"></td></tr>" );
+   httpString( cnt, "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Post\" class=\"href\"></td></tr>" );
    httpString( cnt, "</table></form>" );
   }
 
@@ -1011,7 +1011,7 @@ if( id < 0 ) {
   free( posts );
   if( text )
   free( text );
-  httpString( cnt, "</textarea><br/><br/><input type=\"submit\" value=\"Post\"></form>" );
+  httpString( cnt, "</textarea><br/><br/><input type=\"submit\" value=\"Post\" class=\"href\"></form>" );
  }
  else if( action == 8 )
  {

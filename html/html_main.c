@@ -373,7 +373,7 @@ if( (id < 0) ) {
 	httpString( cnt, "<br/>" );
 	httpString( cnt, "Password<br/><input type=\"password\" name=\"pass\" size=\"24\"><br/>" );
 	httpString( cnt, "<br/>" );
-	httpString( cnt, "<input type=\"submit\" value=\"Log in\"></form>" );
+	httpString( cnt, "<input type=\"submit\" value=\"Log in\" class=\"href\"></form>" );
 } else {
 	#if FACEBOOK_SUPPORT
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) {
@@ -936,7 +936,7 @@ httpPrintf( cnt, "<form action=\"/%s\" method=\"POST\">", URLAppend( cnt, "login
 
 httpString( cnt, "Name<br/><input type=\"text\" name=\"name\"><br/>" );
 httpString( cnt, "<br/>Password<br/><input type=\"password\" name=\"pass\"><br/>" );
-httpString( cnt, "<br/><input type=\"submit\" value=\"OK\"></form>" );
+httpString( cnt, "<br/><input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
 
 
 goto LOGIN_END;
@@ -1144,7 +1144,7 @@ if( race ) {
 		httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br/>", token );
 	}
 	httpString( cnt, "<br/>Faction name<br/><input type=\"text\" name=\"faction\"><br/>" );
-	httpString( cnt, "<br/><input type=\"submit\" value=\"OK\"></form>" );
+	httpString( cnt, "<br/><input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
 	goto END;
 }
 
@@ -1162,7 +1162,7 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
 		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdRaceName[a] );
 	}
 	httpString( cnt, "</select><br/><br/>" );
-	httpString( cnt, "<input type=\"submit\" value=\"OK\"></form>" );
+	httpString( cnt, "<input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
 }
 
 httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;type=1\" target=\"_blank\">See empire rankings</a>", URLAppend( cnt, "rankings" ) );
