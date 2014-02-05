@@ -1,4 +1,3 @@
-
 int specopAgentsAllowed( int specop, int raceid )
 {
   if( !( cmdRace[raceid].operations & ( 1 << specop ) ) )
@@ -1147,7 +1146,7 @@ void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
   int a, b, c, d, x, y, dx, dy, specop, penalty, stealth, postnew, plntarget;
   int64_t  attack, defense, defenseghosts;
   double fb, success, successghosts, refatt, refdef, tlosses;//, dist;
-  double fa, ent, en[6], endiv[6];
+  double fa, fc, ent, en[6], endiv[6];
   dbUserFleetDef fleet2d;
   dbMainPlanetDef planetd, planet2d;
   dbMainSystemDef systemd;
@@ -1485,24 +1484,16 @@ Kill 1 Fission takes 400 energy
       en[3] *= 30;
       en[4] *= 400;
       en[5] *= 3;
-      fa = en[0] + en[1] + en[2] + en[3] + en[4] + en[5];
-      if( ent > fa )
-        ent = fa;
-
-      // endiv : factor for each
-      endiv[0] = en[0] / fa;
-      endiv[1] = en[1] / fa;
-      endiv[2] = en[2] / fa;
-      endiv[3] = en[3] / fa;
-      endiv[4] = en[4] / fa;
-      endiv[5] = en[5] / fa;
+      fc = en[0] + en[1] + en[2] + en[3] + en[4] + en[5];
+      if( ent > fc )
+        ent = fc;
 
       for( a = 0 ; a < 3 ; a++ )
 
      {
              if( en[a] < 0.0001 )
                        continue;
-                       fa = ( main2d.ressource[1+a] * ( ent * endiv[a] ) ) / en[a];
+                       fa = ( main2d.ressource[1+a] * ent ) / fc;
                        if( fa > (float)main2d.ressource[1+a] )
                        fa = (float)main2d.ressource[1+a];
                        b = fa;
@@ -1514,9 +1505,9 @@ Kill 1 Fission takes 400 energy
       {
         fa = fb = 0.0;
         if( en[3] > 0.0001 )
-          fa = ( ent * endiv[3] ) / en[3];
+          fa = ent / fc;
         if( en[4] > 0.0001 )
-          fb = ( ent * endiv[4] ) / en[4];
+          fb = ent / fc;
         newd[14] = newd[15] = 0;
         for( a = 0 ; a < b ; a++ )
         {
@@ -1542,7 +1533,7 @@ Kill 1 Fission takes 400 energy
       if( en[5] > 0.0001 )
       {
         newd[16] = 0;
-        fa = ( ent * endiv[5] ) / en[5];
+        fa = ent / fc;
         for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
         {
           b = main2d.research[a] * fa;
