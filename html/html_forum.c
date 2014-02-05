@@ -161,7 +161,7 @@ for( b = c = 0 ; *string ; ) {
 				if( !( string2 = ioCompareWords( string, SmileTable[a]->string ) ) )
 					continue;
 				string = string2;
-				b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" />", SmileTable[a]->name );
+				b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" alt="" />", SmileTable[a]->name );
 				goto iohttpForumFilter2L0;
 			}
 		}
@@ -169,7 +169,7 @@ for( b = c = 0 ; *string ; ) {
 			if( !( string2 = ioCompareWords( string, iohttpForumSmileys[a].string ) ) )
 				continue;
 			string = string2;
-			b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" />", iohttpForumSmileys[a].file );
+			b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" alt="" />", iohttpForumSmileys[a].file );
 			goto iohttpForumFilter2L0;
 		}
 	}
@@ -217,7 +217,7 @@ for( b = c = 0 ; *string ; ) {
 	goto iohttpForumFilter3L0;
 	
 	iohttpForumFilter3L1:
-	if( !( string2 = ioCompareWords( string3, ".gif\" />" ) ) ) {
+	if( !( string2 = ioCompareWords( string3, ".gif\" alt="" />" ) ) ) {
 		goto iohttpForumFilter3L0;
 	}
 	if( SmileTable[a]->id >= IOHTTP_FORUM_SMILETOTAL )
@@ -511,7 +511,7 @@ if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empi
   for( a = 0 ; a < b ; a++ )
   {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forums[a].id, forums[a].time, forums[a].title, forums[a].threads );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), a, forums[a].time, forums[a].title, forums[a].threads );
    httpPrintf( cnt, "%s<br/>Week %d, Year %d", timebuf, forums[a].tick % 52, forums[a].tick / 52 );
 	if( forums[a].lastid != -1 ) {
 		httpPrintf( cnt, "<br/>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), forums[a].lastid, forums[a].lastpost );

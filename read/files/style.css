@@ -18,6 +18,11 @@
 	margin-right:auto;
 	text-align:center;
 }
+table{
+	border-spacing: 0px;
+	border-width: 0px;
+	padding: 0px;
+}
 
 a {
 	text-decoration: none;
