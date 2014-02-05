@@ -30,6 +30,9 @@
 select {
 	cursor: url(files?type=image&name=cursor-full.png), default;
 }
+input {
+	cursor: url(files?type=image&name=cursor-full.png), default;
+}
 a {
 	cursor: url(files?type=image&name=cursor-full.png), default;
 	text-decoration: none;

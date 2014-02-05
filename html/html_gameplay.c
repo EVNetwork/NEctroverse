@@ -68,7 +68,7 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br>", URLAppend( cnt, "account" ) );
  httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
 
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\" class=\"href\"></form>", URLAppend( cnt, "search" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
 /*
  strcpy(szFaction, maind.faction);
  for(i=0;i<strlen(szFaction);i++)
@@ -1494,7 +1494,7 @@ if( !( c ) ) {
 	httpString( cnt, "</form></table>None<br>" );
 } else {
 	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
- 	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table>");
+ 	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
 	httpString( cnt, "<br><i>Summary</i><br>" );
 
 	for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
@@ -1531,7 +1531,7 @@ if( !( c ) ) {
   httpString( cnt, "</form></table>None<br>" );
 } else {
 	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
-	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table><br><i>Summary</i><br>" );
+	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	if( !( usums[a] ) )
 		continue;
@@ -1630,7 +1630,7 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
    httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
   httpPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"unit%dbuild\" size=\"10\"></td></tr>", (long long)maind.totalunit[a], a );
  }
- httpString( cnt, "</table><input type=\"submit\" value=\"Build\" class=\"href\"></form>" );
+ httpString( cnt, "</table><input type=\"submit\" value=\"Build\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -1823,7 +1823,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table cellspacing=\"4\" border=\"0\"><tr><td><input type=\"radio\" value=\"0\" name=\"action\">Buy<br><input type=\"radio\" value=\"1\" name=\"action\">Sell</td><td><select name=\"res\">", URLAppend( cnt, "market" ) );
  for( a = 0 ; a < 3 ; a++ )
   httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRessourceName[a+1] );
- httpString( cnt, "</select></td></tr><tr><td align=\"right\">Price :</td><td><input type=\"text\" name=\"price\" size=\"10\"></td></tr><tr><td>Quantity :</td><td><input type=\"text\" name=\"quantity\" size=\"10\"></td></tr></table><input type=\"submit\" value=\"Execute\" class=\"href\"></form>" );
+ httpString( cnt, "</select></td></tr><tr><td align=\"right\">Price :</td><td><input type=\"text\" name=\"price\" size=\"10\"></td></tr><tr><td>Quantity :</td><td><input type=\"text\" name=\"quantity\" size=\"10\"></td></tr></table><input type=\"submit\" value=\"Execute\"></form>" );
  httpString( cnt, "<br><i>Note that resources placed on the market still decay, including energy.</i>" );
 
  iohtmlBodyEnd( cnt );
@@ -1995,7 +1995,7 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
  if( totals[6] )
   httpPrintf( cnt, " <i>Units (%lld)</i>", (long long)totals[6] );
  httpString( cnt, "</td><td></td></tr>" );
- httpString( cnt, "</table><br><div align=\"right\"><input type=\"submit\" value=\"Build on selected planets\" class=\"href\"></div></form>" );
+ httpString( cnt, "</table><br><div align=\"right\"><input type=\"submit\" value=\"Build on selected planets\"></div></form>" );
 
  free( buffer );
  iohtmlBodyEnd( cnt );
@@ -2393,7 +2393,7 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", (long long)maind.ressource[a], cmdRessourceName[a], a );
  httpString( cnt, "</table><br>" );
- httpString( cnt, "<input type=\"submit\" value=\"Send\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -2512,7 +2512,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", cmdRessourceName[a], a );
  httpString( cnt, "</table><br>" );
- httpString( cnt, "<input type=\"submit\" value=\"Send\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 
  httpString( cnt, "</td><td width=\"50%\" align=\"center\">" );
 
@@ -2534,7 +2534,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpPrintf( cnt, " selected" );
  httpPrintf( cnt, ">All factions</option>" );
  httpString( cnt, "</select><br><br>" );
- httpString( cnt, "<input type=\"submit\" value=\"Change access\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Change access\"></form>" );
 
  httpString( cnt, "</td></tr></table>" );
 
@@ -2553,7 +2553,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", cmdRessourceName[a], a );
  httpString( cnt, "</table><br>" );
- httpString( cnt, "<input type=\"submit\" value=\"Send\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 */
 
 
@@ -2656,7 +2656,7 @@ if( evote ) {
 	if( !( b ) )
 		httpString( cnt, " checked" );
 	httpString( cnt, "></td></tr>" );
-	httpString( cnt, "</table><br><input type=\"hidden\" name=\"type\" value=\"eleader\"><input type=\"submit\" value=\"Change vote\" class=\"href\"></form>" );
+	httpString( cnt, "</table><br><input type=\"hidden\" name=\"type\" value=\"eleader\"><input type=\"submit\" value=\"Change vote\"></form>" );
 } else {
 	httpString( cnt, "Not yet avalible. =(" );
 }
@@ -3001,11 +3001,11 @@ httpString( cnt, "<table>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire name</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fname\" size=\"64\" value=\"%s\"></td></tr>", curfam, empired.name );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Taxation</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", curfam, ( empired.taxation * 100.0 ) );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
 
 
@@ -3037,13 +3037,13 @@ if( empired.numplayers > 1 ) {
  		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdPoliticsName[a-CMD_EMPIRE_POLITICS_START] );
 	}
 	httpString( cnt, "</select></td></tr>" );
-	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\" class=\"href\"></form><br><br><br></td></tr>" );
+	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 }
 cmdExecGetFamPass( curfam, fname );
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire password</td></tr>", URLAppend( cnt, "ministers" ) );
 httpString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fampass\" size=\"64\" value=\"%s\"></td></tr>", curfam, fname );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 
 httpString( cnt, "<tr><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">" );
 httpPrintf( cnt, "<tr><td width=\"40%\"><form action=\"%s\" method=\"POST\">Offer an alliance to an empire</td><td width=\"60%\" rowspan=\"4\" valign=\"top\">", URLAppend( cnt, "ministers" ) );
@@ -3110,27 +3110,27 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 
 httpString( cnt, "</td></tr>" );
 httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
-httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Send NAP Offer</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
-httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Declare war to an empire</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
-httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"2\"> <input type=\"submit\" value=\"Send\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"2\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
 
 httpString( cnt, "</table></td></tr>" );
 
 iohttpForumFilter3( msg[1], message.leader, USER_DESC_MAX );
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Prime Minister message</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\" class=\"href\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 /*
  iohttpForumFilter3( msg[1], message.mow, USER_DESC_MAX );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "ministers" ) );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\" class=\"href\"></form><br><br><br></td></tr>" );
+ httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
 */
 httpString( cnt, "</table>" );
 
@@ -3533,7 +3533,7 @@ for( a = 0 ; a < MAPPICKSIZES ; a++ ) {
 		httpString( cnt, " selected" );
 	httpPrintf( cnt, ">Galaxy sectors of %d by %d</option>", ( sizes[a] << 1 ), ( sizes[a] << 1 ) );
 }
- httpString( cnt, "</select>&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" value=\"Change\" class=\"href\"></form>" );
+ httpString( cnt, "</select>&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" value=\"Change\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -3593,7 +3593,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
  httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><table cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
  httpString( cnt, "<input type=\"checkbox\" name=\"setdefault\"> Save these settings as the default</td></tr></table></td></tr>" );
- httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\" class=\"href\"></td></tr>" );
+ httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\"></td></tr>" );
  httpString( cnt, "</table></form>" );
 
  httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br><br><br>" );
@@ -4019,7 +4019,7 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
     b = 1;
    }
    httpString( cnt, "</select><br>" );
-   httpString( cnt, "<input type=\"submit\" value=\"Confirm\" class=\"href\"></form>" );
+   httpString( cnt, "<input type=\"submit\" value=\"Confirm\"></form>" );
   }
 
   httpString( cnt, "<table width=\"90%\"><tr><td width=\"45%\" align=\"center\" valign=\"top\"><b>Buildings</b><br><br>" );
@@ -4244,7 +4244,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpString( cnt, "&nbsp;" );
  httpString( cnt, "</td></tr>" );
 
- httpString( cnt, "</table><input type=\"submit\" value=\"Build\" class=\"href\"></form>" );
+ httpString( cnt, "</table><input type=\"submit\" value=\"Build\"></form>" );
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a><br><br>", URLAppend( cnt, "system" ), planetd.system );
 
@@ -4553,7 +4553,7 @@ cmdExecAddBuild !!!
   httpString( cnt, "&nbsp;" );
  httpString( cnt, "</td></tr>" );
 
- httpString( cnt, "</table><input type=\"submit\" value=\"Build\" class=\"href\"></form>" );
+ httpString( cnt, "</table><input type=\"submit\" value=\"Build\"></form>" );
 
  free( buffer );
  iohtmlBodyEnd( cnt );
@@ -4715,7 +4715,7 @@ httpPrintf( cnt, "<br>There are %d on this planet<br>( %lld total )</td></tr>", 
   b = 1;
  }
  if( b )
-  httpString( cnt, "</table><br><input type=\"submit\" value=\"Raze\" class=\"href\"></form>" );
+  httpString( cnt, "</table><br><input type=\"submit\" value=\"Raze\"></form>" );
  else
   httpString( cnt, "</table><br>There are no buildings on this planet</form>" );
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
@@ -4808,7 +4808,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
  httpPrintf( cnt, "<tr><td align=\"right\" nowrap>Ground vs ground</td><td><input type=\"text\" name=\"f3\" size=\"4\" value=\"%d\"> %%</td></tr>", maind.config_flee[3] );
  httpString( cnt, "</table>" );
 
- httpString( cnt, "<tr><td align=\"center\"><input type=\"submit\" value=\"Change\" class=\"href\"></td></tr></table></form>" );
+ httpString( cnt, "<tr><td align=\"center\"><input type=\"submit\" value=\"Change\"></td></tr></table></form>" );
 
  httpString( cnt, "</td></tr></table>" );
 
@@ -4894,7 +4894,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
   if( fleetd[0].unit[a] )
    httpPrintf( cnt, "<tr><td align=\"right\" id=\"dunt%d\">%d</td><td align=\"right\">%s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", a, fleetd[0].unit[a], cmdUnitName[a], a );
  }
- httpString( cnt, "</table>X:<input type=\"text\" name=\"X\" size=\"4\"> Y:<input type=\"text\" name=\"Y\" size=\"4\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\"><br><br><input type=\"submit\" value=\"Send\" class=\"href\"></form>" );
+ httpString( cnt, "</table>X:<input type=\"text\" name=\"X\" size=\"4\"> Y:<input type=\"text\" name=\"Y\" size=\"4\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\"><br><br><input type=\"submit\" value=\"Send\"></form>" );
 
  free( fleetd );
  iohtmlBodyEnd( cnt );
@@ -5087,7 +5087,7 @@ void iohtmlFunc_fleetssplit( ReplyDataPtr cnt )
 	 			httpPrintf(cnt, "<td>%s </td><td><input type=\"text\" name=\"u%d\" onKeyUp=\"calcul();\"></td></tr>", cmdUnitName[i], i);
 	 		}
 	 	}
- 		httpString(cnt, "</table><br><input type=\"submit\" value=\"Split\" class=\"href\"> Use % of fleet<input type=\"CHECKBOX\" name=\"cpct\" onClick=\"check()\"> <input type=\"text\" name=\"pct\" READONLY onKeyUp=\"pctchange()\">");
+ 		httpString(cnt, "</table><br><input type=\"submit\" value=\"Split\"> Use % of fleet<input type=\"CHECKBOX\" name=\"cpct\" onClick=\"check()\"> <input type=\"text\" name=\"pct\" READONLY onKeyUp=\"pctchange()\">");
  		httpString(cnt, "</form>");
  	}
  	else
@@ -5218,7 +5218,7 @@ nMax = dbUserFleetList(id, &pFleet);
  	}
  	httpPrintf(cnt, "</tr><tr>");
  	httpString(cnt, "</table>");
- 	httpPrintf(cnt, "<input type=\"submit\" value=\"Merge\" class=\"href\">");
+ 	httpPrintf(cnt, "<input type=\"submit\" value=\"Merge\">");
  	httpString(cnt, "</form>");
  } else if (fltid < 1) {
  	httpString(cnt, "<i>Error while merging</i><br><br>You haven't selected any fleet!<br>");
@@ -5309,7 +5309,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 httpPrintf( cnt, "<input id=\"disbandslider%d\" type=\"range\" min=\"0\" max=\"%d\" value=\"0\" onchange=\"changeslider(this.value,\'disbandrange%d\')\">", a, fleetd.unit[a], a );
 httpPrintf( cnt, "<br>There are %d in this fleet<br>( %lld total )</td></tr>", fleetd.unit[a], (long long)maind.totalunit[a] );
  }
- httpString( cnt, "</table><br><input type=\"submit\" value=\"Disband\" class=\"href\"></form>" );
+ httpString( cnt, "</table><br><input type=\"submit\" value=\"Disband\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -5430,7 +5430,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpPrintf( cnt, "<select name=\"order\"><option value=\"%d\">%s</select>", CMD_FLEET_ORDER_RECALL, cmdFleetOrderName[CMD_FLEET_ORDER_RECALL] );
  else
   httpPrintf( cnt, "<select name=\"order\"><option value=\"%d\">%s<option value=\"%d\">%s<option value=\"%d\">%s<option value=\"%d\">%s</select>", CMD_FLEET_ORDER_ATTACK, cmdFleetOrderName[CMD_FLEET_ORDER_ATTACK], CMD_FLEET_ORDER_STATION, cmdFleetOrderName[CMD_FLEET_ORDER_STATION], CMD_FLEET_ORDER_MOVE, cmdFleetOrderName[CMD_FLEET_ORDER_MOVE], CMD_FLEET_ORDER_RECALL, cmdFleetOrderName[CMD_FLEET_ORDER_RECALL] );
- httpPrintf( cnt, "<br><br>X:<input type=\"text\" name=\"X\" size=\"4\" value=\"%d\"> Y:<input type=\"text\" name=\"Y\" size=\"4\" value=\"%d\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\" value=\"%d\"><br><br><input type=\"submit\" value=\"Change order\" class=\"href\"></form>", ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, fleetd.destination & 0xFF );
+ httpPrintf( cnt, "<br><br>X:<input type=\"text\" name=\"X\" size=\"4\" value=\"%d\"> Y:<input type=\"text\" name=\"Y\" size=\"4\" value=\"%d\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\" value=\"%d\"><br><br><input type=\"submit\" value=\"Change order\"></form>", ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, fleetd.destination & 0xFF );
 	if((fleetd.unit[2]>0)||(fleetd.unit[3]>0)||(fleetd.unit[4]>0)||(fleetd.unit[8]>0)) {
 		httpPrintf(cnt, "<br><a href=\"%s&fleetid=%d\">Split</a><br>" , URLAppend( cnt, "fleetssplit" ), fltid );
 		httpPrintf(cnt, "<a href=\"%s&fltid=%d\">Merge</a>", URLAppend( cnt, "fleetsmerge" ), fltid );
@@ -5799,7 +5799,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if( fleetd.unit[a] )
    httpPrintf( cnt, "<tr><td align=\"right\">%d %s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", fleetd.unit[a], cmdUnitName[a], a );
  }
- httpPrintf( cnt, "</table><input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\"><input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"button\" value=\"Send maximum\" onclick=\"sendmax()\"> <input type=\"submit\" value=\"Send\" class=\"href\"></form>", ( planetd.position >> 8 ) & 0xFFF, ( planetd.position >> 20 ), planetd.position & 0xFF );
+ httpPrintf( cnt, "</table><input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\"><input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"button\" value=\"Send maximum\" onclick=\"sendmax()\"> <input type=\"submit\" value=\"Send\"></form>", ( planetd.position >> 8 ) & 0xFFF, ( planetd.position >> 20 ), planetd.position & 0xFF );
 
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
@@ -5848,7 +5848,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if( fleetd.unit[a] )
    httpPrintf( cnt, "<tr><td align=\"right\">%d %s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", fleetd.unit[a], cmdUnitName[a], a );
  }
- httpPrintf( cnt, "</table><input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\"><input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"submit\" value=\"Send\" class=\"href\"></form>", ( planetd.position >> 8 ) & 0xFFF, ( planetd.position >> 20 ), planetd.position & 0xFF );
+ httpPrintf( cnt, "</table><input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\"><input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"submit\" value=\"Send\"></form>", ( planetd.position >> 8 ) & 0xFFF, ( planetd.position >> 20 ), planetd.position & 0xFF );
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
 
@@ -5928,7 +5928,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
   httpPrintf( cnt, "Target planet<br> X:<input type=\"text\" size=\"4\" name=\"planetx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"planety\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
  else
   httpPrintf( cnt, "Target planet<br> X:<input type=\"text\" size=\"4\" name=\"planetx\"> Y:<input type=\"text\" size=\"4\" name=\"planety\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\">" );
- httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare operation\" class=\"href\">" );
+ httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare operation\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
 
@@ -5957,7 +5957,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  } else {
  	httpString( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"Faction name or ID\">" );
  }
- httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare spell\" class=\"href\">" );
+ httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare spell\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
 
@@ -5986,7 +5986,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
   httpPrintf( cnt, "Target system or planet<br> X:<input type=\"text\" size=\"4\" name=\"sysx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
  else
   httpPrintf( cnt, "Target system or planet<br> X:<input type=\"text\" size=\"4\" name=\"sysx\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\">" );
- httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare incantation\" class=\"href\">" );
+ httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare incantation\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
 
@@ -6517,7 +6517,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\">", x, y );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"hidden\" name=\"agents\" value=\"%d\">", z, agents );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"order\" value=\"%d\">", ( specop + CMD_FLEET_ORDER_FIRSTOP ) );
- httpString( cnt, "<input type=\"submit\" value=\"Send agents\" size=\"10\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Send agents\" size=\"10\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -6622,7 +6622,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "spellsend" ) );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"target\" value=\"%d\"><input type=\"hidden\" name=\"psychics\" value=\"%d\">", targetid, psychics );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"order\" value=\"%d\">", specop );
- httpString( cnt, "<input type=\"submit\" value=\"Cast spell\" size=\"10\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Cast spell\" size=\"10\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -6775,7 +6775,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\">", x, y );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"hidden\" name=\"ghosts\" value=\"%d\">", z, ghosts );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"order\" value=\"%d\">", ( specop + CMD_FLEET_ORDER_FIRSTINCANT ) );
- httpString( cnt, "<input type=\"submit\" value=\"Send ghost ships\" size=\"10\" class=\"href\"></form>" );
+ httpString( cnt, "<input type=\"submit\" value=\"Send ghost ships\" size=\"10\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -7026,12 +7026,12 @@ if( dbUserMainSet( id, &maind ) < 0 ) {
  if( fundstring[0] )
   httpString( cnt, fundstring );
 
- httpPrintf( cnt, "Increase fundings<br><form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\" class=\"href\"></form><br>Current research fundings : %lld<br><br>", URLAppend( cnt, "research" ), (long long)maind.fundresearch );
+ httpPrintf( cnt, "Increase fundings<br><form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\"></form><br>Current research fundings : %lld<br><br>", URLAppend( cnt, "research" ), (long long)maind.fundresearch );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table width=\"90%%\" cellspacing=\"8\">", URLAppend( cnt, "research" ) );
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td nowrap><b>%s</b></td><td nowrap>%lld Points</td><td nowrap>%lld%%</td><td>%s</td><td><input type=\"text\" name=\"rsch%d\" value=\"%d\" size=\"6\">%%</td></tr>", cmdResearchName[a], (long long)maind.research[a], (long long)maind.totalresearch[a], cmdResearchDesc[a], a, maind.allocresearch[a] );
- httpString( cnt, "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td><input type=\"submit\" value=\"Change\" class=\"href\"></td></tr></table></form>" );
+ httpString( cnt, "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td><input type=\"submit\" value=\"Change\"></td></tr></table></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -7264,7 +7264,7 @@ if( typestring ) {
 			free( maild.text );
 		}
 	}
-	httpString( cnt, "</textarea></td></tr><tr><td></td><td><input type=\"submit\" value=\"Send\" class=\"href\"></td></tr></table></form>" );
+	httpString( cnt, "</textarea></td></tr><tr><td></td><td><input type=\"submit\" value=\"Send\"></td></tr></table></form>" );
 }
 
 iohtmlBodyEnd( cnt );
@@ -7442,7 +7442,7 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
    httpString( cnt, str0 );
   else
    httpString( cnt, "Search string" );
-  httpString( cnt, "\"><input type=\"submit\" size=\"2\" value=\"Search\" class=\"href\"></form><br><br>" );
+  httpString( cnt, "\"><input type=\"submit\" size=\"2\" value=\"Search\"></form><br><br>" );
 
   httpString( cnt, "<table><tr><td>" );
   httpPrintf( cnt, "<b>To find an empire</b><br>Specify the empire number in the search field, as <b>%d</b> or <b>#%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_EMPIRES], rand() % dbMapBInfoStatic[MAP_EMPIRES] );
