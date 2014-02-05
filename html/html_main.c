@@ -61,7 +61,7 @@ void iohtmlBase( ReplyDataPtr cnt, int flags ) {
 settings = GetSetting( "Server Name" );
 
 //httpString( cnt, "<!DOCTYPE xhtml><html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en\" xml:lang=\"en\">");
-httpString( cnt, "<!DOCTYPE html><html>");
+httpString( cnt, "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\">");
 
 httpString( cnt, "<head>");
 
