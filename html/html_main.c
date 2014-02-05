@@ -48,7 +48,7 @@ return id;
 iohtmlIdentifyL0:
 
 if( action & 1 ) {
-	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br/>If you were playing just a few seconds ago, your account may have been hijacked." );
+	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, your account may have been hijacked." );
 }
 
 NEGATIVE:
@@ -65,13 +65,13 @@ httpString( cnt, "<!DOCTYPE html><html>");
 
 httpString( cnt, "<head>");
 
-httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />" );
-httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" );
-httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\" />" );
-httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\" />" );
+httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
+httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
+httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
+httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", settings->string_value );
-httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\" />" );
-httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\" />", URLAppend( cnt, "files" ) );
+httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\">" );
+httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 if( !( flags & 32 ) ) {
 	if( flags & 8 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
@@ -150,36 +150,36 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headermail\" height=\"42\" title=\"mail\" background=\"files?type=image&amp;name=i09", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_MAIL )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"41\" border=\"0\" class=\"href\" /></td>" );
+ httpString( cnt, ".jpg\" width=\"41\" border=\"0\" class=\"href\"></td>" );
 
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerbuild\" height=\"42\" title=\"reports\" background=\"files?type=image&amp;name=i10", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_BUILD )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"40\" border=\"0\" class=\"href\" /></a></td>" );
+ httpString( cnt, ".jpg\" width=\"40\" border=\"0\" class=\"href\"></a></td>" );
 
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headeraid\" height=\"42\" title=\"economy\" background=\"files?type=image&amp;name=i11", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_AID )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\" /></a></td>" );
+ httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
 
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerfleet\" height=\"42\" title=\"fleets\" background=\"files?type=image&amp;name=i12", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_ATTACK )
   httpString( cnt, "a" );
  else if( a & CMD_NEWS_FLAGS_FLEET )
   httpString( cnt, "b" );
- httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\" /></a></td>" );
+ httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
 
  httpString( cnt, "<td width=\"18\" height=\"42\" background=\"files?type=image&amp;name=i13.jpg\"></td>" );
  httpString( cnt, "<td background=\"files?type=image&amp;name=i15.jpg\" align=\"left\">" );
 
  httpString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
  httpString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
- httpPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br/>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br/>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
+ httpPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
  httpString( cnt, "</td></tr></table>" );
 
  httpString( cnt, "</td><td width=\"49\" height=\"42\" background=\"files?type=image&amp;name=i17.jpg\"></td></tr></table>" );
 
- httpString( cnt, "</td></tr></td></table></tr></table><br/>" );
+ httpString( cnt, "</td></tr></td></table></tr></table><br>" );
 
  return 1;
 }
@@ -188,7 +188,7 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&amp;name=n1.jpg\" alt=\"NEctroverse Logo\" /></td></tr>" );
+httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&amp;name=n1.jpg\" alt=\"NEctroverse Logo\"></td></tr>" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_12.jpg\" align=\"center\">" );
 httpString( cnt, "<table width=\"90%\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_12.jpg\" valign=\"middle\">" );
@@ -230,7 +230,7 @@ httpString( cnt, "</b></td></tr></table></td></tr>" );
 httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<br>" );
 
 return;
 }
@@ -245,14 +245,14 @@ va_end( ap );
 
 httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\" background=\"files?type=image&amp;name=i27.jpg\"><tr><td width=\"22\" height=\"24\" background=\"files?type=image&amp;name=i25.jpg\" ></td><td align=\"center\" nowrap><b><font face=\"verdana\" size=\"2\">" );
 httpPrintf( cnt, "%s", text);
-httpPrintf( cnt, "</font></b></td><td align=\"right\" background=\"files?type=image&amp;name=i30.jpg\" height=\"24\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"files?type=image&amp;name=i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"%s\"><br/>", ( type ? "left" : "center" ) );
+httpPrintf( cnt, "</font></b></td><td align=\"right\" background=\"files?type=image&amp;name=i30.jpg\" height=\"24\" width=\"62\"></td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"7\" background=\"files?type=image&amp;name=i38.jpg\">&nbsp;</td><td bgcolor=\"#0b1119\" align=\"%s\"><br>", ( type ? "left" : "center" ) );
 
 return;
 }
 
 void html_boxend( ReplyDataPtr cnt ) {
 
-httpString( cnt, "<br/><br/></td><td width=\"7\" background=\"files?type=image&amp;name=i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"files?type=image&amp;name=i45.jpg\" width=\"62\" /></td><td width=\"100%\" background=\"files?type=image&amp;name=i47.jpg\"><img height=\"12\" src=\"files?type=image&amp;name=i47.jpg\" width=\"1\" /></td><td width=\"62\"><img height=\"12\" src=\"files?type=image&amp;name=i49.jpg\" width=\"62\" /></td></tr></table>" );
+httpString( cnt, "<br><br></td><td width=\"7\" background=\"files?type=image&amp;name=i43.jpg\">&nbsp;</td></tr></table><table cellspacing=\"0\" cellpadding=\"0\" width=\"90%\" border=\"0\" align=\"center\"><tr><td width=\"62\"><img height=\"12\" src=\"files?type=image&amp;name=i45.jpg\" width=\"62\"></td><td width=\"100%\" background=\"files?type=image&amp;name=i47.jpg\"><img height=\"12\" src=\"files?type=image&amp;name=i47.jpg\" width=\"1\"></td><td width=\"62\"><img height=\"12\" src=\"files?type=image&amp;name=i49.jpg\" width=\"62\"></td></tr></table>" );
 
 return;
 }
@@ -261,7 +261,7 @@ return;
 void iohtmlBodyEnd( ReplyDataPtr cnt ) {
 
 html_boxend( cnt );
-httpString( cnt, "</center><br/><br/><br/></body></html>" );
+httpString( cnt, "</center><br><br><br></body></html>" );
 
 return;
 }
@@ -311,7 +311,7 @@ iohtmlFBSDK( cnt );
 iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
 
 if( len > 0 )
-	httpPrintf( cnt, "<b>%s</b><br/><br/>", DATAPOOL );
+	httpPrintf( cnt, "<b>%s</b><br><br>", DATAPOOL );
 
 httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
@@ -332,12 +332,12 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						notices++;
 					} else if ( strlen( trimwhitespace(data) ) ) {
 						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
-						httpPrintf( cnt, "&nbsp;&nbsp;%s<br/>", DATAPOOL );
+						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
 						html_boxend( cnt );
 						boxopen = false;
-						httpString( cnt, "<br/><br/>" );
+						httpString( cnt, "<br><br>" );
 						if( notices == (int)settings[1]->num_value ) {
 							httpString( cnt, "<table align=\"right\">" );
 							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
@@ -348,8 +348,8 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				}
 			if(boxopen)
 				html_boxend( cnt );
-			httpString( cnt, "<br/>" );
-			httpString( cnt, "<br/>" );
+			httpString( cnt, "<br>" );
+			httpString( cnt, "<br>" );
 			}
 			fclose( file );
 		}
@@ -369,29 +369,29 @@ httpString( cnt, "<table cellspacing=\"8\"><tr><td>" );
 
 if( (id < 0) ) {
 	httpPrintf( cnt, "<font size=\"2\"><form action=\"%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
-	httpString( cnt, "Name<br/><input type=\"text\" name=\"name\" size=\"24\"><br/>" );
-	httpString( cnt, "<br/>" );
-	httpString( cnt, "Password<br/><input type=\"password\" name=\"pass\" size=\"24\"><br/>" );
-	httpString( cnt, "<br/>" );
+	httpString( cnt, "Name<br><input type=\"text\" name=\"name\" size=\"24\"><br>" );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "Password<br><input type=\"password\" name=\"pass\" size=\"24\"><br>" );
+	httpString( cnt, "<br>" );
 	httpString( cnt, "<input type=\"submit\" value=\"Log in\" class=\"href\"></form>" );
 } else {
 	#if FACEBOOK_SUPPORT
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) {
 		dbUserInfoRetrieve( id, &infod );
-		httpPrintf( cnt, "<br/><b>You are already logged in as <i>%s</i></b><br/>", infod.fbinfo.full_name );
+		httpPrintf( cnt, "<br><b>You are already logged in as <i>%s</i></b><br>", infod.fbinfo.full_name );
 	} else
 	#endif
-	httpPrintf( cnt, "<br/><b>You are already logged in as <i>%s</i></b><br/>", ((cnt->session)->dbuser)->name );
-	httpString( cnt, "<br/>" );
+	httpPrintf( cnt, "<br><b>You are already logged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
+	httpString( cnt, "<br>" );
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br/>", URLAppend( cnt, "main" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "main" ), targetframe( cnt ) );
 	} else {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Activate Now!</a><br/>", URLAppend( cnt, "register" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Activate Now!</a><br>", URLAppend( cnt, "register" ), targetframe( cnt ) );
 	}
-	httpString( cnt, "<br/>" );
-	httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Log out</a><br/>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
-	httpString( cnt, "<br/>" );
-	httpString( cnt, "<br/>" );
+	httpString( cnt, "<br>" );
+	httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Log out</a><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+	httpString( cnt, "<br>" );
+	httpString( cnt, "<br>" );
 }
 
 #if FACEBOOK_SUPPORT
@@ -404,7 +404,7 @@ if( ((cnt->session)->dbuser) ) {
 }
 iohtmlFBConnect( cnt );
 if( (id >= 0) ) {
-	httpString( cnt, "<br/>" );
+	httpString( cnt, "<br>" );
 }
 #endif
 
@@ -423,7 +423,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
 					if( strlen(data) > 1 )
 						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
-						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br/>", DATAPOOL );
+						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", DATAPOOL );
 				}
 				httpString( cnt, "</td></tr></table></td></tr>" );
 			}
@@ -437,7 +437,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 httpString( cnt, "</table>" );
 
 #if FACEBOOK_SUPPORT
-httpString( cnt, "<br/><div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>" );
+httpString( cnt, "<br><div class=\"fb-like\" data-href=\"https://www.facebook.com/nectroverse\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>" );
 #endif
 
 iohtmlFunc_endhtml( cnt );
@@ -476,7 +476,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		free( data );
 	}
 }
-httpString( cnt, "</td></tr></table><br/><br/>" );
+httpString( cnt, "</td></tr></table><br><br>" );
 
 iohtmlFunc_endhtml( cnt );
 return;
@@ -495,118 +495,118 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
 httpString( cnt, "<tr><td align=\"left\"><font size=\"2\">" );
-httpString( cnt, "<center>This page is a basic guide to new players on how to get started.<br/>It is important to read this to get the best possible experience when first playing!</center>" );
+httpString( cnt, "<center>This page is a basic guide to new players on how to get started.<br>It is important to read this to get the best possible experience when first playing!</center>" );
 
-httpString( cnt, "<br/><b>Creating an account:</b><br/>" );
-httpString( cnt, "<a href=\"#a0\">0. Registering the account.</a><br/>" );
-httpString( cnt, "<a href=\"#a1\">1. The user name and faction name.</a><br/>" );
-httpString( cnt, "<a href=\"#a2\">2. Joining an empire.</a><br/>" );
-httpString( cnt, "<a href=\"#a3\">3. Choosing your race.</a><br/>" );
-httpString( cnt, "<a href=\"#a4\">4. Completion and logging in.</a><br/>" );
-httpString( cnt, "</a><br/>" );
+httpString( cnt, "<br><b>Creating an account:</b><br>" );
+httpString( cnt, "<a href=\"#a0\">0. Registering the account.</a><br>" );
+httpString( cnt, "<a href=\"#a1\">1. The user name and faction name.</a><br>" );
+httpString( cnt, "<a href=\"#a2\">2. Joining an empire.</a><br>" );
+httpString( cnt, "<a href=\"#a3\">3. Choosing your race.</a><br>" );
+httpString( cnt, "<a href=\"#a4\">4. Completion and logging in.</a><br>" );
+httpString( cnt, "</a><br>" );
 
-httpString( cnt, "<br/><b>Playing the game:</b><br/>" );
-httpString( cnt, "<a href=\"#b0\">0. Resources & Buildings.</a><br/>" );
-httpString( cnt, "<a href=\"#b1\">1. Planets.</a><br/>" );
-httpString( cnt, "<a href=\"#b2\">2. Research.</a><br/>" );
-httpString( cnt, "<a href=\"#b3\">3. Military.</a><br/>" );
-httpString( cnt, "</a><br/>" );
+httpString( cnt, "<br><b>Playing the game:</b><br>" );
+httpString( cnt, "<a href=\"#b0\">0. Resources & Buildings.</a><br>" );
+httpString( cnt, "<a href=\"#b1\">1. Planets.</a><br>" );
+httpString( cnt, "<a href=\"#b2\">2. Research.</a><br>" );
+httpString( cnt, "<a href=\"#b3\">3. Military.</a><br>" );
+httpString( cnt, "</a><br>" );
 
-httpString( cnt, "<br/><b>Tips:</b><br/>" );
-httpString( cnt, "<a href=\"#c0\">0. Map generation.</a><br/>" );
-httpString( cnt, "<a href=\"#c1\">1. Fleet page.</a><br/>" );
-httpString( cnt, "<a href=\"#c2\">2. Account page.</a><br/>" );
-httpString( cnt, "</a><br/>" );
+httpString( cnt, "<br><b>Tips:</b><br>" );
+httpString( cnt, "<a href=\"#c0\">0. Map generation.</a><br>" );
+httpString( cnt, "<a href=\"#c1\">1. Fleet page.</a><br>" );
+httpString( cnt, "<a href=\"#c2\">2. Account page.</a><br>" );
+httpString( cnt, "</a><br>" );
 
-httpString( cnt, "</td></tr></table><br/><br/>" );
+httpString( cnt, "</td></tr></table><br><br>" );
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br/>" );
+httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br>" );
 
-httpString( cnt, "<a name=\"a0\"><b><i>0. Registering the account.</i></b></a><br/>" );
+httpString( cnt, "<a name=\"a0\"><b><i>0. Registering the account.</i></b></a><br>" );
 httpString( cnt, "The great thing about Ectroverse is that the signup is simple. You won't need to input your e-mail address and no other activation is required." );
-httpString( cnt, "<br/><br/>" );
+httpString( cnt, "<br><br>" );
 
-httpString( cnt, "<a name=\"a1\"><b><i>1. The user name and faction name.</i></b></a><br/>" );
-httpString( cnt, "Your user name is something personal. Other players won't see this.<br/>" );
-httpString( cnt, "Your Faction name however, is your handle in the game. Choose carefully.<br/>" );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<a name=\"a1\"><b><i>1. The user name and faction name.</i></b></a><br>" );
+httpString( cnt, "Your user name is something personal. Other players won't see this.<br>" );
+httpString( cnt, "Your Faction name however, is your handle in the game. Choose carefully.<br>" );
+httpString( cnt, "<br>" );
 
-httpString( cnt, "<a name=\"a2\"><b><i>2. Joining an Empire.</i></b></a><br/>" );
-httpString( cnt, "Being part of an Empire is one of the most important aspects of the game.<br/>" );
-httpString( cnt, "You start out small and will need other players to grow.<br/>" );
-httpString( cnt, "Know anyone in the game? Ask them for their empire number and password.<br/>" );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<a name=\"a2\"><b><i>2. Joining an Empire.</i></b></a><br>" );
+httpString( cnt, "Being part of an Empire is one of the most important aspects of the game.<br>" );
+httpString( cnt, "You start out small and will need other players to grow.<br>" );
+httpString( cnt, "Know anyone in the game? Ask them for their empire number and password.<br>" );
+httpString( cnt, "<br>" );
 httpPrintf( cnt, "If you want to start an Empire of your own, look at the <a href=\"%s&amp;type=1\">Empire rankings</a> and pick a number not yet in the list!", URLAppend( cnt, "rankings" ) );
-httpString( cnt, "<br/>Want to team up with random players? Leave blank. But remember, be a teamplayer and you'll earn a rank in the Empire.<br/>" );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<br>Want to team up with random players? Leave blank. But remember, be a teamplayer and you'll earn a rank in the Empire.<br>" );
+httpString( cnt, "<br>" );
 
-httpString( cnt, "<a name=\"a3\"><b><i>3. Choosing your race.</i></b></a><br/>" );
-httpString( cnt, "You are well on your way to making a name for yourself.<br/>" );
-httpString( cnt, "But how will people remember you? As an aggressive attacker? A proud and rich Energy provider? A self made and self sufficient powerhouse?<br/>" );
-httpString( cnt, "<br/>" );
-httpString( cnt, "Your race will decide which path you will walk.<br/>" );
-httpPrintf( cnt, "<a href=\"%s&amp;type=races\">View the stats for each race here</a>.<br/><br/>", URLAppend( cnt, "info" ) );
+httpString( cnt, "<a name=\"a3\"><b><i>3. Choosing your race.</i></b></a><br>" );
+httpString( cnt, "You are well on your way to making a name for yourself.<br>" );
+httpString( cnt, "But how will people remember you? As an aggressive attacker? A proud and rich Energy provider? A self made and self sufficient powerhouse?<br>" );
+httpString( cnt, "<br>" );
+httpString( cnt, "Your race will decide which path you will walk.<br>" );
+httpPrintf( cnt, "<a href=\"%s&amp;type=races\">View the stats for each race here</a>.<br><br>", URLAppend( cnt, "info" ) );
 
-httpString( cnt, "<a name=\"a4\"><b><i>4. Completion and logging in.</i></b></a><br/>" );
-httpString( cnt, "Congratulations. You have created an account, chosen an Empire to fight for and selected your race.<br/>" );
-httpString( cnt, "You are now ready to explore, build and fight your way to the top.<br/>" );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<a name=\"a4\"><b><i>4. Completion and logging in.</i></b></a><br>" );
+httpString( cnt, "Congratulations. You have created an account, chosen an Empire to fight for and selected your race.<br>" );
+httpString( cnt, "You are now ready to explore, build and fight your way to the top.<br>" );
+httpString( cnt, "<br>" );
 
-httpString( cnt, "</td></tr></table><br/><br/>" );
+httpString( cnt, "</td></tr></table><br><br>" );
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br/>" );
+httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br>" );
 
-httpString( cnt, "<a name=\"b0\"><b><i>0. Resources & Buildings.</i></b></a><br/>" );
-httpString( cnt, "Your main concern is growth. You need to spend your resources by making resources.<br/>" );
-httpString( cnt, "How do you do that? Simple. Build buildings on your planets.<br/>" );
-httpString( cnt, "There are 4 resources in the galaxy. Energy, Minerals, Crystal and Ectrolium. <br/>" );
-httpString( cnt, "Most buildings need 3 of the 4 resources to be built, so you need to plan your building a bit at the start.<br/><br/>" );
+httpString( cnt, "<a name=\"b0\"><b><i>0. Resources & Buildings.</i></b></a><br>" );
+httpString( cnt, "Your main concern is growth. You need to spend your resources by making resources.<br>" );
+httpString( cnt, "How do you do that? Simple. Build buildings on your planets.<br>" );
+httpString( cnt, "There are 4 resources in the galaxy. Energy, Minerals, Crystal and Ectrolium. <br>" );
+httpString( cnt, "Most buildings need 3 of the 4 resources to be built, so you need to plan your building a bit at the start.<br><br>" );
 
-httpString( cnt, "<a name=\"b1\"><b><i>1. Planets.</i></b></a><br/>" );
-httpString( cnt, "Exploring and conquering planets is your way of getting to the top.<br/>" );
-httpString( cnt, "You start out with 4 exploration ships. Send these out into the galaxy to colonise planets.<br/>" );
-httpString( cnt, "Don't worry, you'll be building a lot of them soon enough. Afterall, who is pleased with <i>just</i> 4 planets....<br/><br/>" );
+httpString( cnt, "<a name=\"b1\"><b><i>1. Planets.</i></b></a><br>" );
+httpString( cnt, "Exploring and conquering planets is your way of getting to the top.<br>" );
+httpString( cnt, "You start out with 4 exploration ships. Send these out into the galaxy to colonise planets.<br>" );
+httpString( cnt, "Don't worry, you'll be building a lot of them soon enough. Afterall, who is pleased with <i>just</i> 4 planets....<br><br>" );
 
-httpString( cnt, "<a name=\"b2\"><b><i>2. Research.</i></b></a><br/>" );
-httpString( cnt, "Get smarter and do it smart.<br/>" );
-httpString( cnt, "Research is a very important aspect of the game.<br/>" );
-httpString( cnt, "Head over to your Research tab and distribute points wisely!<br/><br/>" );
+httpString( cnt, "<a name=\"b2\"><b><i>2. Research.</i></b></a><br>" );
+httpString( cnt, "Get smarter and do it smart.<br>" );
+httpString( cnt, "Research is a very important aspect of the game.<br>" );
+httpString( cnt, "Head over to your Research tab and distribute points wisely!<br><br>" );
 
-httpString( cnt, "<a name=\"b3\"><b><i>3. Military.</i></b></a><br/>" );
-httpString( cnt, "A big fleet makes you strong, but they also increase your Networth.<br/>" );
-httpString( cnt, "A higher networth makes it harder to grow.<br/>" );
-httpString( cnt, "Build up your fleet steadily, don't go overboard.<br/>" );
-httpString( cnt, "And remember, you need to pay upkeep for your little Cruisers too!<br/><br/>" );
+httpString( cnt, "<a name=\"b3\"><b><i>3. Military.</i></b></a><br>" );
+httpString( cnt, "A big fleet makes you strong, but they also increase your Networth.<br>" );
+httpString( cnt, "A higher networth makes it harder to grow.<br>" );
+httpString( cnt, "Build up your fleet steadily, don't go overboard.<br>" );
+httpString( cnt, "And remember, you need to pay upkeep for your little Cruisers too!<br><br>" );
 
-httpString( cnt, "</td></tr></table><br/><br/>" );
+httpString( cnt, "</td></tr></table><br><br>" );
 
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br/>" );
+httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br>" );
 
-httpString( cnt, "<a name=\"c0\"><b><i>0. Map generation</i></b></a><br/>" );
+httpString( cnt, "<a name=\"c0\"><b><i>0. Map generation</i></b></a><br>" );
 httpString( cnt, "The galaxy map is the place where you'll find planets to explore and conquer... But it is easy to lose your way and location." );
-httpString( cnt, "<br/>Luckily you can generate a map using the Generation page." );
-httpString( cnt, "<br/>You can filter away planets that are already owned, that are of your Empire or are that of enemies!" );
-httpString( cnt, "<br/>A usefull tool to say the least.<br/><br/>" );
+httpString( cnt, "<br>Luckily you can generate a map using the Generation page." );
+httpString( cnt, "<br>You can filter away planets that are already owned, that are of your Empire or are that of enemies!" );
+httpString( cnt, "<br>A usefull tool to say the least.<br><br>" );
 
-httpString( cnt, "<a name=\"c1\"><b><i>1. Fleet page.</i></b></a><br/>" );
+httpString( cnt, "<a name=\"c1\"><b><i>1. Fleet page.</i></b></a><br>" );
 httpString( cnt, "Check your fleet page. In the top right you see <b>\"Fleet Orders\"</b>, select the dropdown and chose <b>\"Wait in System\"</b> instead of the default one." );
-httpString( cnt, "<br/>It is easy to forget this option, and spend 10 minutes wondering where your mighty fleet has gone!.<br/><br/>" );
+httpString( cnt, "<br>It is easy to forget this option, and spend 10 minutes wondering where your mighty fleet has gone!.<br><br>" );
 
-httpString( cnt, "<a name=\"c2\"><b><i>2. Account page.</i></b></a><br/>" );
+httpString( cnt, "<a name=\"c2\"><b><i>2. Account page.</i></b></a><br>" );
 httpString( cnt, "This will here page allows you to alter your Faction name when the game hasn't started yet." );
-httpString( cnt, "<br/>Once the time starts flowing, you won't be able to change your name until the next round has started.<br/><br/>" );
+httpString( cnt, "<br>Once the time starts flowing, you won't be able to change your name until the next round has started.<br><br>" );
 
 
-httpString( cnt, "</td></tr></table><br/><br/>" );
+httpString( cnt, "</td></tr></table><br><br>" );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -629,11 +629,11 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Hall of Fame / Server Rankings</b></font></td></tr>" );
 httpString( cnt, "<tr><td align=\"left\">" );
 httpString( cnt, "<table>" );
-httpPrintf( cnt, "<tr><td><br/>Round %d - Current round<br/><a href=\"%s&amp;type=1\">Empires</a> - <a href=\"%s\">Players</a></td></tr>", ticks.round, URLAppend( cnt, "rankings" ), URLAppend( cnt, "rankings" ) );
+httpPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"%s&amp;type=1\">Empires</a> - <a href=\"%s\">Players</a></td></tr>", ticks.round, URLAppend( cnt, "rankings" ), URLAppend( cnt, "rankings" ) );
 
 for( a = ( ticks.round - 1 ); a > -1; a--) {
 
-httpPrintf( cnt, "<tr><td><br/>Round %d<br/>", a );
+httpPrintf( cnt, "<tr><td><br>Round %d<br>", a );
 settings = GetSetting( "Directory" );
 sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", settings->string_value, a );
 sprintf( LINKSTRING, "<a href=\"%s&amp;round=%d&amp;type=1\">", URLAppend( cnt, "rankings" ), a );
@@ -647,7 +647,7 @@ httpString( cnt, "</td></tr>" );
 }
 httpString( cnt, "</table>" );
 
-httpString( cnt, "</table><br/><br/><br/><br/><br/><br/><br/><br/></td><td width=\"7%\">&nbsp;</td></tr>" );
+httpString( cnt, "</table><br><br><br><br><br><br><br><br></td><td width=\"7%\">&nbsp;</td></tr>" );
 
 iohtmlFunc_endhtml( cnt );
 return;
@@ -700,10 +700,10 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						boxopen = true;
 					} else if ( strlen( trimwhitespace(data) ) ) {
 						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
-						httpPrintf( cnt, "&nbsp;&nbsp;%s<br/>", DATAPOOL );
+						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
-						httpString( cnt, "</font></td></tr></tbody></table><br/>" );
+						httpString( cnt, "</font></td></tr></tbody></table><br>" );
 						boxopen = false;
 					}
 				}
@@ -849,13 +849,13 @@ if( ( name ) && ( pass ) ) {
 	}
 
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_KILLED ) ) {
-		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br/><br/>" );
+		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br>" );
 		URLString( cnt, "register", "Rejoin the Galaxy" );
-		httpString( cnt, "<br/><br/>" );
+		httpString( cnt, "<br><br>" );
 		num = dbUserNewsList( id, &newsp );
 		newsd = newsp;
 		if( !( num ) )
-			httpString( cnt, "<br/><b>There are no news reports to display.</b><br/>" );
+			httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
 		for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
 			iohtmlNewsString( cnt, newsd );
 		}
@@ -864,30 +864,30 @@ if( ( name ) && ( pass ) ) {
 		goto iohtmlFunc_mainL1;
 	}
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DELETED ) ) {
-		httpString( cnt, "<br/>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br/><br/>" );
+		httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br>" );
 		URLString( cnt, "register", "Register this account again" );
-		httpString( cnt, "<br/><br/>" );
+		httpString( cnt, "<br><br>" );
 		goto iohtmlFunc_mainL1;
 	}
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_NEWROUND ) ) {
-		httpString( cnt, "<br/>The account has been deactivated for the new round, starting soon!<br/>You'll be asked to join an empire of your choice again.<br/><br/>" );
+		httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br>" );
 		URLString( cnt, "register", "Complete account registration" );
-		httpString( cnt, "<br/><br/>" );
+		httpString( cnt, "<br><br>" );
 		goto iohtmlFunc_mainL1;
 	}
 
 	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
-		httpString( cnt, "<br/>The activation of this account was not completed.<br/><br/>" );
+		httpString( cnt, "<br>The activation of this account was not completed.<br><br>" );
 		URLString( cnt, "register", "Continue Registration" );
-		httpString( cnt, "<br/><br/>" );
+		httpString( cnt, "<br><br>" );
 		iohtmlFunc_mainL1:
 		URLString( cnt, "forum", "Public Forums" );
 		if((cnt->session)->dbuser) {
 			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-				httpString( cnt, "<br/><br/>" );
+				httpString( cnt, "<br><br>" );
 				URLString( cnt, "moderator", "Moderator panel" );
 			} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-				httpString( cnt, "<br/>" );
+				httpString( cnt, "<br>" );
 				URLString( cnt, "administration", "Admin panel" );
 			}
 		}
@@ -903,11 +903,11 @@ if( file ) {
 	fprintf( file, "Failed!\n\n\n" );
 	fclose( file );
 }
-httpString( cnt, "<span class=\"genlargered\">Login Failed</span><br/>" );
+httpString( cnt, "<span class=\"genlargered\">Login Failed</span><br>" );
 LOGIN_RAW:
 
 if( text ) {
-	httpPrintf( cnt, "<br/>%s", text );
+	httpPrintf( cnt, "<br>%s", text );
 	if( flag ) {
 		settings = GetSetting( "HTTP Text" );
 		sprintf( DIRCHECKER, "%s/login.txt", settings->string_value );
@@ -916,9 +916,9 @@ if( text ) {
 				data[stdata.st_size] = 0;
 				if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 					if( stdata.st_size > 0 ) {
-						httpString( cnt, "<br/>" );
+						httpString( cnt, "<br>" );
 						while( fgets( data, stdata.st_size, file ) != NULL ) {
-							httpPrintf( cnt, "%s<br/>", trimwhitespace(data) );
+							httpPrintf( cnt, "%s<br>", trimwhitespace(data) );
 						}
 					}
 					fclose( file );
@@ -927,16 +927,16 @@ if( text ) {
 			}
 		}
 	}
-	httpString( cnt, "<br/><br/>" );
+	httpString( cnt, "<br><br>" );
 } else {
-	httpString( cnt, "<br/><h3>Login</h3><br/>" );
+	httpString( cnt, "<br><h3>Login</h3><br>" );
 }
 
 httpPrintf( cnt, "<form action=\"/%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
 
-httpString( cnt, "Name<br/><input type=\"text\" name=\"name\"><br/>" );
-httpString( cnt, "<br/>Password<br/><input type=\"password\" name=\"pass\"><br/>" );
-httpString( cnt, "<br/><input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
+httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
+httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
+httpString( cnt, "<br><input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
 
 
 goto LOGIN_END;
@@ -952,10 +952,10 @@ redirect( cnt, "/%s", URLAppend( cnt, "main") );
 else
 redirect( cnt, "/%s", URLAppend( cnt, "register") );
 
-httpString( cnt, "<b>Login sucess, you should be redirected shortly...</b><br/>" );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<b>Login sucess, you should be redirected shortly...</b><br>" );
+httpString( cnt, "<br>" );
 URLString( cnt, bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "main" : "register", "Click here if it takes too long." );
-httpString( cnt, "<br/>" );
+httpString( cnt, "<br>" );
 LOGIN_END:
 iohtmlFunc_endhtml( cnt );
 return;
@@ -979,7 +979,7 @@ void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	int64_t newd[DB_USER_NEWS_BASE];
 	dbMailDef maild;
 	ConfigArrayPtr settings;
-	char Message[] = "Congratulations! You have successfully registered your account!<br/>Good luck and have fun,<br/><br/>- Administration";
+	char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
 
 
 race = iohtmlVarsFind( cnt, "race" );
@@ -997,7 +997,7 @@ id = iohtmlIdentify( cnt, 8 );
 iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
-httpPrintf( cnt, "<h3>%s</h3><br/>", ( ( (cnt->session)->dbuser ) ? "Activation" : "Registration" ) );
+httpPrintf( cnt, "<h3>%s</h3><br>", ( ( (cnt->session)->dbuser ) ? "Activation" : "Registration" ) );
 
 //Used to skip/disable registration.
 #if REGISTER_DISABLE
@@ -1029,18 +1029,18 @@ if( race ) {
  			httpString( cnt, cmdErrorString );
  		else
   			httpString( cnt, "Error encountered while registering user" );
- 		httpString( cnt, "<br/><br/>" );
+ 		httpString( cnt, "<br><br>" );
  		URLString( cnt, "register", "Try Again." );
  		goto END;
   	}
-	httpPrintf( cnt, "<b>Account activated!</b><br/>" );
-	httpString( cnt, "<br/><br/><br/>" );
+	httpPrintf( cnt, "<b>Account activated!</b><br>" );
+	httpString( cnt, "<br><br><br>" );
 	URLString( cnt, "main", "Click here if not redirected." );
 	redirect( cnt, "%s", URLAppend( cnt, "main" ) );
 	goto END;
 } else if( ( ( token != NULL ) && ( ( faction != NULL ) && ( strlen(faction) > 0 ) ) ) || ( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) ) {
 	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
-		httpPrintf( cnt, "Username format prohibited<br/>%s is blacklisted due to FBUSER*", name );
+		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
 		goto END;
 	}
 	#if FACEBOOK_SUPPORT
@@ -1069,7 +1069,7 @@ if( race ) {
 		else
 			httpString( cnt, "Error encountered while registering user" );
 
-		httpString( cnt, "<br/><br/>" );
+		httpString( cnt, "<br><br>" );
 		URLString( cnt, "register", "Try Again." );
 		goto END;
 	}
@@ -1097,7 +1097,7 @@ if( race ) {
 		httpString( cnt, "Error encountered while registering session" );
 		goto END;
 	}
-	httpString( cnt, "New user created<br/>" );
+	httpString( cnt, "New user created<br>" );
 	#if FACEBOOK_SUPPORT
 	if( ( token != NULL ) && ( strlen( fbdata.id ) ) ) {
 		dbUserInfoRetrieve( id, &infod );
@@ -1110,8 +1110,8 @@ if( race ) {
 		dbUserSave( id, (cnt->session)->dbuser );
 	} else
 	#endif	
-	httpPrintf( cnt, "User name : %s<br/>Password : %s<br/>", ((cnt->session)->dbuser)->name, pass );
-	httpPrintf( cnt, "Faction name : %s<br/>Account ID : %d<br/>", ((cnt->session)->dbuser)->faction, id );
+	httpPrintf( cnt, "User name : %s<br>Password : %s<br>", ((cnt->session)->dbuser)->name, pass );
+	httpPrintf( cnt, "Faction name : %s<br>Account ID : %d<br>", ((cnt->session)->dbuser)->faction, id );
 	settings = GetSetting( "Directory" );
 	sprintf( COREDIR, "%s/logs/register.log", settings->string_value );
 	if( ( file = fopen( COREDIR, "a" ) ) ) {
@@ -1138,35 +1138,35 @@ if( race ) {
 } else if ( ( id < 0 ) ) {
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
 	if( token == NULL ) {
-		httpString( cnt, "User name<br/><input type=\"text\" name=\"name\"><br/>" );
-		httpString( cnt, "<br/>Password<br/><input type=\"password\" name=\"pass\"><br/>" );
+		httpString( cnt, "User name<br><input type=\"text\" name=\"name\"><br>" );
+		httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
 	} else {
-		httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br/>", token );
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br>", token );
 	}
-	httpString( cnt, "<br/>Faction name<br/><input type=\"text\" name=\"faction\"><br/>" );
-	httpString( cnt, "<br/><input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
+	httpString( cnt, "<br>Faction name<br><input type=\"text\" name=\"faction\"><br>" );
+	httpString( cnt, "<br><input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
 	goto END;
 }
 
 if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
 	redirect( cnt, "/%s", URLAppend( cnt, "main" ) );
-	httpString( cnt, "This account has already been activated, you will now be redirected into the game...<br/>" );
-	httpString( cnt, "<br/>" );
+	httpString( cnt, "This account has already been activated, you will now be redirected into the game...<br>" );
+	httpString( cnt, "<br>" );
 	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long<a>", URLAppend( cnt, "/main" ) );
 } else {
-	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br/><br/>Empire number<br/><i>Leave blank to join a random empire</i><br/><input type=\"text\" name=\"empire\"><br/><br/>", URLAppend( cnt, "register" ) );
-	httpString( cnt, "Empire password<br/><i>Only required if defined by the leader of the empire to join.</i><br/><input type=\"text\" name=\"fampass\"><br/><br/>" );
-	httpString( cnt, "Faction race<br/><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
-	httpPrintf( cnt, "<a href=\"%s&amp;type=races\" target=\"_blank\">See races</a><br/><select name=\"race\">", URLAppend( cnt, "info" ) );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>", URLAppend( cnt, "register" ) );
+	httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
+	httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
+	httpPrintf( cnt, "<a href=\"%s&amp;type=races\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "info" ) );
 	for( a = 0 ; a < CMD_RACE_NUMUSED ; a++ ) {
 		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdRaceName[a] );
 	}
-	httpString( cnt, "</select><br/><br/>" );
+	httpString( cnt, "</select><br><br>" );
 	httpString( cnt, "<input type=\"submit\" value=\"OK\" class=\"href\"></form>" );
 }
 
-httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;type=1\" target=\"_blank\">See empire rankings</a>", URLAppend( cnt, "rankings" ) );
-httpPrintf( cnt, "<br/><a href=\"%s\" target=\"_blank\">See faction rankings</a>", URLAppend( cnt, "rankings" ) );
+httpPrintf( cnt, "<br><br><a href=\"%s&amp;type=1\" target=\"_blank\">See empire rankings</a>", URLAppend( cnt, "rankings" ) );
+httpPrintf( cnt, "<br><a href=\"%s\" target=\"_blank\">See faction rankings</a>", URLAppend( cnt, "rankings" ) );
 
 //End New functions
 #if REGISTER_DISABLE
