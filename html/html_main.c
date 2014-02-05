@@ -147,27 +147,27 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\"><tr>" );
 
  a = dbUserNewsGetFlags( id );
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headermail\" height=\"42\" title=\"mail\" background=\"files?type=image&amp;name=i09", URLAppend( cnt, "hq" ) );
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headermail\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i09", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_MAIL )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"41\" border=\"0\" class=\"href\"></td>" );
+ httpString( cnt, ".jpg);\" width=\"41\" border=\"0\" class=\"href\"></td>" );
 
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerbuild\" height=\"42\" title=\"reports\" background=\"files?type=image&amp;name=i10", URLAppend( cnt, "hq" ) );
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerbuild\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i10", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_BUILD )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"40\" border=\"0\" class=\"href\"></a></td>" );
+ httpString( cnt, ".jpg);\" width=\"40\" border=\"0\" class=\"href\"></a></td>" );
 
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headeraid\" height=\"42\" title=\"economy\" background=\"files?type=image&amp;name=i11", URLAppend( cnt, "hq" ) );
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headeraid\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i11", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_AID )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
+ httpString( cnt, ".jpg);\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
 
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerfleet\" height=\"42\" title=\"fleets\" background=\"files?type=image&amp;name=i12", URLAppend( cnt, "hq" ) );
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerfleet\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i12", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_ATTACK )
   httpString( cnt, "a" );
  else if( a & CMD_NEWS_FLAGS_FLEET )
   httpString( cnt, "b" );
- httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
+ httpString( cnt, ".jpg);\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
 
  httpString( cnt, "<td width=\"18\" height=\"42\" background=\"files?type=image&amp;name=i13.jpg\"></td>" );
  httpString( cnt, "<td background=\"files?type=image&amp;name=i15.jpg\" align=\"left\">" );

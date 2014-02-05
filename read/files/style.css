@@ -18,11 +18,12 @@
 	margin-right:auto;
 	text-align:center;
 }
-table{
+.table{
 	border-spacing: 0px;
 	border-width: 0px;
 	padding: 0px;
 }
+
 .href {
 	cursor: url(files?type=image&name=cursor-full.png), default;
 }

@@ -68,7 +68,7 @@ try {
 function changebackground(img, a) {
 
 try {
-	_(img).style.backgroundImage=a;
+	_(img).style.backgroundImage="url("+a+")";;
 } catch(err) {
 	return;
 }

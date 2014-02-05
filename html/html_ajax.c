@@ -185,7 +185,7 @@ if( ( typestring ) && ( refer ) ) {
 					httpString( cnt, "</form></table>None<br>" );
 			} else {
 				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
- 				httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
+ 				httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table>");
 				httpString( cnt, "<br><i>Summary</i><br>" );
 				for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 					if( !( bsums[a] ) )
@@ -209,7 +209,7 @@ if( ( typestring ) && ( refer ) ) {
 				  httpString( cnt, "</form></table>None<br>" );
 			} else {
 				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
-				httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
+				httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table><br><i>Summary</i><br>" );
 				for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 					if( !( usums[a] ) )
 						continue;
