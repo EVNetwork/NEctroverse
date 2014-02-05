@@ -52,6 +52,7 @@ a:hover{
 }
 
 body {
+	cursor: url(files?type=image&name=cursor.ani);
 	background-color: #000000; color: #C0D0D8;
 	background-image : url(files?type=image&name=background2.gif);
 	background-attachment:fixed;
@@ -87,7 +88,7 @@ body,td{
 .gensmallwhite { 
 	font-size : 10px; 
 }
-.genwhite,.genmedwhite,.gensmallwhite {
+.genwhite,.genmedwhite,.gensmallwhite b{
 	color : #FFFFFF;
 }
 .genlargered {
