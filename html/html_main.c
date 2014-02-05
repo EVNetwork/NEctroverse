@@ -150,24 +150,24 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headermail\" height=\"42\" title=\"mail\" background=\"files?type=image&amp;name=i09", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_MAIL )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"41\" border=\"0\"></td>" );
+ httpString( cnt, ".jpg\" width=\"41\" border=\"0\" class=\"href\" /></td>" );
 
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerbuild\" height=\"42\" title=\"reports\" background=\"files?type=image&amp;name=i10", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_BUILD )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"40\" border=\"0\" /></a></td>" );
+ httpString( cnt, ".jpg\" width=\"40\" border=\"0\" class=\"href\" /></a></td>" );
 
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headeraid\" height=\"42\" title=\"economy\" background=\"files?type=image&amp;name=i11", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_AID )
   httpString( cnt, "a" );
- httpString( cnt, ".jpg\" width=\"39\" border=\"0\" /></a></td>" );
+ httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\" /></a></td>" );
 
  httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerfleet\" height=\"42\" title=\"fleets\" background=\"files?type=image&amp;name=i12", URLAppend( cnt, "hq" ) );
  if( a & CMD_NEWS_FLAGS_ATTACK )
   httpString( cnt, "a" );
  else if( a & CMD_NEWS_FLAGS_FLEET )
   httpString( cnt, "b" );
- httpString( cnt, ".jpg\" width=\"39\" border=\"0\" /></a></td>" );
+ httpString( cnt, ".jpg\" width=\"39\" border=\"0\" class=\"href\" /></a></td>" );
 
  httpString( cnt, "<td width=\"18\" height=\"42\" background=\"files?type=image&amp;name=i13.jpg\"></td>" );
  httpString( cnt, "<td background=\"files?type=image&amp;name=i15.jpg\" align=\"left\">" );
@@ -188,7 +188,7 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&amp;name=n1.jpg\" /></td></tr>" );
+httpString( cnt, "<tr><td align=\"center\"><img src=\"files?type=image&amp;name=n1.jpg\" alt=\"NEctroverse Logo\" /></td></tr>" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_12.jpg\" align=\"center\">" );
 httpString( cnt, "<table width=\"90%\" height=\"75\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_12.jpg\" valign=\"middle\">" );

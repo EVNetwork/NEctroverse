@@ -23,8 +23,11 @@ table{
 	border-width: 0px;
 	padding: 0px;
 }
-
+.href {
+	cursor: url(files?type=image&name=cursor-full.png), default;
+}
 a {
+	cursor: url(files?type=image&name=cursor-full.png), default;
 	text-decoration: none;
 	color : #FFFFFF;
 }
@@ -52,10 +55,10 @@ a:hover{
 }
 
 body {
-	cursor: url(files?type=image&name=cursor.ani);
 	background-color: #000000; color: #C0D0D8;
 	background-image : url(files?type=image&name=background2.gif);
 	background-attachment:fixed;
+	cursor: url(files?type=image&name=cursor-hollow.png), default;
 }
 body,td{
 	font-size : 12px;

@@ -35,9 +35,9 @@ char *iohttpMimeHeaderExts7[IOHTTP_MIME_HEADERS7] =
 char *iohttpMimeHeaderExts8[IOHTTP_MIME_HEADERS8] =
 { "ico" };
 
-#define IOHTTP_MIME_HEADERS9 1
+#define IOHTTP_MIME_HEADERS9 2
 char *iohttpMimeHeaderExts9[IOHTTP_MIME_HEADERS9] =
-{ "cgi" };
+{ "cgi", "ani" };
 
 
 
