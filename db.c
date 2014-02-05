@@ -2408,7 +2408,7 @@ if( ( famid < 0 ) || ((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
 if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_MESSAGES ) ) )
 	return -3;
 
-file_r( message, 1, sizeof(dbEmpireMessageDef), file );
+file_w( message, 1, sizeof(dbEmpireMessageDef), file );
 
 fclose( file );
 
