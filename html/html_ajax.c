@@ -182,18 +182,18 @@ if( ( typestring ) && ( refer ) ) {
 				c++;
 			}
 			if( !( c ) ) {
-					httpString( cnt, "</form></table>None<br>" );
+					httpString( cnt, "</form></table>None<br/>" );
 			} else {
 				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
  				httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
-				httpString( cnt, "<br><i>Summary</i><br>" );
+				httpString( cnt, "<br/><i>Summary</i><br/>" );
 				for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 					if( !( bsums[a] ) )
 						continue;
-					httpPrintf( cnt, "%lld %s<br>", (long long)bsums[a], cmdBuildingName[a] );
+					httpPrintf( cnt, "%lld %s<br/>", (long long)bsums[a], cmdBuildingName[a] );
 					b += bsums[a];
 				}
-				httpPrintf( cnt, "<i>Total of %lld buildings under construction</i><br>", (long long)b );
+				httpPrintf( cnt, "<i>Total of %lld buildings under construction</i><br/>", (long long)b );
 			}
 			httpPrintf( cnt, "]]></council_html_buildings>" );
 			httpPrintf( cnt, "<council_html_units><![CDATA[" );
@@ -206,17 +206,17 @@ if( ( typestring ) && ( refer ) ) {
 				c++;
 			}
 			if( !( c ) ) {
-				  httpString( cnt, "</form></table>None<br>" );
+				  httpString( cnt, "</form></table>None<br/>" );
 			} else {
 				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
-				httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
+				httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br/><i>Summary</i><br/>" );
 				for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 					if( !( usums[a] ) )
 						continue;
-					httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
+					httpPrintf( cnt, "%lld %s<br/>", (long long)usums[a], cmdUnitName[a] );
 					b += usums[a];
   				}
-				httpPrintf( cnt, "<i>Total of %lld units under construction</i><br>", (long long)b );
+				httpPrintf( cnt, "<i>Total of %lld units under construction</i><br/>", (long long)b );
 			}
 			httpPrintf( cnt, "]]></council_html_units>" );
 
@@ -373,11 +373,11 @@ if( refer ) {
 	httpString( cnt, "\t\t//Okie, Update uinfos user infos...\n" );
 	httpString( cnt, "\t\tif( login ) {\n" );
 	httpString( cnt, "\t\t\t//Here we set images for mail, build etc...\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"mail\") == 1 ) { changeimage(\"headermail\", \"files?type=image&name=i09a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"build\") == 1 ) { changeimage(\"headerbuild\", \"files?type=image&name=i10a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"aid\") == 1 ) { changeimage(\"headeraid\", \"files?type=image&name=i11a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"fleet\") == 1 ) { changeimage(\"headerfleet\", \"files?type=image&name=i12a.jpg\"); }\n" );
-	httpString( cnt, "\t\t\telse if( getnodevar(xmlhttp.responseXML,\"fleet\") == 2 ) { changeimage(\"headerfleet\", \"files?type=image&name=i12b.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"mail\") == 1 ) { changebackground(\"headermail\", \"files?type=image&name=i09a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"build\") == 1 ) { changebackground(\"headerbuild\", \"files?type=image&name=i10a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"aid\") == 1 ) { changebackground(\"headeraid\", \"files?type=image&name=i11a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\tif( getnodevar(xmlhttp.responseXML,\"fleet\") == 1 ) { changebackground(\"headerfleet\", \"files?type=image&name=i12a.jpg\"); }\n" );
+	httpString( cnt, "\t\t\telse if( getnodevar(xmlhttp.responseXML,\"fleet\") == 2 ) { changebackground(\"headerfleet\", \"files?type=image&name=i12b.jpg\"); }\n" );
 	httpString( cnt, "\n" );
 	httpString( cnt, "\t\t\tvar networth = getnodevar(xmlhttp.responseXML,\"networth\");\n" );
 	httpString( cnt, "\t\t\tvar population = getnodevar(xmlhttp.responseXML,\"population\");\n" );

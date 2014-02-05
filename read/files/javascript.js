@@ -65,6 +65,16 @@ try {
 
 }
 
+function changebackground(img, a) {
+
+try {
+	_(img).background=a;
+} catch(err) {
+	return;
+}
+
+}
+
 function updatehtml(id, i) {
 
 if(i==""){ return; }

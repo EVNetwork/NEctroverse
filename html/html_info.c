@@ -11,14 +11,10 @@ statime->seconds = ( stime % minute );
 return;
 }
 
-#define MAX_TIME_STRING 1024
 static StringBufferPtr time_string_buffer;
 
 char *TimeToString( long eltime ) {
-	//int offset = 0;
 	bool bweeks, bdays, bhours, bmins;
-	//char buffer[MAX_TIME_STRING];
-	//char *ret;
 	timeDef deftime;
 
 if( time_string_buffer ) {
@@ -32,59 +28,46 @@ converttime_todef(&deftime, eltime);
 
 bweeks = bdays = bhours = bmins = false;
 
-//memset( &buffer, 0, MAX_TIME_STRING );
 
 if( deftime.weeks ) {
 	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.weeks, ( ( deftime.weeks == 1 ) ? "week" : "weeks" ) );
-	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.weeks, ( ( deftime.weeks == 1 ) ? "week" : "weeks" ) );
 	bweeks = true;
 }
 
 if( deftime.days ) {
 	if( bweeks ) {
 		AddBufferString( time_string_buffer, " " );
-		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
 	}
 	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
-	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.days, ( ( deftime.days == 1 ) ? "day" : "days" ) );
 	bdays = true;
 }
 
 if ( deftime.hours ) {
 	if( bdays ) {
 		AddBufferString( time_string_buffer, " " );
-		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
 	}
 	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
-	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.hours, ( ( deftime.hours == 1 ) ? "hour" :"hours" ) );
 	bhours = true;
 }
 
 if ( deftime.minutes ) {
 	if( ( bdays ) || ( bhours ) ) {
 		AddBufferString( time_string_buffer, " " );
-		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
 	}
 	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
-	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.minutes, ( ( deftime.minutes == 1 ) ? "minute" : "minutes" ) );
 	bmins = true;
 }
 
 if ( deftime.seconds ) {
 	if( ( bdays ) || ( bhours ) || ( bmins ) ) {
 		AddBufferString( time_string_buffer, " " );
-		//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%s", " " );
 	}
 	AddBufferPrintf( time_string_buffer, "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
-	//offset += snprintf( &buffer[offset], (MAX_TIME_STRING - offset), "%ld %s", deftime.seconds, ( ( deftime.seconds == 1 ) ? "second" : "seconds" ) );
 }
 
 if( time_string_buffer->off == 0 ) {
 	AddBufferString( time_string_buffer, "Never, or bad time input!" );
 }
-
-time_string_buffer->buf[time_string_buffer->off] = '\0';
-//ret = buffer;
 
 return time_string_buffer->buf;
 }
@@ -148,9 +131,9 @@ httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspaci
 httpString( cnt, "<table width=\"100%\" border=\"0\"><tr><td width=\"50%\" align=\"left\" valign=\"top\">" );
 settings[0] = GetSetting( "Server Name" );
 sprintf(addstring, "%s status", settings[0]->string_value );
-iohtmlFunc_boxstart( cnt, addstring);
+html_boxstart( cnt, true, addstring);
 httpString( cnt, "<table border=\"0\"><tr><td>" );
-httpString( cnt, "<b>Overall Game Stats</b><br>" );
+httpString( cnt, "<b>Overall Game Stats</b><br/>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 httpString( cnt, "<tr><td>General status</td><td>&nbsp;:&nbsp;</td><td>No problems detected</td></tr>" ); // Should we partially keep running through signals?
 
@@ -180,9 +163,9 @@ if( ticks.status ) {
 }
 httpPrintf( cnt, "<tr><td>Process priority</td><td>&nbsp;:&nbsp;</td><td id=\"servpriority\">%ld</td></tr>", pinfod.stpriority );
 httpPrintf( cnt, "<tr><td>Threads Active</td><td>&nbsp;:&nbsp;</td><td id=\"servthreads\">%ld</td></tr>", pinfod.threads );
-httpString( cnt, "</table><br>" );
+httpString( cnt, "</table><br/>" );
 
-httpString( cnt, "<b>Game Server usage ( average )</b><br>" );
+httpString( cnt, "<b>Game Server usage ( average )</b><br/>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 httpPrintf( cnt, "<tr><td>Memory used</td><td>&nbsp;:&nbsp;</td><td id=\"memused\">%lu bytes ( %5.1f mb )</td></tr>", pinfod.stvsize, pinfod.stvsize  / megabyte  );
 httpPrintf( cnt, "<tr><td>Resident Size</td><td>&nbsp;:&nbsp;</td><td id=\"strss\">%ld pages</td></tr>", pinfod.strss );
@@ -192,11 +175,11 @@ httpPrintf( cnt, "<tr><td>In user mode</td><td>&nbsp;:&nbsp;</td><td id=\"cpuuse
 httpString( cnt, "</table>" );
 
 httpString( cnt, "</td></tr></table>" );
-iohtmlFunc_boxend( cnt );
+html_boxend( cnt );
 httpString( cnt, "</td><td width=\"50%\" align=\"left\" valign=\"top\">" );
-iohtmlFunc_boxstart( cnt, "Server Info" );
+html_boxstart( cnt, true, "Server Info" );
 httpString( cnt, "<table border=\"0\"><tr><td>" );
-httpString( cnt, "<b>System OS</b><br>" );
+httpString( cnt, "<b>System OS</b><br/>" );
 uname( &stustname );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 
@@ -210,10 +193,10 @@ httpPrintf( cnt, "<tr><td>Sysname</td><td>&nbsp;:&nbsp;</td><td>%s %s</td></tr>"
 httpPrintf( cnt, "<tr><td>Release</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", stustname.version );
 httpPrintf( cnt, "<tr><td>Uptime</td><td>&nbsp;:&nbsp;</td><td id=\"hostuptime\">%s</td></tr>", TimeToString( sysinfod.uptime ) );
 httpPrintf( cnt, "<tr><td>Processes</td><td>&nbsp;:&nbsp;</td><td id=\"hostprocs\">%d</td></tr>", sysinfod.procs );
-httpString( cnt, "</table><br>" );
+httpString( cnt, "</table><br/>" );
 
 
-httpString( cnt, "<b>Server Processor Info</b><br>" );
+httpString( cnt, "<b>Server Processor Info</b><br/>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 
 if( (pinfod.loadavg[0] > 0) || (pinfod.loadavg[1] > 0) || (pinfod.loadavg[2] > 0) )
@@ -241,8 +224,8 @@ if( cpuinfo.socketcount ) {
 	httpPrintf( cnt, "<tr><td>Sockets</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketcount );
 	httpPrintf( cnt, "<tr><td>Total Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.totalcorecount );
 }
-httpString( cnt, "</table><br>" );
-httpString( cnt, "<b>System RAM infomation</b><br>" );
+httpString( cnt, "</table><br/>" );
+httpString( cnt, "<b>System RAM infomation</b><br/>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 httpPrintf( cnt, "<tr><td>Total memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\">( %5.1f mb )</td></tr>", sysinfod.totalram, (sysinfod.totalram  / megabyte ) );
 httpPrintf( cnt, "<tr><td>Avalible memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"memavbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"memavmeg\">( %5.1f mb )</td></tr>", sysinfod.freeram, (sysinfod.freeram  / megabyte ) );
@@ -256,8 +239,8 @@ if( (sysinfod.sharedram) > 0 )
 	httpPrintf( cnt, "<tr><td>Shared Ram</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"sharedbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"sharedmeg\">( %5.1f mb )</td></tr>", sysinfod.sharedram, (sysinfod.sharedram  / megabyte ) );
 httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
-iohtmlFunc_boxend( cnt );
-httpString( cnt, "<br><br>" );
+html_boxend( cnt );
+httpString( cnt, "<br/><br/>" );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -351,85 +334,85 @@ if( type == NULL ) {
 } else {
 	INVALID:
 	iohtmlBodyInit( cnt, "%s: Info", settings->string_value );
-	httpString( cnt, "<br>" );
-	httpPrintf( cnt, "<a href=\"%s&type=races\">Races Info</a><br>", URLAppend( cnt, "info" ) );
-	httpPrintf( cnt, "<a href=\"%s&type=units\">Units Info</a><br>", URLAppend( cnt, "info" ) );
-	httpPrintf( cnt, "<a href=\"%s&type=buildings\">Building Info</a><br>", URLAppend( cnt, "info" ) );
-	httpString( cnt, "<br>" );
-	httpPrintf( cnt, "<a href=\"%s&type=smileys\">Forum Smileys</a><br>", URLAppend( cnt, "info" ) );
+	httpString( cnt, "<br/>" );
+	httpPrintf( cnt, "<a href=\"%s&type=races\">Races Info</a><br/>", URLAppend( cnt, "info" ) );
+	httpPrintf( cnt, "<a href=\"%s&type=units\">Units Info</a><br/>", URLAppend( cnt, "info" ) );
+	httpPrintf( cnt, "<a href=\"%s&type=buildings\">Building Info</a><br/>", URLAppend( cnt, "info" ) );
+	httpString( cnt, "<br/>" );
+	httpPrintf( cnt, "<a href=\"%s&type=smileys\">Forum Smileys</a><br/>", URLAppend( cnt, "info" ) );
 	goto RETURN;
 }
 
 
 RACES:
 for( a = 0; a < CMD_RACE_NUMUSED ; a++) {
-	httpPrintf( cnt, "<div class=\"genlarge\">%s</div><br>", cmdRaceName[a] );
+	httpPrintf( cnt, "<div class=\"genlarge\">%s</div><br/>", cmdRaceName[a] );
 	if( cmdRace[a].special )
-	httpPrintf( cnt, "<i><b>Special bonus.</b></i><br>" );
+	httpPrintf( cnt, "<i><b>Special bonus.</b></i><br/>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_POPRESEARCH )
-		httpString( cnt, "Each 6000 population produces 1 research point every week!<br>" );
+		httpString( cnt, "Each 6000 population produces 1 research point every week!<br/>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_SOLARP15 )
-		httpString( cnt, "Solar Production increased by 15%!<br>" );
+		httpString( cnt, "Solar Production increased by 15%!<br/>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_CULPROTECT )
-		httpString( cnt, "Culture Research production provides a psychic shield for planets!<br>" );
+		httpString( cnt, "Culture Research production provides a psychic shield for planets!<br/>" );
 	if( cmdRace[a].special & CMD_RACE_SPECIAL_IDW )
-		httpString( cnt, "Imune to Dark Web Effects!<br>" );
+		httpString( cnt, "Imune to Dark Web Effects!<br/>" );
 
 	httpString( cnt, "<table width=\"*\" border=\"0\"><tr>" );
-	httpString( cnt, "<td valign=\"top\" width=\"250\"><i><b>Main bonuses</b></i><br>" );
+	httpString( cnt, "<td valign=\"top\" width=\"250\"><i><b>Main bonuses</b></i><br/>" );
 	if( (cmdRace[a].attack - 1) )
-	httpPrintf( cnt, "%+.0f%% Attack.<br>", ( cmdRace[a].attack - 1 ) * 100 );
+	httpPrintf( cnt, "%+.0f%% Attack.<br/>", ( cmdRace[a].attack - 1 ) * 100 );
 	if( cmdRace[a].defense - 1 )
-	httpPrintf( cnt, "%+.0f%% Defence.<br>", ( cmdRace[a].defense - 1 ) * 100 );
+	httpPrintf( cnt, "%+.0f%% Defence.<br/>", ( cmdRace[a].defense - 1 ) * 100 );
 	if( ( ( cmdRace[a].speed / 2 ) - 1 ) )
-		httpPrintf( cnt, "%+.0f%% Travel Speed<br>", ( ( cmdRace[a].speed / 2 ) - 1 ) *100 );
+		httpPrintf( cnt, "%+.0f%% Travel Speed<br/>", ( ( cmdRace[a].speed / 2 ) - 1 ) *100 );
 	for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ ) {
 		if( (cmdRace[a].unit[b] - 1) )
-			httpPrintf( cnt, " %+.0f%% %s strength.<br>", ( cmdRace[a].unit[b] - 1 ) * 100, cmdUnitName[b] );
+			httpPrintf( cnt, " %+.0f%% %s strength.<br/>", ( cmdRace[a].unit[b] - 1 ) * 100, cmdUnitName[b] );
 	}
 	c = false;
 	if( (int)((((cmdRace[a].growth)/0.02) - 1 ) * 100 ) != 0 ) {
-		httpPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
-		httpPrintf( cnt, "%+.0f%% Population Growth<br>",  (((cmdRace[a].growth)/0.02) - 1 ) * 100 );
+		httpPrintf( cnt, "<br/><i><b>Ressource bonuses</b></i><br/>" );
+		httpPrintf( cnt, "%+.0f%% Population Growth<br/>",  (((cmdRace[a].growth)/0.02) - 1 ) * 100 );
 		c = true;
 	}
 	for( b = 0; b < CMD_RESSOURCE_NUMUSED ; b++) {
 		if( (cmdRace[a].resource[b] - 1) ) {
 			if( c == false ) {
-				httpPrintf( cnt, "<br><i><b>Ressource bonuses</b></i><br>" );
+				httpPrintf( cnt, "<br/><i><b>Ressource bonuses</b></i><br/>" );
 				c = true;
 			}
-			httpPrintf( cnt, "%+.0f%% %s production<br>", ( cmdRace[a].resource[b] - 1 ) * 100, cmdRessourceName[b] );
+			httpPrintf( cnt, "%+.0f%% %s production<br/>", ( cmdRace[a].resource[b] - 1 ) * 100, cmdRessourceName[b] );
 		}
 	}
 	httpString( cnt, "</td><td valign=\"top\" width=\"225\">" );
-	httpPrintf( cnt, "<i><b>Research bonuses</b></i><br>" );
+	httpPrintf( cnt, "<i><b>Research bonuses</b></i><br/>" );
 	for( b = 0 ; b < CMD_RESEARCH_NUMUSED ; b++ ) {
 		if( cmdRace[a].researchmax[b] != 200 )
-			httpPrintf( cnt, "%.0f%% %s limit.<br>", cmdRace[a].researchmax[b], cmdResearchName[b] );
+			httpPrintf( cnt, "%.0f%% %s limit.<br/>", cmdRace[a].researchmax[b], cmdResearchName[b] );
 	}
 	for( b = 0 ; b < CMD_RESEARCH_NUMUSED ; b++ ) {
 		if( ( cmdRace[a].researchpoints[b] - 1 ) )
-			httpPrintf( cnt, "%+.0f%% %s<br>", ( cmdRace[a].researchpoints[b] - 1 ) * 100, cmdResearchName[b] );
+			httpPrintf( cnt, "%+.0f%% %s<br/>", ( cmdRace[a].researchpoints[b] - 1 ) * 100, cmdResearchName[b] );
 	}
 	httpString( cnt, "</td><td valign=\"top\" width=\"140\"><i><b>Operations</b></i>" );
 	for( b = 0 ; b < CMD_AGENTOP_NUMUSED ; b++ ) {
 		if( specopAgentsAllowed( b, a ) )
-			httpPrintf( cnt, "<br>%s", cmdAgentopName[b] );
+			httpPrintf( cnt, "<br/>%s", cmdAgentopName[b] );
 	}
-	httpString( cnt, "<br><br><i><b>Spells</b></i>" );
+	httpString( cnt, "<br/><br/><i><b>Spells</b></i>" );
 	for( b = 0 ; b < CMD_PSYCHICOP_NUMUSED ; b++ ) {
 		if( specopPsychicsAllowed( b, a ) )
-			httpPrintf( cnt, "<br>%s", cmdPsychicopName[b] );
+			httpPrintf( cnt, "<br/>%s", cmdPsychicopName[b] );
 	}
 	httpString( cnt, "</td>" );
 	httpString( cnt, "<td valign=\"top\" width=\"140\"><i><b>Incantations</b></i>" );
 	for( b = 0 ; b < CMD_GHOSTOP_NUMUSED ; b++ ) {
 		if( specopGhostsAllowed( b, a ) )
-			httpPrintf( cnt, "<br>%s", cmdGhostopName[b] );
+			httpPrintf( cnt, "<br/>%s", cmdGhostopName[b] );
 	}
 	httpString( cnt, "</td></tr></table>" );
-	httpString( cnt, "<br><br>" );
+	httpString( cnt, "<br/><br/>" );
 }
 goto RETURN;
 UNITS:
@@ -448,7 +431,7 @@ for( a = table = 0; a < CMD_UNIT_NUMUSED; a++, table++ ) {
 		httpString( cnt, "<tr>" );
 	}
 	httpString( cnt, "<td valign=\"top\" align=\"center\">" );
-	httpPrintf( cnt, "<span class=\"genlarge\">%s</span><br>", cmdUnitName[a] );
+	httpPrintf( cnt, "<span class=\"genlarge\">%s</span><br/>", cmdUnitName[a] );
 	httpString( cnt, "<table>" );
 	if( a != CMD_UNIT_PHANTOM ) {
 		httpString( cnt, "<tr><td><span class=\"genblue\">Base Cost:</span></td><td>" );
@@ -502,7 +485,7 @@ for( a = table = 0; a < CMD_BLDG_NUMUSED+1; a++, table++ ) {
 		httpString( cnt, "<tr>" );
 	}
 	httpString( cnt, "<td valign=\"top\" align=\"center\">" );
-	httpPrintf( cnt, "<span class=\"genlarge\">%s</span><br>", cmdBuildingName[a] );
+	httpPrintf( cnt, "<span class=\"genlarge\">%s</span><br/>", cmdBuildingName[a] );
 	httpString( cnt, "<table>" );
 	httpString( cnt, "<tr><td><span class=\"genblue\">Base Cost:</span></td><td>" );
 	httpString( cnt, "<table>" );
@@ -539,14 +522,14 @@ httpString( cnt, "</table>" );
 goto RETURN;
 
 SMILEYS:
-httpPrintf( cnt, "There are %d Smileys in total.<br>", IOHTTP_FORUM_SMILETOTAL );
+httpPrintf( cnt, "There are %d Smileys in total.<br/>", IOHTTP_FORUM_SMILETOTAL );
 httpString( cnt, "<table><tr>" );
 for( a = table = 0; a < IOHTTP_FORUM_SMILETOTAL; a++, table++ ) {
 	if( table == 5 ) {
 		httpString( cnt, "</tr><tr>" );
 		table = 0;
 	}
-	httpPrintf( cnt, "<td align=\"right\"><img src=\"files?type=image&name=smilies/%s\"></td><td align=\"left\">%s</td>", SmileTable[a]->name, SmileTable[a]->string );
+	httpPrintf( cnt, "<td align=\"right\"><img src=\"files?type=image&name=smilies/%s\" /></td><td align=\"left\">%s</td>", SmileTable[a]->name, SmileTable[a]->string );
 
 }
 httpString( cnt, "</tr></table>" );
@@ -596,18 +579,18 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 }
 
 
-httpString( cnt, "<br>" );
-httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", settings[0]->string_value );
-httpString( cnt, "<br>" );
-httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br>" );
-httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
-httpString( cnt, "<br>" );
-httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br>" );
-httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br>" );
-httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br>" );
-httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br>" );
+httpString( cnt, "<br/>" );
+httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br/>", settings[0]->string_value );
+httpString( cnt, "<br/>" );
+httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br/>" );
+httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br/>" );
+httpString( cnt, "<br/>" );
+httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br/>" );
+httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br/>" );
+httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br/>" );
+httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br/>" );
 
-httpString( cnt, "</td></tr></table><br><br>" );
+httpString( cnt, "</td></tr></table><br/><br/>" );
 
 iohtmlFunc_endhtml( cnt );
 

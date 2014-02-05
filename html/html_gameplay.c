@@ -10,11 +10,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 page = iohtmlVarsFind( cnt, "page" );
 
 settings = GetSetting( "Server Name" );
-httpPrintf( cnt, "<html><head><title>%s</title><link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\"></head>", settings->string_value );
+httpPrintf( cnt, "<!DOCTYPE html><html><head><title>%s</title><link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\" /></head>", settings->string_value );
 httpString( cnt, "<frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
-httpPrintf( cnt, "<frame src=\"%s\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>", URLAppend( cnt, "menu" ) );
-httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>", URLAppend( cnt, ( page ? page : "hq" ) ) );
-httpPrintf( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"%s\">Menu</a></noframes>", URLAppend( cnt, "menu" ) );
+httpPrintf( cnt, "<frame src=\"%s\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize />", URLAppend( cnt, "menu" ) );
+httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize />", URLAppend( cnt, ( page ? page : "hq" ) ) );
+httpPrintf( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br/><br/><a href=\"%s\">Menu</a></noframes>", URLAppend( cnt, "menu" ) );
 httpString( cnt, "</frameset></html>" );
 
 return;
@@ -35,38 +35,38 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 	maind.empire = -1;
 }
 
- httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" width=\"150\" background=\"files?type=image&amp;name=i36.jpg\" border=\"0\" align=\"center\"><tr>" );
+ httpString( cnt, "<br/><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=150px;\" background=\"files?type=image&amp;name=i36.jpg\"><tr>" );
  httpString( cnt, "<td background=\"files?type=image&amp;name=i18.jpg\" width=\"150\" height=\"40\">&nbsp;</td>" );
  httpString( cnt, "</tr><tr><td background=\"files?type=image&amp;name=i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
 
  httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Headquarters</a>", URLAppend( cnt, "hq" ) );
- httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Council</a><br>", URLAppend( cnt, "council" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Units</a><br>", URLAppend( cnt, "units" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Market</a><br>", URLAppend( cnt, "market" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Planets</a><br>", URLAppend( cnt, "planets" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
- httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
+ httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table style=\"text-align:left;width=125px;\" cellspacing=\"0\" cellpadding=\"0\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Council</a><br/>", URLAppend( cnt, "council" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Units</a><br/>", URLAppend( cnt, "units" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Market</a><br/>", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Planets</a><br/>", URLAppend( cnt, "planets" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Empire</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
+ httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\" target=\"main\">Forum</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Send aid</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Receive aid</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">News</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Relations</a><br/>", URLAppend( cnt, "famrels" ) );
 
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Research</a><br>", URLAppend( cnt, "research" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Operations</a><br>", URLAppend( cnt, "spec" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Fleets</a><br/>", URLAppend( cnt, "fleets" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Galaxy map</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Full map</a><br/>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Map Gen</a><br/>", URLAppend( cnt, "mapadv" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Research</a><br/>", URLAppend( cnt, "research" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Operations</a><br/>", URLAppend( cnt, "spec" ) );
 
- httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table width=\"125\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"left\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\" /></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=125px;\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  
- httpPrintf( cnt, "<a href=\"%s&amp;type=0\" target=\"main\">Messages</a><br>", URLAppend( cnt, "mail" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;type=1\" target=\"main\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Forums</a><br>", URLAppend( cnt, "forum" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br>", URLAppend( cnt, "account" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=0\" target=\"main\">Messages</a><br/>", URLAppend( cnt, "mail" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Faction rankings</a><br/>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=1\" target=\"main\">Empire rankings</a><br/>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Forums</a><br/>", URLAppend( cnt, "forum" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br/>", URLAppend( cnt, "account" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br/><br/>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
 /*
@@ -85,14 +85,14 @@ if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 			break;
 		}
 	}
- httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
- httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
+ httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br/>" );
+ httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br/>" );
 */
 if( (cnt->session)->dbuser ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"main\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
+		httpPrintf( cnt, "<br/><a href=\"%s\" target=\"main\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
 	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<br/><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
 	}
 }
 
@@ -110,7 +110,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  int a, b;
  dbUserMainDef maind, main2d;
 
- httpPrintf( cnt, "<br><br><i>Week %lld, year %lld</i><br>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
+ httpPrintf( cnt, "<br/><br/><i>Week %lld, year %lld</i><br/>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
  if( (long long)newsd[2] == CMD_NEWS_BUILDING )
   httpPrintf( cnt, "You built %lld %s on the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>", (long long)newsd[4], cmdBuildingName[ (long long)newsd[3] & 0xFFF ], URLAppend( cnt, "planet" ), (long long)newsd[5], ( (long long)newsd[6] >> 8 ) & 0xFFF, (long long)newsd[6] >> 20, (long long)newsd[6] & 0xFF );
  else if( (long long)newsd[2] == CMD_NEWS_UNIT )
@@ -119,7 +119,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  {
   httpPrintf( cnt, "Your exploration ship reached the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
   if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ARTEFACT_NUMUSED ) )
-   httpPrintf( cnt, "<br>We discovered an ancient artefact on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
+   httpPrintf( cnt, "<br/>We discovered an ancient artefact on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
  }
  else if( (long long)newsd[2] == CMD_NEWS_EXPLORE_FAILED )
   httpPrintf( cnt, "Your exploration ship reached the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>, but the planet was already habited. The ship is now awaiting your orders in this solar system.", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
@@ -148,7 +148,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[3], maind.faction );
   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[4], (long long)newsd[4] );
   iohtmlNewsStringL0:
-  httpString( cnt, "<br>You lost : " );
+  httpString( cnt, "<br/>You lost : " );
   for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
   {
    if( !( (long long)newsd[8+a] ) )
@@ -167,7 +167,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   }
   if( !( b ) )
    httpString( cnt, "Nothing" );
-  httpString( cnt, "<br>You destroyed : " );
+  httpString( cnt, "<br/>You destroyed : " );
   for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
   {
    if( !( (long long)newsd[8+CMD_UNIT_FLEET+a] ) )
@@ -182,7 +182,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   if( ( (long long)newsd[7] & 0xF00 ) )
   {
    b = (long long)newsd[7] & 0xF00;
-   httpString( cnt, "<br>Your forces preferred to avoid directly engaging enemy units in " );
+   httpString( cnt, "<br/>Your forces preferred to avoid directly engaging enemy units in " );
    if( b == 0x100 )
     httpString( cnt, "the first phase" );
    else if( b == 0x200 )
@@ -217,7 +217,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   }
   if( ( (long long)newsd[7] & 0xFF ) )
   {
-   httpString( cnt, "<br>Overwhelmed by defending enemy forces, the attacking fleet hastidly retreated to minimize losses in the " );
+   httpString( cnt, "<br/>Overwhelmed by defending enemy forces, the attacking fleet hastidly retreated to minimize losses in the " );
    if( ( (long long)newsd[7] & 0x10 ) )
     httpString( cnt, "first phase of the battle" );
    if( ( (long long)newsd[7] & 0x20 ) )
@@ -236,7 +236,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  {
   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
    return;
-  httpPrintf( cnt, "You received an aid shipment from %s!<br>", maind.faction );
+  httpPrintf( cnt, "You received an aid shipment from %s!<br/>", maind.faction );
   for( a = b = 0 ; a < 4 ; a++ )
   {
    if( !( (long long)newsd[4+a] ) )
@@ -252,7 +252,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  {
   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
    return;
-  httpPrintf( cnt, "%s requested an aid shipment!<br>", maind.faction );
+  httpPrintf( cnt, "%s requested an aid shipment!<br/>", maind.faction );
   for( a = b = 0 ; a < 4 ; a++ )
   {
    if( !( (long long)newsd[4+a] ) )
@@ -275,31 +275,31 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    httpPrintf( cnt, " owned by <a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[5], main2d.faction );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
   }
-  httpPrintf( cnt, " to perform <b>%s</b>.<br>", cmdAgentopName[(long long)newsd[9]] );
+  httpPrintf( cnt, " to perform <b>%s</b>.<br/>", cmdAgentopName[(long long)newsd[9]] );
   if( main2d.faction )
   {
    if( (long long)newsd[7] == -1 )
-    httpPrintf( cnt, "<i>Your agents successfully stayed undiscovered during the operation.</i><br>" );
+    httpPrintf( cnt, "<i>Your agents successfully stayed undiscovered during the operation.</i><br/>" );
    else
-    httpPrintf( cnt, "<i>%lld of your agents were caught, but your forces still managed to kill %lld defending agents.</i><br>", (long long)newsd[7], (long long)newsd[8] );
+    httpPrintf( cnt, "<i>%lld of your agents were caught, but your forces still managed to kill %lld defending agents.</i><br/>", (long long)newsd[7], (long long)newsd[8] );
   }
 
   if( (long long)newsd[2] == CMD_NEWS_OPSPYTARGET )
   {
-   httpPrintf( cnt, "Your agents gathered the following information.<br>" );
+   httpPrintf( cnt, "Your agents gathered the following information.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Fleet readiness : unknown<br>" );
+    httpString( cnt, "Fleet readiness : unknown<br/>" );
    else
-    httpPrintf( cnt, "Fleet readiness : %lld%%<br>", (long long)newsd[10] >> 16 );
+    httpPrintf( cnt, "Fleet readiness : %lld%%<br/>", (long long)newsd[10] >> 16 );
    if( (long long)newsd[11] == -1 )
-    httpString( cnt, "Psychics readiness : unknown<br>" );
+    httpString( cnt, "Psychics readiness : unknown<br/>" );
    else
-    httpPrintf( cnt, "Psychics readiness : %lld%%<br>", (long long)newsd[11] >> 16 );
+    httpPrintf( cnt, "Psychics readiness : %lld%%<br/>", (long long)newsd[11] >> 16 );
    if( (long long)newsd[12] == -1 )
-    httpString( cnt, "Agents readiness : unknown<br>" );
+    httpString( cnt, "Agents readiness : unknown<br/>" );
    else
-    httpPrintf( cnt, "Agents readiness : %lld%%<br>", (long long)newsd[12] >> 16 );
+    httpPrintf( cnt, "Agents readiness : %lld%%<br/>", (long long)newsd[12] >> 16 );
    for( a = 13 ; a < 13+(CMD_RESSOURCE_NUMUSED+1) ; a++ )
    {
    if( (a-13) == CMD_RESSOURCE_NUMUSED )
@@ -307,80 +307,80 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    else
     httpString( cnt, cmdRessourceName[a-13] );
     if( (long long)newsd[a] == -1 )
-     httpString( cnt, " : unknown<br>" );
+     httpString( cnt, " : unknown<br/>" );
     else
-     httpPrintf( cnt, " : %lld%s<br>", (long long)newsd[a], ((a-13) == CMD_RESSOURCE_NUMUSED) ? "0" : "" );
+     httpPrintf( cnt, " : %lld%s<br/>", (long long)newsd[a], ((a-13) == CMD_RESSOURCE_NUMUSED) ? "0" : "" );
    }
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPOBSERVEPLANET )
   {
-   httpPrintf( cnt, "Your agents gathered the following information.<br>" );
+   httpPrintf( cnt, "Your agents gathered the following information.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Planet size : unknown<br>" );
+    httpString( cnt, "Planet size : unknown<br/>" );
    else
-    httpPrintf( cnt, "Planet size : %lld<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "Planet size : %lld<br/>", (long long)newsd[10] );
    if( (long long)newsd[11] )
    {
     if( (long long)newsd[11] == -1 )
-     httpString( cnt, "Population : unknown<br>" );
+     httpString( cnt, "Population : unknown<br/>" );
     else
-     httpPrintf( cnt, "Population : %lld0<br>", (long long)newsd[11] );
+     httpPrintf( cnt, "Population : %lld0<br/>", (long long)newsd[11] );
    }
    if( (long long)newsd[12] )
    {
     if( (long long)newsd[12] == -1 )
-     httpString( cnt, "Maximum population : unknown<br>" );
+     httpString( cnt, "Maximum population : unknown<br/>" );
     else
-     httpPrintf( cnt, "Maximum population : %lld0<br>", (long long)newsd[12] );
+     httpPrintf( cnt, "Maximum population : %lld0<br/>", (long long)newsd[12] );
    }
    if( (long long)newsd[13] == -1 )
-    httpString( cnt, "Portals coverage : unknown<br>" );
+    httpString( cnt, "Portals coverage : unknown<br/>" );
    else
-    httpPrintf( cnt, "Portals coverage : %lld%%<br>", (long long)newsd[13] );
+    httpPrintf( cnt, "Portals coverage : %lld%%<br/>", (long long)newsd[13] );
    if( (long long)newsd[14] == -1 )
-    httpString( cnt, "Portal : unknown<br>" );
+    httpString( cnt, "Portal : unknown<br/>" );
    else
    {
     if( (long long)newsd[14] == CMD_PLANET_FLAGS_PORTAL )
-     httpPrintf( cnt, "Portal : Present<br>" );
+     httpPrintf( cnt, "Portal : Present<br/>" );
     else if( (long long)newsd[14] == CMD_PLANET_FLAGS_PORTAL_BUILD )
-     httpPrintf( cnt, "Portal : Under construction<br>" );
+     httpPrintf( cnt, "Portal : Under construction<br/>" );
     else if( (long long)newsd[14] == CMD_PLANET_FLAGS_PORTAL_BUILD )
-     httpPrintf( cnt, "Portal : None<br>" );
+     httpPrintf( cnt, "Portal : None<br/>" );
    }
    for( a = 15 ; a < 15+CMD_BLDG_NUMUSED ; a++ )
    {
     httpString( cnt, cmdBuildingName[a-15] );
     if( (long long)newsd[a] == -1 )
-     httpString( cnt, " : unknown<br>" );
+     httpString( cnt, " : unknown<br/>" );
     else
-     httpPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
+     httpPrintf( cnt, " : %lld<br/>", (long long)newsd[a] );
    }
    if( (long long)newsd[15+CMD_BLDG_NUMUSED] >= 0 )
-    httpPrintf( cnt, "We discovered an ancient artefact on this planet! <b>%s</b><br>", artefactName[ (long long)newsd[15+CMD_BLDG_NUMUSED] ] );
+    httpPrintf( cnt, "We discovered an ancient artefact on this planet! <b>%s</b><br/>", artefactName[ (long long)newsd[15+CMD_BLDG_NUMUSED] ] );
    if( (long long)newsd[15+2+CMD_BLDG_NUMUSED] > 0 )
-    httpPrintf( cnt, "%s production : +%lld%%<br>", cmdBonusName[ (long long)newsd[15+1+CMD_BLDG_NUMUSED] ], (long long)newsd[15+2+CMD_BLDG_NUMUSED] );
+    httpPrintf( cnt, "%s production : +%lld%%<br/>", cmdBonusName[ (long long)newsd[15+1+CMD_BLDG_NUMUSED] ], (long long)newsd[15+2+CMD_BLDG_NUMUSED] );
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPNETWORKVIRUS )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Destroying research : failed<br>" );
+    httpString( cnt, "Destroying research : failed<br/>" );
    else
-    httpPrintf( cnt, "Destroying research : %lld %% lost<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "Destroying research : %lld %% lost<br/>", (long long)newsd[10] );
    if( (long long)newsd[11] == -1 )
-    httpString( cnt, "Increasing upkeep : failed<br>" );
+    httpString( cnt, "Increasing upkeep : failed<br/>" );
    else
-    httpPrintf( cnt, "Increasing upkeep : %lld weeks<br>", (long long)newsd[11] );
+    httpPrintf( cnt, "Increasing upkeep : %lld weeks<br/>", (long long)newsd[11] );
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPINFILTRATION )
   {
-   httpPrintf( cnt, "Your agents gathered the following information.<br>" );
+   httpPrintf( cnt, "Your agents gathered the following information.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    for( a = 10 ; a < 10+(CMD_RESSOURCE_NUMUSED+1) ; a++ )
    {
@@ -389,113 +389,113 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    else
     httpString( cnt, cmdRessourceName[a-10] );
     if( (long long)newsd[a] == -1 )
-     httpString( cnt, " : unknown<br>" );
+     httpString( cnt, " : unknown<br/>" );
     else
-     httpPrintf( cnt, " : %lld%s<br>", (long long)newsd[a], ((a-10) == CMD_RESSOURCE_NUMUSED) ? "0" : "" );
+     httpPrintf( cnt, " : %lld%s<br/>", (long long)newsd[a], ((a-10) == CMD_RESSOURCE_NUMUSED) ? "0" : "" );
    }
    for( a = 15 ; a < 15+CMD_RESEARCH_NUMUSED ; a++ )
    {
     httpPrintf( cnt, "%s research", cmdResearchName[a-15] );
     if( (long long)newsd[a] == -1 )
-     httpString( cnt, " : unknown<br>" );
+     httpString( cnt, " : unknown<br/>" );
     else
-     httpPrintf( cnt, " : %lld %%<br>", (long long)newsd[a] );
+     httpPrintf( cnt, " : %lld %%<br/>", (long long)newsd[a] );
    }
    for( a = 15+CMD_RESEARCH_NUMUSED ; a < 15+CMD_RESEARCH_NUMUSED+CMD_BLDG_NUMUSED ; a++ )
    {
     httpString( cnt, cmdBuildingName[a-15-CMD_RESEARCH_NUMUSED] );
     if( (long long)newsd[a] == -1 )
-     httpString( cnt, " : unknown<br>" );
+     httpString( cnt, " : unknown<br/>" );
     else
-     httpPrintf( cnt, " : %lld<br>", (long long)newsd[a] );
+     httpPrintf( cnt, " : %lld<br/>", (long long)newsd[a] );
    }
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPBIOINFECTION )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Kill population : failed<br>" );
+    httpString( cnt, "Kill population : failed<br/>" );
    else
-    httpPrintf( cnt, "Kill population : %lld0<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "Kill population : %lld0<br/>", (long long)newsd[10] );
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPENERGYTRANSFER )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Target's loss of energy : failed<br>" );
+    httpString( cnt, "Target's loss of energy : failed<br/>" );
    else
-    httpPrintf( cnt, "Target's loss of energy : %lld<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "Target's loss of energy : %lld<br/>", (long long)newsd[10] );
    if( (long long)newsd[11] == -1 )
-    httpString( cnt, "Energy successfully acquired : failed<br>" );
+    httpString( cnt, "Energy successfully acquired : failed<br/>" );
    else
-    httpPrintf( cnt, "Energy successfully acquired : %lld<br>", (long long)newsd[11] );
+    httpPrintf( cnt, "Energy successfully acquired : %lld<br/>", (long long)newsd[11] );
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPMILITARYSAB )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Destroy units : failed<br>" );
+    httpString( cnt, "Destroy units : failed<br/>" );
    else if( (long long)newsd[10] == -2 )
-    httpString( cnt, "Destroy units : failed<br>It appears there is no portal on the planet to reach the main fleet from!<br>" );
+    httpString( cnt, "Destroy units : failed<br/>It appears there is no portal on the planet to reach the main fleet from!<br/>" );
    else
    {
     for( a = 10 ; a < 10+CMD_UNIT_FLEET ; a++ )
     {
      if( (long long)newsd[a] > 0 )
-      httpPrintf( cnt, "%s : %lld destroyed<br>", cmdUnitName[a-10], (long long)newsd[a] );
+      httpPrintf( cnt, "%s : %lld destroyed<br/>", cmdUnitName[a-10], (long long)newsd[a] );
     }
    }
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPNUKEPLANET )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Place nuclear devices : failed<br>" );
+    httpString( cnt, "Place nuclear devices : failed<br/>" );
    else
-    httpString( cnt, "Place nuclear devices : succeeded, planet now uninhabited<br>" );
+    httpString( cnt, "Place nuclear devices : succeeded, planet now uninhabited<br/>" );
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPHIGHINFIL )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] == -1 )
-    httpString( cnt, "Infiltration : failed<br>" );
+    httpString( cnt, "Infiltration : failed<br/>" );
    else
    {
-    httpString( cnt, "Faction infiltration : success<br>" );
+    httpString( cnt, "Faction infiltration : success<br/>" );
     if( (long long)newsd[10] & 1 )
-     httpString( cnt, "Planets network infiltration : success<br>" );
+     httpString( cnt, "Planets network infiltration : success<br/>" );
     else
-     httpString( cnt, "Planets network infiltration : failed<br>" );
+     httpString( cnt, "Planets network infiltration : failed<br/>" );
     if( (long long)newsd[10] & 2 )
-     httpString( cnt, "Fleets infiltration : success<br>" );
+     httpString( cnt, "Fleets infiltration : success<br/>" );
     else
-     httpString( cnt, "Fleets infiltration : failed<br>" );
-    httpPrintf( cnt, "You can access the faction information in the <a href=\"%s\">list of current operations</a> for the next two years.<br>", URLAppend( cnt, "spec" ) );
+     httpString( cnt, "Fleets infiltration : failed<br/>" );
+    httpPrintf( cnt, "You can access the faction information in the <a href=\"%s\">list of current operations</a> for the next two years.<br/>", URLAppend( cnt, "spec" ) );
    }
    httpString( cnt, "</td></tr></table>" );
   }
 	 else if( (long long)newsd[2] == CMD_NEWS_OPPLANETBEACON )
   {
-   httpPrintf( cnt, "These are the results of the operation.<br>" );
+   httpPrintf( cnt, "These are the results of the operation.<br/>" );
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] >= 1 )
    {
-    httpString( cnt, "Planeteray beacon : success<br>" );
-    httpString( cnt, "The planet have 0 dark web effect but 110% of protection by the owner fleet, all this for 24 ticks<br>" );
+    httpString( cnt, "Planeteray beacon : success<br/>" );
+    httpString( cnt, "The planet have 0 dark web effect but 110% of protection by the owner fleet, all this for 24 ticks<br/>" );
    }
    else
    {
-    httpString( cnt, "Planeteray beacon : fail<br>" );
+    httpString( cnt, "Planeteray beacon : fail<br/>" );
    }
    httpString( cnt, "</td></tr></table>" );
   }
@@ -514,30 +514,30 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   else
    httpString( cnt, "Your forces found traces of agents from an unknown faction" );
 
-  httpPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>.<br>", cmdAgentopName[(long long)newsd[9]], URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
+  httpPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>.<br/>", cmdAgentopName[(long long)newsd[9]], URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
   if( (long long)newsd[7] != -1 )
-   httpPrintf( cnt, "<i>%lld enemy agents have been arrested, %lld of your agents have been killed.</i><br>", (long long)newsd[7], (long long)newsd[8] );
+   httpPrintf( cnt, "<i>%lld enemy agents have been arrested, %lld of your agents have been killed.</i><br/>", (long long)newsd[7], (long long)newsd[8] );
 
   if( (long long)newsd[2] == CMD_NEWS_OPNETWORKVIRUS_TARGET )
   {
    httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
    if( (long long)newsd[10] != -1 )
-    httpPrintf( cnt, "%lld %% of your research has been lost!<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "%lld %% of your research has been lost!<br/>", (long long)newsd[10] );
    if( (long long)newsd[11] != -1 ) {
-    httpPrintf( cnt, "Your net population reduction will be 5%% lower for %lld weeks.<br>", (long long)newsd[11] );
-    httpPrintf( cnt, "Your net building upkeep will be 15%% higher for %lld weeks.<br>", (long long)newsd[11] );
+    httpPrintf( cnt, "Your net population reduction will be 5%% lower for %lld weeks.<br/>", (long long)newsd[11] );
+    httpPrintf( cnt, "Your net building upkeep will be 15%% higher for %lld weeks.<br/>", (long long)newsd[11] );
     }
    httpString( cnt, "</td></tr></table>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPBIOINFECTION_TARGET )
   {
    if( (long long)newsd[10] != -1 )
-    httpPrintf( cnt, "%lld0 citizens of your faction died as the disease rapidly spreads.<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "%lld0 citizens of your faction died as the disease rapidly spreads.<br/>", (long long)newsd[10] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPENERGYTRANSFER_TARGET )
   {
    if( (long long)newsd[10] != -1 )
-    httpPrintf( cnt, "%lld energy has been reported missing from your reserves.<br>", (long long)newsd[10] );
+    httpPrintf( cnt, "%lld energy has been reported missing from your reserves.<br/>", (long long)newsd[10] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_OPMILITARYSAB_TARGET )
   {
@@ -547,7 +547,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
     for( a = 10 ; a < 10+CMD_UNIT_FLEET ; a++ )
     {
      if( (long long)newsd[a] > 0 )
-      httpPrintf( cnt, "%s : %lld destroyed<br>", cmdUnitName[a-10], (long long)newsd[a] );
+      httpPrintf( cnt, "%s : %lld destroyed<br/>", cmdUnitName[a-10], (long long)newsd[a] );
     }
    }
    httpString( cnt, "</td></tr></table>" );
@@ -555,7 +555,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   else if( (long long)newsd[2] == CMD_NEWS_OPNUKEPLANET_TARGET )
   {
    if( (long long)newsd[10] != -1 )
-    httpString( cnt, "Nuclear devices exploded everywhere on the surface of the planet! All buildings have been destroyed and the planet is now unhabited.<br>" );
+    httpString( cnt, "Nuclear devices exploded everywhere on the surface of the planet! All buildings have been destroyed and the planet is now unhabited.<br/>" );
   }
  }
 
@@ -563,52 +563,52 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  {
   httpPrintf( cnt, "Your psychics are casting <b>%s</b> on ", cmdPsychicopName[(long long)newsd[7]] );
   if( (long long)newsd[3] == ((cnt->session)->dbuser)->id )
-   httpPrintf( cnt, "your faction.<br>" );
+   httpPrintf( cnt, "your faction.<br/>" );
   else
   {
    if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) ) {
     httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
-    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>.<br>", URLAppend( cnt, "empire" ), (long long)newsd[4], (long long)newsd[4] );
+    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>.<br/>", URLAppend( cnt, "empire" ), (long long)newsd[4], (long long)newsd[4] );
    } else
-    httpPrintf( cnt, "an unknown faction.<br>" );
+    httpPrintf( cnt, "an unknown faction.<br/>" );
    if( ( (long long)newsd[3] != ((cnt->session)->dbuser)->id ) && ( main2d.faction ) )
    {
     if( (long long)newsd[5] == -1 )
-     httpPrintf( cnt, "<i>Your psychics successfully stayed undiscovered while performing the spell.</i><br>" );
+     httpPrintf( cnt, "<i>Your psychics successfully stayed undiscovered while performing the spell.</i><br/>" );
     else
-     httpPrintf( cnt, "<i>%lld of your psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i><br>", (long long)newsd[5], (long long)newsd[6] );
+     httpPrintf( cnt, "<i>%lld of your psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i><br/>", (long long)newsd[5], (long long)newsd[6] );
    }
   }
 
   if( (long long)newsd[2] == CMD_NEWS_SPIRRAECTRO )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br>", (long long)newsd[8] );
+    httpPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br/>", (long long)newsd[8] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_SPDARKWEB )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "Your faction is now more difficult to attack by %lld %%.<br>", (long long)newsd[8] );
+    httpPrintf( cnt, "Your faction is now more difficult to attack by %lld %%.<br/>", (long long)newsd[8] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_SPINCANDESCENCE )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "%lld crystal has been converted in %lld energy.<br>", (long long)newsd[8], (long long)newsd[9] );
+    httpPrintf( cnt, "%lld crystal has been converted in %lld energy.<br/>", (long long)newsd[8], (long long)newsd[9] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_SPBLACKMIST )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "A dense mist is spreading around the target's planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br>", (long long)newsd[8] );
+    httpPrintf( cnt, "A dense mist is spreading around the target's planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br/>", (long long)newsd[8] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_SPWARILLUSIONS )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "Various illusions will accompany your fleets for %lld weeks, keeping around %lld %% of enemy fire away from friendly units.<br>", (long long)newsd[9], (long long)newsd[8] );
+    httpPrintf( cnt, "Various illusions will accompany your fleets for %lld weeks, keeping around %lld %% of enemy fire away from friendly units.<br/>", (long long)newsd[9], (long long)newsd[8] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_SPPHANTOMS )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "%lld Phantoms have been conjured to fight for your faction!<br>", (long long)newsd[8] );
+    httpPrintf( cnt, "%lld Phantoms have been conjured to fight for your faction!<br/>", (long long)newsd[8] );
   }
 
  }
@@ -626,19 +626,19 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   }
   else
    httpString( cnt, "Your forces felt the influence of psychics from an unknown faction" );
-  httpPrintf( cnt, " performing a <b>%s</b> spell.<br>", cmdPsychicopName[(long long)newsd[7]] );
+  httpPrintf( cnt, " performing a <b>%s</b> spell.<br/>", cmdPsychicopName[(long long)newsd[7]] );
   if( (long long)newsd[5] != -1 )
-   httpPrintf( cnt, "<i>%lld enemy psychics have went mad, %lld of your psychics also suffered critical brain damages.</i><br>", (long long)newsd[5], (long long)newsd[6] );
+   httpPrintf( cnt, "<i>%lld enemy psychics have went mad, %lld of your psychics also suffered critical brain damages.</i><br/>", (long long)newsd[5], (long long)newsd[6] );
 
   if( (long long)newsd[2] == CMD_NEWS_SPIRRAECTRO_TARGET )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br>", (long long)newsd[8] );
+    httpPrintf( cnt, "%lld ectrolium has been irradiated and is now unusable!<br/>", (long long)newsd[8] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_SPBLACKMIST_TARGET )
   {
    if( (long long)newsd[8] != -1 )
-    httpPrintf( cnt, "A dense mist is spreading around your planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br>", (long long)newsd[8] );
+    httpPrintf( cnt, "A dense mist is spreading around your planets, your psychics estimate solar collectors efficiency has been reduced by %lld %%.<br/>", (long long)newsd[8] );
   }
  }
 
@@ -649,22 +649,22 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  {
   httpPrintf( cnt, "Your ghost ships casted <b>%s</b> ", cmdGhostopName[(long long)newsd[10]] );
   if( cmdGhostopFlags[ (long long)newsd[10] ] & 4 )
-   httpPrintf( cnt, "in the system %lld,%lld<br>", ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20 );
+   httpPrintf( cnt, "in the system %lld,%lld<br/>", ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20 );
   else
   {
    httpPrintf( cnt, "on the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
    if( ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) )
    {
     httpPrintf( cnt, " owned by <a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[5], main2d.faction );
-    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a><br>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
+    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a><br/>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
     if( (long long)newsd[7] <= 0 )
-     httpPrintf( cnt, "<i>Your ghost ships successfully stayed undiscovered during the incantation.</i><br>" );
+     httpPrintf( cnt, "<i>Your ghost ships successfully stayed undiscovered during the incantation.</i><br/>" );
     else
-     httpPrintf( cnt, "<i>%lld of your ghost ships were oblitered by defending forces.</i><br>", (long long)newsd[7] );
+     httpPrintf( cnt, "<i>%lld of your ghost ships were oblitered by defending forces.</i><br/>", (long long)newsd[7] );
     if( (long long)newsd[8] > 0 )
-     httpPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", (long long)newsd[8] );
+     httpPrintf( cnt, "<i>%lld defending psychics were killed.</i><br/>", (long long)newsd[8] );
     if( (long long)newsd[9] > 0 )
-     httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
+     httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br/>", (long long)newsd[9] );
    }
   }
 
@@ -674,16 +674,16 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    {
     a = (long long)newsd[11] & 0xFFFF;
     if( a >= 4 )
-     httpPrintf( cnt, "<i>An artefact has been discovered, at the coordinates %lld,%lld:%lld!</i><br>", ( (long long)newsd[12] >> 8 ) & 0xFF, ((long long)newsd[12] >> 20) & 0xFF, (long long)newsd[12] & 0xFF );
+     httpPrintf( cnt, "<i>An artefact has been discovered, at the coordinates %lld,%lld:%lld!</i><br/>", ( (long long)newsd[12] >> 8 ) & 0xFF, ((long long)newsd[12] >> 20) & 0xFF, (long long)newsd[12] & 0xFF );
     else if( a == 3 )
-     httpPrintf( cnt, "<i>An artefact has been found in a nearby system, at the coordinates %lld,%lld!</i><br>", ( (long long)newsd[12] >> 8 ) & 0xFF, ((long long)newsd[12] >> 20) & 0xFF );
+     httpPrintf( cnt, "<i>An artefact has been found in a nearby system, at the coordinates %lld,%lld!</i><br/>", ( (long long)newsd[12] >> 8 ) & 0xFF, ((long long)newsd[12] >> 20) & 0xFF );
     else if( a == 2 )
-     httpPrintf( cnt, "<i>An artefact was detected in the area, but its precise location remains unknown.</i><br>" );
+     httpPrintf( cnt, "<i>An artefact was detected in the area, but its precise location remains unknown.</i><br/>" );
     else
-     httpPrintf( cnt, "<i>An artefact was felt somewhere in the area!</i><br>" );
+     httpPrintf( cnt, "<i>An artefact was felt somewhere in the area!</i><br/>" );
    }
    else
-    httpPrintf( cnt, "<i>No artefact was felt in the area.</i><br>" );
+    httpPrintf( cnt, "<i>No artefact was felt in the area.</i><br/>" );
 
 
    if( dbUserMainRetrieve( ((cnt->session)->dbuser)->id, &maind ) < 0 )
@@ -693,59 +693,59 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   {
    if( (long long)newsd[11] )
    {
-    httpPrintf( cnt, "Planets surveyed : %lld<br>", (long long)newsd[11] );
-    httpPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
-    httpPrintf( cnt, "You can access the system information in the <a href=\"%s\">list of current operations</a> for the duration of the incantation.<br>", URLAppend( cnt, "spec" )  );
+    httpPrintf( cnt, "Planets surveyed : %lld<br/>", (long long)newsd[11] );
+    httpPrintf( cnt, "Incantation duration : %lld<br/>", (long long)newsd[12] );
+    httpPrintf( cnt, "You can access the system information in the <a href=\"%s\">list of current operations</a> for the duration of the incantation.<br/>", URLAppend( cnt, "spec" )  );
    }
    else
-    httpString( cnt, "Planets surveyed : none<br>" );
+    httpString( cnt, "Planets surveyed : none<br/>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INSHIELDING )
   {
-   httpPrintf( cnt, "Planetary shield strength : %lld<br>", (long long)newsd[11] );
-   httpPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
+   httpPrintf( cnt, "Planetary shield strength : %lld<br/>", (long long)newsd[11] );
+   httpPrintf( cnt, "Incantation duration : %lld<br/>", (long long)newsd[12] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INFORCEFIELD )
   {
-   httpPrintf( cnt, "Force field strength : %lld%%<br>", (long long)newsd[11] );
-   httpPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
+   httpPrintf( cnt, "Force field strength : %lld%%<br/>", (long long)newsd[11] );
+   httpPrintf( cnt, "Incantation duration : %lld<br/>", (long long)newsd[12] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INVORTEX )
   {
    httpString( cnt, "Vortex portal duration : " );
    if( (long long)newsd[11] != -1 )
-    httpPrintf( cnt, "%lld<br>", (long long)newsd[11] );
+    httpPrintf( cnt, "%lld<br/>", (long long)newsd[11] );
    else
-    httpString( cnt, "failed<br>" );
+    httpString( cnt, "failed<br/>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INMINDCONTROL )
   {
    httpString( cnt, "Mind control incantation : " );
    if( (long long)newsd[11] == -1 )
-    httpString( cnt, "failed<br>" );
+    httpString( cnt, "failed<br/>" );
    else
-    httpString( cnt, "success<br>" );
+    httpString( cnt, "success<br/>" );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INENERGYSURGE )
   {
    if( (long long)newsd[17] == -1 )
-    httpString( cnt, "Energy surge : failed<br>" );
+    httpString( cnt, "Energy surge : failed<br/>" );
    else
    {
     if( (long long)newsd[17] > 0 )
-     httpPrintf( cnt, "Energy wasted : %lld<br>", (long long)newsd[17] );
+     httpPrintf( cnt, "Energy wasted : %lld<br/>", (long long)newsd[17] );
     if( (long long)newsd[11] > 0 )
-     httpPrintf( cnt, "Mineral lost : %lld<br>", (long long)newsd[11] );
+     httpPrintf( cnt, "Mineral lost : %lld<br/>", (long long)newsd[11] );
     if( (long long)newsd[12] > 0 )
-     httpPrintf( cnt, "Crystal lost : %lld<br>", (long long)newsd[12] );
+     httpPrintf( cnt, "Crystal lost : %lld<br/>", (long long)newsd[12] );
     if( (long long)newsd[13] > 0 )
-     httpPrintf( cnt, "Ectrolium lost : %lld<br>", (long long)newsd[13] );
+     httpPrintf( cnt, "Ectrolium lost : %lld<br/>", (long long)newsd[13] );
     if( (long long)newsd[14] > 0 )
-     httpPrintf( cnt, "Solar collectors destroyed : %lld<br>", (long long)newsd[14] );
+     httpPrintf( cnt, "Solar collectors destroyed : %lld<br/>", (long long)newsd[14] );
     if( (long long)newsd[15] > 0 )
-     httpPrintf( cnt, "Fission reactors destroyed : %lld<br>", (long long)newsd[15] );
+     httpPrintf( cnt, "Fission reactors destroyed : %lld<br/>", (long long)newsd[15] );
     if( (long long)newsd[16] > 0 )
-     httpPrintf( cnt, "Research points eliminated : %lld<br>", (long long)newsd[16] );
+     httpPrintf( cnt, "Research points eliminated : %lld<br/>", (long long)newsd[16] );
    }
   }
 
@@ -768,53 +768,53 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   httpPrintf( cnt, " performing a <b>%s</b> incantation", cmdGhostopName[(long long)newsd[10]] );
   if( (long long)newsd[3] != -1 )
    httpPrintf( cnt, " on <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-  httpString( cnt, ".<br>" );
+  httpString( cnt, ".<br/>" );
   if( (long long)newsd[7] > 0 )
-   httpPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br>", (long long)newsd[7] );
+   httpPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br/>", (long long)newsd[7] );
   if( (long long)newsd[8] > 0 )
-   httpPrintf( cnt, "<i>%lld of your psychics were killed.</i><br>", (long long)newsd[8] );
+   httpPrintf( cnt, "<i>%lld of your psychics were killed.</i><br/>", (long long)newsd[8] );
   if( (long long)newsd[9] > 0 )
-   httpPrintf( cnt, "<i>%lld of your ghost ships were destroyed.</i><br>", (long long)newsd[9] );
+   httpPrintf( cnt, "<i>%lld of your ghost ships were destroyed.</i><br/>", (long long)newsd[9] );
 
   if( (long long)newsd[2] == CMD_NEWS_INSHIELDING_TARGET )
   {
-   httpPrintf( cnt, "Planetary shield strength : %lld<br>", (long long)newsd[11] );
-   httpPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
+   httpPrintf( cnt, "Planetary shield strength : %lld<br/>", (long long)newsd[11] );
+   httpPrintf( cnt, "Incantation duration : %lld<br/>", (long long)newsd[12] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INFORCEFIELD_TARGET )
   {
-   httpPrintf( cnt, "Force field strength : %lld%%<br>", (long long)newsd[11] );
-   httpPrintf( cnt, "Incantation duration : %lld<br>", (long long)newsd[12] );
+   httpPrintf( cnt, "Force field strength : %lld%%<br/>", (long long)newsd[11] );
+   httpPrintf( cnt, "Incantation duration : %lld<br/>", (long long)newsd[12] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_INMINDCONTROL_TARGET )
   {
    httpString( cnt, "Mind control incantation : " );
    if( (long long)newsd[11] == -1 )
-    httpString( cnt, "failed<br>" );
+    httpString( cnt, "failed<br/>" );
    else
-    httpString( cnt, "success<br>" );
+    httpString( cnt, "success<br/>" );
   }
 
   else if( (long long)newsd[2] == CMD_NEWS_INENERGYSURGE_TARGET )
   {
    if( (long long)newsd[17] == -1 )
-    httpString( cnt, "Energy surge : failed<br>" );
+    httpString( cnt, "Energy surge : failed<br/>" );
    else
    {
     if( (long long)newsd[17] > 0 )
-     httpPrintf( cnt, "Energy wasted : %lld<br>", (long long)newsd[17] );
+     httpPrintf( cnt, "Energy wasted : %lld<br/>", (long long)newsd[17] );
     if( (long long)newsd[11] > 0 )
-     httpPrintf( cnt, "Mineral lost : %lld<br>", (long long)newsd[11] );
+     httpPrintf( cnt, "Mineral lost : %lld<br/>", (long long)newsd[11] );
     if( (long long)newsd[12] > 0 )
-     httpPrintf( cnt, "Crystal lost : %lld<br>", (long long)newsd[12] );
+     httpPrintf( cnt, "Crystal lost : %lld<br/>", (long long)newsd[12] );
     if( (long long)newsd[13] > 0 )
-     httpPrintf( cnt, "Ectrolium lost : %lld<br>", (long long)newsd[13] );
+     httpPrintf( cnt, "Ectrolium lost : %lld<br/>", (long long)newsd[13] );
     if( (long long)newsd[14] > 0 )
-     httpPrintf( cnt, "Solar collectors destroyed : %lld<br>", (long long)newsd[14] );
+     httpPrintf( cnt, "Solar collectors destroyed : %lld<br/>", (long long)newsd[14] );
     if( (long long)newsd[15] > 0 )
-     httpPrintf( cnt, "Fission reactors destroyed : %lld<br>", (long long)newsd[15] );
+     httpPrintf( cnt, "Fission reactors destroyed : %lld<br/>", (long long)newsd[15] );
     if( (long long)newsd[16] > 0 )
-     httpPrintf( cnt, "Research points eliminated : %lld<br>", (long long)newsd[16] );
+     httpPrintf( cnt, "Research points eliminated : %lld<br/>", (long long)newsd[16] );
    }
   }
 
@@ -828,21 +828,21 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) ) {
    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a> offered a ", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">planet</a> to your faction. ", URLAppend( cnt, "planet" ), (long long)newsd[4] );
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">Take it</a><br>", URLAppend( cnt, "pltake" ), (long long)newsd[4] );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">Take it</a><br/>", URLAppend( cnt, "pltake" ), (long long)newsd[4] );
    }
  }
  else if( (long long)newsd[2] == CMD_NEWS_PLANET_GIVEN )
  {
   if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) ) {
    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a> took control of a ", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">planet</a> previously offered.<br>", URLAppend( cnt, "planet" ), (long long)newsd[4] );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">planet</a> previously offered.<br/>", URLAppend( cnt, "planet" ), (long long)newsd[4] );
    }
  }
  else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
  {
   if( ( dbUserMainRetrieve( (long long)newsd[3], &main2d ) ) ) {
    httpPrintf( cnt, "You took control of a <a href=\"%s&amp;id=%lld\">planet</a> offered by ", URLAppend( cnt, "planet" ), (long long)newsd[4] );
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a>.<br>", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a>.<br/>", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
    }
  }
 
@@ -869,15 +869,15 @@ void iohtmlFamNewsEntry( ReplyDataPtr cnt, int picture, int64_t *newsd )
  if( !( iohtmlFamNewsEntryCount ) )
   httpPrintf( cnt, " width=\"5%%\"" );
  if( picture >= 0 )
-  httpPrintf( cnt, "><img src=\"files?type=image&amp;name=fn%d.gif\"></td><td", picture );
+  httpPrintf( cnt, "><img src=\"files?type=image&amp;name=fn%d.gif\" /></td><td", picture );
  else
-  httpPrintf( cnt, "><br></td><td" );
+  httpPrintf( cnt, "><br/></td><td" );
  if( !( iohtmlFamNewsEntryCount ) )
  {
   httpPrintf( cnt, " width=\"95%%\"" );
   iohtmlFamNewsEntryCount = 1;
  }
- httpPrintf( cnt, "><i>Week %lld, year %lld</i><br>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
+ httpPrintf( cnt, "><i>Week %lld, year %lld</i><br/>", (long long)newsd[0] % 52, (long long)newsd[0] / 52 );
  return;
 }
 
@@ -888,15 +888,15 @@ void iohtmlFamNews( ReplyDataPtr cnt, int num, int64_t *newsd, dbMainEmpirePtr e
  dbUserMainDef *mfamd;
  
 
- httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+ httpPrintf( cnt, "Current date : Week %d, year %d<br/>", ticks.number % 52, ticks.number / 52 );
  if( ticks.status )
-  httpPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
+  httpPrintf( cnt, "%d seconds before tick<br/>", (int)( ticks.next - time(0) ) );
  else
-  httpPrintf( cnt, "Time frozen<br>" );
+  httpPrintf( cnt, "Time frozen<br/>" );
 
 if( !( num ) )
  {
-  httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
+  httpString( cnt, "<br/><b>There are no news reports to display.</b><br/>" );
   return;
  }
 
@@ -928,7 +928,7 @@ if( !( num ) )
    iohtmlFamNewsEntry( cnt, 0, newsd );
    httpPrintf( cnt, "An exploration ship of %s reached the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
    if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ARTEFACT_NUMUSED ) )
-    httpPrintf( cnt, "<br>An ancient artefact has been discovered on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
+    httpPrintf( cnt, "<br/>An ancient artefact has been discovered on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_EXPLORE_FAILED )
   {
@@ -974,7 +974,7 @@ if( !( num ) )
    httpPrintf( cnt, "<a href=\"%s&?id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[3], maind.faction );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>", URLAppend( cnt, "empire" ), (long long)newsd[4], (long long)newsd[4] );
    iohtmlFamNewsL1:
-   httpString( cnt, "<br>Defender losses : " );
+   httpString( cnt, "<br/>Defender losses : " );
    for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
    {
     if( !( (long long)newsd[8+a] ) )
@@ -993,7 +993,7 @@ if( !( num ) )
    }
    if( !( b ) )
     httpString( cnt, "Nothing" );
-   httpString( cnt, "<br>Attacker losses : " );
+   httpString( cnt, "<br/>Attacker losses : " );
    for( a = b = 0 ; a < CMD_UNIT_FLEET ; a++ )
    {
     if( !( (long long)newsd[8+CMD_UNIT_FLEET+a] ) )
@@ -1008,7 +1008,7 @@ if( !( num ) )
    if( ( (long long)newsd[7] & 0xF00 ) )
    {
     b = (long long)newsd[7] & 0xF00;
-    httpString( cnt, "<br>Defending forces preferred to avoid directly engaging enemy units in " );
+    httpString( cnt, "<br/>Defending forces preferred to avoid directly engaging enemy units in " );
     if( b == 0x100 )
      httpString( cnt, "the first phase" );
     else if( b == 0x200 )
@@ -1043,7 +1043,7 @@ if( !( num ) )
    }
    if( ( (long long)newsd[7] & 0xFF ) )
    {
-    httpString( cnt, "<br>Overwhelmed by defending enemy forces, the attacking fleet hastidly retreated to minimize losses in the " );
+    httpString( cnt, "<br/>Overwhelmed by defending enemy forces, the attacking fleet hastidly retreated to minimize losses in the " );
     if( ( (long long)newsd[7] & 0x10 ) )
      httpString( cnt, "first phase of the battle" );
     if( ( (long long)newsd[7] & 0x20 ) )
@@ -1059,7 +1059,7 @@ if( !( num ) )
    iohtmlFamNewsEntry( cnt, 6, newsd );
    if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohtmlFamNewsL0;
-   httpPrintf( cnt, "%s received an aid shipment from %s!<br>", mfamd[b].faction, maind.faction );
+   httpPrintf( cnt, "%s received an aid shipment from %s!<br/>", mfamd[b].faction, maind.faction );
    for( a = b = 0 ; a < 4 ; a++ )
    {
     if( !( (long long)newsd[4+a] ) )
@@ -1076,7 +1076,7 @@ if( !( num ) )
    iohtmlFamNewsEntry( cnt, 7, newsd );
    if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
     goto iohtmlFamNewsL0;
-   httpPrintf( cnt, "%s requested an aid shipment from %s!<br>", maind.faction, mfamd[b].faction );
+   httpPrintf( cnt, "%s requested an aid shipment from %s!<br/>", maind.faction, mfamd[b].faction );
    for( a = b = 0 ; a < 4 ; a++ )
    {
     if( !( (long long)newsd[4+a] ) )
@@ -1100,9 +1100,9 @@ if( !( num ) )
    if( maind.faction )
    {
     if( (long long)newsd[7] == -1 )
-     httpPrintf( cnt, "<br><i>The agents successfully stayed undiscovered during the operation.</i>" );
+     httpPrintf( cnt, "<br/><i>The agents successfully stayed undiscovered during the operation.</i>" );
     else
-     httpPrintf( cnt, "<br><i>%lld of the agents were caught, but still managed to kill %lld defending agents.</i>", (long long)newsd[7], (long long)newsd[8] );
+     httpPrintf( cnt, "<br/><i>%lld of the agents were caught, but still managed to kill %lld defending agents.</i>", (long long)newsd[7], (long long)newsd[8] );
    }
   }
   else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPTARGETBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPTARGETEND ) )
@@ -1121,7 +1121,7 @@ if( !( num ) )
     httpPrintf( cnt, "The forces of %s found traces of agents from an unknown faction", mfamd[b].faction );
    httpPrintf( cnt, " performing a <b>%s</b> operation on <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>.", cmdAgentopName[(long long)newsd[9]], URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
    if( (long long)newsd[7] != -1 )
-    httpPrintf( cnt, "<br><i>%lld enemy agents have been arrested, %lld defending agents have been killed.</i>", (long long)newsd[7], (long long)newsd[8] );
+    httpPrintf( cnt, "<br/><i>%lld enemy agents have been arrested, %lld defending agents have been killed.</i>", (long long)newsd[7], (long long)newsd[8] );
   }
   else if( ( (long long)newsd[2] >= CMD_NEWS_NUMSPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMSPEND ) )
   {
@@ -1139,9 +1139,9 @@ if( !( num ) )
     if( maind.faction )
     {
      if( (long long)newsd[5] == -1 )
-      httpPrintf( cnt, "<br><i>The psychics successfully stayed undiscovered while performing the spell.</i>" );
+      httpPrintf( cnt, "<br/><i>The psychics successfully stayed undiscovered while performing the spell.</i>" );
      else
-      httpPrintf( cnt, "<br><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", (long long)newsd[5], (long long)newsd[6] );
+      httpPrintf( cnt, "<br/><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", (long long)newsd[5], (long long)newsd[6] );
     }
    }
   }
@@ -1161,29 +1161,29 @@ if( !( num ) )
     httpPrintf( cnt, "The forces of %s felt the influence of psychics from an unknown faction", mfamd[b].faction );
    httpPrintf( cnt, " casting <b>%s</b>.", cmdPsychicopName[(long long)newsd[7]] );
    if( (long long)newsd[5] != -1 )
-    httpPrintf( cnt, "<br><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", (long long)newsd[5], (long long)newsd[6] );
+    httpPrintf( cnt, "<br/><i>%lld of the psychics went mad, it appears %lld defending psychics also suffered critical brain damages.</i>", (long long)newsd[5], (long long)newsd[6] );
   }
   else if( ( (long long)newsd[2] >= CMD_NEWS_NUMINBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMINEND ) )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    httpPrintf( cnt, "Ghost ships of %s casted <b>%s</b> ", mfamd[b].faction, cmdGhostopName[(long long)newsd[10]] );
    if( cmdGhostopFlags[ (long long)newsd[10] ] & 4 )
-    httpPrintf( cnt, "in the system %lld,%lld<br>", ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20 );
+    httpPrintf( cnt, "in the system %lld,%lld<br/>", ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20 );
    else
    {
     httpPrintf( cnt, "on the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
     if( ( (long long)newsd[5] != -1 ) && ( dbUserMainRetrieve( (long long)newsd[5], &maind ) ) )
     {
      httpPrintf( cnt, " owned by <a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[5], maind.faction );
-     httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a><br>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
+     httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a><br/>", URLAppend( cnt, "empire" ), (long long)newsd[6], (long long)newsd[6] );
      if( (long long)newsd[7] <= 0 )
-      httpPrintf( cnt, "<i>The ghost ships successfully stayed undiscovered during the incantation.</i><br>" );
+      httpPrintf( cnt, "<i>The ghost ships successfully stayed undiscovered during the incantation.</i><br/>" );
      else
-      httpPrintf( cnt, "<i>%lld ghost ships were oblitered by defending forces.</i><br>", (long long)newsd[7] );
+      httpPrintf( cnt, "<i>%lld ghost ships were oblitered by defending forces.</i><br/>", (long long)newsd[7] );
      if( (long long)newsd[8] > 0 )
-      httpPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", (long long)newsd[8] );
+      httpPrintf( cnt, "<i>%lld defending psychics were killed.</i><br/>", (long long)newsd[8] );
      if( (long long)newsd[9] > 0 )
-      httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
+      httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br/>", (long long)newsd[9] );
     }
    }
   }
@@ -1204,26 +1204,26 @@ if( !( num ) )
    httpPrintf( cnt, " performing a <b>%s</b> incantation", cmdGhostopName[(long long)newsd[10]] );
    if( (long long)newsd[3] != -1 )
     httpPrintf( cnt, " on <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-   httpString( cnt, ".<br>" );
+   httpString( cnt, ".<br/>" );
    if( (long long)newsd[7] > 0 )
-    httpPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br>", (long long)newsd[7] );
+    httpPrintf( cnt, "<i>%lld enemy ghost ships were destroyed.</i><br/>", (long long)newsd[7] );
    if( (long long)newsd[8] > 0 )
-    httpPrintf( cnt, "<i>%lld defending psychics were killed.</i><br>", (long long)newsd[8] );
+    httpPrintf( cnt, "<i>%lld defending psychics were killed.</i><br/>", (long long)newsd[8] );
    if( (long long)newsd[9] > 0 )
-    httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br>", (long long)newsd[9] );
+    httpPrintf( cnt, "<i>%lld defending ghost ships were destroyed.</i><br/>", (long long)newsd[9] );
   }
 
   else if( (long long)newsd[2] == CMD_NEWS_PLANET_TAKEN )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
-    httpPrintf( cnt, "The forces of %s took control of a <a href=\"%s&amp;id=%lld\">planet</a> offered by %s.<br>", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[4], maind.faction );
+    httpPrintf( cnt, "The forces of %s took control of a <a href=\"%s&amp;id=%lld\">planet</a> offered by %s.<br/>", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[4], maind.faction );
   }
    else if( (long long)newsd[2] == CMD_NEWS_DEATH )
   {
    iohtmlFamNewsEntry( cnt, -1, newsd );
    //if( ( dbUserMainRetrieve( (long long)newsd[3], &maind ) ) )
-    httpPrintf( cnt, "%s %s.<br>", &newsd[6], cmdDeathNews[newsd[3]] );
+    httpPrintf( cnt, "%s %s.<br/>", &newsd[6], cmdDeathNews[newsd[3]] );
   }
 
 
@@ -1282,28 +1282,28 @@ if( ticks.status ) {
 	httpString( cnt, "</table>" );
 } else {
 	httpString( cnt, "</table>" );
-	httpString( cnt, "Time frozen<br>" );
+	httpString( cnt, "Time frozen<br/>" );
 }
 #if FACEBOOK_SUPPORT
 dbUserInfoRetrieve( id, &infod );
-httpPrintf( cnt, "<br>User <b>%s</b>", bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ? infod.fbinfo.full_name : ((cnt->session)->dbuser)->name );
+httpPrintf( cnt, "<br/>User <b>%s</b>", bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ? infod.fbinfo.full_name : ((cnt->session)->dbuser)->name );
 #else
- httpPrintf( cnt, "<br>User <b>%s</b>", ((cnt->session)->dbuser)->name );
+ httpPrintf( cnt, "<br/>User <b>%s</b>", ((cnt->session)->dbuser)->name );
 #endif
- httpPrintf( cnt, "<br>Faction <b>%s</b><br><br>", maind.faction );
+ httpPrintf( cnt, "<br/>Faction <b>%s</b><br/><br/>", maind.faction );
 
- httpPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br>Planets : <span id=\"hqplanets\">%d</span><br>Population : <span id=\"hqpopulation\">%lld</span>0<br>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
+ httpPrintf( cnt, "<table width=\"400\" border=\"0\"><tr><td align=\"center\">Empire : #%d<br/>Planets : <span id=\"hqplanets\">%d</span><br/>Population : <span id=\"hqpopulation\">%lld</span>0<br/>Networth : <span id=\"hqnetworth\">%lld</span></td>", maind.empire, maind.planets, (long long)maind.ressource[CMD_RESSOURCE_POPULATION], (long long)maind.networth );
  httpString( cnt, "<td align=\"center\">" );
 
 
 for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
-	httpPrintf( cnt, "%s readiness : <span id=\"hq%sready\">%d</span>%%<br>", cmdReadyName[a], cmdReadyName[a], maind.readiness[a] >> 16 );
+	httpPrintf( cnt, "%s readiness : <span id=\"hq%sready\">%d</span>%%<br/>", cmdReadyName[a], cmdReadyName[a], maind.readiness[a] >> 16 );
 }
 
 
 
 
- httpPrintf( cnt, "Home planet : %d,%d:%d</td></tr></table><br>", ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
+ httpPrintf( cnt, "Home planet : %d,%d:%d</td></tr></table><br/>", ( maind.home >> 8 ) & 0xFFF, maind.home >> 20, maind.home & 0xFF );
 //read hq message from hq.txt and format for display. -- If this file is missing, or empty it is skipped.
 settings = GetSetting( "HTTP Text" );
 sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
@@ -1312,13 +1312,13 @@ sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
-				httpString( cnt, "<table width=\"80%\"><tr><td align=\"center\">" );
+				httpString( cnt, "<table><tr><td align=\"center\">" );
 				httpString( cnt, "<div class=\"genwhite\"><i>Message from Administration:</i></div>" );
-				httpString( cnt, "<div class=\"quote\"><br>" );
+				httpString( cnt, "<div class=\"quote\">" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
-					httpPrintf( cnt, "%s<br>", trimwhitespace(data) );
+					httpPrintf( cnt, "%s<br/>", trimwhitespace(data) );
 				}
-				httpString( cnt, "<br></div></td></tr></table><br>" );
+				httpString( cnt, "</div></td></tr></table><br/>" );
 			}
 			fclose( file );
 		}
@@ -1329,9 +1329,9 @@ sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
 
 if( dbEmpireGetMessage( maind.empire, &message ) ) {
 	if( ( strlen(message.leader) ) ) {
-		httpString( cnt, "<b>Message from your Prime Minister</b><br>" );
+		httpString( cnt, "<b>Message from your Prime Minister</b><br/>" );
 		httpString( cnt, message.leader );
-		httpString( cnt, "<br><br>" );
+		httpString( cnt, "<br/><br/>" );
 	}
 }
 
@@ -1339,7 +1339,7 @@ if( dbEmpireGetMessage( maind.empire, &message ) ) {
  if( num )
  {
   httpString( cnt, "<b>New reports</b>" );
-  httpPrintf( cnt, "<br><a href=\"%s\">See older reports</a><br>", URLAppend( cnt, "news" ) );
+  httpPrintf( cnt, "<br/><a href=\"%s\">See older reports</a><br/>", URLAppend( cnt, "news" ) );
   httpString( cnt, "<table><tr><td>" );
   for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE )
   {
@@ -1350,7 +1350,7 @@ if( dbEmpireGetMessage( maind.empire, &message ) ) {
  else
  {
   httpString( cnt, "<b>No new reports</b>" );
-  httpPrintf( cnt, "<br><a href=\"%s\">See older reports</a>", URLAppend( cnt, "news" ) );
+  httpPrintf( cnt, "<br/><a href=\"%s\">See older reports</a>", URLAppend( cnt, "news" ) );
  }
  if( newsp )
   free( newsp );
@@ -1374,16 +1374,16 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohtmlBodyInit( cnt, "Older reports" );
 
- httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+ httpPrintf( cnt, "Current date : Week %d, year %d<br/>", ticks.number % 52, ticks.number / 52 );
  if( ticks.status )
-  httpPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
+  httpPrintf( cnt, "%d seconds before tick<br/>", (int)( ticks.next - time(0) ) );
  else
-  httpPrintf( cnt, "Time frozen<br>" );
+  httpPrintf( cnt, "Time frozen<br/>" );
 
  num = dbUserNewsList( id, &newsp );
  newsd = newsp;
  if( !( num ) )
-  httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
+  httpString( cnt, "<br/><b>There are no news reports to display.</b><br/>" );
  else
  {
   httpString( cnt, "<table><tr><td>" );
@@ -1447,7 +1447,7 @@ httpPrintf( cnt, "<tr><td>Units upkeep</td><td align=\"right\" id=\"unitupkeep\"
 httpPrintf( cnt, "<tr><td>Portals upkeep</td><td align=\"right\" id=\"portalsupkeep\">-%lld</td></tr>", (long long)maind.infos[INFOS_PORTALS_UPKEEP] );
 httpPrintf( cnt, "<tr><td>Population reduction</td><td align=\"right\" id=\"populationreduction\">+%lld</td></tr>", (long long)maind.infos[INFOS_POPULATION_REDUCTION] );
 httpPrintf( cnt, "<tr><td>Energy income</td><td align=\"right\" id=\"energyincome\">%s%+lld%s</td></tr>", ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "<span class=\"genred\">" : "" ), (long long)maind.infos[CMD_RESSOURCE_ENERGY], ( ( maind.infos[CMD_RESSOURCE_ENERGY] < 0 ) ? "</span>" : "" ) );
-httpString( cnt, "</table><br></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
+httpString( cnt, "</table><br/></td><td width=\"45%%\" align=\"center\" valign=\"top\"><table>" );
 httpString( cnt, "<tr><td><b>Resources</b></td><td>&nbsp;</td></tr>" );
 
 if( maind.infos[INFOS_MINERAL_TAX] ) {
@@ -1470,16 +1470,16 @@ if( maind.infos[INFOS_ECTROLIUM_TAX] ) {
 }
 
 httpPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\" id=\"ectroliumincome\">+%lld</td></tr>", (long long)maind.infos[CMD_RESSOURCE_ECTROLIUM] );
-httpString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
+httpString( cnt, "</table><br/></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
-httpString( cnt, "<b>Buildings</b><br><table>" );
+httpString( cnt, "<b>Buildings</b><br/><table>" );
 for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 	httpPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, (long long)maind.totalbuilding[a] );
 	b += (int)maind.totalbuilding[a];
 }
 
-httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%d</td></tr></table><br><br>", b );
-httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%d</td></tr></table><br/><br/>", b );
+httpPrintf( cnt, "<b>Buildings under construction</b><br/><span id=\"council_build_que\"><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
 
 for( a = c = 0 ; a < numbuild ; a++ ) {
@@ -1491,32 +1491,32 @@ for( a = c = 0 ; a < numbuild ; a++ ) {
 }
 
 if( !( c ) ) {
-	httpString( cnt, "</form></table>None<br>" );
+	httpString( cnt, "</form></table>None<br/>" );
 } else {
 	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
  	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
-	httpString( cnt, "<br><i>Summary</i><br>" );
+	httpString( cnt, "<br/><i>Summary</i><br/>" );
 
 	for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 		if( !( bsums[a] ) )
 			continue;
-		httpPrintf( cnt, "%lld %s<br>", (long long)bsums[a], cmdBuildingName[a] );
+		httpPrintf( cnt, "%lld %s<br/>", (long long)bsums[a], cmdBuildingName[a] );
 		b += bsums[a];
 	}
-	httpPrintf( cnt, "<i>Total of %d buildings under construction</i><br>", b );
+	httpPrintf( cnt, "<i>Total of %d buildings under construction</i><br/>", b );
 }
 
 httpString( cnt, "</span></td><td align=\"center\" valign=\"top\">" );
 
-httpString( cnt, "<b>Units</b><br><table>" );
+httpString( cnt, "<b>Units</b><br/><table>" );
 
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	httpPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"unt%d\">%lld</td></tr>", cmdUnitName[a], a, (long long)maind.totalunit[a] );
 	b += (int)maind.totalunit[a];
 }
 
-httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br><br>", b );
-httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br/><br/>", b );
+httpPrintf( cnt, "<b>Units under construction</b><br/><span id=\"council_unit_que\"><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 
 memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 for( a = c = 0 ; a < numbuild ; a++ ) {
@@ -1528,17 +1528,17 @@ for( a = c = 0 ; a < numbuild ; a++ ) {
 }
 
 if( !( c ) ) {
-  httpString( cnt, "</form></table>None<br>" );
+  httpString( cnt, "</form></table>None<br/>" );
 } else {
 	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
-	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
+	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br/><i>Summary</i><br/>" );
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	if( !( usums[a] ) )
 		continue;
-	httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
+	httpPrintf( cnt, "%lld %s<br/>", (long long)usums[a], cmdUnitName[a] );
 	b += usums[a];
   	}
-	httpPrintf( cnt, "<i>Total of %d units under construction</i><br>", b );
+	httpPrintf( cnt, "<i>Total of %d units under construction</i><br/>", b );
 }
 
 httpString( cnt, "</span></td></tr></table>" );
@@ -1581,17 +1581,17 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
    continue;
   c = cmdExecAddBuild( id, 0x10000 | a, b, -1, 0 );
   if( c >= 0 )
-   sprintf( buildstring[a], "<i>You started building %d %s</i><br><br>", b, cmdUnitName[a] );
+   sprintf( buildstring[a], "<i>You started building %d %s</i><br/><br/>", b, cmdUnitName[a] );
   else if( cmdErrorString )
-   sprintf( buildstring[a], "<i>%s</i><br><br>", cmdErrorString );
+   sprintf( buildstring[a], "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   sprintf( buildstring[a], "<i>Error while adding build item</i><br>" );
+   sprintf( buildstring[a], "<i>Error while adding build item</i><br/>" );
  }
 
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Units" );
- httpPrintf( cnt, "<a href=\"%s&amp;type=units\">Unit Information</a><br><br>", URLAppend( cnt, "info" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=units\">Unit Information</a><br/><br/>", URLAppend( cnt, "info" ) );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
   if( buildstring[a][0] )
@@ -1605,10 +1605,10 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
   cmdGetBuildCosts( &maind, 0x10000 | a, resbuild );
   if( !( maind.totalunit[a] ) && ( resbuild[0] == -2 ) )
    continue;
-  httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br>", cmdUnitName[a] );
+  httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br/>", cmdUnitName[a] );
 
    if( ( a < CMD_UNIT_SOLDIER ) || ( a == CMD_UNIT_GHOST ) )
-      httpPrintf( cnt, "<img src=\"files?type=image&amp;name=units/u%d.jpg\">", a );
+      httpPrintf( cnt, "<img src=\"files?type=image&amp;name=units/u%d.jpg\" />", a );
 
 
   httpString( cnt, "</td><td valign=\"top\" nowrap>" );
@@ -1616,18 +1616,18 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
   if( resbuild[0] < 0 )
   {
    if( resbuild[0] == -1 )
-    httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalunit[a] );
+    httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br/>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalunit[a] );
    else if( resbuild[0] == -2 )
-    httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Can not be built</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalunit[a] );
+    httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br/>Can not be built</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalunit[a] );
    continue;
   }
   for( b = 0 ; b < CMD_RESSOURCE_NUMUSED+1 ; b++ )
   {
    if( resbuild[b] )
-    httpPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
+    httpPrintf( cnt, "%lld %s<br/>", (long long)resbuild[b], cmdRessourceName[b] );
   }
   if( resbuild[b] )
-   httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+   httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br/>", (long long)resbuild[b] );
   httpPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"unit%dbuild\" size=\"10\"></td></tr>", (long long)maind.totalunit[a], a );
  }
  httpString( cnt, "</table><input type=\"submit\" value=\"Build\"></form>" );
@@ -1661,7 +1661,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  rmbidstring = iohtmlVarsFind( cnt, "rmbid" );
 
 	/*
-	httpString(cnt, "Market is close<br>But you can have ally");
+	httpString(cnt, "Market is close<br/>But you can have ally");
 	iohtmlBodyEnd( cnt );
 	return;
 	*/
@@ -1703,29 +1703,29 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  iohtmlBodyInit( cnt, "Market" );
  if( marketstring )
-  httpPrintf( cnt, "<i>%s</i><br><br>", marketstring );
+  httpPrintf( cnt, "<i>%s</i><br/><br/>", marketstring );
 
  if( viewstring )
  {
   b = dbUserMarketList( id, &buffer );
-  httpString( cnt, "<b>Your bids</b><br>" );
+  httpString( cnt, "<b>Your bids</b><br/>" );
   if( b <= 0 )
-   httpString( cnt, "None<br>" );
+   httpString( cnt, "None<br/>" );
   for( a = c = 0 ; a < b ; a++, c += 5 )
   {
    if( !( buffer[c+DB_MARKETBID_ACTION] ) )
     httpString( cnt, "Buying" );
    else
     httpString( cnt, "Selling" );
-   httpPrintf( cnt, " %d %s at %d - <a href=\"%s&rmbid=%d\">Withdraw bid</a><br>", URLAppend( cnt, "market" ), buffer[c+DB_MARKETBID_QUANTITY], cmdRessourceName[buffer[c+DB_MARKETBID_RESSOURCE]+1], buffer[c+DB_MARKETBID_PRICE], buffer[c+DB_MARKETBID_BIDID] );
+   httpPrintf( cnt, " %d %s at %d - <a href=\"%s&rmbid=%d\">Withdraw bid</a><br/>", URLAppend( cnt, "market" ), buffer[c+DB_MARKETBID_QUANTITY], cmdRessourceName[buffer[c+DB_MARKETBID_RESSOURCE]+1], buffer[c+DB_MARKETBID_PRICE], buffer[c+DB_MARKETBID_BIDID] );
   }
-  httpString( cnt, "<br>" );
+  httpString( cnt, "<br/>" );
   if( buffer )
    free( buffer );
  }
 
- httpPrintf( cnt, "<a href=\"%s&view=1\">View your bids</a><br>", URLAppend( cnt, "market" ) );
- httpPrintf( cnt, "<a href=\"%s&full=1\">View market statistics</a><br><br>", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<a href=\"%s&view=1\">View your bids</a><br/>", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<a href=\"%s&full=1\">View market statistics</a><br/><br/>", URLAppend( cnt, "market" ) );
 
  if( !( fullstring ) )
  {
@@ -1785,9 +1785,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   }
   for( c = d = 0 ; c < 3 ; c++, d += 2 )
   {
-   httpPrintf( cnt, "<b>Buying %s</b><br>", cmdRessourceName[c+1] );
+   httpPrintf( cnt, "<b>Buying %s</b><br/>", cmdRessourceName[c+1] );
    if( rmarket[d+0] == -1 )
-    httpString( cnt, "No bids<br><br>" );
+    httpString( cnt, "No bids<br/><br/>" );
    else
    {
     httpString( cnt, "<table cellspacing=\"6\" cellpading=\"6\"><tr align=\"center\"><td align=\"right\">Price</td>" );
@@ -1799,11 +1799,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpString( cnt, "</tr><tr align=\"center\"><td align=\"right\">Needed</td>" );
     for( a = b ; a <= rmarket[d+0] ; a++ )
      httpPrintf( cnt, "<td>%d</td>", fullmarket[(d+0)*DB_MARKET_RANGE+a] );
-    httpString( cnt, "</tr></table><br>" );
+    httpString( cnt, "</tr></table><br/>" );
    }
-   httpPrintf( cnt, "<b>Selling %s</b><br>", cmdRessourceName[c+1] );
+   httpPrintf( cnt, "<b>Selling %s</b><br/>", cmdRessourceName[c+1] );
    if( rmarket[d+1] == -1 )
-    httpString( cnt, "No bids<br><br>" );
+    httpString( cnt, "No bids<br/><br/>" );
    else
    {
     httpString( cnt, "<table cellspacing=\"6\" cellpading=\"6\"><tr align=\"center\"><td align=\"right\">Price</td>" );
@@ -1815,16 +1815,16 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpString( cnt, "</tr><tr align=\"center\"><td align=\"right\">Stock</td>" );
     for( a = rmarket[d+1] ; a <= b ; a++ )
      httpPrintf( cnt, "<td>%d</td>", fullmarket[(d+1)*DB_MARKET_RANGE+a] );
-    httpString( cnt, "</tr></table><br>" );
+    httpString( cnt, "</tr></table><br/>" );
    }
   }
  }
 
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table cellspacing=\"4\" border=\"0\"><tr><td><input type=\"radio\" value=\"0\" name=\"action\">Buy<br><input type=\"radio\" value=\"1\" name=\"action\">Sell</td><td><select name=\"res\">", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table cellspacing=\"4\" border=\"0\"><tr><td><input type=\"radio\" value=\"0\" name=\"action\">Buy<br/><input type=\"radio\" value=\"1\" name=\"action\">Sell</td><td><select name=\"res\">", URLAppend( cnt, "market" ) );
  for( a = 0 ; a < 3 ; a++ )
   httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRessourceName[a+1] );
  httpString( cnt, "</select></td></tr><tr><td align=\"right\">Price :</td><td><input type=\"text\" name=\"price\" size=\"10\"></td></tr><tr><td>Quantity :</td><td><input type=\"text\" name=\"quantity\" size=\"10\"></td></tr></table><input type=\"submit\" value=\"Execute\"></form>" );
- httpString( cnt, "<br><i>Note that resources placed on the market still decay, including energy.</i>" );
+ httpString( cnt, "<br/><i>Note that resources placed on the market still decay, including energy.</i>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -1909,7 +1909,7 @@ else
   for( c = d = 0 ; c < CMD_BLDG_NUMUSED ; c++ )
    d += planetd.building[c];
   if(planetd.flags & CMD_PLANET_FLAGS_BEACON)
-  	httpPrintf( cnt, "<tr><td><a href=\"%s&amp;id=%d\">%d,%d:%d</a>&nbsp;<img src=\"files?type=image&amp;name=beacon.gif\">", URLAppend( cnt, "planet" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  	httpPrintf( cnt, "<tr><td><a href=\"%s&amp;id=%d\">%d,%d:%d</a>&nbsp;<img src=\"files?type=image&amp;name=beacon.gif\" />", URLAppend( cnt, "planet" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   else
   	httpPrintf( cnt, "<tr><td><a href=\"%s&amp;id=%d\">%d,%d:%d</a>", URLAppend( cnt, "planet" ) , buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
 
@@ -1965,9 +1965,9 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+   httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\" />", artefactImage[d], artefactName[d], artefactName[d] );
   else if(planetd.special[1])
-  	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+  	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=pr%d.gif\" alt=\"%s\" title=\"%s\" />+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
   httpPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;
@@ -1995,7 +1995,7 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
  if( totals[6] )
   httpPrintf( cnt, " <i>Units (%lld)</i>", (long long)totals[6] );
  httpString( cnt, "</td><td></td></tr>" );
- httpString( cnt, "</table><br><div align=\"right\"><input type=\"submit\" value=\"Build on selected planets\"></div></form>" );
+ httpString( cnt, "</table><br/><div align=\"right\"><input type=\"submit\" value=\"Build on selected planets\"></div></form>" );
 
  free( buffer );
  iohtmlBodyEnd( cnt );
@@ -2027,18 +2027,18 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  }
 
- httpPrintf( cnt, "<b>Planet %d,%d:%d</b><br><br>", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+ httpPrintf( cnt, "<b>Planet %d,%d:%d</b><br/><br/>", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
 
  if( planetd.owner == id )
-  httpString( cnt, "You already own this planet!<br>" );
+  httpString( cnt, "You already own this planet!<br/>" );
  else if( cmdExecTakePlanet( id, plnid ) >= 0 )
-  httpString( cnt, "You took control of the planet!<br>" );
+  httpString( cnt, "You took control of the planet!<br/>" );
  else
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>You couldn't take control of the planet, the owner must have cancelled the offer.</i><br><br>" );
+   httpString( cnt, "<i>You couldn't take control of the planet, the owner must have cancelled the offer.</i><br/><br/>" );
  }
 
  httpString( cnt, "</center></body></html>" );
@@ -2093,7 +2093,7 @@ if( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODER
 	httpString( cnt, "&nbsp;-&nbsp;" );
 	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire relations</a>", URLAppend( cnt, "famrels" ), curfam );
 	httpString( cnt, "&nbsp;-&nbsp;" );
-	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\" target=\"main\">Minister Options</a><br><br>", URLAppend( cnt, "ministers" ), curfam );
+	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\" target=\"main\">Minister Options</a><br/><br/>", URLAppend( cnt, "ministers" ), curfam );
 }
 
 if ( curfam == maind.empire ) {
@@ -2108,12 +2108,12 @@ if ( curfam == maind.empire ) {
 			break;
 		}
    	}
-	httpString( cnt, "<br>" );
+	httpString( cnt, "<br/>" );
 }
 
 if( empired.picture > 0 ) {
 	snprintf( fname, REDIRECT_MAX, "files?type=eimage&amp;name=empire%d/pic%d", curfam, empired.picture );
-	httpPrintf( cnt, "<br><img src=\"%s\"><br>", fname );
+	httpPrintf( cnt, "<br/><img src=\"%s\" alt=\"Empire %d Picture\" /><br/>", fname, curfam );
 }
 
 if( !( empired.numplayers ) ) {
@@ -2232,7 +2232,7 @@ empired.numplayers = b;
   a = stats[a+1];
 
 }
- httpString( cnt, "</table><br>" );
+ httpString( cnt, "</table><br/>" );
 if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) ) {
 	if( ( empired.politics[CMD_POLITICS_LEADER] == id ) || ( empired.politics[CMD_POLITICS_DEVMINISTER] == id ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) {
 		httpString( cnt, "Empire Fund: " );
@@ -2256,7 +2256,7 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
 		        httpString( cnt, "Error retrieving Build details!" );
 			goto RETURN;
 		}
-		httpString( cnt, "<br><b>Buildings under construction</b><br><span id=\"empire_build_que\"><table>" );
+		httpString( cnt, "<br/><b>Buildings under construction</b><br/><span id=\"empire_build_que\"><table>" );
 		memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
 		for( a = c = 0 ; a < numbuild ; a++ ) {
 			if( build[a].type >> 16 )
@@ -2267,7 +2267,7 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
 		}
 		httpString( cnt, "</table>" );
 		if( !( c ) ) {
-			httpString( cnt, "None<br>" );
+			httpString( cnt, "None<br/>" );
 		}
 		httpString( cnt, "</span>" );	
 	}
@@ -2293,14 +2293,14 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
    {
    	if( empired.artefacts & b )
    	{
-   		httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
+   		httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\" /> %s<br/>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
    	}
    }
    httpString( cnt, "</td></tr></table>" );
   }
  }
  if( curfam == maind.empire )
-  httpString( cnt, "<br>Empire members are marked online if a page was requested in the last 5 minutes." );
+  httpString( cnt, "<br/>Empire members are marked online if a page was requested in the last 5 minutes." );
 
 RETURN:
 if( build ) {
@@ -2364,7 +2364,7 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
 
 
  if( reportstring )
-  httpPrintf( cnt, "<i>%s</i><br><br>", reportstring );
+  httpPrintf( cnt, "<i>%s</i><br/><br/>", reportstring );
 
  if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
  {
@@ -2389,10 +2389,10 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
   httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
  }
 
- httpString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
+ httpString( cnt, "</select><br/><br/><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", (long long)maind.ressource[a], cmdRessourceName[a], a );
- httpString( cnt, "</table><br>" );
+ httpString( cnt, "</table><br/>" );
  httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 
  iohtmlBodyEnd( cnt );
@@ -2461,7 +2461,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  iohtmlBodyInit( cnt, "Receive Aid" );
 
  if( reportstring )
-  httpPrintf( cnt, "<i>%s</i><br><br>", reportstring );
+  httpPrintf( cnt, "<i>%s</i><br/><br/>", reportstring );
 
  if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
  {
@@ -2477,18 +2477,18 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    continue;
   httpPrintf( cnt, "<b>%s</b> - ", main2d.faction );
  if( ( main2d.benefactors[0] == 0 ) ) {
-    httpString( cnt, "No access<br><br>" );
+    httpString( cnt, "No access<br/><br/>" );
     continue;
   } else if( ( main2d.benefactors[0] == 1 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) ) ) {
-    httpString( cnt, "No access<br><br>" );
+    httpString( cnt, "No access<br/><br/>" );
     continue;
   } else if( ( main2d.benefactors[0] == 2 ) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_LEADER ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
-    httpString( cnt, "No access<br><br>" );
+    httpString( cnt, "No access<br/><br/>" );
     continue;
   }
 
   httpPrintf( cnt, "Energy: %lld&nbsp;&nbsp;Mineral: %lld&nbsp;&nbsp;Crystal: %lld&nbsp;&nbsp;Ectrolium: %lld", (long long)main2d.ressource[0], (long long)main2d.ressource[1], (long long)main2d.ressource[2], (long long)main2d.ressource[3] );
-  httpPrintf( cnt, "<br><br>" );
+  httpPrintf( cnt, "<br/><br/>" );
  }
 
  if( empired.numplayers == 1 )
@@ -2508,15 +2508,15 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    continue;
   httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
  }
- httpString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
+ httpString( cnt, "</select><br/><br/><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", cmdRessourceName[a], a );
- httpString( cnt, "</table><br>" );
+ httpString( cnt, "</table><br/>" );
  httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 
  httpString( cnt, "</td><td width=\"50%\" align=\"center\">" );
 
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br>Allow access to your faction reserves to :<br><select name=\"access\">", URLAppend( cnt, "famgetaid" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br/>Allow access to your faction reserves to :<br/><select name=\"access\">", URLAppend( cnt, "famgetaid" ) );
  httpPrintf( cnt, "<option value=\"0\"" );
  if( maind.benefactors[0] == 0 )
   httpPrintf( cnt, " selected" );
@@ -2533,7 +2533,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( maind.benefactors[0] == 3 )
   httpPrintf( cnt, " selected" );
  httpPrintf( cnt, ">All factions</option>" );
- httpString( cnt, "</select><br><br>" );
+ httpString( cnt, "</select><br/><br/>" );
  httpString( cnt, "<input type=\"submit\" value=\"Change access\"></form>" );
 
  httpString( cnt, "</td></tr></table>" );
@@ -2549,10 +2549,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    continue;
   httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], main2d.faction );
  }
- httpString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
+ httpString( cnt, "</select><br/><br/><table width=\"100%\" cellspacing=\"4\">" );
  for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
   httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", cmdRessourceName[a], a );
- httpString( cnt, "</table><br>" );
+ httpString( cnt, "</table><br/>" );
  httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 */
 
@@ -2612,11 +2612,11 @@ if( evote ) {
 	}
 	if( ( votestring ) && ( sscanf( votestring, "%d", &vote ) == 1 ) ) {
 		if( ( user = dbUserLinkID( vote ) ) && ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) ) {
-			httpPrintf( cnt, "<i>Unable to vote for %s, as they have been Frozen by Administration!</i><br><br>", user->faction );
+			httpPrintf( cnt, "<i>Unable to vote for %s, as they have been Frozen by Administration!</i><br/><br/>", user->faction );
 		} else if( cmdExecChangeVote( id, vote ) < 0 ) {
-			httpString( cnt, "<i>Failed to change vote...?!</i><br><br>" );
+			httpString( cnt, "<i>Failed to change vote...?!</i><br/><br/>" );
 		} else {
-			httpString( cnt, "<i>Vote changed</i><br><br>" );
+			httpString( cnt, "<i>Vote changed</i><br/><br/>" );
 			dbEmpireGetInfo( maind.empire, &empired );
 		}
 	}
@@ -2631,7 +2631,7 @@ if( evote ) {
 			httpPrintf( cnt, "<b>The empire Prime Minister is %s</b>", main2d.faction );
 		}
 	}
-	httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\"><table cellspacing=\"8\"><tr><td><b>Empire members</b></td><td>Networth</td><td>Planets</td><td>Your vote</td></tr>", URLAppend( cnt, "vote" ) );
+	httpPrintf( cnt, "<br/><form action=\"%s\" method=\"POST\"><table cellspacing=\"8\"><tr><td><b>Empire members</b></td><td>Networth</td><td>Planets</td><td>Your vote</td></tr>", URLAppend( cnt, "vote" ) );
 	for( a = b = 0 ; a < empired.numplayers ; a++ ) {
 		if( dbUserMainRetrieve( empired.player[a], &main2d ) < 0 ) {
 			httpString( cnt, "Error while retrieving user's main data" );
@@ -2656,7 +2656,7 @@ if( evote ) {
 	if( !( b ) )
 		httpString( cnt, " checked" );
 	httpString( cnt, "></td></tr>" );
-	httpString( cnt, "</table><br><input type=\"hidden\" name=\"type\" value=\"eleader\"><input type=\"submit\" value=\"Change vote\"></form>" );
+	httpString( cnt, "</table><br/><input type=\"hidden\" name=\"type\" value=\"eleader\"><input type=\"submit\" value=\"Change vote\"></form>" );
 } else {
 	httpString( cnt, "Not yet avalible. =(" );
 }
@@ -2765,14 +2765,14 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
 
  if( strlen( message.mow ) )
  {
-  httpString( cnt, "<b>Message from your Minister of War</b><br>" );
+  httpString( cnt, "<b>Message from your Minister of War</b><br/>" );
   httpString( cnt, message.mow );
-  httpString( cnt, "<br><br>" );
+  httpString( cnt, "<br/><br/>" );
  }
 
  if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 )
  {
-  httpString( cnt, "<b>Empire relations</b><br><br>" );
+  httpString( cnt, "<b>Empire relations</b><br/><br/>" );
   if( b == 0 )
    httpString( cnt, "No relations" );
   b <<= 2;
@@ -2781,24 +2781,24 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
    if( rel[a+3] & 1 )
     continue;
    if( rel[a+1] == CMD_RELATION_ALLY )
-    httpPrintf( cnt, "You are offering an <font color=\"#80FF80\">alliance</font> to <a href=\"%s&amp;id=%d\">empire #%d</a><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "You are offering an <font color=\"#80FF80\">alliance</font> to <a href=\"%s&amp;id=%d\">empire #%d</a><br/><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    else if( rel[a+1] == CMD_RELATION_NAP )
-    httpPrintf( cnt, "You are offering an <font color=\"#3399FF\">non-agressive pact</font> to <a href=\"%s&amp;id=%d\">empire #%d</a><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "You are offering an <font color=\"#3399FF\">non-agressive pact</font> to <a href=\"%s&amp;id=%d\">empire #%d</a><br/><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    else if( rel[a+1] == CMD_RELATION_WAR )
-    httpPrintf( cnt, "You declared <font color=\"#FF0000\">war</font> to <a href=\"%s&amp;id=%d\">empire #%d</a><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "You declared <font color=\"#FF0000\">war</font> to <a href=\"%s&amp;id=%d\">empire #%d</a><br/><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
   }
   for( a = 0 ; a < b ; a += 4 )
   {
    if( !( rel[a+3] & 1 ) )
     continue;
    if( rel[a+1] == CMD_RELATION_ALLY )
-    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> offered a <font color=\"#80FF80\">alliance</font><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> offered a <font color=\"#80FF80\">alliance</font><br/><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    else if( rel[a+1] == CMD_RELATION_NAP )
-    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> offered a <font color=\"#3399FF\">non-agressive pact</font><br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> offered a <font color=\"#3399FF\">non-agressive pact</font><br/><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    else if( rel[a+1] == CMD_RELATION_WAR )
-    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> declared <font color=\"#FF0000\">war</font>!<br><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> declared <font color=\"#FF0000\">war</font>!<br/><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
   }
-  httpString( cnt, "<br>" );
+  httpString( cnt, "<br/>" );
   for( a = 0 ; a < b ; a += 4 )
   {
    if( ( rel[a+3] & 1 ) || ( rel[a+1] != CMD_RELATION_ALLY ) )
@@ -2810,7 +2810,7 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
     httpPrintf( cnt, "Your empire is <font color=\"#00FF00\">allied</font> to <a href=\"%s&amp;id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
     httpPrintf( cnt, "<a href=\"/%s&empire=true&forum=%d\">Empire Forum</a> - ", URLAppend( cnt, "forum" ), rel[a+2] );
     httpPrintf( cnt, "<a href=\"/%s&amp;id=%d\">Empire news</a> - ", URLAppend( cnt, "famnews" ), rel[a+2] );
-    httpPrintf( cnt, "<a href=\"/%s&amp;id=%d\">Empire relations</a><br>", URLAppend( cnt, "famrels" ), rel[a+2]);
+    httpPrintf( cnt, "<a href=\"/%s&amp;id=%d\">Empire relations</a><br/>", URLAppend( cnt, "famrels" ), rel[a+2]);
    }
   }
   for( a = 0 ; a < b ; a += 4 )
@@ -2821,7 +2821,7 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
    {
     if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_NAP ) || ( rel[a+2] != rel[c+2] ) )
      continue;
-    httpPrintf( cnt, "Your empire has a <font color=\"#3399FF\">non-agressive pact</font> with <a href=\"%s&amp;id=%d\">empire #%d</a><br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+    httpPrintf( cnt, "Your empire has a <font color=\"#3399FF\">non-agressive pact</font> with <a href=\"%s&amp;id=%d\">empire #%d</a><br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
    }
   }
   free( rel );
@@ -2894,18 +2894,18 @@ ACCESS:
 
 if( taxstring ){
 	if( ( sscanf( taxstring, "%f", &tax ) != 1 ) ) {
-		httpString( cnt, "<i>Invalid input, numbers only!!</i><br><br>" );
+		httpString( cnt, "<i>Invalid input, numbers only!!</i><br/><br/>" );
 	} else if( tax > 25.0 ) {
-		httpString( cnt, "<i>Tax level too high!!</i><br><br>" );
+		httpString( cnt, "<i>Tax level too high!!</i><br/><br/>" );
 	} else {
 		empired.taxation = fmax( 0.0, ( tax / 100.0 ) );
 		if( dbEmpireSetInfo( curfam, &empired ) < 0 ) {
-			httpString( cnt, "<i>Error setting new tax...</i><br><br>" );
+			httpString( cnt, "<i>Error setting new tax...</i><br/><br/>" );
 		} else {
 			if( empired.taxation ) {
-				httpPrintf( cnt, "<i>Taxation set to %.02f%%</i><br><br>", ( empired.taxation * 100.0 ) );
+				httpPrintf( cnt, "<i>Taxation set to %.02f%%</i><br/><br/>", ( empired.taxation * 100.0 ) );
 			} else {
-				httpString( cnt, "<i>Empire taxation removed!</i><br><br>" );
+				httpString( cnt, "<i>Empire taxation removed!</i><br/><br/>" );
 			}
 		}
 	}
@@ -2915,27 +2915,27 @@ if( fnamestring ) {
 	a = iohttpForumFilter( fname, fnamestring, USER_NAME_MAX, 0 );
 	if( cmdExecChangFamName( curfam, fname ) < 0 ) {
 		if( cmdErrorString )
-			httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+			httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
 		else
-			httpString( cnt, "<i>Error while changing empire name!</i><br><br>" );
+			httpString( cnt, "<i>Error while changing empire name!</i><br/><br/>" );
 	} else {
-		httpString( cnt, "<i>Empire name changed</i><br><br>" );
+		httpString( cnt, "<i>Empire name changed</i><br/><br/>" );
 	}
 }
 
 if( fampassstring ) {
 	iohttpForumFilter( fname, fampassstring, USER_PASS_MAX, 0 );
 	if(cmdExecSetFamPass( curfam, fname) != 1)
-		httpString( cnt, "<i>Empire password did not changed</i><br><br>" );
+		httpString( cnt, "<i>Empire password did not changed</i><br/><br/>" );
 	else
-		httpString( cnt, "<i>Empire password changed</i><br><br>" );
+		httpString( cnt, "<i>Empire password changed</i><br/><br/>" );
 }
 if( ( sidstring ) && ( statusstring ) && ( sscanf( sidstring, "%d", &sid ) == 1 ) && ( sscanf( statusstring, "%d", &status ) == 1 ) ) {
 	if( cmdExecFamMemberFlags( sid, curfam, status ) < 0 ) {
 		httpString( cnt, "Error while changing player status" );
 		goto RETURN;
 	}
-	httpString( cnt, "<i>Empire member status updated</i><br><br>" );
+	httpString( cnt, "<i>Empire member status updated</i><br/><br/>" );
 }
 
 if( reltypestring ) {
@@ -2944,11 +2944,11 @@ if( reltypestring ) {
 	if( !( relfamstring ) ) {
 		if( cmdExecDelRelation( curfam, reltype ) < 0 ) {
 			if( cmdErrorString )
-				httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+				httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
 			else
-				httpString( cnt, "<i>Error while cancelling relation</i><br><br>" );
+				httpString( cnt, "<i>Error while cancelling relation</i><br/><br/>" );
 		} else {
-			httpString( cnt, "<i>Relation cancelled</i><br><br>" );
+			httpString( cnt, "<i>Relation cancelled</i><br/><br/>" );
 		}
 		goto iohttpFunc_ministersL0;
 	}
@@ -2957,11 +2957,11 @@ if( reltypestring ) {
 
 	if( cmdExecAddRelation( curfam, reltype, relfam ) < 0 ) {
 		if( cmdErrorString )
-			httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+			httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
 		else
-			httpString( cnt, "<i>Error while adding relation</i><br><br>" );
+			httpString( cnt, "<i>Error while adding relation</i><br/><br/>" );
 	} else {
-   		httpPrintf( cnt, "<i>Changed relation with empire #%d</i><br><br>", relfam );
+   		httpPrintf( cnt, "<i>Changed relation with empire #%d</i><br/><br/>", relfam );
 	}
 }
 
@@ -2970,9 +2970,9 @@ if( hqmesstring ) {
 	iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
 	strcpy(message.leader,msg[1]);
 	if( dbEmpireSetMessage( curfam, &message ) < 0 ) {
-		httpString( cnt, "<i>Error changing Prime Minister message...</i><br><br>" );
+		httpString( cnt, "<i>Error changing Prime Minister message...</i><br/><br/>" );
 	} else {
-		httpString( cnt, "<i>Prime Minister message changed</i><br><br>" );
+		httpString( cnt, "<i>Prime Minister message changed</i><br/><br/>" );
 	}
 	dbEmpireGetMessage( curfam, &message );
 }
@@ -2982,9 +2982,9 @@ if( relsmesstring ) {
 	iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
 	strcpy(message.mow,msg[1]);
 	if( dbEmpireSetMessage( curfam, &message ) < 0 ) {
-		httpString( cnt, "<i>Error changing Leader message...</i><br><br>" );
+		httpString( cnt, "<i>Error changing Leader message...</i><br/><br/>" );
 	} else {
-		httpString( cnt, "<i>Leader message changed</i><br><br>" );
+		httpString( cnt, "<i>Leader message changed</i><br/><br/>" );
 	}
 	dbEmpireGetMessage( curfam, &message );
 }
@@ -3001,11 +3001,11 @@ httpString( cnt, "<table>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire name</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fname\" size=\"64\" value=\"%s\"></td></tr>", curfam, empired.name );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br/><br/><br/></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Taxation</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"taxlevel\" size=\"8\" value=\"%.2f\"></td></tr>", curfam, ( empired.taxation * 100.0 ) );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br/><br/><br/></td></tr>" );
 
 
 
@@ -3014,14 +3014,14 @@ httpString( cnt, "<tr><td><i>Note : Empire pictures should not exceed 256k</i></
 httpString( cnt, "<tr><td><input type=\"hidden\" name=\"upload_type\" value=\"empire\"></td></tr>" );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" id=\"destination\" value=\"%s\"></td></tr>", URLAppend( cnt, "files" ) );
 httpString( cnt, "<tr><td><input type=\"file\" id=\"fileupload\"></td></tr>" );
-httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"button\" value=\"Upload\" onclick=\"uploadFile()\"></form><br/><br/><br/></td></tr>" );
 
 
 
 
 if( empired.numplayers > 1 ) {
 	httpString( cnt, "<tr><td>Set an empire member status</td></tr>" );
-	httpString( cnt, "<tr><td><i>Minister of Communication can edit and delete posts in the forum.<br>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
+	httpString( cnt, "<tr><td><i>Minister of Communication can edit and delete posts in the forum.<br/>Factions marked independent aren't allowed to read the empire forum, and can lose their home planet.</i></td></tr>" );
 	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\"><input type=\"hidden\" name=\"id\" value=\"%d\"><select name=\"sid\">", URLAppend( cnt, "ministers" ), curfam );
 	for( a = 0 ; a < empired.numplayers ; a++ ) {
 		if( empired.player[a] == id )
@@ -3037,18 +3037,18 @@ if( empired.numplayers > 1 ) {
  		httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdPoliticsName[a-CMD_EMPIRE_POLITICS_START] );
 	}
 	httpString( cnt, "</select></td></tr>" );
-	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br/><br/><br/></td></tr>" );
 }
 cmdExecGetFamPass( curfam, fname );
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Empire password</td></tr>", URLAppend( cnt, "ministers" ) );
-httpString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
+httpString( cnt, "<tr><td><i>The empire password is stored in a non-reversable format.<br/>Leave the field blank to let anyone join, if you forget it... just change it! =)</i></td></tr>" );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><input type=\"text\" name=\"fampass\" size=\"64\" value=\"%s\"></td></tr>", curfam, fname );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br/><br/><br/></td></tr>" );
 
 httpString( cnt, "<tr><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">" );
 httpPrintf( cnt, "<tr><td width=\"40%\"><form action=\"%s\" method=\"POST\">Offer an alliance to an empire</td><td width=\"60%\" rowspan=\"4\" valign=\"top\">", URLAppend( cnt, "ministers" ) );
 if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
-	httpString( cnt, "<b>Empire relations</b><br><br>" );
+	httpString( cnt, "<b>Empire relations</b><br/><br/>" );
 	if( b == 0 )
 		httpString( cnt, "No relations" );
 	b <<= 2;
@@ -3058,13 +3058,13 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 		}
 		if( rel[a+1] == CMD_RELATION_ALLY ) {
 				httpPrintf( cnt, "You are offering an alliance to <a href=\"%s&amp;id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-				httpPrintf( cnt, "<a href=\"%s&amp;id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
+				httpPrintf( cnt, "<a href=\"%s&amp;id=%d&reltype=%d\">Cancel</a><br/>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
 		} else if( rel[a+1] == CMD_RELATION_NAP ) {
 				httpPrintf( cnt, "You are offering a non-agressive pact to <a href=\"%s&amp;id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-				httpPrintf( cnt, "<a href=\"%s&amp;id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
+				httpPrintf( cnt, "<a href=\"%s&amp;id=%d&reltype=%d\">Cancel</a><br/>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
 		} else if( rel[a+1] == CMD_RELATION_WAR ) {
 				httpPrintf( cnt, "You declared war on <a href=\"%s&amp;id=%d\">empire #%d</a> - ", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
-				httpPrintf( cnt, "<a href=\"%s&amp;id=%d&reltype=%d\">Cancel</a><br>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
+				httpPrintf( cnt, "<a href=\"%s&amp;id=%d&reltype=%d\">Cancel</a><br/>", URLAppend( cnt, "ministers" ), curfam, a >> 2 );
 		}
 	}
 	for( a = 0 ; a < b ; a += 4 ) {
@@ -3073,27 +3073,27 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 		if( rel[a+1] == CMD_RELATION_ALLY ) {
 			httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> offered a alliance", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
 			if( cmdExecFindRelation( curfam, rel[a+2], 0, 0 ) != CMD_RELATION_ALLY ) {
-				httpPrintf( cnt, " - <a href=\"%s&amp;id=%d&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), curfam, rel[a+2], CMD_RELATION_ALLY );
+				httpPrintf( cnt, " - <a href=\"%s&amp;id=%d&relfam=%d&reltype=%d\">accept</a><br/>", URLAppend( cnt, "ministers" ), curfam, rel[a+2], CMD_RELATION_ALLY );
 			}
-			httpString( cnt, "<br>" );
+			httpString( cnt, "<br/>" );
 		} else if( rel[a+1] == CMD_RELATION_NAP ) {
 			httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> offered a non-agressive pact", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
 			if( cmdExecFindRelation( curfam, rel[a+2], 0, 0 ) != CMD_RELATION_NAP ) {
-				httpPrintf( cnt, " - <a href=\"%s&amp;id=%d&relfam=%d&reltype=%d\">accept</a><br>", URLAppend( cnt, "ministers" ), curfam, rel[a+2], CMD_RELATION_NAP );
+				httpPrintf( cnt, " - <a href=\"%s&amp;id=%d&relfam=%d&reltype=%d\">accept</a><br/>", URLAppend( cnt, "ministers" ), curfam, rel[a+2], CMD_RELATION_NAP );
 			}
-			httpString( cnt, "<br>" );
+			httpString( cnt, "<br/>" );
 		} else if( rel[a+1] == CMD_RELATION_WAR ) {
-			httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> declared war!<br>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
+			httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire #%d</a> declared war!<br/>", URLAppend( cnt, "empire" ), rel[a+2], rel[a+2] );
 		}
 	}
-	httpString( cnt, "<br>" );
+	httpString( cnt, "<br/>" );
 	for( a = 0 ; a < b ; a += 4 ) {
 		if( ( rel[a+3] & 1 ) || ( rel[a+1] != CMD_RELATION_ALLY ) )
 			continue;
 		for( c = 0 ; c < b ; c += 4 ) {
 			if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_ALLY ) || ( rel[a+2] != rel[c+2] ) )
 				continue;
-			httpPrintf( cnt, "<i>Allied to empire #%d</i><br>", rel[a+2] );
+			httpPrintf( cnt, "<i>Allied to empire #%d</i><br/>", rel[a+2] );
 		}
 	}
 	for( a = 0 ; a < b ; a += 4 ) {
@@ -3102,7 +3102,7 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 		for( c = 0 ; c < b ; c += 4 ) {
 			if( !( rel[c+3] & 1 ) || ( rel[c+1] != CMD_RELATION_NAP ) || ( rel[a+2] != rel[c+2] ) )
 				continue;
-			httpPrintf( cnt, "<i>NAP with empire #%d</i><br>", rel[a+2] );
+			httpPrintf( cnt, "<i>NAP with empire #%d</i><br/>", rel[a+2] );
 		}
 	}
 	free( rel );
@@ -3110,27 +3110,27 @@ if( ( b = dbEmpireRelsList( curfam, &rel ) ) >= 0 ) {
 
 httpString( cnt, "</td></tr>" );
 httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
-httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"0\"> <input type=\"submit\" value=\"Send\"></form><br/><br/><br/></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Send NAP Offer</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
-httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"1\"> <input type=\"submit\" value=\"Send\"></form><br/><br/><br/></td></tr>" );
 
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Declare war to an empire</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<input type=\"hidden\" name=\"id\" value=\"%d\">", curfam );
-httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"2\"> <input type=\"submit\" value=\"Send\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"text\" name=\"relfam\" size=\"8\"> <input type=\"hidden\" name=\"reltype\" value=\"2\"> <input type=\"submit\" value=\"Send\"></form><br/><br/><br/></td></tr>" );
 
 httpString( cnt, "</table></td></tr>" );
 
 iohttpForumFilter3( msg[1], message.leader, USER_DESC_MAX );
 httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Prime Minister message</td></tr>", URLAppend( cnt, "ministers" ) );
 httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
-httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br/><br/><br/></td></tr>" );
 /*
  iohttpForumFilter3( msg[1], message.mow, USER_DESC_MAX );
  httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "ministers" ) );
  httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
- httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
+ httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br/><br/><br/></td></tr>" );
 */
 httpString( cnt, "</table>" );
 
@@ -3308,7 +3308,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
   {
    if( !( advdet[a] ) || !( advdet[a][0] ) )
    {
-    httpPrintf( cnt, "#%d You must specify the faction name or user ID.<br><br>", a+1 );
+    httpPrintf( cnt, "#%d You must specify the faction name or user ID.<br/><br/>", a+1 );
     continue;
    }
    if( ( advdet[a][0] >= '0' ) && ( advdet[a][0] <= '9' ) )
@@ -3325,13 +3325,13 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
     cid = dbUserSearchFaction( advdet[a] );
     if( cid < 0 )
     {
-     httpPrintf( cnt, "#%d The faction %s does not seem to exist, the syntax must be exact or use the user ID.<br><br>", a+1, advdet[a] );
+     httpPrintf( cnt, "#%d The faction %s does not seem to exist, the syntax must be exact or use the user ID.<br/><br/>", a+1, advdet[a] );
      continue;
     }
    }
    if( ( numpl = dbUserPlanetListCoords( cid, &buffer ) ) < 0 )
    {
-    httpPrintf( cnt, "#%d There is no user with an ID of %d.<br><br>", a+1, cid );
+    httpPrintf( cnt, "#%d There is no user with an ID of %d.<br/><br/>", a+1, cid );
     continue;
    }
    iohttpMapSystemsBuffer( mapp, buffer, advcol[a] & 0xF0000, numpl, advcol[a] >> 20 );
@@ -3342,13 +3342,13 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
   {
    if( !( advdet[a] ) || !( advdet[a][0] ) || ( sscanf( advdet[a], "%d", &cid ) <= 0 ) )
    {
-    httpPrintf( cnt, "#%d You must specify the empire number.<br><br>", a+1 );
+    httpPrintf( cnt, "#%d You must specify the empire number.<br/><br/>", a+1 );
     continue;
    }
    iohttpFunc_mapL0:
    if( dbEmpireGetInfo( cid, &empired ) < 0 )
    {
-    httpPrintf( cnt, "#%d This empire doesn't seem to exist.<br><br>", a+1 );
+    httpPrintf( cnt, "#%d This empire doesn't seem to exist.<br/><br/>", a+1 );
     continue;
    }
    config[a] &= 0xFF;
@@ -3357,7 +3357,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
    {
     if( ( numpl = dbUserPlanetListCoords( empired.player[c], &buffer ) ) < 0 )
     {
-     httpPrintf( cnt, "#%d There is no user with an ID of %d.<br><br>", a+1, cid );
+     httpPrintf( cnt, "#%d There is no user with an ID of %d.<br/><br/>", a+1, cid );
      continue;
     }
     iohttpMapSystemsBuffer( mapp, buffer, advcol[a] & 0xF0000, numpl, advcol[a] >> 20 );
@@ -3437,7 +3437,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
     httpPrintf( cnt, "<td><a href=\"%s&amp;id=%d\"", URLAppend( cnt, "system" ), ( mapp[i] & 0xFFFF ) - 1 );
-    httpPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"files?type=image&amp;name=m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
+    httpPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"files?type=image&amp;name=m%c%c.gif\" title=\"%d,%d\" /></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )
@@ -3481,17 +3481,17 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( cmdExecSetSectsize( id, a ) >= 0 )
   {
-   httpPrintf( cnt, "<i>Default map sector size is now %d x %d</i><br><br>", ( a << 1 ), ( a << 1 ) );
+   httpPrintf( cnt, "<i>Default map sector size is now %d x %d</i><br/><br/>", ( a << 1 ), ( a << 1 ) );
    maind.config_mapsize = a | ( maind.config_mapsize & 0xFFFF0000 );
   }
   else
-   httpString( cnt, "<i>Error while changing default sector size</i><br><br>" );
+   httpString( cnt, "<i>Error while changing default sector size</i><br/><br/>" );
  }
 
  a = ( maind.home >> 8 ) & 0xFFF;
  b = maind.home >> 20;
- httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"%s\">map generation</a> settings.<br>Your home system is located at the coordinates ", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s&sectorzoom=%d,%d\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
+ httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"%s\">map generation</a> settings.<br/>Your home system is located at the coordinates ", URLAppend( cnt, "mapadv" ) );
+ httpPrintf( cnt, "<a href=\"%s&sectorzoom=%d,%d\">%d,%d</a> ( click to zoom there ).<br/><br/>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
 
  a = dbMapBInfoStatic[MAP_SIZEX] * IOHTTP_MAPPICK_DIVIDE;
  httpPrintf( cnt, "<table border=\"0\" width=\"%d\" cellpadding=\"0\" cellspacing=\"0\">", a + 80 );
@@ -3499,7 +3499,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpPrintf( cnt, "<tr><td width=\"40\">&nbsp;</td><td width=\"%d\" align=\"left\"><b>0</b></td><td width=\"%d\" align=\"center\"><b>%d</b></td><td width=\"%d\" align=\"right\"><b>%d</b></td><td width=\"40\">&nbsp;</td></tr>", a, a, dbMapBInfoStatic[MAP_SIZEX] >> 1, a, dbMapBInfoStatic[MAP_SIZEX] );
 
  httpPrintf( cnt, "<tr><td height=\"%d\" align=\"right\" valign=\"top\"><b>0</b></td>", a );
- httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"files?type=image&amp;name=galaxies/galaxyr%d.png\" style=\"width:100%%; height:100%%;\" alt=\"Planets\" usemap=\"#systemmap\">", ticks.round/*, dbMapBInfoStatic[MAP_SIZEX] *IOHTTP_MAPPICK_DIVIDE, dbMapBInfoStatic[MAP_SIZEY] *IOHTTP_MAPPICK_DIVIDE*/ );
+ httpPrintf( cnt, "<td colspan=\"3\" rowspan=\"3\"><img src=\"files?type=image&amp;name=galaxies/galaxyr%d.png\" style=\"width:100%%; height:100%%;\" alt=\"Planets\" usemap=\"#systemmap\" />", ticks.round/*, dbMapBInfoStatic[MAP_SIZEX] *IOHTTP_MAPPICK_DIVIDE, dbMapBInfoStatic[MAP_SIZEY] *IOHTTP_MAPPICK_DIVIDE*/ );
 
 httpString( cnt, "<map name=\"systemmap\">" );
 for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
@@ -3522,7 +3522,7 @@ httpString( cnt, "</map></td>" );
  httpPrintf( cnt, "<tr><td>&nbsp;</td><td align=\"left\"><b>0</b></td><td align=\"center\"><b>%d</b></td><td align=\"right\"><b>%d</b></td><td>&nbsp;</td></tr>", dbMapBInfoStatic[MAP_SIZEX] >> 1, dbMapBInfoStatic[MAP_SIZEX] );
  httpString( cnt, "</table>" );
 
- httpPrintf( cnt, "<br><form action=\"%s\" method=\"GET\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
+ httpPrintf( cnt, "<br/><form action=\"%s\" method=\"GET\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
 setting = GetSetting( "Map Size" );
 for( a = 0 ; a < MAPPICKSIZES ; a++ ) {
 	if( ( sizes[a] << 1 ) > (unsigned int)setting->num_value ) {
@@ -3596,12 +3596,12 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\"></td></tr>" );
  httpString( cnt, "</table></form>" );
 
- httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br><br><br>" );
+ httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br/><br/><br/>" );
 
- httpString( cnt, "<b>Reset map defaults to</b><br><table><tr><td>" );
- httpPrintf( cnt, "<a href=\"%s&e0=1&c0=0&setdefault=1\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&e0=1&c0=1&e1=2&c1=0&setdefault=1\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&e0=3&c0=2&e1=1&c1=1&e2=2&c2=0&setdefault=1\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpString( cnt, "<b>Reset map defaults to</b><br/><table><tr><td>" );
+ httpPrintf( cnt, "<a href=\"%s&e0=1&c0=0&setdefault=1\">Your planets in green</a><br/>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&e0=1&c0=1&e1=2&c1=0&setdefault=1\">Your planets in blue and portals in green</a><br/>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&e0=3&c0=2&e1=1&c1=1&e2=2&c2=0&setdefault=1\">Your empire in red, your planets in blue and portals in green</a><br/>", URLAppend( cnt, "map" ) );
  httpString( cnt, "</td></tr></table>" );
 
  iohtmlBodyEnd( cnt );
@@ -3657,15 +3657,15 @@ if( bitflag( systemd.flags, MAP_SYSTEM_FLAG_MEGA ) ) {
 		pics[a] = rand() & 0xF;
 }
 
- httpPrintf( cnt, "<b>System %d,%d</b><br>", systemd.position & 0xFFFF, systemd.position >> 16 );
+ httpPrintf( cnt, "<b>System %d,%d</b><br/>", systemd.position & 0xFFFF, systemd.position >> 16 );
 
  if( systemd.empire != -1 )
-  httpPrintf( cnt, "<b>Home of <a href=\"%s&?id=%d\">empire #%d</a></b><br><br>", URLAppend( cnt, "empire" ), systemd.empire, systemd.empire );
+  httpPrintf( cnt, "<b>Home of <a href=\"%s&?id=%d\">empire #%d</a></b><br/><br/>", URLAppend( cnt, "empire" ), systemd.empire, systemd.empire );
 
 
  plnid = systemd.indexplanet;
 if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
- httpPrintf( cnt, "<br>There are %d unexplored planets in this system<br><a href=\"%s&system=%d\">Mass explore system</a>", systemd.unexplored, URLAppend( cnt, "explore" ), sysid );
+ httpPrintf( cnt, "<br/>There are %d unexplored planets in this system<br/><a href=\"%s&system=%d\">Mass explore system</a>", systemd.unexplored, URLAppend( cnt, "explore" ), sysid );
  httpString( cnt, "<table width=\"100%\" cellspacing=\"6\" cellpadding=\"6\">" );
  for( a = b = ln = 0 ; a < systemd.numplanets ; a++, plnid++ )
  {
@@ -3685,7 +3685,7 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
 
   httpPrintf( cnt, "<td align=\"center\" width=\"%d%%\">", lns[b] );
   dbMapRetrievePlanet( plnid, &planetd );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\"><img src=\"files?type=image&amp;name=p%02d.gif\" border=\"0\" alt=\"Planet #%d\"></a><br>", URLAppend( cnt, "planet" ), plnid, pics[a], plnid );
+  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\"><img src=\"files?type=image&amp;name=p%02d.gif\" border=\"0\" alt=\"Planet #%d\" /></a><br/>", URLAppend( cnt, "planet" ), plnid, pics[a], plnid );
 
   if( planetd.owner == -1 )
   {
@@ -3697,7 +3697,7 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
    goto iohttpFunc_systemL0;
 
   httpPrintf( cnt, "Planet %d owned by <a href=\"%s&amp;id=%d\">%s</a> of ", a, URLAppend( cnt, "player" ), planetd.owner, main2d.faction );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
 
   iohttpFunc_systemL0:
    httpString( cnt, "</td>" );
@@ -3708,7 +3708,7 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
 
  if( b )
   httpString( cnt, "</tr></td></table></tr>" );
- httpString( cnt, "</table><br><br>" );
+ httpString( cnt, "</table><br/><br/>" );
 
 RETURN:
  httpString( cnt, "</center></body></html>" );
@@ -3753,27 +3753,27 @@ if( !( playerstring ) || ( sscanf( playerstring, "%d", &playerid ) <= 0 ) || ( d
 iohtmlBodyInit( cnt, main2d.faction );
 
 httpPrintf( cnt, "<table border=\"0\"><tr><td>" );
-httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire : #%d</a><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
-httpPrintf( cnt, "Home planet : %d,%d:%d<br>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF );
-httpPrintf( cnt, "Faction ID : %d<br>", playerid );
-httpPrintf( cnt, "Planets : %d<br>", main2d.planets );
-httpPrintf( cnt, "Race : %s<br>", cmdRaceName[main2d.raceid] );
-httpPrintf( cnt, "Networth : %lld<br>", (long long)main2d.networth );
+httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire : #%d</a><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+httpPrintf( cnt, "Home planet : %d,%d:%d<br/>", ( main2d.home >> 8 ) & 0xFFF, main2d.home >> 20, main2d.home & 0xFF );
+httpPrintf( cnt, "Faction ID : %d<br/>", playerid );
+httpPrintf( cnt, "Planets : %d<br/>", main2d.planets );
+httpPrintf( cnt, "Race : %s<br/>", cmdRaceName[main2d.raceid] );
+httpPrintf( cnt, "Networth : %lld<br/>", (long long)main2d.networth );
 
 if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
- 	httpPrintf( cnt, "Population : %lld0<br>", (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
+ 	httpPrintf( cnt, "Population : %lld0<br/>", (long long)main2d.ressource[CMD_RESSOURCE_POPULATION] );
 }
 
-httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
-httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
-httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
-httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
+httpPrintf( cnt, "Forum tag : <b>%s</b><br/><br/>", infod.forumtag );
+httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br/>", URLAppend( cnt, "mail" ), playerid );
+httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br/>", URLAppend( cnt, "map" ), playerid );
+httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br/>", URLAppend( cnt, "map" ), playerid );
 
 if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
- 	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
+ 	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">See planets list</a><br/>", URLAppend( cnt, "playerlist" ), playerid );
 }
 
-httpString( cnt, "<br></td></tr></table>" );
+httpString( cnt, "<br/></td></tr></table>" );
 
 
  
@@ -3789,10 +3789,10 @@ if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->level >= LEVEL_MO
 		}
 		if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) ) {
 			httpString( cnt, "<table><tr><td>" );
-			httpPrintf( cnt, "<img src=\"%s\" alt=\"Facebook Icon\">", infod.fbinfo.pic );
+			httpPrintf( cnt, "<img src=\"%s\" alt=\"Facebook Icon\" />", infod.fbinfo.pic );
 			httpString( cnt, "</td><td>" );
-			httpPrintf( cnt, "Facebook ID : <b>%s</b><br>", infod.fbinfo.id );
-			httpPrintf( cnt, "Facebook Name : <b>%s</b><br>", infod.fbinfo.full_name );
+			httpPrintf( cnt, "Facebook ID : <b>%s</b><br/>", infod.fbinfo.id );
+			httpPrintf( cnt, "Facebook Name : <b>%s</b><br/>", infod.fbinfo.full_name );
 			httpString( cnt, "</td></tr></table>" );
 		}
 	}
@@ -3800,30 +3800,30 @@ if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->level >= LEVEL_MO
 #endif
 
 if( strlen(infod.desc) ) {
-	httpString( cnt, "<i>Faction description</i><br><table border=\"0\"><tr><td>" );
+	httpString( cnt, "<i>Faction description</i><br/><table border=\"0\"><tr><td>" );
 	httpString( cnt, infod.desc );
 	httpString( cnt, "</td></tr></table>" );
 }
 
 if( ( b = dbUserRecordList( playerid, &recordd ) ) >= 0 ) {
-	httpString( cnt, "<table border=\"0\"><tr><td><br><i>Player records</i><br>" );
+	httpString( cnt, "<table border=\"0\"><tr><td><br/><i>Player records</i><br/>" );
 	httpPrintf( cnt, "Rounds played : %d", b );
 	for( a = b-1 ; a >= 0 ; a-- ) {
-		httpPrintf( cnt, "<br><br>Round %s: %d", recordd[a].roundflag, recordd[a].roundid );
-		httpPrintf( cnt, "<br>Faction name : %s", recordd[a].faction );
-		httpPrintf( cnt, "<br>Title : %s", recordd[a].forumtag );
-		httpPrintf( cnt, "<br>Planets : %d", recordd[a].planets );
-		httpPrintf( cnt, "<br>Networth : %d", recordd[a].networth );
-		httpPrintf( cnt, "<br>Faction rank : %d", recordd[a].rank );
-		httpPrintf( cnt, "<br>Empire : #%d", recordd[a].empire );
+		httpPrintf( cnt, "<br/><br/>Round %s: %d", recordd[a].roundflag, recordd[a].roundid );
+		httpPrintf( cnt, "<br/>Faction name : %s", recordd[a].faction );
+		httpPrintf( cnt, "<br/>Title : %s", recordd[a].forumtag );
+		httpPrintf( cnt, "<br/>Planets : %d", recordd[a].planets );
+		httpPrintf( cnt, "<br/>Networth : %d", recordd[a].networth );
+		httpPrintf( cnt, "<br/>Faction rank : %d", recordd[a].rank );
+		httpPrintf( cnt, "<br/>Empire : #%d", recordd[a].empire );
 		if( strlen( recordd[a].famname ) > 0 ) {
-			httpPrintf( cnt, "<br>Empire name : %s", recordd[a].famname );
+			httpPrintf( cnt, "<br/>Empire name : %s", recordd[a].famname );
 		}
-		httpPrintf( cnt, "<br>Empire rank : %d", recordd[a].famrank );
-		httpPrintf( cnt, "<br>Empire planets : %d", recordd[a].famplanets );
-		httpPrintf( cnt, "<br>Empire networth : %d", recordd[a].famnetworth );
+		httpPrintf( cnt, "<br/>Empire rank : %d", recordd[a].famrank );
+		httpPrintf( cnt, "<br/>Empire planets : %d", recordd[a].famplanets );
+		httpPrintf( cnt, "<br/>Empire networth : %d", recordd[a].famnetworth );
 		if( recordd[a].artefacts > 0 ) {
-			httpPrintf( cnt, "<br>Empire artefacts : %d", recordd[a].artefacts );
+			httpPrintf( cnt, "<br/>Empire artefacts : %d", recordd[a].artefacts );
 		}
 	}
 	httpString( cnt, "</td></tr></table>" );
@@ -3865,7 +3865,7 @@ if( (((cnt->session)->dbuser) == NULL ) || ( (((cnt->session)->dbuser) && ( ((cn
 
 iohtmlBodyInit( cnt, main2d.faction );
 
-httpString( cnt, "Planets list<br>" );
+httpString( cnt, "Planets list<br/>" );
 if( ( num = dbUserPlanetListIndicesSorted( playerid, &buffer, 0 ) ) <= 0 ) {
 	httpString( cnt, "Error while retrieving planets list" );
 	goto RETURN;
@@ -3930,21 +3930,21 @@ if( ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
   sscanf( plgivestring, "%d", &plgive );
 
  b = planetd.position & 0xFF;
- httpPrintf( cnt, "<b>Planet %d,%d:%d</b><br><br>", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, b );
+ httpPrintf( cnt, "<b>Planet %d,%d:%d</b><br/><br/>", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, b );
 
  if( plgive != -2 )
  {
-  httpPrintf( cnt, "<i>Planet offer setting changed</i><br><br>" );
+  httpPrintf( cnt, "<i>Planet offer setting changed</i><br/><br/>" );
   cmdExecOfferPlanet( id, plgive, plnid );
   planetd.surrender = plgive;
  }
 if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
-	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=p16.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", plnid );
+	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=p16.gif\" border=\"0\" alt=\"Planet %d\" /><br/><br/>", plnid );
 } else {
 	srand( planetd.system );
 	for( a = 0 ; a < b ; a++ )
 		rand();
-	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=p%02d.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", rand() & 0xF, plnid );
+	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=p%02d.gif\" border=\"0\" alt=\"Planet %d\" /><br/><br/>", rand() & 0xF, plnid );
 }
 
  if( unstationstring )
@@ -3953,9 +3953,9 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
   cmd[1] = id;
   cmd[2] = plnid;
   if( cmdExecute( cnt, cmd, 0, 0 ) < 0 )
-   httpString( cnt, "Error encountered while unstationing forces<br><br>" );
+   httpString( cnt, "Error encountered while unstationing forces<br/><br/>" );
   else
-   httpString( cnt, "<i>Fleet unstationed</i><br><br>" );
+   httpString( cnt, "<i>Fleet unstationed</i><br/><br/>" );
   memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
  }
 
@@ -3964,19 +3964,19 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
   if( planetd.flags & CMD_PLANET_FLAGS_HOME )
    httpPrintf( cnt, "No one owns this planet, but it is part of a home system and unavailable for exploration" );
 	else {
-	httpPrintf( cnt, "No one owns this planet, it is free to explore.<br><br><a href=\"%s&amp;id=%d\">Explore this planet</a><br><br>", URLAppend( cnt, "explore" ), plnid );
+	httpPrintf( cnt, "No one owns this planet, it is free to explore.<br/><br/><a href=\"%s&amp;id=%d\">Explore this planet</a><br/><br/>", URLAppend( cnt, "explore" ), plnid );
 	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Special operation</a>", URLAppend( cnt, "spec" ), plnid );
 	}
  }
  else if( planetd.owner == id )
  {
-  httpString( cnt, "This planet is yours.<br>" );
-  httpPrintf( cnt, "Population : %lld0<br>", planetd.population );
+  httpString( cnt, "This planet is yours.<br/>" );
+  httpPrintf( cnt, "Population : %lld0<br/>", planetd.population );
  b = (int)artefactPrecense( &planetd );
   if( b >= 0 )
-   httpPrintf( cnt, "<br><img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
+   httpPrintf( cnt, "<br/><img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\" /> %s<br/>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
   else if(planetd.special[1])
-   httpPrintf( cnt, "<br><img src=\"files?type=image&amp;name=pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+   httpPrintf( cnt, "<br/><img src=\"files?type=image&amp;name=pr%d.gif\" alt=\"%s\" title=\"%s\" /> %s production : <font color=\"#20FF20\">+%d%%</font><br/>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
 
 
@@ -3992,15 +3992,15 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
 
   httpPrintf( cnt,"</SCRIPT>\n");
 
-  httpPrintf( cnt, "<br><a href=\"%s&amp;id=%d\">Build on this planet</a><br><br>", URLAppend( cnt, "build" ), plnid );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Station on this planet</a><br><br>", URLAppend( cnt, "station" ), plnid );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Raze buildings</a><br><br>", URLAppend( cnt, "raze" ), plnid );
-  httpPrintf( cnt, "<a href=# onClick=\"Areyousure(%d)\">Raze all buildings</a><br>", plnid );
+  httpPrintf( cnt, "<br/><a href=\"%s&amp;id=%d\">Build on this planet</a><br/><br/>", URLAppend( cnt, "build" ), plnid );
+  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Station on this planet</a><br/><br/>", URLAppend( cnt, "station" ), plnid );
+  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Raze buildings</a><br/><br/>", URLAppend( cnt, "raze" ), plnid );
+  httpPrintf( cnt, "<a href=# onClick=\"Areyousure(%d)\">Raze all buildings</a><br/>", plnid );
 
 
   if( ( dbEmpireGetInfo( maind.empire, &empired ) >= 0 ) && ( empired.numplayers >= 2 ) && !( planetd.flags & CMD_PLANET_FLAGS_HOME ) )
   {
-   httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\">Offer this planet to :", URLAppend( cnt, "planet" ) );
+   httpPrintf( cnt, "<br/><form action=\"%s\" method=\"POST\">Offer this planet to :", URLAppend( cnt, "planet" ) );
    httpPrintf( cnt, "<input type=\"hidden\" value=\"%d\" name=\"id\">", plnid );
    httpString( cnt, "<select name=\"plgive\">" );
    httpPrintf( cnt, "<option value=\"%d\">%s", -1, "No one" );
@@ -4018,26 +4018,26 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
     httpPrintf( cnt, "<option value=\"%d\" selected>%s", user2->id, user2->faction );
     b = 1;
    }
-   httpString( cnt, "</select><br>" );
+   httpString( cnt, "</select><br/>" );
    httpString( cnt, "<input type=\"submit\" value=\"Confirm\"></form>" );
   }
 
-  httpString( cnt, "<table width=\"90%\"><tr><td width=\"45%\" align=\"center\" valign=\"top\"><b>Buildings</b><br><br>" );
+  httpString( cnt, "<table width=\"90%\"><tr><td width=\"45%\" align=\"center\" valign=\"top\"><b>Buildings</b><br/><br/>" );
   for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
   {
    if( planetd.building[a] )
-    httpPrintf( cnt, "%d %s<br>", planetd.building[a], cmdBuildingName[a] );
+    httpPrintf( cnt, "%d %s<br/>", planetd.building[a], cmdBuildingName[a] );
   }
   if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
-   httpString( cnt, "Portal<br>" );
+   httpString( cnt, "Portal<br/>" );
   if( planetd.construction )
-   httpPrintf( cnt, "<br>%d additional buildings are under construction", planetd.construction );
-  httpString( cnt, "</td><td width=\"45%\" align=\"center\" valign=\"top\"><b>Units</b><br><br>" );
+   httpPrintf( cnt, "<br/>%d additional buildings are under construction", planetd.construction );
+  httpString( cnt, "</td><td width=\"45%\" align=\"center\" valign=\"top\"><b>Units</b><br/><br/>" );
   for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
   {
    if( planetd.unit[a] )
    {
-    httpPrintf( cnt, "%d %s<br>", planetd.unit[a], cmdUnitName[a] );
+    httpPrintf( cnt, "%d %s<br/>", planetd.unit[a], cmdUnitName[a] );
     b = 1;
    }
   }
@@ -4053,15 +4053,15 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
    httpString( cnt, "Error while retrieving user's main data" );
   else {
    httpPrintf( cnt, "This planet is owned by : <a href=\"%s&amp;id=%d\">%s</a> of ", URLAppend( cnt, "player" ), planetd.owner, main2d.faction );
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>, networth %lld.<br><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire, (long long)main2d.networth );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>, networth %lld.<br/><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire, (long long)main2d.networth );
    }
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Attack this planet</a><br><br>", URLAppend( cnt, "attack" ), plnid );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Attack this planet</a><br/><br/>", URLAppend( cnt, "attack" ), plnid );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Special operation</a>", URLAppend( cnt, "spec" ), plnid );
  }
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
 
 if( planetd.surrender == id )
-	httpPrintf( cnt, "<br><br>%s offered you this planet <a href=\"%s&amp;id=%d\">accept offer?</a>", main2d.faction, URLAppend( cnt, "pltake" ), plnid );
+	httpPrintf( cnt, "<br/><br/>%s offered you this planet <a href=\"%s&amp;id=%d\">accept offer?</a>", main2d.faction, URLAppend( cnt, "pltake" ), plnid );
 
  httpString( cnt, "</center></body></html>" );
 
@@ -4130,13 +4130,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 */
   if( b >= 0 )
   {
-   sprintf( buildstring[a], "<i>You started building %d %s</i><br><br>", cmd[3], cmdBuildingName[a] );
+   sprintf( buildstring[a], "<i>You started building %d %s</i><br/><br/>", cmd[3], cmdBuildingName[a] );
    c++;
   }
   else if( cmdErrorString )
-   sprintf( buildstring[a], "<i>%s</i><br><br>", cmdErrorString );
+   sprintf( buildstring[a], "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   sprintf( buildstring[a], "<i>Error while adding build item</i><br>" );
+   sprintf( buildstring[a], "<i>Error while adding build item</i><br/>" );
  }
  if( portalstring )
  {
@@ -4148,13 +4148,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   b = cmdExecute( cnt, cmd, 0, 0 );
   if( b >= 0 )
   {
-   sprintf( buildstring[CMD_BLDG_NUMUSED], "<i>You started building a portal</i><br><br>" );
+   sprintf( buildstring[CMD_BLDG_NUMUSED], "<i>You started building a portal</i><br/><br/>" );
    c++;
   }
   else if( cmdErrorString )
-   sprintf( buildstring[CMD_BLDG_NUMUSED], "<i>%s</i><br><br>", cmdErrorString );
+   sprintf( buildstring[CMD_BLDG_NUMUSED], "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   sprintf( buildstring[CMD_BLDG_NUMUSED], "<i>Error while adding portal build item</i><br><br>" );
+   sprintf( buildstring[CMD_BLDG_NUMUSED], "<i>Error while adding portal build item</i><br/><br/>" );
  }
 
  if( c )
@@ -4165,7 +4165,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Build on planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
- httpPrintf( cnt, "<a href=\"%s&amp;type=buildings\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=buildings\">Building Information</a><br/><br/>", URLAppend( cnt, "info" ) );
  for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ )
  {
   if( buildstring[a][0] )
@@ -4184,57 +4184,57 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    httpPrintf( cnt, ", %d of them are still under construction", planetd.construction );
   httpString( cnt, ". " );
  }
- httpPrintf( cnt, "This planet can support %d buildings, additional ones will be very expensive.<br>", planetd.size );
+ httpPrintf( cnt, "This planet can support %d buildings, additional ones will be very expensive.<br/>", planetd.size );
 
  for( a = CMD_BLDG_OVERBUILD ; a < CMD_BLDG_NUMUSED ; a++ )
   totalb -= planetd.building[a];
  if( ( fa = cmdGetBuildOvercost( planetd.size, totalb ) ) != 1.0 )
  {
-  httpPrintf( cnt, "The overbuilding penalty for this planet is <font color=\"#FF2020\">+%.2f%%</font><br>", (fa-1.0)*100.0 );
+  httpPrintf( cnt, "The overbuilding penalty for this planet is <font color=\"#FF2020\">+%.2f%%</font><br/>", (fa-1.0)*100.0 );
  }
 
- httpString( cnt, "<br><table cellspacing=\"6\"><tr><td><b>Building</b></td><td><b>Cost</b></td><td><b>Owned</b></td><td><b>Build</b></td></tr>" );
+ httpString( cnt, "<br/><table cellspacing=\"6\"><tr><td><b>Building</b></td><td><b>Cost</b></td><td><b>Owned</b></td><td><b>Build</b></td></tr>" );
  for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
  {
   cmdGetBuildCosts( &maind, a, resbuild );
   if( !( cmdBuildingFlags[a] ) )
    cmdGetBuildOverbuild( planetd.size, totalb, resbuild );
 
-  httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
+  httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br/></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
   if( resbuild[0] < 0 )
   {
-   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[a] );
+   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br/>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[a] );
    continue;
   }
   for( b = 0 ; b < CMD_RESSOURCE_NUMUSED+1 ; b++ )
   {
    if( resbuild[b] )
-    httpPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
+    httpPrintf( cnt, "%lld %s<br/>", (long long)resbuild[b], cmdRessourceName[b] );
   }
   if( resbuild[b] )
-   httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+   httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br/>", (long long)resbuild[b] );
   httpPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"bldg%d\" size=\"10\"></td></tr>", (long long)maind.totalbuilding[a], a );
  }
 
  if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
-  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br>Already present" );
+  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br/>Already present" );
  else if( planetd.flags & CMD_PLANET_FLAGS_PORTAL_BUILD )
-  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br>Under construction" );
+  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br/>Under construction" );
  else
  {
   cmdGetBuildCosts( &maind, CMD_BLDG_NUMUSED, resbuild );
   httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">Portal</font></td><td valign=\"top\" nowrap>" );
   if( resbuild[0] < 0 )
-   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
+   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br/>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
   else
   {
    for( b = 0 ; b < CMD_RESSOURCE_NUMUSED+1 ; b++ )
    {
     if( resbuild[b] )
-     httpPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
+     httpPrintf( cnt, "%lld %s<br/>", (long long)resbuild[b], cmdRessourceName[b] );
    }
    if( resbuild[b] )
-    httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+    httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br/>", (long long)resbuild[b] );
   }
  }
  httpPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\">", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
@@ -4245,8 +4245,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  httpString( cnt, "</td></tr>" );
 
  httpString( cnt, "</table><input type=\"submit\" value=\"Build\"></form>" );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a><br><br>", URLAppend( cnt, "system" ), planetd.system );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a><br/><br/>", URLAppend( cnt, "system" ), planetd.system );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -4332,7 +4332,7 @@ void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
  iohtmlBodyInit( cnt, "Cancelling %d buildings or units", nNbr);
  if(nNbr)
  {
-	 	httpPrintf(cnt, "%d building or unit under construction have been remove<br>", nNbr);
+	 	httpPrintf(cnt, "%d building or unit under construction have been remove<br/>", nNbr);
 	 	httpPrintf(cnt, "<table><tr><td>You were refunded with:</td><td></td><td></td></tr>");
 	 	for(i=0;i<4;i++)
 	 	{
@@ -4446,7 +4446,7 @@ cmdExecAddBuild !!!
     buildoff += sprintf( &buildstring[buildoff], "<i>%s", cmdErrorString );
    else
     buildoff += sprintf( &buildstring[buildoff], "<i>Error while adding build item" );
-   buildoff += sprintf( &buildstring[buildoff], " on <a href=\"%s&amp;id=%d\">%d,%d:%d</a></i><br>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+   buildoff += sprintf( &buildstring[buildoff], " on <a href=\"%s&amp;id=%d\">%d,%d:%d</a></i><br/>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   }
   b = planetd.construction + d;
   for( c = 0 ; c < CMD_BLDG_OVERBUILD ; c++ )
@@ -4473,7 +4473,7 @@ cmdExecAddBuild !!!
     buildoff += sprintf( &buildstring[buildoff], "<i>%s", cmdErrorString );
    else
     buildoff += sprintf( &buildstring[buildoff], "<i>Error while adding portal build item" );
-   buildoff += sprintf( &buildstring[buildoff], " on <a href=\"%s&amp;id=%d\">%d,%d:%d</a></i><br>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+   buildoff += sprintf( &buildstring[buildoff], " on <a href=\"%s&amp;id=%d\">%d,%d:%d</a></i><br/>", URLAppend( cnt, "planet" ), buffer[a], ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
   }
   if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
    totalportal++;
@@ -4488,62 +4488,62 @@ cmdExecAddBuild !!!
  }
 
  iohtmlBodyInit( cnt, "Build on %d planets", totalpl );
- httpPrintf( cnt, "<a href=\"%s&amp;type=buildings\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=buildings\">Building Information</a><br/><br/>", URLAppend( cnt, "info" ) );
  httpString( cnt, buildstring );
 
  httpString( cnt, "<table><tr><td>" );
  fa = cost / (float)totalpl;
  if( fa > 1.001 )
-  httpPrintf( cnt, "The average overbuilding penalty is <font color=\"#FF2020\">+%.2f%%</font><br>", (fa-1.0)*100.0 );
+  httpPrintf( cnt, "The average overbuilding penalty is <font color=\"#FF2020\">+%.2f%%</font><br/>", (fa-1.0)*100.0 );
  httpString( cnt, "<input type=\"checkbox\" name=\"obcheck\"> build between overbuilding penalty from <input type=\"text\" name=\"oblimitlow\" size=\"4\"> to <input type=\"text\" name=\"oblimit\" size=\"4\"> %" );
  httpString( cnt, "</td></tr></table>" );
 
- httpString( cnt, "<br><table cellspacing=\"6\"><tr><td><b>Building</b></td><td><b>Cost</b></td><td><b>Owned</b></td><td><b>Build</b></td></tr>" );
+ httpString( cnt, "<br/><table cellspacing=\"6\"><tr><td><b>Building</b></td><td><b>Cost</b></td><td><b>Owned</b></td><td><b>Build</b></td></tr>" );
  for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
  {
   cmdGetBuildCosts( &maind, a, resbuild );
-  httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
+  httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">%s</font><br/></td><td valign=\"top\" nowrap>", cmdBuildingName[a] );
   if( resbuild[0] < 0 )
   {
-   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[a] );
+   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br/>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[a] );
    continue;
   }
   for( b = 0 ; b < CMD_RESSOURCE_NUMUSED ; b++ )
   {
    if( resbuild[b] )
-    httpPrintf( cnt, "%lld %s<br>", (long long)( resbuild[b] * cost ), cmdRessourceName[b] );
+    httpPrintf( cnt, "%lld %s<br/>", (long long)( resbuild[b] * cost ), cmdRessourceName[b] );
   }
-  httpPrintf( cnt, "%lld %s<br>", (long long)resbuild[b], cmdRessourceName[b] );
+  httpPrintf( cnt, "%lld %s<br/>", (long long)resbuild[b], cmdRessourceName[b] );
   b++;
   if( resbuild[b] )
-   httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[b] );
+   httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br/>", (long long)resbuild[b] );
   httpPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\"><input type=\"text\" name=\"bldg%d\" size=\"10\"></td></tr>", (long long)maind.totalbuilding[a], a );
  }
 
  a = ( totalportal & 0xFFFF ) + ( totalportal >> 16 );
  b = 0;
  if( totalpl == totalportal )
-  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br>All present" );
+  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br/>All present" );
  else if( totalpl == a )
-  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br>Under construction" );
+  httpString( cnt, "<tr><td valign=\"top\" colspan=\"2\"><font color=\"#FFFFFF\">Portal</font><br/>Under construction" );
  else
  {
   b = totalpl - a;
   cmdGetBuildCosts( &maind, CMD_BLDG_NUMUSED, resbuild );
   httpPrintf( cnt, "<tr><td valign=\"top\"><font color=\"#FFFFFF\">Portal ( %d )</font></td><td valign=\"top\" nowrap>", b );
   if( resbuild[0] < 0 )
-   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
+   httpPrintf( cnt, "<font color=\"#FF0000\">Unavailable<br/>Tech too low</font></td><td valign=\"top\" align=\"center\">%lld</td><td>&nbsp;</td></tr>", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
   else
   {
    for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
    {
     if( resbuild[a] )
-     httpPrintf( cnt, "%lld %s<br>", (long long)b*resbuild[a], cmdRessourceName[a] );
+     httpPrintf( cnt, "%lld %s<br/>", (long long)b*resbuild[a], cmdRessourceName[a] );
    }
-   httpPrintf( cnt, "%lld %s<br>", (long long)resbuild[a], cmdRessourceName[a] );
+   httpPrintf( cnt, "%lld %s<br/>", (long long)resbuild[a], cmdRessourceName[a] );
    a++;
    if( resbuild[a] )
-    httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br>", (long long)resbuild[a] );
+    httpPrintf( cnt, "<font color=\"#FF2020\">Tech : +%lld%% costs</font><br/>", (long long)resbuild[a] );
   }
  }
  httpPrintf( cnt, "</td><td valign=\"top\" align=\"center\">%lld</td><td valign=\"top\">", (long long)maind.totalbuilding[CMD_BLDG_NUMUSED] );
@@ -4584,7 +4584,7 @@ void iohtmlFunc_chat( ReplyDataPtr cnt )
 	}
 
 	iohtmlBodyInit( cnt, "Chat %s", szFaction);
-	httpPrintf( cnt, "<b>Have fun chatting %s</b><br>", szFaction);
+	httpPrintf( cnt, "<b>Have fun chatting %s</b><br/>", szFaction);
 	httpString( cnt, "<applet code=IRCApplet.class archive=\"irc.jar,pixx.jar\" width=800 height=600>" );
 	httpString( cnt,"<param name=\"CABINETS\" value=\"irc.cab,securedirc.cab,pixx.cab\">");
 	httpPrintf( cnt, "<param name=\"nick\" value=\"%s\"><param name=\"alternatenick\" value=\"user%d\"><param name=\"name\" value=\"EctroverseChat\"><param name=\"host\" value=\"%s\"><param name=\"gui\" value=\"pixx\"><param name=\"command1\" value=\"join #ectroverse\"></applet>", szFaction, id, IRC_SERVER);
@@ -4650,13 +4650,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   b = cmdExecute( cnt, cmd, 0, 0 );
   if( b >= 0 )
   {
-   httpPrintf( cnt, "<i>You razed %d %s</i><br><br>", cmd[3], cmdBuildingName[a] );
+   httpPrintf( cnt, "<i>You razed %d %s</i><br/><br/>", cmd[3], cmdBuildingName[a] );
    c++;
   }
   else if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error while razing building</i><br>" );
+   httpString( cnt, "<i>Error while razing building</i><br/>" );
  }
  if( portalstring )
  {
@@ -4666,13 +4666,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   b = cmdExecute( cnt, cmd, 0, 0 );
   if( b >= 0 )
   {
-   httpPrintf( cnt, "<i>You razed the %s</i><br><br>", cmdBuildingName[CMD_BLDG_NUMUSED] );
+   httpPrintf( cnt, "<i>You razed the %s</i><br/><br/>", cmdBuildingName[CMD_BLDG_NUMUSED] );
    c++;
   }
   else if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error while razing portal</i><br><br>" );
+   httpString( cnt, "<i>Error while razing portal</i><br/><br/>" );
  }
  if( c )
  {
@@ -4690,36 +4690,36 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    httpPrintf( cnt, ", %d of them are still under construction", planetd.construction );
   httpString( cnt, ". " );
  }
- httpPrintf( cnt, "This planet can support %d buildings, additional ones will be very expensive.<br>", planetd.size );
+ httpPrintf( cnt, "This planet can support %d buildings, additional ones will be very expensive.<br/>", planetd.size );
 
  for( a = CMD_BLDG_OVERBUILD ; a < CMD_BLDG_NUMUSED ; a++ )
   totalb -= planetd.building[a];
  if( ( fa = cmdGetBuildOvercost( planetd.size, totalb ) ) != 1.0 )
-  httpPrintf( cnt, "The overbuilding penalty for this planet is %.2f%%<br>", (fa-1.0)*100.0 );
- httpString( cnt, "<br><br><table width=\"320\" border=\"2\">" );
+  httpPrintf( cnt, "The overbuilding penalty for this planet is %.2f%%<br/>", (fa-1.0)*100.0 );
+ httpString( cnt, "<br/><br/><table width=\"320\" border=\"2\">" );
  for( a = b = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
  {
   if( !( planetd.building[a] ) )
    continue;
-  httpPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdBuildingName[a] );
- httpPrintf( cnt, "<input id=\"disbandrange%d\" type=\"text\" name=\"bldg%d\" size=\"10\" value=\"0\" onchange=\"changeslider(this.value,\'disbandslider%d\')\"><br>", a, a, a );
+  httpPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br/><br/>", cmdBuildingName[a] );
+ httpPrintf( cnt, "<input id=\"disbandrange%d\" type=\"text\" name=\"bldg%d\" size=\"10\" value=\"0\" onchange=\"changeslider(this.value,\'disbandslider%d\')\"><br/>", a, a, a );
 httpPrintf( cnt, "<input id=\"disbandslider%d\" type=\"range\" min=\"0\" max=\"%d\" value=\"0\" onchange=\"changeslider(this.value,\'disbandrange%d\')\" />", a, planetd.building[a], a );
-httpPrintf( cnt, "<br>There are %d on this planet<br>( %lld total )</td></tr>", planetd.building[a], (long long)maind.totalbuilding[a] );
+httpPrintf( cnt, "<br/>There are %d on this planet<br/>( %lld total )</td></tr>", planetd.building[a], (long long)maind.totalbuilding[a] );
 
   b = 1;
  }
  if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
  {
-  httpPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdBuildingName[CMD_BLDG_NUMUSED] );
-  httpPrintf( cnt, "<input type=\"checkbox\" name=\"portal\"> Raze the portal<br><br>" );
+  httpPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br/><br/>", cmdBuildingName[CMD_BLDG_NUMUSED] );
+  httpPrintf( cnt, "<input type=\"checkbox\" name=\"portal\"> Raze the portal<br/><br/>" );
   b = 1;
  }
  if( b )
-  httpString( cnt, "</table><br><input type=\"submit\" value=\"Raze\"></form>" );
+  httpString( cnt, "</table><br/><input type=\"submit\" value=\"Raze\"></form>" );
  else
-  httpString( cnt, "</table><br>There are no buildings on this planet</form>" );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a><br><br>", URLAppend( cnt, "system" ), planetd.system );
+  httpString( cnt, "</table><br/>There are no buildings on this planet</form>" );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a><br/><br/>", URLAppend( cnt, "system" ), planetd.system );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -4762,7 +4762,7 @@ memset(szTotal, 0, CMD_UNIT_NUMUSED*sizeof(int));
  iohtmlBodyInit( cnt, "Fleets" );
 
  if( varstring )
-  httpString( cnt, "<i>Fleets orders changed</i><br><br>" );
+  httpString( cnt, "<i>Fleets orders changed</i><br/><br/>" );
 
  if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 )
  {
@@ -4772,7 +4772,7 @@ memset(szTotal, 0, CMD_UNIT_NUMUSED*sizeof(int));
  }
 
  httpString( cnt, "<table width=\"100%\"><tr><td width=\"50%\" align=\"center\" valign=\"top\">" );
- httpString( cnt, "<b>Main fleet</b><br>" );
+ httpString( cnt, "<b>Main fleet</b><br/>" );
  httpString( cnt, "<table>" );
 
 for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
@@ -4781,11 +4781,11 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 		b = 1;
 	}
 }
- httpString( cnt, "</table><br>" );
+ httpString( cnt, "</table><br/>" );
  httpPrintf( cnt, "<a href=\"%s&amp;id=0\">Disband units</a>", URLAppend( cnt, "fleetdisband" ) );
 
  httpString( cnt, "</td><td width=\"50%\" align=\"center\" valign=\"top\">" );
- httpString( cnt, "<b>Fleets orders</b><br>" );
+ httpString( cnt, "<b>Fleets orders</b><br/>" );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table cellspacing=\"8\">", URLAppend( cnt, "fleets" ) );
  httpString( cnt, "<tr><td align=\"center\">Order after an attack</td></tr><tr><td align=\"center\"><select name=\"attack\"><option value=\"0\"" );
@@ -4812,9 +4812,9 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 
  httpString( cnt, "</td></tr></table>" );
 
- httpString( cnt, "<br><b>Travelling fleets</b><br><br>" );
+ httpString( cnt, "<br/><b>Travelling fleets</b><br/><br/>" );
  if( num == 1 )
-  httpString( cnt, "None<br>" );
+  httpString( cnt, "None<br/>" );
  else
  {
   httpString( cnt, "<table width=\"90%%\" cellspacing=\"5\"><tr><td width=\"18%\">Units</td><td width=\"34%\">Order</td><td width=\"18%\">Status</td><td width=\"10%\">Position</td><td width=\"10%\">Changes</td></tr>" );
@@ -4825,7 +4825,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
    {
     if( fleetd[a].unit[b] )
     {
-     httpPrintf( cnt, "%d %s<br>", fleetd[a].unit[b], cmdUnitName[b] );
+     httpPrintf( cnt, "%d %s<br/>", fleetd[a].unit[b], cmdUnitName[b] );
      szTotal[b] += fleetd[a].unit[b];
     }
    }
@@ -4879,14 +4879,14 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
   httpString( cnt, "</table>" );
  }
   if( num > 1 )
- httpString( cnt, "<br><b>Total traveling fleets</b><br><br>" );
+ httpString( cnt, "<br/><b>Total traveling fleets</b><br/><br/>" );
   for(b=0;b < CMD_UNIT_NUMUSED ; b++ )
   {
   	if( szTotal[b] )
-     httpPrintf( cnt, "%d %s<br>", szTotal[b], cmdUnitName[b] );
+     httpPrintf( cnt, "%d %s<br/>", szTotal[b], cmdUnitName[b] );
   }
 
- httpPrintf( cnt, "<br><br><b>Dispatch a new fleet</b><br><br><form action=\"%s\" method=\"POST\">", URLAppend( cnt, "fleetsend" ) );
+ httpPrintf( cnt, "<br/><br/><b>Dispatch a new fleet</b><br/><br/><form action=\"%s\" method=\"POST\">", URLAppend( cnt, "fleetsend" ) );
  httpPrintf( cnt, "<select name=\"order\"><option value=\"%d\">%s<option value=\"%d\">%s<option value=\"%d\">%s</select>", CMD_FLEET_ORDER_ATTACK, cmdFleetOrderName[CMD_FLEET_ORDER_ATTACK], CMD_FLEET_ORDER_STATION, cmdFleetOrderName[CMD_FLEET_ORDER_STATION], CMD_FLEET_ORDER_MOVE, cmdFleetOrderName[CMD_FLEET_ORDER_MOVE] );
  httpString( cnt, "<table cellspacing=\"8\">" );
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
@@ -4894,7 +4894,7 @@ for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
   if( fleetd[0].unit[a] )
    httpPrintf( cnt, "<tr><td align=\"right\" id=\"dunt%d\">%d</td><td align=\"right\">%s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", a, fleetd[0].unit[a], cmdUnitName[a], a );
  }
- httpString( cnt, "</table>X:<input type=\"text\" name=\"X\" size=\"4\"> Y:<input type=\"text\" name=\"Y\" size=\"4\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\"><br><br><input type=\"submit\" value=\"Send\"></form>" );
+ httpString( cnt, "</table>X:<input type=\"text\" name=\"X\" size=\"4\"> Y:<input type=\"text\" name=\"Y\" size=\"4\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\"><br/><br/><input type=\"submit\" value=\"Send\"></form>" );
 
  free( fleetd );
  iohtmlBodyEnd( cnt );
@@ -4938,7 +4938,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( ystring ) || ( sscanf( ystring, "%d", &y ) != 1 ) )
  {
   iohttpFunc_fleetsendL0:
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -4949,18 +4949,18 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( ( a = cmdExecSendFleet( id, x, y, z, order, sendunit ) ) < 0 )
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error encountered when sending fleet</i><br>" );
+   httpString( cnt, "<i>Error encountered when sending fleet</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
 
- httpString( cnt, "<i>Fleet sent!</i><br><br>" );
+ httpString( cnt, "<i>Fleet sent!</i><br/><br/>" );
  if( a ) 
-  httpPrintf( cnt, "The fleet will reach its destination in %d weeks<br>", a );
+  httpPrintf( cnt, "The fleet will reach its destination in %d weeks<br/>", a );
  else
-  httpString( cnt, "The fleet reached its destination<br>" );
+  httpString( cnt, "The fleet reached its destination<br/>" );
 redirect( cnt, "/%s", URLAppend( cnt, "fleets") );
  iohtmlBodyEnd( cnt );
  return;
@@ -5032,15 +5032,15 @@ void iohtmlFunc_fleetssplit( ReplyDataPtr cnt )
  			nError = 6;  //In fact its not an error its just split fleet but no fleet is selected
 
  		if(nError == 1)
- 			httpString( cnt, "<i>Error while splitting fleet</i><br>You can split more than what you have!" );
+ 			httpString( cnt, "<i>Error while splitting fleet</i><br/>You can split more than what you have!" );
  		else if(nError == 2)
- 			httpString( cnt, "<i>Error while splitting fleet</i><br>You must leave enough transports in your Main Fleet<br>Each transport can hold 100 soldiers or droids, or 25 goliaths." );
+ 			httpString( cnt, "<i>Error while splitting fleet</i><br/>You must leave enough transports in your Main Fleet<br/>Each transport can hold 100 soldiers or droids, or 25 goliaths." );
  		else if(nError == 3)
- 			httpString( cnt, "<i>Error while splitting fleet</i><br>You don't have enough transports in your split fleet<br>Each transport can hold 100 soldiers or droids, or 25 goliaths." );
+ 			httpString( cnt, "<i>Error while splitting fleet</i><br/>You don't have enough transports in your split fleet<br/>Each transport can hold 100 soldiers or droids, or 25 goliaths." );
  		else if(nError == 4)
- 			httpString( cnt, "<i>Error while splitting fleet</i><br>You don't leave enough carriers in your Main Fleet<br>Each carrier can hold 100 fighters, bombers or transports." );
+ 			httpString( cnt, "<i>Error while splitting fleet</i><br/>You don't leave enough carriers in your Main Fleet<br/>Each carrier can hold 100 fighters, bombers or transports." );
  		else if(nError == 5)
- 			httpString( cnt, "<i>Error while splitting fleet</i><br>You don't have enough carriers in your split fleet<br>Each carrier can hold 100 fighters, bombers or transports." );
+ 			httpString( cnt, "<i>Error while splitting fleet</i><br/>You don't have enough carriers in your split fleet<br/>Each carrier can hold 100 fighters, bombers or transports." );
  		else if(nError == 0) //time to split some fleet
  		{
  			//make the same fleet (same order and dest) but not the same unit amount
@@ -5077,7 +5077,7 @@ void iohtmlFunc_fleetssplit( ReplyDataPtr cnt )
  		httpString(cnt, "calcul()\n}\n");
  		httpString(cnt, "\n//--> // done hiding</SCRIPT>");
  		httpPrintf(cnt, "<form action=\"%s\" method=\"POST\" name=\"fleet\">", URLAppend( cnt, "fleetssplit" ) );
- 		httpPrintf(cnt, "<input type=\"hidden\" name=\"fleetid\" value=\"%d\"><br><table>", nId);
+ 		httpPrintf(cnt, "<input type=\"hidden\" name=\"fleetid\" value=\"%d\"><br/><table>", nId);
  		httpString(cnt, "<tr align=\"center\"><b><td></td><td>Main Fleet</td><td></td><td>Split fleet</td></></tr>");
  		for(i=0;i<CMD_UNIT_NUMUSED;i++)
  		{
@@ -5087,11 +5087,11 @@ void iohtmlFunc_fleetssplit( ReplyDataPtr cnt )
 	 			httpPrintf(cnt, "<td>%s </td><td><input type=\"text\" name=\"u%d\" onKeyUp=\"calcul();\"></td></tr>", cmdUnitName[i], i);
 	 		}
 	 	}
- 		httpString(cnt, "</table><br><input type=\"submit\" value=\"Split\"> Use % of fleet<input type=\"CHECKBOX\" name=\"cpct\" onClick=\"check()\"> <input type=\"text\" name=\"pct\" READONLY onKeyUp=\"pctchange()\">");
+ 		httpString(cnt, "</table><br/><input type=\"submit\" value=\"Split\"> Use % of fleet<input type=\"CHECKBOX\" name=\"cpct\" onClick=\"check()\"> <input type=\"text\" name=\"pct\" READONLY onKeyUp=\"pctchange()\">");
  		httpString(cnt, "</form>");
  	}
  	else
- 		httpString( cnt, "<i>Error while splitting fleet</i><br>Fleet not found" );
+ 		httpString( cnt, "<i>Error while splitting fleet</i><br/>Fleet not found" );
  }
  iohtmlBodyEnd( cnt );
 }
@@ -5152,7 +5152,7 @@ nMax = dbUserFleetList(id, &pFleet);
  if(nfltid[0] == nfltid[1])
  	nNbrFleet = 1;
  if((nNbrFleet == 1)&&(nError == 0))
- 	httpString(cnt, "<i>Error while merging</i><br>Only one fleet is selected<br>");
+ 	httpString(cnt, "<i>Error while merging</i><br/>Only one fleet is selected<br/>");
  if(nNbrFleet == 2)
  {
  	cmdFleetGetPosition( &pFleet[nfltid[0]], &nX0, &nY0 );
@@ -5180,23 +5180,23 @@ nMax = dbUserFleetList(id, &pFleet);
 	 }
  	nX1 = cmdExecChangeFleet(id, nX0, nY0, 0, CMD_FLEET_ORDER_MERGE, nfltid[0]);
  	nX0 = cmdExecChangeFleet(id, nX0, nY0, 0, CMD_FLEET_ORDER_MERGE, nfltid[1]);
- 	httpString(cnt, "<i>Merge sucessful</i><br>");
+ 	httpString(cnt, "<i>Merge sucessful</i><br/>");
  	if(nX1 > nX0)
  		nX0 = nX1;
- 	httpPrintf(cnt, "They will merge in %d weeks<br>", nX0);
+ 	httpPrintf(cnt, "They will merge in %d weeks<br/>", nX0);
  } else if(nError == 2) {
- 	httpString(cnt, "<i>Error while merging</i><br>Your fleet must exist before getting merge!!!<br>");
+ 	httpString(cnt, "<i>Error while merging</i><br/>Your fleet must exist before getting merge!!!<br/>");
  } else if(nError == 1) {
- 	httpString(cnt, "<i>Error while merging</i><br>Your fleet must have at least one transport, carrier, cruiser or phantoms to be merge<br>");
+ 	httpString(cnt, "<i>Error while merging</i><br/>Your fleet must have at least one transport, carrier, cruiser or phantoms to be merge<br/>");
  }
  if( (fltid >= 1) && (nX0 == 0) && (nMax > 2) ){
- 	httpPrintf(cnt, "<br><table><tr>Fleet %d</tr>", fltid);
+ 	httpPrintf(cnt, "<br/><table><tr>Fleet %d</tr>", fltid);
  	for(i=0;i<CMD_UNIT_NUMUSED;i++)
  	{
  		if(pFleet[fltid].unit[i])
  			httpPrintf(cnt, "<tr><td>%s</td><td>%d</td></tr>", cmdUnitName[i], pFleet[fltid].unit[i]);
  	}
- 	httpString(cnt, "</table><br><br>");
+ 	httpString(cnt, "</table><br/><br/>");
 
  	httpPrintf(cnt, "<form action=\"%s\" method=\"POST\"><table>", URLAppend( cnt, "fleetsmerge" ) );
  	httpPrintf(cnt, "<input name=\"fltid\" type=\"hidden\" value=\"%d\"><input name=\"f0\" type=\"hidden\" value=\"%d\"><tr>", fltid, fltid);
@@ -5221,12 +5221,12 @@ nMax = dbUserFleetList(id, &pFleet);
  	httpPrintf(cnt, "<input type=\"submit\" value=\"Merge\">");
  	httpString(cnt, "</form>");
  } else if (fltid < 1) {
- 	httpString(cnt, "<i>Error while merging</i><br><br>You haven't selected any fleet!<br>");
+ 	httpString(cnt, "<i>Error while merging</i><br/><br/>You haven't selected any fleet!<br/>");
 } else if (nMax < 3) {
-	httpString(cnt, "<i>Not enough fleets to merge!</i><br><br>You only have the one fleet, you can't exactly merge!<br>Perhaps you want to recall it instead?<br>");
+	httpString(cnt, "<i>Not enough fleets to merge!</i><br/><br/>You only have the one fleet, you can't exactly merge!<br/>Perhaps you want to recall it instead?<br/>");
 }
 
- httpPrintf(cnt, "<br><a href=\"%s\">Return to fleets</a><br>", URLAppend( cnt, "fleets" ) );
+ httpPrintf(cnt, "<br/><a href=\"%s\">Return to fleets</a><br/>", URLAppend( cnt, "fleets" ) );
  free(pFleet);
  iohtmlBodyEnd( cnt );
 }
@@ -5279,13 +5279,13 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   b = cmdExecute( cnt, cmd, 0, 0 );
   if( b >= 0 )
   {
-   httpPrintf( cnt, "<i>You disbanded %d %s</i><br><br>", cmd[3], cmdUnitName[a] );
+   httpPrintf( cnt, "<i>You disbanded %d %s</i><br/><br/>", cmd[3], cmdUnitName[a] );
    c++;
   }
   else if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error while disbanding units</i><br>" );
+   httpString( cnt, "<i>Error while disbanding units</i><br/>" );
  }
  if( c )
  {
@@ -5304,12 +5304,12 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( !( fleetd.unit[a] ) )
    continue;
-  httpPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br><br>", cmdUnitName[a] );
- httpPrintf( cnt, "<input id=\"disbandrange%d\" type=\"text\" name=\"dis%d\" size=\"10\" value=\"0\" onchange=\"changeslider(this.value,\'disbandslider%d\')\"><br>", a, a, a );
+  httpPrintf( cnt, "<tr><td align=\"center\"><b>%s</b><br/><br/>", cmdUnitName[a] );
+ httpPrintf( cnt, "<input id=\"disbandrange%d\" type=\"text\" name=\"dis%d\" size=\"10\" value=\"0\" onchange=\"changeslider(this.value,\'disbandslider%d\')\"><br/>", a, a, a );
 httpPrintf( cnt, "<input id=\"disbandslider%d\" type=\"range\" min=\"0\" max=\"%d\" value=\"0\" onchange=\"changeslider(this.value,\'disbandrange%d\')\" />", a, fleetd.unit[a], a );
-httpPrintf( cnt, "<br>There are %d in this fleet<br>( %lld total )</td></tr>", fleetd.unit[a], (long long)maind.totalunit[a] );
+httpPrintf( cnt, "<br/>There are %d in this fleet<br/>( %lld total )</td></tr>", fleetd.unit[a], (long long)maind.totalunit[a] );
  }
- httpString( cnt, "</table><br><input type=\"submit\" value=\"Disband\"></form>" );
+ httpString( cnt, "</table><br/><input type=\"submit\" value=\"Disband\"></form>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -5385,22 +5385,22 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   }
   else
   {
-   httpString( cnt, "<i>Order changed</i><br><br>" );
+   httpString( cnt, "<i>Order changed</i><br/><br/>" );
    dbUserFleetRetrieve( id, fltid, &fleetd );
   }
  }
 
- httpString( cnt, "<b>Fleet units</b><br><br>" );
+ httpString( cnt, "<b>Fleet units</b><br/><br/>" );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
   if( fleetd.unit[a] )
-   httpPrintf( cnt, "%d %s<br>", fleetd.unit[a], cmdUnitName[a] );
+   httpPrintf( cnt, "%d %s<br/>", fleetd.unit[a], cmdUnitName[a] );
  }
 
  cmdFleetGetPosition( &fleetd, &x, &y );
- httpPrintf( cnt, "<br><b>Current position</b> : %d,%d", x, y );
+ httpPrintf( cnt, "<br/><b>Current position</b> : %d,%d", x, y );
 
- httpString( cnt, "<br><b>Order</b> : " );
+ httpString( cnt, "<br/><b>Order</b> : " );
  if( fleetd.order == CMD_FLEET_ORDER_MOVE )
  {
   if( fleetd.sysid != -1 )
@@ -5413,7 +5413,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  else
   httpPrintf( cnt, "%s <a href=\"%s&amp;id=%d\">%d,%d:%d</a>", cmdFleetOrderName[fleetd.order], URLAppend( cnt, "planet" ), fleetd.destid, ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, fleetd.destination & 0xFF );
 
- httpString( cnt, "<br><b>Status</b> : " );
+ httpString( cnt, "<br/><b>Status</b> : " );
  if( fleetd.time != -1 )
   httpPrintf( cnt, "Moving, %d weeks", fleetd.time );
  else if( fleetd.order == CMD_FLEET_ORDER_MOVE )
@@ -5423,16 +5423,16 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  else
   httpPrintf( cnt, "Ready to attack" );
 
- httpPrintf( cnt, "<br><br><b>Change order</b><br><form action=\"%s\" method=\"POST\"><input type=\"hidden\" name=\"id\" value=\"%d\">", URLAppend( cnt, "fleetchange" ), fltid );
+ httpPrintf( cnt, "<br/><br/><b>Change order</b><br/><form action=\"%s\" method=\"POST\"><input type=\"hidden\" name=\"id\" value=\"%d\">", URLAppend( cnt, "fleetchange" ), fltid );
  if( fleetd.unit[CMD_UNIT_EXPLORATION] )
   httpPrintf( cnt, "<select name=\"order\"><option value=\"%d\">%s<option value=\"%d\">%s<option value=\"%d\">%s</select>", CMD_FLEET_ORDER_EXPLORE, cmdFleetOrderName[CMD_FLEET_ORDER_EXPLORE], CMD_FLEET_ORDER_MOVE, cmdFleetOrderName[CMD_FLEET_ORDER_MOVE], CMD_FLEET_ORDER_RECALL, cmdFleetOrderName[CMD_FLEET_ORDER_RECALL] );
  else if( fleetd.unit[CMD_UNIT_AGENT] || fleetd.unit[CMD_UNIT_GHOST] )
   httpPrintf( cnt, "<select name=\"order\"><option value=\"%d\">%s</select>", CMD_FLEET_ORDER_RECALL, cmdFleetOrderName[CMD_FLEET_ORDER_RECALL] );
  else
   httpPrintf( cnt, "<select name=\"order\"><option value=\"%d\">%s<option value=\"%d\">%s<option value=\"%d\">%s<option value=\"%d\">%s</select>", CMD_FLEET_ORDER_ATTACK, cmdFleetOrderName[CMD_FLEET_ORDER_ATTACK], CMD_FLEET_ORDER_STATION, cmdFleetOrderName[CMD_FLEET_ORDER_STATION], CMD_FLEET_ORDER_MOVE, cmdFleetOrderName[CMD_FLEET_ORDER_MOVE], CMD_FLEET_ORDER_RECALL, cmdFleetOrderName[CMD_FLEET_ORDER_RECALL] );
- httpPrintf( cnt, "<br><br>X:<input type=\"text\" name=\"X\" size=\"4\" value=\"%d\"> Y:<input type=\"text\" name=\"Y\" size=\"4\" value=\"%d\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\" value=\"%d\"><br><br><input type=\"submit\" value=\"Change order\"></form>", ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, fleetd.destination & 0xFF );
+ httpPrintf( cnt, "<br/><br/>X:<input type=\"text\" name=\"X\" size=\"4\" value=\"%d\"> Y:<input type=\"text\" name=\"Y\" size=\"4\" value=\"%d\"> Planet:<input type=\"text\" name=\"Z\" size=\"4\" value=\"%d\"><br/><br/><input type=\"submit\" value=\"Change order\"></form>", ( fleetd.destination >> 8 ) & 0xFFF, fleetd.destination >> 20, fleetd.destination & 0xFF );
 	if((fleetd.unit[2]>0)||(fleetd.unit[3]>0)||(fleetd.unit[4]>0)||(fleetd.unit[8]>0)) {
-		httpPrintf(cnt, "<br><a href=\"%s&fleetid=%d\">Split</a><br>" , URLAppend( cnt, "fleetssplit" ), fltid );
+		httpPrintf(cnt, "<br/><a href=\"%s&fleetid=%d\">Split</a><br/>" , URLAppend( cnt, "fleetssplit" ), fltid );
 		httpPrintf(cnt, "<a href=\"%s&fltid=%d\">Merge</a>", URLAppend( cnt, "fleetsmerge" ), fltid );
 	}
 
@@ -5454,23 +5454,23 @@ void iohtmlAttackReport( ReplyDataPtr cnt, int64_t *results, int sats )
   if( results[4+1*CMD_UNIT_FLEET+a] )
    goto iohtmlAttackReportL0;
  }
- httpString( cnt, "<br>" );
+ httpString( cnt, "<br/>" );
  return;
  iohtmlAttackReportL0:
- httpString( cnt, "<table width=\"60%\"><tr><td width=\"30%\" align=\"center\" valign=\"top\"><i>Attacker losses</i><br>" );
+ httpString( cnt, "<table width=\"60%\"><tr><td width=\"30%\" align=\"center\" valign=\"top\"><i>Attacker losses</i><br/>" );
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
  {
   if( results[4+0*CMD_UNIT_FLEET+a] )
-   httpPrintf( cnt, "%lld %s<br>", results[4+0*CMD_UNIT_FLEET+a], cmdUnitName[a] );
+   httpPrintf( cnt, "%lld %s<br/>", results[4+0*CMD_UNIT_FLEET+a], cmdUnitName[a] );
  }
- httpString( cnt, "</td><td width=\"30%\" align=\"center\" valign=\"top\"><i>Defender losses</i><br>" );
+ httpString( cnt, "</td><td width=\"30%\" align=\"center\" valign=\"top\"><i>Defender losses</i><br/>" );
  for( a = 0 ; a < CMD_UNIT_FLEET ; a++ )
  {
   if( results[4+1*CMD_UNIT_FLEET+a] )
-   httpPrintf( cnt, "%lld %s<br>", results[4+1*CMD_UNIT_FLEET+a], cmdUnitName[a] );
+   httpPrintf( cnt, "%lld %s<br/>", results[4+1*CMD_UNIT_FLEET+a], cmdUnitName[a] );
  }
  if( sats )
-  httpPrintf( cnt, "%d %s<br>", sats, cmdBuildingName[CMD_BUILDING_SATS] );
+  httpPrintf( cnt, "%d %s<br/>", sats, cmdBuildingName[CMD_BUILDING_SATS] );
  httpString( cnt, "</tr></table>" );
  return;
 }
@@ -5506,7 +5506,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
 
  if( cmdErrorString )
-  httpPrintf( cnt, "<i>%s</i><br><br>", cmdErrorString );
+  httpPrintf( cnt, "<i>%s</i><br/><br/>", cmdErrorString );
 
  results[2] += ( rand() % 17 ) - 8;
  if( results[2] < 0 )
@@ -5515,40 +5515,40 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   results[2] = 100;
  dbUserMainRetrieve( results[0], &main2d );
  httpPrintf( cnt, "Attacking <a href=\"%s&amp;id=%d\">%s</a> of ", URLAppend( cnt, "player" ), results[0], main2d.faction );
- httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a><br>Estimated defender portal coverage : %d%%<br>", URLAppend( cnt, "empire" ), results[1], results[1], results[2] );
+ httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a><br/>Estimated defender portal coverage : %d%%<br/>", URLAppend( cnt, "empire" ), results[1], results[1], results[2] );
 
- httpPrintf( cnt, "<br><b>Phase 1 - Defending cruisers engage approaching cruisers and carriers, carrying all other vessels, at long range.</b><br>" );
+ httpPrintf( cnt, "<br/><b>Phase 1 - Defending cruisers engage approaching cruisers and carriers, carrying all other vessels, at long range.</b><br/>" );
  if( ( results[3] & 0x10 ) )
-  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br>" );
+  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br/>" );
  else if( results[3] & 0x100 )
-  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br>" );
+  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br/>" );
  iohtmlAttackReport( cnt, &results[0*CMD_UNIT_FLEET], results[4+8*CMD_UNIT_FLEET+0] );
  if( ( results[3] & 0x10 ) )
   goto iohttpFunc_fleetattackL0;
 
- httpPrintf( cnt, "<br><b>Phase 2 - Defending fighters and cruisers intercepts enemy vessels, attempting to destroy transports before they land.</b><br>" );
+ httpPrintf( cnt, "<br/><b>Phase 2 - Defending fighters and cruisers intercepts enemy vessels, attempting to destroy transports before they land.</b><br/>" );
  if( ( results[3] & 0x20 ) )
-  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br>" );
+  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br/>" );
  else if( results[3] & 0x200 )
-  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br>" );
+  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br/>" );
  iohtmlAttackReport( cnt, &results[2*CMD_UNIT_FLEET], results[4+8*CMD_UNIT_FLEET+1] );
  if( ( results[3] & 0x20 ) )
   goto iohttpFunc_fleetattackL0;
 
- httpPrintf( cnt, "<br><b>Phase 3 - Ground units guarding the planet with anti-air capabilities fire at the landing transports, protected by bombers and cruisers.</b><br>" );
+ httpPrintf( cnt, "<br/><b>Phase 3 - Ground units guarding the planet with anti-air capabilities fire at the landing transports, protected by bombers and cruisers.</b><br/>" );
  if( ( results[3] & 0x40 ) )
-  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br>" );
+  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br/>" );
  else if( results[3] & 0x400 )
-  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br>" );
+  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br/>" );
  iohtmlAttackReport( cnt, &results[4*CMD_UNIT_FLEET], 0 );
  if( ( results[3] & 0x40 ) )
   goto iohttpFunc_fleetattackL0;
 
- httpPrintf( cnt, "<br><b>Phase 4 - Attacking ground forces, with support from bombers and cruisers, attempting to take control of the planet.</b><br>" );
+ httpPrintf( cnt, "<br/><b>Phase 4 - Attacking ground forces, with support from bombers and cruisers, attempting to take control of the planet.</b><br/>" );
  if( ( results[3] & 0x80 ) )
-  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br>" );
+  httpString( cnt, "Overwhelmed by defending enemy forces, your fleet hastidly retreated to minimize losses<br/>" );
  else if( results[3] & 0x800 )
-  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br>" );
+  httpString( cnt, "Your fleet didn't encounter much resistance, it seems enemy forces preferred not to directly engage us<br/>" );
  iohtmlAttackReport( cnt, &results[6*CMD_UNIT_FLEET], 0 );
  if( ( results[3] & 0x80 ) )
   goto iohttpFunc_fleetattackL0;
@@ -5557,9 +5557,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  iohttpFunc_fleetattackL0:
 
  if( ( results[3] & 1 ) )
-  httpPrintf( cnt, "<br><b>You won, the planet is yours!</b><br>" );
+  httpPrintf( cnt, "<br/><b>You won, the planet is yours!</b><br/>" );
  else
-  httpPrintf( cnt, "<br><b>Defender wins!</b><br>" );
+  httpPrintf( cnt, "<br/><b>Defender wins!</b><br/>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -5598,10 +5598,10 @@ if( ( num = dbUserFleetList( id, &fleetd ) ) <= 0 ) {
 
 if( systemstring ) {
 	if( ( sscanf( systemstring, "%d", &system ) <= 0 ) || dbMapRetrieveSystem( system, &systemd ) < 0 ) {
-		httpString( cnt, "Error retrieving system!<br>" );
+		httpString( cnt, "Error retrieving system!<br/>" );
 		goto iohttpFunc_exploreL1;
 	} else if ( systemd.empire != -1 ) {
-		httpString( cnt, "Unable to explore an Empire System!<br>" );
+		httpString( cnt, "Unable to explore an Empire System!<br/>" );
 		goto iohttpFunc_exploreL1;
 	} else {
 		goto SYSTEMEXPO;
@@ -5609,11 +5609,11 @@ if( systemstring ) {
 
 }
 if( !( planetstring ) || ( sscanf( planetstring, "%d", &plnid ) <= 0 ) || ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
-	httpString( cnt, "This planet doesn't seem to exist!<br>" );
+	httpString( cnt, "This planet doesn't seem to exist!<br/>" );
 	goto iohttpFunc_exploreL1;
 }
 if( planetd.flags & CMD_PLANET_FLAGS_HOME ) {
-	httpString( cnt, "You can't explore a home planet!<br>" );
+	httpString( cnt, "You can't explore a home planet!<br/>" );
 	goto iohttpFunc_exploreL1;
 }
 SYSTEMEXPO:
@@ -5622,7 +5622,7 @@ if( systemstring ) {
 		cost = count = 0;
 		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
-					httpString( cnt, "Planet retrvial error!<br>" );
+					httpString( cnt, "Planet retrvial error!<br/>" );
 					goto iohttpFunc_exploreL1;
 			}
 			if ( planetd.owner == -1 ) {
@@ -5637,21 +5637,21 @@ if( systemstring ) {
 		}
 		if( count ) {
 			if( cmdErrorString ) {
-				httpPrintf( cnt, "%s<br><br>", cmdErrorString );
+				httpPrintf( cnt, "%s<br/><br/>", cmdErrorString );
 			}
-			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br>", count, cmdUnitName[CMD_UNIT_EXPLORATION], ( cost >> 16 ) );
-			httpPrintf( cnt, "If everything goes well, %s will be ours in %d weeks<br>", ( count > 1 ? " these planets" : "this planet" ), explore );
+			httpPrintf( cnt, "We have sent %d %s, in total it required %d%% FR.<br/>", count, cmdUnitName[CMD_UNIT_EXPLORATION], ( cost >> 16 ) );
+			httpPrintf( cnt, "If everything goes well, %s will be ours in %d weeks<br/>", ( count > 1 ? " these planets" : "this planet" ), explore );
 		} else if ( cmdErrorString ) {
-			httpPrintf( cnt, "%s<br><br>", cmdErrorString );
+			httpPrintf( cnt, "%s<br/><br/>", cmdErrorString );
 		} else {
 			error( "Got Dead page..." );
-			httpString( cnt, "An Error has occured with this page...<br><br>" );
+			httpString( cnt, "An Error has occured with this page...<br/><br/>" );
 		}
 	goto iohttpFunc_exploreL0;
 	} else {
 		for(a = 0, num = systemd.indexplanet; a < systemd.numplanets; a++, num++) {
 			if( ( dbMapRetrievePlanet( num, &planetd ) < 0 ) ) {
-					httpString( cnt, "Planet retrvial error!<br>" );
+					httpString( cnt, "Planet retrvial error!<br/>" );
 					goto iohttpFunc_exploreL1;
 			}
 			if ( planetd.owner == -1 ) {
@@ -5660,18 +5660,18 @@ if( systemstring ) {
 		}
 		if( ( cmdExecExploreInfo( id, num, &explore ) ) < 0 ) {
 			if( cmdErrorString )
-				httpPrintf( cnt, "%s<br><br>", cmdErrorString );
+				httpPrintf( cnt, "%s<br/><br/>", cmdErrorString );
 			else
-				httpString( cnt, "Error encountered while retrieving exploration information<br>" );
+				httpString( cnt, "Error encountered while retrieving exploration information<br/>" );
 				goto iohttpFunc_exploreL0;
 		}
-		httpPrintf( cnt, "It will take %d weeks and %d%% FR for our %s to reach this system.<br>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
-		httpString( cnt, "(Note that the cost will increase after each ship is dispatched)<br><br>" );
+		httpPrintf( cnt, "It will take %d weeks and %d%% FR for our %s to reach this system.<br/>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
+		httpString( cnt, "(Note that the cost will increase after each ship is dispatched)<br/><br/>" );
 		if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
-			httpPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s<br><br>", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
+			httpPrintf( cnt, "%d planets are avalible for exploration in this system, you have %d %s<br/><br/>", systemd.unexplored, fleetd[0].unit[CMD_UNIT_EXPLORATION], cmdUnitName[CMD_UNIT_EXPLORATION] );
 			httpPrintf( cnt, "<a href=\"%s&system=%d&dispatch=1\">Dispatch %s</a>", URLAppend( cnt, "explore" ), system, cmdUnitName[CMD_UNIT_EXPLORATION] );
 		} else {
-			httpPrintf( cnt, "You don't have any %s to send!<br>", cmdUnitName[CMD_UNIT_EXPLORATION] );
+			httpPrintf( cnt, "You don't have any %s to send!<br/>", cmdUnitName[CMD_UNIT_EXPLORATION] );
 		}
 	}
 } else if( explorestring ) {
@@ -5679,34 +5679,34 @@ if( systemstring ) {
 		if( cmdErrorString ) {
 			httpPrintf( cnt, "%s", cmdErrorString );
 		} else {
-			httpString( cnt, "Error encountered while retrieving exploration information<br>" );
+			httpString( cnt, "Error encountered while retrieving exploration information<br/>" );
 			goto iohttpFunc_exploreL0;
 		}
 	} else {
-		httpPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br><br>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
+		httpPrintf( cnt, "We have sent our %s! If everything goes well, this planet will be ours in %d weeks<br/><br/>", cmdUnitName[CMD_UNIT_EXPLORATION], explore );
 	}
 } else {
 	if( ( cmdExecExploreInfo( id, plnid, &explore ) ) < 0 ) {
 		if( cmdErrorString )
 			httpPrintf( cnt, "%s", cmdErrorString );
 		else
-			httpString( cnt, "Error encountered while retrieving exploration information<br>" );
+			httpString( cnt, "Error encountered while retrieving exploration information<br/>" );
 			goto iohttpFunc_exploreL0;
 	} else {
-		httpPrintf( cnt, "It would take %d weeks and %d%% FR for our %s to reach this planet.<br><br>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
+		httpPrintf( cnt, "It would take %d weeks and %d%% FR for our %s to reach this planet.<br/><br/>", explore, ( cmdExploreCost( id, &maind) >> 16 ), cmdUnitName[CMD_UNIT_EXPLORATION] );
 	}
 	if( fleetd[0].unit[CMD_UNIT_EXPLORATION] ) {
-		httpPrintf( cnt, "<b><a href=\"%s&amp;id=%d&dispatch=1\">Explore this planet</a></b><br>", URLAppend( cnt, "explore" ), plnid );
+		httpPrintf( cnt, "<b><a href=\"%s&amp;id=%d&dispatch=1\">Explore this planet</a></b><br/>", URLAppend( cnt, "explore" ), plnid );
 	} else {
-		httpPrintf( cnt, "You don't have any %s to send!<br>", cmdUnitName[CMD_UNIT_EXPLORATION] );
+		httpPrintf( cnt, "You don't have any %s to send!<br/>", cmdUnitName[CMD_UNIT_EXPLORATION] );
 	}
 }
 
 iohttpFunc_exploreL0:
 if ( !( systemstring ) )
-	httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
+	httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
 
-httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a><br>", URLAppend( cnt, "system" ), systemstring ? system : planetd.system );
+httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a><br/>", URLAppend( cnt, "system" ), systemstring ? system : planetd.system );
 
 iohttpFunc_exploreL1:
 iohtmlBodyEnd( cnt );
@@ -5764,9 +5764,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( ( a = cmdExecSendFleetInfos( id, plnid, &fr ) ) < 0 )
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error while retrieving send fleet information</i><br>" );
+   httpString( cnt, "<i>Error while retrieving send fleet information</i><br/>" );
  }
  else
  {
@@ -5779,9 +5779,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if(cmdRace[maind.raceid].special & CMD_RACE_SPECIAL_IDW)
   	fa = 1;
 
-  httpPrintf( cnt, " The loss of fleet readiness for an attack is estimated to %d%%.<br>", ( (int)( fa * (float)fr ) ) >> 16 );
+  httpPrintf( cnt, " The loss of fleet readiness for an attack is estimated to %d%%.<br/>", ( (int)( fa * (float)fr ) ) >> 16 );
   if( fa > 1.05 )
-   httpPrintf( cnt, "<br><i>The area seems filled with a thick <b>Dark Mist</b>, making it more difficult to attack.<br></i>" );
+   httpPrintf( cnt, "<br/><i>The area seems filled with a thick <b>Dark Mist</b>, making it more difficult to attack.<br/></i>" );
  }
 
  httpString( cnt, "<script>function sendmax() {" );
@@ -5801,8 +5801,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
  httpPrintf( cnt, "</table><input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\"><input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"button\" value=\"Send maximum\" onclick=\"sendmax()\"> <input type=\"submit\" value=\"Send\"></form>", ( planetd.position >> 8 ) & 0xFFF, ( planetd.position >> 20 ), planetd.position & 0xFF );
 
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -5849,8 +5849,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    httpPrintf( cnt, "<tr><td align=\"right\">%d %s</td><td><input type=\"text\" name=\"u%d\" size=\"12\"></td></tr>", fleetd.unit[a], cmdUnitName[a], a );
  }
  httpPrintf( cnt, "</table><input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\"><input type=\"hidden\" name=\"Z\" value=\"%d\"><input type=\"submit\" value=\"Send\"></form>", ( planetd.position >> 8 ) & 0xFFF, ( planetd.position >> 20 ), planetd.position & 0xFF );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
- httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
+ httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -5901,7 +5901,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
 
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table border=\"0\" width=\"70%\" cellspacing=\"4\" cellpadding=\"4\"><tr><td width=\"35%\" valign=\"top\" nowrap>", URLAppend( cnt, "operation" ) );
- httpPrintf( cnt, "<b>Operations</b><br>" );
+ httpPrintf( cnt, "<b>Operations</b><br/>" );
  for( a = 0 ; a < CMD_AGENTOP_NUMUSED ; a++ )
  {
  	//ARTI CODE give agent op all races
@@ -5912,87 +5912,87 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
 	}
   b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_OPERATIONS], cmdAgentopTech[a] );
   if( b == -1 )
-   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdAgentopName[a] );
+   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br/>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br/>", a, cmdAgentopName[a] );
   else
   {
-   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\"> %s<br>", a, cmdAgentopName[a] );
+   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\"> %s<br/>", a, cmdAgentopName[a] );
    if( b )
-    httpPrintf( cnt, "&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Low research penalty : %d%%</font><br>", b );
+    httpPrintf( cnt, "&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Low research penalty : %d%%</font><br/>", b );
   }
  }
  httpString( cnt, "</td><td width=\"35%\" align=\"center\" valign=\"top\" nowrap>" );
- httpPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_AGENT], cmdUnitName[CMD_UNIT_AGENT] );
- httpPrintf( cnt, "%d%% Agents readiness<br>", maind.readiness[CMD_READY_AGENT] >> 16 );
- httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendagents\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_AGENT] );
+ httpPrintf( cnt, "%d %s<br/>", fleetd.unit[CMD_UNIT_AGENT], cmdUnitName[CMD_UNIT_AGENT] );
+ httpPrintf( cnt, "%d%% Agents readiness<br/>", maind.readiness[CMD_READY_AGENT] >> 16 );
+ httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendagents\" value=\"%d\"><br/><br/>", fleetd.unit[CMD_UNIT_AGENT] );
  if( plnid >= 0 )
-  httpPrintf( cnt, "Target planet<br> X:<input type=\"text\" size=\"4\" name=\"planetx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"planety\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  httpPrintf( cnt, "Target planet<br/> X:<input type=\"text\" size=\"4\" name=\"planetx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"planety\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
  else
-  httpPrintf( cnt, "Target planet<br> X:<input type=\"text\" size=\"4\" name=\"planetx\"> Y:<input type=\"text\" size=\"4\" name=\"planety\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\">" );
- httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare operation\">" );
+  httpPrintf( cnt, "Target planet<br/> X:<input type=\"text\" size=\"4\" name=\"planetx\"> Y:<input type=\"text\" size=\"4\" name=\"planety\"> Planet:<input type=\"text\" size=\"4\" name=\"planetnum\">" );
+ httpString( cnt, "<br/><br/><input type=\"submit\" value=\"Prepare operation\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table border=\"0\" width=\"70%\" cellspacing=\"4\" cellpadding=\"4\"><tr><td width=\"35%\" valign=\"top\" nowrap>", URLAppend( cnt, "spell" ) );
- httpPrintf( cnt, "<b>Spells</b><br>" );
+ httpPrintf( cnt, "<b>Spells</b><br/>" );
  for( a = 0 ; a < CMD_PSYCHICOP_NUMUSED ; a++ )
  {
   if( !( specopPsychicsAllowed( a, maind.raceid ) ) )
    continue;
   b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[a] );
   if( b == -1 )
-   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdPsychicopName[a] );
+   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br/>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br/>", a, cmdPsychicopName[a] );
   else
   {
-   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\"> %s<br>", a, cmdPsychicopName[a] );
+   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\"> %s<br/>", a, cmdPsychicopName[a] );
    if( b )
-    httpPrintf( cnt, "&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Low research penalty : %d%%</font><br>", b );
+    httpPrintf( cnt, "&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Low research penalty : %d%%</font><br/>", b );
   }
  }
  httpString( cnt, "</td><td width=\"35%\" align=\"center\" valign=\"top\" nowrap>" );
- httpPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_WIZARD], cmdUnitName[CMD_UNIT_WIZARD] );
- httpPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[CMD_READY_PSYCH] >> 16 );
- httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendpsychics\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_WIZARD] );
+ httpPrintf( cnt, "%d %s<br/>", fleetd.unit[CMD_UNIT_WIZARD], cmdUnitName[CMD_UNIT_WIZARD] );
+ httpPrintf( cnt, "%d%% Psychics readiness<br/>", maind.readiness[CMD_READY_PSYCH] >> 16 );
+ httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendpsychics\" value=\"%d\"><br/><br/>", fleetd.unit[CMD_UNIT_WIZARD] );
  if( ( plnid != -1 ) && ( main2d.faction ) ) {
- 	httpPrintf( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">",  main2d.faction );
+ 	httpPrintf( cnt, "Target faction<br/><input type=\"text\" size=\"20\" name=\"target\" value=\"%s\">",  main2d.faction );
  } else {
- 	httpString( cnt, "Target faction<br><input type=\"text\" size=\"20\" name=\"target\" value=\"Faction name or ID\">" );
+ 	httpString( cnt, "Target faction<br/><input type=\"text\" size=\"20\" name=\"target\" value=\"Faction name or ID\">" );
  }
- httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare spell\">" );
+ httpString( cnt, "<br/><br/><input type=\"submit\" value=\"Prepare spell\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table border=\"0\" width=\"70%\" cellspacing=\"4\" cellpadding=\"4\"><tr><td width=\"35%\" valign=\"top\" nowrap>", URLAppend( cnt, "incant" ) );
- httpPrintf( cnt, "<b>Incantations</b><br>" );
+ httpPrintf( cnt, "<b>Incantations</b><br/>" );
  for( a = 0 ; a < CMD_GHOSTOP_NUMUSED ; a++ )
  {
   if( !( specopGhostsAllowed( a, maind.raceid ) ) )
    continue;
   b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[a] );
   if( b == -1 )
-   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdGhostopName[a] );
+   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br/>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br/>", a, cmdGhostopName[a] );
   else
   {
-   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\"> %s<br>", a, cmdGhostopName[a] );
+   httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\"> %s<br/>", a, cmdGhostopName[a] );
    if( b )
-    httpPrintf( cnt, "&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Low research penalty : %d%%</font><br>", b );
+    httpPrintf( cnt, "&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Low research penalty : %d%%</font><br/>", b );
   }
  }
 
  httpString( cnt, "</td><td width=\"35%\" align=\"center\" valign=\"top\" nowrap>" );
- httpPrintf( cnt, "%d %s<br>", fleetd.unit[CMD_UNIT_GHOST], cmdUnitName[CMD_UNIT_GHOST] );
- httpPrintf( cnt, "%d%% Psychics readiness<br>", maind.readiness[CMD_READY_PSYCH] >> 16 );
- httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendghosts\" value=\"%d\"><br><br>", fleetd.unit[CMD_UNIT_GHOST] );
+ httpPrintf( cnt, "%d %s<br/>", fleetd.unit[CMD_UNIT_GHOST], cmdUnitName[CMD_UNIT_GHOST] );
+ httpPrintf( cnt, "%d%% Psychics readiness<br/>", maind.readiness[CMD_READY_PSYCH] >> 16 );
+ httpPrintf( cnt, "Send: <input type=\"text\" size=\"10\" name=\"sendghosts\" value=\"%d\"><br/><br/>", fleetd.unit[CMD_UNIT_GHOST] );
  if( plnid >= 0 )
-  httpPrintf( cnt, "Target system or planet<br> X:<input type=\"text\" size=\"4\" name=\"sysx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
+  httpPrintf( cnt, "Target system or planet<br/> X:<input type=\"text\" size=\"4\" name=\"sysx\" value=\"%d\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\" value=\"%d\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\" value=\"%d\">", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
  else
-  httpPrintf( cnt, "Target system or planet<br> X:<input type=\"text\" size=\"4\" name=\"sysx\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\">" );
- httpString( cnt, "<br><br><input type=\"submit\" value=\"Prepare incantation\">" );
+  httpPrintf( cnt, "Target system or planet<br/> X:<input type=\"text\" size=\"4\" name=\"sysx\"> Y:<input type=\"text\" size=\"4\" name=\"sysy\"> Planet:<input type=\"text\" size=\"4\" name=\"planet\">" );
+ httpString( cnt, "<br/><br/><input type=\"submit\" value=\"Prepare incantation\">" );
  httpString( cnt, "</td></tr></table></form>" );
 
 
  if( ( b = dbUserSpecOpList( id, &specopd ) ) >= 0 )
  {
-  httpString( cnt, "<table width=\"80%\"><tr><td width=\"40%\" align=\"center\" valign=\"top\"><b>Your operations</b><br><br>" );
+  httpString( cnt, "<table width=\"80%\"><tr><td width=\"40%\" align=\"center\" valign=\"top\"><b>Your operations</b><br/><br/>" );
   for( a = c = 0 ; a < b ; a++ )
   {
    if( specopd[a].type & 0x10000 )
@@ -6013,7 +6013,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
     }
     if( opid == CMD_OPER_HIGHINFIL )
      httpPrintf( cnt, " - <a href=\"%s&amp;id=%d\">See information</a>", URLAppend( cnt, "specinfos" ), a );
-    httpString( cnt, "<br>" );
+    httpString( cnt, "<br/>" );
    }
    else if( optype == 1 )
    {
@@ -6031,7 +6031,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
     else if( opid == CMD_SPELL_WARILLUSIONS )
      httpPrintf( cnt, " - +%d%% units protection", specopd[a].vars[0] );
 
-    httpString( cnt, "<br>" );
+    httpString( cnt, "<br/>" );
    }
    else if( optype == 2 )
    {
@@ -6061,12 +6061,12 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
      httpPrintf( cnt, " - <a href=\"%s&amp;id=%d\">See information</a>", URLAppend( cnt, "specinfos" ), a );
     else if( opid == CMD_INCANT_SHIELDING )
      httpPrintf( cnt, " - Shielding : %d", specopd[a].vars[0] );
-    httpString( cnt, "<br>" );
+    httpString( cnt, "<br/>" );
    }
   }
   if( !( c ) )
    httpString( cnt, "None" );
-  httpString( cnt, "</td><td width=\"40%\" align=\"center\" valign=\"top\"><b>Known operations affecting your faction</b><br><br>" );
+  httpString( cnt, "</td><td width=\"40%\" align=\"center\" valign=\"top\"><b>Known operations affecting your faction</b><br/><br/>" );
   for( a = c = 0 ; a < b ; a++ )
   {
    if( !( specopd[a].type & 0x10000 ) )
@@ -6081,7 +6081,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
    else
     httpPrintf( cnt, "%s for %d weeks from", cmdGhostopName[opid], specopd[a].time );
    if( ( specopd[a].factionid == -1 ) || !( dbUserMainRetrieve( specopd[a].factionid, &main2d ) ) )
-    httpString( cnt, " an unknown faction<br>" );
+    httpString( cnt, " an unknown faction<br/>" );
    else
     httpPrintf( cnt, " <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), specopd[a].factionid, main2d.faction );
 
@@ -6093,7 +6093,7 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
      httpPrintf( cnt, " - Shielding : %d", specopd[a].vars[0] );
    }
 
-   httpString( cnt, "<br>" );
+   httpString( cnt, "<br/>" );
   }
   if( !( c ) )
    httpString( cnt, "None" );
@@ -6103,8 +6103,8 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
 
  if( plnid != -1 )
  {
-  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
-  httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
+  httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), plnid );
+  httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View system</a>", URLAppend( cnt, "system" ), planetd.system );
  }
 
  iohtmlBodyEnd( cnt );
@@ -6139,7 +6139,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  iohtmlBodyInit( cnt, "Operation information" );
  if( !( specopstring ) || ( sscanf( specopstring, "%d", &specopid ) != 1 ) || ( dbUserSpecOpRetrieve( id, specopid, &specopd ) < 0 ) || ( specopd.type & 0x10000 ) )
  {
-  httpString( cnt, "<i>Invalid operation</i><br>" );
+  httpString( cnt, "<i>Invalid operation</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6153,11 +6153,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpPrintf( cnt, "<b>%s</b> for %d weeks at <a href=\"%s&amp;id=%d\">%d,%d:%d</a>", cmdAgentopName[opid], specopd.time, URLAppend( cnt, "planet" ), specopd.plnid, ( specopd.plnpos >> 8 ) & 0xFFF, specopd.plnpos >> 20, specopd.plnpos & 0xFF );
   dbMapRetrievePlanet( specopd.plnid, &planetd );
   if( planetd.owner == -1 )
-   httpString( cnt, ", unhabited<br><br>" );
+   httpString( cnt, ", unhabited<br/><br/>" );
   else
   {
    if( ( user = dbUserLinkID( planetd.owner ) ) )
-    httpPrintf( cnt, " on <a href=\"%s&amp;id=%d\">%s</a><br><br>", URLAppend( cnt, "player" ), planetd.owner, user->faction );
+    httpPrintf( cnt, " on <a href=\"%s&amp;id=%d\">%s</a><br/><br/>", URLAppend( cnt, "player" ), planetd.owner, user->faction );
   }
 
   if( opid == CMD_OPER_HIGHINFIL )
@@ -6167,20 +6167,20 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpString( cnt, "Error while retrieving main user data" );
     return;
    }
-   httpPrintf( cnt, "<br><table><tr><td valign=\"top\"><i>Faction</i><br>" );
-   httpPrintf( cnt, "Planets : <b>%d</b><br>", main2d.planets );
-   httpPrintf( cnt, "Networth : <b>%lld</b><br>", (long long)main2d.networth );
-   httpPrintf( cnt, "Empire : <b>#%d</b><br>", main2d.empire );
-   httpPrintf( cnt, "Fleet readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_FLEET] >> 16 );
-   httpPrintf( cnt, "Psychics readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_PSYCH] >> 16 );
-   httpPrintf( cnt, "Agents readiness : <b>%d %%</b><br>", main2d.readiness[CMD_READY_AGENT] >> 16 );
-   httpPrintf( cnt, "</td><td valign=\"top\"><i>Resources</i><br>" );
+   httpPrintf( cnt, "<br/><table><tr><td valign=\"top\"><i>Faction</i><br/>" );
+   httpPrintf( cnt, "Planets : <b>%d</b><br/>", main2d.planets );
+   httpPrintf( cnt, "Networth : <b>%lld</b><br/>", (long long)main2d.networth );
+   httpPrintf( cnt, "Empire : <b>#%d</b><br/>", main2d.empire );
+   httpPrintf( cnt, "Fleet readiness : <b>%d %%</b><br/>", main2d.readiness[CMD_READY_FLEET] >> 16 );
+   httpPrintf( cnt, "Psychics readiness : <b>%d %%</b><br/>", main2d.readiness[CMD_READY_PSYCH] >> 16 );
+   httpPrintf( cnt, "Agents readiness : <b>%d %%</b><br/>", main2d.readiness[CMD_READY_AGENT] >> 16 );
+   httpPrintf( cnt, "</td><td valign=\"top\"><i>Resources</i><br/>" );
    for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
-    httpPrintf( cnt, "%s : <b>%lld</b><br>", cmdRessourceName[a], (long long)main2d.ressource[a] );
-   httpPrintf( cnt, "</td><td valign=\"top\"><i>Research fields</i><br>" );
+    httpPrintf( cnt, "%s : <b>%lld</b><br/>", cmdRessourceName[a], (long long)main2d.ressource[a] );
+   httpPrintf( cnt, "</td><td valign=\"top\"><i>Research fields</i><br/>" );
    for( a = 0; a < CMD_RESEARCH_NUMUSED ; a++ )
-    httpPrintf( cnt, "%s : <b>%lld %%</b><br>", cmdResearchName[a], (long long)main2d.totalresearch[a] );
-   httpPrintf( cnt, "</td></tr></table><br><br>" );
+    httpPrintf( cnt, "%s : <b>%lld %%</b><br/>", cmdResearchName[a], (long long)main2d.totalresearch[a] );
+   httpPrintf( cnt, "</td></tr></table><br/><br/>" );
    if( specopd.vars[0] & 1 )
    {
     if( ( b = dbUserPlanetListIndices( specopd.factionid, &buffer ) ) < 0 )
@@ -6231,10 +6231,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
-      httpPrintf( cnt, "  <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+      httpPrintf( cnt, "  <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\" />", artefactImage[d], artefactName[d], artefactName[d] );
 
      if(planetd.special[1])
-     	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
+     	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=pr%d.gif\" />+%d%%", planetd.special[0], planetd.special[1] );
 
      httpPrintf( cnt, "</td></tr>" );
      totals[3] += planetd.population;
@@ -6249,11 +6249,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpPrintf( cnt, "</td><td>%d0 / %d0</td><td> %d Portals", totals[3], totals[4], totals[5] );
     if( totals[6] )
      httpPrintf( cnt, " <i>Units (%d)</i>", totals[6] );
-    httpString( cnt, "</td><td>&nbsp;</td></tr></table><br><br>" );
+    httpString( cnt, "</td><td>&nbsp;</td></tr></table><br/><br/>" );
     free( buffer );
    }
    else
-    httpString( cnt, "Gathering information on the faction planets network failed!<br><br>" );
+    httpString( cnt, "Gathering information on the faction planets network failed!<br/><br/>" );
    if( specopd.vars[0] & 2 )
    {
     if( ( num = dbUserFleetList( specopd.factionid, &fleetd ) ) <= 0 )
@@ -6262,18 +6262,18 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
      iohtmlBodyEnd( cnt );
      return;
     }
-    httpString( cnt, "<b>Main fleet</b><br><br>" );
+    httpString( cnt, "<b>Main fleet</b><br/><br/>" );
     for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
     {
      if( fleetd[0].unit[a] )
      {
-      httpPrintf( cnt, "%d %s<br>", fleetd[0].unit[a], cmdUnitName[a] );
+      httpPrintf( cnt, "%d %s<br/>", fleetd[0].unit[a], cmdUnitName[a] );
       b = 1;
      }
     }
-    httpString( cnt, "<br><b>Travelling fleets</b><br><br>" );
+    httpString( cnt, "<br/><b>Travelling fleets</b><br/><br/>" );
     if( num == 1 )
-     httpString( cnt, "None<br>" );
+     httpString( cnt, "None<br/>" );
     else
     {
      httpString( cnt, "<table width=\"90%%\" cellspacing=\"5\"><tr><td width=\"50%\">Units</td><td width=\"50%\">Position</td></tr>" );
@@ -6283,7 +6283,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
       for( b = 0 ; b < CMD_UNIT_NUMUSED ; b++ )
       {
        if( fleetd[a].unit[b] )
-        httpPrintf( cnt, "%d %s<br>", fleetd[a].unit[b], cmdUnitName[b] );
+        httpPrintf( cnt, "%d %s<br/>", fleetd[a].unit[b], cmdUnitName[b] );
       }
       cmdFleetGetPosition( &fleetd[a], &x, &y );
       httpPrintf( cnt, "<td>%d,%d</td></tr>", x, y );
@@ -6292,19 +6292,19 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     }
    }
    else
-    httpString( cnt, "Gathering information on the faction fleets failed!<br><br>" );
+    httpString( cnt, "Gathering information on the faction fleets failed!<br/><br/>" );
   }
   if( specopd.plnid != -1 )
-   httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), specopd.plnid );
+   httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), specopd.plnid );
  }
  else if( optype == 1 )
  {
   goto iohttpFunc_specinfosL0;
   if( !( user = dbUserLinkID( specopd.factionid ) ) )
    return;
-  httpPrintf( cnt, "<b>%s</b> for %d weeks on <a href=\"%s&amp;id=%d\">%s</a><br>", cmdPsychicopName[opid], specopd.time, URLAppend( cnt, "player" ), specopd.factionid, user->faction );
+  httpPrintf( cnt, "<b>%s</b> for %d weeks on <a href=\"%s&amp;id=%d\">%s</a><br/>", cmdPsychicopName[opid], specopd.time, URLAppend( cnt, "player" ), specopd.factionid, user->faction );
   if( specopd.plnid != -1 )
-   httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), specopd.plnid );
+   httpPrintf( cnt, "<br/><br/><a href=\"%s&amp;id=%d\">View planet</a>", URLAppend( cnt, "planet" ), specopd.plnid );
  }
  else if( optype == 2 )
  {
@@ -6316,7 +6316,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    else
     httpPrintf( cnt, " on <a href=\"%s&amp;id=%d\">%d,%d</a>", URLAppend( cnt, "system" ), specopd.plnid, ( specopd.plnpos >> 8 ) & 0xFF, specopd.plnpos >> 20 );
   }
-  httpString( cnt, "<br><br>" );
+  httpString( cnt, "<br/><br/>" );
 
   if( opid == CMD_INCANT_SURVEY )
   {
@@ -6332,25 +6332,25 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
      continue;
     httpPrintf( cnt, "<b>Planet <a href=\"%s&amp;id=%d\">%d,%d:%d</a></b>", URLAppend( cnt, "planet" ), systemd.indexplanet + a, ( planetd.position >> 8 ) & 0xFF, planetd.position >> 20, planetd.position & 0xFF );
     if( planetd.owner == -1 ) {
-     httpString( cnt, ", uninhabited<br>" );
+     httpString( cnt, ", uninhabited<br/>" );
     } else if( dbUserMainRetrieve( planetd.owner, &main2d ) >= 0 ) {
      httpPrintf( cnt, " owned by <a href=\"%s&amp;id=%d\">%s</a> of ", URLAppend( cnt, "player" ), planetd.owner, main2d.faction );
-     httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+     httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
     }
     if( !( specopd.vars[0] & ( 1 << a ) ) )
     {
-     httpString( cnt, "No information gathered<br><br>" );
+     httpString( cnt, "No information gathered<br/><br/>" );
      continue;
     }
-    httpPrintf( cnt, "Size : %d<br>", planetd.size );
+    httpPrintf( cnt, "Size : %d<br/>", planetd.size );
     d = (int)artefactPrecense( &planetd );
     if( d >= 0 )
-     httpPrintf( cnt, "Artefact :  <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
+     httpPrintf( cnt, "Artefact :  <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\" /><br/>", artefactImage[d], artefactName[d], artefactName[d]  );
     if( planetd.special[1] )
     {
-     httpPrintf( cnt, "%s : <img src=\"files?type=image&amp;name=pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
+     httpPrintf( cnt, "%s : <img src=\"files?type=image&amp;name=pr%d.gif\" />+%d%%<br/>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
     }
-    httpPrintf( cnt, "Portal : %s<br><br>", ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ? "yes" : "no" );
+    httpPrintf( cnt, "Portal : %s<br/><br/>", ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ? "yes" : "no" );
    }
    httpString( cnt, "</td></tr></table>" );
   }
@@ -6361,7 +6361,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  return;
 
  iohttpFunc_specinfosL0:
- httpString( cnt, "This operation doesn't have any additionnal information.<br>" );
+ httpString( cnt, "This operation doesn't have any additionnal information.<br/>" );
  iohtmlBodyEnd( cnt );
  return;
 }
@@ -6405,7 +6405,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   iohttpFunc_operationL0:
   iohtmlBodyInit( cnt, "Agents operation", x, y, z );
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6414,7 +6414,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  if( ( sysid = dbMapFindSystem( x, y ) ) < 0 )
  {
-  httpString( cnt, "<i>It seems there is no system at the coordinates entered.</i><br>" );
+  httpString( cnt, "<i>It seems there is no system at the coordinates entered.</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6422,9 +6422,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( dbMapRetrieveSystem( sysid, &systemd ) < 0 )
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error encountered when getting System Data</i><br>" );
+   httpString( cnt, "<i>Error encountered when getting System Data</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6453,17 +6453,17 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( planetd.owner != -1 )
  {
    if( dbUserMainRetrieve( planetd.owner, &main2d ) < 0 ) {
-   	httpString( cnt, "<i>Error encountered when getting Faction Data</i><br>" );
+   	httpString( cnt, "<i>Error encountered when getting Faction Data</i><br/>" );
    	iohtmlBodyEnd( cnt );
    	return;
    }
    httpPrintf( cnt, "Preparing to perform <b>%s</b> on planet ", cmdAgentopName[specop] );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">%d,%d:%d</a>, owned by ", URLAppend( cnt, "planet" ), plnid, x, y, z );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">%s</a> of ", URLAppend( cnt, "player" ), planetd.owner, main2d.faction );
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>.<br><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>.<br/><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
  }
  else
-  httpPrintf( cnt, "Preparing to perform <b>%s</b> on the unhabited planet <a href=\"%s&amp;id=%d\">%d,%d:%d</a>.<br><br>", cmdAgentopName[specop], URLAppend( cnt, "planet" ), plnid, x, y, z );
+  httpPrintf( cnt, "Preparing to perform <b>%s</b> on the unhabited planet <a href=\"%s&amp;id=%d\">%d,%d:%d</a>.<br/><br/>", cmdAgentopName[specop], URLAppend( cnt, "planet" ), plnid, x, y, z );
 
 // we need a table here.
  httpString( cnt, "<i>" );
@@ -6487,14 +6487,14 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpString( cnt, "Performing this operation will provide you with detailled information about an faction for several weeks." );
  else if( specop == CMD_OPER_PLANETBEACON )
   httpString( cnt, "Planetary definition." );
- httpString( cnt, "</i><br><br>" );
+ httpString( cnt, "</i><br/><br/>" );
 
  if( ( a = cmdExecSendFleetInfos( id, plnid, 0 ) ) < 0 )
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error while retrieving send fleet information</i><br>" );
+   httpString( cnt, "<i>Error while retrieving send fleet information</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6511,7 +6511,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   iohtmlBodyEnd( cnt );
   return;
  }
- httpPrintf( cnt, " , performing the operation would use %d%% Agent Readiness.<br><br>", arl >> 16 );
+ httpPrintf( cnt, " , performing the operation would use %d%% Agent Readiness.<br/><br/>", arl >> 16 );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "operationsend" ) );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"X\" value=\"%d\"><input type=\"hidden\" name=\"Y\" value=\"%d\">", x, y );
@@ -6550,7 +6550,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   iohttpFunc_spellL0:
   iohtmlBodyInit( cnt, "Psychics operation" );
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6590,7 +6590,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  iohtmlBodyInit( cnt, "Psychics operation on %s", main2d.faction );
 
  httpPrintf( cnt, "Casting %s on <a href=\"%s&amp;id=%d\">%s</a> of ", cmdPsychicopName[specop], URLAppend( cnt, "player" ), targetid, main2d.faction );
- httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>.<br><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+ httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>.<br/><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
 
 // we need a table here too.
  httpString( cnt, "<i>" );
@@ -6608,7 +6608,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpString( cnt, "Your psychics will engage the targeted faction's psychics, to cause large casualities." );
  else if( specop == CMD_SPELL_PHANTOMS )
   httpString( cnt, "Your psychics will create etheral creatures to join your fleets in battle." );
- httpString( cnt, "</i><br><br>" );
+ httpString( cnt, "</i><br/><br/>" );
 
  wrl = specopPsychicsReadiness( specop, &maind, ( id != targetid ) ? ( &main2d ) : ( 0 ) );
  if( wrl == -1 )
@@ -6617,7 +6617,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   iohtmlBodyEnd( cnt );
   return;
  }
- httpPrintf( cnt, "Performing the operation would use %d%% Psychic Readiness.<br><br>", wrl >> 16 );
+ httpPrintf( cnt, "Performing the operation would use %d%% Psychic Readiness.<br/><br/>", wrl >> 16 );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "spellsend" ) );
  httpPrintf( cnt, "<input type=\"hidden\" name=\"target\" value=\"%d\"><input type=\"hidden\" name=\"psychics\" value=\"%d\">", targetid, psychics );
@@ -6665,7 +6665,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   iohttpFunc_operationL0:
   iohtmlBodyInit( cnt, "Ghost ships incantation" );
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6682,16 +6682,16 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  {
   if( ( sysid = dbMapFindSystem( x, y ) ) < 0 )
   {
-   httpString( cnt, "<i>It seems there is no system at the coordinates entered.</i><br>" );
+   httpString( cnt, "<i>It seems there is no system at the coordinates entered.</i><br/>" );
    iohtmlBodyEnd( cnt );
    return;
   }
   if( dbMapRetrieveSystem( sysid, &systemd ) < 0 )
   {
    if( cmdErrorString )
-    httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+    httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
    else
-    httpString( cnt, "<i>Error encountered when getting System Data</i><br>" );
+    httpString( cnt, "<i>Error encountered when getting System Data</i><br/>" );
    iohtmlBodyEnd( cnt );
    return;
   }
@@ -6718,14 +6718,14 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    return;
   }
   if( dbUserMainRetrieve( planetd.owner, &main2d ) < 0 )
-   httpString( cnt, "<i>Error encountered when getting faction Data</i><br>" );
+   httpString( cnt, "<i>Error encountered when getting faction Data</i><br/>" );
    httpPrintf( cnt, "Preparing to perform <b>%s</b> on planet ", cmdGhostopName[specop] );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">%d,%d:%d</a>, owned by ", URLAppend( cnt, "planet" ), plnid, x, y, z );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">%s</a> of ", URLAppend( cnt, "player" ), planetd.owner, main2d.faction );
-   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>.<br><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+   httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a>.<br/><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
  }
  else
-  httpPrintf( cnt, "Preparing to perform <b>%s</b> at the coordinates %d,%d</a>.<br><br>", cmdGhostopName[specop], x, y );
+  httpPrintf( cnt, "Preparing to perform <b>%s</b> at the coordinates %d,%d</a>.<br/><br/>", cmdGhostopName[specop], x, y );
 
 
 // we need a table here.
@@ -6746,11 +6746,11 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpString( cnt, "Spreads a destructive wave in a faction network, feeding on its energy reserves, destroying reserves, research and buildings producing energy." );
 
 
- httpString( cnt, "</i><br><br>" );
+ httpString( cnt, "</i><br/><br/>" );
 
  if( cmdFindDistPortal( id, x, y, &a, 0 ) <= -2 )
  {
-  httpString( cnt, "<i>You don't have any portal to send the ghost ships from!</i><br>" );
+  httpString( cnt, "<i>You don't have any portal to send the ghost ships from!</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6768,7 +6768,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   iohtmlBodyEnd( cnt );
   return;
  }
- httpPrintf( cnt, " , performing the operation would use %d%% Psychic Readiness.<br><br>", grl >> 16 );
+ httpPrintf( cnt, " , performing the operation would use %d%% Psychic Readiness.<br/><br/>", grl >> 16 );
 
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "incantsend" ) );
@@ -6814,7 +6814,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( agentstring ) || ( sscanf( agentstring, "%d", &agents ) != 1 ) )
  {
   iohttpFunc_fleetsendL0:
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6822,19 +6822,19 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( ( a = cmdExecSendAgents( id, x, y, z, order, agents ) ) < 0 )
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error encountered when sending agents</i><br>" );
+   httpString( cnt, "<i>Error encountered when sending agents</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
 
- httpString( cnt, "<i>Fleet sent!</i><br><br>" );
+ httpString( cnt, "<i>Fleet sent!</i><br/><br/>" );
 if( a ) {
 	redirect( cnt, "/%s", URLAppend( cnt, "fleets") );
-	httpPrintf( cnt, "The agents will reach their destination in %d weeks<br>", a );
+	httpPrintf( cnt, "The agents will reach their destination in %d weeks<br/>", a );
 } else {
-  httpString( cnt, "The agents reached their destination<br>" );
+  httpString( cnt, "The agents reached their destination<br/>" );
   if( !( cmdFleetActionNewd[1] & CMD_NEWS_FLAGS_NEW ) )
    iohtmlNewsString( cnt, cmdFleetActionNewd );
  }
@@ -6870,7 +6870,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( psychicstring ) || ( sscanf( psychicstring, "%d", &psychics ) != 1 ) )
  {
   iohttpFunc_spellsendL0:
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6881,7 +6881,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  iohtmlNewsString( cnt, newd );
 
- httpString( cnt, "<br>" );
+ httpString( cnt, "<br/>" );
 
  iohtmlBodyEnd( cnt );
  return;
@@ -6919,7 +6919,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( ghoststring ) || ( sscanf( ghoststring, "%d", &ghosts ) != 1 ) )
  {
   iohttpFunc_fleetsendL0:
-  httpString( cnt, "<i>Invalid order or coordinates</i><br>" );
+  httpString( cnt, "<i>Invalid order or coordinates</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
@@ -6927,19 +6927,19 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( ( a = cmdExecSendGhosts( id, x, y, z, order, ghosts ) ) < 0 )
  {
   if( cmdErrorString )
-   httpPrintf( cnt, "<i>%s</i><br>", cmdErrorString );
+   httpPrintf( cnt, "<i>%s</i><br/>", cmdErrorString );
   else
-   httpString( cnt, "<i>Error encountered when sending ghosts</i><br>" );
+   httpString( cnt, "<i>Error encountered when sending ghosts</i><br/>" );
   iohtmlBodyEnd( cnt );
   return;
  }
 
- httpString( cnt, "<i>Fleet sent!</i><br><br>" );
+ httpString( cnt, "<i>Fleet sent!</i><br/><br/>" );
 if( a ) {
 	redirect( cnt, "/%s", URLAppend( cnt, "fleets") );
-	httpPrintf( cnt, "The ghosts will reach their destination in %d weeks<br>", a );
+	httpPrintf( cnt, "The ghosts will reach their destination in %d weeks<br/>", a );
 } else {
-  httpString( cnt, "The ghosts reached their destination<br>" );
+  httpString( cnt, "The ghosts reached their destination<br/>" );
   if( !( cmdFleetActionNewd[1] & CMD_NEWS_FLAGS_NEW ) )
    iohtmlNewsString( cnt, cmdFleetActionNewd );
  }
@@ -6979,14 +6979,14 @@ if( dbUserMainRetrieve( id, &maind ) < 0 )
  
 if( ( fund ) && ( sscanf( fund, "%" SCNd64, &addfund ) == 1 ) ) {
 	if( addfund > maind.ressource[CMD_RESSOURCE_ENERGY] ) {
-		sprintf( fundstring, "<i>You don't have that much energy</i><br><br>" );
+		sprintf( fundstring, "<i>You don't have that much energy</i><br/><br/>" );
 	} else {
 		maind.fundresearch += addfund;
 		maind.ressource[CMD_RESSOURCE_ENERGY] -= addfund;
 		if( dbUserMainSet( id, &maind ) < 0 ) {
-			sprintf( fundstring, "%s", "<i>Error while funding research</i><br><br>" );
+			sprintf( fundstring, "%s", "<i>Error while funding research</i><br/><br/>" );
 		} else {
-			sprintf( fundstring, "<i>Research funding increased by %lld</i><br><br>", (long long)addfund );
+			sprintf( fundstring, "<i>Research funding increased by %lld</i><br/><br/>", (long long)addfund );
 		}
 	}
 }
@@ -7005,20 +7005,20 @@ for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
  
 for( a = b = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
 	if( (unsigned int)rschvalue[a] >= 101 ) {
-		httpString( cnt, "The sum of the research fields percentages must be 100%<br><br>" );
+		httpString( cnt, "The sum of the research fields percentages must be 100%<br/><br/>" );
 		goto iohttpFunc_researchL0;
 	}
 	b += rschvalue[a];
 }
 if( b != 100 ) {
-	httpString( cnt, "The sum of the research fields percetages must be 100%<br><br>" );
+	httpString( cnt, "The sum of the research fields percetages must be 100%<br/><br/>" );
 	goto iohttpFunc_researchL0;
 }
 memcpy( maind.allocresearch, rschvalue, CMD_RESEARCH_NUMUSED*sizeof(int) );
 if( dbUserMainSet( id, &maind ) < 0 ) {
-	httpString( cnt, "<i>Error while setting research percentages</i><br><br>" ); 
+	httpString( cnt, "<i>Error while setting research percentages</i><br/><br/>" ); 
 } else {
-	httpString( cnt, "<i>Research priorities changed</i><br><br>" );
+	httpString( cnt, "<i>Research priorities changed</i><br/><br/>" );
 }
 
 
@@ -7026,7 +7026,7 @@ if( dbUserMainSet( id, &maind ) < 0 ) {
  if( fundstring[0] )
   httpString( cnt, fundstring );
 
- httpPrintf( cnt, "Increase fundings<br><form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\"></form><br>Current research fundings : %lld<br><br>", URLAppend( cnt, "research" ), (long long)maind.fundresearch );
+ httpPrintf( cnt, "Increase fundings<br/><form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"fund\" size=\"12\">&nbsp;<input type=\"submit\" value=\"Fund\"></form><br/>Current research fundings : %lld<br/><br/>", URLAppend( cnt, "research" ), (long long)maind.fundresearch );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table width=\"90%%\" cellspacing=\"8\">", URLAppend( cnt, "research" ) );
  for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ )
@@ -7078,7 +7078,7 @@ if( typestring ) {
 	httpPrintf( cnt, " - <a href=\"%s&amp;type=%d&amp;deleteall=1\">Delete all</a>", URLAppend( cnt, "mail" ), type );
 }
 
-httpString( cnt, "<br><br>" );
+httpString( cnt, "<br/><br/>" );
 
 skip = 0;
 if( ( skipstring ) )
@@ -7112,10 +7112,10 @@ if( ( tostring ) && ( mailstring ) ) {
 			a = dbUserSearchFaction( tostring );
 		}
 		if( a < 0 ) {
-			httpPrintf( cnt, "<i>The faction %s does not seem to exist, the syntax must be exact or use the user ID.</i><br><br>", tostring );
+			httpPrintf( cnt, "<i>The faction %s does not seem to exist, the syntax must be exact or use the user ID.</i><br/><br/>", tostring );
 		} else {
 			if( dbUserMainRetrieve( a, &main2d ) < 0 ) {
-				httpString( cnt, "<i>Are you sure this user exist?</i><br><br>" );
+				httpString( cnt, "<i>Are you sure this user exist?</i><br/><br/>" );
 			} else {
 				(maild.mail).authorid = id;
 				sprintf( (maild.mail).authorname, "%s", ((cnt->session)->dbuser)->faction );
@@ -7124,10 +7124,10 @@ if( ( tostring ) && ( mailstring ) ) {
 				(maild.mail).tick = ticks.number;
 				(maild.mail).flags = 0;
 				if( dbMailAdd( a, MAIL_IN, &maild ) < 0 ) {
-					httpString( cnt, "<i>Error while sending message</i><br><br>" );
+					httpString( cnt, "<i>Error while sending message</i><br/><br/>" );
 				} else {
 					httpPrintf( cnt, "<i>Message sent to <a href=\"%s&amp;id=%d\">%s</a> of ", URLAppend( cnt, "player" ), a, main2d.faction );
-					httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a></i><br><br>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
+					httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">empire #%d</a></i><br/><br/>", URLAppend( cnt, "empire" ), main2d.empire, main2d.empire );
 				}
 				newd[0] = ticks.number;
 				newd[1] = CMD_NEWS_FLAGS_NEW;
@@ -7157,21 +7157,21 @@ if( typestring ) {
 	if( type == MAIL_IN ) {
 		if( ( deletestring ) && ( sscanf( deletestring, "%d", &a ) == 1 ) ) {
 			if( dbMailRemove( id, MAIL_IN, a ) >= 0 )
-				httpString( cnt, "<i>Message deleted</i><br><br>" );
+				httpString( cnt, "<i>Message deleted</i><br/><br/>" );
 			else
-				httpString( cnt, "<i>Error while deleting message</i><br><br>" );
+				httpString( cnt, "<i>Error while deleting message</i><br/><br/>" );
 		}
 		b = dbMailList( id, MAIL_IN, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
-		//httpPrintf( cnt, "<i>%d / %d Messages Displayed</i><br><br>", b, a );
+		//httpPrintf( cnt, "<i>%d / %d Messages Displayed</i><br/><br/>", b, a );
 		if( a > IOHTTP_MAIL_MAXMESSAGES )
-			httpPrintf( cnt, "<i>Your mailbox seems crowded! You have %d messages waiting that won't be displayed until you delete some old messages.</i><br><br>", a - b );
+			httpPrintf( cnt, "<i>Your mailbox seems crowded! You have %d messages waiting that won't be displayed until you delete some old messages.</i><br/><br/>", a - b );
 		if( b < 0 ) {
 			httpString( cnt, "Error retrieving mailbox" );
 			iohtmlBodyEnd( cnt );
 			return;
 		}
 		if( b == 0 )
-			httpString( cnt, "<br><b>No messages</b><br>" );
+			httpString( cnt, "<br/><b>No messages</b><br/>" );
 		for( b-- ; b >= 0 ; b-- ) {
 			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &(mails[b].mail).time ) );
 			httpString( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : " );
@@ -7180,7 +7180,7 @@ if( typestring ) {
 			httpPrintf( cnt, "<a href=\"%s&amp;type=0&amp;delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\">", URLAppend( cnt, "mail" ), b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf );
 			httpPrintf( cnt, "<a href=\"%s&to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", URLAppend( cnt, "mail" ), (mails[b].mail).authorid );
 			httpString( cnt, mails[b].text );
-			httpString( cnt, "</td></tr></table><br><br>" );
+			httpString( cnt, "</td></tr></table><br/><br/>" );
 			if( mails[b].text )
 				free( mails[b].text );
 		}
@@ -7189,20 +7189,20 @@ if( typestring ) {
 	} else if( type == MAIL_OUT ) {
 		if( ( deletestring ) && ( sscanf( deletestring, "%d", &a ) == 1 ) ) {
 			if( dbMailRemove( id, MAIL_OUT, a ) >= 0 )
-				httpString( cnt, "<i>Message deleted</i><br><br>" );
+				httpString( cnt, "<i>Message deleted</i><br/><br/>" );
 			else
-				httpString( cnt, "<i>Error while deleting message</i><br><br>" );
+				httpString( cnt, "<i>Error while deleting message</i><br/><br/>" );
 		}
 		b = dbMailList( id, MAIL_OUT, 0, IOHTTP_MAIL_MAXMESSAGES, &mails, &a );
 		if( a > IOHTTP_MAIL_MAXMESSAGES )
-			httpPrintf( cnt, "<i>Your mailbox seems crowded! There are %d sent messages that won't be displayed until you delete some old messages.</i><br><br>", a - b );
+			httpPrintf( cnt, "<i>Your mailbox seems crowded! There are %d sent messages that won't be displayed until you delete some old messages.</i><br/><br/>", a - b );
 		if( b < 0 ) {
 			httpString( cnt, "Error retrieving mailbox" );
 			iohtmlBodyEnd( cnt );
 			return;
 		}
 		if( b == 0 )
-			httpString( cnt, "<br><b>No messages</b><br>" );
+			httpString( cnt, "<br/><b>No messages</b><br/>" );
 		for( b-- ; b >= 0 ; b-- ) {
 			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &(mails[b].mail).time ) );
 			httpString( cnt, "<table width=\"80%%\"><tr><td><b>From</b> : " );
@@ -7211,7 +7211,7 @@ if( typestring ) {
 			httpPrintf( cnt, "<a href=\"%s&amp;type=0&amp;delete=%d\">Delete</a></td></tr><tr><td><b>Received</b> : Week %d, Year %d - %s</td><td align=\"right\">", URLAppend( cnt, "mail" ), b, (mails[b].mail).tick % 52, (mails[b].mail).tick / 52, timebuf );
 			httpPrintf( cnt, "<a href=\"%s&to=%d\">Reply</a></td></tr><tr><td colspan=\"2\">", URLAppend( cnt, "mail" ), (mails[b].mail).authorid );
 			httpString( cnt, mails[b].text );
-			httpString( cnt, "</td></tr></table><br><br>" );
+			httpString( cnt, "</td></tr></table><br/><br/>" );
 			if( mails[b].text )
 				free( mails[b].text );
 		}
@@ -7230,13 +7230,13 @@ if( typestring ) {
 			(maild.mail).length = iohttpForumFilter2( maild.text, &maild.text[MAIL_MAX], MAIL_MAX );
 			httpString( cnt, maild.text );
 			free( maild.text );
-			httpString( cnt, "<br>" );
+			httpString( cnt, "<br/>" );
 		}
 	} else {
 		httpString( cnt, "Strange, you sent a blank message?" );
 	}
 } else {
-	httpString( cnt, "To specify the player to send the message to, enter either the exact faction name or the user ID.<br><br>" );
+	httpString( cnt, "To specify the player to send the message to, enter either the exact faction name or the user ID.<br/><br/>" );
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table width=\"50%%\" cellspacing=\"3\"><tr><td width=\"20%%\">Recipient</td><td>", URLAppend( cnt, "mail" ) );
 	if( tostring ) {
 		for( a = 0 ; ( a < USER_NAME_MAX-1 ) && ( tostring[a] ) ; a++ ) {
@@ -7410,11 +7410,11 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
    if( error )
     httpString( cnt, error );
    else
-    httpString( cnt, "Unrecognized query format<br><br>" );
+    httpString( cnt, "Unrecognized query format<br/><br/>" );
   }
   else if( status & 4 )
   {
-   httpPrintf( cnt, "Player search with <i>%s</i> :<br><table><tr><td>", content );
+   httpPrintf( cnt, "Player search with <i>%s</i> :<br/><table><tr><td>", content );
    iohttpCaseLow( buf0, content );
    a = 0;
    for( user = dbUserList ; user ; user = user->next )
@@ -7423,18 +7423,18 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
      continue;
     if( a == 256 )
     {
-     httpString( cnt, "<br><i>Too many results!</i>" );
+     httpString( cnt, "<br/><i>Too many results!</i>" );
      break;
     }
     iohttpCaseLow( buf1, user->faction );
     if( !( ioCompareFindWords( buf1, buf0 ) ) )
      continue;
-    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">%s</a><br>", URLAppend( cnt, "player" ), user->id, user->faction );
+    httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">%s</a><br/>", URLAppend( cnt, "player" ), user->id, user->faction );
     a++;
    }
    if( a == 0 )
-    httpString( cnt, "No results<br>" );
-   httpString( cnt, "</td></tr></table><br>" );
+    httpString( cnt, "No results<br/>" );
+   httpString( cnt, "</td></tr></table><br/>" );
   }
 
   httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"32\" value=\"", URLAppend( cnt, "search" ) );
@@ -7442,17 +7442,17 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
    httpString( cnt, str0 );
   else
    httpString( cnt, "Search string" );
-  httpString( cnt, "\"><input type=\"submit\" size=\"2\" value=\"Search\"></form><br><br>" );
+  httpString( cnt, "\"><input type=\"submit\" size=\"2\" value=\"Search\"></form><br/><br/>" );
 
   httpString( cnt, "<table><tr><td>" );
-  httpPrintf( cnt, "<b>To find an empire</b><br>Specify the empire number in the search field, as <b>%d</b> or <b>#%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_EMPIRES], rand() % dbMapBInfoStatic[MAP_EMPIRES] );
-  httpPrintf( cnt, "<b>To find a system</b><br>Enter the system coordinates in the format <b>x,y</b>, as <b>%d,%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY] );
-  httpPrintf( cnt, "<b>To find a planet</b><br>Enter the planet coordinates in the format <b>x,y:z</b>, as <b>%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
-  httpPrintf( cnt, "<b>To see a map sector</b><br>To zoom on a specific area on the map, enter coordinates in the format <b>!x,y</b>, as <b>!%d,%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY] );
-  httpString( cnt, "<b>To search an faction name</b><br>To search an faction from its name, enter the partial or full name, it is not case sensitive.<br><br>" );
-  httpPrintf( cnt, "<b>To find an faction</b><br>Enter the faction ID number in the format <b>@ID</b>, as <b>@%d</b>.<br><br>", rand() & 0xFF );
-  httpPrintf( cnt, "<b>To attack a planet</b><br>Enter the planet coordinates in the format <b>&x,y:z</b>, as <b>&%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
-  httpPrintf( cnt, "<b>To perform a special operation on a planet</b><br>Enter the planet coordinates in the format <b>*x,y:z</b>, as <b>*%d,%d:%d</b>.<br><br>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
+  httpPrintf( cnt, "<b>To find an empire</b><br/>Specify the empire number in the search field, as <b>%d</b> or <b>#%d</b>.<br/><br/>", rand() % dbMapBInfoStatic[MAP_EMPIRES], rand() % dbMapBInfoStatic[MAP_EMPIRES] );
+  httpPrintf( cnt, "<b>To find a system</b><br/>Enter the system coordinates in the format <b>x,y</b>, as <b>%d,%d</b>.<br/><br/>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY] );
+  httpPrintf( cnt, "<b>To find a planet</b><br/>Enter the planet coordinates in the format <b>x,y:z</b>, as <b>%d,%d:%d</b>.<br/><br/>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
+  httpPrintf( cnt, "<b>To see a map sector</b><br/>To zoom on a specific area on the map, enter coordinates in the format <b>!x,y</b>, as <b>!%d,%d</b>.<br/><br/>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY] );
+  httpString( cnt, "<b>To search an faction name</b><br/>To search an faction from its name, enter the partial or full name, it is not case sensitive.<br/><br/>" );
+  httpPrintf( cnt, "<b>To find an faction</b><br/>Enter the faction ID number in the format <b>@ID</b>, as <b>@%d</b>.<br/><br/>", rand() & 0xFF );
+  httpPrintf( cnt, "<b>To attack a planet</b><br/>Enter the planet coordinates in the format <b>&x,y:z</b>, as <b>&%d,%d:%d</b>.<br/><br/>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
+  httpPrintf( cnt, "<b>To perform a special operation on a planet</b><br/>Enter the planet coordinates in the format <b>*x,y:z</b>, as <b>*%d,%d:%d</b>.<br/><br/>", rand() % dbMapBInfoStatic[MAP_SIZEX], rand() % dbMapBInfoStatic[MAP_SIZEY], rand() & 15 );
   httpString( cnt, "</td></tr></table>" );
 
   iohtmlBodyEnd( cnt );
@@ -7497,7 +7497,7 @@ status = 1;
    }
    if( ( sysid = dbMapFindSystem( x, y ) ) < 0 )
    {
-    error = "There is no system at the coordinates specified<br><br>";
+    error = "There is no system at the coordinates specified<br/><br/>";
     goto iohttpFunc_searchL0;
    }
    if( dbMapRetrieveSystem( sysid, &systemd ) < 0 ) {
@@ -7509,7 +7509,7 @@ status = 1;
      goto iohttpFunc_searchL0;
     if( (unsigned int)z >= systemd.numplanets )
     {
-     error = "There is no planet at the coordinates specified<br><br>";
+     error = "There is no planet at the coordinates specified<br/><br/>";
      goto iohttpFunc_searchL0;
     }
     sprintf( content, "%d", systemd.indexplanet + z );

@@ -333,6 +333,7 @@ if( ( buf_max - buf_len ) < 0 ) {
 }
 
 buffer->off += snprintf( &buffer->buf[buffer->off], buf_max, "%s", string );
+buffer->buf[buffer->off] = 0;
 
 return;
 }
@@ -361,6 +362,7 @@ if( ( buf_max - buf_len ) < 0 ) {
 }
 
 rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", string );
+rd->cache.buf[rd->cache.off] = 0;
 
 return;
 }
@@ -1534,8 +1536,6 @@ if( ( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) && ( strstr( url, "fblogi
 }
 #endif
 
-urlappend->buf[urlappend->off] = '\0';
-
 return urlappend->buf;
 }
 
@@ -1584,7 +1584,6 @@ else
 #endif
 	AddBufferString( target_frame_buffer, "_top" );
 
-target_frame_buffer->buf[target_frame_buffer->off] = '\0';
 
 return target_frame_buffer->buf;
 }

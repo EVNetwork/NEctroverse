@@ -161,7 +161,7 @@ for( b = c = 0 ; *string ; ) {
 				if( !( string2 = ioCompareWords( string, SmileTable[a]->string ) ) )
 					continue;
 				string = string2;
-				b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\">", SmileTable[a]->name );
+				b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" />", SmileTable[a]->name );
 				goto iohttpForumFilter2L0;
 			}
 		}
@@ -169,12 +169,12 @@ for( b = c = 0 ; *string ; ) {
 			if( !( string2 = ioCompareWords( string, iohttpForumSmileys[a].string ) ) )
 				continue;
 			string = string2;
-			b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\">", iohttpForumSmileys[a].file );
+			b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" />", iohttpForumSmileys[a].file );
 			goto iohttpForumFilter2L0;
 		}
 	}
 	if( *string == 10 ) {
-		memcpy( &dest[b], "<br>", 4 );
+		memcpy( &dest[b], "<br/>", 4 );
 		b += 4;
 		string++;
 		continue;
@@ -196,9 +196,9 @@ for( b = c = 0 ; *string ; ) {
 	dest[b] = 0;
 	if( b >= size-16 )
 		break;
-	if( ( string2 = ioCompareWords( string, "<br><br><font size=\"1\"><i>Edited by" ) ) )
+	if( ( string2 = ioCompareWords( string, "<br/><br/><font size=\"1\"><i>Edited by" ) ) )
 		break;
-	if( ( string2 = ioCompareWords( string, "<br>" ) ) ) {
+	if( ( string2 = ioCompareWords( string, "<br/>" ) ) ) {
 		dest[b++] = 10;
 		string = string2;
 		continue;
@@ -217,7 +217,7 @@ for( b = c = 0 ; *string ; ) {
 	goto iohttpForumFilter3L0;
 	
 	iohttpForumFilter3L1:
-	if( !( string2 = ioCompareWords( string3, ".gif\">" ) ) ) {
+	if( !( string2 = ioCompareWords( string3, ".gif\" />" ) ) ) {
 		goto iohttpForumFilter3L0;
 	}
 	if( SmileTable[a]->id >= IOHTTP_FORUM_SMILETOTAL )
@@ -496,7 +496,7 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ) {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
   settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
-  httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td align=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
+  httpPrintf( cnt, "<tr><td class=\"left\"><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td class=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
 if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, " - <a href=\"%s&amp;empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
@@ -506,15 +506,15 @@ if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empi
 }
   httpString( cnt, "</td></tr></table>" );
 
-  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<table width=\"%d%%\" class=\"left\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr bgcolor=\"#333333\"><td width=\"70%\">Forums</td><td width=\"10%\">Threads</td><td width=\"20%\">Last post</td></tr>" );
   for( a = 0 ; a < b ; a++ )
   {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &forums[a].time ) );
-   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), a, forums[a].time, forums[a].title, forums[a].threads );
-   httpPrintf( cnt, "%s<br>Week %d, Year %d", timebuf, forums[a].tick % 52, forums[a].tick / 52 );
+   httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&last=%d\">%s</a></td><td>%d</td><td nowrap>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forums[a].id, forums[a].time, forums[a].title, forums[a].threads );
+   httpPrintf( cnt, "%s<br/>Week %d, Year %d", timebuf, forums[a].tick % 52, forums[a].tick / 52 );
 	if( forums[a].lastid != -1 ) {
-		httpPrintf( cnt, "<br>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), forums[a].lastid, forums[a].lastpost );
+		httpPrintf( cnt, "<br/>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), forums[a].lastid, forums[a].lastpost );
 	}
   httpString( cnt, "</td></tr>" );
    }
@@ -558,9 +558,9 @@ if( forums )
 	  	}
 	 }
 	 	settings = GetSetting( "Server Name" );
-		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
+		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
 		httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
-		httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), settings->string_value, forumd.title );
+		httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - %s</td><td class=\"right\">", URLAppend( cnt, "forum" ), settings->string_value, forumd.title );
 if( flags ) {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
@@ -588,11 +588,11 @@ if( flags ) {
    }
   }
 
-  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
   httpString( cnt, "<tr bgcolor=\"#333333\"><td width=\"60%\">Topic</td><td width=\"10%\">Posts</td><td width=\"15%\">Author</td><td width=\"15%\">Last post</td></tr>" );
 for( a = 0 ; a < b ; a++ ) {
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &threads[a].time ) );
-	sprintf(timetemp, "<br>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
+	sprintf(timetemp, "<br/>Week %d, Year %d", threads[a].tick % 52, threads[a].tick / 52 );
 	strcat( timebuf, timetemp);
 
    httpPrintf( cnt, "<tr bgcolor=\"#111111\"><td><a href=\"%s%s&amp;forum=%d&thread=%d&last=%d\">%s</a>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, threads[a].id, threads[a].time, threads[a].topic );
@@ -607,14 +607,14 @@ for( a = 0 ; a < b ; a++ ) {
    		httpPrintf( cnt, " <a href=\"%s%s&amp;forum=%d&thread=%d&delthread=1\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, threads[a].id );
   	}
 	if( threads[a].lastid != -1  ) {
-		httpPrintf( cnt, "<br>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), threads[a].lastid, threads[a].lastpost );
+		httpPrintf( cnt, "<br/>By <a href=\"%s&amp;id=%d\">%s</a>", URLAppend( cnt, "player" ), threads[a].lastid, threads[a].lastpost );
 	}
    
    
  	if((cnt->session)->dbuser)
   	{
 	   if(( id != -1 ) && (((((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD))||(((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD)))
-	    httpPrintf( cnt, "<br>IP: %s", inet_ntoa( threads[a].sin_addr ) );
+	    httpPrintf( cnt, "<br/>IP: %s", inet_ntoa( threads[a].sin_addr ) );
 	  }
 			httpString( cnt, "</td></tr>" );
   }
@@ -636,7 +636,7 @@ for( a = 0 ; a < b ; a++ ) {
    httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "forum" ) );
    httpPrintf( cnt, "<input type=\"hidden\" name=\"empire\" value=\"%s\">", ( flags ? "true" : "false" ) );
    httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum );
-   httpString( cnt, "<table cellspacing=\"3\"><tr><td>Name</td><td>" );
+   httpString( cnt, "<table cellspacing=\"3\" class=\"left\"><tr><td>Name</td><td>" );
 	if( id == -1 ) {
 		purge_captcha( cnt->session );
   		httpPrintf( cnt, "<input type=\"text\" name=\"name\" size=\"32\" value=\"%s\">", ( namestring ) ? namestring : "" );
@@ -652,7 +652,7 @@ for( a = 0 ; a < b ; a++ ) {
 		httpString( cnt, "</td></tr><tr><td>" );
 		httpString( cnt, "Captcha" );
 		httpString( cnt, "</td><td>" );
-		httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+		httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\" /></td></tr></table>", URLAppend( cnt, "files" ) );
 	} else {
     		httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
     }
@@ -697,10 +697,10 @@ for( a = 0 ; a < b ; a++ ) {
    goto RETURN;
   }
 settings = GetSetting( "Server Name" );
-  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - ", URLAppend( cnt, "forum" ), settings->string_value );
-  httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d\">%s</a> - %s</td><td align=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, forumd.title, threadd.topic );
+  httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d\">%s</a> - %s</td><td class=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, forumd.title, threadd.topic );
 if( flags )  {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
@@ -728,7 +728,7 @@ if( flags )  {
    }
   }
 
-  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<table width=\"%d%%\" cellpadding=\"3\" cellspacing=\"3\" bgcolor=\"#000000\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
   for( a = 0 ; a < b ; a++ )
   {
    if( !( posts[a].text ) )
@@ -736,20 +736,20 @@ if( flags )  {
    c = a + skip;
    if( flags ) {
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &posts[a].post.time ) );
-      httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>%s", posts[a].post.authorname, posts[a].post.authortag, timebuf );
+      httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br/><i>%s</i><br/>%s", posts[a].post.authorname, posts[a].post.authortag, timebuf );
    } else {
-   httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br><i>%s</i><br>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
+   httpPrintf( cnt, "<tr><td valign=\"top\" width=\"10%%\" nowrap bgcolor=\"#282828\"><b>%s</b><br/><i>%s</i><br/>Week %d, Year %d", posts[a].post.authorname, posts[a].post.authortag, (posts[a].post).tick % 52, (posts[a].post).tick / 52 );
    }
    if( iohttpForumPerms( flags, id, forum, cnt, &maind, 0 ) || ( ( id != -1 ) && ( posts[a].post.authorid == id ) && ioCompareExact( posts[a].post.authorname, maind.faction ) )) {
-    	httpPrintf( cnt, "<br><a href=\"%s%s&amp;forum=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, c );
+    	httpPrintf( cnt, "<br/><a href=\"%s%s&amp;forum=%d&thread=%d&editpost=%d\">Edit</a> - ", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, c );
     	httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d&thread=%d&delpost=%d\">Delete</a>", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, thread, c );
     }
    if((cnt->session)->dbuser)
    {
 	   if( ( id != -1 ) && ( ((cnt->session)->dbuser)->level >= LEVEL_FORUMMOD ) )
 	   {
-	    httpPrintf( cnt, "<br>Account: <a href=\"%s&amp;id=%d\">%d</a>", URLAppend( cnt, "player" ), posts[a].post.authorid, posts[a].post.authorid );
-	    httpPrintf( cnt, "<br>IP: %s", inet_ntoa( posts[a].post.sin_addr ) );
+	    httpPrintf( cnt, "<br/>Account: <a href=\"%s&amp;id=%d\">%d</a>", URLAppend( cnt, "player" ), posts[a].post.authorid, posts[a].post.authorid );
+	    httpPrintf( cnt, "<br/>IP: %s", inet_ntoa( posts[a].post.sin_addr ) );
 	   }
 	  }
    httpString( cnt, "</td><td valign=\"top\" width=\"90%\" bgcolor=\"#181818\">" );
@@ -794,7 +794,7 @@ if( flags )  {
 		httpString( cnt, "</td></tr><tr><td>" );
 		httpString( cnt, "Captcha" );
 		httpString( cnt, "</td><td>" );
-		httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\"></td></tr></table>", URLAppend( cnt, "files" ) );
+		httpPrintf( cnt, "<table><tr><td><input type=\"text\" name=\"captcha\" size=\"7\"></td><td><img src=\"%s&type=captcha\" /></td></tr></table>", URLAppend( cnt, "files" ) );
 	} else {
 		httpPrintf( cnt, "%s<input type=\"hidden\" name=\"name\" value=\"%s\">", maind.faction, maind.faction );
 		httpString( cnt, "</td></tr>" );
@@ -835,10 +835,10 @@ if( flags )  {
 			sprintf( threadd.authorname, "Anonymous" );
 		}
 		if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
-			httpString( cnt, "<span class=\"center\"><b>No Captcha Entered</b></span><br><br>" );
+			httpString( cnt, "<span class=\"center\"><b>No Captcha Entered</b></span><br/><br/>" );
    			goto iohttpForumL2;
 		} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
-			httpString( cnt, "<span class=\"center\"><b>Invalid Captcha Entered</b></span></br><br>" );
+			httpString( cnt, "<span class=\"center\"><b>Invalid Captcha Entered</b></span></br><br/>" );
 			goto iohttpForumL2;
 		}
 	}
@@ -875,10 +875,10 @@ if( flags )  {
   }*/
 if( id < 0 ) {
 	if( ( capstring == NULL ) || ( ( capstring != NULL ) && ( strlen(capstring) == 0 ) ) ) {
-		httpString( cnt, "<span class=\"center\"><b>No Captcha Entered</b></span><br><br>" );
+		httpString( cnt, "<span class=\"center\"><b>No Captcha Entered</b></span><br/><br/>" );
 		goto iohttpForumL1;
 	} else if( strcmp( (cnt->session)->captcha, capstring ) ) {
-		httpString( cnt, "<span class=\"center\"><b>Invalid Captcha Entered</b></span></br><br>" );
+		httpString( cnt, "<span class=\"center\"><b>Invalid Captcha Entered</b></span></br><br/>" );
 		goto iohttpForumL1;
 	}
 }
@@ -914,9 +914,9 @@ if( id < 0 ) {
   memcpy( &(postd.post.sin_addr), &( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ), sizeof(struct in_addr) );
   a = dbForumAddPost( flags, forum, thread, &postd );
   if( a >= 0 )
-   httpPrintf( cnt, "Post added!<br><br>" );
+   httpPrintf( cnt, "Post added!<br/><br/>" );
   else
-   httpPrintf( cnt, "Error while adding post<br><br>" );
+   httpPrintf( cnt, "Error while adding post<br/><br/>" );
    if( postd.text )
   free( postd.text );
   badpost = false;
@@ -932,9 +932,9 @@ if( id < 0 ) {
   iohttpForumL3:
 
   if( dbForumRemoveThread( flags, forum, thread ) >= 0 )
-   httpPrintf( cnt, "Thread removed<br><br>" );
+   httpPrintf( cnt, "Thread removed<br/><br/>" );
   else
-   httpPrintf( cnt, "Error while removing thread<br><br>" );
+   httpPrintf( cnt, "Error while removing thread<br/><br/>" );
   goto iohttpForumL2;
  }
  else if( action == 6 )
@@ -963,10 +963,10 @@ if( id < 0 ) {
   {
    if( !( a ) )
     goto iohttpForumL3;
-   httpPrintf( cnt, "Post removed<br><br>" );
+   httpPrintf( cnt, "Post removed<br/><br/>" );
   }
   else
-   httpPrintf( cnt, "Error while removing post<br><br>" );
+   httpPrintf( cnt, "Error while removing post<br/><br/>" );
   goto iohttpForumL1;
  }
  else if( action == 7 )
@@ -992,7 +992,7 @@ if( id < 0 ) {
   httpPrintf( cnt, "<input type=\"hidden\" name=\"forum\" value=\"%d\">", forum ); 
   httpPrintf( cnt, "<input type=\"hidden\" name=\"thread\" value=\"%d\">", thread );
   httpPrintf( cnt, "<input type=\"hidden\" name=\"editpost\" value=\"%d\">", post );
-  httpString( cnt, "Edit post<br><br><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
+  httpString( cnt, "Edit post<br/><br/><textarea name=\"post\" wrap=\"soft\" rows=\"10\" cols=\"60\">" );
 
   if( !( text = malloc( 2 * FORUM_MAX ) ) )
   {
@@ -1011,7 +1011,7 @@ if( id < 0 ) {
   free( posts );
   if( text )
   free( text );
-  httpString( cnt, "</textarea><br><br><input type=\"submit\" value=\"Post\"></form>" );
+  httpString( cnt, "</textarea><br/><br/><input type=\"submit\" value=\"Post\"></form>" );
  }
  else if( action == 8 )
  {
@@ -1056,14 +1056,14 @@ if( id < 0 ) {
   postd.post.length = iohttpForumFilter2( postd.text, &postd.text[2*FORUM_MAX], 2*FORUM_MAX - 512 );
   time( &tint );
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
-  postd.post.length += sprintf( &postd.text[postd.post.length], "<br><br><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, timebuf );
+  postd.post.length += sprintf( &postd.text[postd.post.length], "<br/><br/><font size=\"1\"><i>Edited by %s on Week %d, Year %d - %s</i></font>", maind.faction, ticks.number % 52, ticks.number / 52, timebuf );
 
   a = dbForumEditPost( flags, forum, thread, post, &postd );
   if( a >= 0 ) {
-   httpPrintf( cnt, "Post edited!<br><br>" );
+   httpPrintf( cnt, "Post edited!<br/><br/>" );
    badpost = false;
   } else {
-   httpPrintf( cnt, "Error while editing post<br><br>" );
+   httpPrintf( cnt, "Error while editing post<br/><br/>" );
    }
    if( postd.text )
   free( postd.text );

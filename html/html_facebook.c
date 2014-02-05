@@ -447,15 +447,15 @@ if( ( code ) || ( fbtoke ) ) {
 		goto BAILOUT;
 	}
 } else if( error) {
-	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s", "Error Detected<br>" );
-	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", error );
-	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_reason" ) );
-	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br>", iohtmlVarsFind( cnt, "error_description" ) );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s", "Error Detected<br/>" );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br/>", error );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br/>", iohtmlVarsFind( cnt, "error_reason" ) );
+	offset += snprintf( &buffer[offset], (sizeof(buffer) - offset), "%s<br/>", iohtmlVarsFind( cnt, "error_description" ) );
 	goto BAILOUT;
 } else {
-	httpString( cnt, "Welcome, as you have not yet authorised this game you will need to do so<br>" );
-	httpString( cnt, "before we will be able to automaticly create a game account for you... Click below?<br>" );
-	httpString( cnt, "<br>" );
+	httpString( cnt, "Welcome, as you have not yet authorised this game you will need to do so<br/>" );
+	httpString( cnt, "before we will be able to automaticly create a game account for you... Click below?<br/>" );
+	httpString( cnt, "<br/>" );
 	iohtmlFBConnect( cnt );
 	goto BAILOUT;
 }
@@ -486,12 +486,12 @@ if( buffer[0] )
 if( id >= 0 ) {
 
 	if( ( ( user = dbUserLinkID( id ) ) < 0 ) || ( dbUserLinkDatabase( cnt, id ) < 0 ) ) {
-		httpString( cnt, "An error has occured while trying to link with your game account.<br>" );
+		httpString( cnt, "An error has occured while trying to link with your game account.<br/>" );
 		goto BAILOUT;
 	}
 
 	if( dbSessionSet( user, (cnt->session)->sid ) < 0 ) {
-		httpString( cnt, "An error has occured while trying to set game user session.<br>" );
+		httpString( cnt, "An error has occured while trying to set game user session.<br/>" );
 		goto BAILOUT;
 	}
 
@@ -514,10 +514,10 @@ if( id >= 0 ) {
 	}
 	
 	redirect( cnt, "%s", URLAppend( cnt, "/" ) );
-	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br><br>", user->faction );
-	httpString( cnt, "You should be redirected back to the main screen shortly<br>" );
+	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br/><br/>", user->faction );
+	httpString( cnt, "You should be redirected back to the main screen shortly<br/>" );
 	URLString( cnt, "/", "Click here if it takes too long" );
-	httpString( cnt, "<br>" );
+	httpString( cnt, "<br/>" );
 } else if( fbdata.id[0] ) {
 	if( remove ) {
 		goto REMOVELINK;
@@ -525,10 +525,10 @@ if( id >= 0 ) {
 		goto LINKWITHFB;
 	}
 } else {
-	httpString( cnt, "Invalid Request, unable to load facebook details...<br><br>" );
+	httpString( cnt, "Invalid Request, unable to load facebook details...<br/><br/>" );
 	URLString( cnt, "/", "Click here to return to main screen" );
-	httpString( cnt, "<br><br>" );
-	httpString( cnt, "<br><br>" );
+	httpString( cnt, "<br/><br/>" );
+	httpString( cnt, "<br/><br/>" );
 	iohtmlFBConnect( cnt );
 }
 
@@ -551,9 +551,9 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	}
 	facebook_post_notice( fbdata.id, NULL, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
 	redirect( cnt, "/%s&page=account", URLAppend( cnt, "main" ) );
-	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br><br>", user->fbid, user->name );
-	httpString( cnt, "You should be redirected back to your account screen shortly<br>" );
-	httpPrintf( cnt, "<a href=\"/%s?page=account\">Click here if it takes too long</a><br>", URLAppend( cnt, "main" ) );
+	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br/><br/>", user->fbid, user->name );
+	httpString( cnt, "You should be redirected back to your account screen shortly<br/>" );
+	httpPrintf( cnt, "<a href=\"/%s?page=account\">Click here if it takes too long</a><br/>", URLAppend( cnt, "main" ) );
 } else {
 	httpString( cnt, "<script type=\"text/javascript\">" );
 	httpString( cnt, "$(document).ready(function(){" );
@@ -575,10 +575,10 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	httpString( cnt, "}).change();" );
 	httpString( cnt, "});" );
 	httpString( cnt, "</script>" );
-	httpString( cnt, "<br>" );
-	httpString( cnt, "You have authorised this game to access your Facebook data<br>" );
-	httpString( cnt, "However no account was found for this ID... what would you like to do?<br>" );
-	httpString( cnt, "<br>" );
+	httpString( cnt, "<br/>" );
+	httpString( cnt, "You have authorised this game to access your Facebook data<br/>" );
+	httpString( cnt, "However no account was found for this ID... what would you like to do?<br/>" );
+	httpString( cnt, "<br/>" );
 	httpString( cnt, "<div><select>" );
 	httpString( cnt, "<option>Select Option...</option>" );
 	httpString( cnt, "<option value=\"create\">Create New Account</option>" );
@@ -589,18 +589,18 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 	httpString( cnt, "<div class=\"login hidebox\">" );
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
-	httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
-	httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
-	httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
+	httpString( cnt, "Name<br/><input type=\"text\" name=\"name\"><br/>" );
+	httpString( cnt, "<br/>Password<br/><input type=\"password\" name=\"pass\"><br/>" );
+	httpString( cnt, "<br/><input type=\"submit\" value=\"OK\"></form>" );
 	httpString( cnt, "</div>" );
 
 	httpString( cnt, "<div class=\"create hidebox\">" );
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
 	httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token.val );
-	httpString( cnt, "Please choose a Faction name<br>" );
-	httpString( cnt, "<input type=\"text\" name=\"faction\"><br>" );
-	httpString( cnt, "(This is what others will see you as in-game)<br>" );
-	httpString( cnt, "<br><input type=\"submit\" value=\"Proceed\"></form>" );
+	httpString( cnt, "Please choose a Faction name<br/>" );
+	httpString( cnt, "<input type=\"text\" name=\"faction\"><br/>" );
+	httpString( cnt, "(This is what others will see you as in-game)<br/>" );
+	httpString( cnt, "<br/><input type=\"submit\" value=\"Proceed\"></form>" );
 	httpString( cnt, "</div>" );
 
 	httpString( cnt, "<div class=\"remove hidebox\">" );
@@ -625,11 +625,11 @@ if( facebook_unlink_app( fbdata.id ) ) {
 		fclose( file );
 		file = NULL;
 	}
-	httpString( cnt, "As requested, your link with Facebook has been removed.<br>" );
-	httpString( cnt, "<br>" );
-	httpString( cnt, "<a href=\"https://www.facebook.com\">Goto Facebook</a> - <a href=\"http://www.google.com\">Goto Google<br>" );
+	httpString( cnt, "As requested, your link with Facebook has been removed.<br/>" );
+	httpString( cnt, "<br/>" );
+	httpString( cnt, "<a href=\"https://www.facebook.com\">Goto Facebook</a> - <a href=\"http://www.google.com\">Goto Google<br/>" );
 } else {
-	httpString( cnt, "Oh dear, Facebook didn't respond as we'd expect...<br>" );
+	httpString( cnt, "Oh dear, Facebook didn't respond as we'd expect...<br/>" );
 	httpString( cnt, "You'll have to manually check to ensure permissions were removed." );
 }
 
@@ -675,7 +675,7 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
 } else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
-	httpString( cnt, "<b>This Account is linked with Facebook.</b><br>" );
+	httpString( cnt, "<b>This Account is linked with Facebook.</b><br/>" );
 }
 
 

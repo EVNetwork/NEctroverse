@@ -6,7 +6,9 @@ void iohtmlBase( ReplyDataPtr cnt, int flags );
 int iohtmlIdentify( ReplyDataPtr cnt, int action );
 int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp );
 
-void iohtmlBodyInit( ReplyDataPtr cnt, char *title, ... );
+void html_boxstart( ReplyDataPtr cnt, bool type, char *title, ... );
+#define iohtmlBodyInit( cnt, title, ... ) html_boxstart( cnt, false, title, ##__VA_ARGS__ )
+
 void iohtmlBodyEnd( ReplyDataPtr cnt );
 
 void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags );

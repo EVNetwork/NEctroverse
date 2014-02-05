@@ -1125,7 +1125,7 @@ for( user = dbUserList ; user ; user = user->next ) {
 				}
 				if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
 					fa += planetd.size;
-					fb += 0.5;
+					fb++;
 				} else {
 					maind.networth += ( planetd.size * 1.75 );
 				}
