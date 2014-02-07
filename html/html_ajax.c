@@ -32,7 +32,7 @@ typestring = iohtmlVarsFind( cnt, "typ" );
 
 refer = iohtmlHeaderFind(cnt, "Referer");
 
-if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
+if( ( id = iohtmlIdentify( cnt, 2|16 ) ) >= 0 ) {
 	if( dbUserMainRetrieve( id, &maind ) < 0 )
 		goto BAILAJAX;
 	else if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )

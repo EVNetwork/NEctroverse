@@ -3,20 +3,22 @@
 int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
 	int id;
 	char sess[SESSION_SIZE];
+	dbUserPtr user;
 
-if( NULL == (cnt->session)->dbuser )
-	goto iohtmlIdentifyL0;
+if( ( NULL == (cnt->session)->dbuser ) || ( NULL == ( user = (cnt->session)->dbuser ) ) )
+	goto FAIL;
 
-if( dbSessionRetrieve( (cnt->session)->dbuser, sess ) < 0 )
-	goto iohtmlIdentifyL0;
+if( dbSessionRetrieve( user, sess ) < 0 )
+	goto FAIL;
 
-if( strcmp( (cnt->session)->sid, sess )  )
-	goto iohtmlIdentifyL0;
+if( strcmp( (cnt->session)->sid, sess ) || ( (id = user->id) > 0 ) )
+	goto FAIL;
 
-id = ((cnt->session)->dbuser)->id;
-((cnt->session)->dbuser)->lasttime = time(NULL);
+if( !( action & 16 ) ) {
+	user->lasttime = time(NULL);
+}
 
-if( dbUserSave( id, (cnt->session)->dbuser ) < 0 ) {
+if( dbUserSave( id, user ) < 0 ) {
 	error( "Database UserSave" );
 	goto NEGATIVE;
 }
@@ -25,7 +27,7 @@ if( action & 8 ) {
 }
 
 if( ( action & 2 ) ) {
-	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( ((cnt->session)->dbuser)->level < LEVEL_MODERATOR ) ) {
+	if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( user->level < LEVEL_MODERATOR ) ) {
 		if( action & 1 ) {
 			iohtmlFunc_register( cnt );
 		}
@@ -34,7 +36,7 @@ if( ( action & 2 ) ) {
 }
 
 if( action & 4 ) {
-	if( ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
+	if( ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
 		if( action & 1 ) {
 			iohtmlFunc_register( cnt );
 		}
@@ -45,7 +47,7 @@ RETURN:
 purge_captcha( cnt->session );
 return id;
 
-iohtmlIdentifyL0:
+FAIL:
 
 if( action & 1 ) {
 	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, your account may have been hijacked." );
