@@ -77,6 +77,9 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_BOOL, "irc:bot_announcetick", "false", "IRC Announce" },
 	#endif
 	
+	{ INI_TYPE_STRING, "google:domain", "domain.com", "Google Analytics Domain" },
+	{ INI_TYPE_STRING, "google:id", "UA-00000000-0", "Google Analytics ID" },
+	
 	{ INI_TYPE_INT, "debug:create_fake_accounts", "0", "Create Fakes" },
 	{ INI_TYPE_INT, "admin:number", "0", "Create Admins" },
 	{ INI_TYPE_INT, "admin:empire", "0", "Admin Empire Number" },

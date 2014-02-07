@@ -56,9 +56,9 @@ return -1;
 }
 
 void iohtmlBase( ReplyDataPtr cnt, int flags ) {
-	ConfigArrayPtr settings;
+	ConfigArrayPtr settings[2];
 
-settings = GetSetting( "Server Name" );
+settings[0] = GetSetting( "Server Name" );
 
 //httpString( cnt, "<!DOCTYPE xhtml><html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en\" xml:lang=\"en\">");
 httpString( cnt, "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\">");
@@ -69,7 +69,7 @@ httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset
 httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
 httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
 httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
-httpPrintf( cnt, "<title>%s</title>", settings->string_value );
+httpPrintf( cnt, "<title>%s</title>", settings[0]->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\">" );
 httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 if( !( flags & 32 ) ) {
@@ -91,6 +91,16 @@ if( flags & 1 ) {
 }
 
 httpString( cnt, "</head>" );
+httpString( cnt, "<script>" );
+httpString( cnt, "  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){" );
+httpString( cnt, "  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o)," );
+httpString( cnt, "  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)" );
+httpString( cnt, "  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');" );
+settings[0] = GetSetting( "Google Analytics Domain" );
+settings[1] = GetSetting( "Google Analytics ID" );
+httpPrintf( cnt, "  ga('create', '%s', '%s');", settings[1]->string_value, settings[0]->string_value );
+httpString( cnt, "  ga('send', 'pageview');" );
+httpString( cnt, "</script>" );
 httpString( cnt, "<body" );
 
 if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {

@@ -395,8 +395,7 @@ int cmdGhostopFlags[CMD_GHOSTOP_NUMUSED] =
 
 cmdRaceDef cmdRace[CMD_RACE_NUMUSED] =
 {
- {
- 	//Hark
+ {//Hark
   (0.8*0.02), 1.4, 0.9, 1.4*2.0,
   {   1.2,   1.2,   1.2,   1.2,   1.2,   0.6,   1.2 },
   { 250.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0 },

@@ -1401,9 +1401,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 
 void iohtmlFunc_council( ReplyDataPtr cnt ) {
-	int a, b, c, id, numbuild;
-	int64_t bsums[CMD_BLDG_NUMUSED+1];
-	int64_t usums[CMD_UNIT_NUMUSED];
+	int a, c, id, numbuild;
+	int64_t bsums[CMD_BLDG_NUMUSED+2];
+	int64_t usums[CMD_UNIT_NUMUSED+2];
 	dbMainEmpireDef empired;
 	dbBuildPtr build;
 	dbUserMainDef maind;
@@ -1473,14 +1473,14 @@ httpPrintf( cnt, "<tr><td>Ectrolium income</td><td align=\"right\" id=\"ectroliu
 httpString( cnt, "</table><br></td></tr><tr><td align=\"center\" valign=\"top\">" );
 
 httpString( cnt, "<b>Buildings</b><br><table>" );
-for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
+memset( bsums, 0, (CMD_BLDG_NUMUSED+2)*sizeof(int64_t) );
+for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 	httpPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, (long long)maind.totalbuilding[a] );
-	b += (int)maind.totalbuilding[a];
+	bsums[CMD_BLDG_NUMUSED+1] += (int)maind.totalbuilding[a];
 }
 
-httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%d</td></tr></table><br><br>", b );
+httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%lld</td></tr></table><br><br>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
 httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
-memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
 
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( build[a].type >> 16 )
@@ -1496,30 +1496,32 @@ if( !( c ) ) {
 	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
  	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
 	httpString( cnt, "<br><i>Summary</i><br>" );
-
-	for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
+	
+	bsums[CMD_BLDG_NUMUSED+1] = 0;
+	for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 		if( !( bsums[a] ) )
 			continue;
 		httpPrintf( cnt, "%lld %s<br>", (long long)bsums[a], cmdBuildingName[a] );
-		b += bsums[a];
+		bsums[CMD_BLDG_NUMUSED+1] += bsums[a];
 	}
-	httpPrintf( cnt, "<i>Total of %d buildings under construction</i><br>", b );
+	httpPrintf( cnt, "<i>Total of %lld buildings under construction</i><br>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
 }
 
 httpString( cnt, "</span></td><td align=\"center\" valign=\"top\">" );
 
 httpString( cnt, "<b>Units</b><br><table>" );
 
-for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+memset( usums, 0, (CMD_UNIT_NUMUSED+2)*sizeof(int64_t) );
+for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	httpPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"unt%d\">%lld</td></tr>", cmdUnitName[a], a, (long long)maind.totalunit[a] );
-	b += (int)maind.totalunit[a];
+	usums[CMD_BLDG_NUMUSED+1] += (int)maind.totalunit[a];
 }
 
-httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%d</td></tr></table><br><br>", b );
+httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%lld</td></tr></table><br><br>", (long long)usums[CMD_BLDG_NUMUSED+1] );
 httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 
-memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
-for( a = c = 0 ; a < numbuild ; a++ ) {
+usums[CMD_BLDG_NUMUSED+1] = 0;
+for( a = c = 0 ; a < numbuild; a++ ) {
 	if( !( build[a].type >> 16 ) )
 		continue;
 	httpPrintf( cnt, "<tr><td>%d %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
@@ -1532,13 +1534,13 @@ if( !( c ) ) {
 } else {
 	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
 	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
-for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+for( a = 0; a < CMD_UNIT_NUMUSED; a++ ) {
 	if( !( usums[a] ) )
 		continue;
 	httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
-	b += usums[a];
+	usums[CMD_BLDG_NUMUSED+1] += usums[a];
   	}
-	httpPrintf( cnt, "<i>Total of %d units under construction</i><br>", b );
+	httpPrintf( cnt, "<i>Total of %lld units under construction</i><br>", (long long)usums[CMD_BLDG_NUMUSED+1] );
 }
 
 httpString( cnt, "</span></td></tr></table>" );

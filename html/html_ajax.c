@@ -5,8 +5,8 @@ void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
 	#endif
 	int a, c, id, numbuild;
 	int64_t b;
-	int64_t bsums[CMD_BLDG_NUMUSED+1];
-	int64_t usums[CMD_UNIT_NUMUSED];
+	int64_t bsums[CMD_BLDG_NUMUSED+2];
+	int64_t usums[CMD_UNIT_NUMUSED+2];
 	const char *typestring, *idstring, *refer;
 	char CHECKER[256];
 	char timebuf[512];
@@ -144,6 +144,8 @@ if( ( typestring ) && ( refer ) ) {
 		httpPrintf( cnt, "<planets>%d</planets>", maind.planets );
 		//End HQ block -- Start Council block
 		} else if( !strcmp(refer,"council") ) {
+			memset( bsums, 0, (CMD_BLDG_NUMUSED+2)*sizeof(int64_t) );
+			memset( usums, 0, (CMD_UNIT_NUMUSED+2)*sizeof(int64_t) );
 			httpString( cnt, "<incomes>" );
 			httpPrintf( cnt, "<taxlevel>%.02f</taxlevel>", ( empired.taxation * 100 ) );
 			for( a = 0 ; a < INFOS_TOTAL_NUMUSED ; a++ ) {
@@ -151,22 +153,21 @@ if( ( typestring ) && ( refer ) ) {
 			}
 			httpString( cnt, "</incomes>" );
 			httpString( cnt, "<bldings>" );
-			for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
+			for( a = bsums[CMD_BLDG_NUMUSED+1] = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 				httpPrintf( cnt, "<bld%d>%lld</bld%d>", a, (long long)maind.totalbuilding[a], a );
-				b += maind.totalbuilding[a];
+				bsums[CMD_BLDG_NUMUSED+1] += maind.totalbuilding[a];
 			}
-			httpPrintf( cnt, "<bldnum>%lld</bldnum>", (long long)b );
+			httpPrintf( cnt, "<bldnum>%lld</bldnum>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
 			httpString( cnt, "</bldings>" );
 			httpString( cnt, "<allunits>" );
-			for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+			for( a = usums[CMD_UNIT_NUMUSED+1] = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 				httpPrintf( cnt, "<unt%d>%lld</unt%d>", a, (long long)maind.totalunit[a], a );
-				b += maind.totalunit[a];
+				usums[CMD_UNIT_NUMUSED+1] += maind.totalunit[a];
 			}
-			httpPrintf( cnt, "<untnum>%lld</untnum>", (long long)b );
+			httpPrintf( cnt, "<untnum>%lld</untnum>", (long long)usums[CMD_UNIT_NUMUSED+1] );
+			usums[CMD_UNIT_NUMUSED+1] = 0;
 			httpString( cnt, "</allunits>" );
 			
-			memset( bsums, 0, (CMD_BLDG_NUMUSED+1)*sizeof(int64_t) );
-			memset( usums, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
 			httpPrintf( cnt, "<council_html_buildings><![CDATA[" );
 			if( ( numbuild = dbBuildList( true, id, &build ) ) < 0 ) {
 				httpString( cnt, "Error while retriving user build list" );
@@ -177,7 +178,7 @@ if( ( typestring ) && ( refer ) ) {
 			for( a = c = 0 ; a < numbuild ; a++ ) {
 				if( build[a].type >> 16 )
 					continue;
-				httpPrintf( cnt, "<tr><td>%d %s in %d weeks at <a href=\"%s&id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, URLAppend( cnt, "planet" ), build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
+				httpPrintf( cnt, "<tr><td>%lld %s in %d weeks at <a href=\"%s&id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", (long long)build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, URLAppend( cnt, "planet" ), build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
 				bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
 				c++;
 			}
@@ -187,13 +188,13 @@ if( ( typestring ) && ( refer ) ) {
 				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
  				httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table>");
 				httpString( cnt, "<br><i>Summary</i><br>" );
-				for( a = b = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
+				for( a = bsums[CMD_BLDG_NUMUSED+1] = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 					if( !( bsums[a] ) )
 						continue;
 					httpPrintf( cnt, "%lld %s<br>", (long long)bsums[a], cmdBuildingName[a] );
-					b += bsums[a];
+					bsums[CMD_BLDG_NUMUSED+1] += bsums[a];
 				}
-				httpPrintf( cnt, "<i>Total of %lld buildings under construction</i><br>", (long long)b );
+				httpPrintf( cnt, "<i>Total of %lld buildings under construction</i><br>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
 			}
 			httpPrintf( cnt, "]]></council_html_buildings>" );
 			httpPrintf( cnt, "<council_html_units><![CDATA[" );
@@ -210,13 +211,13 @@ if( ( typestring ) && ( refer ) ) {
 			} else {
 				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
 				httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table><br><i>Summary</i><br>" );
-				for( a = b = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
+				for( a = usums[CMD_UNIT_NUMUSED+1] = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 					if( !( usums[a] ) )
 						continue;
 					httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
-					b += usums[a];
+					usums[CMD_UNIT_NUMUSED+1] += usums[a];
   				}
-				httpPrintf( cnt, "<i>Total of %lld units under construction</i><br>", (long long)b );
+				httpPrintf( cnt, "<i>Total of %lld units under construction</i><br>", (long long)usums[CMD_UNIT_NUMUSED+1] );
 			}
 			httpPrintf( cnt, "]]></council_html_units>" );
 
