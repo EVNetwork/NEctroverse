@@ -11,7 +11,7 @@ if( ( NULL == (cnt->session)->dbuser ) || ( NULL == ( user = (cnt->session)->dbu
 if( dbSessionRetrieve( user, sess ) < 0 )
 	goto FAIL;
 
-if( strcmp( (cnt->session)->sid, sess ) || ( (id = user->id) > 0 ) )
+if( strcmp( (cnt->session)->sid, sess ) || ( (id = user->id) < 0 ) )
 	goto FAIL;
 
 if( !( action & 16 ) ) {
