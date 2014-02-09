@@ -56,6 +56,7 @@ ConfigListArrayDef config_listing[] = {
 	#if FACEBOOK_SUPPORT
 	{ INI_TYPE_STRING, "facebook:app_id", "", "Facebook Application" },
 	{ INI_TYPE_STRING, "facebook:app_secret", "", "Facebook Secret" },
+	{ INI_TYPE_STRING, "facebook:like_url", "", "Facebook Like URL" },
 	#endif
 	
 	#if MYSQL_SUPPORT

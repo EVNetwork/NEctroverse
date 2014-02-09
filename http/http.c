@@ -568,6 +568,10 @@ if (file == NULL) {
 
 return ret;
 IMAGE_BUFFER:
+if( fname == NULL ) {
+	return MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, file_not_found_response);
+}
+
 (void) pthread_mutex_lock( &mutex );
 filelist = StoredFiles;
 

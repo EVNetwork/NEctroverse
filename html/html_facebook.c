@@ -648,16 +648,26 @@ return;
 }
 
 void iohtmlFBConnect( ReplyDataPtr cnt ) {
-	ConfigArrayPtr settings[2];
+	ConfigArrayPtr settings[3];
 	const char *host;
 	char url[REDIRECT_MAX];
 
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
+settings[2] = GetSetting( "Facebook Like URL" );
+
+httpString( cnt, "<table class=\"left\">" );
+
+if( strlen( settings[2]->string_value ) > 0 ) {
+	httpString( cnt, "<tr><td>" );
+	httpPrintf( cnt, "<div class=\"fb-like\" data-href=\"%s\" data-layout=\"standard\" data-action=\"like\" data-show-faces=\"true\" data-share=\"true\" data-colorscheme=\"dark\"></div>", settings[2]->string_value );
+	httpString( cnt, "</td></tr>" );
+}
 
 if( ( strlen( settings[0]->string_value ) <= 0 ) || ( strlen( settings[1]->string_value ) <= 0 ) )
-	return;
-
+	goto END;
+httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
+httpString( cnt, "<tr><td>" );
 if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) )) ) ) {
 
 	httpString( cnt, "<form action=\"https://www.facebook.com/dialog/oauth\" method=\"GET\" target=\"_top\">" );
@@ -675,10 +685,12 @@ if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( (
 	httpString( cnt, "<input type=\"image\" src=\"files?type=image&name=facebook.gif\" alt=\"Facebook Connect\">" );
 	httpString( cnt, "</form>" );
 } else if ( ((cnt->session)->dbuser) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
-	httpString( cnt, "<b>This Account is linked with Facebook.</b><br/>" );
+	httpString( cnt, "<b>This Account is linked with Facebook.</b>" );
 }
+httpString( cnt, "</td></tr>" );
 
-
+END:
+httpString( cnt, "</table>" );
 return;
 }
 

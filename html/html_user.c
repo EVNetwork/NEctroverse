@@ -19,6 +19,10 @@ if( ( id = iohtmlIdentify( cnt, 1 ) ) < 0 )
 if( !( iohtmlHeader( cnt, id, &maind ) ) )
 	return;
 
+#if FACEBOOK_SUPPORT
+iohtmlFBSDK( cnt );
+#endif
+
 if( !( dbUserInfoRetrieve( id, &infod ) ) ) {
 	error( "Error in user html info, getting real info" );
 	return;

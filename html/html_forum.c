@@ -105,9 +105,12 @@ for( FreeList = SmileList; FreeList; FreeList = FreeList->next  ) {
 	free( FreeList );
 }
 
-free( SmileTable );
+if( SmileTable != NULL ) {
+	free( SmileTable );
+	SmileTable = NULL;
+}
 
-FreeList = NULL;
+SmileList = NULL;
 
 return YES;
 }
