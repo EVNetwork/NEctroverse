@@ -1,5 +1,5 @@
-#ifndef HTMLMAININCLUDES
-#define HTMLMAININCLUDES
+#ifndef HTML_MAIN_H
+#define HTML_MAIN_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 void iohtmlBase( ReplyDataPtr cnt, int flags );

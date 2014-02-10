@@ -1,5 +1,5 @@
-#ifndef COMMANDINCLUDES
-#define COMMANDINCLUDES
+#ifndef CMD_H
+#define CMD_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 int cmdUserNewsAdd( int id, int64_t *data, int64_t flags );
@@ -93,12 +93,6 @@ float specopWarIllusionsCalc( int id );
 int specopShieldingCalc( int id, int plnid );
 int specopForcefieldCalc( int id, int plnid );
 int specopVortexListCalc( int id, int num, int **buffer );
-
-
-
-int artefactPrecense( dbMainPlanetPtr planetd );
-
-
 
 
 

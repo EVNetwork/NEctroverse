@@ -112,7 +112,7 @@ ConfigListArrayDef config_listing[] = {
 };
 
 ConfigArrayPtr ConfigList;
-ConfigArrayPtr ConfigTable[ARRAY_MAX];
+ConfigArrayPtr *ConfigTable;
 
 inikey config;
 
@@ -123,6 +123,14 @@ ConfigArrayPtr loadfromconfig( char *name, char *sourcefile, int sourceline ) {
 	double out;
 	char *setting = NULL;
 	ConfigArrayPtr newset;
+
+if( ConfigTable == NULL ) {
+	index = 0;
+	while( ( config_listing[index].nicename != NULL ) ) {
+		index++;
+	}
+	ConfigTable = malloc( index * sizeof(ConfigArrayDef) );
+}
 
 store = out = 0;
 index = 0;
@@ -218,8 +226,10 @@ dbUserInfoPtr ListAdmins( int num ) {
 if( config == NULL )
 	config = iniparser_load( options.sysini );
 	
-if( ( array = calloc( num, sizeof(dbUserInfoDef) ) ) == NULL )
+if( ( array = calloc( num, sizeof(dbUserInfoDef) ) ) == NULL ) {
 	critical( "Allocating Admins" );
+	return NULL;
+}
 	
 for( a = 0; a < num; a++ ) {
 	snprintf(buffer, sizeof(buffer), "admin%d:name", a+1 );
@@ -243,6 +253,7 @@ if( config != NULL ) {
 
 return array;
 }
+
 
 /*
  * Hmmz, I'm so tired of calling settings one-by-one... so here's that listing function
@@ -327,6 +338,11 @@ void UnloadConfig() {
 if( ConfigList ) {
 	FreeList( ConfigList );
 	ConfigList = NULL;
+}
+
+if( ConfigTable ) {
+	free( ConfigTable );
+	ConfigTable = NULL;
 }
 
 if( config != NULL ) {

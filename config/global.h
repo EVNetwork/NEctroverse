@@ -1,5 +1,5 @@
-#ifndef GLOBALINCLUDED
-#define GLOBALINCLUDED
+#ifndef GLOBAL_H
+#define GLOBAL_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 #include "buildflags.h"
 
@@ -158,8 +158,9 @@ ticks.locked = true; \
 
 
 #include "../enum.h"
-#include "../artefact.h"
+#include "../map.h"
 #include "../db.h"
+#include "../artefact.h"
 
 #include "../http/platform.h"
 #include "../extras/extras.h"
@@ -176,7 +177,6 @@ ticks.locked = true; \
 #include "../iohttp.h"
 #include "../html/html.h"
 #include "../cmd.h"
-#include "../map.h"
 
 
 #endif //END OF FILE

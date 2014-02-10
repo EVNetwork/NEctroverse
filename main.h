@@ -1,5 +1,5 @@
-#ifndef MAININCLUDES
-#define MAININCLUDES
+#ifndef MAIN_H
+#define MAIN_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 #if PIPEFILE_SUPPORT

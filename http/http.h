@@ -1,5 +1,5 @@
-#ifndef HTTP_H
-#define HTTP_H
+#ifndef _INCLUDE_HTTP
+#define _INCLUDE_HTTP
 extern char *ServerSessionMD5;
 
 enum UploadState {

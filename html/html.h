@@ -1,5 +1,5 @@
-#ifndef HTMLINCLUDES
-#define HTMLINCLUDES
+#ifndef HTML_H
+#define HTML_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 #include "html_main.h"

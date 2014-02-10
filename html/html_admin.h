@@ -1,5 +1,5 @@
-#ifndef ADMININCLUDES
-#define ADMININCLUDES
+#ifndef HTML_ADMIN_H
+#define HTML_ADMIN_H
 
 
 typedef struct

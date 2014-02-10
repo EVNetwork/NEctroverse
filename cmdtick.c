@@ -13,7 +13,7 @@ void cmdTickGenRanks() {
 	int64_t a, b, c, d;
 	int64_t *stats;
 	int *rels;
-	int artefacts[ARTEFACT_NUMUSED], artsnum;
+	int artefacts[ArtefactNum], artsnum;
 	char COREDIR[PATH_MAX];
 
 
@@ -21,7 +21,7 @@ void cmdTickGenRanks() {
   artmax = 0;
   settings[0] = GetSetting( "Directory" );
   sprintf( COREDIR, "%s/rankings/round%dfamranks.txt", settings[0]->string_value, ticks.round );
-  memset( artefacts, 0, ARTEFACT_NUMUSED*sizeof(int) );
+  memset( artefacts, 0, ArtefactNum*sizeof(int) );
   if( !( file = fopen( COREDIR, "wb" ) ) )
     return;
   sprintf( COREDIR, "%s/rankings/round%dfamranksplain.txt", settings[0]->string_value, ticks.round);
@@ -141,14 +141,14 @@ if( (int)settings[0]->num_value > 0 ) {
 
 
 /*
-    for( c = 0, d = 1 ; c < ARTEFACT_NUMUSED ; c++, d <<= 1 )
+    for( c = 0, d = 1 ; c < ArtefactNum ; c++, d <<= 1 )
     {
       if( empirep[stats[a+0]].artefacts & d )
         fprintf( file, "<img src=\"%s\">", artefactImage[c] );
     }
 */
     artsnum = 0;
-    for( c = 0, d = 1 ; c < ARTEFACT_NUMUSED ; c++, d <<= 1 )
+    for( c = 0, d = 1 ; c < ArtefactNum ; c++, d <<= 1 )
     {
       if( empirep[stats[a+0]].artefacts & d )
       {
@@ -160,7 +160,7 @@ if( (int)settings[0]->num_value > 0 ) {
 if( artsnum > artmax )
 	artmax = artsnum;
 
-if( artsnum == ARTEFACT_NUMUSED ) {
+if( ( ArtefactNum > 0 ) && ( artsnum == ArtefactNum ) ) {
         if ( dbMapBInfoStatic[MAP_ARTITIMER] == -1 ) {
 	        settings[0] = GetSetting( "Auto Victory" );
 	        if( (int)settings[0]->num_value > 0 ) {
@@ -178,12 +178,12 @@ if( artsnum == ARTEFACT_NUMUSED ) {
         dbMapSetMain( dbMapBInfoStatic );
 }
 
-    if( ( 3*artsnum >= ARTEFACT_NUMUSED ) || ( (3*dbArtefactMax)/2 >= ARTEFACT_NUMUSED ) )
+    if( ( 3*artsnum >= ArtefactNum ) || ( (3*dbArtefactMax)/2 >= ArtefactNum ) )
     {
-      for( c = 0, d = 1 ; c < ARTEFACT_NUMUSED ; c++, d <<= 1 )
+      for( c = 0, d = 1 ; c < ArtefactNum ; c++, d <<= 1 )
       {
         if( empirep[stats[a+0]].artefacts & d )
-          fprintf( file, "<img src=\"files?type=image&name=artifacts/%s\">", artefactImage[c] );
+          fprintf( file, "<img src=\"files?type=image&name=artefact/%s\">", artefactImage[c] );
       }
     }
 
@@ -215,7 +215,7 @@ if( artsnum == ARTEFACT_NUMUSED ) {
 
   fprintf( file, "<br>" );
   artsnum = 0;
-for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ )
+for( c = 0 ; c < ArtefactNum ; c++ )
     artsnum |= artefacts[c];
 
 
@@ -239,9 +239,9 @@ if( artsnum ) {
 		fprintf( file, "<br><br><b>Artefacts found</b><br>" );
 	}
 	fprintf( file, "<table><tr><td>" );
-	for( c = 0 ; c < ARTEFACT_NUMUSED ; c++ ) {
+	for( c = 0 ; c < ArtefactNum ; c++ ) {
 		if( artefacts[c] )
-			fprintf( file, "<img src=\"files?type=image&name=artifacts/%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
+			fprintf( file, "<img src=\"files?type=image&name=artefact/%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
 	}
 	fprintf( file, "</td></tr></table><br>" );
 }
@@ -1100,11 +1100,11 @@ for( user = dbUserList ; user ; user = user->next ) {
 				if( planetd.special[1] ) {
 					switch ( planetd.special[0] ) {
 						case CMD_BONUS_ENERGY:
-							maind.networth += ( planetd.special[1] * 1 );
+							maind.networth += ( planetd.special[1] * 1.25 );
 						break;
 					
 						case CMD_BONUS_MINERAL:
-							maind.networth += ( planetd.special[1] * 1.25 );
+							maind.networth += ( planetd.special[1] * 1.45 );
 						break;
 					
 						case CMD_BONUS_CRYSTAL:

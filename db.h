@@ -1,6 +1,8 @@
-#ifndef DATABASEINCLUDES
-#define DATABASEINCLUDES
+#ifndef DB_H
+#define DB_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
+extern char *dbFileList[DB_FILE_BASE_TOTAL];
+extern FILE *dbFilePtr[DB_FILE_BASE_TOTAL];
 
 typedef struct
 {
@@ -121,7 +123,7 @@ typedef struct
   char faction[USER_NAME_MAX];
   int64_t ressource[CMD_RESSOURCE_NUMUSED+2];
   int empire;
-  int64_t reserved0[18];
+  int64_t infos[INFOS_TOTAL_NUMUSED];
   int64_t research[CMD_RESEARCH_NUMUSED];
   int readiness[CMD_READY_NUMUSED];
   int home; // ( y << 20 ) + ( x << 8 ) + planet
@@ -142,7 +144,6 @@ typedef struct
   int benefactors[2];
   int benefactor[5];
   float autofund[3];
-  int64_t infos[INFOS_TOTAL_NUMUSED];
 } dbUserMainDef, *dbUserMainPtr;
 
 int dbUserMainSet( int id, dbUserMainPtr main );
@@ -239,103 +240,17 @@ int dbEmpireMessageSet( int id, int num, char *text );
 int dbEmpireMessageRetrieve( int id, int num, char *text );
 
 
-
-typedef struct
-{
-  int sizex;
-  int sizey;
-  int systems;
-  int planets;
-  int megasys;
-  int families;
-  int fmembers;
-  int capacity;
-  int artitimer;
-  int timempire;
-} dbMainMapDef, *dbMainMapPtr;
-
 int dbMapRetrieveMain( int *binfo );
 int dbMapSetMain( int *binfo );
 
 extern int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
-
-typedef struct
-{
-  int id;
-  int position;
-  int indexplanet;
-  int numplanets;
-  int empire;
-  int unexplored;
-  int flags;
-  int timer;
-} dbMainSystemDef, *dbMainSystemPtr;
-
 int dbMapSetSystem( int sysid, dbMainSystemPtr systemd );
 int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd );
 
 
-typedef struct
-{
-  int id;
-  int flags;
-  int size;
-  int system;
-  int position;
-  int64_t population;
-  int64_t maxpopulation;
-  int64_t unit[CMD_UNIT_NUMUSED];
-  int64_t building[CMD_BLDG_NUMUSED];
-  int construction;
-  int protection;
-  int special[5];
-  int surrender;
-  int nuked;
-  int owner;
-  int timer;
-} dbMainPlanetDef, *dbMainPlanetPtr;
-
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd );
 int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd );
-/*
- * The use of ARRAY_MAX in here, is un-desirable... but it prevents any future over-flow as its limit is 65k 
- * This is the same limit as max players, so each Empire is capable of holding all players... technicly. Not that it should.
- */
- 
-typedef struct
-{
-  char leader[USER_DESC_MAX];
-  char moc[USER_DESC_MAX];
-  char mod[USER_DESC_MAX];
-  char mow[USER_DESC_MAX];
-} dbEmpireMessageDef, *dbEmpireMessagePtr;
-
-typedef struct
-{
-  int id;
-  int rank;
-  int flags;
-  int numplayers;
-  int politics[CMD_EMPIRE_POLITICS_TOTAL];
-  int player[ARRAY_MAX];
-  int vote[ARRAY_MAX];
-  int depreciated;
-  int homeid;
-  int homepos; // ( y << 16 ) + x
-  int picture;
-  int planets;
-  int artefacts;
-  int construction;
-  int building[CMD_BLDG_EMPIRE_NUMUSED];
-  int counters[16];
-  float taxation;
-  int64_t networth;
-  int64_t fund[CMD_RESSOURCE_NUMUSED];
-  int64_t infos[CMD_RESSOURCE_NUMUSED];
-  char name[USER_NAME_MAX];
-  char password[USER_PASS_MAX];
-} dbMainEmpireDef, *dbMainEmpirePtr;
 
 typedef struct
 {
@@ -487,7 +402,7 @@ int dbUserRecordList( int id, dbUserRecordPtr *records );
 
 /////////////////////////////////////////////////////////////////////////////////
 
-extern int dbArtefactPos[ARTEFACT_NUMUSED];
+extern int dbArtefactPos[ARRAY_MAX];
 
 extern int dbArtefactMax;
 

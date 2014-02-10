@@ -9,7 +9,7 @@ SQLLIBS := $(shell mysql_config --libs)
 SQLFLAG := $(shell mysql_config --cflags)
 
 OBJDIR := .libs
-OBJS := $(addprefix $(OBJDIR)/,main.o io.o http.o db.o cmd.o html.o map.o extras.o )
+OBJS := $(addprefix $(OBJDIR)/,main.o io.o http.o db.o cmd.o html.o map.o artefact.o extras.o )
 #The standard config needed to compile basic server, withought these it won't work.
 FLAGS = -O2 -O3 --fast-math -Wall #-Wextra
 LIBS = -lcrypt -lpng
@@ -76,6 +76,9 @@ $(OBJDIR)/cmd.o: $(HEAD) cmd.c cmdexec.c cmdtick.c battle.c specop.c artefact.c
 
 $(OBJDIR)/map.o: $(HEAD) map.c
 	$(CC) map.c $(DEFS) -o $(OBJDIR)/map.o -c $(FLAGS)
+
+$(OBJDIR)/artefact.o: $(HEAD) artefact.c
+	$(CC) artefact.c $(DEFS) -o $(OBJDIR)/artefact.o -c $(FLAGS)
 
 $(OBJDIR)/html.o: $(HEAD) html/*.h html/*.c
 	$(CC) html/html.c $(DEFS) -o $(OBJDIR)/html.o -c $(FLAGS)

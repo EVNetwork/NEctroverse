@@ -1,25 +1,14 @@
-#ifndef GLOBALINCLUDED
 #include "config/global.h"
-#endif
-
-enum 
-{
-DB_FILE_BASE_USERS,
-DB_FILE_BASE_MAP,
-DB_FILE_BASE_MARKET,
-DB_FILE_BASE_FORUM,
-
-DB_FILE_BASE_TOTAL,
-};
 
 static char dbFileMapName[] = "%s/map";
+static char dbFileArteName[] = "%s/artefacts";
 
 static char dbFileUsersName[] = "%s/userdb";
 static char dbFileMarketName[] = "%s/market";
 static char dbFileForumName[] = "%s/forums";
 
-static char *dbFileList[DB_FILE_BASE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileMarketName, dbFileForumName };
-static FILE *dbFilePtr[DB_FILE_BASE_TOTAL];
+char *dbFileList[DB_FILE_BASE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileArteName, dbFileMarketName, dbFileForumName };
+FILE *dbFilePtr[DB_FILE_BASE_TOTAL];
 
 enum 
 {
@@ -66,7 +55,7 @@ int dbMapBInfoStatic[MAP_TOTAL_INFO];
 
 int dbRegisteredInfo[DB_TOTALS_USERS_NUMUSED];
 
-int dbArtefactPos[ARTEFACT_NUMUSED];
+int dbArtefactPos[ARRAY_MAX];
 
 int dbArtefactMax;
 
@@ -359,9 +348,9 @@ return file;
 
 
 
-
+static int dbUserNum = 0; 
 dbUserPtr dbUserList;
-dbUserPtr dbUserTable[ARRAY_MAX];
+dbUserPtr *dbUserTable;
 
 
 
@@ -370,7 +359,7 @@ dbUserPtr dbUserAllocate( int id ) {
 
 if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
 	critical("Database Malloc Failed");
-	return 0;
+	return NO;
 }
 
 memset( user, 0, sizeof(dbUserDef) );
@@ -381,6 +370,13 @@ if( dbUserList )
 dbUserList = user;
 user->id = id;
 user->lasttime = time(NULL);
+if( ( id+1 ) > dbUserNum ) {
+	dbUserNum = ( id + 1 );
+	if( NULL == ( dbUserTable = realloc( dbUserTable, dbUserNum*sizeof(dbUserDef) ) ) ) {
+		critical( "User Table Re-Allocation Failed" );
+		return NO;
+	}
+}
 dbUserTable[id] = user;
 
 return user;
@@ -389,7 +385,7 @@ return user;
 void dbUserFree( dbUserPtr user ) {
 	dbUserPtr next;
 
-if( (unsigned int)user->id >= ARRAY_MAX )
+if( (unsigned int)user->id >= dbUserNum )
 	return;
 
 dbUserTable[user->id] = 0;
@@ -443,10 +439,9 @@ int dbInitUsersReset()
   file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
   last++;
   file_w( &last, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
-
   file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
   file_w( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
-
+  
   return 1;
 }
 
@@ -470,8 +465,12 @@ settings[1] = GetSetting( "Public Forum" );
 snprintf( COREDIR, sizeof(COREDIR), "%s/data", settings[0]->string_value );
 
 if( ( dbMapRetrieveMain( dbMapBInfoStatic ) < 0 ) )
-	return 0;
+	return NO;
 
+if( ArtefactTable == NULL ) {
+	if( LoadArtefacts() == NO )
+		return NO;
+}
 snprintf( fname, sizeof(fname), "%s/data", settings[0]->string_value );
 snprintf( COREDIR, sizeof(COREDIR), dbFileList[DB_FILE_BASE_MARKET], fname );
 if( !( dbFilePtr[DB_FILE_BASE_MARKET] = fopen( COREDIR, "rb+" ) ) ) {
@@ -479,7 +478,7 @@ if( !( dbFilePtr[DB_FILE_BASE_MARKET] = fopen( COREDIR, "rb+" ) ) ) {
 
 	if( !( dbFilePtr[DB_FILE_BASE_MARKET] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create market database!" );
-		return 0;
+		return NO;
 	}
 
 	file_s( dbFilePtr[DB_FILE_BASE_MARKET], 0 );
@@ -524,7 +523,7 @@ if( !( file = fopen( COREDIR, "rb+" ) ) ) {
 	info( "Public Forum database not found, creating..." );
 	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create public forum database!" );
-		return 0;
+		return NO;
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), file );
@@ -557,7 +556,7 @@ if( !( dbFilePtr[DB_FILE_BASE_USERS] = fopen( fname, "rb+" ) ) ) {
 
 	if( !( dbFilePtr[DB_FILE_BASE_USERS] = fopen( fname, "wb+" ) ) ) {
 		critical( "Error, could not create user database!" );
-		return 0;
+		return NO;
 	}
 	file_s( dbFilePtr[DB_FILE_BASE_USERS], 0 );
 	a = 0;
@@ -616,7 +615,7 @@ for( a = 0 ; a < dbMapBInfoStatic[MAP_PLANETS] ; a++ ) {
 }
 	
 
-return 1;
+return YES;
 }
 
 
@@ -627,6 +626,10 @@ for( user = dbUserList ; user ; user = next ) {
 	next = user->next;
 	dbUserFree( user );
 }
+free( dbUserTable );
+dbUserNum = 0;
+
+UnLoadArtefacts();
 
 return;
 }
@@ -728,7 +731,7 @@ return -1;
 
 dbUserPtr dbUserLinkID( int id ) {
 
-if( ( id >= ARRAY_MAX ) || ( id < 0 ) )
+if( ( id >= dbUserNum ) || ( id < 0 ) )
 	return 0;
 
 return dbUserTable[id];

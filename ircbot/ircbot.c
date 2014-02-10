@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "../config/global.h"
-#endif
 
 #include "libircclient.c"
 

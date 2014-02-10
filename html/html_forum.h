@@ -1,5 +1,5 @@
-#ifndef FORUMINCLUDES
-#define FORUMINCLUDES
+#ifndef HTML_FORUM_H
+#define HTML_FORUM_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 

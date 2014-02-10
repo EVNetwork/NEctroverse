@@ -1,7 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "../config/global.h"
-#endif
-
 
 #include "html_gameplay.c"
 

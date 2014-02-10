@@ -1,5 +1,5 @@
-#ifndef USER_FB_INCLUDES
-#define USER_FB_INCLUDES
+#ifndef HTML_FACEBOOK_H
+#define HTML_FACEBOOK_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 typedef struct {

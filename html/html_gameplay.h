@@ -1,5 +1,5 @@
-#ifndef GAMEPLAYINCLUDES
-#define GAMEPLAYINCLUDES
+#ifndef HTML_GAMEPLAY_H
+#define HTML_GAMEPLAY_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );

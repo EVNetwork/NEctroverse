@@ -1,5 +1,5 @@
-#ifndef LOADING_INI_HEADDERS
-#define LOADING_INI_HEADDERS
+#ifndef LOADINI_H
+#define LOADINI_H
 
 enum {
 INI_TYPE_STRING,
@@ -71,7 +71,7 @@ typedef struct ConfigArray {
 } ConfigArrayDef, *ConfigArrayPtr;
 
 extern ConfigArrayPtr ConfigList;
-extern ConfigArrayPtr ConfigTable[ARRAY_MAX];
+extern ConfigArrayPtr *ConfigTable;
 
 extern inikey config;
 
@@ -84,6 +84,7 @@ int unloadfromconfig( char *name, char *sourcefile, int sourceline );
 void DumpDefaults( char *filename );
 
 dbUserInfoPtr ListAdmins( int num );
+
 ConfigArrayPtr makelistfromconfig( char **list, char *sourcefile, int sourceline );
 
 #endif

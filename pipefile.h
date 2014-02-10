@@ -1,5 +1,5 @@
-#ifndef PIPEFILE_INCLUDED
-#define PIPEFILE_INCLUDED
+#ifndef PIPEFILE_H
+#define PIPEFILE_H
 
 void svPipeScan(int pipefileid);
 

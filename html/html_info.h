@@ -1,4 +1,5 @@
-#define IOSINCLUDES
+#ifndef HTML_INFO_H
+#define HTML_INFO_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 typedef struct {
@@ -37,3 +38,5 @@ int timediff( struct tm t_in  );
 
 void iohtmlFunc_info( ReplyDataPtr cnt );
 void iohtmlFunc_rules( ReplyDataPtr cnt );
+
+#endif

@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "config/global.h"
-#endif
 
 typedef struct {
 	//rescource bonus/artefacts
@@ -78,7 +76,7 @@ int spawn_map() {
 	int a, b, c, d, e, i, p, x, y, x2, y2, mega;
 	int map_bonus[CMD_BONUS_NUMUSED+1];
 	float dist, distmax;
-	char fname[PATH_MAX];
+	char fname[PATH_MAX], cname[PATH_MAX];
 	uint8_t *pixels, *bigpixies; 
 	FILE *file = NULL;
 	imgImage mapimage;
@@ -88,6 +86,12 @@ int spawn_map() {
 	dbMainPlanetDef planetd;
 	dbMainEmpireDef empired;
 	dbEmpireMessageDef message;
+	dbArtefactPtr arties;
+
+if( ArtefactTable == NULL ) {
+	if( LoadArtefacts() == NO )
+		goto DIE;
+}
 
 //Yer... I'm so not calling these one-by-one, list calling time!! *sigh* lol =P
 static char *list[] = { "Map Size", "Map Size", "Map Systems", "Map Families", "Map Family Members", "Map Border", "Map Lenght", "Map Lenght Var", "Map Link", "Map Link Radius", "Map Angle Var" };
@@ -123,9 +127,13 @@ mapstore->pos = calloc( map_set[2].num_value, sizeof(int) );
 mapstore->system = calloc( map_set[2].num_value, sizeof(int) );
 mapstore->planets = calloc( map_set[2].num_value, sizeof(int) );
 mapstore->pbase = calloc( map_set[2].num_value, sizeof(int) );
-mapstore->arti = calloc( ARTEFACT_NUMUSED, sizeof(int) );
-mega = ( 5 + ( rand() % 15 ));
 mapstore->mega = calloc( map_set[2].num_value, sizeof(int) );
+mapstore->arti = calloc( ArtefactNum, sizeof(int) );
+
+mega = ( 5 + ( rand() % 15 ));
+/* TEMP DISABLE */ 
+mega = 0;
+/* TEMP DISABLE */
 
 mapCalcFactors( map_set, mapstore );
 
@@ -198,13 +206,13 @@ for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 }
 
 
-for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ ) {
+for( a = 0, arties = ArtefactList; arties; arties = arties->next, a++ ) {
 	mainL2:
 	b = rand() % (int)map_set[2].num_value;
 	if( ( mapstore->home[b] ) || ( mapstore->mega[b] ) )
 		goto mainL2;
 	mapstore->arti[a] = mapstore->pbase[b] + ( rand() % mapstore->planets[b] );
-	info( "( %d,%d ) ID:%d Holds: %s", mapstore->pos[b] & 0xFFFF, mapstore->pos[b] >> 16, mapstore->arti[a], artefactName[a] );
+	info( "( %d,%d ) ID:%d Holds: %s", mapstore->pos[b] & 0xFFFF, mapstore->pos[b] >> 16, mapstore->arti[a], arties->name[a] );
 }
 
 if( NULL == ( mapbase = calloc( 1, sizeof(dbMainMapDef) ) ) ) {
@@ -212,8 +220,12 @@ if( NULL == ( mapbase = calloc( 1, sizeof(dbMainMapDef) ) ) ) {
 	goto DIE;
 }
 // OK, a new headers write.
-snprintf( fname, PATH_MAX, "%s/data/map", settings[0]->string_value );
-file = fopen( fname, "wb" );
+snprintf( cname, PATH_MAX, "%s/data", settings[0]->string_value );
+snprintf( fname, PATH_MAX, dbFileList[DB_FILE_BASE_MAP], cname );
+if( NULL == ( dbFilePtr[DB_FILE_BASE_MAP] = fopen( fname, "wb+" ) ) ) {
+	critical( "Unable to open Map File" );
+	goto DIE;
+}
 mapbase->sizex = map_set[0].num_value;
 mapbase->sizey = map_set[1].num_value;
 mapbase->systems = map_set[2].num_value;
@@ -224,7 +236,7 @@ mapbase->fmembers = map_set[4].num_value;
 mapbase->capacity = map_set[3].num_value * map_set[4].num_value;
 mapbase->artitimer = -1;
 mapbase->timempire = -1;
-file_w( mapbase, 1, sizeof(dbMainMapDef), file ); 
+file_w( mapbase, 1, sizeof(dbMainMapDef), dbFilePtr[DB_FILE_BASE_MAP] ); 
 free( mapbase );
 // New system generation, based on defaults.
 p = 0;
@@ -247,7 +259,7 @@ for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 		}
 		systemd.unexplored = mapstore->planets[a];
 	}
-	file_w( &systemd, 1, sizeof(dbMainSystemDef), file );
+	file_w( &systemd, 1, sizeof(dbMainSystemDef), dbFilePtr[DB_FILE_BASE_MAP] );
 }
 //End system generation
 
@@ -261,6 +273,7 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	dist = 0;
 	if( b >= mapstore->planets[c] ) {
 		b -= mapstore->planets[c];
+
 		c++;
 	}
 	planetd.system = c;
@@ -308,17 +321,16 @@ for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	planetd.special[1] = i;
 	// artefacts
 	i = 0;
-	for( d = 0 ; d < ARTEFACT_NUMUSED ; d++ ) {
+	for( d = 0 ; d < ArtefactNum ; d++ ) {
 		if( a != mapstore->arti[d] )
 			continue;
 		i = d + 1;
 		break;
 	}
 	planetd.special[2] = i;
-	file_w( &planetd, 1, sizeof(dbMainPlanetDef), file );
+	file_w( &planetd, 1, sizeof(dbMainPlanetDef), dbFilePtr[DB_FILE_BASE_MAP] );
 }
 //End planet generation
-fclose( file );
 
 /*
  * END BASE MAP

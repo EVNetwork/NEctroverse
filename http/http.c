@@ -657,7 +657,7 @@ add_session_cookie(rd.session, response);
 mark_as( response, mime );
 
 if( strlen(rd.session->redirect) ) {
-	snprintf( buffer, REDIRECT_MAX, "1; url=%s", rd.session->redirect );
+	snprintf( buffer, REDIRECT_MAX, "1; url=%s", str_replace(rd.session->redirect, "&amp;", "&") );
 	memset( &rd.session->redirect, 0, REDIRECT_MAX );
 	MHD_add_response_header(response, MHD_HTTP_HEADER_REFRESH, buffer );
 }

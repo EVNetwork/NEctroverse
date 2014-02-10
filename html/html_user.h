@@ -1,5 +1,5 @@
-#ifndef USERINCLUDES
-#define USERINCLUDES
+#ifndef HTML_USER_H
+#define HTML_USER_H
 //The above line MUST STAY HERE! -- This prevents double calling.
 
 void iohtmlFunc_account( ReplyDataPtr cnt );

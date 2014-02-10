@@ -1,5 +1,5 @@
-#ifndef IOMIMEINCLUDES
-#define IOMIMEINCLUDES
+#ifndef IOHTTPMIME_H
+#define IOHTTPMIME_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 typedef struct

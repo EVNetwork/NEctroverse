@@ -747,7 +747,7 @@ return result;
 int main( int argc, char *argv[] ) {
 	ConfigArrayPtr settings;
 	int a;
-	char DIRCHECKER[PATH_MAX];
+	char DIRCHECKER[PATH_MAX], fname[PATH_MAX];
 	#if PIPEFILE_SUPPORT
 	int num;
 	#endif
@@ -854,7 +854,8 @@ exit(0);
 */
 printf("\n");
 settings = GetSetting( "Directory" );
-sprintf( DIRCHECKER, "%s/data/map", settings->string_value );
+snprintf( fname, PATH_MAX, "%s/data", settings->string_value );
+snprintf( DIRCHECKER, PATH_MAX, dbFileList[DB_FILE_BASE_MAP], fname );
 if( !( file_exist(DIRCHECKER) ) ) {
 	info("No map detected now generating...");
 	if( spawn_map() == NO ) {

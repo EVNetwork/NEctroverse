@@ -1,5 +1,5 @@
-#ifndef IOVARSINCLUDES
-#define IOVARSINCLUDES
+#ifndef IOHTTPVARS_H
+#define IOHTTPVARS_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 int iohtmlVarsMapcoords( ReplyDataPtr cnt, int *coords );

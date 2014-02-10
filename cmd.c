@@ -1,6 +1,4 @@
-#ifndef GLOBALINCLUDED
 #include "config/global.h"
-#endif
 
 
 char *cmdReadyName[CMD_READY_NUMUSED] =
@@ -1224,8 +1222,6 @@ void cmdFleetGetPosition( dbUserFleetPtr fleetd, int *x, int *y )
 #include "specop.c"
 
 #include "cmdexec.c"
-
-#include "artefact.c"
 
 #include "cmdtick.c"
 

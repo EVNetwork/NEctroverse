@@ -118,7 +118,7 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
  else if( (long long)newsd[2] == CMD_NEWS_EXPLORE )
  {
   httpPrintf( cnt, "Your exploration ship reached the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-  if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ARTEFACT_NUMUSED ) )
+  if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ArtefactNum ) )
    httpPrintf( cnt, "<br>We discovered an ancient artefact on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
  }
  else if( (long long)newsd[2] == CMD_NEWS_EXPLORE_FAILED )
@@ -869,7 +869,7 @@ void iohtmlFamNewsEntry( ReplyDataPtr cnt, int picture, int64_t *newsd )
  if( !( iohtmlFamNewsEntryCount ) )
   httpPrintf( cnt, " width=\"5%%\"" );
  if( picture >= 0 )
-  httpPrintf( cnt, "><img src=\"files?type=image&amp;name=fn%d.gif\"></td><td", picture );
+  httpPrintf( cnt, "><img src=\"files?type=image&amp;name=news/fn%d.gif\"></td><td", picture );
  else
   httpPrintf( cnt, "><br></td><td" );
  if( !( iohtmlFamNewsEntryCount ) )
@@ -927,7 +927,7 @@ if( !( num ) )
   {
    iohtmlFamNewsEntry( cnt, 0, newsd );
    httpPrintf( cnt, "An exploration ship of %s reached the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a> and established a colony.", mfamd[b].faction, URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
-   if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ARTEFACT_NUMUSED ) )
+   if( ( (long long)newsd[5] >= 0 ) && ( (long long)newsd[5] < ArtefactNum ) )
     httpPrintf( cnt, "<br>An ancient artefact has been discovered on this planet! <b>%s</b>", artefactName[ (long long)newsd[5] ] );
   }
   else if( (long long)newsd[2] == CMD_NEWS_EXPLORE_FAILED )
@@ -1967,9 +1967,9 @@ httpPrintf( cnt, "</td><td>%d</td><td>%d", planetd.size, d );
 
   d = (int)artefactPrecense( &planetd );
   if( d >= 0 )
-   httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+   httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artefact/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
   else if(planetd.special[1])
-  	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+  	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=map/pr%d.gif\" alt=\"%s\" title=\"%s\">+%d%%", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
   httpPrintf( cnt, "</td><td align=\"center\"><input type=\"checkbox\" name=\"m%d\"></td></tr>", buffer[a] );
   totals[3] += planetd.population;
@@ -2278,24 +2278,24 @@ if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || ( ( (cnt->session
  if( empired.artefacts )
  {
  	if( ( id >= 0 ) && ( ( curfam == maind.empire ) || ( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) ) )
-   c = ARTEFACT_NUMUSED;
+   c = ArtefactNum;
   else
   {
    c = 0;
-   for( a = 0, b = 1 ; a < ARTEFACT_NUMUSED ; a++, b <<= 1 )
+   for( a = 0, b = 1 ; a < ArtefactNum ; a++, b <<= 1 )
    {
     if( empired.artefacts & b )
      c++;
    }
   }
-  if( ( 3*c >= ARTEFACT_NUMUSED ) || ( (3*dbArtefactMax)/2 >= ARTEFACT_NUMUSED ) )
+  if( ( 3*c >= ArtefactNum ) || ( (3*dbArtefactMax)/2 >= ArtefactNum ) )
   {
    httpString( cnt, "<table border=\"0\"><tr><td>" );
-   for( a = 0, b = 1 ; a < ARTEFACT_NUMUSED ; a++, b <<= 1 )
+   for( a = 0, b = 1 ; a < ArtefactNum ; a++, b <<= 1 )
    {
    	if( empired.artefacts & b )
    	{
-   		httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
+   		httpPrintf( cnt, " <img src=\"files?type=image&amp;name=artefact/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[a], artefactName[a], artefactName[a], artefactDescription[a] );
    	}
    }
    httpString( cnt, "</td></tr></table>" );
@@ -3439,7 +3439,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
     httpPrintf( cnt, "<td><a href=\"%s&amp;id=%d\"", URLAppend( cnt, "system" ), ( mapp[i] & 0xFFFF ) - 1 );
-    httpPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"files?type=image&amp;name=m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
+    httpPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"files?type=image&amp;name=map/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )
@@ -3687,7 +3687,7 @@ if( ( systemd.unexplored > 1 ) && ( systemd.empire == -1 ) )
 
   httpPrintf( cnt, "<td align=\"center\" width=\"%d%%\">", lns[b] );
   dbMapRetrievePlanet( plnid, &planetd );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\"><img src=\"files?type=image&amp;name=p%02d.gif\" border=\"0\" alt=\"Planet #%d\"></a><br>", URLAppend( cnt, "planet" ), plnid, pics[a], plnid );
+  httpPrintf( cnt, "<a href=\"%s&amp;id=%d\"><img src=\"files?type=image&amp;name=map/p%02d.gif\" border=\"0\" alt=\"Planet #%d\"></a><br>", URLAppend( cnt, "planet" ), plnid, pics[a], plnid );
 
   if( planetd.owner == -1 )
   {
@@ -3941,12 +3941,12 @@ if( ( dbMapRetrievePlanet( plnid, &planetd ) < 0 ) ) {
   planetd.surrender = plgive;
  }
 if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
-	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=p16.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", plnid );
+	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=map/p16.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", plnid );
 } else {
 	srand( planetd.system );
 	for( a = 0 ; a < b ; a++ )
 		rand();
-	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=p%02d.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", rand() & 0xF, plnid );
+	httpPrintf( cnt, "<img src=\"files?type=image&amp;name=map/p%02d.gif\" border=\"0\" alt=\"Planet %d\"><br><br>", rand() & 0xF, plnid );
 }
 
  if( unstationstring )
@@ -3976,9 +3976,9 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
   httpPrintf( cnt, "Population : %lld0<br>", planetd.population );
  b = (int)artefactPrecense( &planetd );
   if( b >= 0 )
-   httpPrintf( cnt, "<br><img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
+   httpPrintf( cnt, "<br><img src=\"files?type=image&amp;name=artefact/%s\" alt=\"%s\" title=\"%s\"> %s<br>", artefactImage[b], artefactName[b], artefactName[b], artefactDescription[b] );
   else if(planetd.special[1])
-   httpPrintf( cnt, "<br><img src=\"files?type=image&amp;name=pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
+   httpPrintf( cnt, "<br><img src=\"files?type=image&amp;name=map/pr%d.gif\" alt=\"%s\" title=\"%s\"> %s production : <font color=\"#20FF20\">+%d%%</font><br>", planetd.special[0], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], cmdBonusName[planetd.special[0]], planetd.special[1] );
 
 
 
@@ -6233,10 +6233,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
      d = (int)artefactPrecense( &planetd );
      if( d >= 0 )
-      httpPrintf( cnt, "  <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
+      httpPrintf( cnt, "  <img src=\"files?type=image&amp;name=artefact/%s\" alt=\"%s\" title=\"%s\">", artefactImage[d], artefactName[d], artefactName[d] );
 
      if(planetd.special[1])
-     	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
+     	httpPrintf( cnt, " <img src=\"files?type=image&amp;name=map/pr%d.gif\">+%d%%", planetd.special[0], planetd.special[1] );
 
      httpPrintf( cnt, "</td></tr>" );
      totals[3] += planetd.population;
@@ -6347,10 +6347,10 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpPrintf( cnt, "Size : %d<br>", planetd.size );
     d = (int)artefactPrecense( &planetd );
     if( d >= 0 )
-     httpPrintf( cnt, "Artefact :  <img src=\"files?type=image&amp;name=artifacts/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
+     httpPrintf( cnt, "Artefact :  <img src=\"files?type=image&amp;name=artefact/%s\" alt=\"%s\" title=\"%s\"><br>", artefactImage[d], artefactName[d], artefactName[d]  );
     if( planetd.special[1] )
     {
-     httpPrintf( cnt, "%s : <img src=\"files?type=image&amp;name=pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
+     httpPrintf( cnt, "%s : <img src=\"files?type=image&amp;name=map/pr%d.gif\">+%d%%<br>", cmdBonusName[planetd.special[0]], planetd.special[0], planetd.special[1] );
     }
     httpPrintf( cnt, "Portal : %s<br><br>", ( planetd.flags & CMD_PLANET_FLAGS_PORTAL ) ? "yes" : "no" );
    }

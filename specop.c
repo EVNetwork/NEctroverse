@@ -1294,7 +1294,7 @@ else //code arti*/
 		newd[11] = 0;
     x = ( fleetd->destination >> 8 ) & 0xFFF;
     y = fleetd->destination >> 20;
-    for( a = 0 ; a < ARTEFACT_NUMUSED ; a++ )
+    for( a = 0 ; a < ArtefactNum ; a++ )
     {
       dx = ( ( dbArtefactPos[a] >> 8 ) & 0xFFF ) - x;
       dy = ( dbArtefactPos[a] >> 20 ) - y;

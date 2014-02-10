@@ -1,5 +1,5 @@
-#ifndef IOINCLUDES
-#define IOINCLUDES
+#ifndef IO_H
+#define IO_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
 

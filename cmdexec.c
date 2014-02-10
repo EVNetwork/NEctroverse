@@ -242,7 +242,7 @@ int cmdExecUserDeactivate( int id, int flags )
     memcpy( recordd.famname, empired.name, USER_NAME_MAX );
     recordd.rank = maind.rank;
     recordd.famrank = empired.rank;
-    for( a = c = 0, b = 1 ; a < ARTEFACT_NUMUSED ; a++, b <<= 1 )
+    for( a = c = 0, b = 1 ; a < ArtefactNum ; a++, b <<= 1 )
     {
       if( empired.artefacts & b )
         c++;
@@ -265,7 +265,7 @@ int cmdExecUserDeactivate( int id, int flags )
 	        //Found the ally if we reach this line  
 	        //If the ally have all the artefacts we give double tp to this user :D
 	        dbEmpireGetInfo( rel[i+2], &empire2d );
-	        j = pow(2, ARTEFACT_NUMUSED)-1;
+	        j = pow(2, ArtefactNum)-1;
 	        if(empire2d.artefacts == j)
 	        	infod.tagpoints += maind.planets;
 	   		}
@@ -274,7 +274,7 @@ int cmdExecUserDeactivate( int id, int flags )
 	  }
     //Find ally end
     
-    if( c == ARTEFACT_NUMUSED )
+    if( c == ArtefactNum )
       infod.tagpoints += 3 * maind.planets;
     else
       infod.tagpoints += maind.planets;
