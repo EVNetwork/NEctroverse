@@ -130,6 +130,7 @@ if( ConfigTable == NULL ) {
 		index++;
 	}
 	ConfigTable = malloc( index * sizeof(ConfigArrayDef) );
+	memset( ConfigTable, 0, index * sizeof(ConfigArrayDef) );
 }
 
 store = out = 0;

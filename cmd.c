@@ -543,7 +543,7 @@ dbUserMainDef cmdUserMainDefault =
   { }, //Faction
   { 120000, 6000, 1500, 3000, 0, 0/*, 0, 0*/ }, //ressource
   -1, //Empire
-  { }, //reserved0
+  { }, //infos
   { 0, 0, 0, 0, 0, 0, 0/*, 0*/ }, //Research
   { 100*65536, 100*65536, 100*65536 }, //readiness
   0, //home
