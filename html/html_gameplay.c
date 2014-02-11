@@ -4028,7 +4028,7 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
   for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
   {
    if( planetd.building[a] )
-    httpPrintf( cnt, "%d %s<br>", planetd.building[a], cmdBuildingName[a] );
+    httpPrintf( cnt, "%lld %s<br>", (long long)planetd.building[a], cmdBuildingName[a] );
   }
   if( planetd.flags & CMD_PLANET_FLAGS_PORTAL )
    httpString( cnt, "Portal<br>" );
@@ -4039,7 +4039,7 @@ if( planetd.flags & CMD_PLANET_FLAGS_MEGA ) {
   {
    if( planetd.unit[a] )
    {
-    httpPrintf( cnt, "%d %s<br>", planetd.unit[a], cmdUnitName[a] );
+    httpPrintf( cnt, "%lld %s<br>", (long long)planetd.unit[a], cmdUnitName[a] );
     b = 1;
    }
   }

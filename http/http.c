@@ -495,7 +495,7 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	ssize_t got;
 	#endif
 	int ret;
-	char dmsg[PATH_MAX];
+	char dmsg[PATH_MAX], time_string[512];
 	char *type, *fname;
 	struct stat buf;
 	struct MHD_Response *response;
@@ -504,9 +504,13 @@ int file_render ( int id, const void *cls, const char *mime, SessionPtr session,
 	FILE *file;
 
 memset( &dmsg, 0, PATH_MAX );
-
-type = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "type");
-fname = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "name");
+if( cls != NULL ) {
+	fname = (void *)cls;
+	type = "server";
+} else {
+	type = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "type");
+	fname = (char *)MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, "name");
+}
 
 if( ( type ) && ( strcmp( type, "download" ) == 0 ) ) {
 	settings = GetSetting( "Directory" );
@@ -560,9 +564,8 @@ if (file == NULL) {
 	} else {
 		(void) MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, iohttpMime[ iohttpMimeFind( fname ) ].def );
 	}
-
-	strftime(fname,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
-	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, fname );
+	strftime(time_string,512,"%a, %d %b %G %T %Z", gmtime(&buf.st_mtime) );
+	(void)MHD_add_response_header (response, MHD_HTTP_HEADER_LAST_MODIFIED, time_string );
 	goto RETURN;
 }
 
