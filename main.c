@@ -848,10 +848,7 @@ for( a = 0; a < SPAWNABLE_DIRS; a++ ) {
 	}
 
 }
-/*
-spawn_map();
-exit(0);
-*/
+
 printf("\n");
 settings = GetSetting( "Directory" );
 snprintf( fname, PATH_MAX, "%s/data", settings->string_value );

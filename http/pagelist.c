@@ -2,23 +2,24 @@
 /**
  * List of all pages served by this HTTP server.
  * { "url", "type", "call_function", "internal_function", "extra string" }
- * Most pages will just use "page_render", but a few with variable input will use "key_page"
- * As page_render simply calls the function listed, and will cause issues if the function requires paramaters
+ * for dynamic page use { "URL", "MIME", &page_render, FUNCTION, NULL },
+ * for static pages use { "URL", "MIME", &file_render, NULL, "FILENAME.TYPE" },
+ * static pages are stored in read/files
  */
  
-void front_define( ReplyDataPtr rd ) {
+static void __link_function_front( ReplyDataPtr rd ) {
 	iohtmlFunc_front( rd, NULL, NULL );
 }
-void login_define( ReplyDataPtr rd ) {
+static void  __link_function_login( ReplyDataPtr rd ) {
 	iohtmlFunc_login( rd, false, NULL );
 }
 
 PageDef html_page[] =
   {
     //Basic/Main pages
-    { "/", "text/html", &page_render, front_define, NULL },
-    { "/chat", "text/html", &file_render, NULL, "chat.html" },
-    { "/login", "text/html",  &page_render, login_define, NULL },
+    { "/", "text/html", &page_render,  __link_function_front, NULL },
+    //{ "/chat", "text/html", &file_render, NULL, "chat.html" }, //Static Page Example
+    { "/login", "text/html",  &page_render,  __link_function_login, NULL },
     { "/notices", "text/html",  &page_render, iohtmlFunc_notices, NULL },
     { "/halloffame", "text/html",  &page_render, iohtmlFunc_halloffame, NULL },
     { "/gettingstarted", "text/html",  &page_render, iohtmlFunc_gettingstarted, NULL },
@@ -98,9 +99,9 @@ PageDef html_page[] =
     { "/adminforum", "text/html",  &page_render, iohtmlFunc_adminforum, NULL },
     { "/moderator", "text/html",  &page_render, iohtmlFunc_moderator, NULL },
     { "/admin", "text/html",  &page_render, iohtmlFunc_oldadmin, NULL },
-    //Extras
+    //File Rendering such as Images and Static Files
     { "/files", "text/html",  &file_render, NULL, NULL },
-    //Not Found.
+    //Not Found -- End of List.
     { NULL, NULL, &not_found_page, NULL, NULL } /* 404 */
   };
 

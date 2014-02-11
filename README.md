@@ -5,7 +5,7 @@ NEctroverse is a recode of the game Ectroverse created by Maloeran.<br>
 It natrually contains a lot of changes from the original code.
 
 You can help test the current version at http://www.nectroverse.net<br>
-You can find the original source code at https://github.com/ectroverse/evsource
+You can find the original source code at https://github.com/EV-EVA/Ectroverse
 
 
 To install the game:<br>
