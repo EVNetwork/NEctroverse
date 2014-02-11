@@ -5,6 +5,14 @@
 
 ////////
 
+typedef struct
+{
+  bool type;
+  char *start;
+  char *end;
+  char *html_start;
+  char *html_end;
+} ForumTagsDef, *ForumTagsPtr;
 
 
 typedef struct

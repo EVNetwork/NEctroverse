@@ -3,18 +3,28 @@
 
 
 #define IOHTTP_FORUM_SMILEBASE (8)
-
 static iohttpForumSmileysDef iohttpForumSmileys[IOHTTP_FORUM_SMILEBASE] =
 {
-{ ":)", "smile.gif" },
-{ ":D", "smile2.gif" },
-{ ";)", "wink.gif" },
-{ "x(", "angry.gif" },
-{ "X(", "angry.gif" },
-{ ":(", "sad.gif" },
-{ ":p", "tongue.gif" },
-{ ":P", "tongue.gif" },
+	{ ":)", "smile.gif" },
+	{ ":D", "smile2.gif" },
+	{ ";)", "wink.gif" },
+	{ "x(", "angry.gif" },
+	{ "X(", "angry.gif" },
+	{ ":(", "sad.gif" },
+	{ ":p", "tongue.gif" },
+	{ ":P", "tongue.gif" },
 };
+
+static ForumTagsDef iohttpForumTags[] =
+{
+	{ true, "[quote]", "[/quote]", "<!-- quote --><table class=\"quote\"><tr><td>", "</td></tr></table><!-- /quote -->" },
+	{ true, "[code]", "[/code]", "<!-- code --><table class=\"code\"><tr><td>", "</td></tr></table><!-- /code -->" },
+	{ false, "[c]", "[/c]", "<!-- center --><table class=\"center\"><tr><td>", "</td></tr></table><!-- /center -->" },
+	{ false, "[b]", "[/b]", "<!-- bold --><strong>", "</strong><!-- /bold -->" },
+	{ false, "[i]", "[/i]", "<!-- italic --><italic>", "</italic><!-- /italic -->" },
+	{ false, NULL, NULL, NULL, NULL },
+};
+
 
 int IOHTTP_FORUM_SMILETOTAL;
 
@@ -149,7 +159,9 @@ int iohttpForumFilter( char *dest, char *string, int size, int html )
 
 int iohttpForumFilter2( char *dest, char *string, int size ) {
 	int a, b, c;
+	bool table = false;
 	char *string2;
+	char username[USER_NAME_MAX];
 
 for( b = c = 0 ; *string ; ) {
 	if( b >= size-20 )
@@ -165,6 +177,43 @@ for( b = c = 0 ; *string ; ) {
 					continue;
 				string = string2;
 				b += sprintf( &dest[b], "<img src=\"files?type=image&name=smilies/%s\" alt="">", SmileTable[a]->name );
+				goto iohttpForumFilter2L0;
+			}
+		} else if( ( ( string[0] == '[' ) && ( string[1] == '/' ) ) ) {
+			for( a = 0; iohttpForumTags[a].end != NULL; a++ ) {
+				if( !( string2 = ioCompareWords( string, iohttpForumTags[a].end ) ) )
+					continue;
+				if( ( iohttpForumTags[a].type ) ) {
+					if( table ) {
+						table = false;
+					} else {
+						continue;
+					}
+				}
+				string = string2;
+				b += sprintf( &dest[b], "%s", iohttpForumTags[a].html_end );
+				goto iohttpForumFilter2L0;
+			}
+		} else if( string[0] == '[' ) {
+			for( a = 0; iohttpForumTags[a].start != NULL; a++ ) {
+				if( ( iohttpForumTags[a].type ) && ( strncmp( string, iohttpForumTags[a].start, strlen(iohttpForumTags[a].start)-1 ) == 0 ) && ( string[ strlen(iohttpForumTags[a].start)-1 ] == '=' )  ) {
+					string2 = strchr(&string[ strlen(iohttpForumTags[a].start) ], ']' )+1;
+					snprintf(username, string2-&string[ strlen(iohttpForumTags[a].start) ], "%s", &string[ strlen(iohttpForumTags[a].start) ]  );
+					string = string2;
+					table = true;
+					if( ( strcmp( iohttpForumTags[a].start, "[quote]" ) == 0 ) ) {
+						b += sprintf( &dest[b], "<!-- name -->Quoting %s:<!-- /name -->%s", username, iohttpForumTags[a].html_start );
+					} else {
+						b += sprintf( &dest[b], "%s", iohttpForumTags[a].html_start );
+					}
+					continue;
+				} else if( !( string2 = ioCompareWords( string, iohttpForumTags[a].start ) ) ) {
+					continue;
+				}
+				if( iohttpForumTags[a].type ) 
+					table = true;
+				string = string2;
+				b += sprintf( &dest[b], "%s", iohttpForumTags[a].html_start );
 				goto iohttpForumFilter2L0;
 			}
 		}
@@ -194,7 +243,9 @@ return b;
 int iohttpForumFilter3( char *dest, char *string, int size ) {
 	int a, b, c;
 	char *string2, *string3;
-	
+	char username[USER_NAME_MAX];
+
+memset( &username, 0, USER_NAME_MAX );	
 for( b = c = 0 ; *string ; ) {
 	dest[b] = 0;
 	if( b >= size-16 )
@@ -203,6 +254,25 @@ for( b = c = 0 ; *string ; ) {
 		break;
 	if( ( string2 = ioCompareWords( string, "<br>" ) ) ) {
 		dest[b++] = 10;
+		string = string2;
+		continue;
+	}
+	for( a = 0; iohttpForumTags[a].start != NULL; a++ ) {
+		if( ( string2 = ioCompareWords( string, iohttpForumTags[a].html_start ) ) ) {
+			goto iohttpForumFilter3L2;
+		}
+		if( ( string2 = ioCompareWords( string, iohttpForumTags[a].html_end ) ) ) {
+			goto iohttpForumFilter3L3;
+		}
+	
+	}
+	if( ( string2 = ioCompareWords( string, "<!-- name -->Quoting " ) ) ) {
+		if( !( string3 = strchr( string2, ':' ) ) )
+			goto iohttpForumFilter3L0;
+		snprintf(username, string3-string2+1, "%s", string2  );
+		string = &string2[ string3-string2+1 ];
+		if( !( string2 = ioCompareWords( string, "<!-- /name -->" ) ) )
+			goto iohttpForumFilter3L0;
 		string = string2;
 		continue;
 	}
@@ -228,6 +298,22 @@ for( b = c = 0 ; *string ; ) {
 	b += sprintf( &dest[b], "%s", SmileTable[a]->string );
 	string = string2;
 	continue;
+	iohttpForumFilter3L2:
+	if( username[0] ) {
+		b += sprintf( &dest[b], "%s", iohttpForumTags[a].start );
+		b--;
+		b += sprintf( &dest[b], "=%s]", username );
+		memset( &username, 0, USER_NAME_MAX );
+	} else {
+		b += sprintf( &dest[b], "%s", iohttpForumTags[a].start );
+	}
+	string = string2;
+	continue;
+	iohttpForumFilter3L3:
+	b += sprintf( &dest[b], "%s", iohttpForumTags[a].end );
+	string = string2;
+	continue;
+
 	iohttpForumFilter3L0:
 	dest[b++] = *string;
 	string++;

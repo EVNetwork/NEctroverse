@@ -3,6 +3,12 @@
 	margin-right:auto;
 }
 
+strong {
+	font-weight:700;
+}
+italic {
+	font-style:italic;
+}
 .left {
 	margin-left:auto;
 	margin-right:auto;
