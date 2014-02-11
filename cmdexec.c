@@ -2155,14 +2155,10 @@ variable.tm_mday++;
 sysconfig.start = variable;
 ticks.round++;
 ticks.number = 0;
+savetickconfig();
 
 if( spawn_map() == NO ) {
 	critical( "Map Creation Failed" );
-	return NO;
-}
-
-if( dbInit() == NO ) {
-	critical( "Server Database Initation Failed, now exiting..." );
 	return NO;
 }
 
