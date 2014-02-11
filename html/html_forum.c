@@ -198,7 +198,7 @@ for( b = c = 0 ; *string ; ) {
 			for( a = 0; iohttpForumTags[a].start != NULL; a++ ) {
 				if( ( iohttpForumTags[a].type ) && ( strncmp( string, iohttpForumTags[a].start, strlen(iohttpForumTags[a].start)-1 ) == 0 ) && ( string[ strlen(iohttpForumTags[a].start)-1 ] == '=' )  ) {
 					string2 = strchr(&string[ strlen(iohttpForumTags[a].start) ], ']' )+1;
-					snprintf(username, string2-&string[ strlen(iohttpForumTags[a].start) ], "%s", &string[ strlen(iohttpForumTags[a].start) ]  );
+					snprintf( username, fmin( USER_NAME_MAX, (string2-&string[ strlen(iohttpForumTags[a].start) ]) ), "%s", &string[ strlen(iohttpForumTags[a].start) ]  );
 					string = string2;
 					table = true;
 					if( ( strcmp( iohttpForumTags[a].start, "[quote]" ) == 0 ) ) {
@@ -269,7 +269,7 @@ for( b = c = 0 ; *string ; ) {
 	if( ( string2 = ioCompareWords( string, "<!-- name -->Quoting " ) ) ) {
 		if( !( string3 = strchr( string2, ':' ) ) )
 			goto iohttpForumFilter3L0;
-		snprintf(username, string3-string2+1, "%s", string2  );
+		snprintf(username, fmin( USER_NAME_MAX, (string3-string2+1) ), "%s", string2  );
 		string = &string2[ string3-string2+1 ];
 		if( !( string2 = ioCompareWords( string, "<!-- /name -->" ) ) )
 			goto iohttpForumFilter3L0;
