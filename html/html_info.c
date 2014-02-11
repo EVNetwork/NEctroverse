@@ -553,6 +553,10 @@ for( a = b = 0; a < ArtefactTotal; a++ ) {
 	b += ArtefactTable[a]->active;
 }
 httpString( cnt, "</table>" );
+if( b ) {
+	httpPrintf( cnt, "%d Artefacts are currently Active.", b );
+}
+
 
 RETURN:
 iohtmlBodyEnd( cnt );

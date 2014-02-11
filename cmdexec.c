@@ -1034,9 +1034,9 @@ cmdErrorString = 0;
   /* Check access rights - maind is giver */
   if( maind.benefactors[0] == 3 ) {
     goto access;
-  } else if( ( maind.benefactors[0] == 2 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) || bitflag( user2->flags, CMD_USER_FLAGS_DEVMINISTER ) ) ) {
+  } else if( ( maind.benefactors[0] == 2 ) && ( ( empired.politics[CMD_POLITICS_LEADER] == user2->id ) || ( empired.politics[CMD_POLITICS_DEVMINISTER] == user2->id ) ) ) {
     goto access;
-  } else if( ( maind.benefactors[0] == 1 ) && ( bitflag( user2->flags, CMD_USER_FLAGS_LEADER ) ) ) {
+  } else if( ( maind.benefactors[0] == 1 ) && ( empired.politics[CMD_POLITICS_LEADER] == user2->id ) ) {
     goto access;
   }
   cmdErrorString = "You are not authorized to request aid from this faction.";
@@ -1057,7 +1057,7 @@ cmdErrorString = 0;
 
   for( a = 0 ; a < 4 ; a++ )
   {
-    main2d.ressource[a] += (int64_t)res[a];
+    main2d.ressource[a] += res[a];
     newd[4+a] = res[a];
   }
   dbUserMainSet( destid, &main2d );
@@ -1155,16 +1155,22 @@ if( flags > CMD_USER_FLAGS_NUMUSED )
 if( flags ) {
 	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
 		if( ( a != flags ) && ( bitflag( user->flags, a) ) ) {
-				empired.politics[a-CMD_EMPIRE_POLITICS_START] = -1;
+				if( a < CMD_EMPIRE_POLITICS_END ) {
+					empired.politics[a-CMD_EMPIRE_POLITICS_START] = -1;
+				}
 				bitflag_remove( &user->flags, a );
 			}
 	}
-	empired.politics[flags-CMD_EMPIRE_POLITICS_START] = id;
+	if( flags < CMD_EMPIRE_POLITICS_END ) {
+		empired.politics[flags-CMD_EMPIRE_POLITICS_START] = id;
+	}
 	bitflag_add( &user->flags, flags );
 } else {
 	for( a = CMD_EMPIRE_POLITICS_START+1; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
 		if( bitflag( user->flags, a ) ) {
-			empired.politics[a-CMD_EMPIRE_POLITICS_START] = -1;
+			if( a < CMD_EMPIRE_POLITICS_END ) {
+				empired.politics[a-CMD_EMPIRE_POLITICS_START] = -1;
+			}
 			bitflag_remove( &user->flags, a );
 		}
 	}
@@ -1173,7 +1179,7 @@ dbUserSave( id, user );
 /*
  * I only like one of each "Minister" per Empire, so strip others if someone is changed.
  */
-if( ( flags ) && ( flags != CMD_USER_FLAGS_INDEPENDENT ) ) {
+if( ( flags ) && ( flags < CMD_EMPIRE_POLITICS_END ) ) {
 	for( b = 0 ; b <= empired.numplayers ; b++ ) {
 		if( empired.player[b] == id )
 			continue;

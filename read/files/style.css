@@ -27,6 +27,9 @@
 .href {
 	cursor: url(files?type=image&name=cursor-full.png), default;
 }
+area {
+	cursor: url(files?type=image&name=cursor-full.png), default;
+}
 select {
 	cursor: url(files?type=image&name=cursor-full.png), default;
 }

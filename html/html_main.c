@@ -242,7 +242,7 @@ httpString( cnt, "</b></td></tr></table></td></tr>" );
 httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
-httpString( cnt, "<br>" );
+httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
 
 return;
 }
@@ -323,7 +323,7 @@ iohtmlFBSDK( cnt );
 iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
 
 if( len > 0 )
-	httpPrintf( cnt, "<b>%s</b><br><br>", DATAPOOL );
+	httpPrintf( cnt, "<br><b>%s</b><br>", DATAPOOL );
 
 httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
