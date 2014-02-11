@@ -183,7 +183,7 @@ if( ( ArtefactNum > 0 ) && ( artsnum == ArtefactNum ) ) {
       for( c = 0, d = 1 ; c < ArtefactNum ; c++, d <<= 1 )
       {
         if( empirep[stats[a+0]].artefacts & d )
-          fprintf( file, "<img src=\"files?type=image&name=artefact/%s\">", artefactImage[c] );
+          fprintf( file, "<img src=\"files?type=image&name=artefact/%s\">", ArtefactTable[c]->image );
       }
     }
 
@@ -241,7 +241,7 @@ if( artsnum ) {
 	fprintf( file, "<table><tr><td>" );
 	for( c = 0 ; c < ArtefactNum ; c++ ) {
 		if( artefacts[c] )
-			fprintf( file, "<img src=\"files?type=image&name=artefact/%s\"> %s<br>", artefactImage[c], artefactDescription[c] );
+			fprintf( file, "<img src=\"files?type=image&name=artefact/%s\"> %s<br>", ArtefactTable[c]->image, ArtefactTable[c]->description );
 	}
 	fprintf( file, "</td></tr></table><br>" );
 }

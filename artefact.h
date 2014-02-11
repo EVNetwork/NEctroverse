@@ -54,10 +54,6 @@ extern int ArtefactNum;
 
 int artefactPrecense( dbMainPlanetPtr planetd );
 
-extern char *artefactName[ARTEFACT_NUMUSED];
-extern char *artefactDescription[ARTEFACT_NUMUSED];
-extern char *artefactImage[ARTEFACT_NUMUSED];
-
 int LoadArtefacts( );
 void UnLoadArtefacts( );
 
