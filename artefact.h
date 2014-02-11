@@ -51,6 +51,7 @@ typedef struct ArtefactArray
 extern dbArtefactPtr ArtefactList;
 extern dbArtefactPtr *ArtefactTable;
 extern int ArtefactNum;
+extern int ArtefactTotal;
 
 int artefactPrecense( dbMainPlanetPtr planetd );
 
