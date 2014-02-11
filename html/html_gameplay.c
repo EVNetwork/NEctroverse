@@ -3815,7 +3815,7 @@ if( ( b = dbUserRecordList( playerid, &recordd ) ) >= 0 ) {
 		httpPrintf( cnt, "<br>Faction name : %s", recordd[a].faction );
 		httpPrintf( cnt, "<br>Title : %s", recordd[a].forumtag );
 		httpPrintf( cnt, "<br>Planets : %d", recordd[a].planets );
-		httpPrintf( cnt, "<br>Networth : %d", recordd[a].networth );
+		httpPrintf( cnt, "<br>Networth : %lld", (long long)recordd[a].networth );
 		httpPrintf( cnt, "<br>Faction rank : %d", recordd[a].rank );
 		httpPrintf( cnt, "<br>Empire : #%d", recordd[a].empire );
 		if( strlen( recordd[a].famname ) > 0 ) {
@@ -3823,7 +3823,7 @@ if( ( b = dbUserRecordList( playerid, &recordd ) ) >= 0 ) {
 		}
 		httpPrintf( cnt, "<br>Empire rank : %d", recordd[a].famrank );
 		httpPrintf( cnt, "<br>Empire planets : %d", recordd[a].famplanets );
-		httpPrintf( cnt, "<br>Empire networth : %d", recordd[a].famnetworth );
+		httpPrintf( cnt, "<br>Empire networth : %lld", (long long)recordd[a].famnetworth );
 		if( recordd[a].artefacts > 0 ) {
 			httpPrintf( cnt, "<br>Empire artefacts : %d", recordd[a].artefacts );
 		}
