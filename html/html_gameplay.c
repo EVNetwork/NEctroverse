@@ -1,26 +1,83 @@
-/*
-void iohtmlFunc_main( ReplyDataPtr cnt ) {
-	int id;
-	char *page;
-	ConfigArrayPtr settings;
+static void iohtmlFunc_menu( ReplyDataPtr cnt )
+{
+ int id/*, i, j;
+ char szFaction[32]*/;
+ dbUserMainDef maind;
 
-if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-	return;
-
-page = iohtmlVarsFind( cnt, "page" );
-
-settings = GetSetting( "Server Name" );
-httpPrintf( cnt, "<!DOCTYPE html><html><head><title>%s</title><link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\"></head>", settings->string_value );
-httpString( cnt, "<frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" frameborder=\"no\">" );
-httpPrintf( cnt, "<frame src=\"%s\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>", URLAppend( cnt, "menu" ) );
-httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>", URLAppend( cnt, ( page ? page : "hq" ) ) );
-httpPrintf( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"%s\">Menu</a></noframes>", URLAppend( cnt, "menu" ) );
-httpString( cnt, "</frameset>" );
-httpString( cnt, "</html>" );
-
-return;
+ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+  return;
+if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+	maind.empire = -1;
 }
+httpString( cnt, "<div class=\"floating-menu\">" );
+ httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=150px;\" background=\"files?type=image&amp;name=i36.jpg\"><tr>" );
+ httpString( cnt, "<td background=\"files?type=image&amp;name=i18.jpg\" width=\"150\" height=\"40\">&nbsp;</td>" );
+ httpString( cnt, "</tr><tr><td background=\"files?type=image&amp;name=i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+
+ httpPrintf( cnt, "<a href=\"%s\">Headquarters</a>", URLAppend( cnt, "hq" ) );
+ httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table style=\"text-align:left;width=125px;\" cellspacing=\"0\" cellpadding=\"0\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpPrintf( cnt, "<a href=\"%s\">Council</a><br>", URLAppend( cnt, "council" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Units</a><br>", URLAppend( cnt, "units" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Market</a><br>", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Planets</a><br>", URLAppend( cnt, "planets" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
+ httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
+ httpPrintf( cnt, "<a href=\"%s\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
+
+ httpPrintf( cnt, "<a href=\"%s\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Research</a><br>", URLAppend( cnt, "research" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Operations</a><br>", URLAppend( cnt, "spec" ) );
+
+ httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=125px;\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ 
+ httpPrintf( cnt, "<a href=\"%s&amp;type=0\">Messages</a><br>", URLAppend( cnt, "mail" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
+/*
+ strcpy(szFaction, maind.faction);
+ for(i=0;i<strlen(szFaction);i++)
+	{
+		if (szFaction[i] == ' ')
+		{
+			for(j=i;j<(strlen(szFaction)-1);j++)
+				szFaction[j] = szFaction[j+1];
+			szFaction[j] = '\0';
+		}
+		if(i == 15)
+		{
+			szFaction[i-1] = '\0';
+			break;
+		}
+	}
+ httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
+ httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
 */
+if( (cnt->session)->dbuser ) {
+	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
+	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
+		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
+	}
+}
+
+ httpString( cnt, "</font></b></td></tr></table></td></tr>" );
+ httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i55.jpg\" width=\"150\" height=\"20\">&nbsp;</td></tr>" );
+ httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i56.jpg\" width=\"150\" height=\"75\">&nbsp;</td></tr>" );
+ httpString( cnt, "</table></div>" );
+ 
+ return;
+}
 
 int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
 {
@@ -32,7 +89,7 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  }
 httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" height=\"100%\" border=\"0\" valign=\"top\" class=\"center\">" );
 httpString( cnt, "<tr><td valign=\"top\" width=\"155\">" );
-iohtmlFunc_floatingmenu( cnt );
+iohtmlFunc_menu( cnt );
 httpString( cnt, "</td><td>" );
  httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
 
@@ -92,170 +149,6 @@ httpString( cnt, "</td><td>" );
  httpString( cnt, "</td></tr></td></table></tr></table><br>" );
 
  return 1;
-}
-
-void iohtmlFunc_floatingmenu( ReplyDataPtr cnt )
-{
- int id/*, i, j;
- char szFaction[32]*/;
- dbUserMainDef maind;
-
- if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-  return;
-if( dbUserMainRetrieve( id, &maind ) < 0 ) {
-	maind.empire = -1;
-}
-httpString( cnt, "<div class=\"floating-menu\">" );
- httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=150px;\" background=\"files?type=image&amp;name=i36.jpg\"><tr>" );
- httpString( cnt, "<td background=\"files?type=image&amp;name=i18.jpg\" width=\"150\" height=\"40\">&nbsp;</td>" );
- httpString( cnt, "</tr><tr><td background=\"files?type=image&amp;name=i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
-
- httpPrintf( cnt, "<a href=\"%s\">Headquarters</a>", URLAppend( cnt, "hq" ) );
- httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table style=\"text-align:left;width=125px;\" cellspacing=\"0\" cellpadding=\"0\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- httpPrintf( cnt, "<a href=\"%s\">Council</a><br>", URLAppend( cnt, "council" ) );
- httpPrintf( cnt, "<a href=\"%s\">Units</a><br>", URLAppend( cnt, "units" ) );
- httpPrintf( cnt, "<a href=\"%s\">Market</a><br>", URLAppend( cnt, "market" ) );
- httpPrintf( cnt, "<a href=\"%s\">Planets</a><br>", URLAppend( cnt, "planets" ) );
- httpPrintf( cnt, "<a href=\"%s\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
- httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
- httpPrintf( cnt, "<a href=\"%s\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
- httpPrintf( cnt, "<a href=\"%s\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
- httpPrintf( cnt, "<a href=\"%s\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
- httpPrintf( cnt, "<a href=\"%s\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
-
- httpPrintf( cnt, "<a href=\"%s\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
- httpPrintf( cnt, "<a href=\"%s\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;request=true\" rel=\"ajaxpanel\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s\">Research</a><br>", URLAppend( cnt, "research" ) );
- httpPrintf( cnt, "<a href=\"%s\">Operations</a><br>", URLAppend( cnt, "spec" ) );
-
- httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=125px;\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- 
- httpPrintf( cnt, "<a href=\"%s&amp;type=0\">Messages</a><br>", URLAppend( cnt, "mail" ) );
- httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
- httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
-
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
-/*
- strcpy(szFaction, maind.faction);
- for(i=0;i<strlen(szFaction);i++)
-	{
-		if (szFaction[i] == ' ')
-		{
-			for(j=i;j<(strlen(szFaction)-1);j++)
-				szFaction[j] = szFaction[j+1];
-			szFaction[j] = '\0';
-		}
-		if(i == 15)
-		{
-			szFaction[i-1] = '\0';
-			break;
-		}
-	}
- httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
- httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
-*/
-if( (cnt->session)->dbuser ) {
-	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
-	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
-	}
-}
-
- httpString( cnt, "</font></b></td></tr></table></td></tr>" );
- httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i55.jpg\" width=\"150\" height=\"20\">&nbsp;</td></tr>" );
- httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i56.jpg\" width=\"150\" height=\"75\">&nbsp;</td></tr>" );
- httpString( cnt, "</table></div>" );
- 
- return;
-}
-
-void iohtmlFunc_menu( ReplyDataPtr cnt )
-{
- int id/*, i, j;
- char szFaction[32]*/;
- dbUserMainDef maind;
-
- iohtmlBase( cnt, 1|2|32 );
- 
- if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-  return;
-if( dbUserMainRetrieve( id, &maind ) < 0 ) {
-	maind.empire = -1;
-}
-
- httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=150px;\" background=\"files?type=image&amp;name=i36.jpg\"><tr>" );
- httpString( cnt, "<td background=\"files?type=image&amp;name=i18.jpg\" width=\"150\" height=\"40\">&nbsp;</td>" );
- httpString( cnt, "</tr><tr><td background=\"files?type=image&amp;name=i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
-
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Headquarters</a>", URLAppend( cnt, "hq" ) );
- httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table style=\"text-align:left;width=125px;\" cellspacing=\"0\" cellpadding=\"0\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Council</a><br>", URLAppend( cnt, "council" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Units</a><br>", URLAppend( cnt, "units" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Market</a><br>", URLAppend( cnt, "market" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Planets</a><br>", URLAppend( cnt, "planets" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
- httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\" target=\"main\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
-
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Research</a><br>", URLAppend( cnt, "research" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Operations</a><br>", URLAppend( cnt, "spec" ) );
-
- httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=125px;\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
- 
- httpPrintf( cnt, "<a href=\"%s&amp;type=0\" target=\"main\">Messages</a><br>", URLAppend( cnt, "mail" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;type=1\" target=\"main\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Forums</a><br>", URLAppend( cnt, "forum" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"main\">Account</a><br>", URLAppend( cnt, "account" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
-
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
-/*
- strcpy(szFaction, maind.faction);
- for(i=0;i<strlen(szFaction);i++)
-	{
-		if (szFaction[i] == ' ')
-		{
-			for(j=i;j<(strlen(szFaction)-1);j++)
-				szFaction[j] = szFaction[j+1];
-			szFaction[j] = '\0';
-		}
-		if(i == 15)
-		{
-			szFaction[i-1] = '\0';
-			break;
-		}
-	}
- httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
- httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
-*/
-if( (cnt->session)->dbuser ) {
-	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"main\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
-	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
-	}
-}
-
- httpString( cnt, "</font></b></td></tr></table></td></tr>" );
- httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i55.jpg\" width=\"150\" height=\"20\">&nbsp;</td></tr>" );
- httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i56.jpg\" width=\"150\" height=\"75\">&nbsp;</td></tr>" );
- httpString( cnt, "</table></body></html>" );
- 
- return;
 }
 
 
@@ -3651,7 +3544,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  a = ( maind.home >> 8 ) & 0xFFF;
  b = maind.home >> 20;
  httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"%s\">map generation</a> settings.<br>Your home system is located at the coordinates ", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;request=true&amp;sectorzoom=%d,%d\" rel=\"ajaxpanel\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
+ httpPrintf( cnt, "<a href=\"%s&amp;request=true&amp;sectorzoom=%d,%d\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
 
  a = dbMapBInfoStatic[MAP_SIZEX] * IOHTTP_MAPPICK_DIVIDE;
  httpPrintf( cnt, "<table border=\"0\" width=\"%d\" cellpadding=\"0\" cellspacing=\"0\">", a + 80 );
@@ -3666,7 +3559,7 @@ for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
 	dbMapRetrieveSystem( i, &systemd );
 	px = ( ( systemd.position & 0xFFFF )* IOHTTP_MAPPICK_DIVIDE );
 	py = ( (systemd.position >> 16)* IOHTTP_MAPPICK_DIVIDE );
-	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"%s&amp;request=true&amp;sectorzoom=%d,%d\" rel=\"ajaxpanel\">", px, py, i, URLAppend( cnt, "map" ), px, py );
+	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"%s&amp;request=true&amp;sectorzoom=%d,%d\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">", px, py, i, URLAppend( cnt, "map" ), px, py );
 
 }
 httpString( cnt, "</map></td>" );
@@ -3753,15 +3646,15 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
  httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><table cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
  httpString( cnt, "<input type=\"checkbox\" name=\"setdefault\"> Save these settings as the default</td></tr></table></td></tr>" );
- httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\" rel=\"ajaxpanel\"></td></tr>" );
+ httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\" rel=\"ajaxpanel\" data-loadtype=\"ajax\"></td></tr>" );
  httpString( cnt, "</table></form>" );
 
  httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br><br><br>" );
 
  httpString( cnt, "<b>Reset map defaults to</b><br><table><tr><td>" );
- httpPrintf( cnt, "<a href=\"%s&amp;e0=1&amp;c0=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;e0=1&amp;c0=1&amp;e1=2&amp;c1=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;e0=3&amp;c0=2&amp;e1=1&amp;c1=1&amp;e2=2&amp;c2=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;e0=1&amp;c0=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;e0=1&amp;c0=1&amp;e1=2&amp;c1=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;e0=3&amp;c0=2&amp;e1=1&amp;c1=1&amp;e2=2&amp;c2=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
  httpString( cnt, "</td></tr></table>" );
 
  iohtmlBodyEnd( cnt );

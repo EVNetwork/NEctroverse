@@ -73,8 +73,8 @@ httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
 httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", settings[0]->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\">" );
-httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 if( !( flags & 32 ) ) {
+	httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
@@ -83,7 +83,7 @@ if( !( flags & 32 ) ) {
 }
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
-if( flags & 1 ) {
+if( ( flags & 1 ) && !( flags & 32 ) ) {
 	httpString( cnt, "<style type=\"text/css\">" );
 	httpString( cnt, "body{background-image:url(/files?type=image&name=background.gif);" );
 	if( !( flags & 2 ) )
@@ -285,7 +285,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						httpString( cnt, "<br><br>" );
 						if( notices == (int)settings[1]->num_value ) {
 							httpString( cnt, "<table align=\"right\">" );
-							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&amp;request=true\" rel=\"ajaxpanel\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
+							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
 							httpString( cnt, "</table>" );
 							break;
 						}
