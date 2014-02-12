@@ -215,4 +215,5 @@ background: transparent url(files?type=image&name=handle.gif) center left no-rep
 height: 100%;
 padding: 10px;
 overflow: scroll;
+background-image : url(files?type=image&name=background.gif);
 }
