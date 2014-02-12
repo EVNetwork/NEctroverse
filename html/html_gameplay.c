@@ -3682,7 +3682,7 @@ httpString( cnt, "</map></td>" );
  httpPrintf( cnt, "<tr><td>&nbsp;</td><td align=\"left\"><b>0</b></td><td align=\"center\"><b>%d</b></td><td align=\"right\"><b>%d</b></td><td>&nbsp;</td></tr>", dbMapBInfoStatic[MAP_SIZEX] >> 1, dbMapBInfoStatic[MAP_SIZEX] );
  httpString( cnt, "</table>" );
 
- httpPrintf( cnt, "<br><form action=\"%s\" method=\"GET\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
+ httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
 setting = GetSetting( "Map Size" );
 for( a = 0 ; a < MAPPICKSIZES ; a++ ) {
 	if( ( sizes[a] << 1 ) > (unsigned int)setting->num_value ) {
