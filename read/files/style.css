@@ -40,19 +40,19 @@ strikeout {
 }
 
 .href {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
 }
 area {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
 }
 select {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
 }
 input {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
 }
 a {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
 	text-decoration: none;
 	color : #FFFFFF;
 }
@@ -83,7 +83,7 @@ body {
 	background-color: #000000; color: #C0D0D8;
 	background-image : url(files?type=image&name=background2.gif);
 	background-attachment:fixed;
-	cursor: url(files?type=image&name=cursor-hollow.png), url(files?type=image&name=cursor-hollow.cur), default;
+	cursor: url(files?type=image&name=cursor-hollow.png), url(files?type=image&name=cursor-hollow.cur), auto;
 }
 body,td{
 	font-size : 12px;
