@@ -3395,8 +3395,12 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
   advname[0] = 'u';
   advdet[a] = iohtmlVarsFind( cnt, advname );
  }
-
-  iohtmlBase( cnt, 1|2 );
+ 
+if( iohtmlVarsFind( cnt, "request" ) ) {
+	iohtmlBase( cnt, 1|2|32 );
+} else {
+	iohtmlBase( cnt, 1|2 );
+}
 
  if( advopt[0] == -1 )
  {
