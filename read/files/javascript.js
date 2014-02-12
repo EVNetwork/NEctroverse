@@ -331,5 +331,12 @@ jQuery(function(){
 		openamount:'80%', // Width of panel when fully opened (Percentage value relative to page, or pixel value
 		openamount_minthreshold:'400px' //Minimum required width of panel (when fully opened)  before panel is shown. This prevents panel from being shown on small screens or devices.
 	})
+	ddajaxsidepanel.init({
+		targetselector: 'area[rel="ajaxpanel"]',
+		ajaxloadgif: 'files?type=image&name=squareloading.gif', //full path to "loading" gif relative to document. When in doubt use absolute URL to image.
+		fx: {dur:500, easing: 'easeInQuad'}, // dur: duration of slide effect (milliseconds), easing: 'ease_in_type_string'
+		openamount:'80%', // Width of panel when fully opened (Percentage value relative to page, or pixel value
+		openamount_minthreshold:'400px' //Minimum required width of panel (when fully opened)  before panel is shown. This prevents panel from being shown on small screens or devices.
+	})
 });
 

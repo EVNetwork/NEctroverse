@@ -2249,7 +2249,7 @@ if( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODER
 	httpString( cnt, "&nbsp;-&nbsp;" );
 	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Empire relations</a>", URLAppend( cnt, "famrels" ), curfam );
 	httpString( cnt, "&nbsp;-&nbsp;" );
-	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\" target=\"main\">Minister Options</a><br><br>", URLAppend( cnt, "ministers" ), curfam );
+	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">Minister Options</a><br><br>", URLAppend( cnt, "ministers" ), curfam );
 }
 
 if ( curfam == maind.empire ) {
@@ -2260,7 +2260,7 @@ if ( curfam == maind.empire ) {
 	for( i = 0; i < CMD_POLITICS_NUMUSED; i++ ) {
 		if( i > CMD_POLITICS_LEADER ) { break; }
    		if( empired.politics[i] == id ) {
-			httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\" target=\"main\">%s Options</a>", URLAppend( cnt, "ministers" ), cmdPoliticsName[i] );
+			httpPrintf( cnt, "&nbsp;-&nbsp;<a href=\"%s\">%s Options</a>", URLAppend( cnt, "ministers" ), cmdPoliticsName[i] );
 			break;
 		}
    	}
@@ -3597,7 +3597,7 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
     httpPrintf( cnt, "<td><a href=\"%s&amp;id=%d\"", URLAppend( cnt, "system" ), ( mapp[i] & 0xFFFF ) - 1 );
-    httpPrintf( cnt, " target=\"main\"><img border=\"0\" src=\"files?type=image&amp;name=map/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
+    httpPrintf( cnt, "target=\"_parent\"><img border=\"0\" src=\"files?type=image&amp;name=map/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )
@@ -3651,7 +3651,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  a = ( maind.home >> 8 ) & 0xFFF;
  b = maind.home >> 20;
  httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"%s\">map generation</a> settings.<br>Your home system is located at the coordinates ", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s&sectorzoom=%d,%d\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
+ httpPrintf( cnt, "<a href=\"%s&sectorzoom=%d,%d\" rel=\"ajaxpanel\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
 
  a = dbMapBInfoStatic[MAP_SIZEX] * IOHTTP_MAPPICK_DIVIDE;
  httpPrintf( cnt, "<table border=\"0\" width=\"%d\" cellpadding=\"0\" cellspacing=\"0\">", a + 80 );
@@ -3666,7 +3666,7 @@ for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
 	dbMapRetrieveSystem( i, &systemd );
 	px = ( ( systemd.position & 0xFFFF )* IOHTTP_MAPPICK_DIVIDE );
 	py = ( (systemd.position >> 16)* IOHTTP_MAPPICK_DIVIDE );
-	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"%s&sectorzoom=%d,%d\">", px, py, i, URLAppend( cnt, "map" ), px, py );
+	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"%s&sectorzoom=%d,%d\" rel=\"ajaxpanel\">", px, py, i, URLAppend( cnt, "map" ), px, py );
 
 }
 httpString( cnt, "</map></td>" );
@@ -7597,7 +7597,7 @@ void iohtmlFunc_search( ReplyDataPtr cnt )
    httpString( cnt, "</td></tr></table><br>" );
   }
 
-  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" target=\"main\"><input type=\"text\" name=\"search\" size=\"32\" value=\"", URLAppend( cnt, "search" ) );
+  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"32\" value=\"", URLAppend( cnt, "search" ) );
   if( str0 )
    httpString( cnt, str0 );
   else
