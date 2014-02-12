@@ -3725,7 +3725,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
    advnumbase[a] = maind.config_map[a] >> 8;
  }
 
- httpPrintf( cnt, "<form action=\"%s\" method=\"GET\"><table cellspacing=\"6\"><tr><td>#</td><td>Planets list</td><td>Details</td><td>Colour</td></tr>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table cellspacing=\"6\"><tr><td>#</td><td>Planets list</td><td>Details</td><td>Colour</td></tr>", URLAppend( cnt, "map" ) );
  for( a = 0 ; a < IOHTTP_MAPADV_ENTRIES ; a++ )
  {
   httpPrintf( cnt, "<tr><td>%d</td><td><select name=\"e%d\">", a+1, a );
