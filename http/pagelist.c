@@ -34,7 +34,6 @@ PageDef html_page[] =
     //Game Pages
     { "/rankings", "text/html",  &page_render, iohtmlFunc_rankings, NULL },
     { "/hq", "text/html",  &page_render, iohtmlFunc_hq, NULL },
-    { "/main", "text/html",  &page_render, iohtmlFunc_main, NULL },
     { "/menu", "text/html",  &page_render, iohtmlFunc_menu, NULL },
     { "/news", "text/html",  &page_render, iohtmlFunc_news, NULL },
     { "/council", "text/html",  &page_render, iohtmlFunc_council, NULL },

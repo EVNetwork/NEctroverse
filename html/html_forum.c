@@ -22,6 +22,8 @@ static ForumTagsDef iohttpForumTags[] =
 	{ false, "[c]", "[/c]", "<!-- center --><table class=\"center\"><tr><td>", "</td></tr></table><!-- /center -->" },
 	{ false, "[b]", "[/b]", "<!-- bold --><strong>", "</strong><!-- /bold -->" },
 	{ false, "[i]", "[/i]", "<!-- italic --><italic>", "</italic><!-- /italic -->" },
+	{ false, "[u]", "[/u]", "<!-- underline --><underline>", "</underline><!-- /underline -->" },
+	{ false, "[s]", "[/s]", "<!-- strikeout --><strikeout>", "</strikeout><!-- /strikeout -->" },
 	{ false, NULL, NULL, NULL, NULL },
 };
 
@@ -201,7 +203,7 @@ for( b = c = 0 ; *string ; ) {
 					snprintf( username, fmin( USER_NAME_MAX, (string2-&string[ strlen(iohttpForumTags[a].start) ]) ), "%s", &string[ strlen(iohttpForumTags[a].start) ]  );
 					string = string2;
 					table = true;
-					if( ( strcmp( iohttpForumTags[a].start, "[quote]" ) == 0 ) ) {
+					if( ( strcmp( iohttpForumTags[a].start, "[quote]" ) == 0 ) && ( username[0] ) ) {
 						b += sprintf( &dest[b], "<!-- name -->Quoting %s:<!-- /name -->%s", username, iohttpForumTags[a].html_start );
 					} else {
 						b += sprintf( &dest[b], "%s", iohttpForumTags[a].html_start );
@@ -584,7 +586,7 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ) {
   time( &tint );
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
   settings = GetSetting( "Server Name" );
-  httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
+  httpPrintf( cnt, "<table class=\"center\" cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
   httpPrintf( cnt, "<tr><td class=\"left\"><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td class=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
 if( ( id != -1 ) && ( ( flags == false ) || ( ( flags ) && ( forum != maind.empire ) ) ) && ( maind.empire != -1 ) ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {

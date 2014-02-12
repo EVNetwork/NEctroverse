@@ -1,4 +1,4 @@
-
+/*
 void iohtmlFunc_main( ReplyDataPtr cnt ) {
 	int id;
 	char *page;
@@ -15,11 +15,165 @@ httpString( cnt, "<frameset cols=\"155,*\" framespacing=\"0\" border=\"0\" margi
 httpPrintf( cnt, "<frame src=\"%s\" name=\"menu\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" noresize>", URLAppend( cnt, "menu" ) );
 httpPrintf( cnt, "<frame src=\"%s\" name=\"main\" marginwidth=\"0\" marginheight=\"0\" noresize>", URLAppend( cnt, ( page ? page : "hq" ) ) );
 httpPrintf( cnt, "<noframes>Your browser does not support frames! That's uncommon :).<br><br><a href=\"%s\">Menu</a></noframes>", URLAppend( cnt, "menu" ) );
-httpString( cnt, "</frameset></html>" );
+httpString( cnt, "</frameset>" );
+httpString( cnt, "</html>" );
 
 return;
 }
+*/
 
+int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
+{
+ int a;
+ if( dbUserMainRetrieve( id, mainp ) < 0 )
+ {
+  httpString( cnt, "Error while retriving user's main data</center></body></html>" );
+  return 0;
+ }
+httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" height=\"100%\" border=\"0\" valign=\"top\" class=\"center\">" );
+httpString( cnt, "<tr><td valign=\"top\" width=\"155\">" );
+iohtmlFunc_floatingmenu( cnt );
+httpString( cnt, "</td><td>" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
+
+ httpString( cnt, "<tr>" );
+ httpString( cnt, "<td width=\"35\" height=\"63\" background=\"files?type=image&amp;name=i02.jpg\"></td><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\"><tr>" );
+ httpString( cnt, "<td height=\"21\" align=\"center\">" );
+
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
+ httpString( cnt, "<tr>" );
+ httpString( cnt, "<td width=\"41\" height=\"21\" background=\"files?type=image&amp;name=i03.jpg\"></td>" );
+ httpString( cnt, "<td background=\"files?type=image&amp;name=i05.jpg\">" );
+
+ if( ticks.status )
+ httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Next tick : <span id=\"headerTime\">%d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", (long long)mainp->networth, (int)( ticks.next - time(0) ), (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
+ else
+ httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", (long long)mainp->networth, (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
+
+ httpString( cnt, "</td><td width=\"78\" height=\"21\" background=\"files?type=image&amp;name=i07.jpg\"></td></tr></table>" );
+ httpString( cnt, "</td></tr>" );
+
+ httpString( cnt, "<tr><td width=\"100%\" align=\"center\">" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\"><tr>" );
+
+ a = dbUserNewsGetFlags( id );
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headermail\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i09", URLAppend( cnt, "hq" ) );
+ if( a & CMD_NEWS_FLAGS_MAIL )
+  httpString( cnt, "a" );
+ httpString( cnt, ".jpg);\" width=\"41\" border=\"0\" class=\"href\"></td>" );
+
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerbuild\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i10", URLAppend( cnt, "hq" ) );
+ if( a & CMD_NEWS_FLAGS_BUILD )
+  httpString( cnt, "a" );
+ httpString( cnt, ".jpg);\" width=\"40\" border=\"0\" class=\"href\"></a></td>" );
+
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headeraid\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i11", URLAppend( cnt, "hq" ) );
+ if( a & CMD_NEWS_FLAGS_AID )
+  httpString( cnt, "a" );
+ httpString( cnt, ".jpg);\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
+
+ httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerfleet\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i12", URLAppend( cnt, "hq" ) );
+ if( a & CMD_NEWS_FLAGS_ATTACK )
+  httpString( cnt, "a" );
+ else if( a & CMD_NEWS_FLAGS_FLEET )
+  httpString( cnt, "b" );
+ httpString( cnt, ".jpg);\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
+
+ httpString( cnt, "<td width=\"18\" height=\"42\" background=\"files?type=image&amp;name=i13.jpg\"></td>" );
+ httpString( cnt, "<td background=\"files?type=image&amp;name=i15.jpg\" align=\"left\">" );
+
+ httpString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
+ httpString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
+ httpPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
+ httpString( cnt, "</td></tr></table>" );
+
+ httpString( cnt, "</td><td width=\"49\" height=\"42\" background=\"files?type=image&amp;name=i17.jpg\"></td></tr></table>" );
+
+ httpString( cnt, "</td></tr></td></table></tr></table><br>" );
+
+ return 1;
+}
+
+void iohtmlFunc_floatingmenu( ReplyDataPtr cnt )
+{
+ int id/*, i, j;
+ char szFaction[32]*/;
+ dbUserMainDef maind;
+
+ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+  return;
+if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+	maind.empire = -1;
+}
+httpString( cnt, "<div class=\"floating-menu\">" );
+ httpString( cnt, "<br><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=150px;\" background=\"files?type=image&amp;name=i36.jpg\"><tr>" );
+ httpString( cnt, "<td background=\"files?type=image&amp;name=i18.jpg\" width=\"150\" height=\"40\">&nbsp;</td>" );
+ httpString( cnt, "</tr><tr><td background=\"files?type=image&amp;name=i23.jpg\" height=\"20\"><b><font face=\"Tahoma\" size=\"2\">" );
+
+ httpPrintf( cnt, "<a href=\"%s\">Headquarters</a>", URLAppend( cnt, "hq" ) );
+ httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table style=\"text-align:left;width=125px;\" cellspacing=\"0\" cellpadding=\"0\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ httpPrintf( cnt, "<a href=\"%s\">Council</a><br>", URLAppend( cnt, "council" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Units</a><br>", URLAppend( cnt, "units" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Market</a><br>", URLAppend( cnt, "market" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Planets</a><br>", URLAppend( cnt, "planets" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Empire</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "empire" ) );
+ httpPrintf( cnt, "<a href=\"%s&empire=true&forum=%d\">Forum</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "forum" ), maind.empire );
+ httpPrintf( cnt, "<a href=\"%s\">Send aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Receive aid</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famgetaid" ) );
+ httpPrintf( cnt, "<a href=\"%s\">News</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "famnews" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Relations</a><br>", URLAppend( cnt, "famrels" ) );
+
+ httpPrintf( cnt, "<a href=\"%s\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
+ httpPrintf( cnt, "<a href=\"%s\" rel=\"ajaxpanel\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Research</a><br>", URLAppend( cnt, "research" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Operations</a><br>", URLAppend( cnt, "spec" ) );
+
+ httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=125px;\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
+ 
+ httpPrintf( cnt, "<a href=\"%s&amp;type=0\">Messages</a><br>", URLAppend( cnt, "mail" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
+ httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
+ httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
+/*
+ strcpy(szFaction, maind.faction);
+ for(i=0;i<strlen(szFaction);i++)
+	{
+		if (szFaction[i] == ' ')
+		{
+			for(j=i;j<(strlen(szFaction)-1);j++)
+				szFaction[j] = szFaction[j+1];
+			szFaction[j] = '\0';
+		}
+		if(i == 15)
+		{
+			szFaction[i-1] = '\0';
+			break;
+		}
+	}
+ httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
+ httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
+*/
+if( (cnt->session)->dbuser ) {
+	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
+	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
+		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
+	}
+}
+
+ httpString( cnt, "</font></b></td></tr></table></td></tr>" );
+ httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i55.jpg\" width=\"150\" height=\"20\">&nbsp;</td></tr>" );
+ httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i56.jpg\" width=\"150\" height=\"75\">&nbsp;</td></tr>" );
+ httpString( cnt, "</table></div>" );
+ 
+ return;
+}
 
 void iohtmlFunc_menu( ReplyDataPtr cnt )
 {

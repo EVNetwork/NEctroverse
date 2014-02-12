@@ -75,8 +75,7 @@ httpPrintf( cnt, "<title>%s</title>", settings[0]->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\">" );
 httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 if( !( flags & 32 ) ) {
-	if( flags & 8 )
-		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=status.min.js\"></script>", URLAppend( cnt, "files" ) );
@@ -103,8 +102,8 @@ settings[1] = GetSetting( "Google Analytics ID" );
 httpPrintf( cnt, "  ga('create', '%s', '%s');", settings[1]->string_value, settings[0]->string_value );
 httpString( cnt, "  ga('send', 'pageview');" );
 httpString( cnt, "</script>" );
-httpString( cnt, "<body" );
-
+httpString( cnt, "<body style=\"margin:auto;\">" );
+/*
 if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
 	if( flags & 8 ) {
 		httpString( cnt, " onload=\"if(window != window.top){top.location.href=location.href};" );
@@ -121,80 +120,12 @@ if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
 }
 
 httpString( cnt, "\">" );
-
+*/
 httpString( cnt, "<center>" );
 
 return;
 }
 
-int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
-{
- int a;
- if( dbUserMainRetrieve( id, mainp ) < 0 )
- {
-  httpString( cnt, "Error while retriving user's main data</center></body></html>" );
-  return 0;
- }
-
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
-
- httpString( cnt, "<tr>" );
- httpString( cnt, "<td width=\"35\" height=\"63\" background=\"files?type=image&amp;name=i02.jpg\"></td><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\"><tr>" );
- httpString( cnt, "<td height=\"21\" align=\"center\">" );
-
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
- httpString( cnt, "<tr>" );
- httpString( cnt, "<td width=\"41\" height=\"21\" background=\"files?type=image&amp;name=i03.jpg\"></td>" );
- httpString( cnt, "<td background=\"files?type=image&amp;name=i05.jpg\">" );
-
- if( ticks.status )
- httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Next tick : <span id=\"headerTime\">%d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", (long long)mainp->networth, (int)( ticks.next - time(0) ), (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
- else
- httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", (long long)mainp->networth, (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
-
- httpString( cnt, "</td><td width=\"78\" height=\"21\" background=\"files?type=image&amp;name=i07.jpg\"></td></tr></table>" );
- httpString( cnt, "</td></tr>" );
-
- httpString( cnt, "<tr><td width=\"100%\" align=\"center\">" );
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\"><tr>" );
-
- a = dbUserNewsGetFlags( id );
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headermail\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i09", URLAppend( cnt, "hq" ) );
- if( a & CMD_NEWS_FLAGS_MAIL )
-  httpString( cnt, "a" );
- httpString( cnt, ".jpg);\" width=\"41\" border=\"0\" class=\"href\"></td>" );
-
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerbuild\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i10", URLAppend( cnt, "hq" ) );
- if( a & CMD_NEWS_FLAGS_BUILD )
-  httpString( cnt, "a" );
- httpString( cnt, ".jpg);\" width=\"40\" border=\"0\" class=\"href\"></a></td>" );
-
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headeraid\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i11", URLAppend( cnt, "hq" ) );
- if( a & CMD_NEWS_FLAGS_AID )
-  httpString( cnt, "a" );
- httpString( cnt, ".jpg);\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
-
- httpPrintf( cnt, "<td onclick=\"document.location='%s'\" id=\"headerfleet\" height=\"42\" style=\"background-image:url(files?type=image&amp;name=i12", URLAppend( cnt, "hq" ) );
- if( a & CMD_NEWS_FLAGS_ATTACK )
-  httpString( cnt, "a" );
- else if( a & CMD_NEWS_FLAGS_FLEET )
-  httpString( cnt, "b" );
- httpString( cnt, ".jpg);\" width=\"39\" border=\"0\" class=\"href\"></a></td>" );
-
- httpString( cnt, "<td width=\"18\" height=\"42\" background=\"files?type=image&amp;name=i13.jpg\"></td>" );
- httpString( cnt, "<td background=\"files?type=image&amp;name=i15.jpg\" align=\"left\">" );
-
- httpString( cnt, "<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr>" );
- httpString( cnt, "<td width=\"50%\" align=\"center\" nowrap><font size=\"1\"><b>" );
- httpPrintf( cnt, "Energy: <span id=\"headerenergy\">%lld</span><br>Mineral: <span id=\"headermineral\">%lld</span></b></font></td><td width=\"50%%\" align=\"center\" nowrap><font size=\"1\"><b>Crystal: <span id=\"headercrystal\">%lld</span><br>Ectrolium: <span id=\"headerectrolium\">%lld</span></b></font>", (long long)mainp->ressource[CMD_RESSOURCE_ENERGY], (long long)mainp->ressource[CMD_RESSOURCE_MINERAL], (long long)mainp->ressource[CMD_RESSOURCE_CRYSTAL], (long long)mainp->ressource[CMD_RESSOURCE_ECTROLIUM] );
- httpString( cnt, "</td></tr></table>" );
-
- httpString( cnt, "</td><td width=\"49\" height=\"42\" background=\"files?type=image&amp;name=i17.jpg\"></td></tr></table>" );
-
- httpString( cnt, "</td></tr></td></table></tr></table><br>" );
-
- return 1;
-}
 
 void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 
@@ -214,7 +145,7 @@ if( !( flags == FMENU_MAIN ) ) {
 if( !( flags == FMENU_REGISTER ) ) {
 	if( !( flags == FMENU_MAIN ) )
 		httpString( cnt, " | " );
-	URLString( cnt, ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "main" : "register" ) : "register" ), ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "Game" : "Activate" ) : "Register" ) );
+	URLString( cnt, ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register" ) : "register" ), ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "Game" : "Activate" ) : "Register" ) );
 }
 if( !( flags == FMENU_FORUM ) ) {
 	httpString( cnt, " | " );
@@ -273,7 +204,7 @@ return;
 void iohtmlBodyEnd( ReplyDataPtr cnt ) {
 
 html_boxend( cnt );
-httpString( cnt, "</center><br><br><br></body></html>" );
+httpString( cnt, "</td></tr></table></center><br><br><br></body></html>" );
 
 return;
 }
@@ -352,7 +283,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						httpString( cnt, "<br><br>" );
 						if( notices == (int)settings[1]->num_value ) {
 							httpString( cnt, "<table align=\"right\">" );
-							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
+							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&amp;request=true\" rel=\"ajaxpanel\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
 							httpString( cnt, "</table>" );
 							break;
 						}
@@ -396,7 +327,7 @@ if( (id < 0) ) {
 	httpPrintf( cnt, "<br><b>You are already logged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
 	httpString( cnt, "<br>" );
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "main" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "hq" ), targetframe( cnt ) );
 	} else {
 		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Activate Now!</a><br>", URLAppend( cnt, "register" ), targetframe( cnt ) );
 	}
@@ -952,17 +883,17 @@ goto LOGIN_END;
 LOGIN_SUCESS:
 #if FACEBOOK_SUPPORT
 if( token ) {
-	redirect( cnt, "/%s", URLAppend( cnt, "facebook") );
+	redirect( cnt, "%s", URLAppend( cnt, "facebook") );
 } else
 #endif
 if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) )
-redirect( cnt, "/%s", URLAppend( cnt, "main") );
+redirect( cnt, "%s", URLAppend( cnt, "hq") );
 else
-redirect( cnt, "/%s", URLAppend( cnt, "register") );
+redirect( cnt, "%s", URLAppend( cnt, "register") );
 
 httpString( cnt, "<b>Login sucess, you should be redirected shortly...</b><br>" );
 httpString( cnt, "<br>" );
-URLString( cnt, bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "main" : "register", "Click here if it takes too long." );
+URLString( cnt, bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register", "Click here if it takes too long." );
 httpString( cnt, "<br>" );
 LOGIN_END:
 iohtmlFunc_endhtml( cnt );
@@ -1043,8 +974,8 @@ if( race ) {
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
 	httpString( cnt, "<br><br><br>" );
-	URLString( cnt, "main", "Click here if not redirected." );
-	redirect( cnt, "%s", URLAppend( cnt, "main" ) );
+	URLString( cnt, "hq", "Click here if not redirected." );
+	redirect( cnt, "%s", URLAppend( cnt, "hq" ) );
 	goto END;
 } else if( ( ( token != NULL ) && ( ( faction != NULL ) && ( strlen(faction) > 0 ) ) ) || ( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) ) {
 	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
@@ -1060,7 +991,7 @@ if( race ) {
 		facebook_getdata_token( &fbdata, token_post );
 		if( strlen( fbdata.id ) == 0 ) {
 			httpString( cnt, "Invalid Token Detected... Aborting!" );
-			redirect( cnt, "%s", URLAppend( cnt, "main" ) );
+			redirect( cnt, "%s", URLAppend( cnt, "/" ) );
 			goto END;
 		}
 		snprintf( fbtemp[0], USER_NAME_MAX-1, "FBUSER%s", fbdata.id );
@@ -1157,7 +1088,7 @@ if( race ) {
 }
 
 if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
-	redirect( cnt, "/%s", URLAppend( cnt, "main" ) );
+	redirect( cnt, "/%s", URLAppend( cnt, "hq" ) );
 	httpString( cnt, "This account has already been activated, you will now be redirected into the game...<br>" );
 	httpString( cnt, "<br>" );
 	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long<a>", URLAppend( cnt, "/main" ) );

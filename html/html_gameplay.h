@@ -2,12 +2,15 @@
 #define HTML_GAMEPLAY_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
+int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp );
+
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
 void iohtmlAttackReport( ReplyDataPtr cnt, int64_t *results, int sats );
-
+/*
 void iohtmlFunc_main( ReplyDataPtr cnt );
-
+*/
+void iohtmlFunc_floatingmenu( ReplyDataPtr cnt );
 void iohtmlFunc_menu( ReplyDataPtr cnt );
 
 void iohtmlFunc_hq( ReplyDataPtr cnt );
