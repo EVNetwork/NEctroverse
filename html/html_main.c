@@ -605,7 +605,7 @@ void iohtmlFunc_notices( ReplyDataPtr cnt ) {
 	int id;
 
 if( iohtmlVarsFind( cnt, "request" ) ) {
-	iohtmlBase( cnt, 1 );
+	iohtmlBase( cnt, 1|32 );
 } else {
 	iohtmlBase( cnt, 8 );
 
