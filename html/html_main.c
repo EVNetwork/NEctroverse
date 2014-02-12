@@ -283,7 +283,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						httpString( cnt, "<br><br>" );
 						if( notices == (int)settings[1]->num_value ) {
 							httpString( cnt, "<table align=\"right\">" );
-							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&amp;request=true\" rel=\"ajaxpanel\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
+							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"iframe\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
 							httpString( cnt, "</table>" );
 							break;
 						}
