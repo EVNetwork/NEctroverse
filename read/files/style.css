@@ -1,5 +1,5 @@
 div.floating-menu {position:fixed;width:150px;z-index:100;}
-div.floating-header {position:fixed;width:91.75%;z-index:100;margin-right:auto;margin-left:auto;}
+div.floating-header {position:fixed;width:91.75%;z-index:100}
 
 .auto {
 	margin-left:auto;
