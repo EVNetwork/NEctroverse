@@ -85,7 +85,7 @@ if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
 if( flags & 1 ) {
 	httpString( cnt, "<style type=\"text/css\">" );
-	httpString( cnt, "body{background-image:url(files?type=image&name=background.gif);" );
+	httpString( cnt, "body{background-image:url(/files?type=image&name=background.gif);" );
 	if( !( flags & 2 ) )
 		httpString( cnt, "background-attachment:fixed;" );
 	httpString( cnt, "}</style>" );
