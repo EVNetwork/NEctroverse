@@ -91,6 +91,7 @@ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" heig
 httpString( cnt, "<tr><td valign=\"top\" width=\"155\">" );
 iohtmlFunc_menu( cnt );
 httpString( cnt, "</td><td>" );
+httpString( cnt, "<div class=\"floating-header\">" );
  httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
 
  httpString( cnt, "<tr>" );
@@ -146,7 +147,7 @@ httpString( cnt, "</td><td>" );
 
  httpString( cnt, "</td><td width=\"49\" height=\"42\" background=\"files?type=image&amp;name=i17.jpg\"></td></tr></table>" );
 
- httpString( cnt, "</td></tr></td></table></tr></table><br>" );
+ httpString( cnt, "</td></tr></td></table></tr></table></div></td></tr><tr><td>&nbsp;</td><td style=\"padding-top:75px;\"><br>" );
 
  return 1;
 }
