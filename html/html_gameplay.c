@@ -92,7 +92,7 @@ httpString( cnt, "<tr><td valign=\"top\" width=\"155\">" );
 iohtmlFunc_menu( cnt );
 httpString( cnt, "</td><td>" );
 httpString( cnt, "<div class=\"floating-header\">" );
- httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\">" );
+ httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"97.5%\" border=\"0\" align=\"center\">" );
 
  httpString( cnt, "<tr>" );
  httpString( cnt, "<td width=\"35\" height=\"63\" background=\"files?type=image&amp;name=i02.jpg\"></td><td><table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\" align=\"center\"><tr>" );
