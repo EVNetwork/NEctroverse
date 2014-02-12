@@ -102,7 +102,9 @@ settings[1] = GetSetting( "Google Analytics ID" );
 httpPrintf( cnt, "  ga('create', '%s', '%s');", settings[1]->string_value, settings[0]->string_value );
 httpString( cnt, "  ga('send', 'pageview');" );
 httpString( cnt, "</script>" );
-httpString( cnt, "<body style=\"margin:auto;\">" );
+if( flags & 1 ) {
+	httpString( cnt, "<body style=\"margin:auto;\">" );
+}
 /*
 if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
 	if( flags & 8 ) {
