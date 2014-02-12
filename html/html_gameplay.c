@@ -3576,7 +3576,7 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
    endy = zoompos[1] + zoomsize;
   }
  }
- httpPrintf( cnt, "<table cellspacing=\"0\" cellpading=\"0\" width=\"%d\"><colgroup><col span=\"%d\" width=\"24\">", 24*zoomsize, zoomsize );
+ httpPrintf( cnt, "<table cellspacing=\"0\" cellpading=\"0\" width=\"%d\" background=\"files?type=image&amp;name=background.jpg\"><colgroup><col span=\"%d\" width=\"24\">", 24*zoomsize, zoomsize );
  httpString( cnt, "<tr><td>&nbsp;</td>" );
  for( x = basex ; x < endx ; x++ )
   httpPrintf( cnt, "<td align=\"center\">%d</td>", x );

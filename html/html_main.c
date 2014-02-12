@@ -606,6 +606,7 @@ void iohtmlFunc_notices( ReplyDataPtr cnt ) {
 
 if( iohtmlVarsFind( cnt, "request" ) ) {
 	iohtmlBase( cnt, 1|32 );
+	httpString( cnt, "<table background=\"files?type=image&amp;name=background.jpg\">" );
 } else {
 	iohtmlBase( cnt, 8 );
 
