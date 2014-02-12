@@ -3651,7 +3651,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  a = ( maind.home >> 8 ) & 0xFFF;
  b = maind.home >> 20;
  httpPrintf( cnt, "Click on the part of the map you want to render with your default <a href=\"%s\">map generation</a> settings.<br>Your home system is located at the coordinates ", URLAppend( cnt, "mapadv" ) );
- httpPrintf( cnt, "<a href=\"%s&sectorzoom=%d,%d\" rel=\"ajaxpanel\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
+ httpPrintf( cnt, "<a href=\"%s&amp;request=true&amp;sectorzoom=%d,%d\" rel=\"ajaxpanel\">%d,%d</a> ( click to zoom there ).<br><br>", URLAppend( cnt, "map" ), a * IOHTTP_MAPPICK_DIVIDE, b * IOHTTP_MAPPICK_DIVIDE, a, b );
 
  a = dbMapBInfoStatic[MAP_SIZEX] * IOHTTP_MAPPICK_DIVIDE;
  httpPrintf( cnt, "<table border=\"0\" width=\"%d\" cellpadding=\"0\" cellspacing=\"0\">", a + 80 );
@@ -3666,7 +3666,7 @@ for( i = 0; i < dbMapBInfoStatic[MAP_SYSTEMS]; i++ ) {
 	dbMapRetrieveSystem( i, &systemd );
 	px = ( ( systemd.position & 0xFFFF )* IOHTTP_MAPPICK_DIVIDE );
 	py = ( (systemd.position >> 16)* IOHTTP_MAPPICK_DIVIDE );
-	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"%s&sectorzoom=%d,%d\" rel=\"ajaxpanel\">", px, py, i, URLAppend( cnt, "map" ), px, py );
+	httpPrintf( cnt, "<area shape=\"circle\" coords=\"%d,%d,8\" alt=\"system%d\" href=\"%s&amp;request=true&amp;sectorzoom=%d,%d\" rel=\"ajaxpanel\">", px, py, i, URLAppend( cnt, "map" ), px, py );
 
 }
 httpString( cnt, "</map></td>" );
@@ -3753,15 +3753,15 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
  httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><table cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
  httpString( cnt, "<input type=\"checkbox\" name=\"setdefault\"> Save these settings as the default</td></tr></table></td></tr>" );
- httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\"></td></tr>" );
+ httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\" rel=\"ajaxpanel\"></td></tr>" );
  httpString( cnt, "</table></form>" );
 
  httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br><br><br>" );
 
  httpString( cnt, "<b>Reset map defaults to</b><br><table><tr><td>" );
- httpPrintf( cnt, "<a href=\"%s&e0=1&c0=0&setdefault=1\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&e0=1&c0=1&e1=2&c1=0&setdefault=1\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
- httpPrintf( cnt, "<a href=\"%s&e0=3&c0=2&e1=1&c1=1&e2=2&c2=0&setdefault=1\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;e0=1&amp;c0=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\">Your planets in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;e0=1&amp;c0=1&amp;e1=2&amp;c1=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\">Your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;e0=3&amp;c0=2&amp;e1=1&amp;c1=1&amp;e2=2&amp;c2=0&amp;setdefault=1&amp;request=true\" rel=\"ajaxpanel\">Your empire in red, your planets in blue and portals in green</a><br>", URLAppend( cnt, "map" ) );
  httpString( cnt, "</td></tr></table>" );
 
  iohtmlBodyEnd( cnt );
