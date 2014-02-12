@@ -207,7 +207,7 @@ z-index:200;
 width: 24px;
 height: 100%;
 position: absolute;
-left: -14px;
+left: -25px;
 top: 0;
 cursor: pointer;
 background: transparent url(files?type=image&name=handle.gif) center left no-repeat; /* path to "handle" gif */
