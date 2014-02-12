@@ -209,7 +209,7 @@ height: 100%;
 position: absolute;
 left: -25px;
 top: 0;
-cursor: pointer;
+cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 background: transparent url(files?type=image&name=handle.gif) center left no-repeat; /* path to "handle" gif */
 }
 
