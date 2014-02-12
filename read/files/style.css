@@ -40,19 +40,19 @@ strikeout {
 }
 
 .href {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 area {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 select {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 input {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 a {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), auto;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 	text-decoration: none;
 	color : #FFFFFF;
 }
