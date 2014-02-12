@@ -40,19 +40,19 @@ strikeout {
 }
 
 .href {
-	cursor: url(files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 area {
-	cursor: url(files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 select {
-	cursor: url(files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 input {
-	cursor: url(files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 a {
-	cursor: url(files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 	text-decoration: none;
 	color : #FFFFFF;
 }
@@ -83,7 +83,7 @@ body {
 	background-color: #000000; color: #C0D0D8;
 	background-image : url(files?type=image&name=background2.gif);
 	background-attachment:fixed;
-	cursor: url(files?type=image&name=cursor-hollow.png), default;
+	cursor: url(files?type=image&name=cursor-hollow.png), url(files?type=image&name=cursor-hollow.cur), default;
 }
 body,td{
 	font-size : 12px;
