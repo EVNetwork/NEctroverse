@@ -39,19 +39,19 @@ strikeout {
 }
 
 .href {
-	cursor: url(/files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), default;
 }
 area {
-	cursor: url(/files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), default;
 }
 select {
-	cursor: url(/files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), default;
 }
 input {
-	cursor: url(/files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), default;
 }
 a {
-	cursor: url(/files?type=image&name=cursor-full.png), default;
+	cursor: url(files?type=image&name=cursor-full.png), default;
 	text-decoration: none;
 	color : #FFFFFF;
 }
@@ -80,9 +80,9 @@ a:hover{
 
 body {
 	background-color: #000000; color: #C0D0D8;
-	background-image : url(/files?type=image&name=background2.gif);
+	background-image : url(files?type=image&name=background2.gif);
 	background-attachment:fixed;
-	cursor: url(/files?type=image&name=cursor-hollow.png), default;
+	cursor: url(files?type=image&name=cursor-hollow.png), default;
 }
 body,td{
 	font-size : 12px;
@@ -91,12 +91,12 @@ body,td{
 .bodyline	{
 	margin:auto;
 	border: 1px #0075B2 solid;
-	background-image : url(/files?type=image&name=background.gif);
+	background-image : url(files?type=image&name=background.gif);
 	background-attachment:fixed;
 }
 .bodyraw	{
 	margin:auto;
-	background-image:url(/files?type=image&name=background.gif);
+	background-image:url(files?type=image&name=background.gif);
 	background-attachment:fixed;
 }
 .genlarge { 
@@ -208,7 +208,7 @@ position: absolute;
 left: -14px;
 top: 0;
 cursor: pointer;
-background: transparent url(/files?type=image&name=handle.gif) center left no-repeat; /* path to "handle" gif */
+background: transparent url(files?type=image&name=handle.gif) center left no-repeat; /* path to "handle" gif */
 }
 
 .ddajaxsidepanel .contentarea{ /* CSS for main content area DIV */

@@ -125,7 +125,7 @@ httpString( cnt, "<div class=\"floating-menu\">" );
 
  httpPrintf( cnt, "<a href=\"%s\">Fleets</a><br>", URLAppend( cnt, "fleets" ) );
  httpPrintf( cnt, "<a href=\"%s\">Galaxy map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "mappick" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"iframe\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;request=true\" rel=\"ajaxpanel\">Full map</a><br>&nbsp;&nbsp;- ", URLAppend( cnt, "map" ) );
  httpPrintf( cnt, "<a href=\"%s\">Map Gen</a><br>", URLAppend( cnt, "mapadv" ) );
  httpPrintf( cnt, "<a href=\"%s\">Research</a><br>", URLAppend( cnt, "research" ) );
  httpPrintf( cnt, "<a href=\"%s\">Operations</a><br>", URLAppend( cnt, "spec" ) );
