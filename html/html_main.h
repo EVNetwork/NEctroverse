@@ -26,4 +26,6 @@ void iohtmlFunc_register( ReplyDataPtr cnt );
 
 void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... );
 
+void iohtmlFunc_ircapplet( ReplyDataPtr cnt );
+
 #endif

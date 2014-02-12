@@ -1,7 +1,6 @@
 static void iohtmlFunc_menu( ReplyDataPtr cnt )
 {
- int id/*, i, j;
- char szFaction[32]*/;
+ int id;
  dbUserMainDef maind;
 
  if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
@@ -36,33 +35,16 @@ httpString( cnt, "<div class=\"floating-menu\">" );
 
  httpString( cnt, "</font></b></td></tr></table></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table cellspacing=\"0\" cellpadding=\"0\" style=\"text-align:left;width=125px;\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
  
- httpPrintf( cnt, "<a href=\"%s&amp;type=0\">Messages</a><br>", URLAppend( cnt, "mail" ) );
- httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
- httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
- httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
- httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+httpPrintf( cnt, "<a href=\"%s&amp;type=0\">Messages</a><br>", URLAppend( cnt, "mail" ) );
+httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
+httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
+httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
+httpPrintf( cnt, "<span class=\"href\" onclick=\"openRequestedPopup('%s','IRCChat');\">IRC Chat</span><br>", URLAppend( cnt, "chat" ) );
+httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
+httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
-/*
- strcpy(szFaction, maind.faction);
- for(i=0;i<strlen(szFaction);i++)
-	{
-		if (szFaction[i] == ' ')
-		{
-			for(j=i;j<(strlen(szFaction)-1);j++)
-				szFaction[j] = szFaction[j+1];
-			szFaction[j] = '\0';
-		}
-		if(i == 15)
-		{
-			szFaction[i-1] = '\0';
-			break;
-		}
-	}
- httpString( cnt, "<a href=\"http://evtools.awardspace.com/starfury\" target=\"blank\">Guide</a><br>" );
- httpString( cnt, "<a href=\"chat\" target=\"blank\">Chat</a><br>" );
-*/
+
 if( (cnt->session)->dbuser ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );

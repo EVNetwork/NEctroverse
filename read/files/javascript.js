@@ -340,3 +340,11 @@ jQuery(function(){
 	})
 });
 
+var WindowObjectReference; /* Declaring a global variable
+which will store a reference to the new window to be created */
+function openRequestedPopup(url, nme) {
+	WindowObjectReference = window.open(url, nme,"menubar=no,height=550px,width=1250px,location=no,resizable=yes,scrollbars=yes,status=yes");
+	return false;
+}
+
+

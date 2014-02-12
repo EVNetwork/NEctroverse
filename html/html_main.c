@@ -79,7 +79,7 @@ if( !( flags & 32 ) ) {
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=status.min.js\"></script>", URLAppend( cnt, "files" ) );
-	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.min.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 }
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
@@ -1124,5 +1124,44 @@ iohtmlFunc_endhtml( cnt );
 return;
 }
 
+void iohtmlFunc_ircapplet( ReplyDataPtr cnt ) {
+	int id, i, j;
+	char szFaction[USER_NAME_MAX];
+	dbUserMainDef maind;
+	ConfigArrayPtr setting;
 
+setting = GetSetting( "IRC Channel" );
+
+id = iohtmlIdentify( cnt, 2 );
+if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+	maind.empire = -1;
+}
+iohtmlBase( cnt, 8 );
+
+httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
+httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td>" );
+html_boxstart( cnt, false, "IRC Chat" );
+if( id >= 0 ) {
+	strcpy(szFaction, maind.faction);
+	for(i=0;i<strlen(szFaction);i++) {
+		if (szFaction[i] == ' ') {
+			for(j=i;j<(strlen(szFaction)-1);j++)
+				szFaction[j] = szFaction[j+1];
+			szFaction[j] = '\0';
+		}
+		if(i == 15) {
+			szFaction[i-1] = '\0';
+			break;
+		}
+	}
+	httpPrintf( cnt, "<iframe src=\"http://webchat.freenode.net?channels=%s&uio=MTA9dHJ1ZSYxMT0yNTY24&nick=%s\" width=\"647\" height=\"400\"></iframe>", setting->string_value, szFaction );
+} else {
+	httpPrintf( cnt, "<iframe src=\"http://webchat.freenode.net?channels=%s&uio=MTA9dHJ1ZSYxMT0yNTY24\" width=\"647\" height=\"400\"></iframe>", setting->string_value );
+}
+html_boxend( cnt );
+
+iohtmlFunc_endhtml( cnt );
+
+return;
+}
 

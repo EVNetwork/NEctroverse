@@ -19,6 +19,7 @@ PageDef html_page[] =
     //Basic/Main pages
     { "/", "text/html", &page_render,  __link_function_front, NULL },
     //{ "/chat", "text/html", &file_render, NULL, "chat.html" }, //Static Page Example
+    { "/chat", "text/html", &page_render,  iohtmlFunc_ircapplet, NULL },
     { "/login", "text/html",  &page_render,  __link_function_login, NULL },
     { "/notices", "text/html",  &page_render, iohtmlFunc_notices, NULL },
     { "/halloffame", "text/html",  &page_render, iohtmlFunc_halloffame, NULL },

@@ -68,6 +68,8 @@ ConfigListArrayDef config_listing[] = {
 	{ INI_TYPE_STRING, "mysql:database", "evgame", "mySql Database" },
 	#endif
 	
+	{ INI_TYPE_STRING, "irc:channel", "ectroverse", "IRC Channel" },
+	
 	#if IRCBOT_SUPPORT
 	{ INI_TYPE_STRING, "irc:host", "irc.freenode.net", "IRC Host" },
 	{ INI_TYPE_INT, "irc:port", "6667", "IRC Port" },

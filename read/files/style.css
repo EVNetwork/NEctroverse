@@ -40,19 +40,23 @@ strikeout {
 }
 
 .href {
+	color : #FFFFFF;
 	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
-area {
+.href:hover {
+	color : #00aaaa;
 	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
-select {
+area:hover {
 	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
-input {
+select:hover {
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
+}
+input:hover {
 	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 }
 a {
-	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 	text-decoration: none;
 	color : #FFFFFF;
 }
@@ -62,6 +66,7 @@ a:link,a:active,a:visited {
 	color : #FFFFFF;
 }
 a:hover{
+	cursor: url(files?type=image&name=cursor-full.png), url(files?type=image&name=cursor-full.cur), pointer;
 	color:#00aaaa
 }
 .centerdiv {
