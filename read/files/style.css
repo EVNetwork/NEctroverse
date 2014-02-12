@@ -200,6 +200,7 @@ box-shadow: -10px 0 10px rgba(137,137,137, 0.8);
 -webkit-box-sizing: border-box; /* Set .ddajaxsidepanel width so that any padding or borders are added inside this width, not in addition to */
 -moz-box-sizing: border-box;
 box-sizing: border-box;
+z-index:200;
 }
 
 .ddajaxsidepanel .panelhandle{ /* CSS for Panel Handle DIV */
