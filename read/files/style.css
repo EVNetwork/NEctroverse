@@ -215,7 +215,7 @@ background: transparent url(files?type=image&name=handle.gif) center left no-rep
 
 .ddajaxsidepanel .contentarea{ /* CSS for main content area DIV */
 height: 100%;
-padding: 10px;
-overflow: scroll;
+padding: 0px;
+overflow: auto;
 background-image : url(files?type=image&name=background.gif);
 }
