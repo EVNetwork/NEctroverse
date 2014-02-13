@@ -116,7 +116,7 @@ while( ( sysconfig.shutdown == false ) && ( sysconfig.regen == false ) ) {
 	WWWExpire();
 
 	#if MULTI_THREAD_SUPPORT == 0
-	WWWSelect(false);
+	WWWSelect();
 	#if IRC_BOT_SUPPORT
 	IRCSelect( );
 	#endif

@@ -85,10 +85,21 @@ httpString( cnt, "<div class=\"floating-header\">" );
  httpString( cnt, "<td width=\"41\" height=\"21\" background=\"files?type=image&amp;name=i03.jpg\"></td>" );
  httpString( cnt, "<td background=\"files?type=image&amp;name=i05.jpg\">" );
 
- if( ticks.status )
+if( ticks.status ) {
  httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : <span id=\"headernetworth\">%lld</span></b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Next tick : <span id=\"headerTime\">%d seconds</b></span></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : <span id=\"headerpopulation\">%lld</span>0</b></font></td></tr></table>", (long long)mainp->networth, (int)( ticks.next - time(0) ), (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
- else
- httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td><td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Tick time : time frozen</b></font></td><td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td></tr></table>", (long long)mainp->networth, (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
+} else {
+	httpPrintf( cnt, "<table width=\"100%%\" cellspacing=\"0\" cellpadding=\"0\"><tr>" );
+	httpPrintf( cnt, "<td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td>", (long long)mainp->networth );
+		
+	if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
+		httpPrintf( cnt, "<td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Ticks start : %s</b></font></td>", TimeToString( timediff(sysconfig.start) ) );
+	} else {
+		httpString( cnt, "<td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Ticks : Frozen!</b></font></td>" );
+	}
+
+	httpPrintf( cnt, "<td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Population : %lld0</b></font></td>", (long long)mainp->ressource[CMD_RESSOURCE_POPULATION] );
+	httpString( cnt, "</tr></table>" );
+}
 
  httpString( cnt, "</td><td width=\"78\" height=\"21\" background=\"files?type=image&amp;name=i07.jpg\"></td></tr></table>" );
  httpString( cnt, "</td></tr>" );
@@ -1312,7 +1323,11 @@ if( ticks.status ) {
 	httpString( cnt, "</table>" );
 } else {
 	httpString( cnt, "</table>" );
-	httpString( cnt, "Time frozen<br>" );
+	if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
+		httpPrintf( cnt, "Time starts: %s<br>", TimeToString( timediff(sysconfig.start) ) );
+	} else {
+		httpString( cnt, "Time frozen<br>" );
+	}
 }
 #if FACEBOOK_SUPPORT
 dbUserInfoRetrieve( id, &infod );
