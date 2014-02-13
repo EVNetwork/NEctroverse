@@ -160,7 +160,7 @@ if( ticks.status ) {
 	httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"sstatsTime\">%s</td></tr>", ((ticks.next - time(0)) > 0) ? TimeToString( ticks.next - time(0) ) : "Now..." );
 } else {
 	if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
-		httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>%s</td></tr>", TimeToString( timediff(sysconfig.start) ) );
+		httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td id=\"sstatsStartTime\">%s</td></tr>", TimeToString( timediff(sysconfig.start) ) );
 	} else {
 		httpPrintf( cnt, "<tr><td>Next tick</td><td>&nbsp;:&nbsp;</td><td>Time Frozen!</td></tr>" );
 	}

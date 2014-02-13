@@ -52,7 +52,12 @@ if( ( typestring ) && ( refer ) ) {
 		if( refer )
 			httpPrintf( cnt, "<page>%s</page>", refer );
 		httpPrintf( cnt, "<u_online>%d</u_online><u_activated>%d</u_activated>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
-		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year></time>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
+		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
+		if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
+				httpPrintf( cnt, "<start>%s</start>", TimeToString( timediff(sysconfig.start) ) );
+		}
+		httpString( cnt, "</time>" );
+
 		if( !strcmp(refer,"status") ) {
 			snprintf( CHECKER, sizeof(CHECKER), "%lu bytes ( %5.1f mb )", pinfod.stvsize, pinfod.stvsize  / megabyte );
 			httpString( cnt, "<general>" );
@@ -82,7 +87,7 @@ if( ( typestring ) && ( refer ) ) {
 			httpPrintf( cnt, "<timeserver>%s</timeserver>", timebuf );
 			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 			httpPrintf( cnt, "<timegmt>%s</timegmt>", timebuf );
-			
+
 			httpPrintf( cnt, "<strss>%lu pages</strss>", pinfod.strss );
 			httpPrintf( cnt, "</memory>" );
 			httpString( cnt, "<cpu>" );
@@ -304,6 +309,7 @@ if( refer ) {
 	httpString( cnt, "\t\tmin = Math.floor( ( getnodevar(xmlhttp.responseXML,\"next\") / 60 ) );\n" );
 	httpString( cnt, "\t\tpage = getnodevar(xmlhttp.responseXML,\"page\");\n" );
 	httpString( cnt, "\n" );
+	httpString( cnt, "\t\tvar start = getnodevar(xmlhttp.responseXML,\"start\");\n" );
 	httpString( cnt, "\t\tvar week = getnodevar(xmlhttp.responseXML,\"week\");\n" );
 	httpString( cnt, "\t\tvar year = getnodevar(xmlhttp.responseXML,\"year\");\n" );
 	httpString( cnt, "\t\tvar u_online = getnodevar(xmlhttp.responseXML,\"u_online\");\n" );
@@ -317,6 +323,7 @@ if( refer ) {
 	if( !strcmp(refer,"hq") ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"hqweeks\",week);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqyears\",year);\n" );
+		httpString( cnt, "\t\t\tupdatehtml(\"hqStartTime\",start);\n" );
 	} else if( !strcmp(refer,"status") ) {
 		httpString( cnt, "\t\tvar hostprocs = getnodevar(xmlhttp.responseXML,\"cpuprocs\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hostprocs\",hostprocs);\n" );
@@ -367,7 +374,7 @@ if( refer ) {
 		httpString( cnt, "\t\tvar botstatus = getnodevar(xmlhttp.responseXML,\"botstatus\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"botstatus\",botstatus);\n" );
 		#endif
-
+		httpString( cnt, "\t\t\tupdatehtml(\"sstatsStartTime\",start);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"sstatweeks\",week);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"sstatyears\",year);\n" );
 	}
@@ -392,6 +399,7 @@ if( refer ) {
 	}
 	httpString( cnt, "\t\t\tupdatehtml(\"headernetworth\",networth);\n" );
 	httpString( cnt, "\t\t\tupdatehtml(\"headerpopulation\",population);\n" );
+	httpString( cnt, "\t\t\tupdatehtml(\"headerStartTime\",start);\n" );
 	httpString( cnt, "\n" );
 	if( !strcmp(refer,"hq") ) {
 		for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {

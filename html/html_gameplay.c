@@ -92,7 +92,7 @@ if( ticks.status ) {
 	httpPrintf( cnt, "<td width=\"30%%\" align=\"center\"><font size=\"1\"><b>Networth : %lld</b></font></td>", (long long)mainp->networth );
 		
 	if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
-		httpPrintf( cnt, "<td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Ticks start : %s</b></font></td>", TimeToString( timediff(sysconfig.start) ) );
+		httpPrintf( cnt, "<td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Ticks start : <span id=\"headerStartTime\">%s</span></b></font></td>", TimeToString( timediff(sysconfig.start) ) );
 	} else {
 		httpString( cnt, "<td width=\"40%%\" align=\"center\"><font size=\"1\"><b>Ticks : Frozen!</b></font></td>" );
 	}
@@ -1324,7 +1324,7 @@ if( ticks.status ) {
 } else {
 	httpString( cnt, "</table>" );
 	if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
-		httpPrintf( cnt, "Time starts: %s<br>", TimeToString( timediff(sysconfig.start) ) );
+		httpPrintf( cnt, "Time starts: <span id=\"hqStartTime\">%s</span><br>", TimeToString( timediff(sysconfig.start) ) );
 	} else {
 		httpString( cnt, "Time frozen<br>" );
 	}

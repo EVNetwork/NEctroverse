@@ -2161,7 +2161,6 @@ variable.tm_mday++;
 sysconfig.start = variable;
 ticks.round++;
 ticks.number = 0;
-savetickconfig();
 
 if( spawn_map() == NO ) {
 	critical( "Map Creation Failed" );
@@ -2171,6 +2170,8 @@ if( spawn_map() == NO ) {
 info( "Regeneration Completed, now reactivating WWW Servers." );
 
 ticks.locked = false;
+savetickconfig();
+
 sysconfig.regen = false;
 
 pthread_exit( &sysconfig.regen_thread );
