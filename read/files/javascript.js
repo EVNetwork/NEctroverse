@@ -120,8 +120,6 @@ function addLoadEvent(func) {
 
 addLoadEvent( SD=window.setTimeout("countDown();", 1000) );
 
-function togglemb(num) { for(i=0;i<window.document.forms[num].length;i++) if(window.document.forms[num].elements[i].type == "checkbox") window.document.forms[num].elements[i].click(); }
-
 function toggle_form(id) { for(i=0;i<_(id).length;i++) if(_(id).elements[i].type == "checkbox") _(id).elements[i].click(); }
 
 function pad ( val ) { return val > 9 ? val : "0" + val; }
@@ -201,11 +199,6 @@ parseQueryString = function() {
     return objURL;
 };
 
-/* Ajax Side Panel script (v1.0)
-* Created: May 1st, 2012. This notice must stay intact for usage 
-* Author: Dynamic Drive at http://www.dynamicdrive.com/
-* Visit http://www.dynamicdrive.com/ for full source code
-*/
 
 var ddajaxsidepanel = {
 	defaults: {ajaxloadgif:'files?type=image&name=squareloading.gif', fx:{dur:'normal', easing:'swing'}, openamount:'80%', openamount_minthreshold:'400px'},
@@ -327,14 +320,7 @@ jQuery.extend(jQuery.easing, {  //see http://gsgd.co.uk/sandbox/jquery/easing/
 
 jQuery(function(){
 	ddajaxsidepanel.init({
-		targetselector: 'a[rel="ajaxpanel"]',
-		ajaxloadgif: 'files?type=image&name=squareloading.gif', //full path to "loading" gif relative to document. When in doubt use absolute URL to image.
-		fx: {dur:500, easing: 'easeInQuad'}, // dur: duration of slide effect (milliseconds), easing: 'ease_in_type_string'
-		openamount:'80%', // Width of panel when fully opened (Percentage value relative to page, or pixel value
-		openamount_minthreshold:'400px' //Minimum required width of panel (when fully opened)  before panel is shown. This prevents panel from being shown on small screens or devices.
-	})
-	ddajaxsidepanel.init({
-		targetselector: 'area[rel="ajaxpanel"]',
+		targetselector: 'a[rel="ajaxpanel"],area[rel="ajaxpanel"]',
 		ajaxloadgif: 'files?type=image&name=squareloading.gif', //full path to "loading" gif relative to document. When in doubt use absolute URL to image.
 		fx: {dur:500, easing: 'easeInQuad'}, // dur: duration of slide effect (milliseconds), easing: 'ease_in_type_string'
 		openamount:'80%', // Width of panel when fully opened (Percentage value relative to page, or pixel value
@@ -342,8 +328,7 @@ jQuery(function(){
 	})
 });
 
-var WindowObjectReference; /* Declaring a global variable
-which will store a reference to the new window to be created */
+var WindowObjectReference;
 function openRequestedPopup(url, nme) {
 	WindowObjectReference = window.open(url, nme,"menubar=no,height=550px,width=1250px,location=no,resizable=yes,scrollbars=yes,status=yes");
 	return false;
