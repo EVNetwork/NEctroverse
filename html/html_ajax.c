@@ -179,7 +179,7 @@ if( ( typestring ) && ( refer ) ) {
 				httpPrintf( cnt, "]]></council_html_buildings>" );
 				return;
 			}
-			httpPrintf( cnt, "<table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+			httpPrintf( cnt, "<table><form name=\"cancelbuild\" id=\"cancel_build\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 			for( a = c = 0 ; a < numbuild ; a++ ) {
 				if( build[a].type >> 16 )
 					continue;
@@ -190,7 +190,7 @@ if( ( typestring ) && ( refer ) ) {
 			if( !( c ) ) {
 					httpString( cnt, "</form></table>None<br>" );
 			} else {
-				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
+				httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_build');\">Toggle</font></div></td></tr>");
  				httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table>");
 				httpString( cnt, "<br><i>Summary</i><br>" );
 				for( a = bsums[CMD_BLDG_NUMUSED+1] = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
@@ -203,7 +203,7 @@ if( ( typestring ) && ( refer ) ) {
 			}
 			httpPrintf( cnt, "]]></council_html_buildings>" );
 			httpPrintf( cnt, "<council_html_units><![CDATA[" );
-			httpPrintf( cnt, "<table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+			httpPrintf( cnt, "<table><form name=\"cancelunit\" id=\"cancel_units\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 			for( a = c = 0 ; a < numbuild ; a++ ) {
 				if( !( build[a].type >> 16 ) )
 					continue;
@@ -214,7 +214,7 @@ if( ( typestring ) && ( refer ) ) {
 			if( !( c ) ) {
 				  httpString( cnt, "</form></table>None<br>" );
 			} else {
-				httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
+				httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_units');\">Toggle</font></div></td></tr>");
 				httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\" class=\"href\"></td></tr></form></table><br><i>Summary</i><br>" );
 				for( a = usums[CMD_UNIT_NUMUSED+1] = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 					if( !( usums[a] ) )

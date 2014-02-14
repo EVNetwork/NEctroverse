@@ -122,6 +122,8 @@ addLoadEvent( SD=window.setTimeout("countDown();", 1000) );
 
 function togglemb(num) { for(i=0;i<window.document.forms[num].length;i++) if(window.document.forms[num].elements[i].type == "checkbox") window.document.forms[num].elements[i].click(); }
 
+function toggle_form(id) { for(i=0;i<_(id).length;i++) if(_(id).elements[i].type == "checkbox") _(id).elements[i].click(); }
+
 function pad ( val ) { return val > 9 ? val : "0" + val; }
 
 function changeslider(newValue,field) {

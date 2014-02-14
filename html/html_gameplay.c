@@ -39,12 +39,12 @@ httpPrintf( cnt, "<a href=\"%s&amp;type=0\">Messages</a><br>", URLAppend( cnt, "
 httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "rankings" ) );
 httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
 httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
-httpPrintf( cnt, "<span class=\"href\" onclick=\"openRequestedPopup('%s','IRCChat');\">IRC Chat</span><br>", URLAppend( cnt, "chat" ) );
 httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
 httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
 
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form>", URLAppend( cnt, "search" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form><br>", URLAppend( cnt, "search" ) );
 
+httpPrintf( cnt, "<span class=\"href\" onclick=\"openRequestedPopup('%s','IRCChat');\">IRC Chat</span><br>", URLAppend( cnt, "chat" ) );
 if( (cnt->session)->dbuser ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
@@ -52,6 +52,7 @@ if( (cnt->session)->dbuser ) {
 		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
 	}
 }
+
 
  httpString( cnt, "</font></b></td></tr></table></td></tr>" );
  httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i55.jpg\" width=\"150\" height=\"20\">&nbsp;</td></tr>" );
@@ -1525,7 +1526,7 @@ for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%lld</td></tr></table><br><br>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
-httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><table><form name=\"cancelbuild\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><table><form name=\"cancelbuild\" id=\"cancel_build\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( build[a].type >> 16 )
@@ -1538,7 +1539,7 @@ for( a = c = 0 ; a < numbuild ; a++ ) {
 if( !( c ) ) {
 	httpString( cnt, "</form></table>None<br>" );
 } else {
-	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\">Toggle</font></a></td></tr>");
+	httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_build');\">Toggle</font></div></td></tr>");
  	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
 	httpString( cnt, "<br><i>Summary</i><br>" );
 	
@@ -1563,7 +1564,7 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%lld</td></tr></table><br><br>", (long long)usums[CMD_BLDG_NUMUSED+1] );
-httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><table><form name=\"cancelunit\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><table><form name=\"cancelunit\" id=\"cancel_units\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
 
 usums[CMD_BLDG_NUMUSED+1] = 0;
 for( a = c = 0 ; a < numbuild; a++ ) {
@@ -1577,7 +1578,7 @@ for( a = c = 0 ; a < numbuild; a++ ) {
 if( !( c ) ) {
   httpString( cnt, "</form></table>None<br>" );
 } else {
-	httpString(cnt, "<tr><td></td><td><a href=\"#\" onclick=\"javascript:togglemb(1);return false;\">Toggle</font></a></td></tr>");
+	httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_units');\">Toggle</font></div></td></tr>");
 	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
 for( a = 0; a < CMD_UNIT_NUMUSED; a++ ) {
 	if( !( usums[a] ) )
@@ -1912,7 +1913,7 @@ if( ( b = dbUserPlanetListIndicesSorted( id, &buffer, sort ) ) <= 0 ) {
 
 
 
- httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "massbuild" ) );
+ httpPrintf( cnt, "<form action=\"%s\" method=\"POST\" id=\"mass_build\">", URLAppend( cnt, "massbuild" ) );
 
 if (sort == 0)
  httpPrintf( cnt, "<table width=\"100%%\"><tr><td width=\"15%%\"><a href=\"/%s&sort=10\">Planet</a></td>", URLAppend( cnt, "planets" ) );
@@ -1943,7 +1944,7 @@ if (sort == 5)
 else
  httpPrintf( cnt, "<td width=\"28%\">Build - <a href=\"/%s&sort=5\">Protection</a></td>", URLAppend( cnt, "planets" ) );
 
- httpString( cnt, "<td width=\"2%\"><a href=\"#\" onclick=\"javascript:togglemb(0);return false;\"><font size=\"1\">Toggle</font></a></td></tr>" );
+ httpString( cnt, "<td width=\"2%\"><div class=\"href\" onclick=\"javascript:toggle_form('mass_build');\"><font size=\"1\">Toggle</font></div></td></tr>" );
 
 
 
