@@ -1,13 +1,15 @@
 All faults must be reported... No matter how minor.
 
-If you encounter a bug/error. Report it.
+If you encounter a bug/error do not abuse it.
+Report it.
 
-!! Dreamweavers are now active !!
-As a once up... you can request a change of race.
+If unsure how to avoid a bug/error.
+And try logging out/in again.
 
-A link has been added to the Account page to allow this change.
-Please be warned... you instantly change when you click it.
-And you may not change back, this is a one way conversion.
-(To change back, you would have to deactivate account)
+If you still encounter an bug/error please check on IRC
+or send a e-mail with as much possible detail
+
+I am often on IRC while working on the code, while I may not reply instantly.
+If I'm there, I'll get it. (Eventully :P)
 
 --Necro
