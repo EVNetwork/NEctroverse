@@ -3266,7 +3266,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
   zoompos[1] /= IOHTTP_MAPPICK_DIVIDE;
   zoomsize = maind.config_mapsize & 0xFFFF;
   setting = GetSetting( "Map Size" );
-  if( ( (unsigned int)zoomsize > 60 ) || ( ((unsigned int)zoomsize << 1 ) > (unsigned int)setting->num_value ) )
+  if( ( zoomsize > 60 ) || ( (zoomsize << 1 ) > setting->num_value ) )
    zoomsize = 15;
  }
 
@@ -3280,7 +3280,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
    advopt[a] = -1;
   advname[0] = 'c';
   varstring = iohtmlVarsFind( cnt, advname );
-  if( !( varstring ) || ( sscanf( varstring, "%d", &advcol[a] ) != 1 ) || ( (unsigned int)advcol[a] >= 6 ) )
+  if( !( varstring ) || ( sscanf( varstring, "%d", &advcol[a] ) != 1 ) || ( advcol[a] >= 6 ) )
    advopt[a] = -1;
   else
    config[a] = ( advopt[a] ) + ( advcol[a] << 4 ) + 0x10000000;
@@ -3311,7 +3311,7 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
  explcol = 0;
  for( a = 0 ; a < IOHTTP_MAPADV_ENTRIES ; a++ )
  {
-  if( (unsigned int)advcol[a] < 3 )
+  if( advcol[a] < 3 )
    advcol[a] = ( ( 1 << advcol[a] ) << 16 ) | ( 1 << 20 );
   else
    advcol[a] = ( 1 << (advcol[a]-3) ) << 16;
@@ -3333,7 +3333,7 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
 
  for( a = 0, d = explcol ; a < IOHTTP_MAPADV_ENTRIES ; a++ )
  {
-  if( (unsigned int)advopt[a] >= 6 )
+  if( advopt[a] >= 6 )
    continue;
   d |= advopt[a];
 
@@ -3577,7 +3577,7 @@ httpString( cnt, "</map></td>" );
  httpPrintf( cnt, "<br><form action=\"%s\" method=\"POST\"><select name=\"size\">", URLAppend( cnt, "mappick" ) );
 setting = GetSetting( "Map Size" );
 for( a = 0 ; a < MAPPICKSIZES ; a++ ) {
-	if( ( sizes[a] << 1 ) > (unsigned int)setting->num_value ) {
+	if( ( sizes[a] << 1 ) > setting->num_value ) {
 		break;
 	}
 	httpPrintf( cnt, "<option value=\"%d\"", sizes[a] );
@@ -3630,7 +3630,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   }
   httpString( cnt, "</select></td>" );
   httpPrintf( cnt, "<td><input type=\"text\" name=\"u%d\" size=\"16\"", a );
-  if( (unsigned int)advnumbase[a] < 0x10000 )
+  if( advnumbase[a] < 0x10000 )
    httpPrintf( cnt, " value=\"%d\"", advnumbase[a] );
   httpString( cnt, "></td>" );
   httpPrintf( cnt, "<td><select name=\"c%d\">", a );
@@ -3831,7 +3831,7 @@ httpString( cnt, "<br></td></tr></table>" );
  
 #if FACEBOOK_SUPPORT
 if( ( (cnt->session)->dbuser ) && ( (((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ) {
-	if( ( user = dbUserLinkID( playerid ) ) < 0 ) {
+	if( ( user = dbUserLinkID( playerid ) ) == NULL ) {
 		error( "DB link error" );
 		httpString( cnt, "Error Linking with user database... " );
 	} else {
@@ -4798,7 +4798,7 @@ memset(szTotal, 0, CMD_UNIT_NUMUSED*sizeof(int));
  varstring = iohtmlVarsFind( cnt, "attack" );
  if( varstring )
  {
-  if( ( sscanf( varstring, "%d", &a ) == 1 ) && ( (unsigned int)a < 3 ) )
+  if( ( sscanf( varstring, "%d", &a ) == 1 ) && ( a < 3 ) )
    maind.config_fleet = a;
   varname[0] = 'f';
   varname[2] = 0;
@@ -4806,7 +4806,7 @@ memset(szTotal, 0, CMD_UNIT_NUMUSED*sizeof(int));
   {
    varname[1] = '0' + b;
    varstring = iohtmlVarsFind( cnt, varname );
-   if( ( varstring ) && ( sscanf( varstring, "%d", &a ) == 1 ) && ( (unsigned int)a < 10000 ) )
+   if( ( varstring ) && ( sscanf( varstring, "%d", &a ) == 1 ) && ( a < 10000 ) )
     maind.config_flee[b] = a;
   }
   dbUserMainSet( id, &maind );
@@ -6445,7 +6445,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  if( !( orderstring ) || ( sscanf( orderstring, "%d", &specop ) != 1 ) )
   goto iohttpFunc_operationL0;
- if( (unsigned int)specop >= CMD_AGENTOP_NUMUSED )
+ if( specop >= CMD_AGENTOP_NUMUSED )
   goto iohttpFunc_operationL0;
  if( !( xstring ) || ( sscanf( xstring, "%d", &x ) != 1 ) )
   goto iohttpFunc_operationL0;
@@ -6480,7 +6480,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   iohtmlBodyEnd( cnt );
   return;
  }
- if( (unsigned int)z >= systemd.numplanets )
+ if( z >= systemd.numplanets )
   goto iohttpFunc_operationL0;
  plnid = systemd.indexplanet + z;
 
@@ -6596,7 +6596,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  if( !( orderstring ) || ( sscanf( orderstring, "%d", &specop ) != 1 ) )
   goto iohttpFunc_spellL0;
- if( (unsigned int)specop >= CMD_PSYCHICOP_NUMUSED )
+ if( specop >= CMD_PSYCHICOP_NUMUSED )
   goto iohttpFunc_spellL0;
  if( !( psychicstring ) || ( sscanf( psychicstring, "%d", &psychics ) != 1 ) )
  {
@@ -6705,7 +6705,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  if( !( orderstring ) || ( sscanf( orderstring, "%d", &specop ) != 1 ) )
   goto iohttpFunc_operationL0;
- if( (unsigned int)specop >= CMD_GHOSTOP_NUMUSED )
+ if( specop >= CMD_GHOSTOP_NUMUSED )
   goto iohttpFunc_operationL0;
  if( !( xstring ) || ( sscanf( xstring, "%d", &x ) != 1 ) )
   goto iohttpFunc_operationL0;
@@ -6750,7 +6750,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
   if( z == -1 )
    goto iohttpFunc_operationL0;
-  if( (unsigned int)z >= systemd.numplanets )
+  if( z >= systemd.numplanets )
    goto iohttpFunc_operationL0;
   plnid = systemd.indexplanet + z;
 
@@ -7056,7 +7056,7 @@ for( a = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
 }
  
 for( a = b = 0 ; a < CMD_RESEARCH_NUMUSED ; a++ ) {
-	if( (unsigned int)rschvalue[a] >= 101 ) {
+	if( rschvalue[a] >= 101 ) {
 		httpString( cnt, "The sum of the research fields percentages must be 100%<br><br>" );
 		goto iohttpFunc_researchL0;
 	}
@@ -7137,7 +7137,7 @@ if( ( skipstring ) )
 	sscanf( skipstring, "%d", &skip );
 
 msent = 0;
-maild.text = 0;
+memset( &maild, 0, sizeof(dbMailDef) );
 
 if( ( tostring ) && ( mailstring ) ) {
 	if( ( maild.text = malloc( 2*MAIL_MAX ) ) ) {
@@ -7559,7 +7559,7 @@ status = 1;
    {
     if( sscanf( str2, "%d", &z ) != 1 )
      goto iohttpFunc_searchL0;
-    if( (unsigned int)z >= systemd.numplanets )
+    if( z >= systemd.numplanets )
     {
      error = "There is no planet at the coordinates specified<br><br>";
      goto iohttpFunc_searchL0;

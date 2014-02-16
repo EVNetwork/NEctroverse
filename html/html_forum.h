@@ -80,7 +80,7 @@ extern int IOHTTP_FORUM_SMILETOTAL;
 
 extern ForumSmileysPtr *SmileTable;
 
-int dbForumListForums( int flags, int perms, dbForumForumPtr *forums );
+int dbForumListForums( int flags, dbForumForumPtr *forums );
 int dbForumListThreads( int flags, int forum, int base, int end, dbForumForumPtr forumd, dbForumThreadPtr *threads );
 int dbForumListPosts( int flags, int forum, int thread, int base, int end, dbForumThreadPtr threadd, dbForumPostPtr *posts );
 

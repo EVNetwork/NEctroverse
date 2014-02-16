@@ -906,13 +906,13 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
   dbUserMainDef maind, main2d;
   int64_t newd[DB_USER_NEWS_BASE];
 
+  cmdErrorString = 0;
   if( !( ticks.status ) )
   {
     cmdErrorString = "You can't send aid before the beginning of the round.";
     return -3;
   }
 
-  cmdErrorString = 0;
   if( dbEmpireGetInfo( fam, &empired ) < 0 )
     return -3;
   b = 0;
@@ -1431,6 +1431,7 @@ int cmdExecSendFleetInfos( int id, int plnid, int *fr )
   dbUserMainDef maind, main2d;
   dbMainPlanetDef planetd;
 
+cmdErrorString = 0;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
   if( dbMapRetrievePlanet( plnid, &planetd ) < 0 )
@@ -1583,6 +1584,7 @@ int cmdExecSendAgents( int id, int x, int y, int z, int order, int64_t agents )
   dbUserFleetDef fleetd, fleet2d;
   dbMainSystemDef systemd;
 
+cmdErrorString = 0;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
   fleetd.sysid = dbMapFindSystem( x, y );
@@ -1654,6 +1656,7 @@ int cmdExecSendGhosts( int id, int x, int y, int z, int order, int64_t ghosts )
   dbMainSystemDef systemd;
   dbUserFleetDef fleetd, fleet2d;
 
+cmdErrorString = 0;
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;
   fleetd.sysid = dbMapFindSystem( x, y );
@@ -1788,6 +1791,8 @@ int cmdExecExplore( int id, int plnid, int *ibuffer )
   dbUserFleetDef fleetd, fleet2d;
   dbMainPlanetDef planetd;
 
+cmdErrorString = 0;
+
   if( dbMapRetrievePlanet( plnid, &planetd ) < 0 )
     return -2;
   if( planetd.owner != -1 )
@@ -1857,6 +1862,8 @@ int cmdExecChangeFleet( int id, int x, int y, int z, int order, int fltid )
   dbUserMainDef maind;
   dbUserFleetDef fleetd;
   dbMainSystemDef systemd;
+
+cmdErrorString = 0;
 
   if( dbUserMainRetrieve( id, &maind ) < 0 )
     return -3;

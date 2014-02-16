@@ -262,7 +262,7 @@ if( dbFilePtr[num] ) {
 
 if( !( dbFilePtr[num] = fopen( fname, "rb+" ) ) ) {
 	error( "Opening File: %s", fname );
-	return 0;
+	return NO;
 }
 
 return dbFilePtr[num];
@@ -316,7 +316,7 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 		error( "Opening File: %s", fname);
 	}
 
-	return 0;
+	return NO;
 }
 
 
@@ -340,7 +340,7 @@ if( !( file = fopen( fname, "rb+" ) ) ) {
 		return fopen( fname, "rb+" );
 	}
 	error( "Opening File: %s", fname);
-	return 0;
+	return NO;
 }
 
 return file;
@@ -385,7 +385,7 @@ return user;
 void dbUserFree( dbUserPtr user ) {
 	dbUserPtr next;
 
-if( (unsigned int)user->id >= dbUserNum )
+if( user->id >= dbUserNum )
 	return;
 
 dbUserTable[user->id] = 0;
@@ -442,7 +442,7 @@ int dbInitUsersReset()
   file_s( dbFilePtr[DB_FILE_BASE_USERS], 4 );
   file_w( &freenum, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
   
-  return 1;
+  return YES;
 }
 
 
@@ -499,7 +499,7 @@ if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	
 	if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create forum database!" );
-		return 0;
+		return NO;
 	}
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_FORUM] );
@@ -562,7 +562,7 @@ if( !( dbFilePtr[DB_FILE_BASE_USERS] = fopen( fname, "rb+" ) ) ) {
 	a = 0;
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
 	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_USERS] );
-	return 1;
+	return YES;
 } else {
 	dbInitUsersReset();
 }
@@ -656,12 +656,12 @@ int dbMapFindValid( int x, int y ) {
 	int binfo[MAP_TOTAL_INFO];
 	
 dbMapRetrieveMain( binfo );
-if( (unsigned int)x >= binfo[MAP_SIZEX] )
-	return 0;
-if( (unsigned int)y >= binfo[MAP_SIZEY] )
-	return 0;
+if( x >= binfo[MAP_SIZEX] )
+	return NO;
+if( y >= binfo[MAP_SIZEY] )
+	return NO;
 
-return 1;
+return YES;
 }
 
 
@@ -732,7 +732,7 @@ return -1;
 dbUserPtr dbUserLinkID( int id ) {
 
 if( ( id >= dbUserNum ) || ( id < 0 ) )
-	return 0;
+	return NULL;
 
 return dbUserTable[id];
 }
@@ -859,9 +859,9 @@ int dbUserRemove( int id ) {
 
 
 if( !( user = dbUserLinkID( id ) ) )
-	return 0;
+	return NO;
 if( !( dbFileGenOpen( DB_FILE_BASE_USERS ) ) )
-	return 0;
+	return NO;
 
 dbUserFree( user );
 
@@ -892,7 +892,7 @@ sprintf( fname, "%s/data/user%d", settings->string_value, id );
 rmdir( fname );
 
 
-return 1;
+return YES;
 }
 
 
@@ -924,7 +924,7 @@ if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	return -3;
 }
 
-return 1;
+return YES;
 }
 
 int dbUserSetPassword( int id, char *pass ) {
@@ -942,7 +942,7 @@ if( !( dbUserInfoSet( id, &uinfo ) ) ) {
 	return -3;
 }
 
-return 1;
+return YES;
 }
 
 int dbUserRetrievePassword( int id, char *pass ) {
@@ -951,7 +951,7 @@ int dbUserRetrievePassword( int id, char *pass ) {
 dbUserInfoRetrieve( id, &uinfo );
 strncpy(pass, uinfo.password, USER_PASS_MAX);
 
-return 1;
+return YES;
 }
 
 
@@ -959,7 +959,7 @@ int dbUserLinkDatabase( void *cnt, int id ) {
 	dbUserPtr user;
 	ReplyDataPtr cnt2 = cnt;
 
-if( id < 0 ) {
+if( ( id >= dbUserNum ) || ( id < 0 ) ) {
 	(cnt2->session)->dbuser = NULL;
 	return -1;
 }
@@ -970,7 +970,7 @@ if( !( user = dbUserLinkID( id ) ) )
 (cnt2->session)->dbuser = user;
 user->lasttime = time( 0 );
 
-return 1;
+return YES;
 }
 
 
@@ -991,7 +991,7 @@ if( dbUserSave( user->id, user ) < 0 ) {
 	return -1;
 }
 
-return 1;
+return YES;
 }
 
 int dbSessionRetrieve( dbUserPtr user, char *session ) {
@@ -1006,7 +1006,7 @@ if( !( dbUserInfoRetrieve( user->id, &uinfo ) ) ) {
 
 strncpy( session, user->http_session, sizeof(uinfo.http_session) );
 
-return 1;
+return YES;
 }
 
 
@@ -1025,7 +1025,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAIN ) ) ) {
 file_w( maind, 1, sizeof(dbUserMainDef), file );
 fclose( file );
 
-return 1;
+return YES;
 }
 
 
@@ -1043,7 +1043,7 @@ file_r( maind, 1, sizeof(dbUserMainDef), file );
 
 fclose( file );
 
-return 1;
+return YES;
 };
 
 
@@ -1109,7 +1109,7 @@ if( isuser == true ) {
 
 file_r( &num, 1, sizeof(int), file );
 
-if( (unsigned int)bldid >= num ) {
+if( bldid >= num ) {
 	fclose( file );
 	return -2;
 }
@@ -1126,7 +1126,7 @@ a = num-1;
 file_w( &a, 1, sizeof(int), file );
 fclose( file );
 
-return 1;
+return YES;
 }
 
 
@@ -1292,7 +1292,7 @@ a = 0;
 file_w( &a, 1, sizeof(int), file );
 fclose( file );
 
-return 1;
+return YES;
 }
 
 
@@ -1400,7 +1400,7 @@ file_r( &num, 1, sizeof(int), file );
     num--;
     file_w( &num, 1, sizeof(int), file );
     fclose( file );
-    return 1;
+    return YES;
   }
   fclose( file );
   return -3;
@@ -1431,7 +1431,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_PLANETS ) ) ) {
   file_s( file, 4+(pos*20)+12 );
   file_w( &flags, 1, sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 
 
 }
@@ -1855,7 +1855,7 @@ int dbUserFleetRemove( int id, int fltid )
     return -3;
     }
   file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)fltid >= num )
+  if( fltid >= num )
   {
     fclose( file );
     return -2;
@@ -1871,7 +1871,7 @@ int dbUserFleetRemove( int id, int fltid )
   a = num-1;
   file_w( &a, 1, sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbUserFleetList( int id, dbUserFleetPtr *fleetd )
@@ -1908,7 +1908,7 @@ int dbUserFleetSet( int id, int fltid, dbUserFleetPtr fleetd )
     return -3;
     }
   file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)fltid >= num )
+  if( fltid >= num )
   {
     fclose( file );
     return -2;
@@ -1929,7 +1929,7 @@ int dbUserFleetRetrieve( int id, int fltid, dbUserFleetPtr fleetd )
     return -3;
     }
   file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)fltid >= num )
+  if( fltid >= num )
   {
     fclose( file );
     return -2;
@@ -2004,7 +2004,7 @@ file_r( &numnext, 1, sizeof(int64_t), file );
   file_w( &num, 1, sizeof(int64_t), file );
 
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int64_t dbUserNewsGetFlags( int id ) {
@@ -2142,7 +2142,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_NEWS ) ) ) {
 file_w( dbFileUserListData[DB_FILE_USER_NEWS], 1, dbFileUserListBase[DB_FILE_USER_NEWS], file );
 fclose( file );
 
-return 1;
+return YES;
 }
 
 
@@ -2203,7 +2203,7 @@ file_r( &numnext, 1, sizeof(int64_t), file );
   file_w( &num, 1, sizeof(int64_t), file );
 
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbFamNewsList( int id, int64_t **data, int time )
@@ -2293,7 +2293,7 @@ if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 file_s( file, 0 );
 file_r( binfo, 1, sizeof(dbMainMapDef), file );
 
-return 1;
+return YES;
 }
 
 int dbMapSetMain( int *binfo ) {
@@ -2305,14 +2305,14 @@ if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 file_s( file, 0 );
 file_w( binfo, 1, sizeof(dbMainMapDef), file );
 
-return 1;
+return YES;
 }
 
 
 int dbMapSetSystem( int sysid, dbMainSystemPtr systemd ) {
 	FILE *file;
 
-if( ( sysid < 0 ) || ( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] ) )
+if( ( sysid < 0 ) || ( sysid >= dbMapBInfoStatic[MAP_SYSTEMS] ) )
 	return -3;
 	
 if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
@@ -2321,13 +2321,13 @@ if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 file_s( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)) );
 file_w( systemd, 1, sizeof(dbMainSystemDef), file );
 
-return 1;
+return YES;
 }
 
 int dbMapRetrieveSystem( int sysid, dbMainSystemPtr systemd ) {
 	FILE *file;
 
-if( ( sysid < 0 ) || ( (unsigned int)sysid >= dbMapBInfoStatic[MAP_SYSTEMS] ) )
+if( ( sysid < 0 ) || ( sysid >= dbMapBInfoStatic[MAP_SYSTEMS] ) )
 	return -3;
 	
 if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
@@ -2336,13 +2336,13 @@ if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 file_s( file, sizeof(dbMainMapDef)+(sysid*sizeof(dbMainSystemDef)) );
 file_r( systemd, 1, sizeof(dbMainSystemDef), file );
 
-return 1;
+return YES;
 }
 
 int dbMapSetPlanet( int plnid, dbMainPlanetPtr planetd ) {
 	FILE *file;
 
-if( ( plnid < 0 ) || ( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] ) )
+if( ( plnid < 0 ) || ( plnid >= dbMapBInfoStatic[MAP_PLANETS] ) )
 	return -3;
 
 if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
@@ -2351,13 +2351,13 @@ if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 file_s( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)) );
 file_w( planetd, 1, sizeof(dbMainPlanetDef), file );
 
-return 1;
+return YES;
 }
 
 int dbMapRetrievePlanet( int plnid, dbMainPlanetPtr planetd ) {
 	FILE *file;
 
-if( ( plnid < 0 ) || ( (unsigned int)plnid >= dbMapBInfoStatic[MAP_PLANETS] ) )
+if( ( plnid < 0 ) || ( plnid >= dbMapBInfoStatic[MAP_PLANETS] ) )
 	return -3;
 	
 if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
@@ -2366,14 +2366,14 @@ if( !( file = dbFileGenOpen( DB_FILE_BASE_MAP ) ) )
 file_s( file, sizeof(dbMainMapDef)+(dbMapBInfoStatic[MAP_SYSTEMS]*sizeof(dbMainSystemDef))+(plnid*sizeof(dbMainPlanetDef)) );
 file_r( planetd, 1, sizeof(dbMainPlanetDef), file );
 
-return 1;
+return YES;
 }
 
 
 int dbEmpireSetInfo( int famid, dbMainEmpirePtr empired ) {
 	FILE *file;
 
-if( ( famid < 0 ) || ((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
+if( ( famid < 0 ) || (famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
 	return -3;
 
 if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_INFO ) ) )
@@ -2383,13 +2383,13 @@ file_w( empired, 1, sizeof(dbMainEmpireDef), file );
 
 fclose( file );
 
-return 1;
+return YES;
 }
 
 int dbEmpireGetInfo( int famid, dbMainEmpirePtr empired ) {
 	FILE *file;
 
-if( ( famid < 0 ) || ((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
+if( ( famid < 0 ) || (famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
 	return -3;
 
 if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_INFO ) ) )
@@ -2399,13 +2399,13 @@ file_r( empired, 1, sizeof(dbMainEmpireDef), file );
 
 fclose( file );
 
-return 1;
+return YES;
 }
 
 int dbEmpireSetMessage( int famid, dbEmpireMessagePtr message ) {
 	FILE *file;
 
-if( ( famid < 0 ) || ((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
+if( ( famid < 0 ) || (famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
 	return -3;
 
 if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_MESSAGES ) ) )
@@ -2415,13 +2415,13 @@ file_w( message, 1, sizeof(dbEmpireMessageDef), file );
 
 fclose( file );
 
-return 1;
+return YES;
 }
 
 int dbEmpireGetMessage( int famid, dbEmpireMessagePtr message ) {
 	FILE *file;
 
-if( ( famid < 0 ) || ((unsigned int)famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
+if( ( famid < 0 ) || (famid >= dbMapBInfoStatic[MAP_EMPIRES]) )
 	return -3;
 
 if( !( file = dbFileEmpireOpen( famid, DB_FILE_EMPIRE_MESSAGES ) ) )
@@ -2431,7 +2431,7 @@ file_r( message, 1, sizeof(dbEmpireMessageDef), file );
 
 fclose( file );
 
-return 1;
+return YES;
 }
 
 
@@ -2448,7 +2448,7 @@ int dbEmpireRelsAdd( int id, int *rel )
 {
   int pos;
   FILE *file;
-  if( ( id < 0 ) || ((unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES]) )
+  if( ( id < 0 ) || (id >= dbMapBInfoStatic[MAP_EMPIRES]) )
     return -3;
   if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
@@ -2466,12 +2466,12 @@ int dbEmpireRelsRemove( int id, int relid )
 {
   int a, num, data[4];
   FILE *file;
-  if( ( id < 0 ) || ((unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES]) )
+  if( ( id < 0 ) || (id >= dbMapBInfoStatic[MAP_EMPIRES]) )
     return -3;
   if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
   file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)relid >= num )
+  if( relid >= num )
   {
     fclose( file );
     return -2;
@@ -2487,7 +2487,7 @@ int dbEmpireRelsRemove( int id, int relid )
   a = num-1;
   file_w( &a, 1, sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbEmpireRelsList( int id, int **rel )
@@ -2495,7 +2495,7 @@ int dbEmpireRelsList( int id, int **rel )
   int num = 0;
   FILE *file;
   int *relp;
-  if( ( id < 0 ) || ((unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES]) )
+  if( ( id < 0 ) || (id >= dbMapBInfoStatic[MAP_EMPIRES]) )
     return -3;
   if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
@@ -2516,12 +2516,12 @@ int dbEmpireRelsGet( int id, int relid, int *rel )
 {
   int num;
   FILE *file;
-  if( ( id < 0 ) || ((unsigned int)id >= dbMapBInfoStatic[MAP_EMPIRES]) )
+  if( ( id < 0 ) || (id >= dbMapBInfoStatic[MAP_EMPIRES]) )
     return -3;
   if( !( file = dbFileEmpireOpen( id, DB_FILE_EMPIRE_RELATIONS ) ) )
     return -3;
   file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)relid >= num )
+  if( relid >= num )
   {
     fclose( file );
     return -1;
@@ -2564,7 +2564,7 @@ int dbMarketReset()
   int a, array[3];
   FILE *file;
   if( !( file = fopen( dbFileList[DB_FILE_BASE_MARKET], "wb+" ) ) )
-    return 0;
+    return NO;
   file_s( file, 0 );
   array[0] = 0;
   array[1] = -1;
@@ -2575,7 +2575,7 @@ int dbMarketReset()
   for( a = 0 ; a < 6*DB_MARKET_RANGE ; a++ )
     file_w( array, 1, 3*sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbMarketFull( int *list )
@@ -2591,7 +2591,7 @@ int dbMarketFull( int *list )
     file_r( &list[a], 1, sizeof(int), file );
 
   }
-  return 1;
+  return YES;
 }
 
 
@@ -2607,7 +2607,7 @@ int dbMarketReplaceFull( int *list )
     file_s( file, 8+a*12 );
     file_w( &list[a], 1, sizeof(int), file );
   }
-  return 1;
+  return YES;
 }
 
 
@@ -2780,7 +2780,7 @@ int dbMarketSetQuantity( int *bid, int lcur, int quantity, int loss )
   file_s( file, DB_MARKET_BIDSOFF+lcur*16 + 8 );
   file_w( &quantity, 1, 4, file );
 
-  return 0;
+  return NO;
 }
 
 
@@ -2811,7 +2811,7 @@ int dbUserMarketReset( int id )
   file_w( &a, 1, sizeof(int), file );
   file_w( &a, 1, sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int quantity )
@@ -2833,7 +2833,7 @@ int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int
   pos++;
   file_w( &pos, 1, sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbUserMarketList( int id, int **list )
@@ -2876,7 +2876,7 @@ int dbUserMarketQuantity( int id, int bidid, int quantity )
     file_s( file, (2*sizeof(int))+(a*sizeof(dbMarketUserDef))+12 );
     file_w( &quantity, 1, sizeof(int), file );
     fclose( file );
-    return 1;
+    return YES;
   }
   fclose( file );
   return -3;
@@ -2912,7 +2912,7 @@ int dbUserMarketRemove( int id, int bidid )
     num--;
     file_w( &num, 1, sizeof(int), file );
     fclose( file );
-    return 1;
+    return YES;
   }
   fclose( file );
   return -3;
@@ -2954,7 +2954,7 @@ struct ( X+Y )
   Y:text
 */
 
-int dbForumListForums( int flags, int perms, dbForumForumPtr *forums ) {
+int dbForumListForums( int flags, dbForumForumPtr *forums ) {
 	int num;
 	FILE *file;
 	dbForumForumPtr forumsp;
@@ -3026,7 +3026,7 @@ file_r( forumd, 1, sizeof(dbForumForumDef), file );
   {
     fclose( file );
     *threads = threadsp;
-    return 0;
+    return NO;
   }
   for( a = lused, b = 0 ; b < base ; b++ )
   {
@@ -3098,7 +3098,7 @@ file_r( threadd, 1, sizeof(dbForumThreadDef), file );
     file_r( &offset, 1, sizeof(int), file );
     file_r( &postsp[b].post, 1, sizeof(dbForumPostInDef), file );
     postsp[b].text = 0;
-    if( (unsigned int)((postsp[b].post).length) >= FORUM_MAX )
+    if( ((postsp[b].post).length) >= FORUM_MAX )
     {
       (postsp[b].post).flags |= DB_FORUM_FLAGS_POSTERROR;
       continue;
@@ -3137,7 +3137,7 @@ if( flags ) {
   file_s( file, 16 );
   file_r( forumd, 1, sizeof(dbForumForumDef), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 
@@ -3264,7 +3264,7 @@ file_r( &num, 1, sizeof(int), file );
 
 if( forum >= num ) {
 	fclose( file );
-	return 0;
+	return NO;
 }
 
 file_s( file, 4+forum*sizeof(dbForumForumDef) );
@@ -3429,7 +3429,7 @@ file_r( &lused, 1, sizeof(int), file );
 file_r( &lfree, 1, sizeof(int), file );
 file_r( &numnext, 1, sizeof(int), file );
 file_r( &forumd, 1, sizeof(dbForumForumDef), file );
-  if( (unsigned int)thread >= numnext )
+  if( thread >= numnext )
   {
     fclose( file );
     return -3;
@@ -3614,7 +3614,7 @@ file_r( &num, 1, sizeof(int), file );
   }
   fclose( file );
 
-  return 1;
+  return YES;
 }
 
 int dbForumRemovePost( int flags, int forum, int thread, int post ) {
@@ -3636,7 +3636,7 @@ if( flags ) {
     return -3;
 file_r( &num, 1, sizeof(int), file );
 file_r( &offset, 1, sizeof(int), file );
-  if( (unsigned int)post >= num )
+  if( post >= num )
   {
     fclose( file );
     return -3;
@@ -3729,7 +3729,7 @@ if( flags ) {
     return -3;
 file_r( &num, 1, sizeof(int), file );
 file_r( &offset, 1, sizeof(int), file );
-  if( (unsigned int)post >= num )
+  if( post >= num )
   {
     if( posts )
       free( posts );
@@ -3814,7 +3814,7 @@ if( !( mailsp = malloc( num * sizeof(dbMailDef) ) ) )
 if( base == num ) {
 	fclose( file );
 	*mails = mailsp;
-	return 0;
+	return NO;
 }
 
 offset = 2 * sizeof(int64_t);
@@ -3829,7 +3829,7 @@ for( b = 0 ; a < num ; a++, b++ ) {
 	file_r( &offset, 1, sizeof(int64_t), file );
 	file_r( &mailsp[b].mail, 1, sizeof(dbMailInDef), file );
 	mailsp[b].text = 0;
-	if( (unsigned int)((mailsp[b].mail).length) >= MAIL_MAX )
+	if( ((mailsp[b].mail).length) >= MAIL_MAX )
 		continue;
 	if( !( mailsp[b].text = malloc( (mailsp[b].mail).length + 1 ) ) )
 		continue;
@@ -3874,12 +3874,12 @@ file_w( &a, 1, sizeof(int64_t), file );
 file_w( &(maild->mail), 1, sizeof(dbMailInDef), file );
 file_w( maild->text, 1, (maild->mail).length, file );
 
-file_s( file, sizeof(int64_t) );
+file_s( file, 1*sizeof(int64_t) );
 file_w( &a, 1, sizeof(int64_t), file );
 fclose( file );
 
 
-return 1;
+return YES;
 }
 
 
@@ -3899,7 +3899,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) ) {
 file_r( &num, 1, sizeof(int64_t), file );
 file_r( &offset, 1, sizeof(int64_t), file );
 
-if( (unsigned int)message >= num ) {
+if( message >= num ) {
 	fclose( file );
 	return -3;
 }
@@ -3959,7 +3959,7 @@ if( !( file = dbFileUserOpen( id, DB_FILE_USER_MAILIN+type ) ) ) {
 file_w( dbFileUserListData[DB_FILE_USER_MAILIN+type], 1, dbFileUserListBase[DB_FILE_USER_MAILIN+type], file );
 fclose( file );
   
-return 1;
+return YES;
 }
 
 
@@ -3997,7 +3997,7 @@ int dbUserSpecOpRemove( int id, int specopid )
     return -3;
     }
   file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)specopid >= num )
+  if( specopid >= num )
   {
     fclose( file );
     return -2;
@@ -4013,7 +4013,7 @@ int dbUserSpecOpRemove( int id, int specopid )
   a = num-1;
   file_w( &a, 1, sizeof(int), file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 int dbUserSpecOpList( int id, dbUserSpecOpPtr *specopd )
@@ -4047,7 +4047,7 @@ int dbUserSpecOpSet( int id, int specopid, dbUserSpecOpPtr specopd )
     return -3;
     }
 file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)specopid >= num )
+  if( specopid >= num )
   {
     fclose( file );
     return -2;
@@ -4067,7 +4067,7 @@ int dbUserSpecOpRetrieve( int id, int specopid, dbUserSpecOpPtr specopd )
     return -3;
     }
 file_r( &num, 1, sizeof(int), file );
-  if( (unsigned int)specopid >= num )
+  if( specopid >= num )
   {
     fclose( file );
     return -2;
@@ -4087,7 +4087,7 @@ int dbUserSpecOpEmpty( int id )
     }
   file_w( dbFileUserListData[DB_FILE_USER_SPECOPS], 1, dbFileUserListBase[DB_FILE_USER_SPECOPS], file );
   fclose( file );
-  return 1;
+  return YES;
 }
 
 
@@ -4135,7 +4135,7 @@ if( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_U
 	strncpy( user->fbid, infod->fbinfo.id, sizeof(user->fbid) );
 #endif
 
-return 1;
+return YES;
 }
 
 int dbUserInfoRetrieve( int id, dbUserInfoPtr infod ) {
@@ -4154,7 +4154,7 @@ file_s( file, 0 );
 file_r( infod, 1, sizeof(dbUserInfoDef), file );
 fclose( file );
 
-return 1;
+return YES;
 }
 
 int dbUserRecordAdd( int id, dbUserRecordPtr recordd ) {

@@ -668,7 +668,8 @@ return;
 
 
 void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
-	int a, i, id, num;
+	int a, id, num;
+	unsigned int i;
 	char rtpass[USER_PASS_MAX];
 	int64_t *newsp, *newsd;
 	dbUserInfoDef infod;
@@ -906,7 +907,8 @@ return;
 #define REGISTER_DISABLE 0
 
 void iohtmlFunc_register( ReplyDataPtr cnt ) {
-	int a, i, id, raceid;
+	int a, id, raceid;
+	unsigned int i;
 	FILE *file;
 	char timebuf[256];
 	char COREDIR[PATH_MAX];
@@ -1125,7 +1127,8 @@ return;
 }
 
 void iohtmlFunc_ircapplet( ReplyDataPtr cnt ) {
-	int id, i, j;
+	int id;
+	unsigned int i, j;
 	char szFaction[USER_NAME_MAX];
 	dbUserMainDef maind;
 	ConfigArrayPtr setting;

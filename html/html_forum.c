@@ -60,7 +60,7 @@ IOHTTP_FORUM_SMILETOTAL = 0;
 while (NULL != (de = readdir (dir))) {
 	if ('.' == de->d_name[0])
 		continue;
-	if( sizeof (fname) <= snprintf (fname, sizeof (fname), "%s/%s", dname, de->d_name) )
+	if( sizeof (fname) <= (unsigned int)snprintf (fname, sizeof (fname), "%s/%s", dname, de->d_name) )
 		continue;
 	if (0 != stat (fname, &sbuf))
 		continue;
@@ -436,7 +436,7 @@ int iohttpForumCleanAuthor( int flags, char *string )
  dbForumForumPtr forums;
  dbForumForumDef forumd;
  dbForumThreadPtr threads;
- fnum = dbForumListForums( flags, 0, &forums );
+ fnum = dbForumListForums( flags, &forums );
  if( fnum < 0 ) return -1;
  iohttpForumFilter( word, string, 512, 0 );
  for( a = 0 ; a < fnum ; a++ )
@@ -468,7 +468,7 @@ int iohttpForumCleanIP( int flags, char *ipstring )
  dbForumForumPtr forums;
  dbForumForumDef forumd;
  dbForumThreadPtr threads;
- fnum = dbForumListForums( flags, 0, &forums );
+ fnum = dbForumListForums( flags, &forums );
  if( fnum < 0 )
   return -1;
  for( a = 0 ; a < fnum ; a++ )
@@ -577,7 +577,7 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ) {
    goto RETURN;
  }
  
-  b = dbForumListForums( flags, 0, &forums );
+  b = dbForumListForums( flags, &forums );
   if( b < 0 )
   {
    httpString( cnt, "Error while retrieving list of forums" );
@@ -652,7 +652,7 @@ if( forums )
 		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
 		httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
 		httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - %s</td><td class=\"right\">", URLAppend( cnt, "forum" ), settings->string_value, forumd.title );
-if( flags ) {
+if( flags == false ) {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 	httpString( cnt, timebuf );
@@ -792,7 +792,7 @@ settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - ", URLAppend( cnt, "forum" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d\">%s</a> - %s</td><td class=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, forumd.title, threadd.topic );
-if( flags )  {
+if( flags == false )  {
 	time( &tint );
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 	httpString( cnt, timebuf );

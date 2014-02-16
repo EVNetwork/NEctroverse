@@ -171,7 +171,7 @@ if( curl ) {
 		if( ( message ) ) {
 			message = cJSON_GetObjectItem(root,"message");
 			if( ( message ) ) {
-				if( strstr( message->valuestring, "The user has not authorized application" ) > 0 ) {
+				if( strstr( message->valuestring, "The user has not authorized application" ) != NULL ) {
 					fbdata->connected = false;
 				}
 			}
@@ -367,7 +367,8 @@ return result;
 
 void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings[3];
-	int a, i, id, offset = 0;
+	int a, id, offset = 0;
+	unsigned int i;
 	char *error, *remove;
 	char *code, *fbtoke;
 	char *dump = NULL;
@@ -485,7 +486,7 @@ if( buffer[0] )
 
 if( id >= 0 ) {
 
-	if( ( ( user = dbUserLinkID( id ) ) < 0 ) || ( dbUserLinkDatabase( cnt, id ) < 0 ) ) {
+	if( ( ( user = dbUserLinkID( id ) ) == NULL ) || ( dbUserLinkDatabase( cnt, id ) < 0 ) ) {
 		httpString( cnt, "An error has occured while trying to link with your game account.<br/>" );
 		goto BAILOUT;
 	}
@@ -550,10 +551,10 @@ if( ( (cnt->session)->dbuser ) && ( user = (cnt->session)->dbuser ) ) {
 		file = NULL;
 	}
 	facebook_post_notice( fbdata.id, NULL, "Welcome @[%s]\nYou have linked with user: %s\nThanks for deciding to join our game...\nWe hope that you will enjoy it.", fbdata.id, user->name );
-	redirect( cnt, "/%s&page=account", URLAppend( cnt, "main" ) );
+	redirect( cnt, "/%s", URLAppend( cnt, "account" ) );
 	httpPrintf( cnt, "<b>Facebook ID %s now linked with User %s</b><br/><br/>", user->fbid, user->name );
 	httpString( cnt, "You should be redirected back to your account screen shortly<br/>" );
-	httpPrintf( cnt, "<a href=\"/%s?page=account\">Click here if it takes too long</a><br/>", URLAppend( cnt, "main" ) );
+	httpPrintf( cnt, "<a href=\"/%s\">Click here if it takes too long</a><br/>", URLAppend( cnt, "account" ) );
 } else {
 	httpString( cnt, "<script type=\"text/javascript\">" );
 	httpString( cnt, "$(document).ready(function(){" );
