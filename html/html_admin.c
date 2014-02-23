@@ -1523,7 +1523,7 @@ sysconfig.shutdown = true;
           dbMapSetPlanet( plnlist[a], &planetd );
         }
       }
-              httpPrintf( cnt, "Energy Production of User %d Wiped;", user->faction );
+              httpPrintf( cnt, "Energy Production of User %s ID:%d Wiped;", user->faction, user->id );
       }
       if( plnlist )
         free( plnlist );
