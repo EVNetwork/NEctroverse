@@ -1030,6 +1030,7 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
 {
   int a, b, c, cmd[2], id;
   int *buffer;
+  int *plnlist;
   char buff[DEFAULT_BUFFER];
   char *action[33];
   dbForumForumDef forumd;
@@ -1079,7 +1080,7 @@ void iohtmlFunc_oldadmin( ReplyDataPtr cnt )
   action[27] = iohtmlVarsFind( cnt, "setfmod" );
   action[28] = iohtmlVarsFind( cnt, "setplay" );
   action[29] = iohtmlVarsFind( cnt, "deletecons");
-  action[30] = iohtmlVarsFind( cnt, "EndOfRound" );
+  action[30] = iohtmlVarsFind( cnt, "blankenergy" );
   action[31] = iohtmlVarsFind( cnt, "resetpass" );
 
 if( action[0] ) {
@@ -1509,7 +1510,24 @@ sysconfig.shutdown = true;
 
 	if( action[30] )
   {
-	httpString( cnt, "Action disabled by Necro...!!<br/><br/>" );
+  	if( sscanf( action[30], "%d", &a ) == 1 ) {
+  	if( ( user = dbUserLinkID( a ) ) ) {
+	if( ( b = dbUserPlanetListIndices( user->id, &plnlist ) ) > 0 )
+      {
+        for( a = 0 ; a < b ; a++ )
+        {
+          if( dbMapRetrievePlanet( plnlist[a], &planetd ) < 0 )
+            continue;
+          planetd.building[CMD_BUILDING_SOLAR] = 0;
+          planetd.building[CMD_BUILDING_FISSION] = 0;
+          dbMapSetPlanet( plnlist[a], &planetd );
+        }
+      }
+              httpPrintf( cnt, "Energy Production of User %d Wiped;", user->faction );
+      }
+      if( plnlist )
+        free( plnlist );
+      }
 
   }
 
@@ -1544,7 +1562,7 @@ if( action[31] ) {
   httpString( cnt, "<br/><br/>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"forums\" value=\"1\"><input type=\"submit\" value=\"Create empire forums\"></form><br/><br/>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"shutdown\" value=\"1\"><input type=\"submit\" value=\"Shutdown\"></form><br/><br/>" );
-  httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"hidden\" name=\"EndOfRound\" value=\"1\"><input type=\"submit\" value=\"End Of Round\"></form><br/><br/>" );
+  httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"blankenergy\" value=\"user ID\"><input type=\"submit\" value=\"Wipe Energy Production\"></form><br/><br/>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"forumdel\" value=\"user ID\"><input type=\"submit\" value=\"Delete forum\"></form><br/><br/>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"forumcreate\" value=\"Forum name\"><input type=\"submit\" value=\"Create forum\"></form><br/><br/>" );
   httpString( cnt, "<form action=\"admin\" method=\"POST\"><input type=\"text\" name=\"setmod\" value=\"user ID\"><input type=\"submit\" value=\"Set mod\"></form><br/><br/>" );
@@ -1578,7 +1596,6 @@ if( action[31] ) {
 
   iohtmlFunc_admin_mainL0:
   httpString( cnt, "You do not have administrator privileges." );
-  httpString( cnt, "</center></body></html>" );
   httpString( cnt, "</center></body></html>" );
   return;
 }
