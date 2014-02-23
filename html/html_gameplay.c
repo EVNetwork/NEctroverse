@@ -1522,7 +1522,7 @@ httpString( cnt, "<b>Buildings</b><br><table>" );
 memset( bsums, 0, (CMD_BLDG_NUMUSED+2)*sizeof(int64_t) );
 for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 	httpPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"bld%d\">%lld</td></tr>", cmdBuildingName[a], a, (long long)maind.totalbuilding[a] );
-	bsums[CMD_BLDG_NUMUSED+1] += (int)maind.totalbuilding[a];
+	bsums[CMD_BLDG_NUMUSED+1] += maind.totalbuilding[a];
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%lld</td></tr></table><br><br>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
@@ -1531,7 +1531,7 @@ httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_buil
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( build[a].type >> 16 )
 		continue;
-	httpPrintf( cnt, "<tr><td>%d %s in %d weeks at <a href=\"%s&amp;id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, URLAppend( cnt, "planet" ), build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
+	httpPrintf( cnt, "<tr><td>%lld %s in %d weeks at <a href=\"%s&amp;id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", (long long)build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, URLAppend( cnt, "planet" ), build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
 	bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
 	c++;
 }
@@ -1570,7 +1570,7 @@ usums[CMD_BLDG_NUMUSED+1] = 0;
 for( a = c = 0 ; a < numbuild; a++ ) {
 	if( !( build[a].type >> 16 ) )
 		continue;
-	httpPrintf( cnt, "<tr><td>%d %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
+	httpPrintf( cnt, "<tr><td>%lld %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", (long long)build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
 	usums[ build[a].type & 0xFFFF ] += build[a].quantity;
 	c++;
 }

@@ -1770,6 +1770,7 @@ int dbUserPortalsList( int id, int **list )
   return (b/3);
 }
 
+
 int dbUserPortalsListCoords( int id, int **list )
 {
   int a, b, num, flags;
@@ -3533,6 +3534,7 @@ file_r( &threadd, 1, sizeof(dbForumThreadDef), file );
   threadd.time = postd->post.time;
   threadd.tick = postd->post.tick;
   threadd.lastid = postd->post.authorid;
+  memcpy( &(threadd.sin_addr), &(postd->post.sin_addr), sizeof(struct in_addr) );
   strncpy( threadd.lastpost, postd->post.authorname, USER_NAME_MAX );
   threadd.posts++;
   file_s( file, 8 );

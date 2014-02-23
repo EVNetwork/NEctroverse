@@ -207,7 +207,7 @@ if( ( typestring ) && ( refer ) ) {
 			for( a = c = 0 ; a < numbuild ; a++ ) {
 				if( !( build[a].type >> 16 ) )
 					continue;
-				httpPrintf( cnt, "<tr><td>%d %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
+				httpPrintf( cnt, "<tr><td>%lld %s in %d weeks</td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", (long long)build[a].quantity, cmdUnitName[ build[a].type & 0xFFFF ], build[a].time, a);
 				usums[ build[a].type & 0xFFFF ] += build[a].quantity;
 				c++;
 			}
