@@ -1144,8 +1144,7 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
 */
 void specopGhostsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *newd )
 {
-  int a, b, c, d, x, y, dx, dy, specop, penalty, stealth, postnew, plntarget;
-  int64_t  attack, defense, defenseghosts;
+  int64_t a, b, c, d, x, y, dx, dy, specop, penalty, stealth, postnew, plntarget, attack, defense, defenseghosts;
   double fb, success, successghosts, refatt, refdef, tlosses;//, dist;
   double fa, ent, en[6], endiv[6];
   dbUserFleetDef fleet2d;

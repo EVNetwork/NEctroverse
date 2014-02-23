@@ -4339,6 +4339,7 @@ void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
 	  	if(nNbr)
 	  	{
 	  		memcpy(nBuildp, nTemp, (nNbr)*sizeof(int));
+	  		free( nTemp );
 	  	}
 	  	nBuildp[nNbr] = i;
 	  	nNbr++;
