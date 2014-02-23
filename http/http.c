@@ -1054,13 +1054,37 @@ postdata_wipe( request->session );
 free(request);
 }
 
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen) {
+
+switch(sa->sa_family) {
+	case AF_INET:
+		inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr), s, maxlen);
+		break;
+
+	case AF_INET6:
+		inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr), s, maxlen);
+		break;
+
+        default:
+            strncpy(s, "Unknown AF", maxlen);
+            return NULL;
+}
+
+
+return s;
+}
+
 static int access_check(void *cls, const struct sockaddr *addr, socklen_t addrlen) {
 	int a;
+	char s[addrlen];
 
-for( a = 0 ; a < sysconfig.banlist.number ; a++ ) {
-	if( ioCompareFindWords( inet_ntoa( ((struct sockaddr_in *)addr)->sin_addr ), sysconfig.banlist.ip[a] ) )
-		return NO;
+if( get_ip_str( addr, s, addrlen) != NULL ) {
+	for( a = 0 ; a < sysconfig.banlist.number ; a++ ) {
+		if( ioCompareFindWords( s, sysconfig.banlist.ip[a] ) )
+			return NO;
+	}
 }
+
 
 return YES;
 }
