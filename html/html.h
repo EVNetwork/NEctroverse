@@ -16,5 +16,6 @@
 
 
 void iohttpFunc_Approve( ReplyDataPtr cnt );
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen);
 
 #endif

@@ -1765,7 +1765,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
     httpString( cnt, "Buying" );
    else
     httpString( cnt, "Selling" );
-   httpPrintf( cnt, " %d %s at %d - <a href=\"%s&rmbid=%d\">Withdraw bid</a><br>", URLAppend( cnt, "market" ), buffer[c+DB_MARKETBID_QUANTITY], cmdRessourceName[buffer[c+DB_MARKETBID_RESSOURCE]+1], buffer[c+DB_MARKETBID_PRICE], buffer[c+DB_MARKETBID_BIDID] );
+   httpPrintf( cnt, " %d %s at %d - <a href=\"%s&rmbid=%d\">Withdraw bid</a><br>", buffer[c+DB_MARKETBID_QUANTITY], cmdRessourceName[buffer[c+DB_MARKETBID_RESSOURCE]+1], buffer[c+DB_MARKETBID_PRICE], URLAppend( cnt, "market" ), buffer[c+DB_MARKETBID_BIDID] );
   }
   httpString( cnt, "<br>" );
   if( buffer )
@@ -3818,8 +3818,8 @@ if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt
 
 httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
 httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
-httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
-httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
+httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
+httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
 
 if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
  	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
