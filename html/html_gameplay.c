@@ -1526,7 +1526,7 @@ for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 }
 
 httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"bldnum\">%lld</td></tr></table><br><br>", (long long)bsums[CMD_BLDG_NUMUSED+1] );
-httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><table><form name=\"cancelbuild\" id=\"cancel_build\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<b>Buildings under construction</b><br><span id=\"council_build_que\"><form name=\"cancelbuild\" id=\"cancel_build\" action=\"%s\"><table>", URLAppend( cnt, "cancelbuild" ) );
 
 for( a = c = 0 ; a < numbuild ; a++ ) {
 	if( build[a].type >> 16 )
@@ -1540,11 +1540,10 @@ if( !( c ) ) {
 	httpString( cnt, "</form></table>None<br>" );
 } else {
 	httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_build');\">Toggle</font></div></td></tr>");
- 	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table>");
+ 	httpString(cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></table></form>");
 	httpString( cnt, "<br><i>Summary</i><br>" );
 	
-	bsums[CMD_BLDG_NUMUSED+1] = 0;
-	for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
+	for( a = bsums[CMD_BLDG_NUMUSED+1] = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ ) {
 		if( !( bsums[a] ) )
 			continue;
 		httpPrintf( cnt, "%lld %s<br>", (long long)bsums[a], cmdBuildingName[a] );
@@ -1560,13 +1559,12 @@ httpString( cnt, "<b>Units</b><br><table>" );
 memset( usums, 0, (CMD_UNIT_NUMUSED+2)*sizeof(int64_t) );
 for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
 	httpPrintf( cnt, "<tr><td>%s</td><td>&nbsp;</td><td align=\"right\" id=\"unt%d\">%lld</td></tr>", cmdUnitName[a], a, (long long)maind.totalunit[a] );
-	usums[CMD_BLDG_NUMUSED+1] += (int)maind.totalunit[a];
+	usums[CMD_UNIT_NUMUSED+1] += maind.totalunit[a];
 }
 
-httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%lld</td></tr></table><br><br>", (long long)usums[CMD_BLDG_NUMUSED+1] );
-httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><table><form name=\"cancelunit\" id=\"cancel_units\" action=\"%s\">", URLAppend( cnt, "cancelbuild" ) );
+httpPrintf( cnt, "<tr><td>Total</td><td>&nbsp;</td><td id=\"untnum\">%lld</td></tr></table><br><br>", (long long)usums[CMD_UNIT_NUMUSED+1] );
+httpPrintf( cnt, "<b>Units under construction</b><br><span id=\"council_unit_que\"><form name=\"cancelunit\" id=\"cancel_units\" action=\"%s\"><table>", URLAppend( cnt, "cancelbuild" ) );
 
-usums[CMD_BLDG_NUMUSED+1] = 0;
 for( a = c = 0 ; a < numbuild; a++ ) {
 	if( !( build[a].type >> 16 ) )
 		continue;
@@ -1576,17 +1574,17 @@ for( a = c = 0 ; a < numbuild; a++ ) {
 }
 
 if( !( c ) ) {
-  httpString( cnt, "</form></table>None<br>" );
+  httpString( cnt, "</table></form>None<br>" );
 } else {
 	httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_units');\">Toggle</font></div></td></tr>");
-	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></form></table><br><i>Summary</i><br>" );
-for( a = 0; a < CMD_UNIT_NUMUSED; a++ ) {
-	if( !( usums[a] ) )
-		continue;
-	httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
-	usums[CMD_BLDG_NUMUSED+1] += usums[a];
+	httpString( cnt, "<tr><td></td><td><input type=\"submit\" value=\"Cancel\"></td></tr></table></form><br><i>Summary</i><br>" );
+	for( a = usums[CMD_UNIT_NUMUSED+1] = 0; a < CMD_UNIT_NUMUSED; a++ ) {
+		if( !( usums[a] ) )
+			continue;
+		httpPrintf( cnt, "%lld %s<br>", (long long)usums[a], cmdUnitName[a] );
+		usums[CMD_UNIT_NUMUSED+1] += usums[a];
   	}
-	httpPrintf( cnt, "<i>Total of %lld units under construction</i><br>", (long long)usums[CMD_BLDG_NUMUSED+1] );
+	httpPrintf( cnt, "<i>Total of %lld units under construction</i><br>", (long long)usums[CMD_UNIT_NUMUSED+1] );
 }
 
 httpString( cnt, "</span></td></tr></table>" );
