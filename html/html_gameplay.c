@@ -4304,7 +4304,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
 void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
 {
-	int id, i, j, nNbr=0, nTotalBuild, nTotal[4];
+	int id, i, j;
+	int64_t nNbr=0, nTotalBuild, nTotal[CMD_RESSOURCE_NUMUSED];
 	int *nBuildp=0, *nTemp=0;
 	dbUserMainDef maind;
 	dbBuildPtr buildp;
@@ -4313,90 +4314,84 @@ void iohtmlFunc_cancelbuild( ReplyDataPtr cnt )
 	char *cBuild;
 
 	iohtmlBase( cnt, 1 );
- if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-  return;
-	memset(&nTotal, 0, 4*sizeof(int));
-	nTotalBuild = dbUserBuildList( id, &buildp );
+if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
+	return;
 
- nBuildp = NULL;
- for( i=0; i<nTotalBuild; i++)
- {
-  sprintf( buildid, "b%d", i );
-  cBuild = iohtmlVarsFind( cnt, buildid );
-  if(cBuild)
-  {
-  	if(cBuild[1] == 'n')
-  	{
-	  	if(nNbr)
-	  	{
-	  		nTemp = malloc(nNbr*sizeof(int));
-	  		memcpy(nTemp, nBuildp, nNbr*sizeof(int));
-	  		free(nBuildp);
-	  	}
-	  	nBuildp = malloc((nNbr+1) * sizeof(int));
-	  	if(nNbr)
-	  	{
-	  		memcpy(nBuildp, nTemp, (nNbr)*sizeof(int));
-	  		free( nTemp );
-	  	}
-	  	nBuildp[nNbr] = i;
-	  	nNbr++;
-	  }
-  }
- }
+memset(&nTotal, 0, CMD_RESSOURCE_NUMUSED*sizeof(int64_t));
+nTotalBuild = dbUserBuildList( id, &buildp );
+nBuildp = nTemp = NULL;
 
-	dbUserMainRetrieve(id, &maind);
+for( i=0; i<nTotalBuild; i++) {
+	sprintf( buildid, "b%d", i );
+	cBuild = iohtmlVarsFind( cnt, buildid );
+	if(cBuild) {
+		if(cBuild[1] == 'n') {
+			if(nNbr) {
+				nTemp = malloc(nNbr*sizeof(int));
+		  		memcpy(nTemp, nBuildp, nNbr*sizeof(int));
+		  		free(nBuildp);
+			}
+			nBuildp = malloc((nNbr+1) * sizeof(int));
+			if(nNbr) {
+				memcpy(nBuildp, nTemp, (nNbr)*sizeof(int));
+				free( nTemp );
+			}
+			nBuildp[nNbr] = i;
+			nNbr++;
+		}
+	}
+}
 
-	for(i=nNbr-1;i>=0;i--)
- {
- 	for(j=0;j<4;j++)
- 	{
- 		nTotal[j] += (buildp[nBuildp[i]]).cost[j] / 2;
+dbUserMainRetrieve(id, &maind);
+
+for(i=nNbr-1;i>=0;i--) {
+	for(j=0;j<CMD_RESSOURCE_NUMUSED;j++) {
+		nTotal[j] += fmax( 0.0, ( buildp[nBuildp[i]].cost[j] * ((float)buildp[nBuildp[i]].time / (float)buildp[nBuildp[i]].cost[CMD_RESSOURCE_NUMUSED]) ) );
  	}
  	dbUserBuildRemove( id, nBuildp[i] );
- 	if( !( buildp[nBuildp[i]].type >> 16 ) )
-   {
-    dbMapRetrievePlanet( buildp[nBuildp[i]].plnid, &planetd );
-    if( buildp[nBuildp[i]].type == CMD_BLDG_NUMUSED )
-    {
-     // portal
-     planetd.flags = 0;
-     dbUserPlanetSetFlags( id, buildp[nBuildp[i]].plnid, planetd.flags );
-     planetd.construction--;
-    }
-    else
-    {
-     planetd.construction -= buildp[nBuildp[i]].quantity;
-    }
-    dbMapSetPlanet( buildp[nBuildp[i]].plnid, &planetd );
-   }
- }
-
- for(i=0;i<4;i++)
- 	maind.ressource[i] += (nTotal[i]);
-
- dbUserMainSet(id, &maind);
-
-
- if( !( iohtmlHeader( cnt, id, &maind ) ) )
-  return;
- iohtmlBodyInit( cnt, "Cancelling %d buildings or units", nNbr);
- if(nNbr)
- {
-	 	httpPrintf(cnt, "%d building or unit under construction have been remove<br>", nNbr);
-	 	httpPrintf(cnt, "<table><tr><td>You were refunded with:</td><td></td><td></td></tr>");
-	 	for(i=0;i<4;i++)
-	 	{
-	 		if(nTotal[i])
-	 			httpPrintf(cnt, "<tr><td></td><td>%d</td><td>%s</td></tr>", nTotal[i], cmdRessourceName[i]);
-	 	}
-	 	httpString(cnt, "</table>");
+ 	if( !( buildp[nBuildp[i]].type >> 16 ) ) {
+		dbMapRetrievePlanet( buildp[nBuildp[i]].plnid, &planetd );
+		if( buildp[nBuildp[i]].type == CMD_BLDG_NUMUSED ) {
+			// portal
+			planetd.flags &= 0xFFFFFFFF - CMD_PLANET_FLAGS_PORTAL_BUILD;
+			dbUserPlanetSetFlags( id, buildp[nBuildp[i]].plnid, planetd.flags );
+			planetd.construction--;
+		} else {
+			planetd.construction -= buildp[nBuildp[i]].quantity;
+		}
+		dbMapSetPlanet( buildp[nBuildp[i]].plnid, &planetd );
 	}
- 	httpPrintf(cnt, "<a href=\"%s\">Back</a>", URLAppend( cnt, "council" ) );
- free( buildp );
- if(nBuildp)
-free(nBuildp);
- iohtmlBodyEnd( cnt );
+}
+
+for(i=0;i<CMD_RESSOURCE_NUMUSED;i++) {
+ 	maind.ressource[i] += nTotal[i];
+}
+
+dbUserMainSet(id, &maind);
+
+
+if( !( iohtmlHeader( cnt, id, &maind ) ) )
+	return;
+
+iohtmlBodyInit( cnt, "Cancelling %d buildings or units", nNbr);
+if(nNbr) {
+	httpPrintf(cnt, "%d building or unit under construction have been remove<br>", nNbr);
+	httpPrintf(cnt, "<table><tr><td>You were refunded with:</td><td></td><td></td></tr>");
+	for(i=0;i<CMD_RESSOURCE_NUMUSED;i++) {
+		if(nTotal[i]) {
+	 			httpPrintf(cnt, "<tr><td></td><td>%lld</td><td>%s</td></tr>", (long long)nTotal[i], cmdRessourceName[i]);
+		}
+	}
+	httpString(cnt, "</table>");
+}
+
+httpPrintf(cnt, "<a href=\"%s\">Back</a>", URLAppend( cnt, "council" ) );
+free( buildp );
+
+if(nBuildp)
+	free(nBuildp);
+
+iohtmlBodyEnd( cnt );
 }
 
 #define IOHTTP_MASSBUILD_STRING 16384

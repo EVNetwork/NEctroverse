@@ -1075,9 +1075,10 @@ buildp.plnid = plnid;
 buildp.plnpos = plnloc;
 
 
-for(i=0;buildp.cost[i];i++) {
+for(i=0;i<CMD_RESSOURCE_NUMUSED;i++) {
 	buildp.cost[i] = cost[i];
 }
+buildp.cost[CMD_RESSOURCE_NUMUSED] = buildp.time;
 
 file_r( &pos, 1, sizeof(int), file );
 file_s( file, 4+(pos*sizeof(dbBuildDef)) );
@@ -1769,6 +1770,7 @@ int dbUserPortalsList( int id, int **list )
   *list = listp;
   return (b/3);
 }
+
 
 
 int dbUserPortalsListCoords( int id, int **list )

@@ -161,7 +161,7 @@ typedef struct
   int plnid;
   int plnpos;
   int64_t quantity;
-  int64_t cost[CMD_RESSOURCE_NUMUSED];
+  int64_t cost[CMD_RESSOURCE_NUMUSED+1];
 } dbBuildDef, *dbBuildPtr;
 
 #define dbUserBuildAdd( id, type, cost, quantity, time, plnid, plnloc ) dbBuildAdd( YES, id, type, cost, quantity, time, plnid, plnloc );
