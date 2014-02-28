@@ -40,7 +40,7 @@ httpPrintf( cnt, "<a href=\"%s\">Faction rankings</a><br>", URLAppend( cnt, "ran
 httpPrintf( cnt, "<a href=\"%s&amp;type=1\">Empire rankings</a><br>", URLAppend( cnt, "rankings" ) );
 httpPrintf( cnt, "<a href=\"%s\">Forums</a><br>", URLAppend( cnt, "forum" ) );
 httpPrintf( cnt, "<a href=\"%s\">Account</a><br>", URLAppend( cnt, "account" ) );
-httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+httpPrintf( cnt, "<a href=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" ) );
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"text\" name=\"search\" size=\"8\" value=\"\"><input type=\"submit\" size=\"2\" value=\"OK\"></form><br>", URLAppend( cnt, "search" ) );
 
@@ -49,7 +49,7 @@ if( (cnt->session)->dbuser ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
 	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\" target=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<br><a href=\"%s\">Admin panel</a>", URLAppend( cnt, "admin" ) );
 	}
 }
 
@@ -62,7 +62,8 @@ if( (cnt->session)->dbuser ) {
  return;
 }
 
-int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
+
+int iohtmlRawHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp, bool flag )
 {
  int a;
  if( dbUserMainRetrieve( id, mainp ) < 0 )
@@ -72,7 +73,11 @@ int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp )
  }
 httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" height=\"100%\" border=\"0\" valign=\"top\" class=\"center\">" );
 httpString( cnt, "<tr><td valign=\"top\" width=\"155\">" );
-iohtmlFunc_menu( cnt );
+if( flag == true ) {
+	iohtmlFunc_AdminMenu( cnt );
+} else {
+	iohtmlFunc_menu( cnt );
+}
 httpString( cnt, "</td><td>" );
 httpString( cnt, "<div class=\"floating-header\">" );
  httpString( cnt, "<table cellspacing=\"0\" cellpadding=\"0\" width=\"97.5%\" border=\"0\" align=\"center\">" );
@@ -1868,7 +1873,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
 
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><table cellspacing=\"4\" border=\"0\"><tr><td><input type=\"radio\" value=\"0\" name=\"action\">Buy<br><input type=\"radio\" value=\"1\" name=\"action\">Sell</td><td><select name=\"res\">", URLAppend( cnt, "market" ) );
  for( a = 0 ; a < 3 ; a++ )
-  httpPrintf( cnt, "<option value=\"%d\">%s", a, cmdRessourceName[a+1] );
+  httpPrintf( cnt, "<option value=\"%d\">%s</option>", a, cmdRessourceName[a+1] );
  httpString( cnt, "</select></td></tr><tr><td align=\"right\">Price :</td><td><input type=\"text\" name=\"price\" size=\"10\"></td></tr><tr><td>Quantity :</td><td><input type=\"text\" name=\"quantity\" size=\"10\"></td></tr></table><input type=\"submit\" value=\"Execute\"></form>" );
  httpString( cnt, "<br><i>Note that resources placed on the market still decay, including energy.</i>" );
 
@@ -4378,7 +4383,7 @@ if(nNbr) {
 	httpPrintf(cnt, "%d building or unit under construction have been remove<br>", nNbr);
 	httpPrintf(cnt, "<table><tr><td>You were refunded with:</td><td></td><td></td></tr>");
 	for(i=0;i<CMD_RESSOURCE_NUMUSED;i++) {
-		if(nTotal[i]) {
+		if( nTotal[i] > 0 ) {
 	 			httpPrintf(cnt, "<tr><td></td><td>%lld</td><td>%s</td></tr>", (long long)nTotal[i], cmdRessourceName[i]);
 		}
 	}

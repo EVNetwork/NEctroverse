@@ -1450,6 +1450,125 @@ return;
 }
 #endif
 
+
+/*
+ * Ensure URL's have session details, this allows use without cookies.
+ *
+ */
+static StringBufferPtr urlappend_buffer;
+
+char *URLAppend( ReplyDataPtr cnt, char *url ) {
+
+if( urlappend_buffer ) {
+	urlappend_buffer->off = 0;
+} else if( NULL == ( urlappend_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
+	critical( "URL allocation error!" );
+	return NULL;
+}
+
+AddBufferString( urlappend_buffer, url );
+
+//Check if session key/id are in URL string, if not add it.
+if( strstr( url, (cnt->session)->sid ) == 0 ) {
+	if( ServerSessionMD5 == NULL ) {
+		if( GenServerSum() == NO ) {
+			critical( "This is a no go Jo.." );
+		}
+	}
+	AddBufferPrintf( urlappend_buffer, "?%s=%s", ServerSessionMD5, (cnt->session)->sid );
+}
+
+
+#if FACEBOOK_SUPPORT
+/*
+ * Were we called from inside facebook? If so... preserve those details
+ * First just ensures windows doesn't redirect over the top, second contains the login
+ */
+if( ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) && ( strstr( url, "fbapp=" ) == 0 ) ) {
+	AddBufferPrintf( urlappend_buffer, "&amp;fbapp=%s", iohtmlVarsFind( cnt, "fbapp" ) );
+}
+
+if( ( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) && ( strstr( url, "fblogin_token=" ) == 0 ) ) {
+	AddBufferPrintf( urlappend_buffer, "&amp;fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
+}
+#endif
+
+return urlappend_buffer->buf;
+}
+
+
+void URLString( ReplyDataPtr cnt, char *url, char *label ) {
+	char buffer[DEFAULT_BUFFER];
+	int offset;
+
+
+
+offset = snprintf( buffer, DEFAULT_BUFFER, "<a href=\"%s", URLAppend( cnt, url ) );
+offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "\">" );
+offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", label );
+offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "</a>" );
+
+httpString( cnt, buffer );
+
+return;
+}
+
+static StringBufferPtr targetframe_buffer;
+
+char *targetframe( ReplyDataPtr cnt ) {
+
+if( targetframe_buffer ) {
+	targetframe_buffer->off = 0;
+} else if( NULL == ( targetframe_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
+	critical( "memory allocation error!" );
+	return NULL;
+}
+
+#if FACEBOOK_SUPPORT
+if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) 
+	AddBufferPrintf( targetframe_buffer, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" );
+else
+#endif
+	AddBufferString( targetframe_buffer, "_top" );
+
+
+return targetframe_buffer->buf;
+}
+
+bool securecnt( ReplyDataPtr cnt ) {
+	#if HTTPS_SUPPORT
+	urlinfoPtr urlp;
+	const char *host, *referer;
+	char temp[32];
+	#endif
+	bool result = false;
+
+#if HTTPS_SUPPORT	
+host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
+referer = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Referer" );
+
+if( host == NULL ) {
+	return false;
+}
+
+if( referer ) {
+	urlp = parse_url( referer );
+	if( urlp ) {
+		result = ( strcmp( urlp->scheme, "https" ) == 0 ) ? true : false;
+	}
+	urlinfo_free( urlp );
+} else {
+	sprintf(temp, "%d", options.port[PORT_HTTPS]);
+	if( ( host != NULL ) ) {
+		result = strstr( host, temp ) ? true : false;
+	}
+}
+#endif
+
+return result;
+}
+
+
 void Shutdown() {
 
 sysconfig.shutdown = true;
@@ -1496,74 +1615,21 @@ if( ServerSessionMD5 != NULL ) {
 	ServerSessionMD5 = NULL;
 }
 
+if( targetframe_buffer != NULL ) {
+	free( targetframe_buffer );
+	targetframe_buffer = NULL;
+}
+if( urlappend_buffer != NULL ) {
+	free( urlappend_buffer );
+	urlappend_buffer = NULL;
+}
+
 dbFlush();
 cleanUp(0);
 cleanUp(1);
 if( sysconfig.regen == false ) {
 	UnloadConfig();
 }
-
-return;
-}
-
-/*
- * Ensure URL's have session details, this allows use without cookies.
- *
- */
-static StringBufferPtr urlappend;
-
-char *URLAppend( ReplyDataPtr cnt, char *url ) {
-
-if( urlappend ) {
-	urlappend->off = 0;
-} else if( NULL == ( urlappend = calloc( 1, sizeof(StringBufferDef) ) ) ) {
-	critical( "URL allocation error!" );
-	return NULL;
-}
-
-AddBufferString( urlappend, url );
-
-//Check if session key/id are in URL string, if not add it.
-if( strstr( url, (cnt->session)->sid ) == 0 ) {
-	if( ServerSessionMD5 == NULL ) {
-		if( GenServerSum() == NO ) {
-			critical( "This is a no go Jo.." );
-		}
-	}
-	AddBufferPrintf( urlappend, "?%s=%s", ServerSessionMD5, (cnt->session)->sid );
-}
-
-
-#if FACEBOOK_SUPPORT
-/*
- * Were we called from inside facebook? If so... preserve those details
- * First just ensures windows doesn't redirect over the top, second contains the login
- */
-if( ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) && ( strstr( url, "fbapp=" ) == 0 ) ) {
-	AddBufferPrintf( urlappend, "&amp;fbapp=%s", iohtmlVarsFind( cnt, "fbapp" ) );
-}
-
-if( ( iohtmlVarsFind( cnt, "fblogin_token" ) != NULL ) && ( strstr( url, "fblogin_token=" ) == 0 ) ) {
-	AddBufferPrintf( urlappend, "&amp;fblogin_token=%s", iohtmlVarsFind( cnt, "fblogin_token" ) );
-}
-#endif
-
-return urlappend->buf;
-}
-
-
-void URLString( ReplyDataPtr cnt, char *url, char *label ) {
-	char buffer[DEFAULT_BUFFER];
-	int offset;
-
-
-
-offset = snprintf( buffer, DEFAULT_BUFFER, "<a href=\"%s", URLAppend( cnt, url ) );
-offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "\">" );
-offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", label );
-offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "</a>" );
-
-httpString( cnt, buffer );
 
 return;
 }
@@ -1576,61 +1642,6 @@ expire_sessions();
 expire_file_storage();
 
 return;
-}
-
-static StringBufferPtr target_frame_buffer;
-
-char *targetframe( ReplyDataPtr cnt ) {
-
-if( target_frame_buffer ) {
-	target_frame_buffer->off = 0;
-} else if( NULL == ( target_frame_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
-	critical( "memory allocation error!" );
-	return NULL;
-}
-
-#if FACEBOOK_SUPPORT
-if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) 
-	AddBufferPrintf( target_frame_buffer, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" );
-else
-#endif
-	AddBufferString( target_frame_buffer, "_top" );
-
-
-return target_frame_buffer->buf;
-}
-
-bool securecnt( ReplyDataPtr cnt ) {
-	#if HTTPS_SUPPORT
-	urlinfoPtr urlp;
-	const char *host, *referer;
-	char temp[32];
-	#endif
-	bool result = false;
-
-#if HTTPS_SUPPORT	
-host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
-referer = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Referer" );
-
-if( host == NULL ) {
-	return false;
-}
-
-if( referer ) {
-	urlp = parse_url( referer );
-	if( urlp ) {
-		result = ( strcmp( urlp->scheme, "https" ) == 0 ) ? true : false;
-	}
-	urlinfo_free( urlp );
-} else {
-	sprintf(temp, "%d", options.port[PORT_HTTPS]);
-	if( ( host != NULL ) ) {
-		result = strstr( host, temp ) ? true : false;
-	}
-}
-#endif
-
-return result;
 }
 
 

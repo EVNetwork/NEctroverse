@@ -93,11 +93,9 @@ PageDef html_page[] =
     { "/facebook", "text/html",  &page_render, iohtmlFunc_facebook, NULL },
     #endif
     //Administration Pages
-    { "/administration", "text/html",  &page_render, iohtmlFunc_adminframe, NULL },
-    { "/adminmenu", "text/html",  &page_render, iohtmlFunc_adminmenu, NULL },
     { "/adminforum", "text/html",  &page_render, iohtmlFunc_adminforum, NULL },
     { "/moderator", "text/html",  &page_render, iohtmlFunc_moderator, NULL },
-    { "/admin", "text/html",  &page_render, iohtmlFunc_oldadmin, NULL },
+    { "/admin", "text/html",  &page_render, iohtmlFunc_admin, NULL },
     //File Rendering such as Images and Static Files
     { "/files", "text/html",  &file_render, NULL, NULL },
     //Not Found -- End of List.

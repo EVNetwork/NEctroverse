@@ -2,7 +2,10 @@
 #define HTML_GAMEPLAY_H
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 
-int iohtmlHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp );
+int iohtmlRawHeader( ReplyDataPtr cnt, int id, dbUserMainPtr mainp, bool flag );
+
+#define iohtmlHeader( cnt, id, mainp ) iohtmlRawHeader( cnt, id, mainp, false )
+#define iohtmlAdminHeader( cnt, id, mainp ) iohtmlRawHeader( cnt, id, mainp, true )
 
 void iohttpMapSystemsBuffer( int *mapp, int *buffer, int andl, int numpl, int type );
 
