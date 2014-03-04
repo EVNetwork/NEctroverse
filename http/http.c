@@ -649,9 +649,10 @@ rd.connection = connection;
 rd.cache.off = 0;
 rd.cache.buf_len = buf_size_allocation[1];
 if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
-	critical( "Malloc Failed" );
+	critical( "HTTP Responce Buffer Allocation Failed" );
 	return -1;
 }
+rd.cache.buf = 0;
 
 html_page[id].function( &rd );
 
@@ -1500,8 +1501,6 @@ return urlappend_buffer->buf;
 void URLString( ReplyDataPtr cnt, char *url, char *label ) {
 	char buffer[DEFAULT_BUFFER];
 	int offset;
-
-
 
 offset = snprintf( buffer, DEFAULT_BUFFER, "<a href=\"%s", URLAppend( cnt, url ) );
 offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "\">" );

@@ -918,12 +918,13 @@ void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	FBUserDef fbdata;
 	FBTokenDef token_post;
 	dbUserInfoDef infod;
+	dbUserMainDef maind;
 	char fbtemp[2][USER_NAME_MAX];
 	#endif
 	int64_t newd[DB_USER_NEWS_BASE];
 	dbMailDef maild;
 	ConfigArrayPtr settings;
-	char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun,<br><br>- Administration";
+	char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun.";
 
 
 race = iohtmlVarsFind( cnt, "race" );
@@ -1022,15 +1023,21 @@ if( race ) {
 	newd[2] = CMD_NEWS_MAIL;
 	newd[3] = 0;
 	newd[4] = 0; //From the admin
-	newd[5] = 0; //From the admin team
-	memcpy( &newd[6], "Admin", 6 );
+	if( dbUserMainRetrieve( newd[4], &maind ) < 0 ) {
+		newd[5] = 0; //From the admin team
+		memcpy( &newd[6], "Administration", 15 );
+		sprintf( (maild.mail).authorname, "Administration" );
+		(maild.mail).authorempire = 0;
+	} else {
+		(maild.mail).authorempire = newd[5] = maind.empire;
+		memcpy( &newd[6], "%s", strlen(maind.faction) );
+		sprintf( (maild.mail).authorname, "%s", maind.faction );
+	}
 	cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
 
 	(maild.mail).length = strlen(Message);
 	maild.text = Message;
 	(maild.mail).authorid = 0;
-	sprintf( (maild.mail).authorname, "Administration" );
-	(maild.mail).authorempire = 0;
 	(maild.mail).time = time( 0 );
 	(maild.mail).tick = ticks.number;
 	(maild.mail).flags = 0;
