@@ -311,11 +311,15 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   }
   httpString( cnt, " has been taken from the faction reserves." );
  }
- else if( ( (long long)newsd[2] == CMD_NEWS_MAIL ) && !( dbUserMainRetrieve( newsd[4], &maind ) < 0 ) ) {
-  httpPrintf( cnt, "You received a <a href=\"%s&amp;type=0\">message</a> from ", URLAppend( cnt, "mail" ) );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[4], maind.faction );
-  httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>.", URLAppend( cnt, "empire" ), (long long)newsd[5], (long long)newsd[5] );
- } else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
+ else if( ( (long long)newsd[2] == CMD_NEWS_MAIL ) ) {
+	httpPrintf( cnt, "You received a <a href=\"%s&amp;type=0\">message</a> from ", URLAppend( cnt, "mail" ) );
+	if( dbUserMainRetrieve( newsd[4], &maind ) < 0 ) {
+		httpString( cnt, "Unknown of " );
+	} else {
+		httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a> of ", URLAppend( cnt, "player" ), (long long)newsd[4], maind.faction );
+	}
+	httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">empire #%lld</a>.", URLAppend( cnt, "empire" ), (long long)newsd[5], (long long)newsd[5] );
+} else if( ( (long long)newsd[2] >= CMD_NEWS_NUMOPBEGIN ) && ( (long long)newsd[2] <= CMD_NEWS_NUMOPEND ) )
  {
   httpPrintf( cnt, "Your agents reached their destination, the <a href=\"%s&amp;id=%lld\">planet %lld,%lld:%lld</a>", URLAppend( cnt, "planet" ), (long long)newsd[3], ( (long long)newsd[4] >> 8 ) & 0xFFF, (long long)newsd[4] >> 20, (long long)newsd[4] & 0xFF );
   if( ( (long long)newsd[5] != -1 ) && ( dbUserMainRetrieve( (long long)newsd[5], &main2d ) ) ) {
