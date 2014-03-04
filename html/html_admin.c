@@ -419,13 +419,15 @@ for( a = 0; a < CMD_RESSOURCE_NUMUSED; a++ ) {
     httpPrintf( cnt, "Empire : #%d<br>", maind.empire );
     httpPrintf( cnt, "Artefacts : 0x%x<br>", maind.artefacts );
 
-    for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ )
+    for( a = 0; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
       httpPrintf( cnt, "%s : %lld<br>", cmdRessourceName[a], (long long)maind.ressource[a] );
-    for( a = 0; a < CMD_RESEARCH_NUMUSED ; a++ )
+    }
+    for( a = 0; a < CMD_RESEARCH_NUMUSED ; a++ ) {
       httpPrintf( cnt, "%s : %lld %%<br>", cmdResearchName[a], (long long)maind.totalresearch[a] );
-    httpPrintf( cnt, "Fleet readiness : %d %%<br>", maind.readiness[0] >> 16 );
-    httpPrintf( cnt, "Psychics readiness : %d %%<br>", maind.readiness[1] >> 16 );
-    httpPrintf( cnt, "Agents readiness : %d %%<br>", maind.readiness[2] >> 16 );
+    }
+    for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
+      httpPrintf( cnt, "%s readiness : %d %%<br>", cmdReadyName[a], maind.readiness[a] >> 16 );
+    }
 
     fprintf( file, "%s > view player info of player %s\n", main2d.faction, maind.faction);
   }
@@ -837,8 +839,8 @@ if( ( actionstring = iohtmlVarsFind( cnt, "changefbstatus" ) ) ) {
     }
 
     maind.planets++;
-    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int) );
-    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int) );
+    memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+    memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
     planetd.maxpopulation = (float)( planetd.size * CMD_POPULATION_SIZE_FACTOR );
     planetd.construction = 0;
     planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
@@ -1023,7 +1025,6 @@ void iohtmlFunc_admin( ReplyDataPtr cnt )
   dbMainSystemDef systemd;
   dbMainPlanetDef planetd;
   dbUserPtr user;
-  int curtime;
 
   iohtmlBase( cnt, 1 );
 
@@ -1422,7 +1423,7 @@ if( action[2] ) {
 
   if( action[11] )
   {
-    curtime = time( 0 );
+    time( &now );
     for( user = dbUserList ; user ; user = user->next )
     {
       if( dbUserInfoRetrieve( user->id, &infod ) < 0 )
@@ -1431,7 +1432,7 @@ if( action[2] ) {
       a = 90*day + ( 24*60*60*(int)sqrt( (double)( infod.tagpoints / 100 ) ) );
       //a = 90*day; //90 days
       //printf("curr = %d, last = %d ", curtime, user->lasttime);
-      if( (curtime - user->lasttime) < a )
+      if( (now - user->lasttime) < a )
         continue;
       if( user->level >= LEVEL_MODERATOR )
         continue;
@@ -1597,7 +1598,6 @@ if( action[2] ) {
 
   if( action[24] )
   {
-    curtime = time( 0 );
     for( user = dbUserList ; user ; user = user->next )
       cmdExecUserDeactivate( user->id, CMD_USER_FLAGS_NEWROUND );
     httpPrintf( cnt, "All accounts deactivated<br><br>" );

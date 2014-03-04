@@ -655,7 +655,7 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 
 html_page[id].function( &rd );
 
-response = MHD_create_response_from_buffer( strlen(rd.cache.buf), rd.cache.buf, MHD_RESPMEM_MUST_FREE);
+response = MHD_create_response_from_buffer( rd.cache.off, rd.cache.buf, MHD_RESPMEM_MUST_FREE);
 add_session_cookie(rd.session, response);
 mark_as( response, mime );
 

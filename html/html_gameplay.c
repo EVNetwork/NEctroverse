@@ -891,19 +891,18 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
    httpPrintf( cnt, "You took control of a <a href=\"%s&amp;id=%lld\">planet</a> offered by ", URLAppend( cnt, "planet" ), (long long)newsd[4] );
    httpPrintf( cnt, "<a href=\"%s&amp;id=%lld\">%s</a>.<br>", URLAppend( cnt, "player" ), (long long)newsd[3], main2d.faction );
    }
- }
-
-
-
- else if( (long long)newsd[2] == CMD_NEWS_OPCANCEL )
+ } else if( (long long)newsd[2] == CMD_NEWS_OPCANCEL ) {
   httpPrintf( cnt, "An agents operation has been cancelled." );
- else if( (long long)newsd[2] == CMD_NEWS_SPCANCEL )
+ } else if( (long long)newsd[2] == CMD_NEWS_SPCANCEL ) {
   httpPrintf( cnt, "A psychics spell has been cancelled." );
- else if( (long long)newsd[2] == CMD_NEWS_INCANCEL )
+ } else if( (long long)newsd[2] == CMD_NEWS_INCANCEL ) {
   httpPrintf( cnt, "A ghost ships incantation has been cancelled." );
-
- else if( (long long)newsd[2] != -1 )
-  httpPrintf( cnt, "Unknown report code : %lld ( tell the admin, thanks ;) )", (long long)newsd[2] );
+} else if( (long long)newsd[2] != -1 ) {
+	httpPrintf( cnt, "Unknown report code : %lld", (long long)newsd[2] );
+	if( (cnt->session)->dbuser != NULL ){
+		error( "Unknown report code : %lld for user %s (%d)", (long long)newsd[2], cnt->session->dbuser->faction, cnt->session->dbuser->id );
+	}
+}
 
  return;
 }

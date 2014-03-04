@@ -904,7 +904,7 @@ iohtmlFunc_endhtml( cnt );
 return;
 }
 
-#define REGISTER_DISABLE 0
+#define REGISTER_DISABLE 1
 
 void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	int a, id, raceid;
@@ -1060,8 +1060,8 @@ if( race ) {
 	sprintf( COREDIR, "%s/logs/register.log", settings->string_value );
 	if( ( file = fopen( COREDIR, "a" ) ) ) {
 		fprintf( file, "Register ID %d ( %x )\n", id, id );
-		a = time(0);
-		strftime( timebuf, 256, "%T, %b %d %Y;", localtime( (time_t *)&a ) );
+		time( &now );
+		strftime( timebuf, 256, "%T, %b %d %Y;", localtime( &now ) );
 		fprintf( file, "Time %s\n", timebuf );
 		fprintf( file, "Name %s;\n", ((cnt->session)->dbuser)->name );
 		fprintf( file, "Faction %s;\n", ((cnt->session)->dbuser)->faction );

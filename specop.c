@@ -1457,7 +1457,7 @@ else //code arti*/
 //      newd[11] = main2d.ressource[CMD_RESSOURCE_ENERGY];
 
 
-        ent = 320.0*(float)attack + (float)main2d.ressource[CMD_RESSOURCE_ENERGY];
+        ent = 170.0*(float)attack + (float)main2d.ressource[CMD_RESSOURCE_ENERGY];
 
 
 
