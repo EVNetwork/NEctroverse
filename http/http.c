@@ -652,7 +652,7 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 	critical( "HTTP Responce Buffer Allocation Failed" );
 	return -1;
 }
-rd.cache.buf = 0;
+rd.cache.buf[0] = "\0";
 
 html_page[id].function( &rd );
 
