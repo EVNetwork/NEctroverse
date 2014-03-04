@@ -652,7 +652,7 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 	critical( "HTTP Responce Buffer Allocation Failed" );
 	return -1;
 }
-rd.cache.buf[0] = "\0";
+rd.cache.buf[0] = 0;
 
 html_page[id].function( &rd );
 
@@ -673,18 +673,18 @@ MHD_destroy_response( response );
 return ret;
 }
 
-static int postdata_set( SessionPtr session, const char *key, const char *value ) {
+static int postdata_set( SessionPtr session, const char *key, const char *value, size_t size ) {
 	PostDataPtr data;
 
 if( session->postdata != NULL) {
 	for(data = session->postdata ; data ; data = data->next ) {
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
-			if( strlen( value ) == 0 ) {
+			if( size == 0 ) {
 				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
 				return YES;
 			}
-			int toadd = ( strlen( value ) + 32 ); //Ensure at least 32 bytes of "slack space"
+			int toadd = ( size + 32 ); //Ensure at least 32 bytes of "slack space"
 			if( (( data->current - data->offset ) - toadd ) < 0 ) {
 				//Buffer is too small, adding post data will over-flow, so need to re-size -- Add size ( data-in + 1kb )
 				int ajust = ( ( data->current + toadd ) + KB_SIZE );
@@ -717,7 +717,7 @@ if( ( data = malloc( 1*sizeof(PostDataDef) ) ) == NULL ) {
 
 data->key = strdup( key );
 data->value = strdup( value );
-data->offset = strlen( value );
+data->offset = size;
 data->current = data->offset;
 data->next = session->postdata;
 
@@ -796,8 +796,8 @@ static int process_upload_data( void *cls, enum MHD_ValueKind kind, const char *
 	RequestPtr uc = cls;
 	int i;
 
-if( ( !( filename ) ) ) {
-	return postdata_set( uc->session, key, data );
+if( !( filename ) ) {
+	return postdata_set( uc->session, key, data, size );
 }
 if (NULL == filename) {
 	error( "No filename, aborting upload" );
