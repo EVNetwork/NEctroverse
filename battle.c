@@ -44,16 +44,15 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
   char *err;
   int nActive = 0;
   int nActive2 = 0;
-  int i, curtime;
   int Info[MAP_TOTAL_INFO];
-  int nMax;
+  int i, nMax;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
   dbUserInfoDef infod;
   
   fFactor1 = 1;
   fFactor2 = 1;
-  curtime = time( 0 );
+  time( &now );
   fa = (float)(1+maind->planets) / (float)(1+main2d->planets);
   if( maind->empire == main2d->empire )
   {
@@ -69,14 +68,14 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
     {
     	dbUserInfoRetrieve(empired.player[i], &infod);
     	//										1080 mean 18 hours this can be change the time is in min
-    	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+    	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
     		nActive++;
     }
     for(i=0;i<empire2d.numplayers;i++)
     {
     	dbUserInfoRetrieve(empire2d.player[i], &infod);
     	//										1080 mean 18 hours this can be change the time is in min
-    	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+    	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
     		nActive2++;
     }
     
@@ -107,8 +106,11 @@ int battleReadinessLoss( dbUserMainPtr maind, dbUserMainPtr main2d )
   fa *= 11.5;
 
   err = cmdErrorString;
-  if( ( maind->empire == main2d->empire ) || ( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_WAR ) )
-    fa /= 3.0;
+  if( ( maind->empire == main2d->empire ) || ( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_WAR ) ) {
+	fa /= 3.0;
+  } else if( ( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_ALLY ) ) {
+	fa *= 3.0;
+  }
   cmdErrorString = err;
 
 	
@@ -485,6 +487,7 @@ int battle( int id, int fltid, int64_t *results )
   /*
   //ARTI CODE
 	if(maind.artefacts & ARTEFACT_SEAT_BIT)
+
 
 
 

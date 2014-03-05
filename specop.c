@@ -22,42 +22,41 @@ int specopGhostsAllowed( int specop, int raceid )
 
 int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
 {
-	int penalty, rel;
+	int i, penalty, rel;
 	float fa, fb, fFactor1, fFactor2;
 	int nActive = 0;
 	int nActive2 = 0;
-	int i, curtime;
 	int nMax;
 	int Info[10];
 	dbMainEmpireDef empired;
 	dbMainEmpireDef empire2d;
 	dbUserInfoDef infod;
 
-	fFactor1 = 1;
-	fFactor2 = 1;
-	curtime = time( 0 );
+fFactor1 = 1;
+fFactor2 = 1;
+time( &now );
 
-	penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_OPERATIONS], cmdAgentopTech[specop] );
-	if( penalty == -1 )
+penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_OPERATIONS], cmdAgentopTech[specop] );
+if( penalty == -1 ) {
 	return -1;
-	if( !( main2d ) )
-		return (int)( cmdAgentopReadiness[specop] * 65536.0 );
-
-	if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
-		return -1;
+} else if( !( main2d ) ) {
+	return (int)( ( 1.0 + 0.01*(float)penalty ) * cmdAgentopReadiness[specop] * 65536.0 );
+} else if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) ) {
+	return -1;
+}
 
 for(i=0;i<empired.numplayers;i++)
 {
   	dbUserInfoRetrieve(empired.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+  	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
   		nActive++;
   }
   for(i=0;i<empire2d.numplayers;i++)
   {
   	dbUserInfoRetrieve(empire2d.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+  	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
   		nActive2++;
   }
 
@@ -78,16 +77,23 @@ for(i=0;i<empired.numplayers;i++)
 
   fa = 0.5 * ( fa + fb );
 
-  if( fa < 0.75 )
-    fa = 0.75;
+if( fa < 0.75 ) {
+	fa = 0.75;
+}
   fa = ( 1.0 + 0.01*(float)penalty ) * cmdAgentopReadiness[specop] * fa;
   rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
-  if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) || ( rel == CMD_RELATION_ALLY ) )
-    fa /= 3.0;
+if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) ) {
+	fa /= 3.0;
+} else if ( rel == CMD_RELATION_ALLY ) {
+	fa *= 3.0;
+}
 
-	if( fa >= 300.0 )
-    return (int)( 300.0 * 65536.0 );
-  return (int)( fa * 65536.0 );
+if( fa >= 300.0 ) {
+	return (int)( 300.0 * 65536.0 );
+} else {
+	return (int)( fa * 65536.0 );
+}
+
 }
 
 
@@ -685,11 +691,10 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 
 int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
 {
-  int penalty, rel;
+  int i, penalty, rel;
   float fa, fb, fFactor1, fFactor2;
   int nActive = 0;
   int nActive2 = 0;
-  int i, curtime;
   int Info[MAP_TOTAL_INFO];
   int nMax;
   dbUserInfoDef infod;
@@ -698,28 +703,28 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
 
   fFactor1 = 1;
   fFactor2 = 1;
-  curtime = time( 0 );
+  time( &now );
   penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[specop] );
-  if( penalty == -1 )
-    return -1;
-  else if( !( main2d ) )
-    return (int)( cmdPsychicopReadiness[specop] * 65536.0 );
-
-  if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
-    return -1;
+  if( penalty == -1 ) {
+	return -1;
+  } else if( !( main2d ) ) {
+	return (int)( (( 1.0 + 0.01*(float)penalty ) * cmdPsychicopReadiness[specop]) * 65536.0 );
+  } else if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) ) {
+	return -1;
+  }
 
   for(i=0;i<empired.numplayers;i++)
   {
   	dbUserInfoRetrieve(empired.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+  	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
   		nActive++;
   }
   for(i=0;i<empire2d.numplayers;i++)
   {
   	dbUserInfoRetrieve(empire2d.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+  	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
   		nActive2++;
   }
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
@@ -738,16 +743,26 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
   fb = pow( fb, 1.2 );
   fa = 0.5 * ( fa + fb );
 
-  if( fa < 0.75 )
-    fa = 0.75;
-  fa = ( 1.0 + 0.01*(float)penalty ) * cmdPsychicopReadiness[specop] * fa;
+if( fa < 0.75 ) {
+	fa = 0.75;
+}
+  fa = (( 1.0 + 0.01*(float)penalty ) * cmdPsychicopReadiness[specop]) * fa;
   rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
-  if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) || ( rel == CMD_RELATION_ALLY ) )
-    fa /= 3.0;
 
-	if( fa >= 300.0 )
-    return (int)( 300.0 * 65536.0 );
-  return (int)( fa * 65536.0 );
+if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) ) {
+	fa /= 3.0;
+} else if( ( rel == CMD_RELATION_ALLY ) ) {
+	fa *= 3.0;
+}
+
+
+
+if( fa >= 300.0 ) {
+	return (int)( 300.0 * 65536.0 );
+} else {
+	return (int)( fa * 65536.0 );
+}
+
 }
 
 
@@ -1059,41 +1074,39 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
 
 int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
 {
-  int penalty, rel;
+  int i, penalty, rel;
   float fa, fb, fFactor1, fFactor2;
   int nActive = 0;
   int nActive2 = 0;
-  int i, curtime;
   int Info[MAP_TOTAL_INFO];
   int nMax;
   dbUserInfoDef infod;
   dbMainEmpireDef empired;
   dbMainEmpireDef empire2d;
 
-  curtime = time( 0 );
+time( &now );
 
-  penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[specop] );
-  if( penalty == -1 )
-    return -1;
-   if( !( main2d ) )
-  	return (int)( cmdGhostopReadiness[specop] * 65536.0 );
-
-
-  if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) )
-    return -1;
+penalty = cmdGetOpPenalty( maind->totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[specop] );
+if( penalty == -1 ) {
+	return -1;
+} else if( !( main2d ) ) {
+	return (int)( (( 1.0 + 0.01*(float)penalty ) * cmdGhostopReadiness[specop]) * 65536.0 );
+} else if( ( dbEmpireGetInfo( maind->empire, &empired ) < 0 ) || ( dbEmpireGetInfo( main2d->empire, &empire2d ) < 0 ) ) {
+	return -1;
+}
 
   for(i=0;i<empired.numplayers;i++)
   {
   	dbUserInfoRetrieve(empired.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+  	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
   		nActive++;
   }
   for(i=0;i<empire2d.numplayers;i++)
   {
   	dbUserInfoRetrieve(empire2d.player[i], &infod);
   	//										1080 mean 18 hours this can be change the time is in min
-  	if(((float)(curtime - infod.lasttime)/60) <= 1080)
+  	if(((float)(now - infod.lasttime)/minute) <= (18*hour))
   		nActive2++;
   }
   //we get the factor doing the number of max player in the emp * 2 - the active one / by the number of max player
@@ -1111,12 +1124,18 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
   fb = pow( fb, 1.2 );
   fa = 0.5 * ( fa + fb );
 
-  if( fa < 0.75 )
-    fa = 0.75;
-  fa = ( 1.0 + 0.01*(float)penalty ) * cmdGhostopReadiness[specop] * fa;
-  rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
-  if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) || ( rel == CMD_RELATION_ALLY ) )
-    fa /= 3.0;
+if( fa < 0.75 ) {
+	fa = 0.75;
+}
+
+fa = (( 1.0 + 0.01*(float)penalty ) * cmdGhostopReadiness[specop]) * fa;
+rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
+
+if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) ) {
+	fa /= 3.0;
+} else if ( rel == CMD_RELATION_ALLY ) {
+	fa *= 3.0;
+}
 
 
 // CODE_ARTEFACT
@@ -1124,9 +1143,12 @@ int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d
     fa *= 0.5;
 // CODE_ARTEFACT
 
-  if( fa >= 300.0 )
-    return (int)( 300.0 * 65536.0 );
-  return (int)( fa * 65536.0 );
+if( fa >= 300.0 ) {
+	return (int)( 300.0 * 65536.0 );
+} else {
+	return (int)( fa * 65536.0 );
+}
+
 }
 
 
