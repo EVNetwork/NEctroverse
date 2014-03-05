@@ -1,28 +1,34 @@
 
-int specopAgentsAllowed( int specop, int raceid )
-{
-  if( !( cmdRace[raceid].operations & ( 1 << specop ) ) )
-    return 0;
-  return 1;
+int specopAgentsAllowed( int specop, int raceid ) {
+
+if( ( cmdRace[raceid].operations & ( 1 << specop ) ) != NO ) {
+	return YES;
 }
 
-int specopPsychicsAllowed( int specop, int raceid )
-{
-  if( !( cmdRace[raceid].spells & ( 1 << specop ) ) )
-    return 0;
-  return 1;
+return NO;
 }
 
-int specopGhostsAllowed( int specop, int raceid )
-{
-  if( !( cmdRace[raceid].incantations & ( 1 << specop ) ) )
-    return 0;
-  return 1;
+int specopPsychicsAllowed( int specop, int raceid ) {
+
+if( ( cmdRace[raceid].spells & ( 1 << specop ) ) != NO ) {
+	return YES;
+}
+
+return NO;
+}
+
+int specopGhostsAllowed( int specop, int raceid ) {
+
+if( ( cmdRace[raceid].incantations & ( 1 << specop ) ) != NO ) {
+	return YES;
+}
+
+return NO;
 }
 
 int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
 {
-	int i, penalty, rel;
+	int i, penalty;
 	float fa, fb, fFactor1, fFactor2;
 	int nActive = 0;
 	int nActive2 = 0;
@@ -80,11 +86,14 @@ for(i=0;i<empired.numplayers;i++)
 if( fa < 0.75 ) {
 	fa = 0.75;
 }
-  fa = ( 1.0 + 0.01*(float)penalty ) * cmdAgentopReadiness[specop] * fa;
-  rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
-if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) ) {
+
+fa = ( 1.0 + 0.01*(float)penalty ) * cmdAgentopReadiness[specop] * fa;
+
+if ( maind->empire == main2d->empire ) {
+	fa /= 2.0;
+} else if( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_WAR ) {
 	fa /= 3.0;
-} else if ( rel == CMD_RELATION_ALLY ) {
+} else if ( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_ALLY ) {
 	fa *= 3.0;
 }
 
@@ -691,7 +700,7 @@ void specopAgentsPerformOp( int id, int fltid, dbUserFleetPtr fleetd, int64_t *n
 
 int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
 {
-  int i, penalty, rel;
+  int i, penalty;
   float fa, fb, fFactor1, fFactor2;
   int nActive = 0;
   int nActive2 = 0;
@@ -746,12 +755,14 @@ int specopPsychicsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main
 if( fa < 0.75 ) {
 	fa = 0.75;
 }
-  fa = (( 1.0 + 0.01*(float)penalty ) * cmdPsychicopReadiness[specop]) * fa;
-  rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
 
-if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) ) {
+fa = (( 1.0 + 0.01*(float)penalty ) * cmdPsychicopReadiness[specop]) * fa;
+
+if ( maind->empire == main2d->empire ) {
+	fa /= 2.0;
+} else if( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_WAR ) {
 	fa /= 3.0;
-} else if( ( rel == CMD_RELATION_ALLY ) ) {
+} else if ( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_ALLY ) {
 	fa *= 3.0;
 }
 
@@ -1074,7 +1085,7 @@ void specopPsychicsPerformOp( int id, int targetid, int specop, int psychics, in
 
 int specopGhostsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
 {
-  int i, penalty, rel;
+  int i, penalty;
   float fa, fb, fFactor1, fFactor2;
   int nActive = 0;
   int nActive2 = 0;
@@ -1129,11 +1140,12 @@ if( fa < 0.75 ) {
 }
 
 fa = (( 1.0 + 0.01*(float)penalty ) * cmdGhostopReadiness[specop]) * fa;
-rel = cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 );
 
-if( ( maind->empire == main2d->empire ) || ( rel == CMD_RELATION_WAR ) ) {
+if ( maind->empire == main2d->empire ) {
+	fa /= 2.0;
+} else if( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_WAR ) {
 	fa /= 3.0;
-} else if ( rel == CMD_RELATION_ALLY ) {
+} else if ( cmdExecFindRelation( maind->empire, main2d->empire, 0, 0 ) == CMD_RELATION_ALLY ) {
 	fa *= 3.0;
 }
 

@@ -6046,10 +6046,13 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  for( a = 0 ; a < CMD_AGENTOP_NUMUSED ; a++ )
  {
  	//ARTI CODE give agent op all races
- 	if(!((maind.artefacts & ARTEFACT_1_BIT)&&(a == CMD_OPER_OBSERVEPLANET )))
- 	{
-	  if( !( specopAgentsAllowed( a, maind.raceid ) ) )
-	  	continue;
+ 	/*if(!((maind.artefacts & ARTEFACT_1_BIT)&&(a == CMD_OPER_OBSERVEPLANET ))) {
+		if( specopAgentsAllowed( a, maind.raceid ) == NO ) {
+	  		continue;
+	  	}
+	}*/
+	if( specopAgentsAllowed( a, maind.raceid ) == NO ) {
+		continue;
 	}
   b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_OPERATIONS], cmdAgentopTech[a] );
   if( b == -1 )
@@ -6077,8 +6080,9 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  httpPrintf( cnt, "<b>Spells</b><br>" );
  for( a = 0 ; a < CMD_PSYCHICOP_NUMUSED ; a++ )
  {
-  if( !( specopPsychicsAllowed( a, maind.raceid ) ) )
-   continue;
+	if( specopPsychicsAllowed( a, maind.raceid ) == NO ) {
+		continue;
+	}
   b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdPsychicopTech[a] );
   if( b == -1 )
    httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdPsychicopName[a] );
@@ -6106,8 +6110,9 @@ if ( ( planetstring ) && ( sscanf( planetstring, "%d", &plnid ) == 1 ) ) {
  httpPrintf( cnt, "<b>Incantations</b><br>" );
  for( a = 0 ; a < CMD_GHOSTOP_NUMUSED ; a++ )
  {
-  if( !( specopGhostsAllowed( a, maind.raceid ) ) )
-   continue;
+	if( specopGhostsAllowed( a, maind.raceid ) == NO ) {
+		continue;
+	}
   b = cmdGetOpPenalty( maind.totalresearch[CMD_RESEARCH_CULTURE], cmdGhostopTech[a] );
   if( b == -1 )
    httpPrintf( cnt, "<input type=\"radio\" name=\"op\" value=\"%d\" disabled> %s<br>&nbsp;&nbsp;&nbsp;<font color=\"#FF0000\">Unavailable</font><br>", a, cmdGhostopName[a] );
