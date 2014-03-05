@@ -5,8 +5,7 @@ if( ( cmdRace[raceid].operations & ( 1 << specop ) ) != NO ) {
 	return YES;
 }
 
-//return NO;
-return YES;
+return NO;
 }
 
 int specopPsychicsAllowed( int specop, int raceid ) {
@@ -15,8 +14,7 @@ if( ( cmdRace[raceid].spells & ( 1 << specop ) ) != NO ) {
 	return YES;
 }
 
-//return NO;
-return YES;
+return NO;
 }
 
 int specopGhostsAllowed( int specop, int raceid ) {
@@ -25,8 +23,7 @@ if( ( cmdRace[raceid].incantations & ( 1 << specop ) ) != NO ) {
 	return YES;
 }
 
-//return NO;
-return YES;
+return NO;
 }
 
 int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
