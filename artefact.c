@@ -48,7 +48,7 @@ for( a = 0; a < ArtefactTotal; a++ ) {
 	ArtefactList = ArtefactRead;
 	if( ArtefactRead->active == true ) {
 		if( ArtefactNum >= SERVER_ARTIFACT_MAX ) {
-			error( "Artefact overflow: %d %s will not be enabled", ArtefactRead->id, ArtefactRead->name );
+			error( "Artefact overflow: #%d %s will not be enabled", ArtefactRead->id, ArtefactRead->name );
 		}
 		ArtefactNum++;
 		ArtefactTable = realloc( ArtefactTable, ArtefactNum * sizeof(dbArtefactDef) );
