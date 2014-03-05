@@ -4,12 +4,12 @@ static char do_redi[REDIRECT_MAX];
 void init_string( CurlStringPtr curl_str ) {
 
 curl_str->len = 0;
-curl_str->ptr = malloc(curl_str->len+1);
+curl_str->ptr = malloc( curl_str->len+1 );
 
 if (curl_str->ptr == NULL) {
 	critical( "malloc failure" );
 } else {
-	curl_str->ptr[0] = '\0';
+	curl_str->ptr[curl_str->len] = '\0';
 }
 
 return;
@@ -24,8 +24,8 @@ if (curl_str->ptr == NULL) {
 	return -3;
 }
 memcpy(curl_str->ptr+curl_str->len, ptr, size*nmemb);
-curl_str->ptr[new_len] = '\0';
 curl_str->len = new_len;
+curl_str->ptr[curl_str->len] = '\0';
 
 return size*nmemb;
 }

@@ -617,7 +617,10 @@ for( user = dbUserList ; user ; user = user->next ) {
 	ticks.uregist++;
 	ticks.debug_id = user->id;
 	if( ( (now - user->lasttime) > SESSION_TIME ) && ( strlen(user->http_session) ) ) {
-		remove_session( user->http_session );
+		if( remove_session( user->http_session ) == NO ) {
+			memset( user->http_session, 0, sizeof(user->http_session) );
+			dbUserSave( user->id, user );
+		}
 	}
 
 	if( !( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) || ( bitflag( user->flags, CMD_USER_FLAGS_FROZEN ) ) ) {

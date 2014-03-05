@@ -333,7 +333,7 @@ if( ( buf_max - buf_len ) < 0 ) {
 }
 
 buffer->off += snprintf( &buffer->buf[buffer->off], buf_max, "%s", string );
-buffer->buf[buffer->off] = 0;
+buffer->buf[buffer->off] = '\0';
 
 return;
 }
@@ -362,7 +362,7 @@ if( ( buf_max - buf_len ) < 0 ) {
 }
 
 rd->cache.off += snprintf( &rd->cache.buf[rd->cache.off], buf_max, "%s", string );
-rd->cache.buf[rd->cache.off] = 0;
+rd->cache.buf[rd->cache.off] = '\0';
 
 return;
 }
@@ -652,7 +652,7 @@ if( NULL == ( rd.cache.buf = malloc( rd.cache.buf_len ) ) ) {
 	critical( "HTTP Responce Buffer Allocation Failed" );
 	return -1;
 }
-rd.cache.buf[0] = 0;
+rd.cache.buf[0] = '\0';
 
 html_page[id].function( &rd );
 
@@ -701,9 +701,9 @@ if( session->postdata != NULL) {
 				data->value = r;
 				data->current = ajust;
 			}
-			//And finnaly, if we made it this far... there's data to add and out buffer should have ample capacity.
-			//Return add function, this saves us having to re-check for success;
-			return ( data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value ) );
+			data->offset += snprintf(&data->value[data->offset], ( data->current - data->offset ), "%s", value );
+			data->value[data->offset] = '\0';
+			return YES;
 		}
 	}
 }

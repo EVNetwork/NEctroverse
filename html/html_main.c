@@ -872,7 +872,7 @@ if( text ) {
 	}
 	httpString( cnt, "<br><br>" );
 } else {
-	httpString( cnt, "<br><h3>Login</h3><br>" );
+	httpString( cnt, "<h3>Login</h3>" );
 }
 
 httpPrintf( cnt, "<form action=\"/%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
@@ -904,7 +904,7 @@ iohtmlFunc_endhtml( cnt );
 return;
 }
 
-#define REGISTER_DISABLE 1
+#define REGISTER_DISABLE 0
 
 void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	int a, id, raceid;
@@ -912,7 +912,9 @@ void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	FILE *file;
 	char timebuf[256];
 	char COREDIR[PATH_MAX];
-	char *name, *pass, *faction, *race, *empire, *fampass;
+	struct stat stdata;
+	char *data;
+	char *name, *pass, *faction, *race, *empire, *fampass, *rules;
 	char *token = NULL;
 	#if FACEBOOK_SUPPORT
 	FBUserDef fbdata;
@@ -923,11 +925,13 @@ void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	#endif
 	int64_t newd[DB_USER_NEWS_BASE];
 	dbMailDef maild;
+	dbMainEmpireDef empired;
 	ConfigArrayPtr settings;
 	char Message[] = "Congratulations! You have successfully registered your account!<br>Good luck and have fun.";
 
 
 race = iohtmlVarsFind( cnt, "race" );
+rules = iohtmlVarsFind( cnt, "rule_agree" );
 empire = iohtmlVarsFind( cnt, "empire" );
 fampass = iohtmlVarsFind( cnt, "fampass" );
 name = iohtmlVarsFind( cnt, "name" );
@@ -942,13 +946,12 @@ id = iohtmlIdentify( cnt, 8 );
 iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_REGISTER );
 
-httpPrintf( cnt, "<h3>%s</h3><br>", ( ( (cnt->session)->dbuser ) ? "Activation" : "Registration" ) );
+httpPrintf( cnt, "<h3>%s</h3>", ( ( (cnt->session)->dbuser ) ? "Activation" : "Registration" ) );
 
 //Used to skip/disable registration.
 #if REGISTER_DISABLE
 goto DISABLE;
 #endif
-
 if( race ) {
 	if( id < 0 ) {
 		httpString( cnt, "Error encountered while validating user registration..." );
@@ -986,6 +989,8 @@ if( race ) {
 } else if( ( ( token != NULL ) && ( ( faction != NULL ) && ( strlen(faction) > 0 ) ) ) || ( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) ) {
 	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
 		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
+		httpString( cnt, "<br><br>" );
+ 		URLString( cnt, "register", "Try Again." );
 		goto END;
 	}
 	#if FACEBOOK_SUPPORT
@@ -1030,7 +1035,7 @@ if( race ) {
 		(maild.mail).authorempire = 0;
 	} else {
 		(maild.mail).authorempire = newd[5] = maind.empire;
-		memcpy( &newd[6], "%s", strlen(maind.faction) );
+		memcpy( &newd[6], maind.faction, strlen(maind.faction) );
 		sprintf( (maild.mail).authorname, "%s", maind.faction );
 	}
 	cmdUserNewsAdd( id, newd, CMD_NEWS_FLAGS_MAIL );
@@ -1087,12 +1092,47 @@ if( race ) {
 
 
 } else if ( ( id < 0 ) ) {
+	if( ( rules == NULL ) || ( ( rules != NULL ) && ( strcmp( rules, "true") != 0 ) ) ) {
+		if( iohtmlVarsFind( cnt, "submitted" ) != NULL ) {
+			httpString( cnt, "<h2>You must agree with the game rules to be able to continue...!</h2>" );
+		}
+		settings = GetSetting( "HTTP Text" );
+		sprintf( COREDIR, "%s/rules.txt", settings->string_value );
+		if( stat( COREDIR, &stdata ) != -1 ) {
+			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+				data[stdata.st_size] = 0;
+				if( ( file = fopen( COREDIR, "rb" ) ) ) {
+					if( stdata.st_size > 0 ) {
+					httpString( cnt, "<ul>" );
+						while( fgets( data, stdata.st_size, file ) != NULL ) {
+							if( strlen(data) > 1 )
+								httpPrintf( cnt, "<li>%s</li>", trimwhitespace(data) );
+						}
+					httpString( cnt, "</ul>" );
+					}
+					fclose( file );
+				}
+				free( data );
+			}
+		}
+		httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
+		httpPrintf( cnt, "<input type=\"checkbox\" name=\"rule_agree\" value=\"true\"> I agree<br>" );
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"submitted\" value=\"true\">" );
+		if( token != NULL ) {
+			httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token );
+		}
+		httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
+		goto END;
+	}
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
 	if( token == NULL ) {
 		httpString( cnt, "User name<br><input type=\"text\" name=\"name\"><br>" );
 		httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
 	} else {
-		httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\"><br>", token );
+		httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token );
+	}
+	if( rules != NULL ) {
+			httpPrintf( cnt, "<input type=\"hidden\" name=\"rule_agree\" value=\"%s\">", rules );
 	}
 	httpString( cnt, "<br>Faction name<br><input type=\"text\" name=\"faction\"><br>" );
 	httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
@@ -1105,8 +1145,27 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
 	httpString( cnt, "<br>" );
 	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long<a>", URLAppend( cnt, "/main" ) );
 } else {
-	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br><input type=\"text\" name=\"empire\"><br><br>", URLAppend( cnt, "register" ) );
-	httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br><input type=\"text\" name=\"fampass\"><br><br>" );
+	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br>", URLAppend( cnt, "register" ) );
+	if( rules != NULL ) {
+			httpPrintf( cnt, "<input type=\"hidden\" name=\"rule_agree\" value=\"%s\">", rules );
+	}
+	httpString( cnt, "<select name=\"empire\">" );
+	httpString( cnt, "<option value=\"-1\" selected>Random Empire</option>" );
+	for( a = 1; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
+		if( dbEmpireGetInfo( a, &empired ) < 0 ) {
+			continue;
+		}
+		httpPrintf( cnt, "<option value=\"%d\">", a );
+		if( empired.name[0] ) {
+			httpPrintf( cnt, "%s</option>", empired.name );
+		} else {
+			httpPrintf( cnt, "Empire #%d</option>", a );
+		}
+	}
+	httpString( cnt, "</select><br><br>" );
+	
+	httpString( cnt, "Empire password<br><i>Only required if defined by the leader of the empire to join.</i><br>" );
+	httpString( cnt, "<input type=\"text\" name=\"fampass\"><br><br>" );
 	httpString( cnt, "Faction race<br><i>The race of your people define many characteristics affecting different aspects of your faction.</i> - " );
 	httpPrintf( cnt, "<a href=\"%s&amp;type=races\" target=\"_blank\">See races</a><br><select name=\"race\">", URLAppend( cnt, "info" ) );
 	for( a = 0 ; a < CMD_RACE_NUMUSED ; a++ ) {
