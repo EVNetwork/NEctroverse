@@ -281,16 +281,21 @@ void iohtmlNewsString( ReplyDataPtr cnt, int64_t *newsd )
   httpPrintf( cnt, "You sold %lld %s on the market.", (long long)newsd[4], cmdRessourceName[(long long)newsd[3]+1] );
  else if( (long long)newsd[2] == CMD_NEWS_AID )
  {
-  if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
-   return;
-  httpPrintf( cnt, "You received an aid shipment from %s!<br>", maind.faction );
+  if( ( newsd[4] == 0 ) && ( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 ) ) {
+	return;
+  }
+  if( newsd[4] == 0 ) {
+	httpPrintf( cnt, "You received an aid shipment from %s!<br>", maind.faction );
+  } else if( newsd[4] == 1 ) {
+	httpPrintf( cnt, "You received an aid shipment from the Empire Fund!<br>" );
+  }
   for( a = b = 0 ; a < 4 ; a++ )
   {
-   if( !( (long long)newsd[4+a] ) )
+   if( !( (long long)newsd[5+a] ) )
     continue;
    if( b )
     httpString( cnt, ", " );
-   httpPrintf( cnt, "%lld %s", (long long)newsd[4+a], cmdRessourceName[a] );
+   httpPrintf( cnt, "%lld %s", (long long)newsd[5+a], cmdRessourceName[a] );
    b = 1;
   }
   httpString( cnt, " has been added to the reserves." );
@@ -1103,16 +1108,21 @@ if( !( num ) )
   else if( (long long)newsd[2] == CMD_NEWS_AID )
   {
    iohtmlFamNewsEntry( cnt, 6, newsd );
-   if( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 )
-    goto iohtmlFamNewsL0;
-   httpPrintf( cnt, "%s received an aid shipment from %s!<br>", mfamd[b].faction, maind.faction );
+    	if( ( newsd[4] == 0 ) && ( dbUserMainRetrieve( (long long)newsd[3], &maind ) < 0 ) ) {
+		goto iohtmlFamNewsL0;
+	}
+	if( newsd[4] == 0 ) {
+		httpPrintf( cnt, "%s received an aid shipment from %s!<br>", mfamd[b].faction, maind.faction );
+	} else if( newsd[4] == 1 ) {
+		httpPrintf( cnt, "%s received an aid shipment from the Empire Fund!<br>", mfamd[b].faction );
+	}
    for( a = b = 0 ; a < 4 ; a++ )
    {
-    if( !( (long long)newsd[4+a] ) )
+    if( !( (long long)newsd[5+a] ) )
      continue;
     if( b )
      httpString( cnt, ", " );
-    httpPrintf( cnt, "%lld %s", (long long)newsd[4+a], cmdRessourceName[a] );
+    httpPrintf( cnt, "%lld %s", (long long)newsd[5+a], cmdRessourceName[a] );
     b = 1;
    }
    httpString( cnt, " has been added to the faction reserves." );
@@ -2364,11 +2374,11 @@ if( build ) {
 
 void iohtmlFunc_famaid( ReplyDataPtr cnt )
 {
- int a, b, id;
+ int a, b, id, source;
  int64_t res[4];
  dbUserMainDef maind;
  dbMainEmpireDef empired;
- char *playerstring, *resstring[4];
+ char *playerstring, *resstring[4], *selected;
  char *reportstring;
  dbUserPtr user;
 
@@ -2381,40 +2391,47 @@ void iohtmlFunc_famaid( ReplyDataPtr cnt )
  resstring[1] = iohtmlVarsFind( cnt, "r1" );
  resstring[2] = iohtmlVarsFind( cnt, "r2" );
  resstring[3] = iohtmlVarsFind( cnt, "r3" );
+ selected = iohtmlVarsFind( cnt, "sendfrom" );
+ 
+if( ( selected == NULL ) || ( ( selected != NULL ) && ( sscanf( selected, "%d", &source ) != 1 ) ) ) {
+	source = 0;
+}
 
 if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Send Aid" );
 
  reportstring = 0;
- if( playerstring )
- {
-  if( sscanf( playerstring, "%d", &b ) != 1 )
-   goto iohttpFunc_famaidL0;
+if( playerstring ) {
+	if( sscanf( playerstring, "%d", &b ) != 1 ) {
+		goto iohttpFunc_famaidL0;
+	}
 
-  memset( res, 0, 4*sizeof(int64_t) );
-  for( a = 0 ; a < 4 ; a++ )
-  {
-   if( resstring[a] )
-    sscanf( resstring[a], "%" SCNd64, &res[a] );
-  }
+	memset( res, 0, 4*sizeof(int64_t) );
+	for( a = 0 ; a < 4 ; a++ ) {
+		if( resstring[a] ) {
+			sscanf( resstring[a], "%" SCNd64, &res[a] );
+		}
+	}
 
-  if( cmdExecSendAid( id, b, maind.empire, res ) < 0 )
-  {
-   if( cmdErrorString )
-    reportstring = cmdErrorString;
-   else
-    reportstring = "Error while sending aid";
-  }
-  else
-   reportstring = "Aid sent";
- }
- iohttpFunc_famaidL0:
+	if( cmdExecSendAid( id, b, maind.empire, res, source ) < 0 ) {
+		if( cmdErrorString ) {
+    			reportstring = cmdErrorString;
+    			cmdErrorString = 0;
+    		} else {
+    			reportstring = "Error while sending aid";
+    		}
+	} else {
+		reportstring = "Aid sent";
+	}
+}
+iohttpFunc_famaidL0:
 
 
 
- if( reportstring )
-  httpPrintf( cnt, "<i>%s</i><br><br>", reportstring );
+if( reportstring ) {
+	httpPrintf( cnt, "<i>%s</i><br><br>", reportstring );
+}
 
  if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
  {
@@ -2439,9 +2456,29 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
   httpPrintf( cnt, "<option value=\"%d\">%s", empired.player[a], user->faction );
  }
 
- httpString( cnt, "</select><br><br><table width=\"100%\" cellspacing=\"4\">" );
- for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ )
-  httpPrintf( cnt, "<tr><td width=\"50%%\" align=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", (long long)maind.ressource[a], cmdRessourceName[a], a );
+ httpString( cnt, "</select><br><br><table cellspacing=\"4\">" );
+if( ( empired.politics[CMD_POLITICS_DEVMINISTER] == id ) || ( ( empired.politics[CMD_POLITICS_DEVMINISTER] == -1 ) && ( empired.politics[CMD_POLITICS_LEADER] == id ) ) ) {
+	httpString( cnt, "<tr>&nbsp;<td></td><td class=\"right\">Empire Fund</td><td>Your Faction</td></tr>" );
+	for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
+		httpString( cnt, "<tr>" );
+		httpPrintf( cnt, "<td>%s</td>", cmdRessourceName[a] );
+		httpPrintf( cnt, "<td>%lld</td>", (long long)empired.fund[a] );
+		httpPrintf( cnt, "<td>%lld</td>", (long long)maind.ressource[a] );
+		httpString( cnt, "</tr>" );
+	}
+	httpString( cnt, "<tr><td>&nbsp;</td>" );
+	httpPrintf( cnt, "<td><input type=\"radio\" name=\"sendfrom\" value=\"1\" %s>Use Fund</td>", source ? "checked=\"checked\"" : "" );
+	httpPrintf( cnt, "<td><input type=\"radio\" name=\"sendfrom\" value=\"0\" %s>Use Faction</td>",  source ? "" : "checked=\"checked\"" );
+	httpString( cnt, "</tr>" );
+	httpString( cnt, "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>" );
+	for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
+		httpPrintf( cnt, "<tr><td>&nbsp;</td><td class=\"right\">%s</td><td><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", cmdRessourceName[a], a );
+	}
+} else {
+	for( a = 0 ; a < CMD_RESSOURCE_NUMUSED ; a++ ) {
+		httpPrintf( cnt, "<tr><td width=\"50%%\" class=\"right\">%lld %s</td><td width=\"50%%\"><input type=\"text\" name=\"r%d\" size=\"10\"></td></tr>", (long long)maind.ressource[a], cmdRessourceName[a], a );
+	}
+}
  httpString( cnt, "</table><br>" );
  httpString( cnt, "<input type=\"submit\" value=\"Send\"></form>" );
 

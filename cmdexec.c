@@ -899,7 +899,7 @@ int cmdExecGetMarket( int *market )
 }
 
 
-int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
+int cmdExecSendAid( int id, int destid, int fam, int64_t *res, bool source )
 {
   int a, b;
   dbMainEmpireDef empired;
@@ -915,6 +915,11 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
 
   if( dbEmpireGetInfo( fam, &empired ) < 0 )
     return -3;
+if( source ) {
+	if( ( empired.politics[CMD_POLITICS_DEVMINISTER] != id ) && ( ( empired.politics[CMD_POLITICS_DEVMINISTER] == -1 ) && ( empired.politics[CMD_POLITICS_LEADER] != id ) ) ) {
+		return -3;
+	}
+}
   b = 0;
   for( a = 0 ; a < empired.numplayers ; a++ )
   {
@@ -938,36 +943,50 @@ int cmdExecSendAid( int id, int destid, int fam, int64_t *res)
     cmdErrorString = "You can't send an empty aid shipment!";
     return -3;
   }
+if( source == false ) {
+	if( dbUserMainRetrieve( destid, &main2d ) < 0 ) {
+		return -3;
+	}
+}
+if( dbUserMainRetrieve( destid, &main2d ) < 0 ) {
+	return -3;
+}
+for( a = 0 ; a < 4 ; a++ ) {
+	if( source ) {
+		empired.fund[a] -= res[a];
+		if( empired.fund[a] >= 0 ) {
+			continue;
+		}
+		sprintf( cmdErrorBuffer, "There is not %lld %s in the fund.", (long long)res[a], cmdRessourceName[a] );	
+	} else {
+		maind.ressource[a] -= res[a];
+		if( maind.ressource[a] >= 0 ) {
+			continue;
+		}
+		sprintf( cmdErrorBuffer, "You don't have %lld %s.", (long long)res[a], cmdRessourceName[a] );	
+	}
+	cmdErrorString = cmdErrorBuffer;
+	return -3;
+}
+if( source ) {
+	dbEmpireSetInfo( fam, &empired );
+} else {
+	dbUserMainSet( id, &maind );
+}
+for( a = 0 ; a < 4 ; a++ ) {
+	main2d.ressource[a] += res[a];
+	newd[5+a] = res[a];
+}
+dbUserMainSet( destid, &main2d );
 
-  if( dbUserMainRetrieve( id, &maind ) < 0 )
-    return -3;
-  if( dbUserMainRetrieve( destid, &main2d ) < 0 )
-    return -3;
-  for( a = 0 ; a < 4 ; a++ )
-  {
-    maind.ressource[a] -= (int64_t)res[a];
-    if( maind.ressource[a] >= 0 )
-      continue;
-    sprintf( cmdErrorBuffer, "You don't have %lld %s.", (long long)res[a], cmdRessourceName[a] );
-    cmdErrorString = cmdErrorBuffer;
-    return -3;
-  }
-  dbUserMainSet( id, &maind );
+newd[0] = ticks.number;
+newd[1] = CMD_NEWS_FLAGS_NEW;
+newd[2] = CMD_NEWS_AID;
+newd[3] = id;
+newd[4] = source;
+cmdUserNewsAdd( destid, newd, CMD_NEWS_FLAGS_AID );
 
-  for( a = 0 ; a < 4 ; a++ )
-  {
-    main2d.ressource[a] += res[a];
-    newd[4+a] = res[a];
-  }
-  dbUserMainSet( destid, &main2d );
-
-  newd[0] = ticks.number;
-  newd[1] = CMD_NEWS_FLAGS_NEW;
-  newd[2] = CMD_NEWS_AID;
-  newd[3] = id;
-  cmdUserNewsAdd( destid, newd, CMD_NEWS_FLAGS_AID );
-
-  return YES;
+return YES;
 }
 
 

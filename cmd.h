@@ -30,7 +30,7 @@ int cmdExecAddBid( int id, int action, int resource, int price, int quantity );
 int cmdExecRemoveBid( int id, int bidid );
 int cmdExecGetMarket( int *market );
 
-int cmdExecSendAid( int id, int destid, int fam, int64_t *res );
+int cmdExecSendAid( int id, int destid, int fam, int64_t *res, bool source );
 int cmdExecGetAid( int id, int destid, int fam, int64_t *res );
 
 int cmdExecAidAccess( int id, int access );
