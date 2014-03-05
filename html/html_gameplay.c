@@ -3581,8 +3581,8 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
     b = '5';
     if( !( mapp[i] >> 24 ) )
      b = '0' + ( rand() % 5 );
-    httpPrintf( cnt, "<td><a href=\"%s&amp;id=%d\"", URLAppend( cnt, "system" ), ( mapp[i] & 0xFFFF ) - 1 );
-    httpPrintf( cnt, "target=\"%s\"><img border=\"0\" src=\"files?type=image&amp;name=map/m%c%c.gif\" title=\"%d,%d\"></a>", targetframe( cnt ), a, b, x, y );
+    httpPrintf( cnt, "<td><a href=\"%s&amp;id=%d\">", URLAppend( cnt, "system" ), ( mapp[i] & 0xFFFF ) - 1 );
+    httpPrintf( cnt, "<img border=\"0\" src=\"files?type=image&amp;name=map/m%c%c.gif\" title=\"%d,%d\"></a>", a, b, x, y );
    }
   }
   if( zoomsize >= 0 )

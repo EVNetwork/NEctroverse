@@ -142,32 +142,33 @@ httpPrintf( cnt, "<td align=\"center\"><span id=\"u_online\">%d</span> of <span 
 httpString( cnt, "<td align=\"center\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
-	URLString( cnt, "/", "Main" );
+	httpPrintf( cnt, "<a href=\"%s\">Main</a>", URLAppend( cnt, "/" ) );
 }
 if( !( flags == FMENU_REGISTER ) ) {
-	if( !( flags == FMENU_MAIN ) )
+	if( !( flags == FMENU_MAIN ) ) {
 		httpString( cnt, " | " );
-	URLString( cnt, ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register" ) : "register" ), ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "Game" : "Activate" ) : "Register" ) );
+	}
+	httpPrintf( cnt, "<a href=\"%s\">%s</a>", URLAppend( cnt, ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register" ) : "register" ) ), ( ( (cnt->session)->dbuser ) ? ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "Game" : "Activate" ) : "Register" ) );
 }
 if( !( flags == FMENU_FORUM ) ) {
 	httpString( cnt, " | " );
-	URLString( cnt, "forum", "Forums" );
+	httpPrintf( cnt, "<a href=\"%s\">Forums</a>", URLAppend( cnt, "forum" ) );
 }
 if( !( flags == FMENU_FAQ ) ) {
 	httpString( cnt, " | " );
-	URLString( cnt, "faq", "FAQ" );
+	httpPrintf( cnt, "<a href=\"%s\">FAQ</a>", URLAppend( cnt, "faq" ) );
 }
 if( !( flags == FMENU_GSTART ) ) {
 	httpString( cnt, " | " );
-	URLString( cnt, "gettingstarted", "Getting Started" );
+	httpPrintf( cnt, "<a href=\"%s\">Getting Started</a>", URLAppend( cnt, "gettingstarted" ) );
 }
 if( !( flags == FMENU_RANKS ) ) {
 	httpString( cnt, " | " );
-	URLString( cnt, "halloffame", "Hall of fame" );
+	httpPrintf( cnt, "<a href=\"%s\">Hall of fame</a>", URLAppend( cnt, "halloffame" ) );
 }
 if( !( flags == FMENU_SERVER ) ) {
 	httpString( cnt, " | " );
-	URLString( cnt, "status", "Server Status" );
+	httpPrintf( cnt, "<a href=\"%s\">Server Status</a>", URLAppend( cnt, "status" ) );
 }
 
 httpString( cnt, "</b></td></tr></table></td></tr>" );
@@ -329,12 +330,12 @@ if( (id < 0) ) {
 	httpPrintf( cnt, "<br><b>You are already logged in as <i>%s</i></b><br>", ((cnt->session)->dbuser)->name );
 	httpString( cnt, "<br>" );
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "hq" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<a href=\"%s\">Proceed to game</a><br>", URLAppend( cnt, "hq" ) );
 	} else {
-		httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Activate Now!</a><br>", URLAppend( cnt, "register" ), targetframe( cnt ) );
+		httpPrintf( cnt, "<a href=\"%s\">Activate Now!</a><br>", URLAppend( cnt, "register" ) );
 	}
 	httpString( cnt, "<br>" );
-	httpPrintf( cnt, "<a href=\"%s\" target=\"%s\">Log out</a><br>", URLAppend( cnt, "logout" ), targetframe( cnt ) );
+	httpPrintf( cnt, "<a href=\"%s\">Log out</a><br>", URLAppend( cnt, "logout" ) );
 	httpString( cnt, "<br>" );
 	httpString( cnt, "<br>" );
 }
@@ -793,7 +794,7 @@ if( ( name ) && ( pass ) ) {
 
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_KILLED ) ) {
 		httpString( cnt, "Your Home Planet has been conquered and whiped out, your faction has been destroyed!<br><br>" );
-		URLString( cnt, "register", "Rejoin the Galaxy" );
+		httpPrintf( cnt, "<a href=\"%s\">Rejoin the Galaxy</a>", URLAppend( cnt, "register" ) );
 		httpString( cnt, "<br><br>" );
 		num = dbUserNewsList( id, &newsp );
 		newsd = newsp;
@@ -808,30 +809,30 @@ if( ( name ) && ( pass ) ) {
 	}
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DELETED ) ) {
 		httpString( cnt, "<br>Your account have been deleted by an administrator, most likely for not respecting a rule of the game.<br><br>" );
-		URLString( cnt, "register", "Register this account again" );
+		httpPrintf( cnt, "<a href=\"%s\">Register this account again</a>", URLAppend( cnt, "register" ) );
 		httpString( cnt, "<br><br>" );
 		goto iohtmlFunc_mainL1;
 	}
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_NEWROUND ) ) {
 		httpString( cnt, "<br>The account has been deactivated for the new round, starting soon!<br>You'll be asked to join an empire of your choice again.<br><br>" );
-		URLString( cnt, "register", "Complete account registration" );
+		httpPrintf( cnt, "<a href=\"%s\">Complete account registration</a>", URLAppend( cnt, "register" ) );
 		httpString( cnt, "<br><br>" );
 		goto iohtmlFunc_mainL1;
 	}
 
 	if( !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) {
 		httpString( cnt, "<br>The activation of this account was not completed.<br><br>" );
-		URLString( cnt, "register", "Continue Registration" );
+		httpPrintf( cnt, "<a href=\"%s\">Continue Registration</a>", URLAppend( cnt, "register" ) );
 		httpString( cnt, "<br><br>" );
 		iohtmlFunc_mainL1:
-		URLString( cnt, "forum", "Public Forums" );
+		httpPrintf( cnt, "<a href=\"%s\">Public Forums</a>", URLAppend( cnt, "forum" ) );
 		if((cnt->session)->dbuser) {
 			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 				httpString( cnt, "<br><br>" );
-				URLString( cnt, "moderator", "Moderator panel" );
+				httpPrintf( cnt, "<a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
 			} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
 				httpString( cnt, "<br>" );
-				URLString( cnt, "administration", "Admin panel" );
+				httpPrintf( cnt, "<a href=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ) );
 			}
 		}
 	iohtmlFunc_endhtml( cnt );
@@ -897,7 +898,7 @@ redirect( cnt, "%s", URLAppend( cnt, "register") );
 
 httpString( cnt, "<b>Login sucess, you should be redirected shortly...</b><br>" );
 httpString( cnt, "<br>" );
-URLString( cnt, bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register", "Click here if it takes too long." );
+httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long.</a>", URLAppend( cnt, bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register" ) );
 httpString( cnt, "<br>" );
 LOGIN_END:
 iohtmlFunc_endhtml( cnt );
@@ -973,24 +974,25 @@ if( race ) {
 	sscanf( race, "%d", &raceid );
 
 	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
- 		if( cmdErrorString )
+ 		if( cmdErrorString ) {
  			httpString( cnt, cmdErrorString );
- 		else
+ 		} else {
   			httpString( cnt, "Error encountered while registering user" );
+  		}
  		httpString( cnt, "<br><br>" );
- 		URLString( cnt, "register", "Try Again." );
+ 		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
  		goto END;
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
 	httpString( cnt, "<br><br><br>" );
-	URLString( cnt, "hq", "Click here if not redirected." );
+	httpPrintf( cnt, "<a href=\"%s\">Click here if not redirected.</a>", URLAppend( cnt, "hq" ) );
 	redirect( cnt, "%s", URLAppend( cnt, "hq" ) );
 	goto END;
 } else if( ( ( token != NULL ) && ( ( faction != NULL ) && ( strlen(faction) > 0 ) ) ) || ( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) ) {
 	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
 		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
 		httpString( cnt, "<br><br>" );
- 		URLString( cnt, "register", "Try Again." );
+ 		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
 		goto END;
 	}
 	#if FACEBOOK_SUPPORT
@@ -1020,7 +1022,7 @@ if( race ) {
 			httpString( cnt, "Error encountered while registering user" );
 
 		httpString( cnt, "<br><br>" );
-		URLString( cnt, "register", "Try Again." );
+		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
 		goto END;
 	}
   	newd[0] = ticks.number;

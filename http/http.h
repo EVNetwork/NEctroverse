@@ -262,9 +262,7 @@ void httpString( ReplyDataPtr rd, char string[ARRAY_MAX] );
 void httpPrintf( ReplyDataPtr rd, char *fmt, ... );
 
 char *URLAppend( ReplyDataPtr cnt, char *url );
-void URLString( ReplyDataPtr cnt, char *url, char *label );
 
-char *targetframe( ReplyDataPtr cnt );
 bool securecnt( ReplyDataPtr cnt );
 
 #endif

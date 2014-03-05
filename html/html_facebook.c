@@ -517,7 +517,7 @@ if( id >= 0 ) {
 	redirect( cnt, "%s", URLAppend( cnt, "/" ) );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br/><br/>", user->faction );
 	httpString( cnt, "You should be redirected back to the main screen shortly<br/>" );
-	URLString( cnt, "/", "Click here if it takes too long" );
+	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long</a>", URLAppend( cnt, "/" ) );
 	httpString( cnt, "<br/>" );
 } else if( fbdata.id[0] ) {
 	if( remove ) {
@@ -527,7 +527,7 @@ if( id >= 0 ) {
 	}
 } else {
 	httpString( cnt, "Invalid Request, unable to load facebook details...<br/><br/>" );
-	URLString( cnt, "/", "Click here to return to main screen" );
+	httpPrintf( cnt, "<a href=\"%s\">Click here to return to main screen</a>", URLAppend( cnt, "/" ) );
 	httpString( cnt, "<br/><br/>" );
 	httpString( cnt, "<br/><br/>" );
 	iohtmlFBConnect( cnt );

@@ -1498,42 +1498,6 @@ return urlappend_buffer->buf;
 }
 
 
-void URLString( ReplyDataPtr cnt, char *url, char *label ) {
-	char buffer[DEFAULT_BUFFER];
-	int offset;
-
-offset = snprintf( buffer, DEFAULT_BUFFER, "<a href=\"%s", URLAppend( cnt, url ) );
-offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "\">" );
-offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", label );
-offset += snprintf( &buffer[offset], DEFAULT_BUFFER - offset, "%s", "</a>" );
-
-httpString( cnt, buffer );
-
-return;
-}
-
-static StringBufferPtr targetframe_buffer;
-
-char *targetframe( ReplyDataPtr cnt ) {
-
-if( targetframe_buffer ) {
-	targetframe_buffer->off = 0;
-} else if( NULL == ( targetframe_buffer = calloc( 1, sizeof(StringBufferDef) ) ) ) {
-	critical( "memory allocation error!" );
-	return NULL;
-}
-
-#if FACEBOOK_SUPPORT
-if ( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) 
-	AddBufferPrintf( targetframe_buffer, "iframe_canvas%s", ( strcmp( iohtmlVarsFind( cnt, "fbapp" ), "secure" ) == 0 ) ? "_fb_https" : "" );
-else
-#endif
-	AddBufferString( targetframe_buffer, "_top" );
-
-
-return targetframe_buffer->buf;
-}
-
 bool securecnt( ReplyDataPtr cnt ) {
 	#if HTTPS_SUPPORT
 	urlinfoPtr urlp;
@@ -1614,10 +1578,6 @@ if( ServerSessionMD5 != NULL ) {
 	ServerSessionMD5 = NULL;
 }
 
-if( targetframe_buffer != NULL ) {
-	free( targetframe_buffer );
-	targetframe_buffer = NULL;
-}
 if( urlappend_buffer != NULL ) {
 	free( urlappend_buffer );
 	urlappend_buffer = NULL;
