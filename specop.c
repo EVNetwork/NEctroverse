@@ -5,7 +5,8 @@ if( ( cmdRace[raceid].operations & ( 1 << specop ) ) != NO ) {
 	return YES;
 }
 
-return NO;
+//return NO;
+return YES;
 }
 
 int specopPsychicsAllowed( int specop, int raceid ) {
@@ -14,7 +15,8 @@ if( ( cmdRace[raceid].spells & ( 1 << specop ) ) != NO ) {
 	return YES;
 }
 
-return NO;
+//return NO;
+return YES;
 }
 
 int specopGhostsAllowed( int specop, int raceid ) {
@@ -23,7 +25,8 @@ if( ( cmdRace[raceid].incantations & ( 1 << specop ) ) != NO ) {
 	return YES;
 }
 
-return NO;
+//return NO;
+return YES;
 }
 
 int specopAgentsReadiness( int specop, dbUserMainPtr maind, dbUserMainPtr main2d )
@@ -1488,12 +1491,7 @@ else //code arti*/
 
     if( success >= 1.0 )
     {
-//      newd[11] = main2d.ressource[CMD_RESSOURCE_ENERGY];
-
-
-        ent = 170.0*(float)attack + (float)main2d.ressource[CMD_RESSOURCE_ENERGY];
-
-
+        ent = fmax( 1.0, ( ( ( maind.networth > main2d.networth ) ? ( 320.0 / ( maind.networth / main2d.networth ) ) : 320.0 ) * attack + main2d.ressource[CMD_RESSOURCE_ENERGY]) );
 
 /*
 Energy use :

@@ -1492,7 +1492,7 @@ if( numbuild < 0 ) {
 }
 
 if(empired.taxation)
-	httpPrintf( cnt, "<i>You Prime Minister have set a taxation level of <span id=\"counciltax\">%.02f</span>%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
+	httpPrintf( cnt, "<i>You Prime Minister has set a taxation level of <span id=\"counciltax\">%.02f</span>%%, this is automaticly deducted from your production.</i>", ( empired.taxation * 100.0 ) );
 
 httpString( cnt, "<table width=\"95%\"><tr><td width=\"48%%\" align=\"center\" valign=\"top\"><table>" );
 httpString( cnt, "<tr><td><b>Energy</b></td><td>&nbsp;</td></tr>" );
