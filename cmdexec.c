@@ -943,14 +943,17 @@ if( source ) {
     cmdErrorString = "You can't send an empty aid shipment!";
     return -3;
   }
+
 if( source == false ) {
-	if( dbUserMainRetrieve( destid, &main2d ) < 0 ) {
+	if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 		return -3;
 	}
 }
+
 if( dbUserMainRetrieve( destid, &main2d ) < 0 ) {
 	return -3;
 }
+
 for( a = 0 ; a < 4 ; a++ ) {
 	if( source ) {
 		empired.fund[a] -= res[a];
