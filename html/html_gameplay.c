@@ -2379,6 +2379,7 @@ void iohtmlFunc_famaid( ReplyDataPtr cnt )
  dbUserMainDef maind;
  dbMainEmpireDef empired;
  char *playerstring, *resstring[4], *selected;
+ char reportbuffer[512];
  char *reportstring;
  dbUserPtr user;
 
@@ -2401,7 +2402,7 @@ if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Send Aid" );
 
- reportstring = 0;
+reportstring = 0;
 if( playerstring ) {
 	if( sscanf( playerstring, "%d", &b ) != 1 ) {
 		goto iohttpFunc_famaidL0;
@@ -2419,10 +2420,12 @@ if( playerstring ) {
     			reportstring = cmdErrorString;
     			cmdErrorString = 0;
     		} else {
-    			reportstring = "Error while sending aid";
+    			sprintf( reportbuffer, "Error while sending aid from %s.", source ? "Empire Funds" : "your Faction" );
+    			reportstring = reportbuffer;
     		}
 	} else {
-		reportstring = "Aid sent";
+		sprintf( reportbuffer, "Aid sent from %s.", source ? "Empire Funds" : "your Faction" );
+		reportstring = reportbuffer;
 	}
 }
 iohttpFunc_famaidL0:
