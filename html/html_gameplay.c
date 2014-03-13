@@ -1651,7 +1651,7 @@ for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ ) {
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Units" );
- httpPrintf( cnt, "<a href=\"%s&amp;type=units\">Unit Information</a><br><br>", URLAppend( cnt, "info" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=units&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Unit Information</a><br><br>", URLAppend( cnt, "info" ) );
  for( a = 0 ; a < CMD_UNIT_NUMUSED ; a++ )
  {
   if( buildstring[a][0] )
@@ -2258,7 +2258,7 @@ empired.numplayers = b;
 	}
    }
 
-  httpPrintf( cnt, "</a></td><td><a href=\"%s&amp;type=races\">%s</a></td><td>%d</td><td>%lld</td><td>", URLAppend( cnt, "info" ), cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
+  httpPrintf( cnt, "</a></td><td><a href=\"%s&amp;type=races&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">%s</a></td><td>%d</td><td>%lld</td><td>", URLAppend( cnt, "info" ), cmdRaceName[mainp[b].raceid], mainp[b].planets, (long long)mainp[b].networth );
   nAlly = cmdExecFindRelation(maind.empire, curfam, 0, 0);
 
   if( ( id >= 0 ) && ( user ) && ( ( curfam == maind.empire ) || (nAlly == CMD_RELATION_ALLY) || ( ( (cnt->session)->dbuser ) && ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) ) )
@@ -3720,21 +3720,23 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   for( b = 0 ; b < 7 ; b++ )
   {
    httpPrintf( cnt, "<option value=\"%d\"", b );
-   if( advoptbase[a] == b )
+   if( advoptbase[a] == b ) {
     httpString( cnt, " selected" );
+   }
    httpString( cnt, advopt[b] );
   }
   httpString( cnt, "</select></td>" );
   httpPrintf( cnt, "<td><input type=\"text\" name=\"u%d\" size=\"16\"", a );
-  if( advnumbase[a] < 0x10000 )
+  if( advnumbase[a] != -1 )
    httpPrintf( cnt, " value=\"%d\"", advnumbase[a] );
   httpString( cnt, "></td>" );
   httpPrintf( cnt, "<td><select name=\"c%d\">", a );
   for( b = 0 ; b < 6 ; b++ )
   {
    httpPrintf( cnt, "<option value=\"%d\"", b );
-   if( advcolbase[a] == b )
+   if( advcolbase[a] == b ) {
     httpString( cnt, " selected" );
+   }
    httpString( cnt, advcol[b] );
   }
   httpString( cnt, "</select></td></tr>" );
@@ -4313,7 +4315,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
   return;
  iohtmlBodyInit( cnt, "Build on planet %d,%d:%d", ( planetd.position >> 8 ) & 0xFFF, planetd.position >> 20, planetd.position & 0xFF );
- httpPrintf( cnt, "<a href=\"%s&amp;type=buildings\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=buildings&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
  for( a = 0 ; a < CMD_BLDG_NUMUSED+1 ; a++ )
  {
   if( buildstring[a][0] )
@@ -4632,7 +4634,7 @@ cmdExecAddBuild !!!
  }
 
  iohtmlBodyInit( cnt, "Build on %d planets", totalpl );
- httpPrintf( cnt, "<a href=\"%s&amp;type=buildings\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
+ httpPrintf( cnt, "<a href=\"%s&amp;type=buildings&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Building Information</a><br><br>", URLAppend( cnt, "info" ) );
  httpString( cnt, buildstring );
 
  httpString( cnt, "<table><tr><td>" );

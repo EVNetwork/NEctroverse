@@ -76,6 +76,8 @@
 #define null NULL
 #endif
 
+#define CMP_TRUE 0
+#define CMP_FALSE 1
 
 static const long minute = 60;
 static const long hour = (60 * 60);

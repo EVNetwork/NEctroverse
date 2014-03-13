@@ -1,4 +1,9 @@
-1 Febuary 2014
+11 March 2014 : Stability Milestone
+After 5 days running with the Facebook Link active a new milestone has been reached.
+While work with other aspects is slow, it is still progressing.
+Once Artefacts are added successfully, it will mark the begining of the end for Alpha stages.
+
+1 February 2014 : Planet Change
 Planets no longer give 800 networth each, its now based on planet size.
 This will give a more "realistic" Networth.
 ------<br>
@@ -6,58 +11,58 @@ For all standard planets it is now;
 networth = 1.75 * size.<br>
 For the "mega planets" it is now;
 networth = ( 3 + number of mega planets ) * size.<br>
-For planets with a rescource bonus;
+For planets with a resource bonus;
 ENERGY: networth = (base networth as above) + ( planetd.special * 1 )
 MINERAL: networth = (base networth as above) + ( planetd.special * 1.25 )
 CRYSTAL: networth = (base networth as above) + ( planetd.special * 2.25 )
 ECTROLIUM: networth = (base networth as above) + ( planetd.special * 1.65 )
 FISSION: networth = (base networth as above) + ( planetd.special * 5 )
 
-28 January 2014
+28 January 2014 : Repair
 OK, So I've repaired the damaged caused by the use of a known broken function.
 --Please do not use functions that are known to be broken/faulty.
 --Unless it has been posted that a fix has been applied, they are still broken.
 
-26 January 2014
-"New Round" has been iniated... and it marks a new day for NEctroverse.
+26 January 2014 : New Round
+"New Round" has been initiated... and it marks a new day for NEctroverse.
 This map was generated while the server was still running, no reboot was required.
-Empire politics will be getting a workup shortly it's been idle long enough.
+Empire politics will be getting a work-up shortly it's been idle long enough.
 
 25 January 2014
 Well, time frozen already... I did not expect that.
-Time will remain frozen untill I complete the End of Round function.
+Time will remain frozen until I complete the End of Round function.
 
 18 January 2014
-Unit Upkeep has changed, traveling units now incur a 50% increase in upkeep.
+Unit Upkeep has changed, travelling units now incur a 50% increase in upkeep.
 While units stationed on a planet will incur a 25% increase.
 
 15 January 2014
 This is PRE-ALPHA TEST... This is NOT a real round, this is NOT the end design of the game.
-This is mearly to help me find the stray bugs from the develeopment of the game core.
+This is mearly to help me find the stray bugs from the development of the game core.
 By playing you agree to report any faults encountered to the best of your ability.<br>
-Due to an unforseen colission in the databases I've been forced to reset the whole thing.
+Due to an unforeseen collision in the databases I've been forced to reset the whole thing.
 
 11 January 2014
-Population upeek reduction has been relabled Population reduction, and now allows off-set of portal and unit costs.
+Population upkeep reduction has been releasable Population reduction, and now allows off-set of portal and unit costs.
 You are still unable to make a "profit" from population, but this will change things a bit anyway.<br>
 Exploration costs have also changed, Exploration ships in your main fleet no longer count towards costs.
-This means that inital exploration costs will be reduced, but the penalty for "Hovering" will still apply.
+This means that initial exploration costs will be reduced, but the penalty for "Hovering" will still apply.
 
 10 January 2014
 Registration for pre-alpha debugging is enabled, but be advised that NO RECORDS will be preserved.
 If you register now, you are only doing so to test the system. ::angel
 
 10 January 2014
-Redirects modofied, they are no longer controlled by the "Ticker" as this proved ineffective. ::bad
+Redirects modified, they are no longer controlled by the "Ticker" as this proved ineffective. ::bad
 They are now controlled by HTTP Redirect Headers, and therefore may not work on older browsers (if there are any left now days)
 
 9 January 2014
-Redirects on this site are contolled by the AJAX Ticker which is controlled by tick speed.
-It may take untill the next tick for them to occur, and they will still take place if you manually change pages.
+Redirects on this site are controlled by the AJAX Ticker which is controlled by tick speed.
+It may take until the next tick for them to occur, and they will still take place if you manually change pages.
 
 7 January 2014
 Large over-haul of structure in progress, many buffers have been converted to dynamic.
-The way the server loads its settings has also changed drasticly, hopefully consuming less memory. ::good
+The way the server loads its settings has also changed drastic, hopefully consuming less memory. ::good
 
 5 January 2014
 Facebook base link almost completed, this will enable login/registration from FB account.
@@ -72,14 +77,14 @@ Homeless again. Everything suspended... see you all again when I can :(
 
 15 November 2013
 Well, that was epic... The server has now been upgraded to full HTTP/1.1 support.
-Hopefully you will all see it paying off with improved load/responce times :)
+Hopefully you will all see it paying off with improved load/response times :)
 
 12 November 2013
 <div class="center"><i>All Function development placed on hold, Alpha stage postponed.
-Upgrade from HTTP/1.0 to HTTP/1.1 in progress. Nothing changes untill this is finished.<br>
-What is HTTP/1.1, and Why is it needed? -- Simply put, its majorly superiour in many ways.
+Upgrade from HTTP/1.0 to HTTP/1.1 in progress. Nothing changes until this is finished.<br>
+What is HTTP/1.1, and Why is it needed? -- Simply put, its major superior in many ways.
 First and foremost, a connection with HTTP/1.0 must close and re-open with every transmission.
-With HTTP/1.1 a connection stays open untill it is no longer needed, therfore much more efficent.</i></div>
+With HTTP/1.1 a connection stays open until it is no longer needed, therefore much more efficient.</i></div>
 
 22nd October 2013
 Coming soon... NEctroverse Alpha!

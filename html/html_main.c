@@ -50,7 +50,7 @@ return id;
 FAIL:
 
 if( action & 1 ) {
-	iohtmlFunc_login( cnt, 1, "Your session has expired, you need to login again.<br>If you were playing just a few seconds ago, your account may have been hijacked." );
+	iohtmlFunc_login( cnt, "Expired Session" );
 }
 
 NEGATIVE:
@@ -62,15 +62,9 @@ void iohtmlBase( ReplyDataPtr cnt, int flags ) {
 
 settings[0] = GetSetting( "Server Name" );
 
-//httpString( cnt, "<!DOCTYPE xhtml><html xmlns=\"http://www.w3.org/1999/xhtml\" dir=\"ltr\" lang=\"en\" xml:lang=\"en\">");
 httpString( cnt, "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\">");
-
 httpString( cnt, "<head>");
-
 httpString( cnt, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-httpString( cnt, "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">" );
-httpString( cnt, "<meta http-equiv=\"Content-Language\" content=\"en\">" );
-httpString( cnt, "<meta http-equiv=\"imagetoolbar\" content=\"no\">" );
 httpPrintf( cnt, "<title>%s</title>", settings[0]->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\">" );
 if( !( flags & 32 ) ) {
@@ -92,7 +86,7 @@ if( ( flags & 1 ) && !( flags & 32 ) ) {
 }
 
 httpString( cnt, "</head>" );
-httpString( cnt, "<script>" );
+httpString( cnt, "<script type=\"text/javascript\">" );
 httpString( cnt, "  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){" );
 httpString( cnt, "  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o)," );
 httpString( cnt, "  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)" );
@@ -232,15 +226,19 @@ void iohtmlFunc_front( ReplyDataPtr cnt, char *text, ...  ) {
 	struct stat stdata;
 	bool boxopen = false;
 	char *data;
-	char DIRCHECKER[PATH_MAX];
-	char DATAPOOL[USER_DESC_MAX];
+	char DIRCHECKER[PATH_MAX], DATAPOOL[DEFAULT_BUFFER];
 	FILE *file;
-	int id, len, notices = 0;
+	int id, len, notices;
 	va_list ap;
 
-va_start( ap, text );
-len = vsnprintf( DATAPOOL, USER_DESC_MAX, text, ap );
-va_end( ap );
+len = notices = 0;
+
+if( text != NULL ) {
+	va_start( ap, text );
+	len = vsnprintf( DATAPOOL, DEFAULT_BUFFER, text, ap );
+	va_end( ap );
+	text = DATAPOOL;
+}
 
 
 iohtmlBase( cnt, 8 );
@@ -256,8 +254,9 @@ iohtmlFBSDK( cnt );
 
 iohtmlFunc_frontmenu( cnt, FMENU_MAIN );
 
-if( len > 0 )
-	httpPrintf( cnt, "<br><b>%s</b><br>", DATAPOOL );
+if( len > 0 ) {
+	httpPrintf( cnt, "<h3>%s</h3>", text );
+}
 
 httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
 
@@ -271,13 +270,16 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					if( data[0] == '#' ) {
+						continue;
+					}
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DEFAULT_BUFFER );
 						html_boxstart( cnt, true, DATAPOOL );
 						boxopen = true;
 						notices++;
 					} else if ( strlen( trimwhitespace(data) ) ) {
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DEFAULT_BUFFER );
 						httpPrintf( cnt, "&nbsp;&nbsp;%s<br>", DATAPOOL );
 					}
 					if( (boxopen) && ( strlen( trimwhitespace(data) ) == false ) ) {
@@ -285,15 +287,16 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 						boxopen = false;
 						httpString( cnt, "<br><br>" );
 						if( notices == (int)settings[1]->num_value ) {
-							httpString( cnt, "<table align=\"right\">" );
-							httpPrintf( cnt, "<tr><td width=\"40%\" valign=\"top\"><a href=\"%s&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">See full list...</a></td></tr>", URLAppend( cnt, "notices" ) );
-							httpString( cnt, "</table>" );
+							httpString( cnt, "<table align=\"right\"><tr><td width=\"40%\" valign=\"top\">" );
+							httpPrintf( cnt, "<a href=\"%s&amp;request=true\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">See full list...</a>", URLAppend( cnt, "notices" ) );
+							httpString( cnt, "</td></tr></table>" );
 							break;
 						}
 					}
 				}
-			if(boxopen)
+			if( boxopen ) {
 				html_boxend( cnt );
+			}
 			httpString( cnt, "<br>" );
 			httpString( cnt, "<br>" );
 			}
@@ -367,9 +370,13 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 				httpString( cnt, "<tr><td>" );
 				httpString( cnt, "<table cellspacing=\"8\"><tr><td align=\"left\">" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
-					if( strlen(data) > 1 )
-						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
+					if( data[0] == '#' ) {
+						continue;
+					}
+					if( strlen(data) > 1 ) {
+						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), DEFAULT_BUFFER );
 						httpPrintf( cnt, "&nbsp;&#9734;&nbsp;&nbsp;%s<br>", DATAPOOL );
+					}
 				}
 				httpString( cnt, "</td></tr></table></td></tr>" );
 			}
@@ -635,6 +642,9 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
+					if( data[0] == '#' ) {
+						continue;
+					}
 					if( !(boxopen) && ( strlen( trimwhitespace(data) ) ) ) {
 						httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\"><tbody><tr>" );
 						iohttpForumFilter2( DATAPOOL, trimwhitespace(data), USER_DESC_MAX );
@@ -668,22 +678,28 @@ return;
 }
 
 
-void iohtmlFunc_login( ReplyDataPtr cnt, int flag, char *text, ... ) {
+void iohtmlFunc_login( ReplyDataPtr cnt, char *text, ... ) {
+	ConfigArrayPtr settings;
+	dbUserInfoDef infod;
 	int a, id, num;
 	unsigned int i;
-	char rtpass[USER_PASS_MAX];
 	int64_t *newsp, *newsd;
-	dbUserInfoDef infod;
-	ConfigArrayPtr settings;
-	struct stat stdata;
 	char *data, *name, *pass;
+	char timebuf[512], rtpass[USER_PASS_MAX], DIRCHECKER[PATH_MAX], DATAPOOL[DEFAULT_BUFFER];
+	struct stat stdata;
+	FILE *file = NULL;
+	va_list ap;
 	#if FACEBOOK_SUPPORT
 	char *token = NULL;
 	#endif
-	char DIRCHECKER[PATH_MAX];
-	char timebuf[512];
-	time_t tint;
-	FILE *file = NULL;
+
+if( text != NULL ) {
+	va_start( ap, text );
+	vsnprintf( DATAPOOL, USER_DESC_MAX, text, ap );
+	va_end( ap );
+	text = DATAPOOL;
+}
+
 
 name = iohtmlVarsFind( cnt, "name" );
 pass = iohtmlVarsFind( cnt, "pass" );
@@ -694,22 +710,24 @@ token = iohtmlVarsFind( cnt, "fblogin_token" );
 
 iohtmlBase( cnt, 8 );
 #if FACEBOOK_SUPPORT
-if( ( !(name) && !(pass) ) && !(token) )
-iohtmlFBSDK( cnt );
+if( ( !(name) && !(pass) ) && !(token) ) {
+	iohtmlFBSDK( cnt );
+}
 #endif
 iohtmlFunc_frontmenu( cnt, FMENU_NONE );
 
 id = iohtmlIdentify( cnt, 0 );
 
-if( ( id >= 0 ) )
+if( ( id >= 0 ) ) {
 	goto LOGIN_SUCESS;
+}
 
 if( ( name ) && ( pass ) ) {
 	settings = GetSetting( "Directory" );
 	sprintf( DIRCHECKER, "%s/logs/login.log", settings->string_value );
 	if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
-		time( &tint );
-		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+		time( &now );
+		strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &now ) );
 		fprintf( file, "Time: %s\n", timebuf );
 		fprintf( file, "Name: %s;\n", name );
 		if( (cnt->connection)->addr->sa_family == AF_INET )
@@ -778,14 +796,15 @@ if( ( name ) && ( pass ) ) {
 	dbRegisteredInfo[DB_TOTALS_USERS_ONLINE]++;
 	dbUserInfoRetrieve( id, &infod );
 	infod.lasttime = time( 0 );
-	if( (cnt->connection)->addr->sa_family == AF_INET )
-	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
-		if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
-			memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+	if( ((cnt->connection)->addr)->sa_family == AF_INET ) {
+		for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
+			if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
+				memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+			}
 		}
+		memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
+		dbUserInfoSet( id, &infod );
 	}
-	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
-	dbUserInfoSet( id, &infod );
 
 	if( ( file ) ) {
 		fprintf( file, "ID : %d ( %x ) %s\n\n\n", id, id, ( bitflag( ((cnt->session)->dbuser)->flags, ( CMD_USER_FLAGS_KILLED | CMD_USER_FLAGS_DELETED | CMD_USER_FLAGS_NEWROUND ) ) ? "Deactivated" : "Active") );
@@ -798,13 +817,15 @@ if( ( name ) && ( pass ) ) {
 		httpString( cnt, "<br><br>" );
 		num = dbUserNewsList( id, &newsp );
 		newsd = newsp;
-		if( !( num ) )
+		if( !( num ) ) {
 			httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
+		}
 		for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
 			iohtmlNewsString( cnt, newsd );
 		}
-		if( newsp )
+		if( newsp ) {
 			free( newsp );
+		}
 		goto iohtmlFunc_mainL1;
 	}
 	if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_DELETED ) ) {
@@ -826,7 +847,7 @@ if( ( name ) && ( pass ) ) {
 		httpString( cnt, "<br><br>" );
 		iohtmlFunc_mainL1:
 		httpPrintf( cnt, "<a href=\"%s\">Public Forums</a>", URLAppend( cnt, "forum" ) );
-		if((cnt->session)->dbuser) {
+		if( (cnt->session)->dbuser != NULL ) {
 			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 				httpString( cnt, "<br><br>" );
 				httpPrintf( cnt, "<a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
@@ -850,28 +871,29 @@ if( file ) {
 httpString( cnt, "<span class=\"genlargered\">Login Failed</span><br>" );
 LOGIN_RAW:
 
-if( text ) {
-	httpPrintf( cnt, "<br>%s", text );
-	if( flag ) {
-		settings = GetSetting( "HTTP Text" );
-		sprintf( DIRCHECKER, "%s/login.txt", settings->string_value );
-		if( stat( DIRCHECKER, &stdata ) != -1 ) {
-			if( ( data = malloc( stdata.st_size + 1 ) ) ) {
-				data[stdata.st_size] = 0;
-				if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
-					if( stdata.st_size > 0 ) {
-						httpString( cnt, "<br>" );
-						while( fgets( data, stdata.st_size, file ) != NULL ) {
-							httpPrintf( cnt, "%s<br>", trimwhitespace(data) );
+if( ( text != NULL ) ) {
+	httpPrintf( cnt, "<h3>%s</h3>", text );
+	settings = GetSetting( "HTTP Text" );
+	sprintf( DIRCHECKER, "%s/login.txt", settings->string_value );
+	if( stat( DIRCHECKER, &stdata ) != -1 ) {
+		if( ( data = malloc( stdata.st_size + 1 ) ) ) {
+			data[stdata.st_size] = 0;
+			if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
+				if( stdata.st_size > 0 ) {
+					httpString( cnt, "<br>" );
+					while( fgets( data, stdata.st_size, file ) != NULL ) {
+						if( data[0] == '#' ) {
+							continue;
 						}
+						httpPrintf( cnt, "%s<br>", trimwhitespace(data) );
 					}
-					fclose( file );
+					httpString( cnt, "<br><br>" );
 				}
-				free( data );
+				fclose( file );
 			}
+			free( data );
 		}
 	}
-	httpString( cnt, "<br><br>" );
 } else {
 	httpString( cnt, "<h3>Login</h3>" );
 }
@@ -1107,8 +1129,12 @@ if( race ) {
 					if( stdata.st_size > 0 ) {
 					httpString( cnt, "<ul>" );
 						while( fgets( data, stdata.st_size, file ) != NULL ) {
-							if( strlen(data) > 1 )
+							if( data[0] == '#' ) {
+								continue;
+							}
+							if( strlen(data) > 1 ) {
 								httpPrintf( cnt, "<li>%s</li>", trimwhitespace(data) );
+							}
 						}
 					httpString( cnt, "</ul>" );
 					}

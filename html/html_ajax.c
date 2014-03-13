@@ -5,52 +5,42 @@ void iohtmlFunc_ajax( ReplyDataPtr cnt ) {
 	#endif
 	int a, c, id, numbuild;
 	int64_t b;
-	int64_t bsums[CMD_BLDG_NUMUSED+2];
-	int64_t usums[CMD_UNIT_NUMUSED+2];
-	const char *typestring, *idstring, *refer;
-	char CHECKER[256];
-	char timebuf[512];
+	int64_t bsums[CMD_BLDG_NUMUSED+2], usums[CMD_UNIT_NUMUSED+2];
+	const char *typestring/*, *idstring*/, *refer;
+	char CHECKER[256], timebuf[512];
 	dbMainEmpireDef empired;
 	dbBuildPtr build;
 	dbUserMainDef maind;
 	proginfoDef pinfod;
 	urlinfoPtr urlp;
-	cpuInfo cpuinfo;
-	time_t tint;
 	struct sysinfo sysinfod;
 
-refer = idstring = typestring = NULL;
-cpuGetInfo( &cpuinfo );
-getsys_infos( &pinfod );
-if( sysinfo(&sysinfod) != 0 ) {
-	critical( "Failure getting system infomation... Critical failure." );
-	sysconfig.shutdown = true; return;
-}
-
-idstring = iohtmlVarsFind( cnt, "id" );
+refer = iohtmlHeaderFind(cnt, "Referer");
+//idstring = iohtmlVarsFind( cnt, "id" );
 typestring = iohtmlVarsFind( cnt, "typ" );
 
-refer = iohtmlHeaderFind(cnt, "Referer");
-
 if( ( id = iohtmlIdentify( cnt, 2|16 ) ) >= 0 ) {
-	if( dbUserMainRetrieve( id, &maind ) < 0 )
+	if( dbUserMainRetrieve( id, &maind ) < 0 ) {
 		goto BAILAJAX;
-	else if( dbEmpireGetInfo( maind.empire, &empired ) < 0 )
+	} else if( ( dbEmpireGetInfo( maind.empire, &empired ) < 0 ) && ( strcmp(typestring,"ticker") == CMP_TRUE ) ) {
 		goto BAILAJAX;
+	}
 
 }
+
+httpString( cnt, "<?xml version=\"1.0\"?>" );
+httpString( cnt, "<xml>" );
 
 if( ( typestring ) && ( refer ) ) {
 	urlp = parse_url(refer);
 	refer = urlp->path;
-	httpString( cnt, "<?xml version=\"1.0\"?>" );
-	httpPrintf( cnt, "<xml>" );
 	//Begin XML generation, we only make one request now... so we have to structure carefully!
-	if( !strcmp(typestring,"ticker") ) {
+	if( strcmp(typestring,"ticker") == CMP_TRUE ) {
 		//Send basic tick info, and check if user is loged in.
 		httpPrintf( cnt, "<pass>%d</pass>", ( id != -1 ) ? ( ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ? true : false ) : false );
-		if( refer )
+		if( refer ) {
 			httpPrintf( cnt, "<page>%s</page>", refer );
+		}
 		httpPrintf( cnt, "<u_online>%d</u_online><u_activated>%d</u_activated>", dbRegisteredInfo[DB_TOTALS_USERS_ONLINE], dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED] );
 		httpPrintf( cnt, "<time><next>%d</next><week>%d</week><year>%d</year>", (int)fmax( 0.0, ( ticks.next - time(0) ) ), ticks.number % 52, ticks.number / 52 );
 		if( ( ticks.locked == false ) && ( sysconfig.autostart ) && ( timediff(sysconfig.start) >= 1 ) ) {
@@ -58,7 +48,12 @@ if( ( typestring ) && ( refer ) ) {
 		}
 		httpString( cnt, "</time>" );
 
-		if( !strcmp(refer,"status") ) {
+		if( strcmp(refer,"status") == CMP_TRUE ) {
+			getsys_infos( &pinfod );
+			if( sysinfo(&sysinfod) != 0 ) {
+				critical( "Failure getting system infomation... Critical failure." );
+				sysconfig.shutdown = true; return;
+			}
 			snprintf( CHECKER, sizeof(CHECKER), "%lu bytes ( %5.1f mb )", pinfod.stvsize, pinfod.stvsize  / megabyte );
 			httpString( cnt, "<general>" );
 			httpPrintf( cnt, "<servpriority>%ld</servpriority>", pinfod.stpriority );
@@ -82,10 +77,10 @@ if( ( typestring ) && ( refer ) ) {
 			httpPrintf( cnt, "<sharedbytes>%ld bytes</sharedbytes>", sysinfod.sharedram );
 			httpPrintf( cnt, "<sharedmeg>( %5.1f mb )</sharedmeg>", (sysinfod.sharedram  / megabyte ) );
 
-			time( &tint );
-			strftime(timebuf,512,"%a, %d %b %G %T %Z", localtime( &tint ) );
+			time( &now );
+			strftime(timebuf,512,"%a, %d %b %G %T %Z", localtime( &now ) );
 			httpPrintf( cnt, "<timeserver>%s</timeserver>", timebuf );
-			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+			strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &now ) );
 			httpPrintf( cnt, "<timegmt>%s</timegmt>", timebuf );
 
 			httpPrintf( cnt, "<strss>%lu pages</strss>", pinfod.strss );
@@ -148,7 +143,7 @@ if( ( typestring ) && ( refer ) ) {
 			httpString( cnt, "</readiness>" );
 		httpPrintf( cnt, "<planets>%d</planets>", maind.planets );
 		//End HQ block -- Start Council block
-		} else if( !strcmp(refer,"council") ) {
+		} else if( strcmp(refer,"council") == CMP_TRUE ) {
 			memset( bsums, 0, (CMD_BLDG_NUMUSED+2)*sizeof(int64_t) );
 			memset( usums, 0, (CMD_UNIT_NUMUSED+2)*sizeof(int64_t) );
 			httpString( cnt, "<incomes>" );
@@ -181,13 +176,16 @@ if( ( typestring ) && ( refer ) ) {
 			}
 			httpPrintf( cnt, "<form name=\"cancelbuild\" id=\"cancel_build\" action=\"%s\"><table>", URLAppend( cnt, "cancelbuild" ) );
 			for( a = c = 0 ; a < numbuild ; a++ ) {
-				if( build[a].type >> 16 )
+				if( ( build[a].type >> 16 ) ) {
 					continue;
-				httpPrintf( cnt, "<tr><td>%lld %s in %d weeks at <a href=\"%s&id=%d\">%d,%d:%d</a></td><td><input type=\"checkbox\" name=\"b%d\"></td></tr>", (long long)build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time, URLAppend( cnt, "planet" ), build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF , a);
+				}
+				httpPrintf( cnt, "<tr><td>%lld %s in %d weeks at ", (long long)build[a].quantity, cmdBuildingName[ build[a].type & 0xFFFF ], build[a].time );
+				httpPrintf( cnt, "<a href=\"%s&id=%d\">%d,%d:%d</a></td>", URLAppend( cnt, "planet" ), build[a].plnid, ( build[a].plnpos >> 8 ) & 0xFFF, build[a].plnpos >> 20, build[a].plnpos & 0xFF );
+				httpPrintf( cnt, "<td><input type=\"checkbox\" name=\"b%d\"></td></tr>", a );
 				bsums[ build[a].type & 0xFFFF ] += build[a].quantity;
 				c++;
 			}
-			if( !( c ) ) {
+			if( ( c == 0 ) ) {
 					httpString( cnt, "</table></form>None<br>" );
 			} else {
 				httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_build');\">Toggle</font></div></td></tr>");
@@ -211,7 +209,7 @@ if( ( typestring ) && ( refer ) ) {
 				usums[ build[a].type & 0xFFFF ] += build[a].quantity;
 				c++;
 			}
-			if( !( c ) ) {
+			if( ( c == 0 ) ) {
 				  httpString( cnt, "</table></form>None<br>" );
 			} else {
 				httpString(cnt, "<tr><td></td><td><div class=\"href\" onclick=\"javascript:toggle_form('cancel_units');\">Toggle</font></div></td></tr>");
@@ -231,16 +229,19 @@ if( ( typestring ) && ( refer ) ) {
 		httpPrintf( cnt, "</%s>", refer );
 	}
 	ENDXML:
-	httpString( cnt, "</xml>" );
 	urlinfo_free( urlp );
 } else {
-	httpString( cnt, "Bad Request\n\n" );
+	httpString( cnt, "<error>Bad Request</error>" );
+	redirect( cnt, "%s", URLAppend( cnt, "/") );
 }
+
+httpString( cnt, "</xml>" );
 return;
 
 BAILAJAX:
-if( id != -1 )
-httpPrintf( cnt, "Error getting info! %s\n\n", cmdErrorString ? cmdErrorString : "" );
+if( id != -1 ) {
+	httpPrintf( cnt, "Error getting info! %s\n\n", cmdErrorString ? cmdErrorString : "" );
+}
 
 return;
 }
@@ -253,9 +254,7 @@ void iohtmlFunc_javaforajax( ReplyDataPtr cnt ) {
 	proginfoDef pinfod;
 	timeDef javatime;
 	urlinfoPtr urlp;
-	cpuInfo cpuinfo;
 
-cpuGetInfo( &cpuinfo );
 
 refer = iohtmlHeaderFind(cnt, "Referer");
 
@@ -270,7 +269,7 @@ if( refer ) {
 	httpString( cnt, "var login = false;\n" );
 	httpPrintf( cnt, "var sec = %02ld;\n", javatime.seconds );
 	httpPrintf( cnt, "var min = %02ld;\n", javatime.minutes );
-	if( !strcmp(refer,"status") ) {
+	if( strcmp(refer,"status") == CMP_TRUE ) {
 		getsys_infos( &pinfod );
 		if( sysinfo(&sysajaxd) != 0 ) {
 			critical( "Failure getting system infomation... Critical failure." );
@@ -320,11 +319,11 @@ if( refer ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"u_activated\",u_activated);\n" );
 	}
 	
-	if( !strcmp(refer,"hq") ) {
+	if( strcmp(refer,"hq") == CMP_TRUE ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"hqweeks\",week);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqyears\",year);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqStartTime\",start);\n" );
-	} else if( !strcmp(refer,"status") ) {
+	} else if( strcmp(refer,"status") == CMP_TRUE ) {
 		httpString( cnt, "\t\tvar hostprocs = getnodevar(xmlhttp.responseXML,\"cpuprocs\");\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hostprocs\",hostprocs);\n" );
 		httpString( cnt, "\t\tvar servpriority = getnodevar(xmlhttp.responseXML,\"servpriority\");\n" );
@@ -401,7 +400,7 @@ if( refer ) {
 	httpString( cnt, "\t\t\tupdatehtml(\"headerpopulation\",population);\n" );
 	httpString( cnt, "\t\t\tupdatehtml(\"headerStartTime\",start);\n" );
 	httpString( cnt, "\n" );
-	if( !strcmp(refer,"hq") ) {
+	if( strcmp(refer,"hq") == CMP_TRUE ) {
 		for( a = 0 ; a < CMD_READY_NUMUSED ; a++ ) {
 			httpPrintf( cnt, "\t\t\tvar %sready = getnodevar(xmlhttp.responseXML,\"%sready\");\n", cmdReadyName[a], cmdReadyName[a] );
 			httpPrintf( cnt, "\t\t\tupdatehtml(\"hq%sready\",%sready);\n", cmdReadyName[a], cmdReadyName[a] );
@@ -410,7 +409,7 @@ if( refer ) {
 		httpString( cnt, "\t\t\tupdatehtml(\"hqpopulation\",population);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqnetworth\",networth);\n" );
 		httpString( cnt, "\t\t\tupdatehtml(\"hqplanets\",planets);\n" );
-	} else if( !strcmp(refer,"council") ) {
+	} else if( strcmp(refer,"council") == CMP_TRUE ) {
 		for( a = 0 ; a < INFOS_TOTAL_NUMUSED ; a++ ) {
 			httpPrintf( cnt, "\t\t\tvar %s = getnodevar(xmlhttp.responseXML,\"%s\");\n", cmdMainInfoNames[a], cmdMainInfoNames[a] );
 		}
@@ -472,7 +471,8 @@ if( refer ) {
 
 	urlinfo_free( urlp );
 } else {
-	//iohttpFunc_front( cnt, "Bad page request." );
+	httpString( cnt, "Bad Request" );
+	redirect( cnt, "%s", URLAppend( cnt, "/") );
 }
 
 return;

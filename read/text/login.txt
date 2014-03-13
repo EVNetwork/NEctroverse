@@ -1,2 +1,2 @@
-
-Administration was just updating a few things =)
+Your session has expired, you need to login again.
+If you were playing just a few seconds ago, your account may have been hijacked.

@@ -309,12 +309,21 @@ void iohtmlFunc_info( ReplyDataPtr cnt ) {
 	ConfigArrayPtr settings;
 
 if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
-	iohtmlBase( cnt, 1 );
-	if( !( iohtmlHeader( cnt, id, &maind ) ) )
-		return;
+	if( iohtmlVarsFind( cnt, "request" ) ) {
+		iohtmlBase( cnt, 1|32 );
+	} else {
+		iohtmlBase( cnt, 1 );
+		if( !( iohtmlHeader( cnt, id, &maind ) ) ) {
+			return;
+		}
+	}
 } else {
-	iohtmlBase( cnt, 8 );
-	iohtmlFunc_frontmenu( cnt, FMENU_NONE );
+	if( iohtmlVarsFind( cnt, "request" ) ) {
+		iohtmlBase( cnt, 8|32 );
+	} else {
+		iohtmlBase( cnt, 8 );
+		iohtmlFunc_frontmenu( cnt, FMENU_NONE );
+	}
 }
 
 settings = GetSetting( "Server Name" );
@@ -595,8 +604,12 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			if( stdata.st_size > 0 ) {
 			httpString( cnt, "<ul>" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
-					if( strlen(data) > 1 )
+					if( data[0] == '#' ) {
+						continue;
+					}
+					if( strlen(data) > 1 ) {
 						httpPrintf( cnt, "<li>%s</li>", trimwhitespace(data) );
+					}
 				}
 			httpString( cnt, "</ul>" );
 			}

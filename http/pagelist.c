@@ -11,7 +11,7 @@ static void __link_function_front( ReplyDataPtr rd ) {
 	iohtmlFunc_front( rd, NULL, NULL );
 }
 static void  __link_function_login( ReplyDataPtr rd ) {
-	iohtmlFunc_login( rd, false, NULL );
+	iohtmlFunc_login( rd, NULL );
 }
 
 PageDef html_page[] =
