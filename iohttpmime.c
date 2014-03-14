@@ -52,7 +52,7 @@ iohttpMimeDef iohttpMime[IOHTTP_MIME_TYPES] =
 { "text/javascript", iohttpMimeHeaderExts4, IOHTTP_MIME_HEADERS4 },
 { "image/gif", iohttpMimeHeaderExts5, IOHTTP_MIME_HEADERS5 },
 { "image/jpg", iohttpMimeHeaderExts6, IOHTTP_MIME_HEADERS6 },
-{ "image/x-png", iohttpMimeHeaderExts7, IOHTTP_MIME_HEADERS7 },
+{ "image/png", iohttpMimeHeaderExts7, IOHTTP_MIME_HEADERS7 },
 { "image/vnd.microsoft.icon", iohttpMimeHeaderExts8, IOHTTP_MIME_HEADERS8 },
 { "application/octet-stream", iohttpMimeHeaderExts9, IOHTTP_MIME_HEADERS9 },
 };

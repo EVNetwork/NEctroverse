@@ -68,7 +68,7 @@ httpPrintf( cnt, "<title>%s</title>", settings[0]->string_value );
 httpString( cnt, "<link rel=\"icon\" href=\"files?type=image&amp;name=favicon.ico\">" );
 if( !( flags & 32 ) ) {
 	httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
-	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.10.2.min.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.11.0.min.js\"></script>", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=status.min.js\"></script>", URLAppend( cnt, "files" ) );
@@ -423,7 +423,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	}
 }
 httpString( cnt, "</td></tr></table><br><br>" );
-
+httpString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
 iohtmlFunc_endhtml( cnt );
 return;
 }
