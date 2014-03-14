@@ -48,7 +48,6 @@ purge_captcha( cnt->session );
 return id;
 
 FAIL:
-
 if( action & 1 ) {
 	iohtmlFunc_login( cnt, "Expired Session" );
 }
@@ -208,8 +207,6 @@ return;
 
 void iohtmlFunc_endhtml( ReplyDataPtr cnt ) {
 
-
-httpString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
 httpString( cnt, "</td></tr></tbody></table>" );
 httpString( cnt, "</body></html>" );
 
@@ -258,7 +255,7 @@ if( len > 0 ) {
 	httpPrintf( cnt, "<h3>%s</h3>", text );
 }
 
-httpString( cnt, "<td width=\"40%\" valign=\"top\">" );
+httpString( cnt, "<td valign=\"top\">" );
 
 //read notices from notices.txt and format for display. -- If this file is missing, or empty it is skipped.
 settings[0] = GetSetting( "HTTP Text" );
@@ -307,7 +304,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 }
 //end notices
 
-httpString( cnt, "</td><td width=\"6%\">" );
+httpString( cnt, "</td><td width=\"4%\">" );
 httpString( cnt, "&nbsp;" );
 httpString( cnt, "</td><td width=\"40%\" valign=\"top\">" );
 
@@ -366,7 +363,8 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
-				httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\" class=\"left\"><font color=\"#FFFFFF\" size=\"2\"><i>Items on the admins to-do list :</i></font></td></tr>" );
+				httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\" class=\"left\">" );
+				httpString( cnt, "<font color=\"#FFFFFF\" size=\"2\"><i>Items on the admins to-do list :</i></font></td></tr>" );
 				httpString( cnt, "<tr><td>" );
 				httpString( cnt, "<table cellspacing=\"8\"><tr><td align=\"left\">" );
 				while( fgets( data, stdata.st_size, file ) != NULL ) {
@@ -386,9 +384,8 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 	}
 }
 //end todo list
-
 httpString( cnt, "</table>" );
-
+httpString( cnt, "<td width=\"5%\">&nbsp;</td>" );
 iohtmlFunc_endhtml( cnt );
 return;
 }
@@ -556,6 +553,7 @@ httpString( cnt, "<br>Once the time starts flowing, you won't be able to change 
 
 
 httpString( cnt, "</td></tr></table><br><br>" );
+httpString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
 
 iohtmlFunc_endhtml( cnt );
 
@@ -1002,7 +1000,7 @@ if( race ) {
   			httpString( cnt, "Error encountered while registering user" );
   		}
  		httpString( cnt, "<br><br>" );
- 		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
+ 		httpPrintf( cnt, "<a href=\"%s&amp;rule_agree=true\">Try Again.</a>", URLAppend( cnt, "register" ) );
  		goto END;
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
@@ -1014,7 +1012,7 @@ if( race ) {
 	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
 		httpPrintf( cnt, "Username format prohibited<br>%s is blacklisted due to FBUSER*", name );
 		httpString( cnt, "<br><br>" );
- 		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
+ 		httpPrintf( cnt, "<a href=\"%s&amp;rule_agree=true\">Try Again.</a>", URLAppend( cnt, "register" ) );
 		goto END;
 	}
 	#if FACEBOOK_SUPPORT
@@ -1038,13 +1036,10 @@ if( race ) {
 	if( ( id = cmdExecNewUser( name, pass, faction ) ) < 0 ) {
 	#endif
 
-		if( cmdErrorString )
-			httpString( cnt, cmdErrorString );
-		else
-			httpString( cnt, "Error encountered while registering user" );
+		httpString( cnt, cmdErrorString ? cmdErrorString  : "Error encountered while registering user" );
 
 		httpString( cnt, "<br><br>" );
-		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
+		httpPrintf( cnt, "<a href=\"%s&amp;rule_agree=true\">Try Again.</a>", URLAppend( cnt, "register" ) );
 		goto END;
 	}
   	newd[0] = ticks.number;

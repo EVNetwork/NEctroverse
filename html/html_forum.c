@@ -1183,6 +1183,7 @@ RETURN:
 if( id != -1 ) {
 	httpString( cnt, "</center></body></html>" );
 } else {
+	httpString( cnt, "</td><td width=\"7%\">&nbsp;</td></tr></table>" );
 	iohtmlFunc_endhtml( cnt );
 }
 

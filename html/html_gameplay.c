@@ -3388,6 +3388,9 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
 	iohtmlBase( cnt, 1|2|32 );
 } else {
 	iohtmlBase( cnt, 1|2 );
+	if( iohtmlHeader( cnt, id, &maind ) == NO ) {
+		return;
+	}
 }
 
  if( advopt[0] == -1 )
