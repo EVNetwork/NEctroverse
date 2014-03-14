@@ -3743,7 +3743,7 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  }
  httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><table cellspacing=\"0\" cellpadding=\"0\"><tr><td>" );
  httpString( cnt, "<input type=\"checkbox\" name=\"setdefault\"> Save these settings as the default</td></tr></table></td></tr>" );
- httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\" rel=\"ajaxpanel\" data-loadtype=\"ajax\"></td></tr>" );
+ httpString( cnt, "<tr><td colspan=\"4\" align=\"center\"><input type=\"submit\" value=\"Generate map\"></td></tr>" );
  httpString( cnt, "</table></form>" );
 
  httpString( cnt, "<i>Note : The details fields are used to specify exact faction names or ID, or empire numbers.</i><br><br><br>" );

@@ -72,7 +72,7 @@ if( !( flags & 32 ) ) {
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
 	if( flags & 16 )
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=status.min.js\"></script>", URLAppend( cnt, "files" ) );
-	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.min.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 }
 if( flags & 4 )
 	httpString( cnt, "<base target=\"_blank\">" );
@@ -383,8 +383,19 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		free( data );
 	}
 }
+
 //end todo list
 httpString( cnt, "</table>" );
+httpString( cnt, "<script type=\"text/javascript\"><!--\n" );
+httpString( cnt, "google_ad_client = \"ca-pub-4553701062747705\";\n" );
+httpString( cnt, "google_ad_slot = \"5830081931\";\n" );
+httpString( cnt, "google_ad_width = 728;\n" );
+httpString( cnt, "google_ad_height = 90;\n" );
+httpString( cnt, "//-->\n" );
+httpString( cnt, "</script>\n" );
+httpString( cnt, "<script type=\"text/javascript\" " );
+httpString( cnt, "src=\"//pagead2.googlesyndication.com/pagead/show_ads.js\">\n" );
+httpString( cnt, "</script>\n" );
 httpString( cnt, "<td width=\"5%\">&nbsp;</td>" );
 iohtmlFunc_endhtml( cnt );
 return;
