@@ -3337,7 +3337,7 @@ void iohtmlFunc_map( ReplyDataPtr cnt )
  int basex, basey, endx, endy, zoomsize;
  int config[8];
 
- if( ( id = iohtmlIdentify( cnt, 1|2|8 ) ) < 0 )
+ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
  if( dbUserMainRetrieve( id, &maind ) < 0 )
   maind.empire = -1;
@@ -3388,9 +3388,6 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
 	iohtmlBase( cnt, 1|2|32 );
 } else {
 	iohtmlBase( cnt, 1|2 );
-	if( iohtmlHeader( cnt, id, &maind ) == NO ) {
-		return;
-	}
 }
 
  if( advopt[0] == -1 )
@@ -3918,11 +3915,14 @@ if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt
 }
 
 httpPrintf( cnt, "Forum tag : <b>%s</b><br><br>", infod.forumtag );
-httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
-httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
-httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
 
-if( ( (cnt->session)->dbuser ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
+if( ( (cnt->session)->dbuser ) && ( ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) ) {
+	httpPrintf( cnt, "<a href=\"%s&to=%d\">Send a message</a><br>", URLAppend( cnt, "mail" ), playerid );
+	httpPrintf( cnt, "<a href=\"%s&e0=4&u0=%d&c0=5\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Display planets on map</a><br>", URLAppend( cnt, "map" ), playerid );
+	httpPrintf( cnt, "<a href=\"%s&e0=1&u0=&c0=3&e1=4&u1=%d&c1=5\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">Display planets on map with yours</a><br>", URLAppend( cnt, "map" ), playerid );
+}
+
+if( ( ( (cnt->session)->dbuser ) && ( ( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) ) ) && ( ( maind.empire == main2d.empire ) || ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ) ){
  	httpPrintf( cnt, "<a href=\"%s&amp;id=%d\">See planets list</a><br>", URLAppend( cnt, "playerlist" ), playerid );
 }
 

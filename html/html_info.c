@@ -183,7 +183,7 @@ html_boxend( cnt );
 httpString( cnt, "</td><td width=\"50%\" align=\"left\" valign=\"top\">" );
 html_boxstart( cnt, true, "Server Info" );
 httpString( cnt, "<table border=\"0\"><tr><td>" );
-httpString( cnt, "<b>System OS</b><br>" );
+httpString( cnt, "<b>System Core</b><br>" );
 uname( &stustname );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 
@@ -200,7 +200,7 @@ httpPrintf( cnt, "<tr><td>Processes</td><td>&nbsp;:&nbsp;</td><td id=\"hostprocs
 httpString( cnt, "</table><br>" );
 
 
-httpString( cnt, "<b>Server Processor Info</b><br>" );
+httpString( cnt, "<b>System Processor</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 
 if( (pinfod.loadavg[0] > 0) || (pinfod.loadavg[1] > 0) || (pinfod.loadavg[2] > 0) )
@@ -222,14 +222,17 @@ if( cpuinfo.cacheunifiedL1 > 0 )
 	httpPrintf( cnt, "<tr><td>Unified Cache</td><td>&nbsp;:&nbsp;</td><td>%d k</td></tr>", cpuinfo.cacheunifiedL1 );
 
 httpPrintf( cnt, "<tr><td>Physical Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketphysicalcores );
-httpPrintf( cnt, "<tr><td>Logical Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketlogicalcores );
-
-if( cpuinfo.socketcount ) {
+if( cpuinfo.socketlogicalcores != cpuinfo.socketphysicalcores ) {
+	httpPrintf( cnt, "<tr><td>Logical Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketlogicalcores );
+}
+if( cpuinfo.socketcount > 1 ) {
 	httpPrintf( cnt, "<tr><td>Sockets</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.socketcount );
-	httpPrintf( cnt, "<tr><td>Total Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.totalcorecount );
+	if( cpuinfo.socketphysicalcores != cpuinfo.totalcorecount ) {
+		httpPrintf( cnt, "<tr><td>Total Cores</td><td>&nbsp;:&nbsp;</td><td>%d</td></tr>", cpuinfo.totalcorecount );
+	}
 }
 httpString( cnt, "</table><br>" );
-httpString( cnt, "<b>System RAM infomation</b><br>" );
+httpString( cnt, "<b>System Memory</b><br>" );
 httpString( cnt, "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">" );
 httpPrintf( cnt, "<tr><td>Total memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\">( %5.1f mb )</td></tr>", sysinfod.totalram, (sysinfod.totalram  / megabyte ) );
 httpPrintf( cnt, "<tr><td>Avalible memory</td><td>&nbsp;-&nbsp;</td><td align=\"right\" id=\"memavbytes\">%ld bytes</td><td>&nbsp;&nbsp;</td><td align=\"right\" id=\"memavmeg\">( %5.1f mb )</td></tr>", sysinfod.freeram, (sysinfod.freeram  / megabyte ) );

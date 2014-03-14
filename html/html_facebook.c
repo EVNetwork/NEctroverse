@@ -514,10 +514,10 @@ if( id >= 0 ) {
 		file = NULL;
 	}
 	
-	redirect( cnt, "%s", URLAppend( cnt, "/" ) );
+	redirect( cnt, "%s", URLAppend( cnt, "/hq" ) );
 	httpPrintf( cnt, "<b>Welcome <i>%s</i></b><br/><br/>", user->faction );
-	httpString( cnt, "You should be redirected back to the main screen shortly<br/>" );
-	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long</a>", URLAppend( cnt, "/" ) );
+	httpString( cnt, "You should be redirected back to the game screen shortly<br/>" );
+	httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long</a>", URLAppend( cnt, "/hq" ) );
 	httpString( cnt, "<br/>" );
 } else if( fbdata.id[0] ) {
 	if( remove ) {
@@ -635,8 +635,9 @@ if( facebook_unlink_app( fbdata.id ) ) {
 }
 
 BAILOUT:
-if( dump != NULL )
+if( dump != NULL ) {
 	free( dump );
+}
 
 if( file ) {
 	fprintf( file, "Failed!\n\n\n" );
