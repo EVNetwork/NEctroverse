@@ -388,9 +388,9 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 httpString( cnt, "</table>" );
 httpString( cnt, "<script type=\"text/javascript\"><!--\n" );
 httpString( cnt, "google_ad_client = \"ca-pub-4553701062747705\";\n" );
-httpString( cnt, "google_ad_slot = \"5830081931\";\n" );
-httpString( cnt, "google_ad_width = 728;\n" );
-httpString( cnt, "google_ad_height = 90;\n" );
+httpString( cnt, "google_ad_slot = \"1260281535\";\n" );
+httpString( cnt, "google_ad_width = 336;\n" );
+httpString( cnt, "google_ad_height = 280;\n" );
 httpString( cnt, "//-->\n" );
 httpString( cnt, "</script>\n" );
 httpString( cnt, "<script type=\"text/javascript\" " );
