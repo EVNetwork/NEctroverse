@@ -51,10 +51,7 @@ typedef struct
 typedef struct
 {
   char leader[USER_DESC_MAX];
-  char moc[USER_DESC_MAX];
-  char mod[USER_DESC_MAX];
-
-  char mow[USER_DESC_MAX];
+  char relations[USER_DESC_MAX];
 } dbEmpireMessageDef, *dbEmpireMessagePtr;
 
 /*

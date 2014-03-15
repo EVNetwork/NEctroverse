@@ -385,18 +385,20 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 }
 
 //end todo list
-httpString( cnt, "</table>" );
-httpString( cnt, "<script type=\"text/javascript\"><!--\n" );
+httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
+httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\" class=\"center\"><font color=\"#FFFFFF\" size=\"2\">Adverts Below</font></td></tr>" );
+httpString( cnt, "<tr><td><script type=\"text/javascript\"><!--\n" );
 httpString( cnt, "google_ad_client = \"ca-pub-4553701062747705\";\n" );
-httpString( cnt, "google_ad_slot = \"1260281535\";\n" );
-httpString( cnt, "google_ad_width = 336;\n" );
-httpString( cnt, "google_ad_height = 280;\n" );
+httpString( cnt, "google_ad_slot = \"5830081931\";\n" );
+httpString( cnt, "google_ad_width = 728;\n" );
+httpString( cnt, "google_ad_height = 90;\n" );
 httpString( cnt, "//-->\n" );
-httpString( cnt, "</script>\n" );
-httpString( cnt, "<script type=\"text/javascript\" " );
-httpString( cnt, "src=\"//pagead2.googlesyndication.com/pagead/show_ads.js\">\n" );
-httpString( cnt, "</script>\n" );
+httpString( cnt, "</script>" );
+httpString( cnt, "<script type=\"text/javascript\" src=\"//pagead2.googlesyndication.com/pagead/show_ads.js\"></script></td></tr>" );
+
+httpString( cnt, "</table>" );
 httpString( cnt, "<td width=\"5%\">&nbsp;</td>" );
+
 iohtmlFunc_endhtml( cnt );
 return;
 }

@@ -2864,10 +2864,10 @@ if( ( dbEmpireGetInfo( curfam, &empired ) ) < 0 ) {
 
  iohtmlBodyInit( cnt, "Empire #%d relations", curfam );
 
- if( strlen( message.mow ) )
+ if( strlen( message.relations ) )
  {
   httpString( cnt, "<b>Message from your Minister of War</b><br>" );
-  httpString( cnt, message.mow );
+  httpString( cnt, message.relations );
   httpString( cnt, "<br><br>" );
  }
 
@@ -3088,7 +3088,7 @@ if( ( ( empired.politics[CMD_POLITICS_WARMINISTER] == id ) || ( ( empired.politi
 	if( relsmesstring ) {
 		iohttpForumFilter( msg[0], relsmesstring, USER_DESC_MAX, 0 );
 		iohttpForumFilter2( msg[1], msg[0], USER_DESC_MAX );
-		strcpy(message.mow,msg[1]);
+		strcpy(message.relations,msg[1]);
 		if( dbEmpireSetMessage( curfam, &message ) < 0 ) {
 			httpString( cnt, "<i>Error changing Relations message...</i><br><br>" );
 		} else {
@@ -3096,7 +3096,7 @@ if( ( ( empired.politics[CMD_POLITICS_WARMINISTER] == id ) || ( ( empired.politi
 		}
 		dbEmpireGetMessage( curfam, &message );
 	}
-}
+}/*
 if( ( empired.politics[CMD_POLITICS_COMMINISTER] == id ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) {
 	if( commsmesstring ) {
 		iohttpForumFilter( msg[0], commsmesstring, USER_DESC_MAX, 0 );
@@ -3122,7 +3122,7 @@ if( ( empired.politics[CMD_POLITICS_DEVMINISTER] == id ) || ( (cnt->session)->db
 		}
 		dbEmpireGetMessage( curfam, &message );
 	}
-}
+}*/
 iohttpFunc_ministersL0:
 dbEmpireGetInfo( curfam, &empired );
 httpString( cnt, "<div id=\"progblock\" style=\"display:none\">" );
@@ -3268,7 +3268,7 @@ if( ( empired.politics[CMD_POLITICS_LEADER] == id ) || ( (cnt->session)->dbuser-
 	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Prime Minister message</td></tr>", URLAppend( cnt, "ministers" ) );
 	httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"hqmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
 	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
-}
+}/*
 if( ( empired.politics[CMD_POLITICS_COMMINISTER] == id ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) {
 	iohttpForumFilter3( msg[1], message.moc, USER_DESC_MAX );
 	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Communication message</td></tr>", URLAppend( cnt, "ministers" ) );
@@ -3280,9 +3280,9 @@ if( ( empired.politics[CMD_POLITICS_DEVMINISTER] == id ) || ( (cnt->session)->db
 	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Development message</td></tr>", URLAppend( cnt, "ministers" ) );
 	httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"devmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
 	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
-}
+}*/
 if( ( ( empired.politics[CMD_POLITICS_WARMINISTER] == id ) || ( ( empired.politics[CMD_POLITICS_WARMINISTER] == -1 ) && ( empired.politics[CMD_POLITICS_LEADER] == id ) ) ) || ( (cnt->session)->dbuser->level >= LEVEL_MODERATOR ) ) {
-	iohttpForumFilter3( msg[1], message.mow, USER_DESC_MAX );
+	iohttpForumFilter3( msg[1], message.relations, USER_DESC_MAX );
 	httpPrintf( cnt, "<tr><td><form action=\"%s\" method=\"POST\">Relations message</td></tr>", URLAppend( cnt, "ministers" ) );
 	httpPrintf( cnt, "<tr><td><input type=\"hidden\" name=\"id\" value=\"%d\"><textarea name=\"relsmes\" wrap=\"soft\" rows=\"4\" cols=\"64\">%s</textarea></td></tr>", curfam, msg[1] );
 	httpString( cnt, "<tr><td><input type=\"submit\" value=\"Change\"></form><br><br><br></td></tr>" );
