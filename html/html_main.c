@@ -363,6 +363,7 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 		data[stdata.st_size] = 0;
 		if( ( file = fopen( DIRCHECKER, "rb" ) ) ) {
 			if( stdata.st_size > 0 ) {
+				httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
 				httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\" class=\"left\">" );
 				httpString( cnt, "<font color=\"#FFFFFF\" size=\"2\"><i>Items on the admins to-do list :</i></font></td></tr>" );
 				httpString( cnt, "<tr><td>" );
@@ -418,7 +419,7 @@ httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
 
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Frequently Asked Question</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\">" );
+httpString( cnt, "<tr><td class=\"left\">" );
 settings = GetSetting( "HTTP Text" );
 sprintf( DIRCHECKER, "%s/faq.html", settings->string_value );
 if( stat( DIRCHECKER, &stdata ) != -1 ) {
@@ -443,17 +444,19 @@ return;
 
 
 void iohtmlFunc_gettingstarted( ReplyDataPtr cnt ) {
+	ConfigArrayPtr settings;
 
 iohtmlBase( cnt, 8 );
 iohtmlFunc_frontmenu( cnt, FMENU_GSTART );
 
+settings = GetSetting( "Server Name" );
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\">" );
 
 
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
-httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of Ectroverse</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\">" );
+httpPrintf( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Getting started in the galaxy of %s</b></font></td></tr>", settings->string_value );
+httpString( cnt, "<tr><td class=\"left\"><font size=\"2\">" );
 httpString( cnt, "<center>This page is a basic guide to new players on how to get started.<br>It is important to read this to get the best possible experience when first playing!</center>" );
 
 httpString( cnt, "<br><b>Creating an account:</b><br>" );
@@ -480,12 +483,15 @@ httpString( cnt, "</a><br>" );
 httpString( cnt, "</td></tr></table><br><br>" );
 
 
-httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\" class=\"left\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Creating an account:</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br>" );
+httpString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 httpString( cnt, "<a name=\"a0\"><b><i>0. Registering the account.</i></b></a><br>" );
-httpString( cnt, "The great thing about Ectroverse is that the signup is simple. You won't need to input your e-mail address and no other activation is required." );
+httpPrintf( cnt, "The great thing about %s is that the signup is simple. You won't need to input your e-mail address and no other activation is required.", settings->string_value );
+#if FACEBOOK_SUPPORT
+httpString( cnt, "<br>Facebook support is enabled too, so you can even use your Facebook account to signup and play!" );
+#endif
 httpString( cnt, "<br><br>" );
 
 httpString( cnt, "<a name=\"a1\"><b><i>1. The user name and faction name.</i></b></a><br>" );
@@ -516,9 +522,9 @@ httpString( cnt, "<br>" );
 
 httpString( cnt, "</td></tr></table><br><br>" );
 
-httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\" class=\"left\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Playing the game:</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br>" );
+httpString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 httpString( cnt, "<a name=\"b0\"><b><i>0. Resources & Buildings.</i></b></a><br>" );
 httpString( cnt, "Your main concern is growth. You need to spend your resources by making resources.<br>" );
@@ -546,9 +552,9 @@ httpString( cnt, "</td></tr></table><br><br>" );
 
 
 
-httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
+httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\" class=\"left\">" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\"><font color=\"#FFFFFF\" size=\"2\"><b>Tips:</b></font></td></tr>" );
-httpString( cnt, "<tr><td align=\"left\"><font size=\"2\"><br>" );
+httpString( cnt, "<tr><td><font size=\"2\"><br>" );
 
 httpString( cnt, "<a name=\"c0\"><b><i>0. Map generation</i></b></a><br>" );
 httpString( cnt, "The galaxy map is the place where you'll find planets to explore and conquer... But it is easy to lose your way and location." );
