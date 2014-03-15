@@ -1305,14 +1305,14 @@ if( !( num ) )
 
 
 void iohtmlFunc_hq( ReplyDataPtr cnt ) {
-	int id, a, num;
+	int id, a, num, num2;
 	dbUserMainDef maind;
 	dbEmpireMessageDef message;
 	ConfigArrayPtr settings;
 	#if FACEBOOK_SUPPORT
 	dbUserInfoDef infod;
 	#endif
-	int64_t *newsp, *newsd;
+	int64_t *newsp, *news2p, *newsd;
 	FILE *file;
 	struct stat stdata;
 	char *data;
@@ -1322,6 +1322,7 @@ void iohtmlFunc_hq( ReplyDataPtr cnt ) {
   return;
  iohtmlBase( cnt, 1 );
  num = dbUserNewsListUpdate( id, &newsp, ticks.number );
+ num2 = dbUserNewsList( id, &news2p );
  if( !( iohtmlHeader( cnt, id, &maind ) ) )
  {
   free( newsp );
@@ -1395,23 +1396,10 @@ if( dbEmpireGetMessage( maind.empire, &message ) ) {
 	}
 }
 
-newsd = newsp;
+httpPrintf( cnt, "<b>%s reports</b>", ( num > 0 ) ? "New" : ( ( num2 > 0 ) ? "No new" : "There are no news" ) );
 
-if( newsp ) {
-	free( newsp );
-	newsp = NULL;
-}
-
-
-httpPrintf( cnt, "<b>%s reports</b>", ( num > 0 ) ? "New" : "No New" );
-a = dbUserNewsList( id, &newsp );
-if( ( a > num ) && ( a != 0 ) ) {
-	httpPrintf( cnt, "<br><a href=\"%s&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">See all reports</a><br>", URLAppend( cnt, "news" ) );
-}
-if( newsp ) {
-	free( newsp );
-}
 if( num ) {
+	newsd = newsp;
 	httpString( cnt, "<table><tr><td>" );
 	for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
 		iohtmlNewsString( cnt, newsd );
@@ -1419,21 +1407,30 @@ if( num ) {
 	httpString( cnt, "</td></tr></table>" );
 }
 
+if( ( num2 > 0 ) && ( num2 > num ) ) {
+	httpPrintf( cnt, "<br><a href=\"%s&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">See all reports</a>", URLAppend( cnt, "news" ) );
+}
 
+if( newsp ) {
+	free( newsp );
+}
+if( news2p ) {
+	free( news2p );
+}
 
 iohtmlBodyEnd( cnt );
 
 return;
 }
 
-void iohtmlFunc_news( ReplyDataPtr cnt )
-{
- volatile int id, a, num;
- dbUserMainDef maind;
- int64_t *newsp, *newsd;
+void iohtmlFunc_news( ReplyDataPtr cnt ) {
+	volatile int id, a, num;
+	dbUserMainDef maind;
+	int64_t *newsp, *newsd;
 
-if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
-  return;
+if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 ) {
+	return;
+}
 if( iohtmlVarsFind( cnt, "request" ) ) {
 	iohtmlBase( cnt, 1|32 );
 } else {
@@ -1444,27 +1441,29 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
 }
 
 
- iohtmlBodyInit( cnt, "News Reports" );
+iohtmlBodyInit( cnt, "News Reports" );
 
- httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
- if( ticks.status )
-  httpPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
- else
-  httpPrintf( cnt, "Time frozen<br>" );
+httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
+if( ticks.status ) {
+	httpPrintf( cnt, "%d seconds before tick<br>", (int)( ticks.next - time(0) ) );
+} else {
+	httpPrintf( cnt, "Time frozen<br>" );
+}
 
- num = dbUserNewsList( id, &newsp );
- newsd = newsp;
- if( !( num ) )
-  httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
- else
- {
-  httpString( cnt, "<table><tr><td>" );
-  for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE )
-   iohtmlNewsString( cnt, newsd );
-  httpString( cnt, "</td></tr></table>" );
- }
- if( newsp )
-  free( newsp );
+num = dbUserNewsList( id, &newsp );
+if( !( num ) ) {
+	httpString( cnt, "<br><b>There are no news reports to display.</b><br>" );
+} else {
+	newsd = newsp;
+	httpString( cnt, "<table><tr><td>" );
+	for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
+		iohtmlNewsString( cnt, newsd );
+	}
+	httpString( cnt, "</td></tr></table>" );
+}
+if( newsp ) {
+	free( newsp );
+}
 
 iohtmlBodyEnd( cnt );
 
