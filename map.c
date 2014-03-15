@@ -27,6 +27,7 @@ static void mapCalcFactors( ConfigArrayPtr map_set, MapStoragePtr mapstore ) {
 	float pts[ARRAY_MAX][2];
 	int ptsnum;
 
+info( "Calculating Map factors..." );
 ptsnum = 0;
 
 for( a = 0 ; a < map_set[8].num_value ; a++ ) {
@@ -88,6 +89,7 @@ int spawn_map() {
 	dbEmpireMessageDef message;
 	dbArtefactPtr arties;
 
+info( "Begining Map generation..." );
 if( ArtefactTable == NULL ) {
 	if( LoadArtefacts() == NO )
 		goto DIE;
@@ -263,6 +265,7 @@ for( a = 0 ; a < map_set[2].num_value ; a++ ) {
 }
 //End system generation
 
+
 // New planet generation, based on defaults.
 for( a = b = c = 0 ; a < p ; a++, b++ ) {
 	memset( &planetd, -1, sizeof(dbMainPlanetDef) );
@@ -421,7 +424,7 @@ dirstructurecheck(fname, false);
 
 snprintf( fname, PATH_MAX, "%s/galaxies/galaxyr%d.png", settings[0]->string_value, ticks.round );
 imgConvertGrayscale(&mapimage,IMG_IMAGE_FORMAT_RGB24);
-imgWritePngFile( fname, &mapimage );
+info( "Galaxy Map creation %s", imgWritePngFile( fname, &mapimage ) ? "Sucessfull." : "Failed!" );
 imgFree( &mapimage );
 
 /*
@@ -441,24 +444,21 @@ if( mapimage.width == map_set[0].num_value ) {
 
 free(mapstore->data);
 free(mapstore->factor);
-
 free(mapstore->posx);
 free(mapstore->posy);
 free(mapstore->type);
-
 free(mapstore->pos);
 free(mapstore->planets);
 free(mapstore->pbase);
 free(mapstore->home);
 free(mapstore->system);
-
 free(mapstore->arti);
 
 free(mapstore);
-
 free( map_set );
 
 return YES;
+
 DIE:
 return NO;
 }

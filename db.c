@@ -372,7 +372,7 @@ user->id = id;
 user->lasttime = time(NULL);
 if( ( id+1 ) > dbUserNum ) {
 	dbUserNum = ( id + 1 );
-	if( NULL == ( dbUserTable = realloc( dbUserTable, dbUserNum*sizeof(dbUserDef) ) ) ) {
+	if( NULL == ( dbUserTable = ( ( dbUserTable == NULL ) ? malloc( dbUserNum*sizeof(dbUserDef) ) : realloc( dbUserTable, dbUserNum*sizeof(dbUserDef) ) ) ) ) {
 		critical( "User Table Re-Allocation Failed" );
 		return NO;
 	}
@@ -626,7 +626,10 @@ for( user = dbUserList ; user ; user = next ) {
 	next = user->next;
 	dbUserFree( user );
 }
-free( dbUserTable );
+if( dbUserTable != NULL ) {
+	free( dbUserTable );
+	dbUserTable = NULL;
+}
 dbUserNum = 0;
 
 UnLoadArtefacts();
@@ -4145,7 +4148,7 @@ return YES;
 int dbUserInfoRetrieve( int id, dbUserInfoPtr infod ) {
 	FILE *file;
 
-if( id < 0 ) {
+if( ( id < 0 ) || ( id > dbUserNum ) ) {
 	return -3;
 }
 memset( infod, 0, sizeof(dbUserInfoDef) );
@@ -4165,7 +4168,7 @@ int dbUserRecordAdd( int id, dbUserRecordPtr recordd ) {
 	int num = 0;
 	FILE *file;
 
-if( id < 0 ) {
+if( ( id < 0 ) || ( id > dbUserNum ) ) {
 	return -3;
 }
 
@@ -4191,7 +4194,7 @@ int dbUserRecordList( int id, dbUserRecordPtr *records ) {
 	dbUserRecordPtr recordp;
 	FILE *file;
 
-if( id < 0 ) {
+if( ( id < 0 ) || ( id > dbUserNum ) ) {
 	return -3;
 }
 

@@ -1190,7 +1190,7 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
         httpString( cnt, "document.getElementById('fampass_block').style.display = 'none';" );
         httpString( cnt, "document.getElementById('fampass_text').value = '';" );
         httpString( cnt, "}" );
-	for( a = 1; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
+	for( a = ( ( ((cnt->session)->dbuser) ) ? ( ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ? 0 : 1  ) : 1 ); a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
 		if( dbEmpireGetInfo( a, &empired ) < 0 ) {
 			continue;
 		}
@@ -1215,7 +1215,7 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
 	
 	httpString( cnt, "<select name=\"empire\" onchange=\"show(this)\" onkeypress=\"show(this)\">" );
 	httpString( cnt, "<option value=\"-1\" selected>Random Empire</option>" );
-	for( a = 1; a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
+	for( a = ( ( ((cnt->session)->dbuser) ) ? ( ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ? 0 : 1  ) : 1 ); a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {
 		if( dbEmpireGetInfo( a, &empired ) < 0 ) {
 			continue;
 		}

@@ -1,5 +1,23 @@
-div.floating-menu {position:fixed;width:150px;z-index:100;}
-div.floating-header {position:fixed;width:91.75%;z-index:100}
+html {
+	scrollbar-face-color: #7FB4D9;
+	scrollbar-shadow-color: #0069B3;
+	scrollbar-highlight-color: #CFE2F0;
+	scrollbar-3dlight-color: #FFFFFF;
+	scrollbar-darkshadow-color: #FFFFFF;
+	scrollbar-track-color: #FFF4C2;
+	scrollbar-arrow-color: #FFFFFF
+}
+
+div.floating-menu {
+	position:fixed;
+	width:150px;
+	z-index:100;
+}
+div.floating-header {
+	position:fixed;
+	width:91.75%;
+	z-index:100
+}
 
 .auto {
 	margin-left:auto;
