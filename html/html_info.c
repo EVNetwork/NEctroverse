@@ -619,20 +619,18 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 			fclose( file );
 		}
 		free( data );
+		httpString( cnt, "<br>" );
+		httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", settings[0]->string_value );
+		httpString( cnt, "<br>" );
+		httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br>" );
+		httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
+		httpString( cnt, "<br>" );
+		httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br>" );
+		httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br>" );
+		httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br>" );
+		httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br>" );
 	}
 }
-
-
-httpString( cnt, "<br>" );
-httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", settings[0]->string_value );
-httpString( cnt, "<br>" );
-httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br>" );
-httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
-httpString( cnt, "<br>" );
-httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br>" );
-httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br>" );
-httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br>" );
-httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br>" );
 
 httpString( cnt, "</td></tr></table><br><br>" );
 

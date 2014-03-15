@@ -1005,14 +1005,9 @@ if( race ) {
 	sscanf( race, "%d", &raceid );
 
 	if( cmdExecNewUserEmpire( id, a, fampass, raceid, ((cnt->session)->dbuser)->level ) < 0 ) {
- 		if( cmdErrorString ) {
- 			httpString( cnt, cmdErrorString );
- 			cmdErrorString = 0;
- 		} else {
-  			httpString( cnt, "Error encountered while registering user" );
-  		}
+		httpString( cnt, cmdErrorString ? cmdErrorString : "Error encountered while registering user" );
  		httpString( cnt, "<br><br>" );
- 		httpPrintf( cnt, "<a href=\"%s&amp;rule_agree=true\">Try Again.</a>", URLAppend( cnt, "register" ) );
+ 		httpPrintf( cnt, "<a href=\"%s\">Try Again.</a>", URLAppend( cnt, "register" ) );
  		goto END;
   	}
 	httpPrintf( cnt, "<b>Account activated!</b><br>" );
@@ -1136,13 +1131,15 @@ if( race ) {
 				data[stdata.st_size] = 0;
 				if( ( file = fopen( COREDIR, "rb" ) ) ) {
 					if( stdata.st_size > 0 ) {
+					a = 0;
 					httpString( cnt, "<table class=\"left\">" );
 						while( fgets( data, stdata.st_size, file ) != NULL ) {
 							if( data[0] == '#' ) {
 								continue;
 							}
 							if( strlen(data) > 1 ) {
-								httpPrintf( cnt, "<tr><td>%s</td></tr>", trimwhitespace(data) );
+								a++;
+								httpPrintf( cnt, "<tr><td>%d</td><td>&nbsp;</td><td>%s</td></tr>", a, trimwhitespace(data) );
 							}
 						}
 					httpString( cnt, "</table><br>" );
@@ -1150,6 +1147,17 @@ if( race ) {
 					fclose( file );
 				}
 				free( data );
+				settings = GetSetting( "Server Name" );
+				httpString( cnt, "<br>" );
+				httpPrintf( cnt, "Rules are subject to change at any time and applicable to every instance of %s.<br>", settings->string_value );
+				httpString( cnt, "<br>" );
+				httpString( cnt, "Administration is open to discussion regarding these rules. In all cases the Administration's decision is final.<br>" );
+				httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
+				httpString( cnt, "<br>" );
+				httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br>" );
+				httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br>" );
+				httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br>" );
+				httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br>" );
 			}
 		}
 		httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "register" ) );
@@ -1157,6 +1165,9 @@ if( race ) {
 		httpPrintf( cnt, "<input type=\"hidden\" name=\"submitted\" value=\"true\">" );
 		if( token != NULL ) {
 			httpPrintf( cnt, "<input type=\"hidden\" name=\"fblogin_token\" value=\"%s\">", token );
+		}
+		if( faction != NULL ) {
+			httpPrintf( cnt, "<input type=\"hidden\" name=\"faction\" value=\"%s\">", faction );
 		}
 		httpString( cnt, "<br><input type=\"submit\" value=\"OK\"></form>" );
 		goto END;
@@ -1209,10 +1220,6 @@ if( ( ((cnt->session)->dbuser) ) && ( bitflag( ((cnt->session)->dbuser)->flags, 
 	httpString( cnt, "</script>" );
 	
 	httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><br><br>Empire number<br><i>Leave blank to join a random empire</i><br>", URLAppend( cnt, "register" ) );
-	if( rules != NULL ) {
-			httpPrintf( cnt, "<input type=\"hidden\" name=\"rule_agree\" value=\"%s\">", rules );
-	}
-	
 	httpString( cnt, "<select name=\"empire\" onchange=\"show(this)\" onkeypress=\"show(this)\">" );
 	httpString( cnt, "<option value=\"-1\" selected>Random Empire</option>" );
 	for( a = ( ( ((cnt->session)->dbuser) ) ? ( ( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) ? 0 : 1  ) : 1 ); a < dbMapBInfoStatic[MAP_EMPIRES]; a++ ) {

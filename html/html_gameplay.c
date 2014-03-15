@@ -1395,29 +1395,35 @@ if( dbEmpireGetMessage( maind.empire, &message ) ) {
 	}
 }
 
- newsd = newsp;
- if( num )
- {
-  httpString( cnt, "<b>New reports</b>" );
-  httpPrintf( cnt, "<br><a href=\"%s\">See older reports</a><br>", URLAppend( cnt, "news" ) );
-  httpString( cnt, "<table><tr><td>" );
-  for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE )
-  {
-   iohtmlNewsString( cnt, newsd );
-  }
-  httpString( cnt, "</td></tr></table>" );
- }
- else
- {
-  httpString( cnt, "<b>No new reports</b>" );
-  httpPrintf( cnt, "<br><a href=\"%s\">See older reports</a>", URLAppend( cnt, "news" ) );
- }
- if( newsp )
-  free( newsp );
+newsd = newsp;
 
- iohtmlBodyEnd( cnt );
+if( newsp ) {
+	free( newsp );
+	newsp = NULL;
+}
 
- return;
+
+httpPrintf( cnt, "<b>%s reports</b>", ( num > 0 ) ? "New" : "No New" );
+a = dbUserNewsList( id, &newsp );
+if( ( a > num ) && ( a != 0 ) ) {
+	httpPrintf( cnt, "<br><a href=\"%s&amp;request=ajax\" rel=\"ajaxpanel\" data-loadtype=\"ajax\">See all reports</a><br>", URLAppend( cnt, "news" ) );
+}
+if( newsp ) {
+	free( newsp );
+}
+if( num ) {
+	httpString( cnt, "<table><tr><td>" );
+	for( a = 0 ; a < num ; a++, newsd += DB_USER_NEWS_BASE ) {
+		iohtmlNewsString( cnt, newsd );
+	}
+	httpString( cnt, "</td></tr></table>" );
+}
+
+
+
+iohtmlBodyEnd( cnt );
+
+return;
 }
 
 void iohtmlFunc_news( ReplyDataPtr cnt )
@@ -1428,11 +1434,17 @@ void iohtmlFunc_news( ReplyDataPtr cnt )
 
 if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   return;
- iohtmlBase( cnt, 1 );
+if( iohtmlVarsFind( cnt, "request" ) ) {
+	iohtmlBase( cnt, 1|32 );
+} else {
+	iohtmlBase( cnt, 1 );
+	if( !( iohtmlHeader( cnt, id, &maind ) ) ) {
+		return;
+	}
+}
 
- if( !( iohtmlHeader( cnt, id, &maind ) ) )
-  return;
- iohtmlBodyInit( cnt, "Older reports" );
+
+ iohtmlBodyInit( cnt, "News Reports" );
 
  httpPrintf( cnt, "Current date : Week %d, year %d<br>", ticks.number % 52, ticks.number / 52 );
  if( ticks.status )
@@ -1454,9 +1466,9 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
  if( newsp )
   free( newsp );
 
- iohtmlBodyEnd( cnt );
+iohtmlBodyEnd( cnt );
 
- return;
+return;
 }
 
 
