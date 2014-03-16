@@ -76,7 +76,7 @@ if( !( flags & 32 ) ) {
 	if( flags & 16 ) {
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=status.min.js\"></script>", URLAppend( cnt, "files" ) );
 	}
-	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.min.js\"></script>", URLAppend( cnt, "files" ) );
+	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 }
 if( flags & 4 ) {
 	httpString( cnt, "<base target=\"_blank\">" );

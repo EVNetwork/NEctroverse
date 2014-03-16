@@ -4,11 +4,11 @@ function countUp() {
 
 sesspage++;
 
-if( sesspage > sesstime ) {
+if( sesstime < sesspage ) {
 	try {
-		window.document.location = "expired";
+		document.location = "expired";
 	} catch(err) {
-		return;
+		return false;
 	}
 } else {
 	SD2=window.setTimeout("countUp();", 1000);
@@ -29,7 +29,7 @@ if (sec < 0 ) {
 		getInfo("ticker");
 		SD=window.setTimeout("countDown();", 5000);
 		login = false;
-		return;
+		return false;
 	}
 } else {
 	min = min;
