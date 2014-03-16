@@ -116,14 +116,64 @@ return;
 char *ServerSessionMD5;
 
 static int GenServerSum() {
-	ConfigArrayPtr settings[2];
+	ConfigArrayPtr settings;
+	struct sockaddr_in *s4;
+	#if ENABLE_IPV6
+	struct sockaddr_in6 *s6;
+	#endif
+	struct ifaddrs *myaddrs, *ifa;
+	int status;
 	size_t size;
 	char *buffer;
+	char *name = 0;
+	char buf[64];
 
-settings[0] = GetSetting( "Tick Speed" );
-settings[1] = GetSetting( "Server Name" );
 
-size = 32 + strlen( settings[1]->string_value );
+status = getifaddrs(&myaddrs);
+if( status == CMP_TRUE ) {
+	for ( ifa = myaddrs; ifa != NULL; ifa = ifa->ifa_next) {
+		if (NULL == ifa->ifa_addr){
+			continue;
+		}
+		if ((ifa->ifa_flags & IFF_UP) == 0) {
+			continue;
+		}
+		//show_address_info(ifa);
+		if ( (AF_INET == ifa->ifa_addr->sa_family) && ( strcmp( ifa->ifa_name, "eth0" ) == CMP_TRUE ) ) {
+			s4 = (struct sockaddr_in *)(ifa->ifa_addr);
+			if(NULL == inet_ntop(ifa->ifa_addr->sa_family, (void *)&(s4->sin_addr), buf, sizeof(buf))){
+				error("%s: inet_ntop failed!\n", ifa->ifa_name);
+			} else {
+				name = buf;
+			}
+		} 
+		#if ENABLE_IPV6
+		else if ( (AF_INET6 == ifa->ifa_addr->sa_family) && ( strcmp( ifa->ifa_name, "eth0" ) == CMP_TRUE ) ) {
+			s6 = (struct sockaddr_in6 *)(ifa->ifa_addr);
+			if (NULL == inet_ntop(ifa->ifa_addr->sa_family, (void *)&(s6->sin6_addr), buf, sizeof(buf))) {
+				error("%s: inet_ntop failed!\n", ifa->ifa_name);
+			} else {
+				name = buf;
+			}
+		}
+		#endif
+	}
+}
+freeifaddrs(myaddrs);
+
+
+if( !( name ) ) {
+	gethostname( buf, 64 );
+	name = buf;
+}
+
+info( name );
+size = 32 + 64;
+
+
+settings = GetSetting( "HTTP Port" );
+
+
 
 if( (buffer = malloc( size ) ) == NULL ) {
 	critical( "Out of Memory" );
@@ -132,10 +182,11 @@ if( (buffer = malloc( size ) ) == NULL ) {
 
 if( (ServerSessionMD5 = malloc( MD5_HASHSUM_SIZE ) ) == NULL ) {
 	critical( "Out of Memory" );
+	free( buffer );
 	return NO;
 }
 
-snprintf( buffer, size, "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
+snprintf( buffer, size, "%s:%.0f", name, settings->num_value );
 md5_string( buffer, ServerSessionMD5 );
 
 free( buffer );

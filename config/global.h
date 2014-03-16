@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <inttypes.h>
+#include <ifaddrs.h>
 #include <math.h>
 #include <malloc.h>
 #include <memory.h>
@@ -31,6 +32,7 @@
 
 #include <arpa/inet.h>
 #include <asm/param.h>
+#include <net/if.h>
 #if EPOLL_SUPPORT
 #include <sys/epoll.h>
 #endif

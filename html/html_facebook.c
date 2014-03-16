@@ -376,7 +376,6 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 	const char *host;
 	char DIRCHECKER[PATH_MAX];
 	char timebuf[512];
-	time_t tint;
 	dbUserPtr user;
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
@@ -466,8 +465,8 @@ if( ( code ) || ( fbtoke ) ) {
 settings[3] = GetSetting( "Directory" );
 sprintf( DIRCHECKER, "%s/logs/login.log", settings[3]->string_value );
 if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
-	time( &tint );
-	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
+	time( &now );
+	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &now ) );
 	fprintf( file, "Time: %s\n", timebuf );
 	fprintf( file, "Facebook ID: %s;\n", fbdata.id );
 	if( (cnt->connection)->addr->sa_family == AF_INET ) {
