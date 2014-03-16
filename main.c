@@ -215,9 +215,13 @@ close(STDERR_FILENO);
 
 }
 
-settings[0] = GetSetting( "Tick Speed" );
-ticks.speed = (int)settings[0]->num_value;
-ticks.next = time(0) + ticks.speed;
+if( ( ticks.speed > 0 ) == NO ) {
+	settings[0] = GetSetting( "Tick Speed" );
+	ticks.speed = (int)settings[0]->num_value;
+}
+if( ( ticks.next > 0 ) == NO ) {
+	ticks.next = time(0) + ticks.speed;
+}
 
 memset(&act, '\0', sizeof(act));
 sigemptyset (&act.sa_mask);
@@ -790,8 +794,6 @@ if ( file_exist(DIRCHECKER) ) {
 #endif
 memset( &ticks, 0, sizeof(TickInfoDef) );
 settings = GetSetting( "Directory" );
-sprintf( DIRCHECKER, "%s/ticks.ini", settings->string_value );
-loadconfig(DIRCHECKER,CONFIG_TICKS);
 
 loadconfig(options.sysini,CONFIG_BANNED);
 
@@ -861,6 +863,9 @@ if( !( file_exist(DIRCHECKER) ) ) {
 }
 //Begin deamonization and initate server loop.
 REGEN:
+sprintf( DIRCHECKER, "%s/ticks.ini", settings->string_value );
+loadconfig(DIRCHECKER,CONFIG_TICKS);
+
 if( daemon_init( ) == NO ) {
 	critical("<<CRITICAL>> Daemon initiation failed <<CRITICAL>>");
 	return 1;

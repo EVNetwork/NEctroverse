@@ -123,7 +123,6 @@ static int GenServerSum() {
 	#endif
 	struct ifaddrs *myaddrs, *ifa;
 	int status;
-	size_t size;
 	char *buffer;
 	char *name = 0;
 	char buf[64];
@@ -161,7 +160,6 @@ if( status == CMP_TRUE ) {
 }
 freeifaddrs(myaddrs);
 
-
 if( !( name ) ) {
 	gethostname( buf, 64 );
 	name = buf;
@@ -169,7 +167,7 @@ if( !( name ) ) {
 
 settings = GetSetting( "HTTP Port" );
 
-if( (buffer = malloc( (32 + 64) ) ) == NULL ) {
+if( (buffer = malloc( (KB_SIZE / 4) ) ) == NULL ) {
 	critical( "Out of Memory" );
 	return NO;
 }
@@ -180,7 +178,7 @@ if( (ServerSessionMD5 = malloc( MD5_HASHSUM_SIZE ) ) == NULL ) {
 	return NO;
 }
 
-snprintf( buffer, size, "%s:%.0f", name, settings->num_value );
+snprintf( buffer, (KB_SIZE / 4), "%s:%.0f", name, settings->num_value );
 md5_string( buffer, ServerSessionMD5 );
 
 free( buffer );
@@ -216,7 +214,7 @@ if( type == SESSION_HTTP ) {
 	cookie = cls;
 }
 
-if (cookie != NULL) {
+if(cookie != NULL) {
 	ret = SessionList;
 	while (NULL != ret) {
 		if( 0 == strcmp( cookie, ret->sid ) ) {
@@ -1622,7 +1620,6 @@ MHD_destroy_response (request_refused_response);
 MHD_destroy_response (internal_error_response);
 update_cached_response (NULL);
 
-
 #if HAVE_MAGIC_H
 magic_close (magic);
 #endif
@@ -1630,6 +1627,13 @@ magic_close (magic);
 info( "Server shutdown complete, now cleaning up!" );
 
 (void) pthread_mutex_destroy (&mutex);
+
+for( ; SessionList; SessionList = SessionList->next ) {
+		postdata_wipe( SessionList );
+		purge_captcha( SessionList );
+		free( SessionList );
+}
+SessionList = NULL;
 
 for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 	free( StoredFiles->name );

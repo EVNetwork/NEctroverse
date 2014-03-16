@@ -218,186 +218,179 @@ int cmdExecUserDeactivate( int id, int flags )
   int i, j, k;
 	int *rel;
 	
-  if( !( user = dbUserLinkID( id ) ) )
-    return -1;
-  if( dbUserMainRetrieve( id, &maind ) < 0 )
-    return -1;
-  if( dbUserInfoRetrieve( id, &infod ) < 0 )
-    return -1;
-  if( maind.empire != -1 )
-    dbEmpireGetInfo( maind.empire, &empired );
+if( !( user = dbUserLinkID( id ) ) ) {
+	return -1;
+} else if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+	return -1;
+} else if( dbUserInfoRetrieve( id, &infod ) < 0 ) {
+	return -1;
+} else if( maind.empire != -1 ) {
+	dbEmpireGetInfo( maind.empire, &empired );
+}
+memcpy( &main2d, &cmdUserMainDefault, sizeof(dbUserMainDef) );
+memcpy( &main2d.faction, &maind.faction, USER_NAME_MAX );
 
-  if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( maind.empire != -1 ) )
-  {
-    recordd.roundid = ticks.round;
-    setting = GetSetting( "Round Flag" );
-    memcpy( recordd.roundflag, setting->string_value, USER_NAME_MAX );
-    recordd.planets = maind.planets;
-    recordd.networth = maind.networth;
-    memcpy( recordd.faction, maind.faction, USER_NAME_MAX );
-    memcpy( recordd.forumtag, infod.forumtag, USER_FTAG_MAX );
-    recordd.empire = maind.empire;
-    recordd.famplanets = empired.planets;
-    recordd.famnetworth = empired.networth;
-    memcpy( recordd.famname, empired.name, USER_NAME_MAX );
-    recordd.rank = maind.rank;
-    recordd.famrank = empired.rank;
-    for( a = c = 0, b = 1 ; a < ArtefactNum ; a++, b <<= 1 )
-    {
-      if( empired.artefacts & b )
-        c++;
-    }
-    recordd.artefacts = c;
-    
-    //Find ally
-	  if( ( j = dbEmpireRelsList( maind.empire, &rel ) ) >= 0 )
-	  {
-	  	j <<= 2;
-	    
-	    for( i = 0 ; i < j ; i += 4 )
-	    {
-	      if( ( rel[i+3] & 1 ) || ( rel[i+1] != CMD_RELATION_ALLY ) )
-	        continue;
-	      for( k = 0 ; k < j ; k += 4 )
-	      {
-	        if( !( rel[k+3] & 1 ) || ( rel[k+1] != CMD_RELATION_ALLY ) || ( rel[i+2] != rel[k+2] ) )
-	          continue;
-	        //Found the ally if we reach this line  
-	        //If the ally have all the artefacts we give double tp to this user :D
-	        dbEmpireGetInfo( rel[i+2], &empire2d );
-	        j = pow(2, ArtefactNum)-1;
-	        if(empire2d.artefacts == j)
-	        	infod.tagpoints += maind.planets;
-	   		}
-	    }
-	    free( rel );
-	  }
-    //Find ally end
-    
-    if( c == ArtefactNum )
-      infod.tagpoints += 3 * maind.planets;
-    else
-      infod.tagpoints += maind.planets;
-
-    dbUserRecordAdd( id, &recordd );
-  }
-
-  if( ( num = dbUserPlanetListIndices( id, &buffer ) ) >= 0 )
-  {
-    for( a = 0 ; a < num ; a++ )
-    {
-      dbUserPlanetRemove( id, buffer[a] );
-      dbMapRetrievePlanet( buffer[a], &planetd );
-      if( planetd.owner != id )
-        continue;
-      planetd.flags &= CMD_PLANET_FLAGS_HOME;
-      planetd.owner = -1;
-      planetd.construction = 0;
-      planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
-      memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
-      memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
-      dbMapSetPlanet( buffer[a], &planetd );
-      dbMapRetrieveSystem( planetd.system, &systemd );
-      systemd.unexplored++;
-      dbMapSetSystem( planetd.system, &systemd );
-    }
-    free( buffer );
-  }
-
-  if( ( num = dbUserMarketList( id, &buffer ) ) >= 0 )
-  {
-    for( a = b = 0 ; a < num ; a++, b += 5 )
-    {
-      dbUserMarketRemove( id, buffer[b+DB_MARKETBID_BIDID] );
-      dbMarketRemove( &buffer[b], buffer[b+DB_MARKETBID_BIDID] );
-    }
-    free( buffer );
-  }
-
-  if( maind.empire != -1 )
-  {
-    for( a = 0 ; a < empired.numplayers ; a++ )
-    {
-      if( id != empired.player[a] )
-        continue;
-	for( b = 0; b < CMD_EMPIRE_POLITICS_TOTAL; b++ ) {
-		if( empired.politics[b] == id )
-			empired.politics[b] = -1;
+if( ( flags == CMD_USER_FLAGS_NEWROUND ) && ( bitflag( user->flags, CMD_USER_FLAGS_ACTIVATED ) ) && ( maind.empire != -1 ) ) {
+	recordd.roundid = ticks.round;
+	setting = GetSetting( "Round Flag" );
+	memcpy( recordd.roundflag, setting->string_value, USER_NAME_MAX );
+	recordd.planets = maind.planets;
+	recordd.networth = maind.networth;
+	memcpy( recordd.faction, maind.faction, USER_NAME_MAX );
+	memcpy( recordd.forumtag, infod.forumtag, USER_FTAG_MAX );
+	recordd.empire = maind.empire;
+	recordd.famplanets = empired.planets;
+	recordd.famnetworth = empired.networth;
+	memcpy( recordd.famname, empired.name, USER_NAME_MAX );
+	recordd.rank = maind.rank;
+	recordd.famrank = empired.rank;
+	for( a = c = 0, b = 1 ; a < ArtefactNum ; a++, b <<= 1 ) {
+		if( empired.artefacts & b ) {
+			c++;
+		}
 	}
-      b = empired.numplayers-a-1;
-      if( b > 0 )
-      {
-        memmove( &(empired.player[a]), &(empired.player[a+1]), b*sizeof(int) );
-        memmove( &(empired.vote[a]), &(empired.vote[a+1]), b*sizeof(int) );
-      }
-      for( ; b >= 0 ; b-- )
-      {
-        if( empired.vote[a+b] == a )
-          empired.vote[a+b] = -1;
-        else if( empired.vote[a+b] > a )
-          empired.vote[a+b]--;
-      }
+	recordd.artefacts = c;
 
-      empired.numplayers--;
- 
-     //Remove pass if last player
+	//Find ally
+	if( ( j = dbEmpireRelsList( maind.empire, &rel ) ) >= 0 ) {
+		j <<= 2;
+		for( i = 0 ; i < j ; i += 4 ) {
+			if( ( rel[i+3] & 1 ) || ( rel[i+1] != CMD_RELATION_ALLY ) ) {
+				continue;
+			}
+			for( k = 0 ; k < j ; k += 4 ) {
+				if( !( rel[k+3] & 1 ) || ( rel[k+1] != CMD_RELATION_ALLY ) || ( rel[i+2] != rel[k+2] ) ) {
+					continue;
+				}
+				//Found the ally if we reach this line  
+				//If the ally have all the artefacts we give double tp to this user :D
+				dbEmpireGetInfo( rel[i+2], &empire2d );
+				j = pow(2, ArtefactNum)-1;
+				if(empire2d.artefacts == j) {
+					infod.tagpoints += maind.planets;
+				}
+			}
+		}
+		free( rel );
+	}
+	//Find ally end
+    
+	if( c == ArtefactNum ) {
+		infod.tagpoints += 3 * maind.planets;
+	} else {
+		infod.tagpoints += maind.planets;
+	}
+
+	dbUserRecordAdd( id, &recordd );
+}
+
+if( ( num = dbUserPlanetListIndices( id, &buffer ) ) >= 0 ) {
+	for( a = 0 ; a < num ; a++ ) {
+		dbUserPlanetRemove( id, buffer[a] );
+		dbMapRetrievePlanet( buffer[a], &planetd );
+		if( planetd.owner != id ) {
+			continue;
+		}
+		planetd.flags &= CMD_PLANET_FLAGS_HOME;
+		planetd.owner = -1;
+		planetd.construction = 0;
+		planetd.population = planetd.size * CMD_POPULATION_BASE_FACTOR;
+		memset( planetd.building, 0, CMD_BLDG_NUMUSED*sizeof(int64_t) );
+		memset( planetd.unit, 0, CMD_UNIT_NUMUSED*sizeof(int64_t) );
+		dbMapSetPlanet( buffer[a], &planetd );
+		dbMapRetrieveSystem( planetd.system, &systemd );
+		systemd.unexplored++;
+		dbMapSetSystem( planetd.system, &systemd );
+	}
+	free( buffer );
+}
+
+if( ( num = dbUserMarketList( id, &buffer ) ) >= 0 ) {
+	for( a = b = 0 ; a < num ; a++, b += 5 ) {
+		dbUserMarketRemove( id, buffer[b+DB_MARKETBID_BIDID] );
+		dbMarketRemove( &buffer[b], buffer[b+DB_MARKETBID_BIDID] );
+	}
+	free( buffer );
+}
+
+if( maind.empire != -1 ) {
 	setting = GetSetting( "Admin Empire Number" );
-	if( ( empired.numplayers < 1 ) && ( maind.empire != setting->num_value ) ) {
-		memset( &empired.name, 0, USER_NAME_MAX );
-		memset( &empired.password, 0, USER_PASS_MAX );
-	}
-	
-	cmdEmpireLeader( &empired );
-	dbEmpireSetInfo( maind.empire, &empired );
-	      
-	break;
+	for( a = 0 ; a < empired.numplayers ; a++ ) {
+		if( id != empired.player[a] ) {
+			continue;
+		}
+		for( b = 0; b < CMD_EMPIRE_POLITICS_TOTAL; b++ ) {
+			if( empired.politics[b] == id )
+				empired.politics[b] = -1;
+			}
+			b = empired.numplayers-a-1;
+			if( b > 0 ) {
+				memmove( &(empired.player[a]), &(empired.player[a+1]), b*sizeof(int) );
+				memmove( &(empired.vote[a]), &(empired.vote[a+1]), b*sizeof(int) );
+			}
+			for( ; b >= 0 ; b-- ) {
+				if( empired.vote[a+b] == a ) {
+					empired.vote[a+b] = -1;
+				} else if( empired.vote[a+b] > a ) {
+					empired.vote[a+b]--;
+				}
+			}
+		empired.numplayers--;
+ 		//Remove pass if last player
+		if( ( empired.numplayers == 0 ) && ( maind.empire != setting->num_value ) ) {
+			memset( &empired.name, 0, USER_NAME_MAX );
+			memset( &empired.password, 0, USER_PASS_MAX );
+		}
+		cmdEmpireLeader( &empired );
+		dbEmpireSetInfo( maind.empire, &empired );
+		break;
 	}
 	for( a = CMD_EMPIRE_POLITICS_START; a <= CMD_EMPIRE_POLITICS_END; a++ ) {
 		bitflag_remove( &user->flags, a );
 	}
+}
 
-  }
+if( ( num = dbUserFleetList( id, &fleetp ) ) >= 0 ) {
+	for( a = num-1 ; a >= 0 ; a-- ) {
+		dbUserFleetRemove( id, a );
+	}
+	free( fleetp );
+}
+if( ( num = dbUserSpecOpList( id, &specopd ) ) >= 0 ) {
+	for( a = num-1 ; a >= 0 ; a-- ) {
+		dbUserSpecOpRemove( id, a );
+	}
+	if( specopd ) {
+		free( specopd );
+	}
+}
 
-  if( ( num = dbUserFleetList( id, &fleetp ) ) >= 0 )
-  {
-    for( a = num-1 ; a >= 0 ; a-- )
-      dbUserFleetRemove( id, a );
-    free( fleetp );
-  }
-  if( ( num = dbUserSpecOpList( id, &specopd ) ) >= 0 )
-  {
-     for( a = num-1 ; a >= 0 ; a-- )
-       dbUserSpecOpRemove( id, a );
-     if( specopd )
-	free( specopd );
-  }
 
-  dbUserBuildEmpty( id );
-  dbMailEmpty( id, 0 );
-  dbMailEmpty( id, 1 );
-  dbUserNewsEmpty( id );
+dbUserBuildEmpty( id );
+dbMailEmpty( id, 0 );
+dbMailEmpty( id, 1 );
+dbUserNewsEmpty( id );
 
-  memcpy( &main2d, &cmdUserMainDefault, sizeof(dbUserMainDef) );
-  if( user->level < LEVEL_MODERATOR )
-    snprintf( infod.forumtag, USER_FTAG_MAX, "%s", cmdTagFind( infod.tagpoints ) );
+if( user->level < LEVEL_MODERATOR ) {
+	snprintf( infod.forumtag, USER_FTAG_MAX, "%s", cmdTagFind( infod.tagpoints ) );
+}
 
-  strncpy( main2d.faction, maind.faction, USER_NAME_MAX );
-  main2d.empire = -1;
+if( !( dbUserMainSet( id, &main2d ) ) ) {
+	return -1;
+} else if( !( dbUserInfoSet( id, &infod ) ) ) {
+	return -1;
+}
 
-  if( !( dbUserMainSet( id, &main2d ) ) )
-    return -1;
-  if( !( dbUserInfoSet( id, &infod ) ) )
-    return -1;
+bitflag_remove(&user->flags, CMD_USER_FLAGS_ACTIVATED );
+if( flags ) {
+	bitflag_add(&user->flags, flags );
+}
+if( dbUserSave( id, user ) < 0 ) {
+	return -2;
+}
 
-  bitflag_remove(&user->flags, CMD_USER_FLAGS_ACTIVATED );
-  if( flags ) {
-  	bitflag_add(&user->flags, flags );
-  }
-  if( dbUserSave( id, user ) < 0 )
-    return -2;
-
-  dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED]--;
-  return YES;
+dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED]--;
+return YES;
 }
 
 
