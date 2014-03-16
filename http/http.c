@@ -1598,6 +1598,8 @@ return result;
 
 void Shutdown() {
 	int a;
+	SessionPtr pos;
+	SessionPtr next;
 
 sysconfig.shutdown = true;
 
@@ -1628,12 +1630,15 @@ info( "Server shutdown complete, now cleaning up!" );
 
 (void) pthread_mutex_destroy (&mutex);
 
-for( ; SessionList; SessionList = SessionList->next ) {
-		postdata_wipe( SessionList );
-		purge_captcha( SessionList );
-		free( SessionList );
+pos = SessionList;
+while( NULL != pos ) {
+	next = pos->next;
+	SessionList = pos->next;
+	postdata_wipe( pos );
+	purge_captcha( pos );
+	free( pos );
+	pos = next;
 }
-SessionList = NULL;
 
 for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 	free( StoredFiles->name );
