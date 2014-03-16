@@ -285,4 +285,12 @@ if( remove_session( (cnt->session)->sid ) == NO ) {
 return;
 }
 
+void iohtmlFunc_expired( ReplyDataPtr cnt ) {
+
+remove_session( (cnt->session)->sid );
+cnt->session = get_session( SESSION_HTTP, NULL );
+iohtmlFunc_login( cnt, "Expired Session" );
+
+return;
+}
 

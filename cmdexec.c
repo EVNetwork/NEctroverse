@@ -2150,7 +2150,6 @@ void *cmdEndofRound( ) {
 	dbUserPtr user;
 	ConfigArrayPtr setting;
 	dbMainEmpireDef empired;
-	struct tm variable;
 
 info( "Iniating Map Reset." );
 ticks.status = false;
@@ -2183,9 +2182,9 @@ unlink( fname );
 
 time(&now);
 
-variable = *localtime(&now);
-variable.tm_mday++;
-sysconfig.start = variable;
+sysconfig.start = *localtime(&now);
+sysconfig.start.tm_mday++;
+
 ticks.round++;
 ticks.number = 0;
 

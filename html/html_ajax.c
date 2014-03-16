@@ -267,6 +267,8 @@ if( refer ) {
 	httpString( cnt, "//Time to use this to more of its potential!!.\n" );
 	httpString( cnt, "var page;\n" );
 	httpString( cnt, "var login = false;\n" );
+	httpString( cnt, "var sesspage = 0;\n" );
+	httpPrintf( cnt, "var sesstime = %d;\n", SESSION_TIME );
 	httpPrintf( cnt, "var sec = %02ld;\n", javatime.seconds );
 	httpPrintf( cnt, "var min = %02ld;\n", javatime.minutes );
 	if( strcmp(refer,"status") == CMP_TRUE ) {

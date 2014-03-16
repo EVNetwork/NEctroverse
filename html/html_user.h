@@ -9,5 +9,6 @@ void iohtmlFunc_changepass( ReplyDataPtr cnt );
 void iohtmlFunc_delete( ReplyDataPtr cnt );
 
 void iohtmlFunc_logout( ReplyDataPtr cnt );
+void iohtmlFunc_expired( ReplyDataPtr cnt );
 
 #endif

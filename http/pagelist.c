@@ -88,6 +88,7 @@ PageDef html_page[] =
     { "/account", "text/html",  &page_render, iohtmlFunc_account, NULL },
     { "/delete", "text/html",  &page_render, iohtmlFunc_delete, NULL },
     { "/logout", "text/html",  &page_render, iohtmlFunc_logout, NULL },
+    { "/expired", "text/html",  &page_render, iohtmlFunc_expired, NULL },
     { "/changepass", "text/html",  &page_render, iohtmlFunc_changepass, NULL },
     #if FACEBOOK_SUPPORT
     { "/facebook", "text/html",  &page_render, iohtmlFunc_facebook, NULL },
