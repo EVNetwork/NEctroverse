@@ -111,7 +111,7 @@ return;
 
 /*
  * OK, so lets start easing the CPU load... We don't need to re-generate this each time
- * As it should not change for the lifetime of the server. (-Unless tick speed is changed-)
+ * As it should not change for the lifetime of the server.
  */
 char *ServerSessionMD5;
 
@@ -167,15 +167,9 @@ if( !( name ) ) {
 	name = buf;
 }
 
-info( name );
-size = 32 + 64;
-
-
 settings = GetSetting( "HTTP Port" );
 
-
-
-if( (buffer = malloc( size ) ) == NULL ) {
+if( (buffer = malloc( (32 + 64) ) ) == NULL ) {
 	critical( "Out of Memory" );
 	return NO;
 }
@@ -215,8 +209,9 @@ SessionPtr get_session( int type, void *cls ) {
 if( type == SESSION_HTTP ) {
 	struct MHD_Connection *connection = cls;
 	cookie = MHD_lookup_connection_value (connection, MHD_COOKIE_KIND, ServerSessionMD5 );
-	if( cookie == NULL )
+	if( cookie == NULL ) {
 		cookie = MHD_lookup_connection_value( connection, MHD_GET_ARGUMENT_KIND, ServerSessionMD5 );
+	}
 } else if( type == SESSION_IRC ) {
 	cookie = cls;
 }
@@ -224,8 +219,9 @@ if( type == SESSION_HTTP ) {
 if (cookie != NULL) {
 	ret = SessionList;
 	while (NULL != ret) {
-		if( 0 == strcmp( cookie, ret->sid ) )
+		if( 0 == strcmp( cookie, ret->sid ) ) {
 			break;
+		}
 		ret = ret->next;
 	}
 	if (NULL != ret) {
@@ -261,8 +257,9 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 			goto MAKECOOKIE;
 		}
 		//This should already be true... but what the heck, lets double check.
-		if( strcmp( cookie, ret->dbuser->http_session ) == 0 )
+		if( strcmp( cookie, ret->dbuser->http_session ) == 0 ) {
 			strcpy( ret->sid, cookie);
+		}
 	}
 }
 
@@ -516,10 +513,11 @@ static int return_directory_response( struct MHD_Connection *connection ) {
 
 (void) pthread_mutex_lock( &mutex );
 
-if (NULL == cached_directory_response)
+if (NULL == cached_directory_response) {
 	ret = MHD_queue_response( connection, MHD_HTTP_INTERNAL_SERVER_ERROR,  internal_error_response );
-else
+} else {
 	ret = MHD_queue_response( connection, MHD_HTTP_OK, cached_directory_response );
+}
 
 (void)pthread_mutex_unlock( &mutex );
 
@@ -600,11 +598,14 @@ if (file == NULL) {
 } else {
 	#if HAVE_MAGIC_H
 	got = read (file, file_data, sizeof (file_data));
-	if (-1 != got)
+	if (-1 != got) {
 		mime = magic_buffer (magic, file_data, got);
-	else
+	} else {
 	#endif
 	mime = NULL;
+	#if HAVE_MAGIC_H
+	}
+	#endif
 
 	response = MHD_create_response_from_callback( buf.st_size, ( SERVERALLOCATION / 8 ), &file_read, file, &file_free_callback );
 	if (response == NULL) {
@@ -635,8 +636,9 @@ if( fname == NULL ) {
 filelist = StoredFiles;
 
 for( ; filelist ; filelist = filelist->next ) {
-	if( strcmp( filelist->name, fname ) == 0 )
+	if( strcmp( filelist->name, fname ) == 0 ) {
 		break;
+	}
 }
 if( filelist == NULL ) {
 	if( strcmp( type, "eimage" ) == 0 ) {
@@ -816,8 +818,9 @@ static int postdata_wipe( SessionPtr session ) {
 	PostDataPtr data;
 	
 if( session->postdata != NULL ) {
-	for( data = session->postdata ; data ; data = data->next )
+	for( data = session->postdata ; data ; data = data->next ) {
 		postdata_remove( session, data->key );
+	}
 	
 }
 
@@ -996,8 +999,9 @@ if( ( temp_x[0] ) && ( temp_x[1] ) ) {
 request = *ptr;
 if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( allowed ) ) {
 	if (NULL == request) {
-		if( NULL == (request = calloc(1, sizeof(RequestDef) ) ) )
+		if( NULL == (request = calloc(1, sizeof(RequestDef) ) ) ) {
 			return NO; /* out of memory, close connection */
+		}
 		request->session = get_session( SESSION_HTTP, connection );
 		if (NULL == request->session) {
 			error( "Failed to setup session for \'%s\'", url );
@@ -1018,8 +1022,9 @@ if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( allowed ) ) {
 		return YES;
 	}
 	if (0 != *upload_data_size) {
-		if (NULL == request->response)
+		if (NULL == request->response) {
 			(void)MHD_post_process( request->pp, upload_data, *upload_data_size );
+		}
 		*upload_data_size = 0;
 		return YES;
 	}
@@ -1034,14 +1039,15 @@ if( (0 == strcmp( method, MHD_HTTP_METHOD_POST) ) && ( allowed ) ) {
 	if (NULL != request->response) {
 		return MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, request->response);
 	} else {
-	i=0;
-	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, request->post_url)) )
-		i++;
-	ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, request->session, request->connection );
-	if (ret != YES) {
-		error( "Failed to create page for \'%s\'", request->post_url);
-	}
-	return ret;
+		i=0;
+		while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, request->post_url)) ) {
+			i++;
+		}
+		ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, request->session, request->connection );
+		if (ret != YES) {
+			error( "Failed to create page for \'%s\'", request->post_url);
+		}
+		return ret;
 	}
 }
 
@@ -1054,8 +1060,9 @@ if( ( request ) && ( request->session ) ) {
 
 if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
 	i=0;
-	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, url)) )
+	while ( (html_page[i].url != NULL) && (0 != strcmp (html_page[i].url, url)) ) {
 		i++;
+	}
 	ret = html_page[i].handler( i, html_page[i].handler_cls, html_page[i].mime, session, connection );
 	if (ret != YES) {
 		error( "Failed to create page for \'%s\'", url);
@@ -1084,10 +1091,12 @@ return ret;
 static void completed_callback (void *cls, struct MHD_Connection *connection, void **con_cls, enum MHD_RequestTerminationCode toe) {
 	RequestPtr request = *con_cls;
 
-if (NULL == request)
+if (NULL == request) {
 	return;
-if (NULL != request->session)
+}
+if (NULL != request->session) {
 	request->session->rc--;
+}
 if (NULL != request->pp) {
 	MHD_destroy_post_processor(request->pp);
 	request->pp = NULL;
@@ -1118,8 +1127,9 @@ static int access_check(void *cls, const struct sockaddr *addr, socklen_t addrle
 
 if( get_ip_str( addr, s, addrlen) != NULL ) {
 	for( a = 0 ; a < sysconfig.banlist.number ; a++ ) {
-		if( ioCompareFindWords( s, sysconfig.banlist.ip[a] ) )
+		if( ioCompareFindWords( s, sysconfig.banlist.ip[a] ) ) {
 			return NO;
+		}
 	}
 }
 
@@ -1491,7 +1501,7 @@ if( SecureHTTP != NULL ) {
 }
 #endif
 
-if( ( select(max + 1, &WWWSelectRead, &WWWSelectWrite, &WWWSelectError, &tv) < 0 ) && ( sysconfig.shutdown == false ) ){
+if( ( select(max + 1, &WWWSelectRead, &WWWSelectWrite, &WWWSelectError, &tv) < 0 ) && ( sysconfig.shutdown == false ) ) {
 	error( "WWW Select Apply" );
 }
 
@@ -1589,6 +1599,7 @@ return result;
 
 
 void Shutdown() {
+	int a;
 
 sysconfig.shutdown = true;
 
@@ -1601,25 +1612,24 @@ if( SecureHTTP ) {
 	MHD_stop_daemon(SecureHTTP);
 	info("HTTPS Server has been gracefully shutdown!");
 }
-if( ssl_files[0] )
-	free( ssl_files[0] );
-if( ssl_files[1] )
-	free( ssl_files[1] );
-if( ssl_files[2] )
-	free( ssl_files[2] );
+for( a = 0; ssl_files[a]; a++ ) {
+	free( ssl_files[a] );
+}
 #endif
 
 MHD_destroy_response (file_not_found_response);
 MHD_destroy_response (request_refused_response);
 MHD_destroy_response (internal_error_response);
 update_cached_response (NULL);
-(void) pthread_mutex_destroy (&mutex);
+
 
 #if HAVE_MAGIC_H
 magic_close (magic);
 #endif
 
 info( "Server shutdown complete, now cleaning up!" );
+
+(void) pthread_mutex_destroy (&mutex);
 
 for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 	free( StoredFiles->name );

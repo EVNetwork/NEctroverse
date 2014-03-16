@@ -396,6 +396,7 @@ int cmdExecUserDeactivate( int id, int flags )
   if( dbUserSave( id, user ) < 0 )
     return -2;
 
+  dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED]--;
   return YES;
 }
 
@@ -473,6 +474,10 @@ int cmdUserDelete( int id )
 
   if( dbUserRemove( id ) < 0 )
     return -3;
+
+
+dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED]--;
+dbRegisteredInfo[DB_TOTALS_USERS_REGISTERED]--;
 
   return YES;
 }

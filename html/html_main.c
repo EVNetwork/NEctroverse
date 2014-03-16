@@ -1014,6 +1014,7 @@ if( race ) {
 	httpString( cnt, "<br><br><br>" );
 	httpPrintf( cnt, "<a href=\"%s\">Click here if not redirected.</a>", URLAppend( cnt, "hq" ) );
 	redirect( cnt, "%s", URLAppend( cnt, "hq" ) );
+	dbRegisteredInfo[DB_TOTALS_USERS_ACTIVATED]++;
 	goto END;
 } else if( ( ( token != NULL ) && ( ( faction != NULL ) && ( strlen(faction) > 0 ) ) ) || ( ( name != NULL ) && ( pass != NULL ) && ( faction != NULL ) ) ) {
 	if( ( name != NULL ) && ( strncmp( name, "FBUSER", 6 ) == 0 ) ) {
