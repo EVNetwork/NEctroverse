@@ -269,10 +269,13 @@ if( deletestring ) {
 
 void iohtmlFunc_logout( ReplyDataPtr cnt ) {
 
-if( remove_session( (cnt->session)->sid ) == 0 ) {
+if( (cnt->session)->dbuser != NULL ) {
+	dbRegisteredInfo[DB_TOTALS_USERS_ONLINE]--;
+}
+
+if( remove_session( (cnt->session)->sid ) == NO ) {
 	critical( "Unable to remove user session, this really shoulden't be able to happen." );
-	if( ( cnt->session ) )
-		cnt->session = NULL;
+	cnt->session = get_session( SESSION_HTTP, NULL );
 	iohtmlFunc_front( cnt, "%s", "An error, has occured with the logout. To be safe please close your browser.!" );
 } else {
 	cnt->session = get_session( SESSION_HTTP, NULL );

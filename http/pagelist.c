@@ -95,7 +95,7 @@ PageDef html_page[] =
     //Administration Pages
     { "/adminforum", "text/html",  &page_render, iohtmlFunc_adminforum, NULL },
     { "/moderator", "text/html",  &page_render, iohtmlFunc_moderator, NULL },
-    { "/admin", "text/html",  &page_render, iohtmlFunc_admin, NULL },
+    { "/administration", "text/html",  &page_render, iohtmlFunc_administration, NULL },
     //File Rendering such as Images and Static Files
     { "/files", "text/html",  &file_render, NULL, NULL },
     //Not Found -- End of List.

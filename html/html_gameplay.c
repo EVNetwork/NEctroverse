@@ -46,10 +46,10 @@ httpPrintf( cnt, "<a href=\"%s\">Logout</a><br><br>", URLAppend( cnt, "logout" )
 
 httpPrintf( cnt, "<span class=\"href\" onclick=\"openRequestedPopup('%s','IRCChat');\">IRC Chat</span><br>", URLAppend( cnt, "chat" ) );
 if( (cnt->session)->dbuser ) {
-	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+	if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
+		httpPrintf( cnt, "<br><a href=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ) );
+	} else if( ((cnt->session)->dbuser)->level == LEVEL_MODERATOR ) {
 		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
-	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\">Admin panel</a>", URLAppend( cnt, "admin" ) );
 	}
 }
 

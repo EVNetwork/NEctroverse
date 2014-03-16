@@ -5,14 +5,17 @@ int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
 	char sess[SESSION_SIZE];
 	dbUserPtr user;
 
-if( ( NULL == (cnt->session)->dbuser ) || ( NULL == ( user = (cnt->session)->dbuser ) ) )
+if( ( NULL == (cnt->session)->dbuser ) || ( NULL == ( user = (cnt->session)->dbuser ) ) ) {
 	goto FAIL;
+}
 
-if( dbSessionRetrieve( user, sess ) < 0 )
+if( dbSessionRetrieve( user, sess ) < 0 ) {
 	goto FAIL;
+}
 
-if( strcmp( (cnt->session)->sid, sess ) || ( (id = user->id) < 0 ) )
+if( strcmp( (cnt->session)->sid, sess ) || ( (id = user->id) < 0 ) ) {
 	goto FAIL;
+}
 
 if( !( action & 16 ) ) {
 	user->lasttime = time(NULL);
@@ -70,17 +73,20 @@ if( !( flags & 32 ) ) {
 	httpPrintf( cnt, "<link href=\"%s&amp;type=server&amp;name=style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\">", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=jquery-1.11.0.min.js\"></script>", URLAppend( cnt, "files" ) );
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s\"></script>", URLAppend( cnt, "ajax.js" ) );
-	if( flags & 16 )
+	if( flags & 16 ) {
 		httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=status.min.js\"></script>", URLAppend( cnt, "files" ) );
+	}
 	httpPrintf( cnt, "<script type=\"text/javascript\" src=\"%s&amp;type=server&amp;name=javascript.js\"></script>", URLAppend( cnt, "files" ) );
 }
-if( flags & 4 )
+if( flags & 4 ) {
 	httpString( cnt, "<base target=\"_blank\">" );
+}
 if( ( flags & 1 ) && !( flags & 32 ) ) {
 	httpString( cnt, "<style type=\"text/css\">" );
 	httpString( cnt, "body{background-image:url(/files?type=image&name=background.gif);" );
-	if( !( flags & 2 ) )
+	if( !( flags & 2 ) ) {
 		httpString( cnt, "background-attachment:fixed;" );
+	}
 	httpString( cnt, "}</style>" );
 }
 
@@ -95,27 +101,11 @@ settings[1] = GetSetting( "Google Analytics ID" );
 httpPrintf( cnt, "  ga('create', '%s', '%s');", settings[1]->string_value, settings[0]->string_value );
 httpString( cnt, "  ga('send', 'pageview');" );
 httpString( cnt, "</script>" );
+
 if( flags & 1 ) {
 	httpString( cnt, "<body style=\"margin:auto;\">" );
 }
-/*
-if( iohtmlVarsFind( cnt, "fbapp" ) == NULL ) {
-	if( flags & 8 ) {
-		httpString( cnt, " onload=\"if(window != window.top){top.location.href=location.href};" );
-	} else {
-		httpString( cnt, " onload=\"if(window==window.top){" );
-		httpString( cnt, "if(top.location.search ){" );
-		httpString( cnt, "var params = parseQueryString();" );
-		httpPrintf( cnt, "top.location.href=\'main?%s=\'+params[\'%s\']+\'&page=\'+top.location.pathname+encodeURIComponent(top.location.search);", ServerSessionMD5, ServerSessionMD5 );
-		httpString( cnt, "}else{" );
-		httpString( cnt, "top.location.href=\'main?page=\'+top.location.pathname;" );
-		httpString( cnt, "}" );
-		httpString( cnt, "};" );
-	}
-}
 
-httpString( cnt, "\">" );
-*/
 httpString( cnt, "<center>" );
 
 return;
@@ -241,8 +231,9 @@ if( text != NULL ) {
 iohtmlBase( cnt, 8 );
 
 if( ( id = iohtmlIdentify( cnt, 0 ) ) >= 0 ) {
-	if( dbUserMainRetrieve( id, &maind ) < 0 )
-	return;
+	if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+		return;
+	}
 }
 
 #if FACEBOOK_SUPPORT
@@ -597,19 +588,19 @@ httpString( cnt, "<tr><td align=\"left\">" );
 httpString( cnt, "<table>" );
 httpPrintf( cnt, "<tr><td><br>Round %d - Current round<br><a href=\"%s&amp;type=1\">Empires</a> - <a href=\"%s\">Players</a></td></tr>", ticks.round, URLAppend( cnt, "rankings" ), URLAppend( cnt, "rankings" ) );
 
-for( a = ( ticks.round - 1 ); a > -1; a--) {
-
-httpPrintf( cnt, "<tr><td><br>Round %d<br>", a );
 settings = GetSetting( "Directory" );
-sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", settings->string_value, a );
-sprintf( LINKSTRING, "<a href=\"%s&amp;round=%d&amp;type=1\">", URLAppend( cnt, "rankings" ), a );
-httpPrintf( cnt, "%sEmpires%s - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+for( a = ( ticks.round - 1 ); a > -1; a--) {
+	httpPrintf( cnt, "<tr><td><br>Round %d<br>", a );
 
-sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", settings->string_value, a );
-sprintf( LINKSTRING, "<a href=\"%s&amp;round=%d\">", URLAppend( cnt, "rankings" ), a );
-httpPrintf( cnt, "%sPlayers%s", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
-httpString( cnt, "</td></tr>" );
+	sprintf( DIRCHECKER, "%s/rankings/round%dfamranks.txt", settings->string_value, a );
+	sprintf( LINKSTRING, "<a href=\"%s&amp;round=%d&amp;type=1\">", URLAppend( cnt, "rankings" ), a );
+	httpPrintf( cnt, "%sEmpires%s - ", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
 
+	sprintf( DIRCHECKER, "%s/rankings/round%dranks.txt", settings->string_value, a );
+	sprintf( LINKSTRING, "<a href=\"%s&amp;round=%d\">", URLAppend( cnt, "rankings" ), a );
+	httpPrintf( cnt, "%sPlayers%s", ((stat( DIRCHECKER, &stdata ) != -1) ? LINKSTRING : ""), ((stat( DIRCHECKER, &stdata ) != -1) ? "</a>" : "") );
+
+	httpString( cnt, "</td></tr>" );
 }
 httpString( cnt, "</table>" );
 
@@ -636,13 +627,12 @@ if( iohtmlVarsFind( cnt, "request" ) ) {
 	httpString( cnt, "<table width=\"100%\">" );
 } else {
 	iohtmlBase( cnt, 8 );
-
-if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
-	if( dbUserMainRetrieve( id, &maind ) < 0 )
-		return;
-}
-
-iohtmlFunc_frontmenu( cnt, FMENU_NOTICES );
+	if( ( id = iohtmlIdentify( cnt, 2 ) ) >= 0 ) {
+		if( dbUserMainRetrieve( id, &maind ) < 0 ) {
+			return;
+		}
+	}
+	iohtmlFunc_frontmenu( cnt, FMENU_NOTICES );
 }
 
 httpString( cnt, "<tr><td width=\"7%\">&nbsp;</td><td width=\"86%\" valign=\"top\"><table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\">" );
@@ -865,12 +855,12 @@ if( ( name ) && ( pass ) ) {
 		iohtmlFunc_mainL1:
 		httpPrintf( cnt, "<a href=\"%s\">Public Forums</a>", URLAppend( cnt, "forum" ) );
 		if( (cnt->session)->dbuser != NULL ) {
-			if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
+			if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
 				httpString( cnt, "<br><br>" );
-				httpPrintf( cnt, "<a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
-			} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-				httpString( cnt, "<br>" );
 				httpPrintf( cnt, "<a href=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ) );
+			} else if( ((cnt->session)->dbuser)->level == LEVEL_MODERATOR ) {
+				httpString( cnt, "<br>" );
+				httpPrintf( cnt, "<a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
 			}
 		}
 	iohtmlFunc_endhtml( cnt );
@@ -930,15 +920,17 @@ if( token ) {
 	redirect( cnt, "%s", URLAppend( cnt, "facebook") );
 } else
 #endif
-if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) )
-redirect( cnt, "%s", URLAppend( cnt, "hq") );
-else
-redirect( cnt, "%s", URLAppend( cnt, "register") );
+if( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ) {
+	redirect( cnt, "%s", URLAppend( cnt, "hq") );
+} else {
+	redirect( cnt, "%s", URLAppend( cnt, "register") );
+}
 
 httpString( cnt, "<b>Login sucess, you should be redirected shortly...</b><br>" );
 httpString( cnt, "<br>" );
 httpPrintf( cnt, "<a href=\"%s\">Click here if it takes too long.</a>", URLAppend( cnt, bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_ACTIVATED ) ? "hq" : "register" ) );
 httpString( cnt, "<br>" );
+
 LOGIN_END:
 iohtmlFunc_endhtml( cnt );
 return;

@@ -386,8 +386,9 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
 
-if( !(strlen( settings[0]->string_value )) || !(strlen( settings[1]->string_value )) )
+if( !(strlen( settings[0]->string_value )) || !(strlen( settings[1]->string_value )) ) {
 	goto BAILOUT;
+}
 
 host = MHD_lookup_connection_value( cnt->connection, MHD_HEADER_KIND, "Host" );
 
@@ -469,8 +470,9 @@ if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
 	strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
 	fprintf( file, "Time: %s\n", timebuf );
 	fprintf( file, "Facebook ID: %s;\n", fbdata.id );
-	if( (cnt->connection)->addr->sa_family == AF_INET )
+	if( (cnt->connection)->addr->sa_family == AF_INET ) {
 		fprintf( file, "IP %s;\n", inet_ntoa( ((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr ) );
+	}
 	strcpy(DIRCHECKER, iohtmlHeaderFind( cnt, "User-Agent" ) );
 	for(i=0;i<strlen(DIRCHECKER);i++) {
 		if(DIRCHECKER[i] == ';')
@@ -481,8 +483,9 @@ if( ( file = fopen( DIRCHECKER, "a" ) ) ) {
 
 id = dbUserFBSearch( fbdata.id );
 
-if( buffer[0] )
+if( buffer[0] ) {
 	httpString( cnt, buffer );
+}
 
 if( id >= 0 ) {
 
@@ -498,13 +501,14 @@ if( id >= 0 ) {
 
 	dbUserInfoRetrieve( id, &infod );
 	infod.lasttime = time( 0 );
-	if( (cnt->connection)->addr->sa_family == AF_INET )
-	for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
-		if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
-			memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+	if( (cnt->connection)->addr->sa_family == AF_INET ) {
+		for( a = (MAXIPRECORD-2); a >= 0 ; a-- ) {
+			if( strcmp(inet_ntoa( infod.sin_addr[a] ),"0.0.0.0") ) {
+				memcpy( &(infod.sin_addr[a+1]), &(infod.sin_addr[a]), sizeof(struct in_addr) );
+			}
 		}
+		memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
 	}
-	memcpy( &(infod.sin_addr[0]), &(((struct sockaddr_in *)(cnt->connection)->addr)->sin_addr), sizeof(struct in_addr) );
 	memcpy( &fbdata.token, &token, sizeof(FBTokenDef) );
 	memcpy( &infod.fbinfo, &fbdata, sizeof(FBUserDef) );
 	dbUserInfoSet( id, &infod );
@@ -666,8 +670,9 @@ if( strlen( settings[2]->string_value ) > 0 ) {
 	httpString( cnt, "</td></tr>" );
 }
 
-if( ( strlen( settings[0]->string_value ) <= 0 ) || ( strlen( settings[1]->string_value ) <= 0 ) )
+if( ( strlen( settings[0]->string_value ) <= 0 ) || ( strlen( settings[1]->string_value ) <= 0 ) ) {
 	goto END;
+}
 httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
 httpString( cnt, "<tr><td>" );
 if( ( !( (cnt->session)->dbuser ) || ( ((cnt->session)->dbuser) && !( bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( ((cnt->session)->dbuser)->flags, CMD_USER_FLAGS_FBMADE ) )) ) ) {

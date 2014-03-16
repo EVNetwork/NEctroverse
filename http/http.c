@@ -135,7 +135,6 @@ if( (ServerSessionMD5 = malloc( MD5_HASHSUM_SIZE ) ) == NULL ) {
 	return NO;
 }
 
-
 snprintf( buffer, size, "%.0f;%s", settings[0]->num_value, settings[1]->string_value );
 md5_string( buffer, ServerSessionMD5 );
 
@@ -193,10 +192,10 @@ if( NULL == ( ret = calloc( 1, sizeof(SessionDef) ) ) ) {
 ret->dbuser = NULL;
 if( type == SESSION_HTTP ) {
 	RANDOMIZE_SEED;
-	snprintf(buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-	snprintf(ret->sid, SESSION_SIZE, "%s", buffer );
+	snprintf( buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
+	snprintf( ret->sid, SESSION_SIZE, "%s", buffer );
 } else if( type == SESSION_IRC ) {
-	snprintf(ret->sid, SESSION_SIZE, "%s", cookie );
+	snprintf( ret->sid, SESSION_SIZE, "%s", cookie );
 }
 
 if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
@@ -212,15 +211,15 @@ if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 		}
 		//This should already be true... but what the heck, lets double check.
 		if( strcmp( cookie, ret->dbuser->http_session ) == 0 )
-			strcpy(ret->sid,cookie);
+			strcpy( ret->sid, cookie);
 	}
 }
 
 MAKECOOKIE:
 ret->rc++;
 ret->postdata = NULL;
-time(&ret->active);
-time(&ret->start);
+time( &ret->active );
+time( &ret->start );
 ret->next = SessionList;
 
 SessionList = ret;
@@ -247,8 +246,9 @@ static void add_session_cookie( SessionPtr session, struct MHD_Response *respons
 offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s;", ServerSessionMD5, session->sid );
 
 setting = GetSetting( "Cookie Domain" );
-if( ( setting->string_value ) && ( strcmp( setting->string_value, "false" ) ) )
+if( ( setting->string_value ) && ( strcmp( setting->string_value, "false" ) ) ) {
 	offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Domain=.%s;", setting->string_value );
+}
 
 time_r = ( time(0) + SESSION_TIME );
 strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
@@ -274,8 +274,9 @@ return fread(buf, 1, max, file);
 static void file_free_callback( void *cls ) {
 	FILE *file = cls;
 
-fclose (file);
+fclose(file);
 
+return;
 }
 
 
@@ -289,12 +290,15 @@ static void update_cached_response(struct MHD_Response *response) {
 
 (void) pthread_mutex_lock (&mutex);
 
-if (NULL != cached_directory_response)
+if (NULL != cached_directory_response) {
 	MHD_destroy_response (cached_directory_response);
+}
+
 cached_directory_response = response;
 
 (void) pthread_mutex_unlock (&mutex);
 
+return;
 }
 
 void *buffer_realloc( StringBufferPtr buffer, int type, size_t fitsize, int *newsize ) {
@@ -387,8 +391,9 @@ static int list_directory( StringBufferPtr rd, const char *dirname ) {
 	struct dirent *de;
 	DIR *dir;
 
-if (NULL == (dir = opendir (dirname)))
-	return NO;      
+if (NULL == (dir = opendir (dirname))) {
+	return NO;
+}
 
 while (NULL != (de = readdir (dir))) {
 	if ('.' == de->d_name[0])

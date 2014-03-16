@@ -30,7 +30,7 @@ httpString( cnt, "</tr><tr><td background=\"files?type=image&amp;name=i23.jpg\" 
 
 httpPrintf( cnt, "<a href=\"%s\">Forums</a>", URLAppend( cnt, "adminforum" ) );
 httpString( cnt, "</font></b></td></tr><tr><td background=\"files?type=image&amp;name=i36.jpg\"><table style=\"text-align:left;width=125px;\" cellspacing=\"0\" cellpadding=\"0\"><tr><td><b><font face=\"Tahoma\" size=\"2\">" );
-httpPrintf( cnt, "<a href=\"%s\">Users</a><br>", URLAppend( cnt, "admin" ) );
+httpPrintf( cnt, "<a href=\"%s\">Users</a><br>", URLAppend( cnt, "administration" ) );
 
 httpString( cnt, "</font></b></td></tr></table></td></tr>" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=i36.jpg\"><img height=\"15\" src=\"files?type=image&amp;name=i53.jpg\" width=\"150\"></td></tr>" );
@@ -42,7 +42,7 @@ if( (cnt->session)->dbuser ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, "<br><a href=\"%s\">Moderator panel</a>", URLAppend( cnt, "moderator" ) );
 	} if( ((cnt->session)->dbuser)->level >= LEVEL_ADMINISTRATOR ) {
-		httpPrintf( cnt, "<br><a href=\"%s\">Admin panel</a>", URLAppend( cnt, "admin" ) );
+		httpPrintf( cnt, "<br><a href=\"%s\">Admin panel</a>", URLAppend( cnt, "administration" ) );
 	}
 }
 
@@ -1011,7 +1011,7 @@ return;
 
 
 
-void iohtmlFunc_admin( ReplyDataPtr cnt )
+void iohtmlFunc_administration( ReplyDataPtr cnt )
 {
   int a, b, c, cmd[2], id;
   int *buffer;
@@ -1070,51 +1070,51 @@ void iohtmlFunc_admin( ReplyDataPtr cnt )
 iohtmlBodyInit( cnt, "Primary re-draft of Administration panel" );
 
   httpString( cnt, "<table width=\"90%\"><tr><td width=\"30%\" align=\"center\" valign=\"top\">" );
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"reloadfiles\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Reload HTTP files" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"forums\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Create empire forums" );
 
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"shutdown\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Shutdown" );
 
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"blankenergy\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Wipe Energy Production" );
 
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"forumdel\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Delete forum" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"forumcreate\" value=\"Forum name\">" );
   iohtmlAdminSubmit( cnt, "Create forum" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"setmod\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Set Moderator" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"setfmod\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Set Forum Moderator" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"setplay\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Set Player" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"delplayer\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Delete Player" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"deactivate\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Deactivate Player" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"toggletime\" value=\"1\">" );
   if( ticks.status == true ) {
   	iohtmlAdminSubmit( cnt, "Freeze Time Flow" );
@@ -1124,81 +1124,81 @@ iohtmlBodyInit( cnt, "Primary re-draft of Administration panel" );
     	iohtmlAdminSubmit( cnt, "Start Time Flow" );
   }
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"giveenergy\" value=\"user ID\">" );
   iohtmlAdminSubmit( cnt, "Reload HTTP files" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"deletecons\" value=\"Planet ID\">" );
   iohtmlAdminSubmit( cnt, "Give Energy" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"crap\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Clear Market" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"inactives\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Delete inactives" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"newround\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Deactivate all for new round" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"resettags\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Reset tags" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"changename\" value=\"ID\">" );
   httpString( cnt, "<input type=\"text\" name=\"changetype\" value=\"0\">" );
   httpString( cnt, "<input type=\"text\" name=\"newname\" value=\"New name\">" );
   iohtmlAdminSubmit( cnt, "Change name" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"unexplored\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Recount unexplored planets" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"clearnews\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Clear all news" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"findartefacts\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Find artefacts" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"resetpsychics\" value=\"ID\">" );
   iohtmlAdminSubmit( cnt, "Reset psychics" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"fixtags\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Fix tags" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"findbonuses\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Find bonuses" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"genranks\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Gen ranks" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"descs\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Fix descs" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"hidden\" name=\"newround2\" value=\"1\">" );
   iohtmlAdminSubmit( cnt, "Deactivate all for new round, no records" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"forumdelauthor\" value=\"string\">" );
   iohtmlAdminSubmit( cnt, "Delete forum author" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"forumdelip\" value=\"IP\">" );
   iohtmlAdminSubmit( cnt, "Delete forum ip" );
   
-  iohtmlAdminForm( cnt, "admin" );
+  iohtmlAdminForm( cnt, "administration" );
   httpString( cnt, "<input type=\"text\" name=\"resetpass\" value=\"Command\">" );
   iohtmlAdminSubmit( cnt, "Reset a User Password" );
 
