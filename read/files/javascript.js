@@ -1,9 +1,7 @@
 //Yer, better make a timer... this can contol the call's to update info too --- min and sec will be defined on output of html
 
 function countUp() {
-
 sesspage++;
-
 if( sesstime < sesspage ) {
 	try {
 		document.location = "expired";
@@ -11,7 +9,7 @@ if( sesstime < sesspage ) {
 		return false;
 	}
 } else {
-	SD2=window.setTimeout("countUp();", 1000);
+	SU=window.setTimeout("countUp();", 1000);
 }
 
 }
@@ -135,7 +133,7 @@ function addLoadEvent(func) {
 }
 
 addLoadEvent( SD=window.setTimeout("countDown();", 1000) );
-addLoadEvent( SD2=window.setTimeout("countUp();", 1000) );
+addLoadEvent( SU=window.setTimeout("countUp();", 1000) );
 
 function toggle_form(id) { for(i=0;i<_(id).length;i++) if(_(id).elements[i].type == "checkbox") _(id).elements[i].click(); }
 
@@ -194,13 +192,14 @@ function abortHandler(event){
 	updatehtml("status","Upload Aborted");
 }
 
-  var toggle = function() {
-  var mydiv = window.document.getElementById('progblock');
-  if (mydiv.style.display === 'block' || mydiv.style.display === '')
-    mydiv.style.display = 'none';
-  else
-    mydiv.style.display = 'block'
-  }
+var toggle = function() {
+	var mydiv = window.document.getElementById('progblock');
+	if ( ( mydiv.style.display === 'block' ) || ( mydiv.style.display === '' ) ) {
+		mydiv.style.display = 'none';
+	} else {
+		mydiv.style.display = 'block';
+	}
+}
   
 parseQueryString = function() {
 

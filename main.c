@@ -221,8 +221,6 @@ if( ( ticks.speed > 0 ) == NO ) {
 }
 if( ( ticks.next > 0 ) == NO ) {
 	ticks.next = time(0) + ticks.speed;
-} else {
-	info( "%d",ticks.next);
 }
 
 memset(&act, '\0', sizeof(act));

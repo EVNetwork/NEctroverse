@@ -52,7 +52,7 @@ return id;
 
 FAIL:
 if( action & 1 ) {
-	iohtmlFunc_login( cnt, "Expired Session" );
+	iohtmlFunc_expired( ReplyDataPtr cnt )
 }
 
 NEGATIVE:
