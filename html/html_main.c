@@ -52,7 +52,7 @@ return id;
 
 FAIL:
 if( action & 1 ) {
-	iohtmlFunc_expired( ReplyDataPtr cnt )
+	iohtmlFunc_expired( cnt );
 }
 
 NEGATIVE:
