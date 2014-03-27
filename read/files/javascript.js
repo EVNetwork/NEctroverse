@@ -6,7 +6,7 @@ if( login ) {
 	sesspage++;
 }
 
-if( ( login == false ) && ( sesspage > 0 ) ) || ( sesstime < sesspage ) ) {
+if( ( ( login == 0 ) && ( sesspage > 0 ) ) || ( sesstime < sesspage ) ) {
 	try {
 		document.location = "expired";
 	} catch(err) {
