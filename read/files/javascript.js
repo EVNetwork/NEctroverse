@@ -1,7 +1,11 @@
 //Yer, better make a timer... this can contol the call's to update info too --- min and sec will be defined on output of html
 
 function countUp() {
-sesspage++;
+
+if( login ) {
+	sesspage++;
+}
+
 if( sesstime < sesspage ) {
 	try {
 		document.location = "expired";
