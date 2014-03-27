@@ -5,9 +5,6 @@ else
 CC = colorgcc
 endif
 CONFIGS := $(shell cat config/buildflags.h)
-SQLLIBS := $(shell mysql_config --libs)
-SQLFLAG := $(shell mysql_config --cflags)
-
 OBJDIR := .libs
 OBJS := $(addprefix $(OBJDIR)/,main.o io.o http.o db.o cmd.o html.o map.o artefact.o extras.o )
 #The standard config needed to compile basic server, withought these it won't work.
@@ -38,6 +35,8 @@ OBJS += $(addprefix $(OBJDIR)/,ircbot.o )
 endif
 
 ifneq ($(findstring MYSQL_SUPPORT 1,$(CONFIGS)),)
+SQLFLAG := $(shell mysql_config --cflags)
+SQLLIBS := $(shell mysql_config --libs)
 FLAGS += $(SQLFLAG)
 LIBS += $(SQLLIBS)
 OBJS += $(addprefix $(OBJDIR)/,mysql.o )

@@ -282,11 +282,13 @@ if( refer ) {
 		httpPrintf( cnt, "var gmin = %02ld;\n", javatime.minutes );
 		httpPrintf( cnt, "var ghour = %02ld;\n", javatime.hours );
 		httpPrintf( cnt, "var gday = %02ld;\n", javatime.days );
+		httpPrintf( cnt, "var gweek = %02ld;\n", javatime.weeks );
 		converttime_todef( &javatime, sysajaxd.uptime );
 		httpPrintf( cnt, "var hsec = %02ld;\n", javatime.seconds );
 		httpPrintf( cnt, "var hmin = %02ld;\n", javatime.minutes );
 		httpPrintf( cnt, "var hhour = %02ld;\n", javatime.hours );
 		httpPrintf( cnt, "var hday = %02ld;\n", javatime.days );
+		httpPrintf( cnt, "var hweek = %02ld;\n", javatime.weeks );
 	}
 	//OK, Time for some AJAX! =/ ...
 	//It's been a while, forgive me if its messy lol! =P

@@ -4335,9 +4335,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   if( buildstring[a][0] )
    httpString( cnt, buildstring[a] );
  }
-
+ httpPrintf( cnt, "This planet can support %d buildings, additional ones will be very expensive.<br>", planetd.size );
  httpPrintf( cnt, "<form action=\"%s\" method=\"POST\"><input type=\"hidden\" value=\"%d\" name=\"id\">", URLAppend( cnt, "build" ), plnid );
-
  totalb = planetd.construction;
  for( a = 0 ; a < CMD_BLDG_NUMUSED ; a++ )
   totalb += planetd.building[a];
@@ -4346,9 +4345,8 @@ if( ( id = iohtmlIdentify( cnt, 1|2 ) ) < 0 )
   httpPrintf( cnt, "There are %d buildings on this planet", totalb );
   if( planetd.construction )
    httpPrintf( cnt, ", %d of them are still under construction", planetd.construction );
-  httpString( cnt, ". " );
+  httpString( cnt, ".<br>" );
  }
- httpPrintf( cnt, "This planet can support %d buildings, additional ones will be very expensive.<br>", planetd.size );
 
  for( a = CMD_BLDG_OVERBUILD ; a < CMD_BLDG_NUMUSED ; a++ )
   totalb -= planetd.building[a];
