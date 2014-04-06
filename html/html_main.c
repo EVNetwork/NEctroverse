@@ -1,19 +1,28 @@
 
 
 int iohtmlIdentify( ReplyDataPtr cnt, int action ) {
-	int id;
 	char sess[SESSION_SIZE];
 	dbUserPtr user;
 
-if( ( NULL == (cnt->session)->dbuser ) || ( NULL == ( user = (cnt->session)->dbuser ) ) ) {
+if( ( NULL == (cnt->session)->dbuser ) || ( NULL == (cnt->session)->sid ) ) {
 	goto FAIL;
+} else {
+	user = (cnt->session)->dbuser;
 }
 
 if( dbSessionRetrieve( user, sess ) < 0 ) {
 	goto FAIL;
 }
 
-if( strcmp( (cnt->session)->sid, sess ) || ( (id = user->id) < 0 ) ) {
+if( ( sess == NULL ) || ( user == NULL ) ) {
+	goto FAIL;
+}
+
+if( ( user->id < 0 ) || ( user->id > dbUserNum ) ) {
+	goto FAIL;
+}
+
+if( strcmp( (cnt->session)->sid, sess ) ) {
 	goto FAIL;
 }
 
@@ -21,7 +30,7 @@ if( !( action & 16 ) ) {
 	user->lasttime = time(NULL);
 }
 
-if( dbUserSave( id, user ) < 0 ) {
+if( dbUserSave( user->id, user ) < 0 ) {
 	error( "Database UserSave" );
 	goto NEGATIVE;
 }
@@ -48,7 +57,7 @@ if( action & 4 ) {
 }
 RETURN:
 purge_captcha( cnt->session );
-return id;
+return user->id;
 
 FAIL:
 if( action & 1 ) {

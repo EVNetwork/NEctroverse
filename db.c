@@ -348,7 +348,7 @@ return file;
 
 
 
-static int dbUserNum = 0; 
+int dbUserNum; 
 dbUserPtr dbUserList;
 dbUserPtr *dbUserTable;
 
@@ -2825,6 +2825,7 @@ int dbUserMarketAdd( int id, int bidid, int action, int resource, int price, int
   int pos;
   FILE *file;
   if( !( file = dbFileUserOpen( id, DB_FILE_USER_MARKET ) ) ) {
+
   	error( "User Open" );
     return -3;
     }

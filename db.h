@@ -3,6 +3,7 @@
 //Edit below this line only, the above line MUST STAY HERE! -- This prevents double calling.
 extern char *dbFileList[DB_FILE_BASE_TOTAL];
 extern FILE *dbFilePtr[DB_FILE_BASE_TOTAL];
+int dbUserNum;
 
 typedef struct
 {

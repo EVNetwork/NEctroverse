@@ -2,11 +2,9 @@
 
 function countUp() {
 
-if( login ) {
-	sesspage++;
-}
+sesspage++;
 
-if( ( ( login == 0 ) && ( sesspage > 0 ) ) || ( sesstime < sesspage ) ) {
+if( ( login ) && ( sesstime < sesspage ) ) {
 	try {
 		document.location = "expired";
 	} catch(err) {

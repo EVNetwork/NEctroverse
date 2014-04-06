@@ -200,7 +200,7 @@ static SessionPtr SessionList;
  */
 SessionPtr get_session( int type, void *cls ) {
 	SessionPtr ret;
-	int id;
+	int id, offset;
 	char buffer[256];
 	const char *cookie = NULL;
 
@@ -235,13 +235,16 @@ if( NULL == ( ret = calloc( 1, sizeof(SessionDef) ) ) ) {
 	return NULL;
 }
 ret->dbuser = NULL;
+offset = 0;
 if( type == SESSION_HTTP ) {
 	RANDOMIZE_SEED;
 	snprintf( buffer, sizeof(buffer), "%X%X%X%X", (unsigned int)random(), (unsigned int)random(), (unsigned int)random(), (unsigned int)random() );
-	snprintf( ret->sid, SESSION_SIZE, "%s", buffer );
+	offset = snprintf( ret->sid, SESSION_SIZE, "%s", buffer );
 } else if( type == SESSION_IRC ) {
-	snprintf( ret->sid, SESSION_SIZE, "%s", cookie );
+	offset = snprintf( ret->sid, SESSION_SIZE, "%s", cookie );
 }
+
+ret->sid[offset] = '\0';
 
 if( ( type == SESSION_HTTP ) && ( cookie != NULL ) ) {
 	if( ( ( id = dbUserSessionSearch( (char *)cookie ) ) < 0  ) ) {
@@ -284,12 +287,12 @@ return ret;
  */
 static void add_session_cookie( SessionPtr session, struct MHD_Response *response ) {
 	time_t time_r;
-	int offset = 0;
+	int offset;
 	char buffer[256];
 	char timebuf[512];
 	ConfigArrayPtr setting;
 
-offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), "%s=%s;", ServerSessionMD5, session->sid );
+offset = snprintf( buffer, sizeof(buffer), "%s=%s;", ServerSessionMD5, session->sid );
 
 setting = GetSetting( "Cookie Domain" );
 if( ( setting->string_value ) && ( strcmp( setting->string_value, "false" ) ) ) {
@@ -300,6 +303,8 @@ time_r = ( time(0) + SESSION_TIME );
 strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &time_r ) );
 
 offset += snprintf( &buffer[offset], ( sizeof(buffer) - offset ), " Max-Age=%ld; Expires=%s", SESSION_TIME, timebuf );
+
+buffer[offset] = '\0';
 
 if (NO == MHD_add_response_header(response, MHD_HTTP_HEADER_SET_COOKIE, buffer)) {
 	error( "Failed to set session cookie header!" );
