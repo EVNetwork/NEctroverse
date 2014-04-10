@@ -2,5 +2,5 @@
 #
 #
 
-valgrind --tool=memcheck --leak-check=yes --track-origins=yes --leak-check=full --main-stacksize=20971520 ./evserver -c config/evconfig.nogit.ini
+valgrind --tool=memcheck --leak-check=full --show-reachable=yes --track-origins=yes --main-stacksize=20971520 ./evserver -c config/evconfig.nogit.ini
 

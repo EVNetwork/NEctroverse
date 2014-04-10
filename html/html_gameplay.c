@@ -1388,8 +1388,8 @@ sprintf( DIRCHECKER, "%s/hq.txt", settings->string_value );
 }
 //end hq message
 
-if( dbEmpireGetMessage( maind.empire, &message ) ) {
-	if( ( strlen(message.leader) ) ) {
+if( dbEmpireGetMessage( maind.empire, &message ) == YES ) {
+	if( message.leader[0] ) {
 		httpString( cnt, "<b>Message from your Prime Minister</b><br>" );
 		httpString( cnt, message.leader );
 		httpString( cnt, "<br><br>" );

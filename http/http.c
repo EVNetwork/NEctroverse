@@ -741,7 +741,7 @@ if( session->postdata != NULL) {
 	for(data = session->postdata ; data ; data = data->next ) {
 		if( ( strcmp( key, data->key ) == 0 ) ) {
 			void *r;
-			if( size == 0 ) {
+			if( ( size > 0 ) == NO ) {
 				//No data to add, so we'll pretend we did something and pass an OK result back -- I mean, how can we fail here... there's nothing to do! =D
 				return YES;
 			}
@@ -769,7 +769,9 @@ if( session->postdata != NULL) {
 	}
 }
 
-
+if( ( size > 0 ) == NO ) {
+	return YES;
+}
 
 if( ( data = malloc( 1*sizeof(PostDataDef) ) ) == NULL ) {
 	critical( "Out of memory" )
@@ -1603,8 +1605,7 @@ return result;
 
 void Shutdown() {
 	int a;
-	SessionPtr pos;
-	SessionPtr next;
+	SessionPtr pos, next;
 
 sysconfig.shutdown = true;
 
@@ -1653,12 +1654,12 @@ for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
 }
 StoredFiles = NULL;
 
-if( ServerSessionMD5 != NULL ) {
+if( ServerSessionMD5 ) {
 	free( ServerSessionMD5 );
 	ServerSessionMD5 = NULL;
 }
 
-if( urlappend_buffer != NULL ) {
+if( urlappend_buffer ) {
 	free( urlappend_buffer );
 	urlappend_buffer = NULL;
 }

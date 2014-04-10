@@ -111,13 +111,16 @@ return YES;
 }
 
 int UnLoadForumList( ) {
-	ForumSmileysPtr FreeList;
-	
-for( FreeList = SmileList; FreeList; FreeList = FreeList->next  ) {
-	free( FreeList );
-}
+	ForumSmileysPtr pos, next;
 
-if( SmileTable != NULL ) {
+pos = SmileList;
+while( NULL != pos ) {
+	next = pos->next;
+	free( pos );
+	pos = next;
+}	
+
+if( SmileTable ) {
 	free( SmileTable );
 	SmileTable = NULL;
 }

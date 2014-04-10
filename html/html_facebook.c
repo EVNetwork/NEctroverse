@@ -385,7 +385,16 @@ void iohtmlFunc_facebook( ReplyDataPtr cnt ) {
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
 
+iohtmlBase( cnt, 8 );
+iohtmlFunc_frontmenu( cnt, FMENU_FACEBOOK );
+
+if( NULL == sysconfig.facebook_token ) {
+	httpString( cnt, "<h3>An internal error has occured, the facebook link is currently not avaliable!</h3>" );
+	goto BAILOUT;
+}
+
 if( !(strlen( settings[0]->string_value )) || !(strlen( settings[1]->string_value )) ) {
+	httpString( cnt, "An internal error has occured, the facebook link is currently not avaliable!<br>" );
 	goto BAILOUT;
 }
 
@@ -399,9 +408,6 @@ if( iohtmlVarsFind( cnt, "fbapp" ) != NULL ) {
 memset( &fbdata, 0, sizeof(FBUserDef) );
 memset( &token, 0, sizeof(FBTokenDef) );
 memset( &buffer, 0, sizeof(buffer) );
-
-iohtmlBase( cnt, 8 );
-iohtmlFunc_frontmenu( cnt, FMENU_FACEBOOK );
 
 error = iohtmlVarsFind( cnt, "error" );
 code = iohtmlVarsFind( cnt, "code" );
@@ -657,6 +663,11 @@ void iohtmlFBConnect( ReplyDataPtr cnt ) {
 	const char *host;
 	char url[REDIRECT_MAX];
 
+
+if( NULL == sysconfig.facebook_token ) {
+	return;
+}
+
 settings[0] = GetSetting( "Facebook Application" );
 settings[1] = GetSetting( "Facebook Secret" );
 settings[2] = GetSetting( "Facebook Like URL" );
@@ -703,6 +714,10 @@ return;
 void facebook_update_user( dbUserPtr user ) {
 	dbUserInfoDef infod;
 	FBUserDef fbdata;
+
+if( NULL == sysconfig.facebook_token ) {
+	return;
+}
 
 if( ( user ) && ( bitflag( user->flags, CMD_USER_FLAGS_FBLINK ) || bitflag( user->flags, CMD_USER_FLAGS_FBMADE ) ) ) {
 	dbUserInfoRetrieve( user->id, &infod );

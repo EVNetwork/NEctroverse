@@ -326,11 +326,16 @@ return MHD_NO;
 }
 
 void FreeList( ConfigArrayPtr list ) {
+	ConfigArrayPtr pos, next;
 
-for( ; list != NULL; list = list->next ) {
-	if( list->string_value != NULL )
-		free( list->string_value );
-	free( list );
+pos = list;
+while( NULL != pos ) {
+	next = pos->next;
+	if( pos->string_value ) {
+		free( pos->string_value );
+	}
+	free( pos );
+	pos = next;
 }
 
 return;
@@ -348,7 +353,7 @@ if( ConfigTable ) {
 	ConfigTable = NULL;
 }
 
-if( config != NULL ) {
+if( config ) {
 	iniparser_freedict( config );
 	config = NULL;
 }
