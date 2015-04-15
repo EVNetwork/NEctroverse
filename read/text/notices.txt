@@ -1,3 +1,10 @@
+5 April 2015 : Portal Intergration
+I've done a small portal intergration to make it easier to access the gamer server.
+Please note that this is still in development. (Some things won't work as expected)
+
+1 April 2015 : Back Online
+It's been a while I know... but after a long time away I finally have a server running again.
+
 11 March 2014 : Stability Milestone
 After 5 days running with the Facebook Link active a new milestone has been reached.
 While work with other aspects is slow, it is still progressing.

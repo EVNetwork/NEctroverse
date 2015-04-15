@@ -1,2 +1,3 @@
+Find and fix crashing bug...
 Finish Empire Polotics. -- Utalises the Empire Fund.
 Upgrade the admin/mod interface -- Oh this is long overdue!

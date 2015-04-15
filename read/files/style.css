@@ -116,12 +116,12 @@ body,td{
 	margin:auto;
 	border: 1px #0075B2 solid;
 	background-image : url(files?type=image&name=background.gif);
-	background-attachment:fixed;
+	background-attachment:inherit;
 }
 .bodyraw	{
 	margin:auto;
 	background-image:url(files?type=image&name=background.gif);
-	background-attachment:fixed;
+	background-attachment:inherit;
 }
 .genlarge { 
 	font-size : 25px;

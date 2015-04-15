@@ -590,7 +590,7 @@ if( ( ( forumstring ) && ( sscanf( forumstring, "%d", &forum ) == 1 ) ) ) {
   strftime(timebuf,512,"%a, %d %b %G %T %Z", gmtime( &tint ) );
   settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table class=\"center\" cellspacing=\"4\" width=\"%d%%\">", ( id == -1 ) ? 100 : 80 );
-  httpPrintf( cnt, "<tr><td class=\"left\"><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td class=\"right\">%s", URLAppend( cnt, "/" ), settings->string_value, settings->string_value, timebuf );
+  httpPrintf( cnt, "<tr><td class=\"left\"><a href=\"%s\" target=\"_top\">%s</a> - %s public forums</td><td class=\"right\">%s", URLAppend( cnt, "index" ), settings->string_value, settings->string_value, timebuf );
 if( ( ( id != -1 ) && ( ( flags == false ) || ( ( flags == true ) && ( forum != maind.empire ) ) ) ) ) {
 	if( ((cnt->session)->dbuser)->level >= LEVEL_MODERATOR ) {
 		httpPrintf( cnt, " - <a href=\"%s&amp;empire=true\">Empire forums</a>", URLAppend( cnt, "forum" ) );
@@ -653,7 +653,7 @@ if( forums )
 	 }
 	 	settings = GetSetting( "Server Name" );
 		httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
-		httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
+		httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "index" ), settings->string_value );
 		httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - %s</td><td class=\"right\">", URLAppend( cnt, "forum" ), settings->string_value, forumd.title );
 if( flags == false ) {
 	time( &tint );
@@ -801,7 +801,7 @@ for( a = 0 ; a < b ; a++ ) {
   }
 settings = GetSetting( "Server Name" );
   httpPrintf( cnt, "<table cellspacing=\"4\" width=\"%d%%\" class=\"left\">", ( id == -1 ) ? 100 : 80 );
-  httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "/" ), settings->string_value );
+  httpPrintf( cnt, "<tr><td><a href=\"%s\" target=\"_top\">%s</a> - ", URLAppend( cnt, "index" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s\">%s public forums</a> - ", URLAppend( cnt, "forum" ), settings->string_value );
   httpPrintf( cnt, "<a href=\"%s%s&amp;forum=%d\">%s</a> - %s</td><td class=\"right\">", URLAppend( cnt, "forum" ), ( flags ? "&amp;empire=true" : "" ), forum, forumd.title, threadd.topic );
 if( flags == false )  {

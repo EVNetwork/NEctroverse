@@ -92,7 +92,7 @@ if( flags & 4 ) {
 }
 if( ( flags & 1 ) && !( flags & 32 ) ) {
 	httpString( cnt, "<style type=\"text/css\">" );
-	httpString( cnt, "body{background-image:url(/files?type=image&name=background.gif);" );
+	httpString( cnt, "body{background-image:url(files?type=image&name=background.gif);" );
 	if( !( flags & 2 ) ) {
 		httpString( cnt, "background-attachment:fixed;" );
 	}
@@ -108,6 +108,7 @@ httpString( cnt, "  })(window,document,'script','//www.google-analytics.com/anal
 settings[0] = GetSetting( "Google Analytics Domain" );
 settings[1] = GetSetting( "Google Analytics ID" );
 httpPrintf( cnt, "  ga('create', '%s', '%s');", settings[1]->string_value, settings[0]->string_value );
+httpString( cnt, "  ga('send', 'pageview');" );
 httpString( cnt, "  ga('send', 'pageview');" );
 httpString( cnt, "</script>" );
 
@@ -134,7 +135,7 @@ httpPrintf( cnt, "<td align=\"center\"><span id=\"u_online\">%d</span> of <span 
 httpString( cnt, "<td align=\"center\"><b>" );
 
 if( !( flags == FMENU_MAIN ) ) {
-	httpPrintf( cnt, "<a href=\"%s\">Main</a>", URLAppend( cnt, "/" ) );
+	httpPrintf( cnt, "<a href=\"%s\">Main</a>", URLAppend( cnt, "index" ) );
 }
 if( !( flags == FMENU_REGISTER ) ) {
 	if( !( flags == FMENU_MAIN ) ) {
@@ -162,6 +163,8 @@ if( !( flags == FMENU_SERVER ) ) {
 	httpString( cnt, " | " );
 	httpPrintf( cnt, "<a href=\"%s\">Server Status</a>", URLAppend( cnt, "status" ) );
 }
+httpString( cnt, " | " );
+httpPrintf( cnt, "<a href=\"%s\">Portal</a>", URLAppend( cnt, "/" ) );
 
 httpString( cnt, "</b></td></tr></table></td></tr>" );
 
@@ -388,14 +391,19 @@ if( stat( DIRCHECKER, &stdata ) != -1 ) {
 //end todo list
 httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
 httpString( cnt, "<tr><td background=\"files?type=image&amp;name=ectro_16.jpg\" height=\"15\" class=\"center\"><font color=\"#FFFFFF\" size=\"2\">Adverts Below</font></td></tr>" );
-httpString( cnt, "<tr><td><script type=\"text/javascript\"><!--\n" );
-httpString( cnt, "google_ad_client = \"ca-pub-4553701062747705\";\n" );
-httpString( cnt, "google_ad_slot = \"5830081931\";\n" );
-httpString( cnt, "google_ad_width = 728;\n" );
-httpString( cnt, "google_ad_height = 90;\n" );
-httpString( cnt, "//-->\n" );
-httpString( cnt, "</script>" );
-httpString( cnt, "<script type=\"text/javascript\" src=\"//pagead2.googlesyndication.com/pagead/show_ads.js\"></script></td></tr>" );
+httpString( cnt, "<tr><td>" );
+httpString( cnt, "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script>\n" );
+httpString( cnt, "<!-- AutoSize -->\n" );
+httpString( cnt, "<ins class=\"adsbygoogle\"\n" );
+httpString( cnt, "     style=\"display:block\"\n" );
+httpString( cnt, "     data-ad-client=\"ca-pub-4553701062747705\"\n" );
+httpString( cnt, "     data-ad-slot=\"2637942730\"\n" );
+httpString( cnt, "     data-ad-format=\"auto\"></ins>\n" );
+httpString( cnt, "<script>\n" );
+httpString( cnt, "(adsbygoogle = window.adsbygoogle || []).push({});\n" );
+httpString( cnt, "</script>\n" );
+
+httpString( cnt, "</td></tr>" );
 
 httpString( cnt, "</table>" );
 httpString( cnt, "<td width=\"5%\">&nbsp;</td>" );
@@ -914,7 +922,7 @@ if( ( text != NULL ) ) {
 	httpString( cnt, "<h3>Login</h3>" );
 }
 
-httpPrintf( cnt, "<form action=\"/%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
+httpPrintf( cnt, "<form action=\"%s\" method=\"POST\">", URLAppend( cnt, "login" ) );
 
 httpString( cnt, "Name<br><input type=\"text\" name=\"name\"><br>" );
 httpString( cnt, "<br>Password<br><input type=\"password\" name=\"pass\"><br>" );
@@ -945,7 +953,7 @@ iohtmlFunc_endhtml( cnt );
 return;
 }
 
-#define REGISTER_DISABLE 0
+#define REGISTER_DISABLE TRUE
 
 void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	int a, id, raceid;
@@ -957,11 +965,11 @@ void iohtmlFunc_register( ReplyDataPtr cnt ) {
 	char *data;
 	char *name, *pass, *faction, *race, *empire, *fampass, *rules;
 	char *token = NULL;
+	dbUserMainDef maind;
 	#if FACEBOOK_SUPPORT
 	FBUserDef fbdata;
 	FBTokenDef token_post;
 	dbUserInfoDef infod;
-	dbUserMainDef maind;
 	char fbtemp[2][USER_NAME_MAX];
 	#endif
 	int64_t newd[DB_USER_NEWS_BASE];
@@ -1041,7 +1049,7 @@ if( race ) {
 		facebook_getdata_token( &fbdata, token_post );
 		if( strlen( fbdata.id ) == 0 ) {
 			httpString( cnt, "Invalid Token Detected... Aborting!" );
-			redirect( cnt, "%s", URLAppend( cnt, "/" ) );
+			redirect( cnt, "%s", URLAppend( cnt, "index" ) );
 			goto END;
 		}
 		snprintf( fbtemp[0], USER_NAME_MAX-1, "FBUSER%s", fbdata.id );
@@ -1165,7 +1173,7 @@ if( race ) {
 				httpString( cnt, "While we are open to discuss these rules, they always apply unless specificly waived/altered by Administration. In which case you will be notified.<br>" );
 				httpString( cnt, "<br>" );
 				httpString( cnt, "Players breaking the rules will get a warning, an account reset/deletion or a permanent ban.<br>" );
-				httpString( cnt, "When a player gets warned, his player tag will be changed to “Warned” for a minimum of 4 days.<br>" );
+				httpString( cnt, "When a player gets warned, his player tag will be changed to \"Warned\" for a minimum of 4 days.<br>" );
 				httpString( cnt, "You do not get 2 warnings. A second violation is an account reset (your records will be kept).<br>" );
 				httpString( cnt, "A third violation is an account deletion and a fourth violation will require me to go all out, and find a way to ban you.<br>" );
 			}
