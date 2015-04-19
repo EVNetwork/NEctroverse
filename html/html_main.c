@@ -108,7 +108,7 @@ httpString( cnt, "  })(window,document,'script','//www.google-analytics.com/anal
 settings[0] = GetSetting( "Google Analytics Domain" );
 settings[1] = GetSetting( "Google Analytics ID" );
 httpPrintf( cnt, "  ga('create', '%s', '%s');", settings[1]->string_value, settings[0]->string_value );
-httpString( cnt, "  ga('send', 'pageview');" );
+httpString( cnt, "  ga('require', 'linkid', 'linkid.js');" );
 httpString( cnt, "  ga('send', 'pageview');" );
 httpString( cnt, "</script>" );
 
