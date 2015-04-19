@@ -1547,7 +1547,7 @@ AddBufferString( urlappend_buffer, url );
 AddBufferString( urlappend_buffer, "?needs_fixing" );
 
 //Check if session key/id are in URL string, if not add it.
-if( ( iohtmlVarsFind( cnt, "cookoff" ) != NULL ) && ( strstr( url, (cnt->session)->sid ) == 0 ) ) {
+if( ( strncmp(url,"/",1) == CMP_FALSE ) && ( iohtmlVarsFind( cnt, "cookoff" ) != NULL ) && ( strstr( url, (cnt->session)->sid ) == 0 ) ) {
 	if( ServerSessionMD5 == NULL ) {
 		if( GenServerSum() == NO ) {
 			critical( "This is a no go Jo.." );
