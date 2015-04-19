@@ -1547,21 +1547,20 @@ AddBufferString( urlappend_buffer, url );
 AddBufferString( urlappend_buffer, "?needs_fixing" );
 
 //Check if session key/id are in URL string, if not add it.
-if( strncmp(url,"/",1) == CMP_TRUE ) {
-    if( ( iohtmlVarsFind( cnt, "nsid" ) != NULL ) && ( strstr( url, "nsid=" ) == 0 ) ) {
-        AddBufferPrintf( urlappend_buffer, "&amp;nsid=%s", iohtmlVarsFind( cnt, "nsid" ) );
-    }
-} else if( ( iohtmlVarsFind( cnt, "cookoff" ) ) && ( strstr( url, (cnt->session)->sid ) == 0 ) ) {
+if( ( iohtmlVarsFind( cnt, "cookoff" ) != NULL ) && ( strstr( url, (cnt->session)->sid ) == 0 ) ) {
 	if( ServerSessionMD5 == NULL ) {
 		if( GenServerSum() == NO ) {
 			critical( "This is a no go Jo.." );
 		}
 	}
 	AddBufferPrintf( urlappend_buffer, "&amp;%s=%s", ServerSessionMD5, (cnt->session)->sid );
-	AddBufferString( urlappend_buffer, "&amp;cookoff=true" );
 }
 
-if( ( strncmp(url,"/",1) != CMP_TRUE ) && ( iohtmlVarsFind( cnt, "nsid" ) != NULL ) && ( strstr( url, "nsid=" ) == 0 ) ) {
+if( ( iohtmlVarsFind( cnt, "cookoff" ) != NULL ) && ( strstr( url, "cookoff=" ) == 0 ) ) {
+	AddBufferPrintf( urlappend_buffer, "&amp;cookoff=%s", iohtmlVarsFind( cnt, "cookoff" ) );
+}
+
+if( ( iohtmlVarsFind( cnt, "nsid" ) != NULL ) && ( strstr( url, "nsid=" ) == 0 ) ) {
     AddBufferPrintf( urlappend_buffer, "&amp;nsid=%s", iohtmlVarsFind( cnt, "nsid" ) );
 }
 
