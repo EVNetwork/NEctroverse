@@ -164,7 +164,11 @@
 /* MHD_pipe_read_ read data from real pipe (!MHD_DONT_USE_PIPES) /
  *                read data from emulated pipe (MHD_DONT_USE_PIPES) */
 #ifndef MHD_DONT_USE_PIPES
-#define MHD_pipe_read_(fd, ptr, sz) read((fd), (void*)(ptr), (sz))
+//#define MHD_pipe_read_(fd, ptr, sz) read((fd), (void*)(ptr), (sz))
+#define MHD_pipe_read_(fd, ptr, sz) { \
+ if( read((fd), (void*)(ptr), (sz)) < 1 ) \
+ return false;\
+}
 #else
 #define MHD_pipe_read_(fd, ptr, sz) recv((fd), (char*)(ptr), (sz), 0)
 #endif

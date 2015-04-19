@@ -2146,7 +2146,7 @@ MHD_run_from_select (struct MHD_Daemon *daemon,
   /* drain signaling pipe to avoid spinning select */
   if ( (MHD_INVALID_PIPE_ != daemon->wpipe[0]) &&
        (FD_ISSET (daemon->wpipe[0], read_fd_set)) )
-    (void) MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
+    MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
 
   if (0 == (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
     {
@@ -2640,7 +2640,7 @@ MHD_epoll (struct MHD_Daemon *daemon,
       if ( (MHD_INVALID_PIPE_ != daemon->wpipe[0]) &&
            (daemon->wpipe[0] == events[i].data.fd) )
         {
-          (void) MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
+          MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
           continue;
         }
 	  if (daemon != events[i].data.ptr)
