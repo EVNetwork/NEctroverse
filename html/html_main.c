@@ -170,7 +170,7 @@ if( !( flags == FMENU_SERVER ) ) {
 }
 if( referer ) {
 	urlp = parse_url( referer );
-	if( sscanf( urlp->port, "%d", &port ) == 1 ) {
+	if( ( urlp->port > 0 ) && ( sscanf( urlp->port, "%d", &port ) == 1 ) ) {
 		if( port != options.port[PORT_HTTP] ) {
 			httpString( cnt, " | " );
 			httpPrintf( cnt, "<a href=\"%s\">Portal</a>", URLAppend( cnt, "/" ) );
