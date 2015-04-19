@@ -1,6 +1,6 @@
 /*
      This file is part of libmicrohttpd
-     (C) 2007, 2009, 2010 Daniel Pittman and Christian Grothoff
+     Copyright (C) 2007, 2009, 2010 Daniel Pittman and Christian Grothoff
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,16 @@
 #include "internal.h"
 #include "response.h"
 
+#if defined(_WIN32) && defined(MHD_W32_MUTEX_)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif /* !WIN32_LEAN_AND_MEAN */
+#include <windows.h>
+#endif /* _WIN32 && MHD_W32_MUTEX_ */
+#if defined(_WIN32)
+#include <io.h> /* for lseek(), read() */
+#endif /* _WIN32 */
+
 
 /**
  * Add a header or footer line to the response.
@@ -40,7 +50,7 @@
 static int
 add_response_entry (struct MHD_Response *response,
 		    enum MHD_ValueKind kind,
-		    const char *header, 
+		    const char *header,
 		    const char *content)
 {
   struct MHD_HTTP_Header *hdr;
@@ -54,7 +64,7 @@ add_response_entry (struct MHD_Response *response,
        (NULL != strchr (header, '\r')) ||
        (NULL != strchr (header, '\n')) ||
        (NULL != strchr (content, '\t')) ||
-       (NULL != strchr (content, '\r')) || 
+       (NULL != strchr (content, '\r')) ||
        (NULL != strchr (content, '\n')) )
     return MHD_NO;
   if (NULL == (hdr = malloc (sizeof (struct MHD_HTTP_Header))))
@@ -197,7 +207,7 @@ MHD_get_response_headers (struct MHD_Response *response,
  * @ingroup response
  */
 const char *
-MHD_get_response_header (struct MHD_Response *response, 
+MHD_get_response_header (struct MHD_Response *response,
 			 const char *key)
 {
   struct MHD_HTTP_Header *pos;
@@ -244,7 +254,7 @@ MHD_create_response_from_callback (uint64_t size,
   response->fd = -1;
   response->data = (void *) &response[1];
   response->data_buffer_size = block_size;
-  if (0 != pthread_mutex_init (&response->mutex, NULL))
+  if (MHD_YES != MHD_mutex_create_ (&response->mutex))
     {
       free (response);
       return NULL;
@@ -259,9 +269,43 @@ MHD_create_response_from_callback (uint64_t size,
 
 
 /**
+ * Set special flags and options for a response.
+ *
+ * @param response the response to modify
+ * @param flags to set for the response
+ * @param ... #MHD_RO_END terminated list of options
+ * @return #MHD_YES on success, #MHD_NO on error
+ */
+int
+MHD_set_response_options (struct MHD_Response *response,
+                          enum MHD_ResponseFlags flags,
+                          ...)
+{
+  va_list ap;
+  int ret;
+  enum MHD_ResponseOptions ro;
+
+  ret = MHD_YES;
+  response->flags = flags;
+  va_start (ap, flags);
+  while (MHD_RO_END != (ro = va_arg (ap, enum MHD_ResponseOptions)))
+  {
+    switch (ro)
+    {
+    default:
+      ret = MHD_NO;
+      break;
+    }
+  }
+  va_end (ap);
+  return ret;
+}
+
+
+/**
  * Given a file descriptor, read data from the file
  * to generate the response.
- * 
+ *
  * @param cls pointer to the response
  * @param pos offset in the file to access
  * @param buf where to write the data
@@ -276,9 +320,9 @@ file_reader (void *cls, uint64_t pos, char *buf, size_t max)
 
   (void) lseek (response->fd, pos + response->fd_off, SEEK_SET);
   n = read (response->fd, buf, max);
-  if (0 == n) 
+  if (0 == n)
     return MHD_CONTENT_READER_END_OF_STREAM;
-  if (n < 0) 
+  if (n < 0)
     return MHD_CONTENT_READER_END_WITH_ERROR;
   return n;
 }
@@ -309,7 +353,7 @@ free_callback (void *cls)
  *        data; will be closed when response is destroyed;
  *        fd should be in 'blocking' mode
  * @param offset offset to start reading from in the file;
- *        Be careful! `off_t` may have been compiled to be a 
+ *        Be careful! `off_t` may have been compiled to be a
  *        64-bit variable for MHD, in which case your application
  *        also has to be compiled using the same options! Read
  *        the MHD manual for more details.
@@ -381,7 +425,7 @@ MHD_create_response_from_data (size_t size,
     return NULL;
   memset (response, 0, sizeof (struct MHD_Response));
   response->fd = -1;
-  if (0 != pthread_mutex_init (&response->mutex, NULL))
+  if (MHD_YES != MHD_mutex_create_ (&response->mutex))
     {
       free (response);
       return NULL;
@@ -390,7 +434,7 @@ MHD_create_response_from_data (size_t size,
     {
       if (NULL == (tmp = malloc (size)))
         {
-	  pthread_mutex_destroy (&response->mutex);
+          (void) MHD_mutex_destroy_ (&response->mutex);
           free (response);
           return NULL;
         }
@@ -447,14 +491,14 @@ MHD_destroy_response (struct MHD_Response *response)
 
   if (NULL == response)
     return;
-  pthread_mutex_lock (&response->mutex);
+  (void) MHD_mutex_lock_ (&response->mutex);
   if (0 != --(response->reference_count))
     {
-      pthread_mutex_unlock (&response->mutex);
+      (void) MHD_mutex_unlock_ (&response->mutex);
       return;
     }
-  pthread_mutex_unlock (&response->mutex);
-  pthread_mutex_destroy (&response->mutex);
+  (void) MHD_mutex_unlock_ (&response->mutex);
+  (void) MHD_mutex_destroy_ (&response->mutex);
   if (response->crfc != NULL)
     response->crfc (response->crc_cls);
   while (NULL != response->first_header)
@@ -472,9 +516,9 @@ MHD_destroy_response (struct MHD_Response *response)
 void
 MHD_increment_response_rc (struct MHD_Response *response)
 {
-  pthread_mutex_lock (&response->mutex);
+  (void) MHD_mutex_lock_ (&response->mutex);
   (response->reference_count)++;
-  pthread_mutex_unlock (&response->mutex);
+  (void) MHD_mutex_unlock_ (&response->mutex);
 }
 
 

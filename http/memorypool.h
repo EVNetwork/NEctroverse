@@ -1,6 +1,6 @@
 /*
      This file is part of libmicrohttpd
-     (C) 2007, 2009 Daniel Pittman and Christian Grothoff
+     Copyright (C) 2007, 2009 Daniel Pittman and Christian Grothoff
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
@@ -53,7 +53,7 @@ MHD_pool_create (size_t max);
  *
  * @param pool memory pool to destroy
  */
-void 
+void
 MHD_pool_destroy (struct MemoryPool *pool);
 
 
@@ -93,7 +93,7 @@ MHD_pool_allocate (struct MemoryPool *pool,
 void *
 MHD_pool_reallocate (struct MemoryPool *pool,
 		     void *old,
-		     size_t old_size, 
+		     size_t old_size,
 		     size_t new_size);
 
 
@@ -108,7 +108,7 @@ MHD_pool_reallocate (struct MemoryPool *pool,
  */
 void *
 MHD_pool_reset (struct MemoryPool *pool,
-		void *keep, 
+		void *keep,
 		size_t size);
 
 #endif

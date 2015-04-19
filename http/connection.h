@@ -1,6 +1,6 @@
 /*
      This file is part of libmicrohttpd
-     (C) 2007 Daniel Pittman and Christian Grothoff
+     Copyright (C) 2007 Daniel Pittman and Christian Grothoff
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@
  *
  * @param connection connection to initialize
  */
-void 
+void
 MHD_set_http_callbacks_ (struct MHD_Connection *connection);
 
 
@@ -49,7 +49,7 @@ MHD_set_http_callbacks_ (struct MHD_Connection *connection);
  * @return always MHD_YES (we should continue to process the
  *         connection)
  */
-int 
+int
 MHD_connection_handle_read (struct MHD_Connection *connection);
 
 
@@ -63,7 +63,7 @@ MHD_connection_handle_read (struct MHD_Connection *connection);
  * @return always MHD_YES (we should continue to process the
  *         connection)
  */
-int 
+int
 MHD_connection_handle_write (struct MHD_Connection *connection);
 
 
@@ -77,7 +77,7 @@ MHD_connection_handle_write (struct MHD_Connection *connection);
  * @return MHD_YES if we should continue to process the
  *         connection (not dead yet), MHD_NO if it died
  */
-int 
+int
 MHD_connection_handle_idle (struct MHD_Connection *connection);
 
 
@@ -88,7 +88,7 @@ MHD_connection_handle_idle (struct MHD_Connection *connection);
  * @param connection connection to close
  * @param termination_code termination reason to give
  */
-void 
+void
 MHD_connection_close (struct MHD_Connection *connection,
 		      enum MHD_RequestTerminationCode termination_code);
 
@@ -101,7 +101,7 @@ MHD_connection_close (struct MHD_Connection *connection,
  * @param connection connection to process
  * @return MHD_YES if we should continue to process the
  *         connection (not dead yet), MHD_NO if it died
- */ 
+ */
 int
 MHD_connection_epoll_update_ (struct MHD_Connection *connection);
 #endif

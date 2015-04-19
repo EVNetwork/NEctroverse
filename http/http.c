@@ -1617,6 +1617,9 @@ return result;
 
 
 void Shutdown() {
+	#if HTTPS_SUPPORT
+	int a;
+	#endif
 	SessionPtr pos, next;
 	FileStoragePtr srd, srn;
 
@@ -1684,6 +1687,7 @@ if( urlappend_buffer ) {
 }
 
 dbFlush();
+clean_time_buffer();
 #if PIPEFILE_SUPPORT
 cleanUp(0);
 cleanUp(1);

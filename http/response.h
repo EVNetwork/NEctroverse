@@ -1,6 +1,6 @@
 /*
      This file is part of libmicrohttpd
-     (C) 2007 Daniel Pittman and Christian Grothoff
+     Copyright (C) 2007 Daniel Pittman and Christian Grothoff
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,8 @@
  * Increment response RC.  Should this be part of the
  * public API?
  */
-void MHD_increment_response_rc (struct MHD_Response *response);
+void
+MHD_increment_response_rc (struct MHD_Response *response);
 
 
 #endif

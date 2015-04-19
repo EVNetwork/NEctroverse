@@ -1,6 +1,6 @@
 /*
      This file is part of libmicrohttpd
-     (C) 2007, 2008, 2010 Daniel Pittman and Christian Grothoff
+     Copyright (C) 2007, 2008, 2010 Daniel Pittman and Christian Grothoff
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@
 
 
 /**
- * Give gnuTLS chance to work on the TLS handshake.  
+ * Give gnuTLS chance to work on the TLS handshake.
  *
  * @param connection connection to handshake on
  * @return #MHD_YES on error or if the handshake is progressing
@@ -51,13 +51,13 @@ run_tls_handshake (struct MHD_Connection *connection)
   if (connection->state == MHD_TLS_CONNECTION_INIT)
     {
       ret = gnutls_handshake (connection->tls_session);
-      if (ret == GNUTLS_E_SUCCESS) 
+      if (ret == GNUTLS_E_SUCCESS)
 	{
 	  /* set connection state to enable HTTP processing */
 	  connection->state = MHD_CONNECTION_INIT;
-	  return MHD_YES;	  
+	  return MHD_YES;
 	}
-      if ( (ret == GNUTLS_E_AGAIN) || 
+      if ( (ret == GNUTLS_E_AGAIN) ||
 	   (ret == GNUTLS_E_INTERRUPTED) )
 	{
 	  /* handshake not done */
@@ -134,8 +134,10 @@ MHD_tls_connection_handle_idle (struct MHD_Connection *connection)
   unsigned int timeout;
 
 #if DEBUG_STATES
-  MHD_DLOG (connection->daemon, "%s: state: %s\n",
-            __FUNCTION__, MHD_state_to_string (connection->state));
+  MHD_DLOG (connection->daemon,
+            "%s: state: %s\n",
+            __FUNCTION__,
+            MHD_state_to_string (connection->state));
 #endif
   timeout = connection->connection_timeout;
   if ( (timeout != 0) && (timeout <= (MHD_monotonic_time() - connection->last_activity)))
@@ -156,7 +158,7 @@ MHD_tls_connection_handle_idle (struct MHD_Connection *connection)
 	return MHD_YES;
       return MHD_connection_handle_idle (connection);
     }
-#if EPOLL_SUPPORT   
+#if EPOLL_SUPPORT
   return MHD_connection_epoll_update_ (connection);
 #else
   return MHD_YES;

@@ -25,6 +25,7 @@ typedef struct {
 } proginfoDef, *proginfoPtr;
 
 char *TimeToString( long eltime );
+void clean_time_buffer( );
 
 void iohtmlFunc_status( ReplyDataPtr cnt );
 

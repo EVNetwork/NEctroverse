@@ -13,6 +13,18 @@ return;
 
 static StringBufferPtr time_string_buffer;
 
+void clean_time_buffer( ) {
+
+if( time_string_buffer != NULL ) {
+	free( time_string_buffer->buf );
+	time_string_buffer->buf = NULL;
+	free( time_string_buffer );
+	time_string_buffer = NULL;
+}
+
+return;
+}
+
 char *TimeToString( long eltime ) {
 	bool bweeks, bdays, bhours, bmins;
 	timeDef deftime;
