@@ -412,7 +412,7 @@ void httpString( ReplyDataPtr rd, char *string ) {
 	int buf_len = strlen( string );
 
 	
-if( ( buf_max - buf_len ) < 0 ) {
+if( ( buf_max - buf_len ) < 1 ) {
 	rd->cache.buf = buffer_realloc( &rd->cache, 2, buf_len, &buf_max );
 }
 
