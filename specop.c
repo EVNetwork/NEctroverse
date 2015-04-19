@@ -113,7 +113,7 @@ void specopCalcMarketBids( int id, int64_t *resources )
   memset( resources, 0, sizeof(int64_t)*CMD_RESSOURCE_NUMUSED );
   b = dbUserMarketList( id, &buffer );
   if( b <= 0 )
-    return;
+    goto RETURN;
   for( a = c = 0 ; a < b ; a++, c += 5 )
   {
     if( !( buffer[c+DB_MARKETBID_ACTION] ) )
@@ -121,6 +121,7 @@ void specopCalcMarketBids( int id, int64_t *resources )
     else
       resources[ buffer[c+DB_MARKETBID_RESSOURCE]+1 ] += buffer[c+DB_MARKETBID_QUANTITY];
   }
+RETURN:
   if( buffer )
     free( buffer );
   return;
@@ -132,7 +133,7 @@ void specopReduceEnergyBids( int id, float loss )
   int *buffer;
   b = dbUserMarketList( id, &buffer );
   if( b < 0 )
-    return;
+    goto RETURN;
   for( a = c = 0 ; a < b ; a++, c += 5 )
   {
     if( buffer[c+DB_MARKETBID_ACTION] )
@@ -149,6 +150,7 @@ void specopReduceEnergyBids( int id, float loss )
       dbMarketRemove( &buffer[c], buffer[c+DB_MARKETBID_BIDID] );
     }
   }
+RETURN:
   if( buffer )
     free( buffer );
   return;
@@ -160,7 +162,7 @@ void specopReduceEctroliumBids( int id, float loss )
   int *buffer;
   b = dbUserMarketList( id, &buffer );
   if( b < 0 )
-    return;
+goto RETURN;
   for( a = c = 0 ; a < b ; a++, c += 5 )
   {
     if( !( buffer[c+DB_MARKETBID_ACTION] ) )
@@ -179,6 +181,7 @@ void specopReduceEctroliumBids( int id, float loss )
       dbMarketRemove( &buffer[c], buffer[c+DB_MARKETBID_BIDID] );
     }
   }
+RETURN:
   if( buffer )
     free( buffer );
   return;

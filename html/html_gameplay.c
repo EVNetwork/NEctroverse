@@ -5869,6 +5869,10 @@ httpPrintf( cnt, "<br><br><a href=\"%s&amp;id=%d\">View system</a><br>", URLAppe
 iohttpFunc_exploreL1:
 iohtmlBodyEnd( cnt );
 
+if( fleetd != NULL ) {
+	free( fleetd );
+}
+
 return;
 }
 

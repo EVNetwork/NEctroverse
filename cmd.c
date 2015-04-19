@@ -984,7 +984,7 @@ int cmdFleetAction( dbUserFleetPtr fleetd, int id, int fltid, int postnews )
   dbMainSystemDef systemd;
   dbUserFleetDef fleet2d;
   dbUserFleetPtr fleetp;
-
+  memset( newd, 0, sizeof(newd) );
   newd[1] = 0;
   andl = 0;
   if( postnews )

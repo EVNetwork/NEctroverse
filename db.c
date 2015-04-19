@@ -7,7 +7,7 @@ static char dbFileUsersName[] = "%s/userdb";
 static char dbFileMarketName[] = "%s/market";
 static char dbFileForumName[] = "%s/forums";
 
-char *dbFileList[DB_FILE_BASE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileArteName, dbFileMarketName, dbFileForumName };
+char *dbFileList[DB_FILE_BASE_TOTAL] = { dbFileUsersName, dbFileMapName, dbFileArteName, dbFileMarketName, dbFileForumName, dbFileForumName };
 FILE *dbFilePtr[DB_FILE_BASE_TOTAL];
 
 enum 
@@ -496,7 +496,6 @@ if( !( dbFilePtr[DB_FILE_BASE_MARKET] = fopen( COREDIR, "rb+" ) ) ) {
 snprintf( COREDIR, sizeof(COREDIR), "%s/data/forums", settings[0]->string_value );
 if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	info("Empire Forum database not found, creating...");
-	
 	if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create forum database!" );
 		return NO;
@@ -519,15 +518,15 @@ if( !( dbFilePtr[DB_FILE_BASE_FORUM] = fopen( COREDIR, "rb+" )  ) ) {
 
 
 snprintf( COREDIR, sizeof(COREDIR), "%s/forums", settings[1]->string_value );
-if( !( file = fopen( COREDIR, "rb+" ) ) ) {
+if( !( dbFilePtr[DB_FILE_BASE_PFORUM] = fopen( COREDIR, "rb+" )  ) ) {
 	info( "Public Forum database not found, creating..." );
-	if( !( file = fopen( COREDIR, "wb+" ) ) ) {
+	if( !( dbFilePtr[DB_FILE_BASE_PFORUM] = fopen( COREDIR, "wb+" ) ) ) {
 		critical( "Error, could not create public forum database!" );
 		return NO;
 	}
 	a = 0;
-	file_w( &a, 1, sizeof(int), file );
-	fclose( file );
+	file_w( &a, 1, sizeof(int), dbFilePtr[DB_FILE_BASE_PFORUM] );
+	dbFileGenClose( DB_FILE_BASE_PFORUM );
 	memset( &forumd, 0, sizeof(dbForumForumDef) );
 	forumd.lastid = -1;
 	forumd.time = now;

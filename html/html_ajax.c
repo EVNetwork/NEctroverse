@@ -210,6 +210,9 @@ if( ( typestring ) && ( refer ) ) {
 				usums[ build[a].type & 0xFFFF ] += build[a].quantity;
 				c++;
 			}
+			if( build != NULL ) {
+				free( build );
+			}
 			if( ( c == 0 ) ) {
 				  httpString( cnt, "</table></form>None<br>" );
 			} else {

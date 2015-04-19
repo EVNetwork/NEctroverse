@@ -25,6 +25,7 @@ bool firstload = false;
 
 IPBanDef banlist = { 0 };
 
+#if PIPEFILE_SUPPORT
 void cleanUp(int type) {
 	char DIRCHECKER[PATH_MAX];
 
@@ -42,6 +43,7 @@ if( type ) {
 
 return;
 }
+#endif
 
 static void svSignal(int signal, siginfo_t *siginfo, void *context) {
 
@@ -917,7 +919,9 @@ while( file_exist(DIRCHECKER) ) {
 }
 #endif
 BAILOUT:
+#if PIPEFILE_SUPPORT
 cleanUp(0);
+#endif
 printf("\n");
 
 

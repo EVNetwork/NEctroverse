@@ -722,7 +722,12 @@ add_session_cookie(rd.session, response);
 mark_as( response, mime );
 
 if( strlen(rd.session->redirect) ) {
-	snprintf( buffer, REDIRECT_MAX, "1; url=%s", str_replace(rd.session->redirect, "&amp;", "&") );
+	char *str;
+	str = str_replace(rd.session->redirect, "&amp;", "&"); 
+	snprintf( buffer, REDIRECT_MAX, "1; url=%s", str );
+	if( str != NULL ) {
+		free( str );
+	}
 	memset( &rd.session->redirect, 0, REDIRECT_MAX );
 	MHD_add_response_header(response, MHD_HTTP_HEADER_REFRESH, buffer );
 }
@@ -1612,7 +1617,6 @@ return result;
 
 
 void Shutdown() {
-	int a;
 	SessionPtr pos, next;
 
 sysconfig.shutdown = true;
@@ -1668,13 +1672,16 @@ if( ServerSessionMD5 ) {
 }
 
 if( urlappend_buffer ) {
+	free( urlappend_buffer->buf );
 	free( urlappend_buffer );
 	urlappend_buffer = NULL;
 }
 
 dbFlush();
+#if PIPEFILE_SUPPORT
 cleanUp(0);
 cleanUp(1);
+#endif
 if( sysconfig.regen == false ) {
 	UnloadConfig();
 }
