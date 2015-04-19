@@ -63,9 +63,12 @@ return enc_buffer->buf;
 int checkencrypt( char *passentered, char *passcheck ) {
 	char *enc;
 	char md5sum[MD5_HASHSUM_SIZE];
+	struct crypt_data data;
+
+data.initialized = 0;
 
 md5_string( passentered, md5sum );
-enc = crypt( md5sum, passcheck );
+enc = crypt_r(md5sum, passcheck, &data);
 
 return ( ( strcmp( enc, passcheck) == 0 ) ? 1 : 0 );
 }

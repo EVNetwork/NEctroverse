@@ -357,12 +357,11 @@ dbUserPtr *dbUserTable;
 dbUserPtr dbUserAllocate( int id ) {
 	dbUserPtr user;
 
-if( !( user = malloc( sizeof(dbUserDef) ) ) ) {
-	critical("Database Malloc Failed");
+if( !( user = calloc(1, sizeof(dbUserDef) ) ) ) {
+	critical("Database Memory Allocation Failed");
 	return NO;
 }
 
-memset( user, 0, sizeof(dbUserDef) );
 user->prev = (void **)&(dbUserList);
 user->next = dbUserList;
 if( dbUserList )

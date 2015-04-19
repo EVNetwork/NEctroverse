@@ -1618,6 +1618,7 @@ return result;
 
 void Shutdown() {
 	SessionPtr pos, next;
+	FileStoragePtr srd, srn;
 
 sysconfig.shutdown = true;
 
@@ -1657,12 +1658,17 @@ while( NULL != pos ) {
 	free( pos );
 	pos = next;
 }
+SessionList = NULL;
 
-for( ; StoredFiles ; StoredFiles = StoredFiles->next ) {
-	free( StoredFiles->name );
-	free( StoredFiles->mime );
-	free( StoredFiles->data );
-	free( StoredFiles );
+srd = StoredFiles;
+while( NULL != srd ) {
+	srn = srd->next;
+	StoredFiles = srd->next;
+	free( srd->name );
+	free( srd->mime );
+	free( srd->data );
+	free( srd );
+	srd = srn;
 }
 StoredFiles = NULL;
 
