@@ -163,8 +163,11 @@ if( !( flags == FMENU_SERVER ) ) {
 	httpString( cnt, " | " );
 	httpPrintf( cnt, "<a href=\"%s\">Server Status</a>", URLAppend( cnt, "status" ) );
 }
-httpString( cnt, " | " );
-httpPrintf( cnt, "<a href=\"%s\">Portal</a>", URLAppend( cnt, "/" ) );
+
+if( iohtmlVarsFind( cnt, "nsid" ) ) {
+	httpString( cnt, " | " );
+	httpPrintf( cnt, "<a href=\"%s\">Portal</a>", URLAppend( cnt, "/" ) );
+}
 
 httpString( cnt, "</b></td></tr></table></td></tr>" );
 
@@ -172,6 +175,7 @@ httpString( cnt, "</table>" );
 httpString( cnt, "</td></tr></table>" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
+
 
 return;
 }
