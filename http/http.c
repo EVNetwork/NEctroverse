@@ -383,7 +383,7 @@ void AddBufferString( StringBufferPtr buffer, char *string ) {
 	int buf_max = (buffer->buf_len - buffer->off);
 	int buf_len = strlen( string );
 
-if( ( buf_max - buf_len ) < 0 ) {
+if( ( buf_max - buf_len ) < 1 ) {
 	buffer->buf = buffer_realloc( buffer, 0, buf_len, &buf_max );
 }
 
