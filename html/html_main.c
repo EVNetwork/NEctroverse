@@ -128,8 +128,6 @@ void iohtmlFunc_frontmenu( ReplyDataPtr cnt, int flags ) {
 	char *referal;
 
 referal = iohtmlHeaderFind(cnt, "Referer");
-urlp = parse_url( referal );
-
 
 httpString( cnt, "<table class=\"center\" cellspacing=\"0\" cellpadding=\"10\" style=\"width:100%;border-width:0;\"><tbody><tr><td class=\"bodyline\">" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
@@ -170,12 +168,15 @@ if( !( flags == FMENU_SERVER ) ) {
 	httpString( cnt, " | " );
 	httpPrintf( cnt, "<a href=\"%s\">Server Status</a>", URLAppend( cnt, "status" ) );
 }
-sscanf( urlp->port, "%d", &port );
-if( port != options.port[PORT_HTTP] ) {
-	httpString( cnt, " | " );
-	httpPrintf( cnt, "<a href=\"%s\">Portal</a>", URLAppend( cnt, "/" ) );
+if( referal ) {
+	urlp = parse_url( referal );
+	sscanf( urlp->port, "%d", &port );
+	if( port != options.port[PORT_HTTP] ) {
+		httpString( cnt, " | " );
+		httpPrintf( cnt, "<a href=\"%s\">Portal</a>", URLAppend( cnt, "/" ) );
+	}
+	urlinfo_free( urlp );
 }
-
 httpString( cnt, "</b></td></tr></table></td></tr>" );
 
 httpString( cnt, "</table>" );
@@ -183,7 +184,7 @@ httpString( cnt, "</td></tr></table>" );
 httpString( cnt, "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" );
 httpString( cnt, "<tr><td>&nbsp;</td></tr>" );
 
-urlinfo_free( urlp );
+
 return;
 }
 
