@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+#
+
+./valgrind > data_core/logs/debug.log 2>&1 &
+
+echo "Server deployed into backdround"
+
+exit 0

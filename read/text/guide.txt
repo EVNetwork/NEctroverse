@@ -1,0 +1,429 @@
+This is an old guide, some things might be outdated/changed, but its the best I could find so far.
+
+An Engineer's guide to Ectroverse.
+Full credits too Kevinsbane of Amazon Basin
+        Basics of Ectroverse
+        Part 1: Introduction
+            1.1: Resource Management
+                1.1.1: Resources and Planets
+                1.1.2: Resource Transfer
+                1.1.3: Other Resources: Fleet readiness, Agent Readiness, Psychic Readiness
+                1.1.4: Population
+            1.2: Planet Management
+                1.2.1: Overbuild
+                1.2.2: Resource Bonuses and Artifacts
+                1.2.3: Portals and Portal coverage
+                1.2.4: Planet Transfer
+            1.3: Fleet Management
+                1.3.1: The Battle
+                1.3.2: Units
+                1.3.3: Flee Settings
+                1.3.4: Disbanding
+            1.4: Empire Management
+                1.4.1: The Council Page
+                1.4.2: Map Usage
+                1.4.3: Research
+            1.5: Things to Try
+        Part 2: Tips, tricks, and strategies.
+            2.1: Special Operations
+                2.1.1: Agent Operations
+                2.1.2: Psychic Spells
+                2.1.3: Ghost ship Incantations
+            2.2: Fleet Specialisation
+                2.2.1: Stage 1 Specialisation: Cruisers
+                2.2.2: Stage 2 Specialisation: Fighters
+                2.2.3: Stage 3 Specialisation: Goliaths
+                2.2.4: Stage 4 Specialisation: Droids
+            2.3: Diplomacy
+                2.3.1: Leadership
+                2.3.2: Allies
+                2.3.3: Non-aggression pacts (NAP's)
+            2.4: War
+                2.4.1: Chosing a Target
+                2.4.2: Strategies for War
+            2.5: Roles
+                2.5.1: The Self-sufficient player
+                2.5.2: The Banker
+                2.5.3: The Resourcer
+                2.5.4: The Small Attacker
+                2.5.5: The Dark Webber
+                2.5.6: The Dim-Sum class Dreamweaver
+            2.6: Miscellaneous Strategies
+        Part 3: Advanced Tactics and Strategies
+            3.1: Fleet Tactics: The Cruiser Fleet
+            3.2: Roleplaying as a Family
+            3.3: An Analysis of the SS versus the RP strategies: why ERTW! worked
+            3.4: The SS player in a world of Rpers
+            3.5: Breaking the Dark Webs
+            3.6: Advanced Defense tactics: Striking at readiness losses
+		
+Hello, and welcome. This is Kevinsbane, emperor of Amazon Basin. Most people know me as AB. This here, is a guide the all things ectroverse, everything I can possibly think of describing in detail, in a guide. For convenience, I've split this guide into 3 parts: "Basics of Ectroverse", which contains everything you need to know in order to play, "Hints, Tips, and Tricks", a collection of common wisdom you should apply once you've gotten a round or two under your belt, and "Advanced Tactics and Strategy", which contains some of the most innovative and powerful strategies and tactics available in Ectroverse. The guides will progressively get more and more complex, so start at 1!
+
+Ready? Here we go.
+
+Basics of Ectroverse
+Welcome to the Basics of Ectroverse. You've just started an empire, and you're ready to rock. What? What's that? What the hell is an exploration ship? Minerals? Ectrolium? Energy? Well, you've come to the right place.
+
+Part 1: Introduction
+Ectroverse is a massively multiplayer online turn based strategy game. In Ectroverse, you start out as a lowly emperor leading his forces from 1 planet. You will expand and multiply, eventually becoming a great leader, spanning hundreds of planets in dozens of star systems, overseeing an space fleet that will rampage across the galaxy, spreading destruction and mayhem in its wake.
+
+So what are you waiting for? Read on!
+
+1.1: Resource Management
+1.1.1: Resources and Planets
+Oookay. Here we are, the first stop in our guide. Resources are the lifeblood of ectroverse. There are 4 resources: Energy, mineral, crystal and ectrolium. Energy is by far the most essential of the resources, with mineral being the least.
+
+Energy: Energy is required to build every single unit and structure in the game. It is also the easiest to produce. You can produce energy from solar collectors or fission reactors. Solar collectors are cheap buildings that produce 12 energy per tick; fissions are big and expensive and produce 40 energy. Fissions require some research (more on this later) to produce. They also require some upkeep (again, more on this later). Just remember, energy stockpiles decay at 0.5% per tick!
+
+Minerals: Minerals are the most common resource in the galaxy, and are often stockpiled in large quantities. It is produced by, surprise, the mineral plant. These are cheap buildings that produce 1 unit of mineral per tick. Minerals are used for just about every thing in the galaxy as well, but since it can be stockpiled and the mineral plants are cheap, this isn't as important as some other resources.
+
+Crystal: Crystals are unstable resources that are required for hightech units and psychics. They decay rapidly at 2%, and cannot be stockpiled. Crystals are produced by crystal labs at a rate of 1/tick, which are moderately expensive. Build more only if you have the use for the crystal!
+
+Ectrolium: This is perhaps the most important resource in the game. Where energy was required for everything, it is ectrolium that you will find yourself most often lacking. Ectrolium is relatively stable, and can be stockpiled. It is produced by ectrolium refineries, at a rate of 1/tick. The buildings are relatively expensive compared to the rest of the resource buildings.
+
+The last "resource" that we shall discuss here are planets; in order to build the buildings for your 4 main resources, you need planets to build them on. You start off with 1 planet. In order to expand, you need exploration ships. To explore, go to the ectroverse map (on the toolbar to your left), and open it. Somewhere around the galaxy, you'll find a star highlighted in green. This is your home planet. Find a star near it, and click on it. It should open up a new window, with a bunch of planets in it. Click on one. If it is unexplored, you may explore it using the "explore planet" link right below it. A rule of thumb: the more planets, the better. Simple eh?
+
+1.1.2: Resource Transfer
+You can transfer resources around your family by using the "send aid" link on the left toobar. If your family has the proper aid settings, you may also "receive aid" from your family members as well. You can move any amount of aid of any of the 4 primary resources like this.
+
+You can also move resources around on the market; the market is an open bidding system. You place a bid for a certain amount of resource, for a certain price. You can either buy mineral, ectrolium, or crystal with energy, or you may sell mineral, ectrolium, or crystal for energy. Because this is a bidding system, you will only complete the transaction when someone buys your resources, or sells you some resources. Otherwise, your bid may be sitting around doing nothing for a long, long time.
+
+1.1.3: Other Resources: Fleet readiness, Agent Readiness, Psychic Readiness
+You've built your buildings. You've built more exploration ships, you're ready to send them out, and just as you cick the link... "Your people aren't ready to send another exploration ship!" Wtf? What does that mean?
+
+In addition to resources, your empire will consume 1 of 3 resources when you are doing stuff with your units: fleet readiness, agent readiness, or psychic readiness. All of the 3 regenerate at 2% per tick. Other than that, there is no way to increase this regeneration rate.
+
+Fleet readiness, or FR, is used whenever you attack, take planets from family members, or explore a planet. You will use more FR if you are large and attacking someone smaller than you, or if you have many planets and are exploring a lot. Once you are negative, you cannot explore any more planets. However, you can still attack. Just remember this: if you continue to attack, your fleet will become weaker and weaker as you attack! (if you are at -50% FR, and you attack, your fleet will be half its normal strength). FR has no effect on defense.
+
+Agent readiness, AR, is used when you use agent operations. The basic principles are the same as FR: if you are large, and you perform and operation on someone small, you will use more AR than normal. See the agent operations section for more details on what you can do with agents.
+
+Psychic readiness, PR, is used when using psychic incantations and ghost ship operations. It works exactly like AR and FR.
+
+1.1.4: Population
+You may have realised by now that you are losing energy due to something called "building upkeep". There is a way to gain that energy back, through population. Every 350 population reduces building upkeep by 1 energy point. Every planet supports some population, but only by building cities can you raise a large population for your faction. Cities contain 10 000 population, and so can reduce your upkeep by 28.5 energy per tick. Population grows slowly, at 2% per tick, so it may take a while for your population to get to a decent level.
+
+As a foohon, you get an additional bonus: for every 6000 population, you get 1 research point. Many high level foohons often have many thousands of cities for this very purpose.
+
+Population, as a whole, is not very important in the grand scheme of ectroverse.
+
+1.2: Planet Management
+1.2.1: Overbuild
+Planets, when explored, have a certain "size" to them. This size is not absolute, and should be, in most cases, ignored as to what their real limit is. Just note that this size limit means it's more expensive to build on a small planet compared to a large planet.
+
+Building more than the planet can hold is called "overbuilding", and is denoted by a red +xxx% beside your planet on the planet list. The red number indicates how much more expensive than normal buildings will cost if built on that planet. For example, if a planet has +300% overbuild, that means that a building that would normally cost 1000 energy would now cost 4000 energy instead.
+
+*****THIS IS NOT A BAD THING.***** Overbuilding is very, very important; if you do not overbuild, you will not succeed in ectroverse. Quite often, I will reach overbuild levels of 5000% or 6000%, or 10000%. Do not neglect to overbuild!
+
+To overbuild on multiple planets, just toggle the planets you want to build on on the planet page. Then, you can select a limit to overbuild to, and then you can build on multiple planets. Simple.
+
+1.2.2: Resource Bonuses and Artifacts
+Sometimes, when you explore a planet, there will be resource bonuses present there. They take one of four forms: solar energy, mineral, crystal, and ectrolium. Solar energy bonuses are orange blobs, mineral are grey piles of dust, crystal are blue sheet thingies, and ectrolium is like a yellow cloud. The +xx% denotes how much of a bonus you get to that particular resource on that planet. So if your resource bonus is +100% ectrolium, for every ectrolium you would normally make, you'd 2 ectrolium instead. Note that the solar energy bonus does NOT apply to fission reactors.
+
+Artifacts are similar to resource bonuses, but are much more powerful. Instead of giving a bonus to one resource on that one planet, they give a mysterious bonus to your entire family, as long as you control that artifact. Artifacts are highly sought after, so protect them well!
+
+1.2.3: Portals and Portal coverage
+Portals allow free travel to your fleet instantaneously to anywhere there is a portal. Imagine a portal to be a fleet base from where your fleet can strike, anywhere, anytime. Portals also impart a degree of protection in the systems around them, dependent on your portal research. This degree of protection is denoted by the "portal coverage" column in your planet list. If your portal coverage is 50%, then only 50% of your fleet can come to protect that planet. Portal coverage will overlap and add together, so often, if you have a lot of planets close to each other, you'll only need 2 or 3 portals to cover all of them 100%.
+
+1.2.4: Planet Transfer
+You can give planets to another player by going to the planet menu, clicking on a planet, and then offering the planet to someone else using the menu there.
+
+1.3: Fleet Management
+Your fleet will be the thing you'll be playing around with the most. Build it big, build it well, and you will crush your enemies below the heel of your boot.
+
+1.3.1: The Battle
+In ectroverse, battles are divided into 4 stages: phase 1, 2, 3, and 4.
+
+Phase one consists of cruisers facing off against each other and pounding each other to bits. The attacker must bring his carriers and cruisers through this phase in order to continue to attack. The defender brings his cruisers to defend in this phase.
+
+Phase two is a wild melee, and is typically the most destructive. Attacking cruisers, fighters, bombers, and transports must fight their way through defending cruisers and fighters in this phase.
+
+Phase three is an air-ground battle, where attacking cruisers, transports, and bombers face off against defending goliaths. If an attacker does not bring enough bombers, it is not uncommon for the defender to totally destroy an attacker's entire complement of transports!
+
+Phase four is a ground fight between attacker soldiers, droids, goliaths, and bombers versus defending soldiers, droids, and golaiths. This is just a big slugfest. Whoever has the most standing at the end wins.
+
+1.3.2: Units
+Bomber: A purely attack unit, it is built with only 1 purpose in mind: to destroy goliaths in phase 3.
+Fighter: A mixed use unit, fighters are nevertheless more effective on defense than offense, as they do not need to be transported in fragile carriers through phase 1.
+Cruiser: The ultimate unit. This is the most powerful and most expensive general purpose unit in the game. Good on offensive and defensive operations, very few people fail to get these behemoths. Beware, because they are very costly in upkeep and building cost.
+Carriers: These are big ship transports; they are the only way that you can move bombers, fighters and transports around. They can hold 100 of any combination of those 3 units. If it is destroyed, all of the units in it are destroyed too. They are only vulnerable in phase 1 of attacking.
+Transports: They are carriers for ground troops. They are much more fragile, being exposed in phase 2 and 3. They can carry 100 soldiers or droids, or 25 goliaths.
+Agent: They carry out and defend against agent operations.
+Psychics: They carry out and defend against psychic operations. They also defend against ghost ship operations.
+Ghost ships: They carry out ghost ship operations. They also detect and destroy enemy ghost ships, but do not defend against enemy operations.
+Phantoms: These are special units you cannot build, only called through the psychic spell "phantoms". They are powerful and fight in all phases, but do not last very long.
+1.3.3: Flee Settings
+Your fleet will be involved in many battles during its lifetime. To help its survival rates, we use "flee settings", found in the fleet link on the sidebar. These settings determine when your fleet will stand and fight, and when it will run. Each phase has its own flee setting. The number you set will determine how much stronger the enemy has to be until you run; for example, at default settings, during phase one and phase 2, if the enemy fleet is about twice as strong (200%), then your fleet will run, and you will take reduced losses. It's usually a good idea to set this a bit lower, since if a fleet twice as strong as yours fights you, you'll probably lose the planet AND your fleet. Better to lose the planet and keep your fleet. A setting of ~150% is decent for the first 3 phases. This flee setting is really up to your own experience. If you want to flee less, set it higher. Otherwise, set it lower.
+
+1.3.4: Disbanding
+If you find that some units in your fleet are useless and are just taking up energy, then you can disband your fleet from the fleet menu. Note that your fleets MUST be at home in order to disband them.
+
+1.4: Empire Management
+Of course, ectroverse isn't just about overbuilding and portalling and attacking...
+
+1.4.1: The Council Page
+This page is the most important page in your faction. It gives a summary of the day-to-day workings of everything in your faction, from energy balance, to resource income, to building summaries, and fleet sizes.
+
+The Energy balance section shows the various contributions and consumers of energy in your empire: production, decay, building upkeep, building upkeep reduction, unit upkeep, portal upkeep and income. Production is the total amount of energy your faction produces per tick, from solars and fissions. Decay is the amount of energy you lose from your having a large amount of energy sitting around, useless. Building upkeep is the energy you lose from having to maintain your buildings (fissions are the big ones). Building upkeep reduction is the amount of energy you gain back from population; this can never be above building upkeep. Unit upkeep is the amount of energy you lose from maintaining your fleet. Portals upkeep is the amount of energy maintaining your portals. Income is the net amount of energy you earn per tick, and is added to your energy totals every tick. If this amount is negative, you are losing energy every tick! If you do not have enough energy to pay this negative upkeep, your fleets will begin to disband, and your readiness levels drop!
+
+Resource income is straightforward. You get that much mineral, crystal and ectrolium per tick, and lose that much crystal per tick.
+
+The building sumamry shows you how many of each building you have, and what buildings are under construction.
+
+The unit summary is the same as building summary, but with units instead.
+
+1.4.2: Map Usage
+Using the custom map generator, you can highly your faction's planets from the various menus. Fiddle around with this, you will find it very useful when planning wars or exploring or whatnot.
+
+1.4.3: Research
+This is VERY IMPORTANT. Research is the foundation upon which your entire faction rests. Without research, your empire will be much less effective than a faction which has a lot of research. In addition, certain things cannot be done without sufficient research levels. You can increase your research points in 2 ways: with research centres, which provide 5 RP's per tick, or you can fund energy at a rate of 10 energy/rp. Also, foohons get a bonus of 1 rp/6000 population per tick.
+
+Fields of research:
+Military: increases your fleet strength
+Construction: reduces building costs and shortens building time
+Tech: reduces tech penalties and unlocks high-tech units.
+Energy: increases energy production (and fission upkeep as well)
+Portals Efficiency: increases the range of your portals
+Culture: increases maximum population, increases the strength of your psychics and ghost ships, and unlocks psychic and ghost ship operations.
+Operations: increases agent strength and unlocks agent operations
+1.5: Things to Try
+-use observe planet to find out which planets are nice and big to build on before exploring them
+-build to your race's strengths; build lots of ectro refineries if you're foohon, or solars if you're manticarias, etc.
+-explore in clusters; it's easier to defend that way
+-get to know the people in other families
+-concentrate your research. Don't try to research everything.
+-Networth, not planets, is what determines everything. Planets keep score. Networth determines power.
+Part 2: Tips, tricks, and strategies.
+You've played a few rounds, you've gotten into a few fights, you've gained some experience. Now, ready to improve your game? Well, here are a lot of things I didn't touch on in part 1 of my guide.
+
+2.1: Special Operations
+I did not touch on this in the previous guide, as special ops are somewhat more advanced, and require some skill to use effectively. Here now, you will receive a full briefing on every operation possible, and how to use them most effectively Note that these will not win a war by themselves! They will help you, but they cannot replace your fleets completely.
+
+2.1.1: Agent Operations
+Agent operations operate like your fleet: you will send out a fleet of agents, and once they reach their target, they will automatically perform the operation. However, you cannot hover your agents there; they will automatically return home after 1 operation. Agents defend against agent operations, and some operations are harder to pull off than others.
+
+<u>Observe planet:</u> a targeted operation, this operation tells you everything there is to know about that planet: size, buildings, coverage, portal presence, portal building, resources and artifact presence. This is the simplest operation, and has a difficulty of 1 (you need an equal number of agents as the defender in order to do this operation undetected). Your target, if you succeed and do not lose any agents, will never know you did this operation. Difficulty: 1
+
+<u>Spy target:</u> another targeted operation, this operation tells you the readiness levels of your target, as well as your target's resource reserves. If successful, it is undetectable. Difficulty: 1
+
+<u>Network Virus:</u> This is the potentially the most deadly operation. This operation increases your target's building upkeep by 10% for 32 weeks, and also destroys up to 3% of the target's research. This is cumulative, so if you hit a target with 10 network viruses, it will increase their building upkeep by 1.1^10, or about 2.6 times. It doesn't sound like much, but remember that if you do that to a fission user, that will almost certainly make his energy income negative. This has a difficulty of 3.5.
+
+<u>Infiltration:</u> This is another information operation. This reveals the target's readiness levels, resources, building count, and research. If successful, it is undetectable. Difficulty 2.5
+
+<u>Bio Infection:</u> This targeted operation destroys a large amount of your target's population. Difficulty 4
+
+<u>Energy Transfer:</u> This targeted operation reduces the target's energy reserves by a certain amount, and adds part of that to your own empire. Difficulty 3.5
+
+<u>Military Sabotage:</u> This operation can only be performed on a target's portalled planet. If successful, this operation will go through the portal and destroy part of the target's fleet. Difficulty 4.5
+
+<u>Nuke Planet:</u> This operation plants nukes all over a planet and destroys everything on it: buildings, portal, stationed fleet. A rather nasty operation, this can be nevertheless used on your own planets, if you don't wish to have them anymore. There has been many a war where this operation has been used as part of a scorched earth policy. Difficulty 5.0
+
+<u>High Infiltration:</u> This is the ultimate in information operations. This skill enables the user to see all relevant information about target empire for 104 weeks. You will be able to see readiness levels, research, and reserves. You may also be able to see a planet list (basically what you see in the planet list), and if you were very good, you will be able to see a fleet listing, with composition and location of every fleet the target empire owns. A very useful operation, it is nonetheless extremely hard to pull off successfully. Difficulty: 6
+
+2.1.2: Psychic Spells
+All psychic spells, unlike agents, are instantly cast.
+
+<underline>Irradiate Ectrolium:</underline > This spell destroys part of your target's ectrolium reserves. It may be used multiple times, but it gets less and less effective as you use it.
+
+<u>Dark Web:</u> This spell is selfcast, and makes it harder for an attacker to attack you. It does this by increasing their FR losses anytime they attack you (+100% dark web protection doubles their FR losses).
+
+<u>Incandescene:</u> Converts a large portion of your crystal into energy.
+
+<u>Black Mist:</u> Reduces the efficiency of your target's solar collectors by up to 25%.
+
+<u>War Illusions:</u> Reduces the amount of losses your fleet takes in battle.
+
+<u>Psychic Assault:</u> Sends your psychics to have a psychic battle with the psychics of your target.
+
+<u>Phantoms:</u> Calls an army of phantoms from nothingness to fight for you. They are powerful, but they decay very rapidly. While they last, phantoms are extremely useful. If you are getting attacked, a quick cast of phantoms can spell the doom of whoever is attacking.
+
+2.1.3: Ghost ship Incantations
+Ghost ships are extremely high-tech units that have very powerful incantations. They use PR, and require huge amounts of crystal to build. They cannot be detected unless the target has ghost ships of his own to detect and kill them.
+
+<u>Sense Artifact:</u> Sends ghost ships to sense for an artifact in an area. There are 4 different messages, depending on your strength of ghost ships. From far to near: "An artifact was somewhere in the area!", "An artifact was felt, but its precise location could not be determind.", "An artifact was discovered in system xx,yy!", and "An artifact was discovered on planet x in system yy,zz!"
+
+<u>Survey System:</u> This incantation does a quick survey of the system, showing planet size, bonuses, artefacts, and portal presence.
+
+<u>Planetary Shielding:</u> This incantation works much like war illusions, and reduces your losses by absorbing damage with the shield.
+
+<u>Portal Force Field:</u> This nifty little operation reduces a planet's portal coverage by a certain amount, making it much easier to take a planet.
+
+<u>Vortex Portal:</u> Although not a true attack skill, this skill is pretty much used purely to attack. It creates a virtual portal anywhere in the galaxy, allowing your fleets to operation from that portal to attack or defend. This operation cannot be stopped.
+
+<u>Mind Control:</u> Takes control of the targeted planet.
+
+<u>Energy Surge:</u> The most mysterious of any of the incantations, energy surge will destroy most if not all of a target's energy, and use it to deal massive damage to his reserves, infrastructure and research. The more energy, the more damage is done. There does not appear to be a clear correlation on how it works, though.
+
+2.2: Fleet Specialisation
+Your fleet can be enhanced if you specialize in certain stages and only those stages, instead of trying to be strong in all of them. If you mass all fighters and fight stage 2, for example, it will be more effective than getting a few cruisers and a few fighters and a few goliaths and a few droids.
+
+2.2.1: Stage 1 Specialisation: Cruisers
+This means cruisers, and lots of them. Cruisers are big and powerful and expensive. I personally prefer this tactic, which you can read about in part 3 of my guide. This is, in my opinion, the best tactic, although you may find that it is very expensive to do this.
+
+2.2.2: Stage 2 Specialisation: Fighters
+Although both fighters and cruisers fight in stage 2, fighters are, pound for pound, much more efficient than cruisers are. Be careful, though; an attacker can simply mass more fighters as they are quick and cheap for them as well. This tactic works especially well for Harks, as they have a +20% fighter strength.
+
+2.2.3: Stage 3 Specialisation: Goliaths
+This stage is a very, very unique defense; goliaths are meant to blow up transports before they ever hit the ground. If you decide to go this path, you must do all or nothing. This leaves you firmly on the defensive, and thus unable to take the fight to your opponent.
+
+2.2.4: Stage 4 Specialisation: Droids
+At the end of the day though, it is the ground forces which determine whether or not you take or hold a planet. Droids are cheap, fast, and come in massive numbers. This is, of course, better for Spacebournes, as they have a +10% bonus to druids and soldiers. Beware of manticarias though, for their phantoms will rip apart your druids like crazy.
+
+2.3: Diplomacy
+Diplomacy is an integral part of Ectroverse, and you will find it very annoying. Once you get into a few wars, you'll see a few terms being thrown around: NAP's, CF's, etc. As a leader, you have to know how to play the diplomatic game.
+
+2.3.1: Leadership
+A good leader nowadays is hard to find; every family has one leader (hopefully), but most leaders I meet are rather incompetent at their roles. Partly, I suppose, because they do not know what their role as leaders are. Well, good family leaders must fulfill several key responsibilities.
+
+The most important aspect of a good leader is charisma, the ability to lead and inspire. You have a leader that aims to end 10th, well, don't expect much from him. You have a leader who doesn't even try to lead his family, and you aren't going anywhere. A leader who doesn't give his family direction doesn't deserve to be leader.
+
+The second most important aspect of a leader is the ability to remain calm, even when under fire, both diplomatically and in actual war. It's the leader's responsibility to keep a cool head and to maintain good inter-family relations, even if that means biting your tongue. Other leaders don't enjoy dealing with annoyingly idiotic, absurdly loud-mouthed and profane obscenity-spewing counterparts.
+
+The third most important quality of a good leader is confidence; confidence in what you can do and knowledge of when to back down. You don't go into a fight against a vastly more powerful opponent unless you have a weapon that can work against him; again, you don't back down from an opponent you can easily crush.
+
+Lastly, a leader must be selfless. He should not war a family because he wants to crush a certain person from that family. He should not fight fruitless personal vendettas. For all, put the family ahead of self.
+
+<u>The Responsiblities of the Leader</u> 
+
+The foremost and most important responsiblity of the leader is to conduct diplomacy, and to do so in a diplomatic way. They must keep tabs on all the information that can be gleaned from any source they can get their hands on. This includes NAPs, CF's, alliances, wars and general inter-family relations. Courtesy, spelling, grammar and politeness will get you far in this category.
+
+The leader is also responsible for the organization of wars, plans of attack and such. The leader himself may not be a stratego in his family, but he still is responsible for being involved in the planning, scouting out the possibilties in wars, weaknesses, strengths and possible alliance interventions. He is responsible for flipping the "go" switch, and abandoning hopeless wars or dictating terms to a defeated enemy. Still, it is best to have a leader who knows what he's doing in war
+
+The leader is lastly responsible for the image of his family, and also their actions in public. I myself have played long enough with the engineers that they know exactly what I expect from them in the forums (not that they had problems before ). I expect a complete indifference and cool-headed, well-thought out answers. I expect honourable replies, not ones half-baked or based on lies. I especially expect no one to post because they're pissed off at another player/family. I will not hesitate to come down hard on my family members in forum if they do otherwise; that is my responsibilty. That is all leader's responsibilities.
+
+<u>What should leaders expect from their families?</u>
+
+Firstly, they musst have the family's respect and obediance. Really, you might say? We do things be democracy in my family! Well, yes, perhaps. But that method most often takes far too long for critical decisions. And also, without this obediance and trust, a leader (even if he is very good) cannot properly lead his family. I'll expand more on this later on. Suffice to say, if you don't respect and obey your leader, choose another one. Or get out of the family. Really, if you want to have fun (and compete) in EV, do the above.
+
+In war, taking myself as an example, I organise general strikes and outline goals. I expect a certain amount of cooperation, and I get it. If anyone has ever seen the engineers play a round, and fight a war, we are a highly-efficient, well-oiled machine. What makes this possible is two things: experience with each other, and their willingness to do what I tell them to do. As strategos in my family, I can move my family members much like pieces on a chessboard; to attack positions where perhaps they did not see. This duty of family members ties into the leader's responsibility of leading the family in war.
+
+The other thing that leaders must expect from their families is a willingness to depose them as leader if his leadership should prove incompetent. I cannot tell you how many families that have broken CF's/NAPs with my family (and subsequently resulting in the destruction of their family), only to have that family tell me that their leader was incompetent and stupid. The family can vote. The family can change leaders.
+
+A leader has a lot of power in his hands; to direct his family, in peace and war; to initiate inter-family relations; to restrict and control his family. However, he too also has much responsibility; in war, public image and diplomacy. If you can't handle the responsibility of leadership, or don't fulfill the attributes of a good leader, your family would most likely be much better off without you as leader.
+
+And trust me; being leader doesn't boost your ego as much as you might think. Being leader blows.
+
+2.3.2: Allies
+Pick your allies carefully; they should be people you can trust and work with. Teaming with a large ally if you are small, or teaming with a small ally if you are large is a good idea, as it will allow your alliance more flexibility to deal with adverse situations. Note that you may transfer aid between allies by using the market. These transactions are not without risk, as they may be intercepted by a market-watcher!
+
+2.3.3: Non-aggression pacts (NAP's)
+These are the most basic diplomatic relationship you can have with other families. NAP's usually consist of a cancellation time (anywhere from 24-48 hours), compensation clauses, and artifact clauses. An NAP forbids any attacks or operations on the involved parties (unless pre-agreed on). The cancellation time is the notice one must give for the ending of a given NAP. The compensation clauses are for when someone accidentally (or not...) attacks or op's an NAP member. Artifact clauses are generally included, so NAP members usually have free reign on each other's artefacts. A common NAP (the "standard") would look like this: 24 hour cancellation time NAP, with artifact clause; 2 planets for a successful attack, 1 planet for an unsuccessful attack, and 1 planet for an operation.
+
+2.4: War
+Wars are what Ectroverse is about. Wars, in principle, are very basic: you declare war on a target of yours, and all targeted operations, spells, incantations and attacks will cost 1/3 of normal. Of course, your target will get the same bonuses, and will be informed that you have declared war on them. You may only declare war on a family who is at least 60% of your planet size.
+
+2.4.1: Chosing a Target
+Finding a good target to war against is not easy, and is not always a surefire thing. In general, a good target is someone with a bad networth/planet ratio. If it is very low, then they are easy pickings. Bad targets abound; families already in war are considered to be off-limits; as well, large families more than twice your size, empire 98 (just kidding), and NAP'd families. Attacking these targets will generally result in a furor being raised in forums, and possibly your family's destruction at the hands of more than 1 family.
+
+2.4.2: Strategies for War
+Try to portal up close to your target's planet clusters; if you can do it without alerting him, you are golden. Harks and foohons, although they can vortex portal with their ghost ships, cannot actually defend through a vortex portal, and must wait for a real portal to come in to defend their takings.
+
+Mix it up with special operations too. A high infiltration is the ultimate in fighting a war; for 104 weeks, you can pick and choose the battles you fight, the planets you take, and ensure that your target is unable to do anything without your knowing about it.
+
+Do not run yourself too far into negative FR; this increases your losses, and you will be unable to respond if an opponent counterattacks.
+
+Do a "jump"; that is, save resources for one big buildup instead of spreading it out over a year; this allows you to keep your research high for the critical first stages.
+
+Never forget Military Research. This can double, or triple your fleet's effectiveness.
+
+Don't send your fleet too far; while your fleet is out, your planets are vulnerable. At the same time, don't split your fleet too often, or you will risk having your fleet destroyed in little bits at a time.
+
+2.4.3: Ending a war
+
+Ending a war at the right time is important. Winning a war is pretty apparent, but it is when the war becomes a planet grabbing fest that you should seriously consider ending it. Squeezing every possible planet from an opponent is not always the wisest course of action; doing so usually greatly angers your opponent, beaten or not. That may come back to haunt you later on. Wars will usually end with a NAP agreement of some sort, to prevent this from happening without warning.
+
+2.5: Roles
+Once you get the hang of playing EV, you'll notice some races are better at doing things than others; for example, a manticarias gets the massive +40% energy, and +15% solar income. Foohons get +50% research and +20% ectrolium; harks get +40% attack, and 250% max military research. Playing to your strengths is important, and roleplaying in a family can be very powerful. Here, you will find the most commons roles in EV today.
+
+2.5.1: The Self-sufficient player
+Generally considered the weakest of all of the roles, the "SS" player is a jack of all trades, and master of none. He must produce all of his required resources and upkeep by himself, as well as procure most of his planets himself. However, this role is flexible and resilient, able to survive well in a family setting, or by himself solo. Any race can do this, but foohons are generally the most popular.
+
+2.5.2: The Banker
+Usually a manticarias or spacebourne, these are massive, ponderous players that play mostly defensively, and produce tons and tons and tons of energy. Their respective race bonuses allow them to produce more energy than any of the other races, and so they are perfect for these roles. In a typical role-playing family, they get their planets from the small attacker. They defend themselves by simply being too big to attack.
+
+2.5.3: The Resourcer
+Usually a foohon or dreamweaver, these are big players, though usually smaller than bankers. They produce in large amounts various resources, but not energy. Foohon resourcers specialise in ectrolium, and dreamweavers in crystal. Many resourcers choose to use the dark web strategy of simply hiding behind very high FR losses to defend themselves.
+
+2.5.4: The Small Attacker
+This is a highly specialized role; small attackers usually have no more than 10 planets, and their only role is to get planets and attack other players. They depend on their bankers and resourcers for support, and rely on their very small size to not be attacked. They keep very low networth in order to keep their research high, and when a war is declared, they take large amounts of resources from their bankers and jump very, very large, and use their high research to help destroy their target's fleet. They may also use offensive special operations to attack their enemy. The most common small attackers are harks, with their massive, massive attack bonus and military research.
+
+2.5.5: The Dark Webber
+A recently developed strategy, this is a combination of a banker and resourcer into one single massive entity: the dark webber. Since dark webs reduce solar energy production, dark Webbers rely exclusively on fission reactors to produce their required energy. They also produce massive amounts of resources as well. Relying on dark webs is very resource efficient, as they have no need to rebuild whenever they are attacked, if at all. The two dark web races in use at the moment are foohons and dreamweavers. Note that because of their heavy dependence on fission reactors, they are very vulnerable to disruption from network viruses!
+
+2.5.6: The Dim-Sum class Dreamweaver
+A highly specialized role, there is no other role similar to this one. Named after dim sum, who first implemented the strategy, the dim sum class is meant as a small operations DW, with the intent of using ghost ship incantations as their primary weapon. These are the only ones in the galaxy that are capable of large-scale ghost ship operations. There are currently no known dim sum class dreamweavers in the game.
+
+2.6: Miscellaneous Strategies
+Manticarias, as energy bankers, often have huge amounts of energy coming in, and thus can often upkeep humongous fleets. A popular and very powerful strategy that has arisen is the idea of the phantom-manticarias. This manti masses lots and lots and lots of psychics, and when he needs to attack, uses them to cast phantoms to produces hundreds of thousands of phantoms which to attack his enemy. Though powerful, this strategy is very limited in it's range; you can't really effectively attack more than 3 ticks away, or else your phantoms will get destroyed by their own decay, which is at 20% per tick. Use them wisely.
+
+Part 3: Advanced Tactics and Strategies
+Well, you've made it to part 3 of my guide. Welcome to Advanced Tactics and Strategies, where you learn the secrets of playing with the big guys in the galaxy. You've learned the basics, you've fought the wars, you've made the family... now to push it to the limits.
+
+This section is highly technical in nature, and concerns many minute aspects of the game in great detail. It will also contain some history behind the tactics. Read ahead at your own risk.
+
+3.1: Fleet Tactics: The Cruiser Fleet
+In the previous two guides, I discussed the nature of flee settings, as well as fleet composition. I explained that I preferred to fight with cruisers most of the time. Well, it's because cruisers are the least vulnerable of all of the available units. Fighters may be shot down while in a carrier. Goliaths can get massacred en masse by bombers and cruisers. Droids can be outmassed, as they are cheap and easy to build. Cruisers are totally on the defending team's side, as they are hard to build (being expensive and taking 5 or more ticks). Thus, in order to defeat cruisers, you must have more and better cruisers. And that takes time, especially if you underestimate the defending side's strength.
+
+I myself did not come up with the idea, although it quickly caught on when I began to use it. The honour for giving me the idea goes to The Empire of Blue Dolphin, who gave me great annoyance when I first encountered his fleet. Thunderhawk and I suffered a great deal of losses when attacking him, and it was only because TH was able to bring a million fighters to bear against Blue's cruiser fleet that we were able to break through. I shamelessly latched on to Blue's idea, and refined it to what I use today. It is a combination of fleet and flee settings. I will build a large number of cruisers, to the point where it is not easy to counter them normally. But, from Blue, I realised that cruisers are most vulnerable in phase 2 of defense and attack, and I would lose 80% of my cruisers in that stage, when fighters come into play. (to this day, I have never been broken while my flee settings were set properly)
+
+Thus, my defense is this: a massive number of cruisers, with flee settings at 120% for phase 1, ZERO for phase 2, and normal for phase 3 and 4. I only build cruisers, and no fighters at all, because I don't intend on fighting phase 2. As long as I can keep portals, I have no qualms about losing planets but destroying my enemy's fleets.
+
+This also has the benefit of being a powerful offensive force. Cruisers are, of course, absolutely necessary when attacking (lest they be countered by the very cruiser strategy I use). A defensive fighter force is difficult to bring to bear against an enemy, because fighters require carriers, and thus can be shot down in phase 1. If I simply don't have that many fighters to begin with, I am in no danger of losing half my fleet in stage 1. Of course, when attacking, I always make sure I have some fighters along with my cruisers to help fight through stage 2, but they are relatively few and are meant to die.
+
+3.2: Roleplaying as a Family
+Roleplaying is meant to happen in a family, naturally; you cannot have a small attacker without both a resourcer and a banker. A banker must have a resourcer in order to maximise his effectiveness at making energy, and an attacker to get him his planets.
+
+3.3: An Analysis of the SS versus the RP strategies: why ERTW! worked
+When ERTW!, family 98, first came onto the scene, RP families were all the rage. It was either do RP, or die as an SS family. SS families were pretty much known not to work, and ignored. However, the arrival of ERTW! changed the face of ERTW almost completely. First off, families had 10 players back then; ERTW! only had 5 members. Secondly, ERTW! was SS, and proud of it. It was what we had told people we were going to do. I'm sure people laughed behind their hands when we did that. It wasn't until we pounded their faces in (which we got quite famous for) that they learned otherwise what we were capable of. Why was it that a motley group of SS players in a half-full family ended up in third place in their first round? (and later on win rounds)
+
+First off, and most important, is that we exploited the FR rules to the best we could; by being in a "small" family, we were able to, despite our larger individual planet sizes, attack smaller players from larger families with relatively little FR losses. This was the original reason we were able to excel.
+
+Secondly, was the development of the best fleet attack/defense strategies in the game at the time, namely the all-cruiser fleet with modified flee settings.
+
+Thirdly, by not relying on attackers, who had to disband their fleet or suicide it against enemies, we did not have to fund large but temporary fleets to take planets; we simply did a jump, crushed the opponent's fleet, then kept that fleet around for defense; we had no waste of resources on disposable fleets like that. Related to this, we also did not have to waste FR twice by having to attack each planet twice in order to get it (from an attacker).
+
+Fourthly, the inclusion of the only competitive dim sum class dreamweaver in the game, allowed us to bring an unprecedented level of ghost ship power against players who had never before seen the power of dreamweavers. Having the only dreamweaver capable of that level of incantations, we basically wrote the book on GS ops, and were able to do things with them that no one had expected or imagined possible.
+
+Fifth, the integration of these 4 points resulted in something greater than the whole. The FR loss idea meshed perfectly with the attack/cruiser-based defense, which is of course complimentary with the idea of our attacking for our own planets. And the inclusion of a dim sum class DW allowed us to multiply the effectiveness of our forces by 2 or 3 times, enabling us to take on players two or three times our size, or even 4.
+
+And still more, we innovated. We brought new and unexpected ideas to EV, and so caught many people by surprised, without a readily available counter to our tactics. Counters to our tactics have since been developed, but that is far too late for when we introduced them.
+
+ERTW!, as an SS family, thus excelled in tactics. We developed and implemented many new tactics, some of which are still in use today, and are quite popular. However, the weakness of ERTW! has always been in the strategic sense; our charter of self-sufficiency prevented us from specializing more, and accepting more utility players, which we actually desperately needed. Our resource management and energy income was very often extremely tight, and more than once I would have given many a planet for a dedicated energy banker. A dim sum class dreamweaver is a *tremendous* energy drain, and his reach is quite short. Having only 4 players of a possible 7 also meant that our ability to regenerate FR/AR/PR was only a little more than half of that of our opponents. Another foohon and hark would have been an awesome addition to the family, and when we did get a hark that met our standards, she was quite something to behold.
+
+In essence, ERTW! was a family of tactical excellence, whereas your typical RP family has strategic potency. Is there a way to combine the two? Most definitely yes. But I am not the one to do it; my career in EV is over. I leave it to you to do that.
+
+3.4: The SS player in a world of Rpers
+The greatest strength of the self-sufficient player is his flexibility; though attacker/banker can be very powerful when used right, they sacrifice the ability to act alone; take out one, and the other loses more than just that player. The SS player possesses the ability to act alone and independently, while an attacker/banker MUST act in concert to achieve their full potential. Granted, when they can do so, it is better than SS. It is of course impossible to do this all the time.
+
+Thus, you play to your strengths, just as attackers play to their race's strengths.
+
+Make use of your flexibility; you can do things neither attackers no bankers can do. You can act monolithically without a consensus; you can outmanoeuvre more larger and clumsier bankers. You're too big for a casual attack, yet still possess the mobility and tactical flexibility to withdraw from combat if necessary. You have resilience that most attacker/banker pairs lack.
+
+You aren't tied by the need to relieve attackers of their planets. You aren't tied by the need to build a strong defensive fleet. You aren't tied by your need for resources. You aren't constrained by requiring to provide resources. You aren't needed to protect an area absolutely. You don't need to be burdened by having to build both and offensive and defensive fleet for war.
+
+3.5: Breaking the Dark Webs
+I am informed by my friend TH that we have performed this before, but the most recent round involved the longest and most devastating implementation of this tactic yet. As before, I said that dark webbers are vulnerable to network viruses due to their high fission count. As such, the best way to take them out is to land multiple network viruses, as this will make them not only decay, but lose the PR essential to casting dark webs. The normal practise has been to jump agents on a small dreamweaver and to land 21 viruses, then disband (or perhaps upkeep for a small period of time, land more, and then disband). This round, faced with the largest dark webber in the galaxy, I prepared an NV strike that consisted of not 1 or 2, but a minimum of FOUR consecutive NV strikes. That's 20+ hours of constant decay. By maintaining a constant NV watch, you deny your target a chance to defend himself by rebuilding agents to defend against your next strike. Personally, I dislike this tactic, as it is truly devastating and absolutely no fun for your target, as they can only watch as their empire decays.
+
+This section should be updated on an ongoing basis, as I think of what I've done. I may include a section on DW operations.
+
+Anti-Network Virus Strategies: There are a few that you can do. In fact, the scariest one completely shuts down a careless player and destroys the NV startegy in general. However, it requires constant vigilance and a high degree of activity on the defending family's part.
+
+3.6: Advanced Defense tactics: Striking at readiness losses
+One of the biggest annoyances with attacking is that you should be careful when attacking, for it is quite possible that you attack a wrong planet and suffer a 300% FR loss attacking the wrong person.
+
+But with the advent of semi-automated planet transfers, it is now possible to DELIBERATELY use this tactic in a war. It is especially devastating against so-called "surprise" attacks, like network viruses.
+
+Imagine the possibilities: if a person without vortex portal decides to put up a portal close to one of your family's big banker's planets, and you have good reason to suspect it, then put all of the planets that are in range on standby, and offer those planets to the people who are small in your family. The offer will be valid until otherwise noted, so it is possible to save this planet offer until when trouble starts. Once trouble starts, all it takes is to reckonize that the attack as begun, accept the planet, and all of a sudden, your enemy has not pulled off a devastating barrage of network viruses against a large, low readiness loss target, but against a small, high readiness loss target with nothing for the operation to go through against.
+
+Of course, this is all theoretical; it is not what will happen in practice. It is much harder to defend against operations using this technique, as oftentimes, operations are the first strike of the war, and are hard to predict and therefore prepare against. And, it is useless against those with vortex portal, as they can just use it against your home planet, which cannot be transfered so easily.
+
+There is good news, however, since actually TAKING planets is not an instantaneous process either, and takes at least an order of magnitude or two longer to complete the process. Therefore, it is quite possible that you may implement planet swapping between players (perhaps to a dark web'd player) while an attack is in process, and in this fashion passively strike back at your enemy by excessively draining his FR and blunting his attack.
+
+The advantages of this approach are twofold: one, that you drain readiness of your target and thus throw off his curves as to how much he can actually take. Two, it may be possible to "strand" a sizeable fleet. Similar to how you might strand a large fleet far away from home, you might "strand" a jumped up attacker's fleet, such that he has no FR to do anything with it, but has spent many resources to build and upkeep it. The advantage of this occurance cannot be understated, especially if he has just begun his run. If you could do this against a larger player, the advantage is slightly different, as you cannot strand his fleet in the same way. However, you do prevent the transfer of planets from attacker --- banker, and thus interfere with the strategy in general.
+
+Of course, this approach has several disadvantages; it may not do anything at all, if your enemy is careful enough. It does cost some amount of FR for transferring, but this is negligible since it would generally be from a large player to a smaller player in family. The biggest disadvantage is that it is not reliable. You cannot count on this type of defense to successfully defend, as most of the time, you will not be online to defend against an attack.
+
+It would do well to notice that in this position, the defending player generally has nothing to do for the next few ticks, so it may be a good idea to try this out while waiting for your reinforcements to come in.
+
+ 
+
+Kevinsbane

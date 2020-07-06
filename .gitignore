@@ -1,0 +1,13 @@
+#stray Object files
+*.o
+*.raw
+
+
+#Program files
+read/images/fampic*
+read/images/galax*
+data_core/
+data
+evserver
+run
+lm

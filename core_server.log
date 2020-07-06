@@ -1,0 +1,502 @@
+Fri, 15 May 2020 22:29:49 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/tmp/evcore" created.
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/home/Ne_new3/data" created.
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/home/Ne_new3/data/data" created.
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/home/Ne_new3/data/users" created.
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/home/Ne_new3/data/logs" created.
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/home/Ne_new3/data/rankings" created.
+Fri, 15 May 2020 22:29:49 GMT -- Directory "/home/Ne_new3/data/forum" created.
+Fri, 15 May 2020 22:29:49 GMT -- No map detected now generating...
+Fri, 15 May 2020 22:29:49 GMT -- Begining Map generation...
+Fri, 15 May 2020 22:29:49 GMT -- Calculating Map factors...
+Fri, 15 May 2020 22:29:49 GMT -- ( 37,13 b:66) ID:406 Holds: Recruitment Office
+Fri, 15 May 2020 22:29:49 GMT -- ( 26,29 b:326) ID:1995 Holds: Incandescence Technology
+Fri, 15 May 2020 22:29:49 GMT -- ( 17,29 b:30) ID:202 Holds: Harks Attacking Machinery
+Fri, 15 May 2020 22:29:49 GMT -- ( 27,31 b:82) ID:500 Holds: Crystal drill
+Fri, 15 May 2020 22:29:49 GMT -- ( 14,34 b:39) ID:247 Holds: Universal Exchanger
+Fri, 15 May 2020 22:29:49 GMT -- ( 35,22 b:282) ID:1738 Holds: Fission Facility
+Fri, 15 May 2020 22:29:49 GMT -- ( 12,24 b:273) ID:1688 Holds: Ancient Research Center
+Fri, 15 May 2020 22:29:49 GMT -- ( 14,34 b:39) ID:247 Holds: Book Of Ancient Knowledge
+Fri, 15 May 2020 22:29:49 GMT -- ( 14,29 b:230) ID:1435 Holds: Ether Gardens
+Fri, 15 May 2020 22:29:49 GMT -- ( 29,13 b:209) ID:1310 Holds: Thermonuclear Bomb
+Fri, 15 May 2020 22:29:49 GMT -- Empire 0 Claimed for Administration.
+Fri, 15 May 2020 22:29:49 GMT -- Galaxy Map creation Sucessfull.
+Fri, 15 May 2020 22:29:49 GMT -- Server process iniating...
+Fri, 15 May 2020 22:29:49 GMT -- Market database not found, creating...
+Fri, 15 May 2020 22:29:49 GMT -- Empire Forum database not found, creating...
+Fri, 15 May 2020 22:29:49 GMT -- Created Forums for 30 Empires.
+Fri, 15 May 2020 22:29:49 GMT -- Public Forum database not found, creating...
+Fri, 15 May 2020 22:29:49 GMT -- User database not found, creating...
+Fri, 15 May 2020 22:29:49 GMT -- Creating Administrator account named: "admin"
+Fri, 15 May 2020 22:29:49 GMT -- Placing Administrator account: "admin"
+Fri, 15 May 2020 22:29:49 GMT -- WWW Settings initalized...
+Fri, 15 May 2020 22:29:49 GMT -- All Checks passed, begining server loop...
+Fri, 15 May 2020 22:29:49 GMT -- HTTP Server live on port: 9122
+Fri, 15 May 2020 22:38:37 GMT -- Admin: Shutting down!
+Fri, 15 May 2020 22:38:37 GMT -- HTTP Server has been gracefully shutdown!
+Fri, 15 May 2020 22:38:37 GMT -- Server shutdown complete, now cleaning up!
+Fri, 15 May 2020 22:38:48 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Fri, 15 May 2020 22:38:48 GMT -- Server process iniating...
+Fri, 15 May 2020 22:38:49 GMT -- WWW Settings initalized...
+Fri, 15 May 2020 22:38:49 GMT -- All Checks passed, begining server loop...
+Fri, 15 May 2020 22:38:49 GMT -- HTTP Server live on port: 9122
+Fri, 15 May 2020 22:41:37 GMT -- Interrupt Recived; handleing gracefully =)
+Fri, 15 May 2020 22:41:37 GMT -- HTTP Server has been gracefully shutdown!
+Fri, 15 May 2020 22:41:37 GMT -- Server shutdown complete, now cleaning up!
+Fri, 15 May 2020 22:41:48 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Fri, 15 May 2020 22:41:48 GMT -- Server process iniating...
+Fri, 15 May 2020 22:41:49 GMT -- WWW Settings initalized...
+Fri, 15 May 2020 22:41:49 GMT -- All Checks passed, begining server loop...
+Fri, 15 May 2020 22:41:49 GMT -- HTTP Server live on port: 9122
+Fri, 15 May 2020 22:44:15 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Fri, 15 May 2020 23:48:08 GMT -- Opening File: /home/Ne_new3/data/data/user2/main, user id 2 (file: db.c, line: 360) -- #5, Input/output error
+Fri, 15 May 2020 23:48:08 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 00:52:09 GMT -- Opening File: /home/Ne_new3/data/data/user32/main, user id 32 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 00:52:09 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 04:39:15 GMT -- Opening File: /home/Ne_new3/data/data/user23/main, user id 23 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 04:39:15 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 08:43:51 GMT -- Opening File: /home/Ne_new3/data/data/user34/main, user id 34 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 08:43:51 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 11:22:18 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:22:18 GMT -- Server process iniating...
+Sat, 16 May 2020 11:22:18 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:22:18 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:22:18 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 11:28:21 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:28:21 GMT -- Server process iniating...
+Sat, 16 May 2020 11:28:22 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:28:22 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:28:22 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 11:31:50 GMT -- Interrupt Recived; handleing gracefully =)
+Sat, 16 May 2020 11:31:50 GMT -- HTTP Server has been gracefully shutdown!
+Sat, 16 May 2020 11:31:50 GMT -- Server shutdown complete, now cleaning up!
+Sat, 16 May 2020 11:31:53 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:31:53 GMT -- Server process iniating...
+Sat, 16 May 2020 11:31:53 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:31:53 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:31:53 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 11:32:19 GMT -- Interrupt Recived; handleing gracefully =)
+Sat, 16 May 2020 11:32:19 GMT -- HTTP Server has been gracefully shutdown!
+Sat, 16 May 2020 11:32:19 GMT -- Server shutdown complete, now cleaning up!
+Sat, 16 May 2020 11:32:21 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:32:21 GMT -- Server process iniating...
+Sat, 16 May 2020 11:32:21 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:32:21 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:32:21 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 11:33:39 GMT -- Interrupt Recived; handleing gracefully =)
+Sat, 16 May 2020 11:33:39 GMT -- HTTP Server has been gracefully shutdown!
+Sat, 16 May 2020 11:33:39 GMT -- Server shutdown complete, now cleaning up!
+Sat, 16 May 2020 11:33:42 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:33:42 GMT -- Server process iniating...
+Sat, 16 May 2020 11:33:42 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:33:42 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:33:42 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 11:36:16 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:36:16 GMT -- Server process iniating...
+Sat, 16 May 2020 11:36:17 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:36:17 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:36:17 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 11:39:16 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Sat, 16 May 2020 11:39:16 GMT -- Server process iniating...
+Sat, 16 May 2020 11:39:16 GMT -- WWW Settings initalized...
+Sat, 16 May 2020 11:39:16 GMT -- All Checks passed, begining server loop...
+Sat, 16 May 2020 11:39:16 GMT -- HTTP Server live on port: 9122
+Sat, 16 May 2020 13:50:31 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Sat, 16 May 2020 17:33:51 GMT -- Opening File: /home/Ne_new3/data/data/user30/main, user id 30 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 17:33:51 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 18:47:33 GMT -- Opening File: /home/Ne_new3/data/data/user19/main, user id 19 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 18:47:33 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 19:51:56 GMT -- Opening File: /home/Ne_new3/data/data/user20/main, user id 20 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 19:51:56 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 22:35:05 GMT -- Opening File: /home/Ne_new3/data/data/user28/main, user id 28 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 22:35:05 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sat, 16 May 2020 23:34:43 GMT -- Opening File: /home/Ne_new3/data/data/user21/main, user id 21 (file: db.c, line: 360) -- #5, Input/output error
+Sat, 16 May 2020 23:34:43 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 10:03:19 GMT -- Opening File: /home/Ne_new3/data/data/user29/main, user id 29 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 10:03:19 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 13:41:27 GMT -- Opening File: /home/Ne_new3/data/data/user18/main, user id 18 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 13:41:27 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 15:06:51 GMT -- Opening File: /home/Ne_new3/data/data/user17/main, user id 17 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 15:06:51 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 16:11:22 GMT -- Opening File: /home/Ne_new3/data/data/user12/main, user id 12 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 16:11:22 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 17:35:18 GMT -- Opening File: /home/Ne_new3/data/data/user13/main, user id 13 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 17:35:18 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 19:18:57 GMT -- Opening File: /home/Ne_new3/data/data/user26/main, user id 26 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 19:18:57 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Sun, 17 May 2020 20:59:40 GMT -- Opening File: /home/Ne_new3/data/data/user27/main, user id 27 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 17 May 2020 20:59:40 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Wed, 20 May 2020 11:26:13 GMT -- Opening File: /home/Ne_new3/data/data/user11/main, user id 11 (file: db.c, line: 360) -- #5, Input/output error
+Wed, 20 May 2020 11:26:13 GMT -- User Open from file html/html_gameplay.c on line 8489 (file: db.c, line: 1111)
+Wed, 20 May 2020 18:39:34 GMT -- Opening File: /home/Ne_new3/data/data/user36/main, user id 36 (file: db.c, line: 360) -- #5, Input/output error
+Wed, 20 May 2020 18:39:34 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Wed, 20 May 2020 19:51:03 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1463 )
+Thu, 21 May 2020 07:48:04 GMT -- Admin: Shutting down!
+Thu, 21 May 2020 07:48:04 GMT -- HTTP Server has been gracefully shutdown!
+Thu, 21 May 2020 07:48:04 GMT -- Server shutdown complete, now cleaning up!
+Thu, 21 May 2020 07:48:10 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Thu, 21 May 2020 07:48:10 GMT -- Server process iniating...
+Thu, 21 May 2020 07:48:10 GMT -- WWW Settings initalized...
+Thu, 21 May 2020 07:48:10 GMT -- All Checks passed, begining server loop...
+Thu, 21 May 2020 07:48:10 GMT -- HTTP Server live on port: 9122
+Thu, 21 May 2020 07:51:18 GMT -- Interrupt Recived; handleing gracefully =)
+Thu, 21 May 2020 07:51:18 GMT -- HTTP Server has been gracefully shutdown!
+Thu, 21 May 2020 07:51:18 GMT -- Server shutdown complete, now cleaning up!
+Thu, 21 May 2020 07:51:54 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Thu, 21 May 2020 07:51:54 GMT -- Server process iniating...
+Thu, 21 May 2020 07:51:54 GMT -- WWW Settings initalized...
+Thu, 21 May 2020 07:51:54 GMT -- All Checks passed, begining server loop...
+Thu, 21 May 2020 07:51:54 GMT -- HTTP Server live on port: 9122
+Thu, 21 May 2020 10:03:10 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Thu, 21 May 2020 21:54:31 GMT -- Opening File: /home/Ne_new3/data/data/user24/main, user id 24 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 21:54:31 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 22:54:22 GMT -- Opening File: /home/Ne_new3/data/data/user31/main, user id 31 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 22:54:22 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:31:35 GMT -- Opening File: /home/Ne_new3/data/data/user34/main, user id 34 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:31:35 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:32:35 GMT -- Opening File: /home/Ne_new3/data/data/user36/main, user id 36 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:32:35 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:32:36 GMT -- Opening File: /home/Ne_new3/data/data/user19/main, user id 19 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:32:36 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:33:36 GMT -- Opening File: /home/Ne_new3/data/data/user32/main, user id 32 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:33:36 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:37:40 GMT -- Opening File: /home/Ne_new3/data/data/user30/main, user id 30 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:37:40 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:38:41 GMT -- Opening File: /home/Ne_new3/data/data/user29/main, user id 29 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:38:41 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:39:59 GMT -- Opening File: /home/Ne_new3/data/data/user28/main, user id 28 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:39:59 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:41:00 GMT -- Opening File: /home/Ne_new3/data/data/user26/main, user id 26 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:41:00 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:41:00 GMT -- Opening File: /home/Ne_new3/data/data/user27/main, user id 27 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:41:00 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:43:02 GMT -- Opening File: /home/Ne_new3/data/data/user25/main, user id 25 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:43:02 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:43:02 GMT -- Opening File: /home/Ne_new3/data/data/user23/main, user id 23 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:43:02 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:44:03 GMT -- Opening File: /home/Ne_new3/data/data/user22/main, user id 22 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:44:03 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:45:04 GMT -- Opening File: /home/Ne_new3/data/data/user20/main, user id 20 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:45:04 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:46:04 GMT -- Opening File: /home/Ne_new3/data/data/user21/main, user id 21 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:46:04 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:51:56 GMT -- Opening File: /home/Ne_new3/data/data/user17/main, user id 17 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:51:56 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:53:03 GMT -- Opening File: /home/Ne_new3/data/data/user12/main, user id 12 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:53:03 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:54:11 GMT -- Opening File: /home/Ne_new3/data/data/user18/main, user id 18 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:54:11 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:55:25 GMT -- Opening File: /home/Ne_new3/data/data/user13/main, user id 13 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:55:25 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:56:26 GMT -- Opening File: /home/Ne_new3/data/data/user8/main, user id 8 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:56:26 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:57:27 GMT -- Opening File: /home/Ne_new3/data/data/user10/main, user id 10 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:57:27 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Thu, 21 May 2020 23:58:27 GMT -- Opening File: /home/Ne_new3/data/data/user11/main, user id 11 (file: db.c, line: 360) -- #5, Input/output error
+Thu, 21 May 2020 23:58:27 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Fri, 22 May 2020 16:26:30 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1463 )
+Fri, 22 May 2020 18:14:53 GMT -- Admin: Shutting down!
+Fri, 22 May 2020 18:14:53 GMT -- HTTP Server has been gracefully shutdown!
+Fri, 22 May 2020 18:14:53 GMT -- Server shutdown complete, now cleaning up!
+Fri, 22 May 2020 18:15:01 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Fri, 22 May 2020 18:15:01 GMT -- Server process iniating...
+Fri, 22 May 2020 18:15:04 GMT -- WWW Settings initalized...
+Fri, 22 May 2020 18:15:04 GMT -- All Checks passed, begining server loop...
+Fri, 22 May 2020 18:15:04 GMT -- HTTP Server live on port: 9122
+Fri, 22 May 2020 18:15:55 GMT -- Interrupt Recived; handleing gracefully =)
+Fri, 22 May 2020 18:15:55 GMT -- HTTP Server has been gracefully shutdown!
+Fri, 22 May 2020 18:15:55 GMT -- Server shutdown complete, now cleaning up!
+Fri, 22 May 2020 18:16:32 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Fri, 22 May 2020 18:16:32 GMT -- Server process iniating...
+Fri, 22 May 2020 18:16:32 GMT -- WWW Settings initalized...
+Fri, 22 May 2020 18:16:32 GMT -- All Checks passed, begining server loop...
+Fri, 22 May 2020 18:16:32 GMT -- HTTP Server live on port: 9122
+Fri, 22 May 2020 20:27:48 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Sat, 23 May 2020 15:32:32 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1463 )
+Tue, 26 May 2020 00:34:05 GMT -- Battle just CRAPed 6 -17912811
+ (file: battle.c, line: 158) -- #2, No such file or directory
+Tue, 26 May 2020 14:44:37 GMT -- Iniating Map Reset.
+Tue, 26 May 2020 14:44:37 GMT -- Now Purging old Empires...
+Tue, 26 May 2020 14:44:37 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 26 May 2020 14:44:37 GMT -- Server shutdown complete, now cleaning up!
+Tue, 26 May 2020 14:44:37 GMT -- Begining Map generation...
+Tue, 26 May 2020 14:44:37 GMT -- Calculating Map factors...
+Tue, 26 May 2020 14:44:37 GMT -- ( 20,28 b:91) ID:543 Holds: Recruitment Office
+Tue, 26 May 2020 14:44:37 GMT -- ( 19,16 b:128) ID:772 Holds: Incandescence Technology
+Tue, 26 May 2020 14:44:37 GMT -- ( 28,30 b:80) ID:462 Holds: Harks Attacking Machinery
+Tue, 26 May 2020 14:44:37 GMT -- ( 29,40 b:19) ID:103 Holds: Crystal drill
+Tue, 26 May 2020 14:44:37 GMT -- ( 16,22 b:141) ID:855 Holds: Universal Exchanger
+Tue, 26 May 2020 14:44:37 GMT -- ( 17,38 b:48) ID:268 Holds: Fission Facility
+Tue, 26 May 2020 14:44:37 GMT -- ( 29,34 b:71) ID:403 Holds: Ancient Research Center
+Tue, 26 May 2020 14:44:37 GMT -- ( 22,34 b:310) ID:1824 Holds: Book Of Ancient Knowledge
+Tue, 26 May 2020 14:44:37 GMT -- ( 22,39 b:201) ID:1199 Holds: Ether Gardens
+Tue, 26 May 2020 14:44:37 GMT -- ( 17,25 b:155) ID:929 Holds: Thermonuclear Bomb
+Tue, 26 May 2020 14:44:37 GMT -- Empire 0 Claimed for Administration.
+Tue, 26 May 2020 14:44:37 GMT -- Galaxy Map creation Sucessfull.
+Tue, 26 May 2020 14:44:37 GMT -- Regeneration Completed, now reactivating WWW Servers.
+Tue, 26 May 2020 14:44:37 GMT -- Server process iniating...
+Tue, 26 May 2020 14:44:37 GMT -- Empire Forum database not found, creating...
+Tue, 26 May 2020 14:44:37 GMT -- Created Forums for 30 Empires.
+Tue, 26 May 2020 14:44:38 GMT -- Setting Not found in Array: 'Create Fakes' ( Called from cmd.c on line:2023 )
+Tue, 26 May 2020 14:44:38 GMT -- WWW Settings initalized...
+Tue, 26 May 2020 14:44:38 GMT -- All Checks passed, begining server loop...
+Tue, 26 May 2020 14:44:38 GMT -- HTTP Server live on port: 9122
+Tue, 26 May 2020 14:44:38 GMT -- Iniating Map Reset.
+Tue, 26 May 2020 14:44:38 GMT -- Now Purging old Empires...
+Tue, 26 May 2020 14:44:38 GMT -- Begining Map generation...
+Tue, 26 May 2020 14:44:38 GMT -- Calculating Map factors...
+Tue, 26 May 2020 14:44:38 GMT -- ( 25,20 b:221) ID:1330 Holds: Recruitment Office
+Tue, 26 May 2020 14:44:38 GMT -- ( 17,7 b:272) ID:1621 Holds: Incandescence Technology
+Tue, 26 May 2020 14:44:38 GMT -- ( 20,15 b:153) ID:915 Holds: Harks Attacking Machinery
+Tue, 26 May 2020 14:44:38 GMT -- ( 16,11 b:201) ID:1211 Holds: Crystal drill
+Tue, 26 May 2020 14:44:38 GMT -- ( 31,11 b:164) ID:973 Holds: Universal Exchanger
+Tue, 26 May 2020 14:44:38 GMT -- ( 24,33 b:180) ID:1071 Holds: Fission Facility
+Tue, 26 May 2020 14:44:38 GMT -- ( 27,12 b:302) ID:1840 Holds: Ancient Research Center
+Tue, 26 May 2020 14:44:38 GMT -- ( 21,32 b:91) ID:552 Holds: Book Of Ancient Knowledge
+Tue, 26 May 2020 14:44:38 GMT -- ( 26,21 b:118) ID:707 Holds: Ether Gardens
+Tue, 26 May 2020 14:44:38 GMT -- ( 32,47 b:21) ID:131 Holds: Thermonuclear Bomb
+Tue, 26 May 2020 14:44:38 GMT -- Empire 0 Claimed for Administration.
+Tue, 26 May 2020 14:44:38 GMT -- Galaxy Map creation Sucessfull.
+Tue, 26 May 2020 14:44:38 GMT -- Regeneration Completed, now reactivating WWW Servers.
+Tue, 26 May 2020 14:44:38 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 26 May 2020 14:44:38 GMT -- Server shutdown complete, now cleaning up!
+Tue, 26 May 2020 14:45:03 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 26 May 2020 14:45:03 GMT -- Server process iniating...
+Tue, 26 May 2020 14:45:03 GMT -- Empire Forum database not found, creating...
+Tue, 26 May 2020 14:45:03 GMT -- Created Forums for 30 Empires.
+Tue, 26 May 2020 14:45:04 GMT -- WWW Settings initalized...
+Tue, 26 May 2020 14:45:04 GMT -- All Checks passed, begining server loop...
+Tue, 26 May 2020 14:45:04 GMT -- HTTP Server live on port: 9122
+Tue, 26 May 2020 14:46:35 GMT -- Iniating Map Reset.
+Tue, 26 May 2020 14:46:35 GMT -- Now Purging old Empires...
+Tue, 26 May 2020 14:46:35 GMT -- Begining Map generation...
+Tue, 26 May 2020 14:46:35 GMT -- Calculating Map factors...
+Tue, 26 May 2020 14:46:35 GMT -- ( 12,22 b:3) ID:20 Holds: Recruitment Office
+Tue, 26 May 2020 14:46:35 GMT -- ( 36,20 b:96) ID:576 Holds: Incandescence Technology
+Tue, 26 May 2020 14:46:35 GMT -- ( 27,12 b:280) ID:1730 Holds: Harks Attacking Machinery
+Tue, 26 May 2020 14:46:35 GMT -- ( 37,5 b:212) ID:1299 Holds: Crystal drill
+Tue, 26 May 2020 14:46:35 GMT -- ( 29,16 b:62) ID:363 Holds: Universal Exchanger
+Tue, 26 May 2020 14:46:35 GMT -- ( 23,35 b:199) ID:1212 Holds: Fission Facility
+Tue, 26 May 2020 14:46:35 GMT -- ( 47,38 b:65) ID:369 Holds: Ancient Research Center
+Tue, 26 May 2020 14:46:35 GMT -- ( 13,9 b:304) ID:1832 Holds: Book Of Ancient Knowledge
+Tue, 26 May 2020 14:46:35 GMT -- ( 17,7 b:270) ID:1663 Holds: Ether Gardens
+Tue, 26 May 2020 14:46:35 GMT -- ( 33,13 b:276) ID:1697 Holds: Thermonuclear Bomb
+Tue, 26 May 2020 14:46:35 GMT -- Empire 0 Claimed for Administration.
+Tue, 26 May 2020 14:46:35 GMT -- Galaxy Map creation Sucessfull.
+Tue, 26 May 2020 14:46:35 GMT -- Regeneration Completed, now reactivating WWW Servers.
+Tue, 26 May 2020 14:46:35 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 26 May 2020 14:46:35 GMT -- Server shutdown complete, now cleaning up!
+Tue, 26 May 2020 14:51:57 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 26 May 2020 14:51:57 GMT -- Server process iniating...
+Tue, 26 May 2020 14:51:57 GMT -- Empire Forum database not found, creating...
+Tue, 26 May 2020 14:51:57 GMT -- Created Forums for 30 Empires.
+Tue, 26 May 2020 14:51:57 GMT -- WWW Settings initalized...
+Tue, 26 May 2020 14:51:57 GMT -- All Checks passed, begining server loop...
+Tue, 26 May 2020 14:51:57 GMT -- HTTP Server live on port: 9122
+Tue, 26 May 2020 14:57:26 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 26 May 2020 14:57:26 GMT -- Server process iniating...
+Tue, 26 May 2020 14:57:26 GMT -- WWW Settings initalized...
+Tue, 26 May 2020 14:57:26 GMT -- All Checks passed, begining server loop...
+Tue, 26 May 2020 14:57:26 GMT -- HTTP Server live on port: 9122
+Tue, 26 May 2020 15:03:39 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Tue, 26 May 2020 17:39:19 GMT -- Opening File: /home/Ne_new3/data/data/user4/planets, user id 4 (file: db.c, line: 360) -- #5, Input/output error
+Tue, 26 May 2020 17:39:19 GMT -- User Open (file: db.c, line: 1516)
+Tue, 26 May 2020 17:39:54 GMT -- Opening File: /home/Ne_new3/data/data/user4/planets, user id 4 (file: db.c, line: 360) -- #5, Input/output error
+Tue, 26 May 2020 17:39:54 GMT -- User Open (file: db.c, line: 1516)
+Tue, 26 May 2020 20:26:29 GMT -- Opening File: /home/Ne_new3/data/data/user4/planets, user id 4 (file: db.c, line: 360) -- #5, Input/output error
+Tue, 26 May 2020 20:26:29 GMT -- User Open (file: db.c, line: 1516)
+Wed, 27 May 2020 14:05:32 GMT -- Admin: Shutting down!
+Wed, 27 May 2020 14:05:32 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 27 May 2020 14:05:32 GMT -- Server shutdown complete, now cleaning up!
+Wed, 27 May 2020 14:05:39 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 27 May 2020 14:05:39 GMT -- Server process iniating...
+Wed, 27 May 2020 14:05:39 GMT -- WWW Settings initalized...
+Wed, 27 May 2020 14:05:39 GMT -- All Checks passed, begining server loop...
+Wed, 27 May 2020 14:05:39 GMT -- HTTP Server live on port: 9122
+Wed, 27 May 2020 14:08:21 GMT -- Interrupt Recived; handleing gracefully =)
+Wed, 27 May 2020 14:08:21 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 27 May 2020 14:08:21 GMT -- Server shutdown complete, now cleaning up!
+Wed, 27 May 2020 14:08:25 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 27 May 2020 14:08:25 GMT -- Server process iniating...
+Wed, 27 May 2020 14:08:25 GMT -- WWW Settings initalized...
+Wed, 27 May 2020 14:08:25 GMT -- All Checks passed, begining server loop...
+Wed, 27 May 2020 14:08:25 GMT -- HTTP Server live on port: 9122
+Wed, 27 May 2020 14:10:47 GMT -- Interrupt Recived; handleing gracefully =)
+Wed, 27 May 2020 14:10:48 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 27 May 2020 14:10:48 GMT -- Server shutdown complete, now cleaning up!
+Wed, 27 May 2020 14:10:53 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 27 May 2020 14:10:53 GMT -- Server process iniating...
+Wed, 27 May 2020 14:10:53 GMT -- WWW Settings initalized...
+Wed, 27 May 2020 14:10:53 GMT -- All Checks passed, begining server loop...
+Wed, 27 May 2020 14:10:53 GMT -- HTTP Server live on port: 9122
+Wed, 27 May 2020 14:12:13 GMT -- Interrupt Recived; handleing gracefully =)
+Wed, 27 May 2020 14:12:13 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 27 May 2020 14:12:13 GMT -- Server shutdown complete, now cleaning up!
+Wed, 27 May 2020 14:12:16 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 27 May 2020 14:12:16 GMT -- Server process iniating...
+Wed, 27 May 2020 14:12:17 GMT -- WWW Settings initalized...
+Wed, 27 May 2020 14:12:17 GMT -- All Checks passed, begining server loop...
+Wed, 27 May 2020 14:12:17 GMT -- HTTP Server live on port: 9122
+Wed, 27 May 2020 16:25:52 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Sun, 31 May 2020 20:35:01 GMT -- Opening File: /home/Ne_new3/data/data/user34/main, user id 34 (file: db.c, line: 360) -- #5, Input/output error
+Sun, 31 May 2020 20:35:01 GMT -- User Open from file html/html_gameplay.c on line 4813 (file: db.c, line: 1111)
+Mon, 01 Jun 2020 08:34:08 GMT -- Admin: Shutting down!
+Mon, 01 Jun 2020 08:34:08 GMT -- HTTP Server has been gracefully shutdown!
+Mon, 01 Jun 2020 08:34:08 GMT -- Server shutdown complete, now cleaning up!
+Mon, 01 Jun 2020 08:34:13 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Mon, 01 Jun 2020 08:34:13 GMT -- Server process iniating...
+Mon, 01 Jun 2020 08:34:14 GMT -- WWW Settings initalized...
+Mon, 01 Jun 2020 08:34:14 GMT -- All Checks passed, begining server loop...
+Mon, 01 Jun 2020 08:34:14 GMT -- HTTP Server live on port: 9122
+Mon, 01 Jun 2020 08:35:46 GMT -- Interrupt Recived; handleing gracefully =)
+Mon, 01 Jun 2020 08:35:46 GMT -- HTTP Server has been gracefully shutdown!
+Mon, 01 Jun 2020 08:35:46 GMT -- Server shutdown complete, now cleaning up!
+Mon, 01 Jun 2020 08:37:10 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Mon, 01 Jun 2020 08:37:10 GMT -- Server process iniating...
+Mon, 01 Jun 2020 08:37:10 GMT -- WWW Settings initalized...
+Mon, 01 Jun 2020 08:37:10 GMT -- All Checks passed, begining server loop...
+Mon, 01 Jun 2020 08:37:10 GMT -- HTTP Server live on port: 9122
+Mon, 01 Jun 2020 08:42:57 GMT -- Interrupt Recived; handleing gracefully =)
+Mon, 01 Jun 2020 08:42:58 GMT -- HTTP Server has been gracefully shutdown!
+Mon, 01 Jun 2020 08:42:58 GMT -- Server shutdown complete, now cleaning up!
+Mon, 01 Jun 2020 08:43:07 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Mon, 01 Jun 2020 08:43:07 GMT -- Server process iniating...
+Mon, 01 Jun 2020 08:43:08 GMT -- WWW Settings initalized...
+Mon, 01 Jun 2020 08:43:08 GMT -- All Checks passed, begining server loop...
+Mon, 01 Jun 2020 08:43:08 GMT -- HTTP Server live on port: 9122
+Mon, 01 Jun 2020 08:54:41 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Tue, 02 Jun 2020 13:21:47 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1463 )
+Tue, 02 Jun 2020 14:15:55 GMT -- Termination Recived; handleing gracefully =)
+Tue, 02 Jun 2020 14:15:55 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 02 Jun 2020 14:15:55 GMT -- Server shutdown complete, now cleaning up!
+Tue, 02 Jun 2020 14:19:41 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 02 Jun 2020 14:19:41 GMT -- Directory "/tmp/evcore" created.
+Tue, 02 Jun 2020 14:19:41 GMT -- Server process iniating...
+Tue, 02 Jun 2020 14:19:41 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 14:19:41 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 14:19:41 GMT -- HTTP Server live on port: 80
+Tue, 02 Jun 2020 14:36:40 GMT -- Interrupt Recived; handleing gracefully =)
+Tue, 02 Jun 2020 14:36:40 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 02 Jun 2020 14:36:40 GMT -- Server shutdown complete, now cleaning up!
+Tue, 02 Jun 2020 14:37:48 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 02 Jun 2020 14:37:48 GMT -- Server process iniating...
+Tue, 02 Jun 2020 14:37:48 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 14:37:48 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 14:37:48 GMT -- HTTP Server failed to start (file: main.c, line: 372) -- #98, Address already in use
+Tue, 02 Jun 2020 14:37:48 GMT -- <<CRITICAL>> Daemon initiation failed <<CRITICAL>> (file: main.c, line: 874)
+Tue, 02 Jun 2020 14:39:04 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 02 Jun 2020 14:39:04 GMT -- Server process iniating...
+Tue, 02 Jun 2020 14:39:04 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 14:39:04 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 14:39:04 GMT -- HTTP Server failed to start (file: main.c, line: 372) -- #98, Address already in use
+Tue, 02 Jun 2020 14:39:04 GMT -- <<CRITICAL>> Daemon initiation failed <<CRITICAL>> (file: main.c, line: 874)
+Tue, 02 Jun 2020 14:39:14 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 02 Jun 2020 14:39:14 GMT -- Server process iniating...
+Tue, 02 Jun 2020 14:39:15 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 14:39:15 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 14:39:15 GMT -- HTTP Server live on port: 9122
+Tue, 02 Jun 2020 16:50:30 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Tue, 02 Jun 2020 16:59:21 GMT -- Using config file: '/home/Ne_new4/config/evconfig.ini'
+Tue, 02 Jun 2020 16:59:21 GMT -- Server process iniating...
+Tue, 02 Jun 2020 16:59:21 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 16:59:21 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 16:59:21 GMT -- HTTP Server failed to start (file: main.c, line: 372) -- #98, Address already in use
+Tue, 02 Jun 2020 16:59:21 GMT -- <<CRITICAL>> Daemon initiation failed <<CRITICAL>> (file: main.c, line: 874)
+Tue, 02 Jun 2020 17:00:17 GMT -- Using config file: '/home/Ne_new4/config/evconfig.ini'
+Tue, 02 Jun 2020 17:00:17 GMT -- Server process iniating...
+Tue, 02 Jun 2020 17:00:17 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 17:00:17 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 17:00:17 GMT -- HTTP Server failed to start (file: main.c, line: 372) -- #98, Address already in use
+Tue, 02 Jun 2020 17:00:17 GMT -- <<CRITICAL>> Daemon initiation failed <<CRITICAL>> (file: main.c, line: 874)
+Tue, 02 Jun 2020 17:00:58 GMT -- Using config file: '/home/Ne_new4/config/evconfig.ini'
+Tue, 02 Jun 2020 17:00:58 GMT -- Server process iniating...
+Tue, 02 Jun 2020 17:00:59 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 17:00:59 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 17:00:59 GMT -- HTTP Server live on port: 80
+Tue, 02 Jun 2020 17:02:36 GMT -- Interrupt Recived; handleing gracefully =)
+Tue, 02 Jun 2020 17:02:36 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 02 Jun 2020 17:02:36 GMT -- Server shutdown complete, now cleaning up!
+Tue, 02 Jun 2020 19:26:39 GMT -- Termination Recived; handleing gracefully =)
+Tue, 02 Jun 2020 19:26:39 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 02 Jun 2020 19:26:39 GMT -- Server shutdown complete, now cleaning up!
+Tue, 02 Jun 2020 19:27:45 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 02 Jun 2020 19:27:45 GMT -- Directory "/tmp/evcore" created.
+Tue, 02 Jun 2020 19:27:45 GMT -- Server process iniating...
+Tue, 02 Jun 2020 19:27:46 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 19:27:46 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 19:27:46 GMT -- HTTP Server live on port: 9122
+Tue, 02 Jun 2020 21:44:34 GMT -- Admin: Shutting down!
+Tue, 02 Jun 2020 21:44:35 GMT -- HTTP Server has been gracefully shutdown!
+Tue, 02 Jun 2020 21:44:35 GMT -- Server shutdown complete, now cleaning up!
+Tue, 02 Jun 2020 21:44:49 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Tue, 02 Jun 2020 21:44:49 GMT -- Server process iniating...
+Tue, 02 Jun 2020 21:44:49 GMT -- WWW Settings initalized...
+Tue, 02 Jun 2020 21:44:49 GMT -- All Checks passed, begining server loop...
+Tue, 02 Jun 2020 21:44:49 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 13:36:29 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1463 )
+Wed, 03 Jun 2020 13:50:26 GMT -- Admin: Shutting down!
+Wed, 03 Jun 2020 13:50:26 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 03 Jun 2020 13:50:26 GMT -- Server shutdown complete, now cleaning up!
+Wed, 03 Jun 2020 13:50:31 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 03 Jun 2020 13:50:31 GMT -- Server process iniating...
+Wed, 03 Jun 2020 13:50:31 GMT -- WWW Settings initalized...
+Wed, 03 Jun 2020 13:50:31 GMT -- All Checks passed, begining server loop...
+Wed, 03 Jun 2020 13:50:31 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 13:52:15 GMT -- Admin: Shutting down!
+Wed, 03 Jun 2020 13:52:16 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 03 Jun 2020 13:52:16 GMT -- Server shutdown complete, now cleaning up!
+Wed, 03 Jun 2020 13:52:29 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 03 Jun 2020 13:52:29 GMT -- Server process iniating...
+Wed, 03 Jun 2020 13:52:29 GMT -- WWW Settings initalized...
+Wed, 03 Jun 2020 13:52:29 GMT -- All Checks passed, begining server loop...
+Wed, 03 Jun 2020 13:52:29 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 13:55:16 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 03 Jun 2020 13:55:16 GMT -- Server process iniating...
+Wed, 03 Jun 2020 13:55:17 GMT -- WWW Settings initalized...
+Wed, 03 Jun 2020 13:55:17 GMT -- All Checks passed, begining server loop...
+Wed, 03 Jun 2020 13:55:17 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 16:21:08 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Wed, 03 Jun 2020 19:01:45 GMT -- Admin: Shutting down!
+Wed, 03 Jun 2020 19:01:45 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 03 Jun 2020 19:01:45 GMT -- Server shutdown complete, now cleaning up!
+Wed, 03 Jun 2020 19:01:54 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 03 Jun 2020 19:01:54 GMT -- Server process iniating...
+Wed, 03 Jun 2020 19:01:54 GMT -- WWW Settings initalized...
+Wed, 03 Jun 2020 19:01:54 GMT -- All Checks passed, begining server loop...
+Wed, 03 Jun 2020 19:01:54 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 19:08:49 GMT -- Admin: Shutting down!
+Wed, 03 Jun 2020 19:08:49 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 03 Jun 2020 19:08:49 GMT -- Server shutdown complete, now cleaning up!
+Wed, 03 Jun 2020 19:08:58 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 03 Jun 2020 19:08:58 GMT -- Server process iniating...
+Wed, 03 Jun 2020 19:08:59 GMT -- WWW Settings initalized...
+Wed, 03 Jun 2020 19:08:59 GMT -- All Checks passed, begining server loop...
+Wed, 03 Jun 2020 19:08:59 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 21:20:14 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Wed, 03 Jun 2020 21:58:08 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1504 )
+Wed, 03 Jun 2020 22:06:28 GMT -- Admin: Shutting down!
+Wed, 03 Jun 2020 22:06:28 GMT -- HTTP Server has been gracefully shutdown!
+Wed, 03 Jun 2020 22:06:28 GMT -- Server shutdown complete, now cleaning up!
+Wed, 03 Jun 2020 22:06:36 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Wed, 03 Jun 2020 22:06:36 GMT -- Server process iniating...
+Wed, 03 Jun 2020 22:06:36 GMT -- WWW Settings initalized...
+Wed, 03 Jun 2020 22:06:36 GMT -- All Checks passed, begining server loop...
+Wed, 03 Jun 2020 22:06:36 GMT -- HTTP Server live on port: 9122
+Wed, 03 Jun 2020 22:11:15 GMT -- WWW Select Apply (file: http/http.c, line: 1530) -- #4, Interrupted system call
+Thu, 04 Jun 2020 04:23:52 GMT -- Setting: 'IRC Channel' referance to 'irc:channel' defaulting as: 'ectroverse' ( Called from html/html_main.c on line:1504 )
+Thu, 04 Jun 2020 07:30:41 GMT -- Admin: Shutting down!
+Thu, 04 Jun 2020 07:30:42 GMT -- HTTP Server has been gracefully shutdown!
+Thu, 04 Jun 2020 07:30:42 GMT -- Server shutdown complete, now cleaning up!
+Thu, 04 Jun 2020 07:30:47 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Thu, 04 Jun 2020 07:30:47 GMT -- Server process iniating...
+Thu, 04 Jun 2020 07:30:48 GMT -- WWW Settings initalized...
+Thu, 04 Jun 2020 07:30:48 GMT -- All Checks passed, begining server loop...
+Thu, 04 Jun 2020 07:30:48 GMT -- HTTP Server live on port: 80
+Thu, 04 Jun 2020 07:37:11 GMT -- Admin: Shutting down!
+Thu, 04 Jun 2020 07:37:11 GMT -- HTTP Server has been gracefully shutdown!
+Thu, 04 Jun 2020 07:37:11 GMT -- Server shutdown complete, now cleaning up!
+Thu, 04 Jun 2020 07:37:18 GMT -- Using config file: '/home/Ne_new3/config/evconfig.ini'
+Thu, 04 Jun 2020 07:37:18 GMT -- Server process iniating...
+Thu, 04 Jun 2020 07:37:19 GMT -- WWW Settings initalized...
+Thu, 04 Jun 2020 07:37:19 GMT -- All Checks passed, begining server loop...
+Thu, 04 Jun 2020 07:37:19 GMT -- HTTP Server live on port: 9122
